@@ -1,15 +1,20 @@
-import React, { type Key, useMemo, useRef, useState } from 'react'
-import { Spin, Tree } from 'antd'
+import React, { type Key, useCallback, useMemo, useRef, useState } from 'react'
+import { Spin, Tree, type TreeDataNode, type TreeProps } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import type { ValueLevel } from 'types/execution'
 import type { TraceParameterValue } from 'types/trace'
 import { errorMessage } from 'utils/errorMessage'
 import {
+    buildLevelTreeData,
     buildValueTreeData,
     complexValueSummary,
     describeSimpleValue,
     isComplexValue,
+    levelKey,
     LINES_PER_STEP,
+    linesSummary,
+    segmentsOf,
     type SimpleValueKind,
     type ValueNodeTitle,
 } from './valueTree'
@@ -209,14 +214,17 @@ const placeholderOf = (
     return null
 }
 
+/** Reads a page of the lines of a level of a value: the level at the given path, from the given line on. */
+export type ReadLines = (path: readonly string[], offset: number) => Promise<ValueLevel>
+
 interface ValueCellProps {
     value: unknown
     /** Prefix of the tree node keys, unique on the screen. */
     path: string
     /** The API referred to the value instead of writing it. */
     lazy?: boolean | undefined
-    /** Reads the value the API left out. Absent when the screen cannot read it. */
-    onLoad?: (() => Promise<Pick<TraceParameterValue, 'value'> | undefined>) | undefined
+    /** Reads the value the API left out, a level at a time. Absent when the screen cannot read it. */
+    readLines?: ReadLines | undefined
     /**
      * What the value is known as, such as `Driver (Sara)`: stands for it while it is only referred to, and
      * titles it once it is read. Absent, a read value is counted by its fields.
@@ -225,6 +233,35 @@ interface ValueCellProps {
     /** The look of the value, read once by the list that holds it with {@link useValueStyles}. */
     styles: ValueStyles
 }
+
+interface ValueTreeFrameProps {
+    treeData: TreeDataNode[]
+    openKeys: Key[]
+    onOpen: (keys: Key[]) => void
+    /** Reads the lines of a node as it opens, for a tree read a level at a time. */
+    loadData?: TreeProps['loadData'] | undefined
+    styles: ValueStyles
+}
+
+/**
+ * The frame every value tree is drawn in.
+ *
+ * A node opens at once: a tree that slides a node open repaints the page on every frame of the slide.
+ */
+const ValueTreeFrame: React.FC<ValueTreeFrameProps> = ({ treeData, openKeys, onOpen, loadData, styles }) => (
+    <div className={styles.paramTree}>
+        <Tree
+            blockNode
+            expandedKeys={openKeys}
+            motion={false}
+            onExpand={keys => onOpen(keys)}
+            selectable={false}
+            showLine={{ showLeafIcon: false }}
+            treeData={treeData}
+            {...(loadData && { loadData })}
+        />
+    </div>
+)
 
 interface ValueTreeProps extends ValueNodeTitle {
     /** The key of the root node, unique on the screen. */
@@ -267,35 +304,118 @@ const ValueTree: React.FC<ValueTreeProps> = ({ name, value, type, summary, path,
         )],
         [name, value, type, summary, path, styles, openKeys, listed, t]
     )
+    return <ValueTreeFrame onOpen={setOpenKeys} openKeys={openKeys} styles={styles} treeData={treeData} />
+}
+
+interface LevelTreeProps {
+    /** The first level of the value, read already. */
+    root: ValueLevel
+    /** What the value is known as, such as `Driver (Sara)`. Absent, the value is counted by its lines. */
+    label?: string | undefined
+    readLines: ReadLines
+    /** Prefix of the tree node keys, unique on the screen. */
+    path: string
+    styles: ValueStyles
+}
+
+/**
+ * A value read a level at a time, drawn as a tree as far as it has been read.
+ *
+ * The tree comes closed, the way a value read whole does: the value stands for what it is known as, or for the
+ * count of its lines. Its first level is read already, so opening it asks for nothing. A node the reader opens
+ * below reads its own level, a page of lines at a time, and a line under them reads more. Nothing of the value is
+ * read that the reader does not open, so a value of any size costs the browser and the server no more than what is
+ * shown of it.
+ */
+const LevelTree: React.FC<LevelTreeProps> = ({ root, label, readLines, path, styles }) => {
+    const { t } = useTranslation('common')
+    const rootKey = levelKey(path, [])
+    const [levels, setLevels] = useState<ReadonlyMap<string, ValueLevel>>(() => new Map([[rootKey, root]]))
+    const [failures, setFailures] = useState<ReadonlyMap<string, string>>(new Map())
+    const [openKeys, setOpenKeys] = useState<Key[]>([])
+
+    // Reads the lines of a level from the given one on, after the ones read before. A read that failed says why in
+    // the level, and the tree does not ask again by itself.
+    const read = useCallback((key: string, offset: number): Promise<void> => {
+        // A tree with nothing to clear keeps its failures as they are, and is not drawn again for them.
+        setFailures(current => (current.has(key)
+            ? new Map([...current].filter(([failed]) => failed !== key))
+            : current))
+        return readLines(segmentsOf(path, key), offset)
+            .then(level => setLevels(current => new Map(current).set(key, {
+                ...level,
+                lines: [...(current.get(key)?.lines ?? []).slice(0, offset), ...(level.lines ?? [])],
+            })))
+            .catch(readError => {
+                setFailures(current => new Map(current).set(key, errorMessage(readError) || t('value.loadFailed')))
+            })
+    }, [readLines, path, t])
+
+    const treeData = useMemo(() => {
+        // Reads the lines of a level after the ones it has read: the next page, or the page that failed.
+        const readMore = (key: string) => read(key, levels.get(key)?.lines?.length ?? 0)
+        return [buildLevelTreeData(
+            { name: '', value: {}, summary: label ?? linesSummary(root.total, Boolean(root.elements)) },
+            title => renderTitle(title, styles),
+            path,
+            {
+                levels,
+                failures,
+                renderMore: (key, left) => (
+                    <ValueLink onClick={() => readMore(key)} styles={styles} testId={`more-${key}`}>
+                        {t('value.more', { count: left })}
+                    </ValueLink>
+                ),
+                renderFailure: (key, reason) => (
+                    <>
+                        <span className={styles.valueError}>{reason}</span>
+                        <ValueLink onClick={() => readMore(key)} styles={styles} testId={`retry-${key}`}>
+                            {t('value.retry')}
+                        </ValueLink>
+                    </>
+                ),
+            }
+        )]
+    }, [label, root, path, styles, levels, failures, read, t])
     return (
-        <div className={styles.paramTree}>
-            <Tree
-                blockNode
-                expandedKeys={openKeys}
-                motion={false}
-                onExpand={keys => setOpenKeys(keys)}
-                selectable={false}
-                showLine={{ showLeafIcon: false }}
-                treeData={treeData}
-            />
-        </div>
+        <ValueTreeFrame
+            loadData={node => read(String(node.key), 0)}
+            onOpen={setOpenKeys}
+            openKeys={openKeys}
+            styles={styles}
+            treeData={treeData}
+        />
     )
 }
 
-/** A value with inner structure, or one the API only referred to: it is read when asked for, and drawn as a tree. */
-const ReadValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad, label, styles }) => {
-    const { t } = useTranslation('common')
-    const state = useReadOnDemand(value, onLoad)
+/** A value drawn whole: a tree that expands field by field, or a plain value coloured by its kind. */
+const WholeValue: React.FC<{ value: unknown, path: string, label?: string | undefined, styles: ValueStyles }> = (
+    { value, path, label, styles }
+) => (isComplexValue(value)
+    ? <ValueTree name="" path={path} styles={styles} summary={label} value={value} />
+    : <SimpleValue styles={styles} value={value} />)
 
-    const placeholder = placeholderOf(state, Boolean(lazy) && onLoad !== undefined, path, styles, t, label)
+/**
+ * A value the API only referred to, read a level at a time: its first level when asked for, the rest as it opens.
+ *
+ * A value that opens into no lines, such as a date, comes whole with its first read and is drawn as it came.
+ */
+const LevelValueCell: React.FC<ValueCellProps & { readLines: ReadLines }> = (
+    { value, path, label, styles, readLines }
+) => {
+    const { t } = useTranslation('common')
+    const readRoot = useCallback(() => readLines([], 0).then(level => ({ value: level })), [readLines])
+    const state = useReadOnDemand(value, readRoot)
+
+    const placeholder = placeholderOf(state, true, path, styles, t, label)
     if (placeholder !== null) {
         // The same spacing as a labelled line, so the label and the link that follows it do not run together.
         return <span className={styles.treeTitle}>{placeholder}</span>
     }
-    if (!isComplexValue(state.value)) {
-        return <SimpleValue styles={styles} value={state.value} />
-    }
-    return <ValueTree name="" path={path} styles={styles} summary={label} value={state.value} />
+    const root = state.value as ValueLevel
+    return root.value === undefined
+        ? <LevelTree label={label} path={path} readLines={readLines} root={root} styles={styles} />
+        : <WholeValue label={label} path={path} styles={styles} value={root.value} />
 }
 
 /**
@@ -304,14 +424,15 @@ const ReadValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad, la
  * A value with inner structure becomes a tree that expands field by field; a plain value is coloured the way a
  * debugger colours it. Use it where the name is already the header of a column.
  *
- * A value the API only referred to is a link that reads it, and a spinner while it is read.
+ * A value the API only referred to is a link that reads its first level, and a spinner while it is read. Every
+ * node the reader opens reads its own. Without `readLines`, such a value is drawn as the nothing it holds.
  *
  * A list can hold thousands of values, so a plain value is drawn with its colour alone. Only a value that has
  * inner structure or is still to be read keeps what it has read.
  */
-export const ValueCell: React.FC<ValueCellProps> = props => (!props.lazy && !isComplexValue(props.value)
-    ? <SimpleValue styles={props.styles} value={props.value} />
-    : <ReadValueCell {...props} />)
+export const ValueCell: React.FC<ValueCellProps> = props => (props.lazy && props.readLines
+    ? <LevelValueCell {...props} readLines={props.readLines} />
+    : <WholeValue label={props.label} path={props.path} styles={props.styles} value={props.value} />)
 
 interface ParameterValueTreeProps {
     param: TraceParameterValue

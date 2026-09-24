@@ -2,7 +2,7 @@ import { MemoryRouter } from 'react-router-dom'
 import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { getTestCaseResult, getTestsSummary, getTestsSummaryWorkbook, readTestsSummary } from 'services/execution'
+import { getTestCaseLines, getTestsSummary, getTestsSummaryWorkbook, readTestsSummary } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
@@ -11,7 +11,7 @@ import * as look from 'components/values/parameterValues.styles'
 vi.mock('services/execution', () => ({
     getTestsSummary: vi.fn(),
     readTestsSummary: vi.fn(),
-    getTestCaseResult: vi.fn(),
+    getTestCaseLines: vi.fn(),
     getTestsSummaryWorkbook: vi.fn(),
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
@@ -60,7 +60,7 @@ const readSummary = getTestsSummary as ReturnType<typeof vi.fn>
 // The read that waits out the moment the results of a run that said it ended need to be published.
 const readEndedSummary = readTestsSummary as ReturnType<typeof vi.fn>
 const readWorkbook = getTestsSummaryWorkbook as ReturnType<typeof vi.fn>
-const readCase = getTestCaseResult as ReturnType<typeof vi.fn>
+const readLines = getTestCaseLines as ReturnType<typeof vi.fn>
 const save = saveFile as ReturnType<typeof vi.fn>
 
 const driver = (name: string) => [{ name: 'driver', description: 'Driver', lazy: false, value: name }]
@@ -420,9 +420,10 @@ describe('TestsResultModal', () => {
                 }],
             }],
         })
-        readCase.mockResolvedValue({
-            id: '1',
-            parameters: [{ name: 'driver', description: 'Driver', lazy: false, value: { name: 'Sara' } }],
+        readLines.mockResolvedValue({
+            type: 'Driver',
+            total: 1,
+            lines: [{ name: 'name', segment: 'name', value: 'Sara' }],
         })
 
         await show()
@@ -430,10 +431,13 @@ describe('TestsResultModal', () => {
         expect(screen.getByTestId('summary-tt1-in-1-0')).toHaveTextContent('Driver (Sara)')
         await userEvent.click(screen.getByTestId('load-tt1-in-1-0'))
 
-        await waitFor(() => expect(readCase).toHaveBeenCalledWith('p1', 'tt1', '1'))
-        // Read, the value keeps the key it is known by as its title instead of a count of its fields.
+        // The first level of the value is read, and nothing below it.
+        await waitFor(() => expect(readLines)
+            .toHaveBeenCalledWith('p1', 'tt1', '1', { of: 'parameter', index: 0 }, [], 0))
+        // Read, the value comes closed and keeps the key it is known by as its title instead of a count of its fields.
         await waitFor(() => expect(screen.queryByTestId('load-tt1-in-1-0')).toBeNull())
         expect(screen.getByText('Driver (Sara)')).toBeInTheDocument()
+        expect(screen.queryByText('"Sara"')).toBeNull()
         expect(screen.queryByText('{1 fields}')).toBeNull()
     })
 
@@ -470,16 +474,13 @@ describe('TestsResultModal', () => {
                 }],
             }],
         })
-        readCase.mockResolvedValue({
-            id: '1',
-            result: { name: 'result', lazy: false, value: { premium: 100 } },
-        })
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 100 }]})
 
         await show()
         await userEvent.click(screen.getByTestId('tests-compound-result'))
         await userEvent.click(await screen.findByTestId('load-tt1-whole-1'))
 
-        await waitFor(() => expect(readCase).toHaveBeenCalledWith('p1', 'tt1', '1'))
+        await waitFor(() => expect(readLines).toHaveBeenCalledWith('p1', 'tt1', '1', { of: 'result' }, [], 0))
         expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
     })
 
@@ -494,17 +495,13 @@ describe('TestsResultModal', () => {
                 }],
             }],
         })
-        readCase.mockResolvedValue({
-            id: '1',
-            testAssertions: [
-                { description: 'Premium', expectedValue: 100, actualValue: { premium: 100 }, status: 'TR_OK' },
-            ],
-        })
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 100 }]})
 
         await show()
         await userEvent.click(await screen.findByTestId('load-tt1-out-1-0'))
 
-        await waitFor(() => expect(readCase).toHaveBeenCalledWith('p1', 'tt1', '1'))
+        await waitFor(() => expect(readLines)
+            .toHaveBeenCalledWith('p1', 'tt1', '1', { of: 'assertion', index: 0 }, [], 0))
         expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
     })
 

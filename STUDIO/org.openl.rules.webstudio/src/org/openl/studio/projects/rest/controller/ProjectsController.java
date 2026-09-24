@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -34,14 +35,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,6 +65,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
@@ -76,6 +81,7 @@ import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
+import org.openl.studio.projects.model.ExecutionValueLevels;
 import org.openl.studio.projects.model.MigrationScope;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
@@ -86,6 +92,7 @@ import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.ProjectsPageResponse;
 import org.openl.studio.projects.model.PropertyDefinitionView;
+import org.openl.studio.projects.model.ValueLevel;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
@@ -108,6 +115,7 @@ import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
+import org.openl.studio.projects.model.tests.TestCaseValue;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestUnitExecutionResult;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
@@ -129,6 +137,7 @@ import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.RetainedTestUnit;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
+import org.openl.studio.projects.service.tests.TestRun;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
 import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.RepositoryConfigModel;
@@ -845,7 +854,7 @@ public class ProjectsController {
         executionTestsResultRegistry.cancelIfAny();
         var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
-        CompletableFuture<List<TestUnitsResults>> testTask;
+        CompletableFuture<TestRun> testTask;
         var mapper = testsSummaryMapper(project);
         // A test table that has run is announced the way the screen reads the results, not written in full.
         Function<TestUnitsResults, TestCaseExecutionResult> announcement =
@@ -924,7 +933,7 @@ public class ProjectsController {
             if (completed.isEmpty()) {
                 return ResultNotReadyView.accepted();
             }
-            var executionResults = completed.get();
+            var executionResults = completed.get().tables();
             var mapper = testsSummaryMapper(project);
             var query = new TestExecutionSummaryQuery(failuresOnly,
                     allFailures ? TestUnitsResults.ALL_FAILURES : failures,
@@ -938,7 +947,8 @@ public class ProjectsController {
             }
             // A case that gave back to free memory a value the workbook writes runs again while its row is written.
             var output = new ByteArrayOutputStream();
-            new TestResultExport().export(output, page.getPageSize(), completed.get().toArray(new TestUnitsResults[0]));
+            var tables = completed.get().tables().toArray(new TestUnitsResults[0]);
+            new TestResultExport().export(output, page.getPageSize(), tables);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("test-results.xlsx"))
                     .header(HttpHeaders.CONTENT_TYPE, APPLICATION_XLSX_MEDIATYPE)
@@ -966,14 +976,9 @@ public class ProjectsController {
         if (completed.isEmpty()) {
             return ResultNotReadyView.accepted();
         }
-        var testCase = completed.get().stream()
-                .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
-        var testUnit = testCase.getTestUnits().stream()
-                .filter(candidate -> caseId.equals(candidate.getTest().getId()))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+        var run = completed.get();
+        var testCase = tableOf(run, tableId, caseId);
+        var testUnit = caseOf(testCase, caseId);
 
         // What the case holds is held while it is written. A case that gave a value back to free memory runs again
         // for it, and what that returns is written and not kept.
@@ -985,6 +990,101 @@ public class ProjectsController {
                 .mapToTestUnitResult(testCase, unit, TestExecutionSummaryQuery.inFull(includeSchema));
         Reference.reachabilityFence(held);
         return ResponseEntity.ok(answer);
+    }
+
+    @Operation(summary = "projects.tests.case.lines.summary", description = "projects.tests.case.lines.desc")
+    @ApiResponse(responseCode = "200", description = "projects.tests.case.lines.200.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ValueLevel.class)))
+    @ApiResponse(responseCode = "404", description = "projects.tests.case.lines.404.desc")
+    @ApiResponse(responseCode = "202", description = "projects.tests.summary.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ResultNotReadyView.class)))
+    @GetMapping("/{projectId}/tests/summary/{tableId}/cases/{caseId}/lines")
+    public ResponseEntity<?> getTestCaseLines(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("tableId") @Parameter(description = "projects.tests.case.param.table-id.desc") String tableId,
+            @PathVariable("caseId") @Parameter(description = "projects.tests.case.param.case-id.desc") String caseId,
+            @RequestParam("of") @Parameter(description = "projects.tests.case.lines.param.of.desc") TestCaseValue of,
+            @RequestParam(value = "index", defaultValue = "0")
+            @Parameter(description = "projects.tests.case.lines.param.index.desc") @Min(0) int index,
+            @RequestParam(value = "path", required = false)
+            @Parameter(description = "projects.tests.case.lines.param.path.desc") @Nullable List<String> path,
+            @RequestParam(value = "offset", defaultValue = "0")
+            @Parameter(description = "projects.tests.case.lines.param.offset.desc") @Min(0) int offset,
+            @RequestParam(value = "size", defaultValue = "100")
+            @Parameter(description = "projects.tests.case.lines.param.size.desc") @Min(1) @Max(1000) int size) {
+
+        var completed = completedTests(project);
+        if (completed.isEmpty()) {
+            return ResultNotReadyView.accepted();
+        }
+        var run = completed.get();
+        var testUnit = caseOf(tableOf(run, tableId, caseId), caseId);
+        // A value the case gave back to free memory is had by running the case again. The case holds it softly
+        // again, so that the next level of it runs nothing.
+        var root = valueOf(testUnit, of, index);
+        if (RetainedTestUnit.isReleased(root) && testUnit instanceof RetainedTestUnit retained) {
+            var ranAgain = retained.again();
+            retained.holdAgain(ranAgain);
+            root = valueOf(ranAgain, of, index);
+        }
+        var levels = run.levels(() -> new ExecutionValueLevels(objectMapperService.createObjectMapper()));
+        var value = levels.at(root, path == null ? List.of() : path)
+                .orElseThrow(() -> new NotFoundException("tests.execution.value.message"));
+        return ResponseEntity.ok(levels.levelOf(value, offset, size));
+    }
+
+    /**
+     * Keeps every segment of a path whole.
+     *
+     * <p>A list parameter given one value is split at its commas. A segment names a line, and the name of a line
+     * can hold a comma, so a segment is taken as it came.
+     */
+    @InitBinder("path")
+    public void keepPathSegmentsWhole(WebDataBinder binder) {
+        binder.registerCustomEditor(List.class, new CustomCollectionEditor(List.class));
+    }
+
+    /** The test table of the run with the given id. */
+    private static TestUnitsResults tableOf(TestRun run, String tableId, String caseId) {
+        return run.tables().stream()
+                .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+    }
+
+    /** The case of the test table with the given id. */
+    private static ITestUnit caseOf(TestUnitsResults testCase, String caseId) {
+        return testCase.getTestUnits().stream()
+                .filter(candidate -> caseId.equals(candidate.getTest().getId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+    }
+
+    /**
+     * A value of a case: what it returned, what it was given, or what came out for a comparison.
+     *
+     * @throws NotFoundException when the case was given or compared nothing at that position
+     */
+    private static @Nullable Object valueOf(ITestUnit unit, TestCaseValue of, int index) {
+        return switch (of) {
+            case RESULT -> unit.getActualResult();
+            case PARAMETER -> {
+                var inputs = unit.getTest().getExecutionParams();
+                if (index >= inputs.length) {
+                    throw new NotFoundException("tests.execution.value.message");
+                }
+                yield inputs[index].getValue();
+            }
+            case ASSERTION -> {
+                var compared = unit.getComparisonResults();
+                if (index >= compared.size()) {
+                    throw new NotFoundException("tests.execution.value.message");
+                }
+                yield compared.get(index).getActualValue();
+            }
+        };
     }
 
     /**
@@ -1008,7 +1108,7 @@ public class ProjectsController {
      *
      * @throws NotFoundException when no test run is remembered for the project
      */
-    private Optional<List<TestUnitsResults>> completedTests(RulesProject project) {
+    private Optional<TestRun> completedTests(RulesProject project) {
         var projectId = projectIdentifierMapper.map(project);
         if (!executionTestsResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("tests.execution.task.message");
@@ -1016,11 +1116,11 @@ public class ProjectsController {
         if (!executionTestsResultRegistry.isDone(projectId)) {
             return Optional.empty();
         }
-        var executionResults = executionTestsResultRegistry.getResultIfDone(projectId);
-        if (executionResults == null) {
+        var run = executionTestsResultRegistry.getResultIfDone(projectId);
+        if (run == null) {
             throw new NotFoundException("tests.execution.task.message");
         }
-        return Optional.of(executionResults);
+        return Optional.of(run);
     }
 
     /**

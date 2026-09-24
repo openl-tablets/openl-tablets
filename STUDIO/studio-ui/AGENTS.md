@@ -246,7 +246,9 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   it is drawn, open or closed: a whole test value of 1.77 million nodes ran the browser out of memory before its
   first line was read. A node is given its children only once the reader opens it, and lists them a step at a
   time with a line that lists more — `buildValueTreeData` takes how far the reader has gone (`ValueTreeReach`),
-  and `ValueTree` in `components/values/ParameterValues.tsx` keeps it.
+  and `ValueTree` in `components/values/ParameterValues.tsx` keeps it. A value of a test run is not even read
+  whole: `ValueCell` given `readLines` reads it from the server a level at a time as the reader opens it
+  (`LevelTree`, `buildLevelTreeData`), so neither the server nor the browser holds more of it than is shown.
 - **Names in titles.** When a form or dialog title includes the name of a concrete thing (a project, file,
   user, repository…), wrap that name in double quotes — e.g. `Copy project "{{name}}"`, `Revoke access for
   "{{subject}}"?`.

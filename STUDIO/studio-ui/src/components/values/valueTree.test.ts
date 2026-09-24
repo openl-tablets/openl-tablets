@@ -1,10 +1,14 @@
 import {
+    buildLevelTreeData,
     buildValueTreeData,
     complexValueSummary,
     describeSimpleValue,
     isComplexValue,
+    levelKey,
     LINES_PER_STEP,
+    segmentsOf,
 } from 'components/values/valueTree'
+import type { ValueLevel } from 'types/execution'
 
 describe('describeSimpleValue', () => {
     it('shows every kind of plain value the way a debugger does', () => {
@@ -101,5 +105,62 @@ describe('buildValueTreeData', () => {
     it('makes a leaf of a plain value and of an empty structure', () => {
         expect(buildValueTreeData({ name: 'n', value: 1 }, title)).toEqual({ key: '0', title: 'n', isLeaf: true })
         expect(buildValueTreeData({ name: 'n', value: {} }, title)).toEqual({ key: '0', title: 'n', isLeaf: true })
+    })
+})
+
+describe('buildLevelTreeData', () => {
+    /** Titles every node by its name and, for one with inner structure, what it holds. */
+    const title = ({ name, summary }: { name: string, summary?: string | undefined }) =>
+        (summary ? `${name} ${summary}` : name)
+
+    const reach = (levels: Record<string, ValueLevel>, failures: Record<string, string> = {}) => ({
+        levels: new Map(Object.entries(levels).map(([segments, level]) => [`v ${segments}`, level])),
+        failures: new Map(Object.entries(failures).map(([segments, reason]) => [`v ${segments}`, reason])),
+        renderMore: (key: string, left: number) => `more of ${key}: ${left}`,
+        renderFailure: (key: string, reason: string) => `${key} failed: ${reason}`,
+    })
+
+    const driver: ValueLevel = {
+        total: 4,
+        lines: [
+            { name: 'name', segment: 'name', value: 'Sara' },
+            { name: 'licenses', segment: 'licenses', size: 2, elements: true },
+            { name: 'claims', segment: 'claims', size: 0, elements: true },
+        ],
+    }
+
+    it('keys a node by the path it is read with', () => {
+        const key = levelKey('v', ['drivers', '0'])
+
+        expect(key).toBe('v ["drivers","0"]')
+        expect(segmentsOf('v', key)).toEqual(['drivers', '0'])
+    })
+
+    it('builds a node that is not read yet as one that opens', () => {
+        expect(buildLevelTreeData({ name: 'driver', value: {} }, title, 'v', reach({})))
+            .toEqual({ key: 'v []', title: 'driver', isLeaf: false })
+    })
+
+    it('builds the lines of a level that is read, and a line that reads the rest', () => {
+        const [name, licenses, claims, more] = buildLevelTreeData({ name: 'driver', value: {} }, title, 'v',
+            reach({ '[]': driver })).children ?? []
+
+        expect(name).toEqual({ key: 'v ["name"]', title: 'name', isLeaf: true })
+        // A value with inner structure opens until it is read; an empty one has nothing to open.
+        expect(licenses).toEqual({ key: 'v ["licenses"]', title: 'licenses {2 elements}', isLeaf: false })
+        expect(claims).toEqual({ key: 'v ["claims"]', title: 'claims {0 elements}', isLeaf: true })
+        expect(more).toEqual({ key: 'v [] more', title: 'more of v []: 1', isLeaf: true })
+    })
+
+    it('says why a level could not be read, after the lines read before', () => {
+        const lines = buildLevelTreeData({ name: 'driver', value: {} }, title, 'v',
+            reach({ '[]': driver }, { '[]': 'The project is being compiled' })).children ?? []
+
+        expect(lines).toHaveLength(4)
+        expect(lines.at(-1)).toEqual({
+            key: 'v [] failed',
+            title: 'v [] failed: The project is being compiled',
+            isLeaf: true,
+        })
     })
 })

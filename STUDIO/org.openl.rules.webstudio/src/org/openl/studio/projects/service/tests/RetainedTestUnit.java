@@ -4,6 +4,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -142,6 +143,23 @@ public final class RetainedTestUnit implements ITestUnit {
     }
 
     /**
+     * Holds again what the case returned and compared when it ran again, in place of the values it gave back.
+     *
+     * <p>They are held the way the run held them first: softly. A value the case still holds stays as it is.
+     *
+     * @param ranAgain the case as it ran again
+     */
+    public void holdAgain(ITestUnit ranAgain) {
+        actualResult.holdAgain(ranAgain.getActualResult());
+        var compared = ranAgain.getComparisonResults();
+        for (var index = 0; index < Math.min(comparisonResults.size(), compared.size()); index++) {
+            if (comparisonResults.get(index) instanceof RetainedComparedResult retained) {
+                retained.actualValue.holdAgain(compared.get(index).getActualValue());
+            }
+        }
+    }
+
+    /**
      * Whether what a case answered for a value stands for one that was given back to free memory.
      *
      * <p>Ask with what the case answered, and use the same answer afterwards: a value held softly can be given back
@@ -222,15 +240,19 @@ public final class RetainedTestUnit implements ITestUnit {
     private static final class Kept {
 
         private final @Nullable Object value;
-        private final @Nullable Reference<Object> reference;
+        /** Makes the reference a value with inner structure is held by, again once it was given back. */
+        private final Function<Object, Reference<Object>> holder;
+        /** The reference a value with inner structure is held by; none for a value that costs little. */
+        private final @Nullable AtomicReference<Reference<Object>> reference;
 
         Kept(@Nullable Object value, Function<Object, Reference<Object>> holder) {
+            this.holder = holder;
             if (costsLittle(value)) {
                 this.value = value;
                 this.reference = null;
             } else {
                 this.value = null;
-                this.reference = holder.apply(value);
+                this.reference = new AtomicReference<>(holder.apply(value));
             }
         }
 
@@ -244,8 +266,23 @@ public final class RetainedTestUnit implements ITestUnit {
             if (reference == null) {
                 return value;
             }
-            var held = reference.get();
+            var held = reference.get().get();
             return held == null ? RELEASED : held;
+        }
+
+        /**
+         * Holds again a value that was given back, the same value computed again, the way it was held first.
+         *
+         * <p>A value another reader has held again in the meantime stays.
+         */
+        void holdAgain(@Nullable Object again) {
+            if (reference == null || again == null) {
+                return;
+            }
+            var kept = reference.get();
+            if (kept.get() == null) {
+                reference.compareAndSet(kept, holder.apply(again));
+            }
         }
     }
 }

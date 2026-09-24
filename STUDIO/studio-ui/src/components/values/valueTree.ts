@@ -1,5 +1,6 @@
 import type { Key, ReactNode } from 'react'
 import type { TreeDataNode } from 'antd'
+import type { ValueLevel, ValueLine } from 'types/execution'
 
 export type SimpleValueKind = 'null' | 'string' | 'number' | 'boolean' | 'other'
 
@@ -142,6 +143,86 @@ export const buildValueTreeData = (
         .map((child, index) => buildValueTreeData(child, renderTitle, `${keyPrefix}-${index}`, reach))
     if (listed < total) {
         children.push({ key: `${keyPrefix}-more`, title: reach.renderMore(keyPrefix, total - listed), isLeaf: true })
+    }
+    return { ...node, children }
+}
+
+/** How far a value read a level at a time has been read. */
+export interface LevelTreeReach {
+    /** The levels read so far, by the key of the node they open. */
+    levels: ReadonlyMap<string, ValueLevel>
+    /** The levels that could not be read, by the key of the node they open, with the reason. */
+    failures: ReadonlyMap<string, string>
+    /** The line under the lines of a level that reads more of them, given the key of its node and how many are left. */
+    renderMore: (key: string, left: number) => ReactNode
+    /** The line that says why a level could not be read, given the key of its node and the reason. */
+    renderFailure: (key: string, reason: string) => ReactNode
+}
+
+/** Stands for a value with inner structure whose lines are not read: its title shows the count of its lines. */
+const UNREAD = Object.freeze({})
+
+/** The key of the node the given segments lead to, under a prefix unique on the screen. */
+export const levelKey = (prefix: string, segments: readonly string[]): string => `${prefix} ${JSON.stringify(segments)}`
+
+/** The segments the key of a node leads through. */
+export const segmentsOf = (prefix: string, key: string): string[] =>
+    JSON.parse(key.slice(prefix.length + 1)) as string[]
+
+/** The node of one line of a level: a leaf for a plain value, a node that opens for a value with inner structure. */
+const lineNode = (
+    line: ValueLine,
+    renderTitle: (title: ValueNodeTitle) => ReactNode,
+    prefix: string,
+    reach: LevelTreeReach,
+    segments: readonly string[]
+): TreeDataNode => {
+    if (line.size === null || line.size === undefined) {
+        const plain = { name: line.name, value: line.value ?? null }
+        return { key: levelKey(prefix, segments), title: renderTitle(plain), isLeaf: true }
+    }
+    const title: ValueNodeTitle = {
+        name: line.name,
+        value: UNREAD,
+        type: line.type ?? undefined,
+        summary: linesSummary(line.size, Boolean(line.elements)),
+    }
+    return line.size === 0
+        ? { key: levelKey(prefix, segments), title: renderTitle(title), isLeaf: true }
+        : buildLevelTreeData(title, renderTitle, prefix, reach, segments)
+}
+
+/**
+ * The tree of a value read a level at a time, as far as it has been read.
+ *
+ * A node holds the lines of its level once they are read. A node whose level is not read yet is marked as one that
+ * opens, and the tree reads its level when the reader opens it. A level of more lines than were read ends with a
+ * line that reads more, and a level that could not be read with a line that says why.
+ *
+ * @param prefix   what keeps the keys of the nodes unique on the screen
+ * @param reach    how far the value has been read
+ * @param segments the path of the node within the value
+ */
+export const buildLevelTreeData = (
+    title: ValueNodeTitle,
+    renderTitle: (title: ValueNodeTitle) => ReactNode,
+    prefix: string,
+    reach: LevelTreeReach,
+    segments: readonly string[] = []
+): TreeDataNode => {
+    const key = levelKey(prefix, segments)
+    const node: TreeDataNode = { key, title: renderTitle(title), isLeaf: false }
+    const level = reach.levels.get(key)
+    const failure = reach.failures.get(key)
+    if (level === undefined && failure === undefined) {
+        return node
+    }
+    const lines = level?.lines ?? []
+    const children = lines.map(line => lineNode(line, renderTitle, prefix, reach, [...segments, line.segment]))
+    if (failure !== undefined) {
+        children.push({ key: `${key} failed`, title: reach.renderFailure(key, failure), isLeaf: true })
+    } else if (level !== undefined && lines.length < level.total) {
+        children.push({ key: `${key} more`, title: reach.renderMore(key, level.total - lines.length), isLeaf: true })
     }
     return { ...node, children }
 }
