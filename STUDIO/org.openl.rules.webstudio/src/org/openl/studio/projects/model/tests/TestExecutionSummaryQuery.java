@@ -21,12 +21,16 @@ public record TestExecutionSummaryQuery(
                 written at all. Default is false.""")
         boolean lazyValues
 ) {
-    private static final TestExecutionSummaryQuery NO_FILTER = new TestExecutionSummaryQuery(false, 5, false, false);
+    private static final TestExecutionSummaryQuery LAZY = new TestExecutionSummaryQuery(false, 5, false, true);
 
     private static final TestExecutionSummaryQuery IN_FULL = new TestExecutionSummaryQuery(false, 5, true, false);
 
-    public static TestExecutionSummaryQuery noFilter() {
-        return NO_FILTER;
+    /**
+     * Every case, the way the screen reads the results: a value with inner structure is referred to instead of
+     * written, and no schema is written. It is what a test table is announced with as soon as it has run.
+     */
+    public static TestExecutionSummaryQuery lazy() {
+        return LAZY;
     }
 
     /** Every value written out, the whole returned value included. It is what a single case is read with. */

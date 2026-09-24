@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
@@ -105,6 +106,7 @@ import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
+import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestUnitExecutionResult;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
@@ -843,17 +845,18 @@ public class ProjectsController {
         var user = projectService.getUserWorkspace().getUser();
         CompletableFuture<List<TestUnitsResults>> testTask;
         var mapper = testsSummaryMapper(project);
+        // A test table that has run is announced the way the screen reads the results, not written in full.
+        Function<TestUnitsResults, TestCaseExecutionResult> announcement =
+                testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.lazy());
         if (table == null) {
-            var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
-                    projectId,
-                    testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.noFilter()));
+            var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user, projectId, announcement);
             listener.onStatusChanged(TestExecutionStatus.PENDING);
             testTask = testsExecutorService.runAll(listener, projectModel, currentOpenedModule);
         } else {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
                     tableId,
-                    testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.noFilter()));
+                    announcement);
             listener.onStatusChanged(TestExecutionStatus.PENDING);
             // A test table, and a run table with it, is run as it stands; any other table is run through the
             // test tables that cover it.
