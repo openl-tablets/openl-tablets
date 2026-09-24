@@ -5,12 +5,10 @@ import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
 import { testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
+import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
-    ALL_TESTS_ON_A_PAGE,
     readTestsSummaryWorkbook,
     runTests,
-    TESTS_PAGE_SIZE,
-    TESTS_PAGE_SIZES,
     XLSX_MEDIA_TYPE,
     type TestsQuery,
 } from 'services/execution'
@@ -172,7 +170,7 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
                             value={options.size}
                             options={TESTS_PAGE_SIZES.map(size => ({
                                 value: size,
-                                label: size === ALL_TESTS_ON_A_PAGE ? t('tests.allOnAPage') : String(size),
+                                label: size === ALL_TESTS_ON_A_PAGE ? t('tests.all') : String(size),
                             }))}
                         />
                     </Space>

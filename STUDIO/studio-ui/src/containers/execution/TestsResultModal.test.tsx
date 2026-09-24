@@ -10,11 +10,6 @@ vi.mock('services/execution', () => ({
     readTestsSummary: vi.fn(),
     getTestCaseResult: vi.fn(),
     getTestsSummaryWorkbook: vi.fn(),
-    ALL_TESTS_ON_A_PAGE: -1,
-    FAILURES_PER_TEST: 5,
-    FAILURES_PER_TEST_OPTIONS: [1, 5, 20],
-    TESTS_PAGE_SIZE: 20,
-    TESTS_PAGE_SIZES: [1, 5, 20, -1],
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
 

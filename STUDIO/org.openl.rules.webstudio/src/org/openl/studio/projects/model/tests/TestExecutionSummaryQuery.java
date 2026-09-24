@@ -6,7 +6,9 @@ public record TestExecutionSummaryQuery(
         @Schema(description = "If true, only failed test units are included in the summary. Default is false.")
         boolean failedOnly,
 
-        @Schema(description = "The maximum number of failed test units to include in the summary. Default is 5.")
+        @Schema(description = """
+                The maximum number of failed test units to include in the summary. A count of -1 keeps every \
+                one of them.""")
         int failures,
 
         @Schema(description = """
@@ -19,10 +21,6 @@ public record TestExecutionSummaryQuery(
                 written at all. Default is false.""")
         boolean lazyValues
 ) {
-    public TestExecutionSummaryQuery {
-        failures = failures == 0 ? 5 : failures;
-    }
-
     private static final TestExecutionSummaryQuery NO_FILTER = new TestExecutionSummaryQuery(false, 5, false, false);
 
     private static final TestExecutionSummaryQuery IN_FULL = new TestExecutionSummaryQuery(false, 5, true, false);

@@ -8,14 +8,17 @@ import { TableLink } from 'components/TableLink'
 import { ValueCell, valueLabel } from 'components/values/ParameterValues'
 import { useTestCase } from 'hooks/useTestCase'
 import {
+    ALL_FAILURES,
     ALL_TESTS_ON_A_PAGE,
     FAILURES_PER_TEST,
     FAILURES_PER_TEST_OPTIONS,
+    TESTS_PAGE_SIZE,
+    TESTS_PAGE_SIZES,
+} from 'constants/tests'
+import {
     getTestCaseResult,
     getTestsSummaryWorkbook,
     readTestsSummary,
-    TESTS_PAGE_SIZE,
-    TESTS_PAGE_SIZES,
     XLSX_MEDIA_TYPE,
     type TestsQuery,
 } from 'services/execution'
@@ -214,12 +217,15 @@ const TestTable: React.FC<{
 /**
  * What the screen shows to begin with: the settings of the user, as they were saved in the profile.
  *
- * A count the API does not take - the whole page of failures the old pages offered - falls back to what the
- * screen shows by default.
+ * A count the server would refuse falls back to the default: the profile takes whatever is written to it,
+ * and nothing there keeps a count out of it.
  */
+const savedCount = (saved: number | undefined): number =>
+    (saved ?? 0) >= 1 || saved === ALL_FAILURES ? saved! : FAILURES_PER_TEST
+
 const savedQuery = (profile: UserProfile | null): Required<TestsQuery> => ({
     failuresOnly: profile?.testsFailuresOnly ?? false,
-    failures: (profile?.testsFailuresPerTest ?? 0) > 0 ? profile!.testsFailuresPerTest : FAILURES_PER_TEST,
+    failures: savedCount(profile?.testsFailuresPerTest),
     compoundResult: profile?.showComplexResult ?? false,
     // The screen only reads the values, so a value with inner structure is read when it is asked for.
     lazyValues: true,
@@ -349,10 +355,13 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                             data-testid="tests-failures"
                             disabled={!query.failuresOnly}
                             onChange={(failures: number) => update({ failures })}
-                            options={FAILURES_PER_TEST_OPTIONS.map(count => ({ value: count, label: String(count) }))}
                             size="small"
                             style={{ width: 80 }}
                             value={query.failures}
+                            options={FAILURES_PER_TEST_OPTIONS.map(count => ({
+                                value: count,
+                                label: count === ALL_FAILURES ? t('tests.all') : String(count),
+                            }))}
                         />
                     </Space>
                     <Checkbox
@@ -372,7 +381,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                             value={query.size}
                             options={TESTS_PAGE_SIZES.map(size => ({
                                 value: size,
-                                label: size === ALL_TESTS_ON_A_PAGE ? t('tests.allOnAPage') : String(size),
+                                label: size === ALL_TESTS_ON_A_PAGE ? t('tests.all') : String(size),
                             }))}
                         />
                     </Space>

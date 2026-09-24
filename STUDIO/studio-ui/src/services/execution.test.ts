@@ -1,4 +1,5 @@
 import apiCall, { ApiHttpError, readTaskResult } from 'services/apiCall'
+import { ALL_FAILURES, FAILURES_PER_TEST_OPTIONS } from 'constants/tests'
 import {
     getBenchmarks,
     getRunResult,
@@ -65,6 +66,17 @@ describe('execution service', () => {
         )
         expect((init.headers as Record<string, string>)['Accept']).toBe('application/json')
         expect(summary.testCases).toHaveLength(1)
+    })
+
+    it('asks for every failure of a test table when the screen offers no count', async () => {
+        read.mockResolvedValue(jsonResponse({ testCases: []}))
+
+        await getTestsSummary('p1', { failuresOnly: true, failures: ALL_FAILURES })
+
+        expect(read.mock.calls[0]?.[0]).toBe(
+            '/projects/p1/tests/summary?failuresOnly=true&allFailures=true&compoundResult=false&page=0&size=20'
+        )
+        expect(FAILURES_PER_TEST_OPTIONS).toContain(ALL_FAILURES)
     })
 
     it('asks for every test table at once when no page size is set', async () => {

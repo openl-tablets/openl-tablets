@@ -269,7 +269,8 @@ run returned, in a **Result** column of their own — in the window and in the w
 The options above the list decide what it shows. They apply at once, without running the tests again:
 
 -   **Failures Only** — leaves out the cases that passed. **Failures per test** next to it limits how many
-    failures of one test table are listed, so a long list stays readable while a rule is corrected step by step.
+    failures of one test table are listed, so a long list stays readable while a rule is corrected step by step;
+    **All** lists every failure a table has.
 -   **Compound Result** — adds the whole value the rule returned to every case, and not only the values the test
     compares. It is what a spreadsheet result is read with: the test names a few of its steps, and this option
     shows all of them.

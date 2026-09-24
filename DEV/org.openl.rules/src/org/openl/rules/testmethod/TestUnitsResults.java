@@ -16,6 +16,9 @@ import org.openl.base.INamedThing;
 @RequiredArgsConstructor
 public class TestUnitsResults implements INamedThing {
 
+    /** Asked for instead of a count, keeps every failed case rather than the first few. */
+    public static final int ALL_FAILURES = -1;
+
     @Getter
     private final TestSuite testSuite;
     private final ArrayList<ITestUnit> testUnits = new ArrayList<>();
@@ -38,12 +41,20 @@ public class TestUnitsResults implements INamedThing {
         return testUnits;
     }
 
+    /**
+     * The failed cases of this run, at most {@code size} of them.
+     *
+     * <p>A {@code size} of {@link #ALL_FAILURES} keeps every failed case.
+     *
+     * @param failuresOnly whether to leave out the cases that passed
+     * @param size         how many failed cases to keep, or {@link #ALL_FAILURES} for all of them
+     */
     public List<ITestUnit> getFilteredTestUnits(boolean failuresOnly, int size) {
         if (failuresOnly) {
             var failedUnits = new ArrayList<ITestUnit>();
             for (ITestUnit testUnit : testUnits) {
                 if (testUnit.getResultStatus() != TestStatus.TR_OK // Failed unit
-                        && (failedUnits.size() < size || size == -1)) {
+                        && (failedUnits.size() < size || size == ALL_FAILURES)) {
                     failedUnits.add(testUnit);
                 }
             }
