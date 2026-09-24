@@ -63,7 +63,7 @@ i18next.addResourceBundle('en', 'execution', {
         failuresPerTest: 'Failures per test',
         compoundResult: 'Compound Result',
         perPage: 'Tests per page',
-        allOnAPage: 'All',
+        all: 'All',
         saveToExcel: 'Save to Excel',
         passed: 'Passed',
         failed: 'Failed',

@@ -898,6 +898,9 @@ public class ProjectsController {
                                              @Parameter(description = "projects.tests.summary.param.failures.desc")
                                              @Min(1)
                                              int failures,
+                                             @RequestParam(value = "allFailures", defaultValue = "false")
+                                             @Parameter(description = "projects.tests.summary.param.all-failures.desc")
+                                             boolean allFailures,
                                              @RequestParam(value = "compoundResult", defaultValue = "false")
                                              @Parameter(description = "projects.tests.summary.param.compound-result.desc")
                                              boolean compoundResult,
@@ -915,7 +918,10 @@ public class ProjectsController {
             }
             var executionResults = completed.get();
             var mapper = testsSummaryMapper(project);
-            var query = new TestExecutionSummaryQuery(failuresOnly, failures, compoundResult, lazyValues);
+            var query = new TestExecutionSummaryQuery(failuresOnly,
+                    allFailures ? TestUnitsResults.ALL_FAILURES : failures,
+                    compoundResult,
+                    lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             // A client that asked for a workbook is told by the status alone: it did not ask for JSON.

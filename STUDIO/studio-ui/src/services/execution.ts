@@ -1,4 +1,5 @@
 import type { BenchmarkResult, RunResult, TestsSummary, TestUnitResult } from 'types/execution'
+import { ALL_FAILURES, ALL_TESTS_ON_A_PAGE, FAILURES_PER_TEST, TESTS_PAGE_SIZE } from 'constants/tests'
 import apiCall, { asArray, readTaskResult } from './apiCall'
 import { toUrlSafeId } from './projectId'
 import { isStillRunning } from './taskResult'
@@ -19,19 +20,10 @@ export const XLSX_MEDIA_TYPE = 'application/vnd.openxmlformats-officedocument.sp
 const readWorkbook = async (url: string): Promise<Blob> =>
     (await readTaskResult(url, { headers: { Accept: XLSX_MEDIA_TYPE } }, EXECUTION_API_OPTIONS)).blob()
 
-/** How many test tables one page of the results holds, and the sizes the screen offers instead. */
-export const TESTS_PAGE_SIZE = 20
-/** A size of {@link ALL_TESTS_ON_A_PAGE} puts every test table on one page. */
-export const TESTS_PAGE_SIZES = [1, 5, 20, -1]
-export const ALL_TESTS_ON_A_PAGE = -1
-
-/** How many failures of a test table the results show, and the counts the screen offers instead. */
-export const FAILURES_PER_TEST = 5
-export const FAILURES_PER_TEST_OPTIONS = [1, 5, 20]
-
 /** What the results screen is asked for: which test units to show, and which page of the tables. */
 export interface TestsQuery {
     failuresOnly?: boolean
+    /** How many failures of one test table to list, or {@link ALL_FAILURES} for every one of them. */
     failures?: number
     compoundResult?: boolean
     /** Ask for a value with inner structure to be referred to instead of written, and read it on demand. */
@@ -165,7 +157,12 @@ export const runTests = async (
 const testsQueryParams = (query: TestsQuery): URLSearchParams => {
     const params = new URLSearchParams()
     params.set('failuresOnly', String(query.failuresOnly ?? false))
-    params.set('failures', String(query.failures ?? FAILURES_PER_TEST))
+    // The count is a count; asking for every failure is its own flag, the way asking for every test table is.
+    if (query.failures === ALL_FAILURES) {
+        params.set('allFailures', 'true')
+    } else {
+        params.set('failures', String(query.failures ?? FAILURES_PER_TEST))
+    }
     params.set('compoundResult', String(query.compoundResult ?? false))
     if (query.lazyValues) {
         params.set('lazyValues', 'true')

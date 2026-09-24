@@ -80,7 +80,8 @@ class ProjectsControllerTestsSummaryTest {
     }
 
     private ResponseEntity<?> summary(String acceptMediaType) throws Exception {
-        return controller.getTestsSummary(project, false, 5, false, false, Pageable.unpaged(), acceptMediaType);
+        return controller.getTestsSummary(
+                project, false, 5, false, false, false, Pageable.unpaged(), acceptMediaType);
     }
 
     private static void assertNotReady(ResponseEntity<?> answer) {

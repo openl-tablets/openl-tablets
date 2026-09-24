@@ -1,0 +1,15 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.{jakarta.validation.constraints.Min.message}",
+      "message": "must be greater than or equal to 1",
+      "field": "getTestsSummary.failures",
+      "rejectedValue": 0
+    }
+  ]
+}
+

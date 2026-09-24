@@ -1,0 +1,193 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1,
+  "executionTimeMs": "##.##",
+  "numberOfTests": 7,
+  "numberOfFailures": 7,
+  "testCases": [
+    {
+      "name": "greetingTest",
+      "tableId": "60f531b134e0aa44b82efa46a0461a97",
+      "module": "Greeting",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 7,
+      "numberOfFailures": 7,
+      "testUnits": [
+        {
+          "id": "case1",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected",
+              "expectedValue": "bye",
+              "actualValue": "hello",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Id",
+              "value": 1,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        },
+        {
+          "id": "case2",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected",
+              "expectedValue": "bye",
+              "actualValue": "hello",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Id",
+              "value": 2,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        },
+        {
+          "id": "case3",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected",
+              "expectedValue": "bye",
+              "actualValue": "hello",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Id",
+              "value": 3,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        },
+        {
+          "id": "case4",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected",
+              "expectedValue": "bye",
+              "actualValue": "hello",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Id",
+              "value": 4,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        },
+        {
+          "id": "case5",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected",
+              "expectedValue": "bye",
+              "actualValue": "hello",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Id",
+              "value": 5,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        },
+        {
+          "id": "case6",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected",
+              "expectedValue": "bye",
+              "actualValue": "hello",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Id",
+              "value": 6,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        },
+        {
+          "id": "case7",
+          "executionTimeMs": "##.##",
+          "status": "TR_NEQ",
+          "testAssertions": [
+            {
+              "description": "Expected",
+              "expectedValue": "bye",
+              "actualValue": "hello",
+              "status": "TR_NEQ"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Id",
+              "value": 7,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

@@ -14979,6 +14979,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "allFailures",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "compoundResult",
             "schema": {
               "type": "boolean",
