@@ -958,7 +958,9 @@ public class ProjectsController {
     public ResponseEntity<?> getTestCaseResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("tableId") @Parameter(description = "projects.tests.case.param.table-id.desc") String tableId,
-            @PathVariable("caseId") @Parameter(description = "projects.tests.case.param.case-id.desc") String caseId) {
+            @PathVariable("caseId") @Parameter(description = "projects.tests.case.param.case-id.desc") String caseId,
+            @RequestParam(value = "includeSchema", defaultValue = "false")
+            @Parameter(description = "projects.tests.case.param.include-schema.desc") boolean includeSchema) {
 
         var completed = completedTests(project);
         if (completed.isEmpty()) {
@@ -980,7 +982,7 @@ public class ProjectsController {
                 ? retained.again()
                 : testUnit;
         var answer = testsSummaryMapper(project)
-                .mapToTestUnitResult(testCase, unit, TestExecutionSummaryQuery.inFull());
+                .mapToTestUnitResult(testCase, unit, TestExecutionSummaryQuery.inFull(includeSchema));
         Reference.reachabilityFence(held);
         return ResponseEntity.ok(answer);
     }

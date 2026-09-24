@@ -19,11 +19,20 @@ public record TestExecutionSummaryQuery(
         @Schema(description = """
                 If true, a test input with inner structure is referred to instead of written, and no schema is \
                 written at all. Default is false.""")
-        boolean lazyValues
+        boolean lazyValues,
+
+        @Schema(description = "If true, every value written out comes with the JSON schema describing it.")
+        boolean includeSchema
 ) {
     private static final TestExecutionSummaryQuery LAZY = new TestExecutionSummaryQuery(false, 5, false, true);
 
-    private static final TestExecutionSummaryQuery IN_FULL = new TestExecutionSummaryQuery(false, 5, true, false);
+    /**
+     * What a summary is read with: every value written out comes with the schema describing it, and none comes
+     * when the values are only referred to.
+     */
+    public TestExecutionSummaryQuery(boolean failedOnly, int failures, boolean compoundResult, boolean lazyValues) {
+        this(failedOnly, failures, compoundResult, lazyValues, !lazyValues);
+    }
 
     /**
      * Every case, the way the screen reads the results: a value with inner structure is referred to instead of
@@ -33,8 +42,12 @@ public record TestExecutionSummaryQuery(
         return LAZY;
     }
 
-    /** Every value written out, the whole returned value included. It is what a single case is read with. */
-    public static TestExecutionSummaryQuery inFull() {
-        return IN_FULL;
+    /**
+     * Every value written out, the whole returned value included. It is what a single case is read with.
+     *
+     * @param includeSchema whether every value comes with the schema describing it
+     */
+    public static TestExecutionSummaryQuery inFull(boolean includeSchema) {
+        return new TestExecutionSummaryQuery(false, 5, true, false, includeSchema);
     }
 }

@@ -139,7 +139,7 @@ public class TestsExecutionSummaryResponseMapper {
         IntStream.range(0, executionParams.length)
                 .mapToObj(i -> query.lazyValues()
                         ? valueMapper.writeParameterLazily(executionParams[i], executionParamNames[i])
-                        : valueMapper.writeParameter(executionParams[i], executionParamNames[i]))
+                        : valueMapper.writeParameter(executionParams[i], executionParamNames[i], query.includeSchema()))
                 .forEach(builder::parameter);
 
         // Map context parameters
@@ -202,7 +202,7 @@ public class TestsExecutionSummaryResponseMapper {
         return ParameterValue.builder()
                 .name(RESULT_NAME)
                 .value(valueMapper.writeConverted(converted))
-                .schema(valueMapper.schemaOf(converted))
+                .schema(query.includeSchema() ? valueMapper.schemaOf(converted) : null)
                 .build();
     }
 
