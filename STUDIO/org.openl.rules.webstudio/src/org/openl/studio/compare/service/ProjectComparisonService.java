@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
@@ -32,7 +31,6 @@ import org.openl.util.StringUtils;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ProjectComparisonService {
 
     private static final char SEPARATOR = '/';
