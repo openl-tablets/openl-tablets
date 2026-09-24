@@ -1587,21 +1587,18 @@ public class GitRepository implements BranchRepository, Closeable {
             try (var or = repository.newObjectReader()) {
                 TreeWalk tw = createTreeWalk(or, name);
 
-                while (processed < maxCount && iterator.hasNext()) {
+                var stop = false;
+                while (!stop && processed < maxCount && iterator.hasNext()) {
                     var commit = iterator.next();
                     var hasChanges = hasChangesInPath(tw, commit, git());
-                    if (!techRevs && !hasChanges) {
-                        continue;
+                    var listed = techRevs || hasChanges;
+                    if (listed) {
+                        totalProcessed++;
                     }
-                    totalProcessed++;
-                    if (totalProcessed <= skip) {
-                        continue;
-                    }
-                    var stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
-                    historyVisitor.getLastVisited().setTechnicalRevision(!hasChanges);
-                    processed++;
-                    if (stop) {
-                        break;
+                    if (listed && totalProcessed > skip) {
+                        stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
+                        historyVisitor.getLastVisited().setTechnicalRevision(!hasChanges);
+                        processed++;
                     }
                 }
             }
