@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, Select, Space, Tooltip, Typography } from 'antd'
+import { Alert, Button, Checkbox, Space, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from 'containers/execution/ResultOptions'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
 import { testsTopics } from 'containers/execution/topics'
@@ -20,10 +21,8 @@ import { errorMessage } from 'utils/errorMessage'
 import { TableInputPopover } from './TableInputPopover'
 import type { TableLaunchDetail } from './TableInputLauncher'
 
-const { Text } = Typography
-
 /** What the panel asks the results for: how many tables to a page, and what of every case to show. */
-type TestsOptions = Required<Pick<TestsQuery, 'size' | 'failuresOnly' | 'compoundResult'>>
+type TestsOptions = Required<Pick<TestsQuery, 'size' | 'failuresOnly' | 'failures' | 'compoundResult'>>
 
 /** What a page sends to run tests: one table's tests, or every test of the project when no table is named. */
 export interface TestsLaunchDetail extends Omit<TableLaunchDetail, 'tableId'> {
@@ -40,11 +39,11 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
     const { t } = useTranslation('execution')
     const profile = useUserStore(state => state.userProfile)
     const [moduleOnly, setModuleOnly] = useState(detail.moduleOnlyLocked ?? false)
-    const [options, setOptions] = useState<TestsOptions>({
+    const [options, setOptions] = useState<TestsOptions>(() => ({
         size: profile?.testsPerPage || TESTS_PAGE_SIZE,
-        failuresOnly: profile?.testsFailuresOnly ?? false,
+        ...savedFailuresOption(profile),
         compoundResult: profile?.showComplexResult ?? false,
-    })
+    }))
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
     const [ran, setRan] = useState(false)
@@ -160,35 +159,24 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
                     : moduleOnlyOption}
                 {/* Paging matters for a run of the whole project; the tests of one table are a page of their own. */}
                 {!detail.tableId && (
-                    <Space size={4}>
-                        <Text type="secondary">{t('tests.perPage')}</Text>
-                        <Select<number>
-                            data-testid="tests-per-page"
-                            onChange={(size: number) => setOptions(current => ({ ...current, size }))}
-                            size="small"
-                            style={{ width: 80 }}
-                            value={options.size}
-                            options={TESTS_PAGE_SIZES.map(size => ({
-                                value: size,
-                                label: size === ALL_TESTS_ON_A_PAGE ? t('tests.all') : String(size),
-                            }))}
-                        />
-                    </Space>
+                    <CountSelect
+                        allValue={ALL_TESTS_ON_A_PAGE}
+                        counts={TESTS_PAGE_SIZES}
+                        data-testid="tests-per-page"
+                        label={t('tests.perPage')}
+                        onChange={size => setOptions(current => ({ ...current, size }))}
+                        value={options.size}
+                    />
                 )}
-                <Checkbox
-                    checked={options.failuresOnly}
-                    data-testid="tests-failures-only"
-                    onChange={event => setOptions(current => ({ ...current, failuresOnly: event.target.checked }))}
-                >
-                    {t('tests.failuresOnly')}
-                </Checkbox>
-                <Checkbox
+                <FailuresOption
+                    failures={options.failures}
+                    failuresOnly={options.failuresOnly}
+                    onChange={change => setOptions(current => ({ ...current, ...change }))}
+                />
+                <CompoundResultOption
                     checked={options.compoundResult}
-                    data-testid="tests-compound-result"
-                    onChange={event => setOptions(current => ({ ...current, compoundResult: event.target.checked }))}
-                >
-                    {t('tests.compoundResult')}
-                </Checkbox>
+                    onChange={compoundResult => setOptions(current => ({ ...current, compoundResult }))}
+                />
                 {error && <Alert showIcon data-testid="tests-launch-error" title={error} type="error" />}
             </Space>
         </TableInputPopover>

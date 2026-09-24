@@ -225,7 +225,8 @@ included in this section:
 1.  To run only the rules of the current module and skip the modules it depends on, select **Within Current
     Module Only**. While the project is still loading, or another module has errors, only the current module can
     be used: the option is selected and cannot be changed.
-1.  **Failures Only** and **Compound Result** say what the results show; they can be changed there as well.
+1.  **Failures Only**, **Failures per test** and **Compound Result** say what the results show; they can be
+    changed there as well.
 1.  Click **Test**. Every test table that tests this rule table runs, and the results open in a window over the
     table. Closing the window returns to the table, so a rule can be corrected and the tests run again.
     **Test into File** runs them and saves the results as a workbook without showing them.
@@ -246,7 +247,7 @@ the table does not have starts nothing: the panel says which case it is.
     project.
 1.  In the panel that opens, leave **Within Current Module Only** clear to run every test of the project,
     including the modules it depends on, or select it to run the tests of the current module only. **Tests per
-    page**, **Failures Only** and **Compound Result** say what the results show.
+    page**, **Failures Only**, **Failures per test** and **Compound Result** say what the results show.
 1.  Click **Test**. The results are shown the same way as the tests of a single table, so only one kind of
     results screen has to be read. **Test into File** saves them as a workbook without showing them.
 
@@ -277,10 +278,12 @@ The options above the list decide what it shows. They apply at once, without run
 -   **Tests per page** — how many test tables one page holds; the pager under the list reaches the rest. **All**
     puts every test table on one page.
 
-The screen opens with the options as they are saved in **My Settings**, and changing them here applies to this
-run only.
+The screen opens with the options the panel that started the run was left with, and that panel starts from
+what is saved in **My Settings**. **Failures per test** is not offered there, so it starts at 5.
+Changing any of them here applies to this run only.
 
-To save the results, click **Save to Excel**. The workbook holds the same results and the input of every case.
+To save the results, click **Save to Excel**. The workbook holds every case that ran, with its input —
+whatever the options above the list leave out of the screen.
 
 ##### Running a Table
 

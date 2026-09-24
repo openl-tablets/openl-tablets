@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Checkbox, Empty, Flex, Pagination, Result, Select, Space, Tag, Typography } from 'antd'
+import { Alert, Button, Empty, Flex, Pagination, Result, Space, Tag, Typography } from 'antd'
 import { CheckOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
@@ -7,14 +7,7 @@ import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
 import { ValueCell, valueLabel } from 'components/values/ParameterValues'
 import { useTestCase } from 'hooks/useTestCase'
-import {
-    ALL_FAILURES,
-    ALL_TESTS_ON_A_PAGE,
-    FAILURES_PER_TEST,
-    FAILURES_PER_TEST_OPTIONS,
-    TESTS_PAGE_SIZE,
-    TESTS_PAGE_SIZES,
-} from 'constants/tests'
+import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
     getTestCaseResult,
     getTestsSummaryWorkbook,
@@ -29,6 +22,7 @@ import type { UserProfile } from 'types/user'
 import type { TraceParameterValue } from 'types/trace'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
+import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from './ResultOptions'
 import { isFinished, useExecutionProgress } from './useExecutionProgress'
 import { testsTopics } from './topics'
 import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
@@ -214,18 +208,9 @@ const TestTable: React.FC<{
     )
 }
 
-/**
- * What the screen shows to begin with: the settings of the user, as they were saved in the profile.
- *
- * A count the server would refuse falls back to the default: the profile takes whatever is written to it,
- * and nothing there keeps a count out of it.
- */
-const savedCount = (saved: number | undefined): number =>
-    (saved ?? 0) >= 1 || saved === ALL_FAILURES ? saved! : FAILURES_PER_TEST
-
+/** What the screen shows to begin with: the settings of the user, as they were saved in the profile. */
 const savedQuery = (profile: UserProfile | null): Required<TestsQuery> => ({
-    failuresOnly: profile?.testsFailuresOnly ?? false,
-    failures: savedCount(profile?.testsFailuresPerTest),
+    ...savedFailuresOption(profile),
     compoundResult: profile?.showComplexResult ?? false,
     // The screen only reads the values, so a value with inner structure is read when it is asked for.
     lazyValues: true,
@@ -342,49 +327,23 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                 {/* The results on screen are the ones that were read last: say so when a new read failed. */}
                 {failure && <Alert showIcon data-testid="tests-read-failed" title={failure} type="error" />}
                 <Flex wrap align="center" gap="middle">
-                    <Checkbox
-                        checked={query.failuresOnly}
-                        data-testid="tests-failures-only"
-                        onChange={event => update({ failuresOnly: event.target.checked })}
-                    >
-                        {t('tests.failuresOnly')}
-                    </Checkbox>
-                    <Space size={4}>
-                        <Text type="secondary">{t('tests.failuresPerTest')}</Text>
-                        <Select<number>
-                            data-testid="tests-failures"
-                            disabled={!query.failuresOnly}
-                            onChange={(failures: number) => update({ failures })}
-                            size="small"
-                            style={{ width: 80 }}
-                            value={query.failures}
-                            options={FAILURES_PER_TEST_OPTIONS.map(count => ({
-                                value: count,
-                                label: count === ALL_FAILURES ? t('tests.all') : String(count),
-                            }))}
-                        />
-                    </Space>
-                    <Checkbox
+                    <FailuresOption
+                        failures={query.failures}
+                        failuresOnly={query.failuresOnly}
+                        onChange={update}
+                    />
+                    <CompoundResultOption
                         checked={query.compoundResult}
-                        data-testid="tests-compound-result"
-                        onChange={event => update({ compoundResult: event.target.checked })}
-                    >
-                        {t('tests.compoundResult')}
-                    </Checkbox>
-                    <Space size={4}>
-                        <Text type="secondary">{t('tests.perPage')}</Text>
-                        <Select<number>
-                            data-testid="tests-per-page"
-                            onChange={(size: number) => update({ size })}
-                            size="small"
-                            style={{ width: 80 }}
-                            value={query.size}
-                            options={TESTS_PAGE_SIZES.map(size => ({
-                                value: size,
-                                label: size === ALL_TESTS_ON_A_PAGE ? t('tests.all') : String(size),
-                            }))}
-                        />
-                    </Space>
+                        onChange={compoundResult => update({ compoundResult })}
+                    />
+                    <CountSelect
+                        allValue={ALL_TESTS_ON_A_PAGE}
+                        counts={TESTS_PAGE_SIZES}
+                        data-testid="tests-per-page"
+                        label={t('tests.perPage')}
+                        onChange={size => update({ size })}
+                        value={query.size}
+                    />
                 </Flex>
                 {tables.length === 0
                     ? <Empty description={t('tests.none')} />
