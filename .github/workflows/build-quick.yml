@@ -235,7 +235,10 @@ jobs:
 
     strategy:
       fail-fast: false
-      # Rebalance the legs from the job timings when they drift apart.
+      # Rebalance the legs from the job timings when they drift apart. The slowest leg gates the
+      # 'sonar' job, and studio-acl - a single suite of ~7.5 minutes - sets the floor, so the other
+      # studio suites are spread to stay below it: sso ~4.8, repos ~4.9, multi ~1.5, simple ~1.2 and
+      # the rest under 0.7 minutes each.
       # The maven-plugin leg runs 'install': the archetype integration tests build a generated
       # project in a forked Maven, which resolves openl-maven-plugin from ~/.m2.
       matrix:
@@ -243,9 +246,9 @@ jobs:
           - name: studio-acl
             modules: ITEST/server-core,ITEST/itest.studio/acl
           - name: studio-sso
-            modules: ITEST/server-core,ITEST/itest.studio/sso
+            modules: ITEST/server-core,ITEST/itest.studio/sso,ITEST/itest.studio/multi,ITEST/itest.studio/simple
           - name: studio
-            modules: ITEST/server-core,ITEST/itest.studio/users,ITEST/itest.studio/simple,ITEST/itest.studio/multi,ITEST/itest.studio/repos,ITEST/itest.studio/dtr,ITEST/itest.studio/disabled-settings,ITEST/itest.studio/demo
+            modules: ITEST/server-core,ITEST/itest.studio/users,ITEST/itest.studio/repos,ITEST/itest.studio/dtr,ITEST/itest.studio/disabled-settings,ITEST/itest.studio/demo
           - name: services
             modules: ITEST/server-core,ITEST/itest.WebService,ITEST/itest.BigServiceDeploy,ITEST/itest.ruleServices-memory,ITEST/itest.ruleServices-large-response
           - name: services-smoke
