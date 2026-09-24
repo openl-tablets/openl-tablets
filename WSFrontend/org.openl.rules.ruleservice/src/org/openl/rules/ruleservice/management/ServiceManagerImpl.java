@@ -229,7 +229,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         try {
             this.serviceDescriptionInProcess = serviceDescription;
             var newService = ruleServiceInstantiationFactory.createService(serviceDescription);
-            this.serviceDescriptionInProcess = serviceDescription;
             deploy(newService);
             log.info("Service '{}' has been deployed successfully.", servicePath);
         } catch (RuleServiceInstantiationException e) {
