@@ -1306,13 +1306,14 @@ if (!secretMatches || stored == null || isExpired(stored)) {
 | Property | Values | Default | Description |
 |----------|--------|---------|-------------|
 | `user.mode` | `oauth2`, `saml`, `standalone` | `standalone` | Authentication mode |
-| `security.password.encoder.strength` | `4-31` | `10` | BCrypt work factor |
+| `security.password.encoder` | `bcrypt`, `noop` | `bcrypt` | Secret hashing algorithm; `noop` is for tests |
+| `webstudio.bcrypt.strength` | `4-31` | `10` | BCrypt work factor |
 
 **Example Configuration**:
 ```properties
 # application.properties
 user.mode=oauth2
-security.password.encoder.strength=12
+webstudio.bcrypt.strength=12
 ```
 
 ---

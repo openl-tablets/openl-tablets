@@ -111,6 +111,9 @@
                             <http.maxConnections>25</http.maxConnections>
                             <!-- Enable Cors header for URL Connection because it's restricted by default -->
                             <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
+                            <!-- Store OpenL Studio passwords in plain text: a bcrypt check on every Basic-auth
+                                 request slows the suites down -->
+                            <security.password.encoder>noop</security.password.encoder>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
