@@ -192,6 +192,7 @@ final class Comparators {
                 .replace(".", "\\.")
                 .replace("+", "\\+")
                 .replace("?", "\\?")
+                .replace("|", "\\|")
                 .replaceAll("#+", "[#\\\\d]+" + wildcardSuffix)
                 .replaceAll("@+", "[@\\\\w]+" + wildcardSuffix)
                 .replaceAll("\\*+", "[^\uFFFF]*" + wildcardSuffix);

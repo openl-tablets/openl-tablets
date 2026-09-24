@@ -222,6 +222,9 @@ The `Comparators` class supports wildcard patterns in expected `.resp` files:
 - `###` — matches digits (`[#\d]+` regex)
 - `@@@` — matches word characters (`[@\w]+` regex)
 
+A run of any length is a wildcard, a single `*`, `#` or `@` included, so these three characters cannot be matched
+literally. Every other character, `|` included, matches itself.
+
 These work in both plain text and JSON responses. In JSON, wildcards are matched per-value — the structural comparison walks expected and actual JSON trees node by node, applying pattern matching only on leaf text values.
 
 ### Naming Conventions
