@@ -507,6 +507,9 @@ i18next.addResourceBundle('en', 'repository', {
             compile_failed: 'The module could not be compiled',
             project_closed: 'Open the project to work with its modules.',
             pick_a_table: 'Pick a table to see it',
+            table_not_found: 'This module has no such table',
+            table_lookup_failed: 'The utility tables of the module could not be read to look for this table. '
+                + 'Refresh to try again.',
             no_tables: 'This module declares no tables',
             show_more_rows: 'Show more rows ({{shown}} of {{total}})',
             edit_save: 'Save',

@@ -305,16 +305,110 @@ describe('ModuleWorkspace', () => {
         expect(localStorage.getItem('openl.module.otherTables')).toBeNull()
     })
 
-    it('gives up on a table the whole list does not hold, the utility tables included', async () => {
+    it('says the module has no table a link names that the whole list does not hold, the utility tables included', async () => {
         workspace.opened = true
         searchParams.set('table', 't-gone')
         render(<ModuleWorkspace />)
 
         await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
-        // Only once the whole list has answered is the address replaced with the first table.
+        // Only once the whole list has answered is the table given up on, and no other one opens in its place.
+        await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())
+        // Nor is anything said about a table that is not there.
+        expect(screen.queryByTestId('table-details')).toBeNull()
+        expect(navigateMock).not.toHaveBeenCalled()
+        expect(getRawTable).not.toHaveBeenCalled()
+        expect(getModuleTables).toHaveBeenCalledTimes(2)
+    })
+
+    it('shows a table the address names once the module holds it after all', async () => {
+        workspace.opened = true
+        const fresh = { id: 't-new', name: 'Fresh', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
+        searchParams.set('table', 't-new')
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())
+
+        // The table is written meanwhile, and the module is read again.
+        vi.mocked(getModuleTables).mockResolvedValue([bankRating, fresh])
+        await userEvent.click(screen.getByTestId('module-refresh'))
+
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-new', expect.anything()))
+        expect(screen.queryByTestId('module-table-missing')).toBeNull()
+        expect(screen.getByTestId('table-details')).toBeInTheDocument()
+    })
+
+    it('moves off a table it showed when the branch switched to does not carry it', async () => {
+        workspace.opened = true
+        const pricing = { id: 't-5', name: 'Pricing', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
+        vi.mocked(getModuleTables).mockImplementation(() =>
+            Promise.resolve(workspace.branch === 'master' ? [bankRating, pricing] : [bankRating]))
+        searchParams.set('table', 't-5')
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-5', expect.anything()))
+
+        workspace.branch = 'feature'
+        await userEvent.click(screen.getByTestId('branch-switched'))
+
+        // The table was there before the switch: the module opens on its first table rather than saying so.
         await waitFor(() => expect(navigateMock).toHaveBeenCalledWith(
             '/projects/p1/modules/Bank%20Rating?table=t-1', { replace: true }))
-        expect(getModuleTables).toHaveBeenCalledTimes(2)
+        expect(screen.queryByTestId('module-table-missing')).toBeNull()
+    })
+
+    it('looks for a table the reader moves on to among the utility tables before saying there is none', async () => {
+        workspace.opened = true
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', expect.anything()))
+
+        // Within the module the reader follows a way into a free-form table while the tree leaves them out.
+        searchParams.set('table', 't-9')
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-9', expect.anything()))
+        expect(screen.queryByTestId('module-table-missing')).toBeNull()
+    })
+
+    it('asks for the utility tables once for a table a link names when they cannot be read, and again on Refresh', async () => {
+        workspace.opened = true
+        vi.mocked(getModuleTables).mockImplementation((projectId, module, options) =>
+            options?.includeOther ? Promise.reject(new Error('Gone away')) : tablesRead(projectId, module, options))
+        searchParams.set('table', 't-gone')
+        render(<ModuleWorkspace />)
+
+        // Nothing can be said of the table while the utility tables cannot be read: no verdict of absence.
+        await waitFor(() => expect(screen.getByTestId('module-table-unread')).toBeInTheDocument())
+        expect(screen.queryByTestId('module-table-missing')).toBeNull()
+        const askedForOther = () => vi.mocked(getModuleTables).mock.calls.filter(([, , options]) => options?.includeOther)
+        // The failure is reported once, and the free-form tables are not asked for over and over.
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)) })
+        expect(askedForOther()).toHaveLength(1)
+        expect(notifyLoadFailure).toHaveBeenCalledTimes(1)
+
+        // Refresh is the reader asking again.
+        await userEvent.click(screen.getByTestId('module-refresh'))
+        await waitFor(() => expect(askedForOther()).toHaveLength(2))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)) })
+        expect(askedForOther()).toHaveLength(2)
+    })
+
+    it('looks among the utility tables again for a table it found none of once the branch is switched', async () => {
+        workspace.opened = true
+        // Only the other branch holds the table, and there as a free-form one.
+        vi.mocked(getModuleTables).mockImplementation((_projectId, _module, options) =>
+            Promise.resolve(workspace.branch === 'feature' && options?.includeOther ? [bankRating, notes] : [bankRating]))
+        searchParams.set('table', 't-9')
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())
+
+        // The reader puts the utility tables away, then switches the branch.
+        await userEvent.click(screen.getByTestId('tables-tree'))
+        await waitFor(() => expect(screen.getByTestId('tables-tree')).toHaveTextContent('false'))
+        expect(screen.getByTestId('module-table-missing')).toBeInTheDocument()
+        workspace.branch = 'feature'
+        await userEvent.click(screen.getByTestId('branch-switched'))
+
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-9', expect.anything()))
+        expect(screen.queryByTestId('module-table-missing')).toBeNull()
     })
 
     it('moves off a utility table the reader took out of the list, rather than listing them again', async () => {

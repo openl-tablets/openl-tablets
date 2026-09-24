@@ -351,35 +351,59 @@ export const ModuleWorkspace = () => {
     }, [here, projectId, moduleName, compilation.ready, tables, tablesReloading, reloadToken, showOther, chooseOther, t])
 
     // A module opens on a table rather than on an empty canvas: the first one the list carries. The same
-    // correction moves off a table named in the address that this module does not hold — the one the module
-    // left behind was showing.
+    // correction moves off the table on screen once the module holds it no more: the reader took the free-form
+    // tables out of the list, or switched to a branch that does not carry it.
     //
-    // A link may name a free-form table, which a list read without them does not hold. The table the module
-    // was opened on is looked for among them once, before the address is given up on; a table that goes
-    // missing later is one the reader took out of the list themselves, by asking for the free-form tables no
-    // more. Nothing is decided while a list is still on its way.
-    const arrival = useRef<{ at: string, table: string | null }>({ at: '', table: null })
+    // Any other table the address names may be a free-form one, which a list read without them does not hold:
+    // they are asked for once, for this visit and this branch, before the table is given up on. A table the
+    // whole list does not hold is not swapped for another one: the screen says there is no such table. When the
+    // free-form tables cannot be read, nothing can be said of the table: the screen says so instead, and they are
+    // not asked for again until the reader refreshes the module. Nothing is decided while a list is still on its
+    // way.
+    //
+    // The table named in the address, of the module and the project it names.
+    const tableAddress = `${projectId} ${moduleName} ${selectedId}`
+    // The table last on screen: the one that can vanish from under the reader.
+    const shownTable = useRef<string | null>(null)
+    // The table the free-form tables were last asked for, on its branch, and the refresh they were asked for in.
+    const otherAskedFor = useRef<string | null>(null)
+    // A table the module does not list: absent from the whole list, or not looked for among the free-form tables
+    // because they could not be read.
+    const [unlisted, setUnlisted] = useState<{ address: string, absent: boolean } | null>(null)
+    // The verdict belongs to the list it was reached on: a list still on its way, or one that holds the table after
+    // all, takes it back.
+    const tableUnlisted = unlisted?.address === tableAddress && tables !== null && !tablesReloading && selected === null
+        ? unlisted
+        : null
     useEffect(() => {
         if (tables === null || tablesReloading) {
             return
         }
-        if (arrival.current.at !== here) {
-            arrival.current = { at: here, table: selectedId }
-        }
         if (selectedId !== null && tables.some(candidate => candidate.id === selectedId)) {
-            // Whatever the address names is on screen: the table the module was opened on is settled.
-            arrival.current.table = null
+            shownTable.current = tableAddress
+            setUnlisted(null)
             return
         }
-        if (selectedId !== null && selectedId === arrival.current.table && !showOther) {
-            arrival.current.table = null
-            setShowOther(true)
+        if (selectedId !== null && shownTable.current !== tableAddress) {
+            const asking = `${here} ${selectedId} ${reloadToken}`
+            if (showOther) {
+                setUnlisted({ address: tableAddress, absent: true })
+            } else if (otherAskedFor.current !== asking) {
+                otherAskedFor.current = asking
+                setShowOther(true)
+            } else {
+                // Asked for already: they could not be read, or the reader put them away after the whole list was
+                // seen, which keeps what it said.
+                setUnlisted(current => current?.address === tableAddress && current.absent
+                    ? current
+                    : { address: tableAddress, absent: false })
+            }
             return
         }
         if (tables.length > 0) {
             navigate(moduleRoute(projectId ?? '', moduleName, (tables[0] as ModuleTable).id), { replace: true })
         }
-    }, [tables, tablesReloading, showOther, selectedId, here, moduleName, navigate, projectId])
+    }, [tables, tablesReloading, showOther, selectedId, here, moduleName, navigate, projectId, tableAddress, reloadToken])
 
     // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so. What
     // was compiled stays readable; Refresh starts it again.
@@ -777,6 +801,15 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
+        if (tableUnlisted) {
+            return (
+                <div className={styles.centered}>
+                    {tableUnlisted.absent
+                        ? <Empty data-testid="module-table-missing" description={t('browser.module.table_not_found')} />
+                        : <Empty data-testid="module-table-unread" description={t('browser.module.table_lookup_failed')} />}
+                </div>
+            )
+        }
         if (tableError !== null) {
             return (
                 <div className={styles.centered}>
@@ -965,7 +998,7 @@ export const ModuleWorkspace = () => {
                     />
                     <div className={styles.withDetails}>
                         <div className={styles.main}>{canvas()}</div>
-                        {compilation.ready && !closed && (
+                        {compilation.ready && !closed && !tableUnlisted && (
                             <TableDetailsPanel
                                 canWrite={!!project.capabilities?.canWrite}
                                 confirmWrite={confirmWrite}
