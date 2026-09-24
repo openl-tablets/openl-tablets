@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- PR #2166 is open on `dead-code/lombok-noop-annotations` (1 commit, -8), GREEN and waiting on reviewers.
+- No PR is open: #2166 merged. Cut a fresh `dead-code/*` branch from a freshly fetched `origin/main`.
 - All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect zero), spend
   the rest on a NEW vein. The paying veins are documentation, build config and framework-generated members: a
   no-op annotation or a generated member no caller names is the one CODE shape still paying.
@@ -18,7 +18,7 @@
 | 3 | Unused locals, private fields/methods/params | done; 14 PMD hits, all documented FPs |
 | 4 | Unused Maven dependency declarations | done; 537 analyze hits + npm deps, all FPs |
 | 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done; 6 hits, all plugin-read flags |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | in-progress; 4 no-op Lombok annos in #2166 |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 4 no-op Lombok annotations, in #2166 |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
@@ -30,14 +30,12 @@
 
 ## Open PR
 
-- #2166, branch `dead-code/lombok-noop-annotations`, head da93de2f2d, cut from main 4513cebb5e.
-- Commit 1 (change type 6): drop the Lombok annotations that generate a member nothing calls — @Slf4j on
-  OpenApiGenerator, @Builder on FileChange and PendingChanges, @RequiredArgsConstructor on
-  ProjectComparisonService. 22 checks green, Sonar 0 new issues, CodeRabbit clean. No review thread open.
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, passivation), #2145 (-2), #2152 (-4).
+- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, passivation), #2145 (-2), #2152 (-4),
+  #2166 (-8, Lombok no-ops). #2166 merged ~4 h after opening, no review comment, on evidence alone.
 - A removal proven by unreachable behaviour, not by non-reference, is accepted on that evidence alone.
 - The maintainer does not merge a sweep PR red: they rebase it onto new main, wait for green, then rebase-merge.
 
@@ -237,6 +235,8 @@
   properties and ignore files, per-package logger categories (the three log4j2 configs declare none), image
   references (608 tracked, every basename present in text), and path-bearing elements over 209 poms. The
   duplicate-entry scan paid once, on three identical `**/*.sql` Spotless includes in the root pom.
+- Lombok no-ops: @Slf4j, @Builder/@SuperBuilder and @RequiredArgsConstructor are swept clean repo-wide (4 paid in
+  #2166); @Getter/@Setter and the behavioural annotations are NOT sweepable, their members bind reflectively.
 - Veins probed and closed at zero: Maven profiles (11), npm dependencies (45), orphaned `package-info.java`, empty
   tracked files, production types referenced only from tests (62), container registrations (web.xml and all 8
   `@WebFilter`/`@WebServlet`), JSF-era orphans (no `.xhtml` or faces dependency anywhere), pom file-path references
@@ -297,4 +297,4 @@
   zero (PMD 40, all generated or known FPs). Duplicate-config and doc-path veins paid 2 removals and 3 follow-ups;
   #2152 MERGED (-4) the same day and its branch deleted.
 - 2026-09-24: swept the 140-file EPBDS-16668..16702 delta at zero; 9 new veins closed. The Lombok no-op vein paid
-  4 removals, opened as PR #2166 (-8). Near-miss avoided: the two DEMO `.properties` are keep-listed.
+  4 removals; #2166 MERGED (-8) the same day and its branch deleted. The two DEMO `.properties` are keep-listed.
