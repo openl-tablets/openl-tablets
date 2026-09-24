@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { type Key, useMemo, useRef, useState } from 'react'
 import { Spin, Tree } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -9,14 +9,24 @@ import {
     complexValueSummary,
     describeSimpleValue,
     isComplexValue,
+    LINES_PER_STEP,
     type SimpleValueKind,
     type ValueNodeTitle,
 } from './valueTree'
 import { useStyles } from './parameterValues.styles'
 
-type Styles = ReturnType<typeof useStyles>['styles']
+/** The look of a value: its colours, and the lines of a value with inner structure. */
+export type ValueStyles = ReturnType<typeof useStyles>['styles']
 
-const KIND_CLASS: Record<SimpleValueKind, keyof Styles> = {
+/**
+ * The look of the values of a list, read once for all of them and handed to every {@link ValueCell}.
+ *
+ * Reading the look copies the whole theme, which costs more than drawing a plain value. A list of thousands of
+ * values that reads it for every value runs the browser out of memory.
+ */
+export const useValueStyles = (): ValueStyles => useStyles().styles
+
+const KIND_CLASS: Record<SimpleValueKind, keyof ValueStyles> = {
     null: 'valueNull',
     string: 'valueString',
     number: 'valueNumber',
@@ -25,7 +35,7 @@ const KIND_CLASS: Record<SimpleValueKind, keyof Styles> = {
 }
 
 /** A value without inner structure, coloured by its kind the way a code editor colours a literal. */
-const SimpleValue: React.FC<{ value: unknown, styles: Styles }> = ({ value, styles }) => {
+const SimpleValue: React.FC<{ value: unknown, styles: ValueStyles }> = ({ value, styles }) => {
     const { display, kind } = describeSimpleValue(value)
     return <span className={styles[KIND_CLASS[kind]]}>{display}</span>
 }
@@ -43,7 +53,7 @@ export const valueLabel = ({ type, key }: Pick<TraceParameterValue, 'type' | 'ke
  * One node title of a value tree, `name (type) = value`. A value with inner structure shows what it is known
  * as, or else a count of its fields.
  */
-const renderTitle = ({ name, value, type, summary }: ValueNodeTitle, styles: Styles): React.ReactNode => (
+const renderTitle = ({ name, value, type, summary }: ValueNodeTitle, styles: ValueStyles): React.ReactNode => (
     <span className={styles.treeTitle}>
         <span className={styles.valueName}>{name}</span>
         {type && <span className={styles.valueType}>{type}</span>}
@@ -58,7 +68,7 @@ const renderTitle = ({ name, value, type, summary }: ValueNodeTitle, styles: Sty
 const ParameterLine: React.FC<{
     name: string
     type?: string | undefined
-    styles: Styles
+    styles: ValueStyles
     children: React.ReactNode
 }> = ({ name, type, styles, children }) => (
     <div className={styles.item}>
@@ -144,6 +154,22 @@ const useReadOnDemand = (
 }
 
 /**
+ * A link among the lines of a value: it reads the value, reads it again, or lists more of it.
+ *
+ * A real button, so that the keyboard reaches it the way it reaches every other control.
+ */
+const ValueLink: React.FC<{
+    testId: string
+    onClick: () => void
+    styles: ValueStyles
+    children: React.ReactNode
+}> = ({ testId, onClick, styles, children }) => (
+    <button className={styles.valueLazy} data-testid={testId} onClick={onClick} type="button">
+        {children}
+    </button>
+)
+
+/**
  * What stands in place of a value that is not shown: a spinner while it is read, the reason it could not be
  * read, or the link that reads it.
  *
@@ -153,18 +179,15 @@ const placeholderOf = (
     state: ReadOnDemand,
     lazy: boolean,
     testId: string,
-    styles: Styles,
+    styles: ValueStyles,
     t: (key: string) => string,
     label?: string
 ): React.ReactNode => {
     if (state.loading) {
         return <Spin indicator={<LoadingOutlined spin />} size="small" />
     }
-    // A real button, so that the keyboard reaches it the way it reaches every other control.
     const readLink = (label: string) => (
-        <button className={styles.valueLazy} data-testid={`load-${testId}`} onClick={state.read} type="button">
-            {label}
-        </button>
+        <ValueLink onClick={state.read} styles={styles} testId={`load-${testId}`}>{label}</ValueLink>
     )
     if (state.error) {
         // The reason comes with the link again: a read that failed once, on a project still compiling, works later.
@@ -199,26 +222,70 @@ interface ValueCellProps {
      * titles it once it is read. Absent, a read value is counted by its fields.
      */
     label?: string | undefined
+    /** The look of the value, read once by the list that holds it with {@link useValueStyles}. */
+    styles: ValueStyles
+}
+
+interface ValueTreeProps extends ValueNodeTitle {
+    /** The key of the root node, unique on the screen. */
+    path: string
+    /** The value opens with its fields in view. */
+    open?: boolean | undefined
+    styles: ValueStyles
 }
 
 /**
- * A value on its own, without the name of the column it belongs to.
+ * A value with inner structure, drawn as a tree as far as the reader has opened it.
  *
- * A value with inner structure becomes a tree that expands field by field; a plain value is coloured the way a
- * debugger colours it. Use it where the name is already the header of a column.
- *
- * A value the API only referred to is a link that reads it, and a spinner while it is read.
+ * A node holds the lines of its fields and elements only while it is open, and lists them a step at a time. A
+ * whole value can hold millions of them, and a tree given all of them at once runs the browser out of memory
+ * before the first one is read.
  */
-export const ValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad, label }) => {
+const ValueTree: React.FC<ValueTreeProps> = ({ name, value, type, summary, path, open, styles }) => {
     const { t } = useTranslation('common')
-    const { styles } = useStyles()
-    const state = useReadOnDemand(value, onLoad)
+    const [openKeys, setOpenKeys] = useState<Key[]>(open ? [path] : [])
+    const [listed, setListed] = useState<ReadonlyMap<Key, number>>(new Map())
     const treeData = useMemo(
-        () => (isComplexValue(state.value)
-            ? [buildValueTreeData({ name: '', value: state.value, summary: label }, title => renderTitle(title, styles), path)]
-            : []),
-        [state.value, path, styles, label]
+        () => [buildValueTreeData(
+            { name, value, type, summary },
+            title => renderTitle(title, styles),
+            path,
+            {
+                open: new Set(openKeys),
+                listed,
+                renderMore: (key, left) => (
+                    <ValueLink
+                        styles={styles}
+                        testId={`more-${key}`}
+                        onClick={() => setListed(current => new Map(current)
+                            .set(key, (current.get(key) ?? LINES_PER_STEP) + LINES_PER_STEP))}
+                    >
+                        {t('value.more', { count: left })}
+                    </ValueLink>
+                ),
+            }
+        )],
+        [name, value, type, summary, path, styles, openKeys, listed, t]
     )
+    return (
+        <div className={styles.paramTree}>
+            <Tree
+                blockNode
+                expandedKeys={openKeys}
+                motion={false}
+                onExpand={keys => setOpenKeys(keys)}
+                selectable={false}
+                showLine={{ showLeafIcon: false }}
+                treeData={treeData}
+            />
+        </div>
+    )
+}
+
+/** A value with inner structure, or one the API only referred to: it is read when asked for, and drawn as a tree. */
+const ReadValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad, label, styles }) => {
+    const { t } = useTranslation('common')
+    const state = useReadOnDemand(value, onLoad)
 
     const placeholder = placeholderOf(state, Boolean(lazy) && onLoad !== undefined, path, styles, t, label)
     if (placeholder !== null) {
@@ -228,12 +295,23 @@ export const ValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad,
     if (!isComplexValue(state.value)) {
         return <SimpleValue styles={styles} value={state.value} />
     }
-    return (
-        <div className={styles.paramTree}>
-            <Tree blockNode defaultExpandedKeys={[]} selectable={false} showLine={{ showLeafIcon: false }} treeData={treeData} />
-        </div>
-    )
+    return <ValueTree name="" path={path} styles={styles} summary={label} value={state.value} />
 }
+
+/**
+ * A value on its own, without the name of the column it belongs to.
+ *
+ * A value with inner structure becomes a tree that expands field by field; a plain value is coloured the way a
+ * debugger colours it. Use it where the name is already the header of a column.
+ *
+ * A value the API only referred to is a link that reads it, and a spinner while it is read.
+ *
+ * A list can hold thousands of values, so a plain value is drawn with its colour alone. Only a value that has
+ * inner structure or is still to be read keeps what it has read.
+ */
+export const ValueCell: React.FC<ValueCellProps> = props => (!props.lazy && !isComplexValue(props.value)
+    ? <SimpleValue styles={props.styles} value={props.value} />
+    : <ReadValueCell {...props} />)
 
 interface ParameterValueTreeProps {
     param: TraceParameterValue
@@ -260,14 +338,6 @@ export const ParameterValueTree: React.FC<ParameterValueTreeProps> = ({ param, p
     const isComplex = isComplexValue(displayValue)
     const label = valueLabel(param)
 
-    const treeData = useMemo(() => (isComplex
-        ? [buildValueTreeData(
-            { name: param.name, value: displayValue, type: param.description, summary: label },
-            title => renderTitle(title, styles),
-            paramKey
-        )]
-        : []), [param.name, param.description, label, displayValue, paramKey, isComplex, styles])
-
     const line = (children: React.ReactNode) => (
         <ParameterLine name={param.name} styles={styles} type={param.description}>{children}</ParameterLine>
     )
@@ -280,15 +350,15 @@ export const ParameterValueTree: React.FC<ParameterValueTreeProps> = ({ param, p
         return line(<SimpleValue styles={styles} value={displayValue} />)
     }
     return (
-        <div className={styles.paramTree}>
-            <Tree
-                blockNode
-                defaultExpandedKeys={open ? [paramKey] : []}
-                selectable={false}
-                showLine={{ showLeafIcon: false }}
-                treeData={treeData}
-            />
-        </div>
+        <ValueTree
+            name={param.name}
+            open={open}
+            path={paramKey}
+            styles={styles}
+            summary={label}
+            type={param.description}
+            value={displayValue}
+        />
     )
 }
 

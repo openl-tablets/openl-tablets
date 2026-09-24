@@ -1,10 +1,11 @@
 import { MemoryRouter } from 'react-router-dom'
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { readTestsSummary, getTestCaseResult, getTestsSummaryWorkbook } from 'services/execution'
 import { saveFile } from 'utils/download'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
+import * as look from 'components/values/parameterValues.styles'
 
 vi.mock('services/execution', () => ({
     readTestsSummary: vi.fn(),
@@ -89,6 +90,30 @@ const summary = {
     numberOfFailures: 1,
 }
 
+/** The results of one test table of the given number of cases, every one of them passed. */
+const manyCases = (count: number) => ({
+    ...summary,
+    testCases: [{
+        ...summary.testCases[0],
+        numberOfTests: count,
+        numberOfFailures: 0,
+        testUnits: Array.from({ length: count }, (_, index) => ({
+            id: String(index + 1),
+            status: 'TR_OK',
+            executionTimeMs: 1,
+            parameters: driver(`Driver ${index + 1}`),
+            testAssertions: [{ description: 'Premium', expectedValue: 100, actualValue: 100, status: 'TR_OK' }],
+        })),
+    }],
+})
+
+/** The cases the table of the results lists now. */
+const listedCases = () => screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr')
+
+/** Turns the pager under the table of the results to the given page. */
+const turnTo = async (page: number) =>
+    userEvent.click(within(screen.getByTestId('test-cases-pagination-tt1')).getByTitle(String(page)))
+
 const show = async () => act(async () => {
     render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
     await new Promise(resolve => setTimeout(resolve, 20))
@@ -118,6 +143,29 @@ describe('TestsResultModal', () => {
         expect(table).toHaveTextContent('Premium')
         expect(table).toHaveTextContent('"Sara"')
         expect(table).toHaveTextContent('150')
+    })
+
+    it('reads the look of the values as often however many tables it lists', async () => {
+        const readLook = vi.spyOn(look, 'useStyles')
+        const readsFor = async (tables: number) => {
+            readLook.mockClear()
+            readSummary.mockResolvedValue({
+                ...summary,
+                testCases: Array.from({ length: tables }, (_, index) => ({
+                    ...summary.testCases[0],
+                    tableId: `tt${index}`,
+                })),
+            })
+            const view = render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" /></MemoryRouter>)
+            expect(await screen.findByTestId(`test-results-tt${tables - 1}`)).toBeInTheDocument()
+            view.unmount()
+            return readLook.mock.calls.length
+        }
+        try {
+            expect(await readsFor(3)).toBe(await readsFor(1))
+        } finally {
+            readLook.mockRestore()
+        }
     })
 
     it('shows the value that was expected under the value of a case that failed', async () => {
@@ -153,6 +201,52 @@ describe('TestsResultModal', () => {
 
         expect(screen.getByTestId('test-table-tt1')).toBeInTheDocument()
         expect(screen.queryByTestId('test-results-tt1')).toBeNull()
+    })
+
+    it('lists the cases of a large test table a page at a time', async () => {
+        readSummary.mockResolvedValue(manyCases(45))
+        await show()
+
+        expect(listedCases()).toHaveLength(20)
+        expect(listedCases()[0]).toHaveTextContent('"Driver 1"')
+
+        await turnTo(3)
+
+        expect(listedCases()).toHaveLength(5)
+        expect(listedCases()[0]).toHaveTextContent('"Driver 41"')
+    })
+
+    it('lists every case of a table that fits on one page, with no pager', async () => {
+        await show()
+
+        expect(listedCases()).toHaveLength(2)
+        expect(screen.queryByTestId('test-cases-pagination-tt1')).toBeNull()
+    })
+
+    it('lists the cases from the first page again when the screen is set to list other cases', async () => {
+        readSummary.mockResolvedValue(manyCases(45))
+        await show()
+        await turnTo(2)
+        expect(listedCases()[0]).toHaveTextContent('"Driver 21"')
+
+        await userEvent.click(screen.getByTestId('tests-failures-only'))
+
+        await waitFor(() => expect(readSummary).toHaveBeenLastCalledWith('p1', expect.objectContaining({
+            failuresOnly: true,
+        })))
+        await waitFor(() => expect(listedCases()[0]).toHaveTextContent('"Driver 1"'))
+    })
+
+    it('keeps the page of cases when only the compound result is added', async () => {
+        readSummary.mockResolvedValue(manyCases(45))
+        await show()
+        await turnTo(2)
+
+        await userEvent.click(screen.getByTestId('tests-compound-result'))
+
+        // The compound result adds a column to every case listed; it does not change which cases are listed.
+        await waitFor(() => expect(screen.getByTestId('test-results-tt1')).toHaveTextContent('tests.compoundResult'))
+        expect(listedCases()[0]).toHaveTextContent('"Driver 21"')
     })
 
     it('leads to the test table, through the module it is written in', async () => {

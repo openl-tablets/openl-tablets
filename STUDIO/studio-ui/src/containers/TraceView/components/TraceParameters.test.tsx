@@ -20,18 +20,28 @@ vi.mock('react-i18next', () => {
 
 // AntD Tree virtualises and can spin act() loops in jsdom; render the tree data as plain nested
 // markup so a nested object's field names/values are assertable. Everything else in antd stays real.
+// A node that opens has a button that opens it, the way a click on its switcher does.
 interface MockTreeProps {
     treeData?: TreeDataNode[]
+    expandedKeys?: React.Key[]
+    onExpand?: (keys: React.Key[]) => void
 }
-const renderNode = (node: TreeDataNode): React.ReactNode => (
+const renderNode = (node: TreeDataNode, open: (key: React.Key) => void): React.ReactNode => (
     <li key={String(node.key)} data-testid="tree-node">
+        {node.isLeaf === false && (
+            <button data-testid={`open-${String(node.key)}`} onClick={() => open(node.key)} type="button" />
+        )}
         <span>{node.title as React.ReactNode}</span>
-        {node.children && <ul>{node.children.map(renderNode)}</ul>}
+        {node.children && <ul>{node.children.map(child => renderNode(child, open))}</ul>}
     </li>
 )
 vi.mock('antd', async () => {
     const actual = await vi.importActual<typeof import('antd')>('antd')
-    const Tree = ({ treeData = []}: MockTreeProps) => <ul data-testid="param-tree">{treeData.map(renderNode)}</ul>
+    const Tree = ({ treeData = [], expandedKeys = [], onExpand }: MockTreeProps) => (
+        <ul data-testid="param-tree">
+            {treeData.map(node => renderNode(node, key => onExpand?.([...expandedKeys, key])))}
+        </ul>
+    )
     return { ...actual, Tree }
 })
 
@@ -114,7 +124,7 @@ describe('TraceParameters', () => {
             expect(screen.getByText('null')).toBeInTheDocument()
         })
 
-        it('expands a nested object into a tree of its fields', () => {
+        it('expands a nested object into a tree of its fields', async () => {
             render(
                 <ParameterTree
                     param={param({ name: 'bank', description: 'Bank', value: { id: 7, city: 'NY' } })}
@@ -122,6 +132,11 @@ describe('TraceParameters', () => {
                 />
             )
             expect(screen.getByTestId('param-tree')).toBeInTheDocument()
+            // The fields are drawn once the value is opened: a whole value can hold millions of them.
+            expect(screen.queryByText('city')).toBeNull()
+
+            await userEvent.click(screen.getByTestId('open-k'))
+
             // Field names and their values appear as tree nodes.
             expect(screen.getByText('id')).toBeInTheDocument()
             expect(screen.getByText('city')).toBeInTheDocument()

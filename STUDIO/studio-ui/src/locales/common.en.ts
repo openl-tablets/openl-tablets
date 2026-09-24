@@ -24,6 +24,7 @@ i18next.addResourceBundle('en', 'common', {
         load: 'Load value',
         retry: 'Try again',
         loadFailed: 'Failed to load the value',
+        more: 'Show more ({{count}} left)',
     },
     help: {
         openl_tablets_help_title: 'Welcome to OpenL Tablets Help Center',

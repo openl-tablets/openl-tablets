@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
-import { ValueCell, valueLabel } from 'components/values/ParameterValues'
+import { useValueStyles, ValueCell, valueLabel, type ValueStyles } from 'components/values/ParameterValues'
 import { useTestCase } from 'hooks/useTestCase'
 import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
@@ -63,7 +63,8 @@ const columnsOf = (
     table: TestTableResult,
     compoundResult: boolean,
     t: (key: string) => string,
-    readCase: ReadCase
+    readCase: ReadCase,
+    valueStyles: ValueStyles
 ): ListTableColumn<TestUnitResult>[] => {
     const units = table.testUnits ?? []
     const first = units[0]
@@ -101,6 +102,7 @@ const columnsOf = (
                         lazy={value?.lazy ?? false}
                         onLoad={() => readCase(table.tableId, unit.id).then(read => inputsOf(read)[index])}
                         path={`${key}-in-${unit.id}-${index}`}
+                        styles={valueStyles}
                         value={value?.value}
                     />
                 )
@@ -117,12 +119,20 @@ const columnsOf = (
                             {!table.runTable && actual && (
                                 <StatusMark status={actual.status} title={t(STATUS[actual.status])} />
                             )}
-                            <ValueCell path={`${key}-out-${unit.id}-${index}`} value={actual?.actualValue} />
+                            <ValueCell
+                                path={`${key}-out-${unit.id}-${index}`}
+                                styles={valueStyles}
+                                value={actual?.actualValue}
+                            />
                         </Space>
                         {actual && actual.status !== 'TR_OK' && (
                             <Space size={4}>
                                 <Text type="secondary">{t('tests.expected')}</Text>
-                                <ValueCell path={`${key}-exp-${unit.id}-${index}`} value={actual.expectedValue} />
+                                <ValueCell
+                                    path={`${key}-exp-${unit.id}-${index}`}
+                                    styles={valueStyles}
+                                    value={actual.expectedValue}
+                                />
                             </Space>
                         )}
                     </Space>
@@ -144,6 +154,7 @@ const columnsOf = (
                             lazy={unit.result.lazy}
                             onLoad={() => readCase(table.tableId, unit.id).then(read => read.result)}
                             path={`${key}-whole-${unit.id}`}
+                            styles={valueStyles}
                             value={unit.result.value}
                         />
                     )}
@@ -161,15 +172,26 @@ const columnsOf = (
 /** Reads one case of the run that has ended, with every value it holds. */
 type ReadCase = (tableId: string, caseId: string) => Promise<TestUnitResult>
 
-/** The results of the test units of one test table, a case to a row. */
+/** How many cases of one test table are listed at a time. */
+const CASES_PER_PAGE = 20
+
+/**
+ * The results of the test units of one test table, a case to a row.
+ *
+ * A table lists its cases a page at a time, and the pager under it reaches the rest. A test table can hold
+ * thousands of cases, and drawn at once, their rows are more than the browser can hold.
+ */
 const TestTable: React.FC<{
     table: TestTableResult
     projectId: string
     compoundResult: boolean
     readCase: ReadCase
+    /** The look of the values, read once by the window for every table it lists. */
+    valueStyles: ValueStyles
     onOpenTable: () => void
-}> = ({ table, projectId, compoundResult, readCase, onOpenTable }) => {
+}> = ({ table, projectId, compoundResult, readCase, valueStyles, onOpenTable }) => {
     const { t } = useTranslation('execution')
+    const [page, setPage] = useState(1)
 
     // A test table holds test cases; a Run table holds runs, because it states no expected values.
     const kind = table.runTable ? 'runs' : 'cases'
@@ -198,13 +220,26 @@ const TestTable: React.FC<{
                 {table.numberOfFailures > 0 && <Tag color="error">{table.numberOfFailures}</Tag>}
                 {table.description && <Text type="secondary">{table.description}</Text>}
             </Flex>
-            {/* A table the screen is set to leave out keeps its name and its counts, and nothing more. */}
+            {/* A table the screen is set to leave out keeps its name and its counts, and nothing more. The columns
+                come from every case listed, so they stay the same from page to page. */}
             {units.length > 0 && (
                 <ListTable<TestUnitResult>
-                    columns={columnsOf(table, compoundResult, t, readCase)}
+                    columns={columnsOf(table, compoundResult, t, readCase, valueStyles)}
                     data-testid={`test-results-${table.tableId}`}
                     rowKey={unit => unit.id}
-                    rows={units}
+                    rows={units.slice((page - 1) * CASES_PER_PAGE, page * CASES_PER_PAGE)}
+                />
+            )}
+            {units.length > CASES_PER_PAGE && (
+                <Pagination
+                    align="end"
+                    current={page}
+                    data-testid={`test-cases-pagination-${table.tableId}`}
+                    onChange={setPage}
+                    pageSize={CASES_PER_PAGE}
+                    showSizeChanger={false}
+                    size="small"
+                    total={units.length}
                 />
             )}
         </Space>
@@ -240,6 +275,7 @@ interface TestsResultModalProps {
  */
 export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, tableId, options, onClose }) => {
     const { t } = useTranslation('execution')
+    const valueStyles = useValueStyles()
     const profile = useUserStore(state => state.userProfile)
     const [query, setQuery] = useState<Required<TestsQuery>>(() => ({ ...savedQuery(profile ?? null), ...options }))
     const [summary, setSummary] = useState<TestsSummary | null>(null)
@@ -355,13 +391,15 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                 {tables.length === 0
                     ? <Empty description={t('tests.none')} />
                     : tables.map(table => (
+                        // A table set to list other cases lists them from its first page again.
                         <TestTable
-                            key={table.tableId}
+                            key={`${table.tableId} ${shownQuery.failuresOnly} ${shownQuery.failures}`}
                             compoundResult={shownQuery.compoundResult}
                             onOpenTable={onClose}
                             projectId={projectId}
                             readCase={readCase}
                             table={table}
+                            valueStyles={valueStyles}
                         />
                     ))}
                 {query.size !== ALL_TESTS_ON_A_PAGE && summary.total > query.size && (

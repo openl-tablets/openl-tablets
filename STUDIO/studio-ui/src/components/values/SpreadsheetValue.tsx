@@ -3,7 +3,7 @@ import { Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import type { SpreadsheetResultView } from 'types/execution'
-import { ValueCell } from './ParameterValues'
+import { useValueStyles, ValueCell } from './ParameterValues'
 
 const { Text } = Typography
 
@@ -29,6 +29,7 @@ interface SpreadsheetValueProps {
  */
 export const SpreadsheetValue: React.FC<SpreadsheetValueProps> = ({ spreadsheet, keyPrefix }) => {
     const { t } = useTranslation('execution')
+    const valueStyles = useValueStyles()
 
     const columns: ListTableColumn<SpreadsheetRow>[] = useMemo(() => [
         {
@@ -41,10 +42,10 @@ export const SpreadsheetValue: React.FC<SpreadsheetValueProps> = ({ spreadsheet,
             key: `column-${index}`,
             title: column ?? '',
             render: (row: SpreadsheetRow) => (
-                <ValueCell path={`${keyPrefix}-${row.key}-${index}`} value={row.cells[index]} />
+                <ValueCell path={`${keyPrefix}-${row.key}-${index}`} styles={valueStyles} value={row.cells[index]} />
             ),
         })),
-    ], [spreadsheet.columns, keyPrefix, t])
+    ], [spreadsheet.columns, keyPrefix, t, valueStyles])
 
     const rows: SpreadsheetRow[] = useMemo(
         () => spreadsheet.rows.map((row, index) => ({
