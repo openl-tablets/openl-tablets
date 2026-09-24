@@ -6,12 +6,18 @@ import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { useValueStyles, ValueCell } from 'components/values/ParameterValues'
 import { SpreadsheetValue } from 'components/values/SpreadsheetValue'
-import { getRunResultWorkbook, readRunResult, XLSX_MEDIA_TYPE, type RunFileOptions } from 'services/execution'
+import {
+    getRunResult,
+    getRunResultWorkbook,
+    readRunResult,
+    XLSX_MEDIA_TYPE,
+    type RunFileOptions,
+} from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
 import type { RunResult } from 'types/execution'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
-import { isFinished, useExecutionProgress } from './useExecutionProgress'
+import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { runStatusTopic } from './topics'
 import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
 
@@ -65,9 +71,9 @@ interface RunResultModalProps {
 /**
  * The result of running one table.
  *
- * The window opens while the run is still on its way and waits for it, asking again as long as the run answers
- * that it has not ended. The input the table ran with and the value it returned stand side by side, a column
- * each, and a spreadsheet result is shown as the table it was calculated by.
+ * The window opens while the run is still on its way and waits for the run to say it has ended. The input the
+ * table ran with and the value it returned stand side by side, a column each, and a spreadsheet result is shown
+ * as the table it was calculated by.
  */
 export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, tableId, fileOptions, onClose }) => {
     const { t } = useTranslation('execution')
@@ -78,16 +84,21 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
     const progress = useExecutionProgress(runStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
+    const quietSpells = useQuietSpells(progress, result === null)
 
-    // The run says when it has ended. The screen also reads once as soon as it is listening, for a run that
-    // ended before the window was there to hear about it.
+    // The run says when it has ended, and the result is read then. The screen also reads once as soon as it is
+    // listening, for a run that ended before the window was there to hear about it, and again when the run has
+    // said nothing for a while.
     useEffect(() => {
         if (!progress.subscribed) {
             return undefined
         }
         let active = true
+        // Only a run that has said it ended is waited out while it publishes the result. A run still going on
+        // answers one read, and the screen waits for the run to say more.
+        const read = finished ? readRunResult : getRunResult
         // The window shows a spreadsheet result as the table it was calculated by, so it asks for that layout.
-        readRunResult(projectId, { spreadsheet: true })
+        read(projectId, { spreadsheet: true })
             .then(loaded => {
                 if (active) {
                     setResult(loaded)
@@ -101,7 +112,7 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
         return () => {
             active = false
         }
-    }, [projectId, progress.subscribed, finished])
+    }, [projectId, progress.subscribed, finished, quietSpells])
 
     const save = () => {
         setSaving(true)

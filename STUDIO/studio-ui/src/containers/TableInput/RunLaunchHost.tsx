@@ -4,11 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { CompoundResultOption, FailuresOption, savedFailuresOption } from 'containers/execution/ResultOptions'
 import { RunResultModal } from 'containers/execution/RunResultModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
-import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
+import { isFinished, useExecutionProgress, useQuietSpells } from 'containers/execution/useExecutionProgress'
 import { runStatusTopic, testsTopics } from 'containers/execution/topics'
 import { carriesCases, isRunTable } from 'constants/tableKinds'
 import { useEventProject } from 'hooks'
 import {
+    getRunResult,
+    getRunResultWorkbook,
+    getTestsSummaryWorkbook,
     readRunResult,
     readRunResultWorkbook,
     readTestsSummaryWorkbook,
@@ -125,18 +128,23 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
      *
      * A rule table gives the workbook of the run, written the way the options ask for, or the returned value
      * on its own in JSON. A test table gives the workbook of the results.
+     *
+     * An execution that said it ended is waited out while it publishes what it returned. One still going on
+     * answers one read, and the panel waits for it to say more.
+     *
+     * @param ended whether the execution said it ended
      */
-    const saveResult = useCallback((kind: RunResults): Promise<void> => {
+    const saveResult = useCallback((kind: RunResults, ended: boolean): Promise<void> => {
         const write = (): Promise<void> => {
             if (kind === 'tests') {
-                return readTestsSummaryWorkbook(project.id, testsOptions)
+                return (ended ? readTestsSummaryWorkbook : getTestsSummaryWorkbook)(project.id, testsOptions)
                     .then(workbook => saveFile(workbook, 'test-results.xlsx', XLSX_MEDIA_TYPE))
             }
             if (file.resultInJson) {
-                return readRunResult(project.id).then(result =>
+                return (ended ? readRunResult : getRunResult)(project.id).then(result =>
                     saveFile(JSON.stringify(result.result ?? null, null, 2), 'response.json', 'application/json'))
             }
-            return readRunResultWorkbook(project.id, file)
+            return (ended ? readRunResultWorkbook : getRunResultWorkbook)(project.id, file)
                 .then(workbook => saveFile(workbook, 'run-result.xlsx', XLSX_MEDIA_TYPE))
         }
         return write()
@@ -161,6 +169,7 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
     // the tests'.
     const progress = savingFile === 'tests' ? testsProgress : runProgress
     const finished = isFinished(progress.status)
+    const quietSpells = useQuietSpells(progress, savingFile !== null)
     useEffect(() => {
         if (!savingFile) {
             return
@@ -172,11 +181,13 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
             setStarting(false)
             return
         }
-        // What the execution produced is asked for when it says it has ended, and whenever the panel starts
-        // or stops hearing it — a run may have ended before the panel started saving, and a connection that
-        // drops takes the message with it. A run still going on leaves the panel waiting.
-        reads.current = reads.current.then(() => (saving.current ? saveResult(saving.current) : undefined))
-    }, [savingFile, finished, progress.subscribed])
+        // What the execution produced is asked for when it says it has ended, whenever the panel starts or
+        // stops hearing it, and when it has said nothing for a while — a run may have ended before the panel
+        // started saving, and a connection that drops takes the message with it. A run still going on leaves
+        // the panel waiting.
+        reads.current = reads.current
+            .then(() => (saving.current ? saveResult(saving.current, finished) : undefined))
+    }, [savingFile, finished, progress.subscribed, quietSpells])
 
     const fileOption = (name: keyof RunFileChoice, label: string) => (
         <Checkbox

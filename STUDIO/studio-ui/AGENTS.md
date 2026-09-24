@@ -58,6 +58,11 @@ The build writes two pages (`build.rollupOptions.input`):
 
 - **REST**: always use `services/apiCall.ts` — it prepends `CONFIG.CONTEXT`, handles JSON/text, surfaces validation
   errors, and updates `useAppStore` flags for 401/403/404/500.
+- **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
+  once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
+  (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads
+  again after every quiet spell of `useQuietSpells` while it waits: an end the socket drops, just as the screen
+  subscribes or while it reconnects, reaches nobody. An execution that has said it ended counts no spell.
 - **State**: Zustand stores in `src/store/`. Use selectors that subscribe to specific slices to avoid re-renders.
 - **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
   with `AdministrationLayout`.

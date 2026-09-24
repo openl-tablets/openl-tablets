@@ -1,5 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
-import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
+import {
+    isFinished,
+    QUIET_SPELL_MS,
+    useExecutionProgress,
+    useQuietSpells,
+} from 'containers/execution/useExecutionProgress'
+import type { ExecutionStatus } from 'types/execution'
 
 // The socket is the session's; here it is a fake one the test pushes frames into. The subscriptions go
 // through the real multiplexer, so what a second screen watching the same topic does to the first is what it
@@ -127,5 +133,66 @@ describe('useExecutionProgress', () => {
 
         expect(result.current.status).toBeNull()
         expect(result.current.error).toBeNull()
+    })
+})
+
+describe('useQuietSpells', () => {
+    beforeEach(() => {
+        vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
+    /** An execution that goes on, as the screen hears it. */
+    const going = { status: 'STARTED' as ExecutionStatus | null, arrived: 0, subscribed: true }
+
+    it('counts a spell each time the execution says nothing for a while', () => {
+        const { result } = renderHook(() => useQuietSpells(going, true))
+
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS - 1))
+        expect(result.current).toBe(0)
+        act(() => vi.advanceTimersByTime(1))
+        expect(result.current).toBe(1)
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS))
+        expect(result.current).toBe(2)
+    })
+
+    it('starts the spell over whenever the execution reports a result or a status', () => {
+        const { result, rerender } = renderHook(
+            ({ progress }) => useQuietSpells(progress, true),
+            { initialProps: { progress: going } }
+        )
+
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS - 1))
+        rerender({ progress: { ...going, arrived: 1 } })
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS - 1))
+        rerender({ progress: { ...going, arrived: 1, status: 'PENDING' } })
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS - 1))
+
+        expect(result.current).toBe(0)
+    })
+
+    it('counts nothing once the execution has said it ended', () => {
+        const { result } = renderHook(() => useQuietSpells({ ...going, status: 'COMPLETED' }, true))
+
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS * 3))
+
+        expect(result.current).toBe(0)
+    })
+
+    it('counts nothing while the screen waits for nothing, or does not listen', () => {
+        const { result, rerender } = renderHook(
+            ({ waiting, subscribed }) => useQuietSpells({ ...going, subscribed }, waiting),
+            { initialProps: { waiting: false, subscribed: true } }
+        )
+
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS * 3))
+        expect(result.current).toBe(0)
+
+        rerender({ waiting: true, subscribed: false })
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS * 3))
+        expect(result.current).toBe(0)
     })
 })

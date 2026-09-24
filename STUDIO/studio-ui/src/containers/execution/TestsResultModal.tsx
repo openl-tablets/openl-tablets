@@ -10,6 +10,7 @@ import { useTestCase } from 'hooks/useTestCase'
 import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
     getTestCaseResult,
+    getTestsSummary,
     getTestsSummaryWorkbook,
     readTestsSummary,
     XLSX_MEDIA_TYPE,
@@ -23,7 +24,7 @@ import type { TraceParameterValue } from 'types/trace'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
 import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from './ResultOptions'
-import { isFinished, useExecutionProgress } from './useExecutionProgress'
+import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { testsTopics } from './topics'
 import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
 
@@ -298,15 +299,20 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     const progress = useExecutionProgress(topics.status, topics.results)
 
     const finished = isFinished(progress.status)
+    const quietSpells = useQuietSpells(progress, summary === null)
 
-    // The run says when it has ended. The screen also reads once as soon as it is listening, for a run that
-    // ended before the window was there to hear about it, and again whenever it is set to show something else.
+    // The run says when it has ended, and the results are read then. The screen also reads once as soon as it is
+    // listening, for a run that ended before the window was there to hear about it, again whenever it is set to
+    // show something else, and again when the run has said nothing for a while.
     useEffect(() => {
         if (!progress.subscribed) {
             return undefined
         }
         let active = true
-        readTestsSummary(projectId, query)
+        // Only a run that has said it ended is waited out while it publishes the results. A run still going on
+        // answers one read, and the screen waits for the run to say more.
+        const read = finished ? readTestsSummary : getTestsSummary
+        read(projectId, query)
             .then(loaded => {
                 if (active) {
                     setSummary(loaded)
@@ -322,7 +328,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
         return () => {
             active = false
         }
-    }, [projectId, query, progress.subscribed, finished])
+    }, [projectId, query, progress.subscribed, finished, quietSpells])
 
     const save = () => {
         setSaving(true)

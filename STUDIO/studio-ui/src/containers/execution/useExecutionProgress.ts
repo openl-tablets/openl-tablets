@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWebSocket } from 'hooks/useWebSocket'
-import { readStatus } from 'services/executionStatus'
+import { isFinished, readStatus } from 'services/executionStatus'
 import { subscribeTopic, type TopicSubscription } from 'services/stompTopic'
 import type { ExecutionStatus } from 'types/execution'
 
-export { isFinished } from 'services/executionStatus'
+export { isFinished }
 
 /** What the server reports while a run or a test run goes on: a status, and why it failed when it did. */
 interface ExecutionProgress {
@@ -75,4 +75,40 @@ export const useExecutionProgress = (statusTopic: string | null, resultsTopic?: 
     }, [isConnected, statusTopic, resultsTopic, onStatus, onResult])
 
     return { ...progress, reset }
+}
+
+/** How long a screen that waits for an execution to end hears nothing before it asks after the result again. */
+export const QUIET_SPELL_MS = 5000
+
+/**
+ * Counts the quiet spells of an execution a screen waits for.
+ *
+ * A spell is {@link QUIET_SPELL_MS} in which the server reports neither a status nor a result. The screen asks
+ * after the result again at each one: an execution that ends just as the screen starts listening reports its
+ * end to nobody, and the screen would wait for good.
+ *
+ * Anything the server reports starts the spell over, so a screen that hears the execution going on asks nothing.
+ * An execution that has said it ended has nothing more to say, and counts no spell.
+ *
+ * @param progress what the server reports of the execution
+ * @param waiting  whether the screen still waits for the result
+ * @return how many spells have passed
+ */
+export const useQuietSpells = (
+    progress: Pick<ExecutionProgress, 'status' | 'arrived' | 'subscribed'>,
+    waiting: boolean
+): number => {
+    const [spells, setSpells] = useState(0)
+    const { status, arrived, subscribed } = progress
+    const listening = waiting && subscribed && !isFinished(status)
+
+    useEffect(() => {
+        if (!listening) {
+            return undefined
+        }
+        const spell = setTimeout(() => setSpells(count => count + 1), QUIET_SPELL_MS)
+        return () => clearTimeout(spell)
+    }, [listening, status, arrived, spells])
+
+    return spells
 }
