@@ -24,16 +24,18 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
     @Override
     @Async("testSuiteExecutor")
     public CompletableFuture<List<TestUnitsResults>> runAll(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, boolean currentOpenedModule) {
+        var rerun = TestsRerun.of(projectModel, currentOpenedModule);
         var testMethods = currentOpenedModule ? projectModel.getOpenedModuleTestMethods() : projectModel.getAllTestMethods();
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
-        runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule);
+        runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule, rerun);
         return CompletableFuture.completedFuture(executionResult);
     }
 
     @Override
     @Async("testSuiteExecutor")
     public CompletableFuture<List<TestUnitsResults>> runAllForTable(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, IOpenLTable table, boolean currentOpenedModule) {
+        var rerun = TestsRerun.of(projectModel, currentOpenedModule);
         var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
         var executionResult = new ArrayList<TestUnitsResults>();
@@ -43,13 +45,14 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             return CompletableFuture.completedFuture(executionResult);
         }
         var testMethods = projectModel.getTestMethods(uri, currentOpenedModule);
-        runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule);
+        runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule, rerun);
         return CompletableFuture.completedFuture(executionResult);
     }
 
     @Override
     @Async("testSuiteExecutor")
     public CompletableFuture<List<TestUnitsResults>> runSingle(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, IOpenLTable table, String testRanges, boolean currentOpenedModule) {
+        var rerun = TestsRerun.of(projectModel, currentOpenedModule);
         var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
         var executionResult = new ArrayList<TestUnitsResults>();
@@ -64,7 +67,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
                 var indices = testSuiteMethod.getIndices(testRanges);
                 testSuite = new TestSuite(testSuiteMethod, indices);
             }
-            var unitsResult = projectModel.runTest(testSuite, currentOpenedModule);
+            var unitsResult = RetainedTestUnit.retain(projectModel.runTest(testSuite, currentOpenedModule), rerun);
             listener.onTestUnitExecuted(unitsResult);
             executionResult.add(unitsResult);
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
@@ -79,7 +82,8 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
                              List<TestUnitsResults> executionResult,
                              ProjectModel model,
                              TestSuiteMethod[] tests,
-                             boolean currentOpenedModule) {
+                             boolean currentOpenedModule,
+                             TestsRerun rerun) {
         if (Arrays.isEmpty(tests)) {
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
             return;
@@ -92,7 +96,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
                 interrupted = true;
                 break;
             }
-            var testUnitsResults = runSingleTest(model, testSuiteMethod, currentOpenedModule);
+            var testUnitsResults = runSingleTest(model, testSuiteMethod, currentOpenedModule, rerun);
             executionResult.add(testUnitsResults);
             listener.onTestUnitExecuted(testUnitsResults);
         }
@@ -101,7 +105,10 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         }
     }
 
-    private TestUnitsResults runSingleTest(ProjectModel model, TestSuiteMethod testSuiteMethod, boolean currentOpenedModule) {
+    private TestUnitsResults runSingleTest(ProjectModel model,
+                                           TestSuiteMethod testSuiteMethod,
+                                           boolean currentOpenedModule,
+                                           TestsRerun rerun) {
         var testedMethod = testSuiteMethod.getTestedMethod();
         var testSuite = new TestSuite(testSuiteMethod);
         TestUnitsResults testUnitsResults;
@@ -116,7 +123,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             }
         }
         if (currentOpenedModule || noErrors) {
-            testUnitsResults = model.runTest(testSuite, currentOpenedModule);
+            testUnitsResults = RetainedTestUnit.retain(model.runTest(testSuite, currentOpenedModule), rerun);
         } else {
             testUnitsResults = new TestUnitsResults(testSuite);
             testUnitsResults.setTestedRulesHaveErrors(true);

@@ -948,6 +948,22 @@ public class ProjectModel {
                         : compiledOpenClass.get().getOpenClassWithErrors());
     }
 
+    /**
+     * Runs a test the way {@link #runTest(TestSuite, boolean)} does, as long as it is compiled the way it was read.
+     *
+     * <p>A test belongs to what was compiled when it was read. Once the project or the open module is compiled
+     * again, the test runs nothing.
+     *
+     * @param compiled what the test was read from: the whole project, or the module that was open
+     * @return the results, or {@code null} when it was compiled again since
+     */
+    public synchronized @Nullable TestUnitsResults runTest(TestSuite test,
+                                                           boolean currentOpenedModule,
+                                                           CompiledOpenClass compiled) {
+        var current = currentOpenedModule ? openedModuleCompiledOpenClass.get() : compiledOpenClass.get();
+        return current == compiled ? runTest(test, currentOpenedModule) : null;
+    }
+
     private TestUnitsResults runTest(TestSuite test, boolean isParallel, IOpenClass openClass) {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {

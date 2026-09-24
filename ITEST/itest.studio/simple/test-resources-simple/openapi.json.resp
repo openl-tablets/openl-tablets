@@ -29314,6 +29314,10 @@ Content-Type: application/json
       "TestAssertionExecutionResult": {
         "type": "object",
         "properties": {
+          "actualLazy": {
+            "type": "boolean",
+            "description": "***"
+          },
           "actualValue": {
             "type": "object",
             "description": "***"
