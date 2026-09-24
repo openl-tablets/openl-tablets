@@ -48,13 +48,13 @@ Integration patterns with popular frameworks:
 ### For New Developers
 1. **Start Here**: [Codebase Tour](onboarding/codebase-tour.md) - 5-minute overview
 2. **Setup**: [Development Setup](onboarding/development-setup.md) - Get your environment ready
-3. **Conventions**: [Root CLAUDE.md](/CLAUDE.md) - Coding standards and practices
+3. **Conventions**: [Root AGENTS.md](/AGENTS.md) - Coding standards and practices
 4. **Common Tasks**: [Common Development Tasks](onboarding/common-tasks.md) - Frequently performed operations
 
 ### For Contributors
 1. **Architecture**: [Technology Stack](architecture/technology-stack.md) - Understand the technologies
 2. **Workflows**: [Claude Code Workflows](claude-workflows.md) - Best practices with Claude Code
-3. **Module Guides**: See module-specific CLAUDE.md files in each module directory
+3. **Module Guides**: See module-specific AGENTS.md files in each module directory
 4. **Testing**: [Testing Guide](guides/testing-guide.md) - Testing best practices
 
 ### For Architects
@@ -69,12 +69,11 @@ Integration patterns with popular frameworks:
 ## 📖 Documentation Structure
 
 ### Conventions & Workflows
-- **[/CLAUDE.md](/CLAUDE.md)** - Repository-wide coding conventions and architecture principles
-- **[/DEV/CLAUDE.md](/DEV/CLAUDE.md)** - Core engine-specific conventions
-- **[/STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)** - OpenL Studio conventions
-- **[/WSFrontend/CLAUDE.md](/WSFrontend/CLAUDE.md)** - Rule services conventions
-- **[/Util/CLAUDE.md](/Util/CLAUDE.md)** - Utilities and tools conventions
-- **[/STUDIO/studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)** - React/TypeScript frontend conventions
+- **[/AGENTS.md](/AGENTS.md)** - Repository-wide coding conventions and architecture principles
+- **[/DEV/AGENTS.md](/DEV/AGENTS.md)** - Core engine-specific conventions
+- **[/STUDIO/AGENTS.md](/STUDIO/AGENTS.md)** - OpenL Studio conventions
+- **[/WSFrontend/AGENTS.md](/WSFrontend/AGENTS.md)** - Rule services conventions
+- **[/STUDIO/studio-ui/AGENTS.md](/STUDIO/studio-ui/AGENTS.md)** - React/TypeScript frontend conventions
 - **[Claude Code Workflows](claude-workflows.md)** - How to use Claude Code with this repository
 
 ### Developer Guides
@@ -140,7 +139,7 @@ OpenL Tablets is organized into 5 major module groups:
 ### 1. DEV - Core Rules Engine
 **Location**: `/DEV/`
 **Purpose**: Core business rules engine - parsing, compilation, execution
-**Documentation**: [DEV Module Overview](analysis/dev-module-overview.md) | [DEV/CLAUDE.md](/DEV/CLAUDE.md)
+**Documentation**: [DEV Module Overview](analysis/dev-module-overview.md) | [DEV/AGENTS.md](/DEV/AGENTS.md)
 
 **Key Submodules**:
 - `org.openl.commons` - Foundation utilities
@@ -151,7 +150,7 @@ OpenL Tablets is organized into 5 major module groups:
 ### 2. STUDIO - Web IDE & Management
 **Location**: `/STUDIO/`
 **Purpose**: Web-based IDE for rule authoring and management
-**Documentation**: [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md) | [STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)
+**Documentation**: [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md) | [STUDIO/AGENTS.md](/STUDIO/AGENTS.md)
 
 **Key Submodules**:
 - `org.openl.rules.webstudio` - Main OpenL Studio application (WAR)
@@ -162,7 +161,7 @@ OpenL Tablets is organized into 5 major module groups:
 ### 3. WSFrontend - Rule Services
 **Location**: `/WSFrontend/`
 **Purpose**: Rule deployment and web services
-**Documentation**: [WSFrontend Overview](analysis/studio-wsfrontend-util-overview.md) | [WSFrontend/CLAUDE.md](/WSFrontend/CLAUDE.md)
+**Documentation**: [WSFrontend Overview](analysis/studio-wsfrontend-util-overview.md) | [WSFrontend/AGENTS.md](/WSFrontend/AGENTS.md)
 
 **Key Submodules**:
 - `org.openl.rules.ruleservice` - Core service engine
@@ -173,7 +172,7 @@ OpenL Tablets is organized into 5 major module groups:
 ### 4. Util - Tools & Utilities
 **Location**: `/Util/`
 **Purpose**: Maven plugins, archetypes, OpenTelemetry
-**Documentation**: [Util Overview](analysis/studio-wsfrontend-util-overview.md) | [Util/CLAUDE.md](/Util/CLAUDE.md)
+**Documentation**: [Util Overview](analysis/studio-wsfrontend-util-overview.md)
 
 **Key Submodules**:
 - `openl-maven-plugin` - Maven plugin for OpenL compilation
@@ -211,19 +210,19 @@ OpenL Tablets is organized into 5 major module groups:
 
 #### Work on Core Engine
 - **Understand the core engine** → [DEV Module Overview](analysis/dev-module-overview.md)
-- **Follow core engine conventions** → [DEV/CLAUDE.md](/DEV/CLAUDE.md)
+- **Follow core engine conventions** → [DEV/AGENTS.md](/DEV/AGENTS.md)
 - **Add a new table type** → [Custom Extensions Guide](guides/custom-extensions.md)
-- **Modify the parser** → [DEV/CLAUDE.md: Parser Guidelines](/DEV/CLAUDE.md)
+- **Modify the parser** → [DEV/AGENTS.md: Parser Guidelines](/DEV/AGENTS.md)
 
 #### Work on OpenL Studio
 - **Understand OpenL Studio** → [STUDIO Overview](analysis/studio-wsfrontend-util-overview.md)
-- **Follow STUDIO conventions** → [STUDIO/CLAUDE.md](/STUDIO/CLAUDE.md)
-- **Work on React frontend** → [studio-ui/CLAUDE.md](/STUDIO/studio-ui/CLAUDE.md)
+- **Follow STUDIO conventions** → [STUDIO/AGENTS.md](/STUDIO/AGENTS.md)
+- **Work on React frontend** → [studio-ui/AGENTS.md](/STUDIO/studio-ui/AGENTS.md)
 - **Migrate JSF to React** → [Migration Guide](guides/migration-guide.md)
 
 #### Work on Rule Services
 - **Understand rule services** → [WSFrontend Overview](analysis/studio-wsfrontend-util-overview.md)
-- **Follow service conventions** → [WSFrontend/CLAUDE.md](/WSFrontend/CLAUDE.md)
+- **Follow service conventions** → [WSFrontend/AGENTS.md](/WSFrontend/AGENTS.md)
 - **Add a REST endpoint** → [Common Tasks](onboarding/common-tasks.md)
 - **Integrate with Kafka** → [Integration Examples](guides/integration-examples.md)
 
@@ -235,8 +234,8 @@ OpenL Tablets is organized into 5 major module groups:
 
 #### Use Claude Code
 - **Understand workflows** → [Claude Code Workflows](claude-workflows.md)
-- **Follow conventions** → [CLAUDE.md](/CLAUDE.md)
-- **Module-specific guidance** → See module CLAUDE.md files
+- **Follow conventions** → [AGENTS.md](/AGENTS.md)
+- **Module-specific guidance** → See module AGENTS.md files
 
 ---
 
@@ -322,11 +321,11 @@ OpenL Tablets is organized into 5 major module groups:
 ### Finding Information Quickly
 1. **Use the search**: Search for keywords across all documentation
 2. **Start with README**: This file links to everything
-3. **Check CLAUDE.md files**: Module-specific conventions and gotchas
+3. **Check AGENTS.md files**: Module-specific conventions and gotchas
 4. **Use cross-references**: Follow links between related documents
 
 ### Document Categories
-- **📘 Conventions** - CLAUDE.md files - What to follow
+- **📘 Conventions** - AGENTS.md files - What to follow
 - **🏗️ Architecture** - architecture/ - How it's built
 - **🎓 Onboarding** - onboarding/ - Getting started
 - **📖 Analysis** - analysis/ - Deep technical dives

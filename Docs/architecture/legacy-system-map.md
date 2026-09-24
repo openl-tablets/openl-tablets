@@ -408,7 +408,7 @@ management and the repository configuration all live there.
 - [Technology Stack](/docs/architecture/technology-stack.md) - Complete technology list
 - [Dependencies](/docs/architecture/dependencies.md) - Dependency details
 - [Development Setup](/docs/onboarding/development-setup.md) - Setup guide
-- [CLAUDE.md](/CLAUDE.md) - Coding conventions
+- [AGENTS.md](/AGENTS.md) - Coding conventions
 
 ---
 

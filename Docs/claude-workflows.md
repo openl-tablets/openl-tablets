@@ -17,8 +17,8 @@ This document provides guidance for using Claude Code when working with the Open
 
 1. **Read these files first**:
    ```
-   /CLAUDE.md              # Repository conventions
-   /DEV/CLAUDE.md          # Core engine conventions
+   /AGENTS.md              # Repository conventions
+   /DEV/AGENTS.md          # Core engine conventions
    /README.md              # Build instructions
    /docs/onboarding/codebase-tour.md  # Repository tour
    ```
@@ -78,7 +78,7 @@ This document provides guidance for using Claude Code when working with the Open
 **Approach**:
 ```
 1. Understand existing validation:
-   - Read /DEV/CLAUDE.md section on validation
+   - Read /DEV/AGENTS.md section on validation
    - Locate org.openl.rules.dt.validator package
    - Study DecisionTableValidator.java
 
@@ -176,7 +176,7 @@ This document provides guidance for using Claude Code when working with the Open
 
 5. Document:
    - Update JavaDoc
-   - Add to CLAUDE.md if pattern is reusable
+   - Add to AGENTS.md if pattern is reusable
 ```
 
 **Claude Code Prompts**:
@@ -235,7 +235,7 @@ This document provides guidance for using Claude Code when working with the Open
 
 **Workflow**:
 ```
-1. Read /DEV/CLAUDE.md thoroughly
+1. Read /DEV/AGENTS.md thoroughly
 2. Understand impact (check dependency graph)
 3. Test exhaustively
 4. Get expert review before merging
@@ -320,8 +320,8 @@ This document provides guidance for using Claude Code when working with the Open
 
 **Before making changes**:
 ```
-✅ Read /CLAUDE.md
-✅ Read module-specific CLAUDE.md
+✅ Read /AGENTS.md
+✅ Read module-specific AGENTS.md
 ✅ Check /docs/analysis/ for module overview
 ✅ Review existing similar code
 ```
@@ -478,7 +478,7 @@ Update code
 
 ```
 "Document [class/method]"
-"Update CLAUDE.md with [pattern]"
+"Update AGENTS.md with [pattern]"
 "Add example for [feature]"
 "Generate API documentation"
 ```
@@ -647,7 +647,7 @@ ci       - CI/CD changes
 
 ```
 ✅ "Based on /docs/analysis/dev-module-overview.md, help me understand [topic]"
-✅ "Following patterns in /DEV/CLAUDE.md, implement [feature]"
+✅ "Following patterns in /DEV/AGENTS.md, implement [feature]"
 ```
 
 ### 5. Request Reviews
@@ -683,8 +683,8 @@ Claude Code is a powerful tool for working with OpenL Tablets. By following thes
 
 ## See Also
 
-- [CLAUDE.md](/CLAUDE.md) - Repository conventions
-- [DEV/CLAUDE.md](/DEV/CLAUDE.md) - Core engine conventions
+- [AGENTS.md](/AGENTS.md) - Repository conventions
+- [DEV/AGENTS.md](/DEV/AGENTS.md) - Core engine conventions
 - [Development Setup](/docs/onboarding/development-setup.md) - Setup guide
 - [Codebase Tour](/docs/onboarding/codebase-tour.md) - Repository tour
 

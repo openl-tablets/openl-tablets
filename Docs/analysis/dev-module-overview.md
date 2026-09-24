@@ -1165,8 +1165,8 @@ Generated Proxy
 - [Technology Stack](/docs/architecture/technology-stack.md) - Complete tech stack
 - [Codebase Tour](/docs/onboarding/codebase-tour.md) - Navigate the codebase
 - [Development Setup](/docs/onboarding/development-setup.md) - Get started
-- [Root CLAUDE.md](/CLAUDE.md) - Coding conventions
-- [DEV/CLAUDE.md](/DEV/CLAUDE.md) - Core engine conventions
+- [Root AGENTS.md](/AGENTS.md) - Coding conventions
+- [DEV/AGENTS.md](/DEV/AGENTS.md) - Core engine conventions
 
 ---
 
