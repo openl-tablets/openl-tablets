@@ -72,6 +72,13 @@ every connection in a process of its own: the database takes about 80 of the 200
 database pool keeps 50 more open, while the JDBC design repository opens a connection for every call. A burst of
 requests used up the rest and failed with `ORA-12516`.
 
+## Password Hashing in Studio Suites
+
+`ITEST/pom.xml` passes `security.password.encoder = noop` to every suite as a system property, so OpenL Studio
+stores passwords and token secrets in plain text. A bcrypt check costs each Basic-auth request tens of milliseconds,
+and a suite sends hundreds of them. A system property outranks `application.properties`, so a suite cannot switch
+back there; production keeps the `bcrypt` default.
+
 ## Declarative HTTP Testing (*.req / *.resp)
 
 The **primary testing mechanism**. Instead of Java test code, define HTTP exchanges as file pairs.

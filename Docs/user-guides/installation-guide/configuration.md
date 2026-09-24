@@ -423,9 +423,23 @@ cors.preflight.maxage = 7200
 
 ### Password Hashing
 
-In Multi-User mode, `webstudio.bcrypt.strength` sets the bcrypt cost applied to stored passwords. Permitted values are
-4 to 31, and the default is 10. Each increment doubles the hashing work, so raise it in small steps and measure login
-time.
+OpenL Studio keeps only hashes of two kinds of secrets: internal users' passwords in Multi-User mode, and personal
+access token secrets in every mode except Single-User. `security.password.encoder` selects the algorithm:
+
+- **`bcrypt`** — the default. `webstudio.bcrypt.strength` sets its cost: permitted values are 4 to 31, and the default
+  is 10. Each increment doubles the hashing work, so raise it in small steps and measure login time.
+- **`noop`** — keeps passwords and secrets in plain text, and OpenL Studio logs a warning at startup. Use it only for
+  testing.
+
+Any other value stops OpenL Studio at startup.
+
+```properties
+security.password.encoder = bcrypt
+webstudio.bcrypt.strength = 10
+```
+
+Each algorithm verifies only its own hashes: `bcrypt` rejects plain-text values, and `noop` rejects bcrypt hashes.
+Passwords and tokens stored under one value therefore stop working after a switch to the other.
 
 ### Migration Attribution
 

@@ -20,8 +20,4 @@
     </bean>
 
     <bean id="adminUsersInitializer" class="org.openl.rules.webstudio.service.AdminUsers" init-method="init"/>
-
-    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
-        <constructor-arg value="${webstudio.bcrypt.strength}"/>
-    </bean>
 </beans>
