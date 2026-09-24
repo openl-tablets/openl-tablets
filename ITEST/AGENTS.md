@@ -145,8 +145,12 @@ type decides how to compare it.
 
 ### Special Headers
 
-- `X-OpenL-Test-Retry: yes` — retry for up to 2 minutes on mismatch (100ms delays)
-- `X-OpenL-Test-Timeout: 30000` — custom timeout in ms
+Headers named `X-OpenL-Test-*` configure the framework: they are neither sent with the request nor compared with the
+response. The framework reads one of them:
+
+- `X-OpenL-Test-Retry: yes` — while the response fails a status, header or body check, send the request again after a
+  100 ms pause, until it passes or twice `http.timeout.read` (set in `ITEST/pom.xml`) has passed. A `Timeout` or any
+  other error fails the step at once.
 
 Retry is what makes a step wait for the cross-branch project index (see
 [`Docs/architecture/cross-branch-projects.md`](../Docs/architecture/cross-branch-projects.md)). Project creation,
