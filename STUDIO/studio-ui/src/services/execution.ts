@@ -1,4 +1,4 @@
-import type { BenchmarkResult, RunResult, TestsSummary, TestUnitResult } from 'types/execution'
+import type { BenchmarkResult, RunResult, TestsSummary, ValueLevel } from 'types/execution'
 import { ALL_FAILURES, ALL_TESTS_ON_A_PAGE, FAILURES_PER_TEST, TESTS_PAGE_SIZE } from 'constants/tests'
 import apiCall, { asArray, readTaskResult } from './apiCall'
 import { toUrlSafeId } from './projectId'
@@ -189,16 +189,36 @@ export const getTestsSummary = async (projectId: string, query: TestsQuery = {})
 export const readTestsSummary = (projectId: string, query: TestsQuery = {}): Promise<TestsSummary> =>
     readSettled(() => getTestsSummary(projectId, query))
 
+/** A value of a test case that is read a level at a time. */
+export interface TestCaseValue {
+    /** The whole value the rule returned, a value the case was given, or what came out for a compared value. */
+    of: 'result' | 'parameter' | 'assertion'
+    /** The position of the value among the values the case was given, or among its comparisons. */
+    index?: number
+}
+
 /**
- * Reads one case of the test run that has ended, with every value written out.
+ * Reads one level of a value of a case of the test run that has ended: a page of its lines.
  *
- * A summary asked with `lazyValues` only refers to a value with inner structure; this answers with the case
- * that holds it.
+ * A summary asked with `lazyValues` only refers to a value with inner structure; this reads it a level at a
+ * time, so a value of any size is read only as far as it is shown.
+ *
+ * @param path   the segments of the lines to open on the way to the level
+ * @param offset how many lines of the level to skip
  */
-export const getTestCaseResult = async (projectId: string, tableId: string, caseId: string): Promise<TestUnitResult> =>
-    await readJson(
-        projectUrl(projectId, `/tests/summary/${encodeURIComponent(tableId)}/cases/${encodeURIComponent(caseId)}`)
-    ) as TestUnitResult
+export const getTestCaseLines = async (
+    projectId: string,
+    tableId: string,
+    caseId: string,
+    value: TestCaseValue,
+    path: readonly string[],
+    offset: number
+): Promise<ValueLevel> => {
+    const params = new URLSearchParams({ of: value.of, index: String(value.index ?? 0), offset: String(offset) })
+    path.forEach(segment => params.append('path', segment))
+    const cases = `/tests/summary/${encodeURIComponent(tableId)}/cases/${encodeURIComponent(caseId)}`
+    return await readJson(projectUrl(projectId, `${cases}/lines?${params}`)) as ValueLevel
+}
 
 /**
  * Starts a benchmark of a table: the cases of a test table, or the input the panel collected.

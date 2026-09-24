@@ -145,10 +145,11 @@ public class ExecutionValueMapper {
     /**
      * Writes an execution parameter for a list of values.
      *
-     * <p>A plain value is written as it stands. A value with inner structure is written as a lazy reference
-     * without the value, the way the trace publishes the values of a frame. The reference names the type of the
-     * value and the key the value is referred to by in a data table, so that the cases of a test table are told
-     * apart before any of them is opened.
+     * <p>A value the object mapper writes plain, such as a number, a date or text, is written as it stands. A value
+     * that opens into lines - a bean, a spreadsheet result, an array, a collection, a map - is written as a lazy
+     * reference without the value, the way the trace publishes the values of a frame. The reference names the type
+     * of the value and the key the value is referred to by in a data table, so that the cases of a test table are
+     * told apart before any of them is opened. {@link ExecutionValueLevels} reads such a value a level at a time.
      *
      * <p>The reference carries no id. A client addresses the value by the parameter name within its case.
      *
@@ -157,7 +158,7 @@ public class ExecutionValueMapper {
      * @return the written parameter, or its lazy reference
      */
     public ParameterValue writeParameterLazily(ParameterWithValueDeclaration param, @Nullable String description) {
-        if (param.getValue() == null || param.getType().isSimple()) {
+        if (!ExecutionValueLevels.opensIntoLines(objectMapper, param.getValue())) {
             return writeParameter(param, description, false).toBuilder().lazy(false).build();
         }
         return ParameterValue.builder()

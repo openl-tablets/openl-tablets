@@ -5,15 +5,21 @@ import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
-import { useValueStyles, ValueCell, valueLabel, type ValueStyles } from 'components/values/ParameterValues'
-import { useTestCase } from 'hooks/useTestCase'
+import {
+    type ReadLines,
+    useValueStyles,
+    ValueCell,
+    valueLabel,
+    type ValueStyles,
+} from 'components/values/ParameterValues'
 import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
-    getTestCaseResult,
+    getTestCaseLines,
     getTestsSummary,
     getTestsSummaryWorkbook,
     readTestsSummary,
     XLSX_MEDIA_TYPE,
+    type TestCaseValue,
     type TestsQuery,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
@@ -64,7 +70,7 @@ const columnsOf = (
     table: TestTableResult,
     compoundResult: boolean,
     t: (key: string) => string,
-    readCase: ReadCase,
+    readLines: ReadCaseLines,
     valueStyles: ValueStyles
 ): ListTableColumn<TestUnitResult>[] => {
     const units = table.testUnits ?? []
@@ -97,12 +103,14 @@ const columnsOf = (
             title: nameOf(input),
             render: unit => {
                 const value = inputsOf(unit)[index]
+                // The runtime context comes whole: only a value the case was given is read a level at a time.
+                const parameter = index - (unit.contextParameters ?? []).length
                 return (
                     <ValueCell
                         label={value ? valueLabel(value) : undefined}
                         lazy={value?.lazy ?? false}
-                        onLoad={() => readCase(table.tableId, unit.id).then(read => inputsOf(read)[index])}
                         path={`${key}-in-${unit.id}-${index}`}
+                        readLines={readLines(table.tableId, unit.id, { of: 'parameter', index: parameter })}
                         styles={valueStyles}
                         value={value?.value}
                     />
@@ -123,10 +131,9 @@ const columnsOf = (
                             <ValueCell
                                 lazy={actual?.actualLazy ?? false}
                                 path={`${key}-out-${unit.id}-${index}`}
+                                readLines={readLines(table.tableId, unit.id, { of: 'assertion', index })}
                                 styles={valueStyles}
                                 value={actual?.actualValue}
-                                onLoad={() => readCase(table.tableId, unit.id)
-                                    .then(read => ({ value: read.testAssertions?.[index]?.actualValue }))}
                             />
                         </Space>
                         {actual && actual.status !== 'TR_OK' && (
@@ -156,8 +163,8 @@ const columnsOf = (
                         <ValueCell
                             label={valueLabel(unit.result)}
                             lazy={unit.result.lazy}
-                            onLoad={() => readCase(table.tableId, unit.id).then(read => read.result)}
                             path={`${key}-whole-${unit.id}`}
+                            readLines={readLines(table.tableId, unit.id, { of: 'result' })}
                             styles={valueStyles}
                             value={unit.result.value}
                         />
@@ -173,8 +180,8 @@ const columnsOf = (
     ]
 }
 
-/** Reads one case of the run that has ended, with every value it holds. */
-type ReadCase = (tableId: string, caseId: string) => Promise<TestUnitResult>
+/** Reads a value of a case of the run that has ended, a level at a time. */
+type ReadCaseLines = (tableId: string, caseId: string, value: TestCaseValue) => ReadLines
 
 /** How many cases of one test table are listed at a time. */
 const CASES_PER_PAGE = 20
@@ -189,11 +196,11 @@ const TestTable: React.FC<{
     table: TestTableResult
     projectId: string
     compoundResult: boolean
-    readCase: ReadCase
+    readLines: ReadCaseLines
     /** The look of the values, read once by the window for every table it lists. */
     valueStyles: ValueStyles
     onOpenTable: () => void
-}> = ({ table, projectId, compoundResult, readCase, valueStyles, onOpenTable }) => {
+}> = ({ table, projectId, compoundResult, readLines, valueStyles, onOpenTable }) => {
     const { t } = useTranslation('execution')
     const [page, setPage] = useState(1)
 
@@ -228,7 +235,7 @@ const TestTable: React.FC<{
                 come from every case listed, so they stay the same from page to page. */}
             {units.length > 0 && (
                 <ListTable<TestUnitResult>
-                    columns={columnsOf(table, compoundResult, t, readCase, valueStyles)}
+                    columns={columnsOf(table, compoundResult, t, readLines, valueStyles)}
                     data-testid={`test-results-${table.tableId}`}
                     rowKey={unit => unit.id}
                     rows={units.slice((page - 1) * CASES_PER_PAGE, page * CASES_PER_PAGE)}
@@ -286,11 +293,10 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     // What the results on screen were read with. The columns follow it rather than what was just asked for, so a
     // column added while the results are read again does not stand empty over the results before.
     const [shownQuery, setShownQuery] = useState(query)
-    const readResult = useCallback(
-        (tableId: string, caseId: string) => getTestCaseResult(projectId, tableId, caseId),
+    const readLines = useCallback<ReadCaseLines>(
+        (tableId, caseId, value) => (path, offset) => getTestCaseLines(projectId, tableId, caseId, value, path, offset),
         [projectId]
     )
-    const readCase = useTestCase(readResult)
     const [failure, setFailure] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
@@ -406,7 +412,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                             compoundResult={shownQuery.compoundResult}
                             onOpenTable={onClose}
                             projectId={projectId}
-                            readCase={readCase}
+                            readLines={readLines}
                             table={table}
                             valueStyles={valueStyles}
                         />

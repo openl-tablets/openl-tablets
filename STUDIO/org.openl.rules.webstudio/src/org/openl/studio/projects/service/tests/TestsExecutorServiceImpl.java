@@ -23,18 +23,23 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
 
     @Override
     @Async("testSuiteExecutor")
-    public CompletableFuture<List<TestUnitsResults>> runAll(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, boolean currentOpenedModule) {
+    public CompletableFuture<TestRun> runAll(ProjectTestsExecutionProgressListener listener,
+                                             ProjectModel projectModel,
+                                             boolean currentOpenedModule) {
         var rerun = TestsRerun.of(projectModel, currentOpenedModule);
         var testMethods = currentOpenedModule ? projectModel.getOpenedModuleTestMethods() : projectModel.getAllTestMethods();
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
         runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule, rerun);
-        return CompletableFuture.completedFuture(executionResult);
+        return CompletableFuture.completedFuture(new TestRun(executionResult));
     }
 
     @Override
     @Async("testSuiteExecutor")
-    public CompletableFuture<List<TestUnitsResults>> runAllForTable(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, IOpenLTable table, boolean currentOpenedModule) {
+    public CompletableFuture<TestRun> runAllForTable(ProjectTestsExecutionProgressListener listener,
+                                                     ProjectModel projectModel,
+                                                     IOpenLTable table,
+                                                     boolean currentOpenedModule) {
         var rerun = TestsRerun.of(projectModel, currentOpenedModule);
         var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
@@ -42,16 +47,20 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         listener.onStatusChanged(TestExecutionStatus.STARTED);
         if (method instanceof TestSuiteMethod) {
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(executionResult);
+            return CompletableFuture.completedFuture(new TestRun(executionResult));
         }
         var testMethods = projectModel.getTestMethods(uri, currentOpenedModule);
         runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule, rerun);
-        return CompletableFuture.completedFuture(executionResult);
+        return CompletableFuture.completedFuture(new TestRun(executionResult));
     }
 
     @Override
     @Async("testSuiteExecutor")
-    public CompletableFuture<List<TestUnitsResults>> runSingle(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, IOpenLTable table, String testRanges, boolean currentOpenedModule) {
+    public CompletableFuture<TestRun> runSingle(ProjectTestsExecutionProgressListener listener,
+                                                ProjectModel projectModel,
+                                                IOpenLTable table,
+                                                String testRanges,
+                                                boolean currentOpenedModule) {
         var rerun = TestsRerun.of(projectModel, currentOpenedModule);
         var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
@@ -71,10 +80,10 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             listener.onTestUnitExecuted(unitsResult);
             executionResult.add(unitsResult);
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(executionResult);
+            return CompletableFuture.completedFuture(new TestRun(executionResult));
         } else {
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(executionResult);
+            return CompletableFuture.completedFuture(new TestRun(executionResult));
         }
     }
 

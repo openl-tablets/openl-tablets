@@ -42,6 +42,36 @@ interface TestAssertionResult {
     status: TestStatus
 }
 
+/** One line of a level of a value: a field, an element or an entry. */
+export interface ValueLine {
+    /** What the line is shown as: the name of a field, the index of an element in brackets, or the key of an entry. */
+    name: string
+    /** What opens the value of the line on a path: the name of a field, or the position of an element or an entry. */
+    segment: string
+    /** The value of the line, when it is plain. */
+    value?: unknown
+    /** Display name of the type of a value with inner structure. */
+    type?: string | null
+    /** How many lines a value with inner structure opens into; absent for a plain value. */
+    size?: number | null
+    /** The lines of a value with inner structure are elements rather than fields. */
+    elements?: boolean | null
+}
+
+/** One level of a value with inner structure: a page of the lines it opens into. */
+export interface ValueLevel {
+    /** Display name of the type of the value. */
+    type?: string | null
+    /** How many lines the value opens into, on every page. */
+    total: number
+    /** The lines are elements rather than fields. */
+    elements?: boolean | null
+    /** The lines of the page; absent when there are none. */
+    lines?: ValueLine[]
+    /** The value as it is written, when it opens into no lines; absent for one that opens. */
+    value?: unknown
+}
+
 /** One case of a test table, as it ran. */
 export interface TestUnitResult {
     id: string

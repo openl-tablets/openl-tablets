@@ -1,13 +1,11 @@
 package org.openl.studio.projects.service.tests;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
-import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
 
@@ -21,7 +19,7 @@ import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
  */
 @Component
 @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class ExecutionTestsResultRegistry extends AbstractExecutionResultRegistry<List<TestUnitsResults>> {
+public class ExecutionTestsResultRegistry extends AbstractExecutionResultRegistry<TestRun> {
 
     /**
      * Register a new task; cancels previous one if running.
@@ -29,7 +27,7 @@ public class ExecutionTestsResultRegistry extends AbstractExecutionResultRegistr
      * @param projectId the project identifier
      * @param task      the test execution future
      */
-    public void setTask(ProjectIdModel projectId, CompletableFuture<List<TestUnitsResults>> task) {
+    public void setTask(ProjectIdModel projectId, CompletableFuture<TestRun> task) {
         registerTask(projectId, null, task);
     }
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -37,6 +38,28 @@ class ExecutionValueMapperTest {
         // A value that is not there has no key to be found by.
         var absent = new ParameterWithValueDeclaration("driver", null, driverClass, driverClass.getField("name"));
         assertNull(ExecutionValueMapper.keyOf(absent));
+    }
+
+    /**
+     * A value the object mapper writes plain is written as it stands, whether or not OpenL counts its type as simple.
+     * A value that opens into lines is only referred to.
+     */
+    @Test
+    void refersOnlyToAValueThatOpensIntoLines() {
+        var objectMapper = new ObjectMapper();
+        var mapper = new ExecutionValueMapper(objectMapper,
+                new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper), null);
+        var id = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var driver = new Driver();
+        driver.setName("Sara");
+
+        var plain = mapper.writeParameterLazily(new ParameterWithValueDeclaration("id", id), "Id");
+        var structured = mapper.writeParameterLazily(new ParameterWithValueDeclaration("driver", driver), "Driver");
+
+        assertEquals(Boolean.FALSE, plain.lazy());
+        assertEquals(id.toString(), plain.value().asText());
+        assertEquals(Boolean.TRUE, structured.lazy());
+        assertNull(structured.value(), "the value is read when it is asked for");
     }
 
     /** A vocabulary parameter is described by the values it allows, and an array of one by the values of its elements. */

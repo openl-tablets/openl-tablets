@@ -1,0 +1,49 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "type": "Bank",
+  "total": 7,
+  "lines": [
+    {
+      "name": "bankID",
+      "segment": "bankID",
+      "value": "commerz"
+    },
+    {
+      "name": "bankFullName",
+      "segment": "bankFullName",
+      "value": "Commerzbank"
+    },
+    {
+      "name": "countryCode",
+      "segment": "countryCode",
+      "value": "DE"
+    },
+    {
+      "name": "bankRatings",
+      "segment": "bankRatings",
+      "type": "Rating[]",
+      "size": 3,
+      "elements": true
+    },
+    {
+      "name": "currentFinancialData",
+      "segment": "currentFinancialData",
+      "type": "FinancialData",
+      "size": 17
+    },
+    {
+      "name": "previousFinancialData",
+      "segment": "previousFinancialData",
+      "type": "FinancialData",
+      "size": 17
+    },
+    {
+      "name": "qualityIndicators",
+      "segment": "qualityIndicators",
+      "type": "QualityIndicators",
+      "size": 9
+    }
+  ]
+}

@@ -1,11 +1,14 @@
 package org.openl.studio.projects.rest.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -16,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -29,6 +33,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -49,7 +54,10 @@ import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.model.ValueLevel;
+import org.openl.studio.projects.model.ValueLine;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
+import org.openl.studio.projects.model.tests.TestCaseValue;
 import org.openl.studio.projects.model.tests.TestUnitExecutionResult;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -66,6 +74,7 @@ import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.ProjectTestsExecutionProgressListener;
 import org.openl.studio.projects.service.tests.RetainedTestUnit;
+import org.openl.studio.projects.service.tests.TestRun;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
 import org.openl.studio.projects.service.tests.TestsRerun;
 import org.openl.studio.repositories.service.ProjectRevisionService;
@@ -92,13 +101,13 @@ class ProjectsControllerTestsSummaryTest {
     private final WorkspaceProjectService projectService = mock(WorkspaceProjectService.class);
     private final SocketProjectAllTestsExecutionProgressListenerFactory listeners =
             mock(SocketProjectAllTestsExecutionProgressListenerFactory.class);
+    private final ProjectObjectMapperService objectMapperService = mock(ProjectObjectMapperService.class);
     private ProjectsController controller;
 
     @BeforeEach
     void init() {
         var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
         when(projectIdentifierMapper.map(project)).thenReturn(projectId);
-        var objectMapperService = mock(ProjectObjectMapperService.class);
         when(objectMapperService.createObjectMapper()).thenReturn(new ObjectMapper());
         controller = new ProjectsController(projectService,
                 mock(TestsExecutorService.class),
@@ -131,7 +140,7 @@ class ProjectsControllerTestsSummaryTest {
 
     /** A test run that has ended with the given tables. */
     private void ended(List<TestUnitsResults> tables) {
-        registry.setTask(projectId, CompletableFuture.completedFuture(tables));
+        registry.setTask(projectId, CompletableFuture.completedFuture(new TestRun(tables)));
     }
 
     private static void assertNotReady(ResponseEntity<?> answer) {
@@ -277,6 +286,91 @@ class ProjectsControllerTestsSummaryTest {
         assertEquals("openl.error.404.tests.execution.values.released.message", refusal.getErrorCode());
     }
 
+    /** A value a case holds is read a level at a time, and nothing is run again. */
+    @Test
+    void getTestCaseLines_ofAValueTheCaseHolds() {
+        var premium = Map.of("premium", 150, "drivers", List.of("Sara", "John"));
+        ended(List.of(runTableOf(testSuiteNamed("DriverRun"), retained(returning(premium)))));
+
+        var level = linesOf(TestCaseValue.RESULT, 0, List.of());
+        var byName = level.lines().stream().collect(Collectors.toMap(ValueLine::name, line -> line));
+        // The path goes on with the segment of the line to open.
+        var drivers = linesOf(TestCaseValue.RESULT, 0, List.of(byName.get("drivers").segment()));
+
+        assertEquals(2, level.total());
+        assertEquals(150, byName.get("premium").value().asInt());
+        assertEquals(2, byName.get("drivers").size());
+        assertEquals(List.of("[0]", "[1]"), drivers.lines().stream().map(ValueLine::name).toList());
+        Reference.reachabilityFence(premium);
+    }
+
+    /**
+     * A value the case gave back to free memory is had by running the case again. The case holds it again, so the
+     * next level of it runs nothing.
+     */
+    @Test
+    void getTestCaseLines_ofAValueTheCaseGaveBack() {
+        var suite = testSuiteNamed("DriverRun");
+        var ranAgain = returning(Map.of("premium", 150));
+        var runs = new ArrayList<TestDescription>();
+        var kept = released(suite, returning(Map.of("premium", 150)), (method, test) -> {
+            runs.add(test);
+            return ranAgain;
+        });
+        ended(List.of(runTableOf(suite, kept)));
+
+        var level = linesOf(TestCaseValue.RESULT, 0, List.of());
+        linesOf(TestCaseValue.RESULT, 0, List.of());
+
+        assertEquals(150, level.lines().getFirst().value().asInt());
+        assertEquals(List.of(kept.getTest()), runs);
+        assertFalse(RetainedTestUnit.isReleased(kept.getActualResult()), "the case holds the value again");
+    }
+
+    /**
+     * The values of a run are read with one object mapper, made for the run on its first read: making one defines
+     * classes in the project.
+     */
+    @Test
+    void getTestCaseLines_readsWithTheObjectMapperOfTheRun() {
+        var premium = Map.of("premium", 150, "drivers", List.of("Sara"));
+        ended(List.of(runTableOf(testSuiteNamed("DriverRun"), retained(returning(premium)))));
+
+        linesOf(TestCaseValue.RESULT, 0, List.of());
+        linesOf(TestCaseValue.RESULT, 0, List.of("0"));
+
+        verify(objectMapperService, times(1)).createObjectMapper();
+        Reference.reachabilityFence(premium);
+    }
+
+    @Test
+    void getTestCaseLines_ofAValueTheCaseDoesNotHave() {
+        ended(List.of(runTableOf(testSuiteNamed("DriverRun"), retained(returning(Map.of("premium", 150))))));
+
+        for (var missing : List.<Runnable>of(
+                () -> linesOf(TestCaseValue.RESULT, 0, List.of("discount")),
+                () -> linesOf(TestCaseValue.PARAMETER, 0, List.of()),
+                () -> linesOf(TestCaseValue.ASSERTION, 0, List.of()))) {
+            var refusal = assertThrows(NotFoundException.class, missing::run);
+            assertEquals("openl.error.404.tests.execution.value.message", refusal.getErrorCode());
+        }
+    }
+
+    /** A segment of a path is kept whole, commas and all, and a path of several segments keeps each of them. */
+    @Test
+    void getTestCaseLines_keepsTheSegmentsOfAPathWhole() {
+        var binder = new WebDataBinder(null, "path");
+        controller.keepPathSegmentsWhole(binder);
+
+        assertEquals(List.of("Total, EUR"), binder.convertIfNecessary("Total, EUR", List.class));
+        assertEquals(List.of("a,b", "c"), binder.convertIfNecessary(new String[]{"a,b", "c"}, List.class));
+    }
+
+    /** A level of a value of case 1 of the test table, the first page of it. */
+    private ValueLevel linesOf(TestCaseValue of, int index, List<String> path) {
+        return (ValueLevel) controller.getTestCaseLines(project, TABLE_ID, "1", of, index, path, 0, 100).getBody();
+    }
+
     /**
      * A test table that has run is announced the way the screen reads the results: an input with inner structure
      * is referred to instead of written, and no schema is written.
@@ -388,8 +482,18 @@ class ProjectsControllerTestsSummaryTest {
         }, SoftReference::new);
     }
 
-    /** A case of the test table as a run keeps it, once its value was given back: it runs again the given way. */
+    /**
+     * A case of the test table as a run keeps it, once its values were given back: it runs again the given way, and
+     * holds again what running again returns.
+     */
     private static RetainedTestUnit released(TestSuite suite, ITestUnit unit, TestsRerun rerun) {
-        return new RetainedTestUnit(unit, suite.getTestSuiteMethod(), rerun, value -> new SoftReference<>(null));
+        var held = new ArrayList<Reference<Object>>();
+        var released = new RetainedTestUnit(unit, suite.getTestSuiteMethod(), rerun, value -> {
+            var reference = new SoftReference<>(value);
+            held.add(reference);
+            return reference;
+        });
+        held.forEach(Reference::clear);
+        return released;
     }
 }

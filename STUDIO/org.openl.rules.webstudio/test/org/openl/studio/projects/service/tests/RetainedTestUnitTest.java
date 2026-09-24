@@ -239,6 +239,43 @@ class RetainedTestUnitTest {
         assertTrue(RetainedTestUnit.isReleased(retained.getActualResult()), "the case keeps what it kept");
     }
 
+    /** A case run again holds again what it gave back, and keeps what it still holds. */
+    @Test
+    void holdsAgainTheValuesOfTheCaseRunAgain() {
+        var kept = Map.of("total", 150);
+        var unit = returning(Map.of("premium", 150));
+        when(unit.getComparisonResults()).thenReturn(List.of(
+                new ComparedResult("_res_", null, Map.of("premium", 150), TestStatus.TR_OK),
+                new ComparedResult("summary", null, kept, TestStatus.TR_OK)));
+        var retained = retained(unit);
+        // What it returned and the first compared value are given back; the second is still held.
+        held.get(0).clear();
+        held.get(2).clear();
+        var premium = Map.of("premium", 150);
+        var secondRun = returning(premium);
+        when(secondRun.getComparisonResults()).thenReturn(List.of(
+                new ComparedResult("_res_", null, premium, TestStatus.TR_OK),
+                new ComparedResult("summary", null, Map.of("total", 150), TestStatus.TR_OK)));
+
+        retained.holdAgain(secondRun);
+
+        assertEquals(5, held.size(), "what was given back is held again, the way it was held first");
+        assertSame(premium, retained.getActualResult());
+        assertSame(premium, retained.getComparisonResults().getFirst().getActualValue());
+        assertSame(kept, retained.getComparisonResults().getLast().getActualValue());
+    }
+
+    /** A plain value is kept as it is: a case run again leaves it. */
+    @Test
+    void keepsAPlainValueWhenTheCaseRunsAgain() {
+        var retained = retained(returning(150));
+
+        retained.holdAgain(returning(170));
+
+        assertEquals(150, retained.getActualResult());
+        assertTrue(held.isEmpty(), "a plain value is held by no reference");
+    }
+
     /** The case as a run keeps it: in the table of {@link #method}, running again through {@link #rerun}. */
     private RetainedTestUnit retained(ITestUnit unit) {
         return new RetainedTestUnit(unit, method, rerun, holder);
