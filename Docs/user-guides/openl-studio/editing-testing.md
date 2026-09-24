@@ -261,9 +261,10 @@ value that was compared, and a case that failed says how many of its comparisons
 value that was expected under the value that came out.
 
 A table lists its cases 20 to a page, and the pager under it reaches the rest. To read every case at once, save
-the results to Excel. **Load value** reads a value with inner structure a level at a time: its fields when you
-click it, and the fields of every node as you open it, 100 at a time; **Show more** under them reads the next
-ones. Only what you open is read, so a value of any size opens at once.
+the results to Excel. A plain value, such as a number, a date or text, is shown at once. A value with inner
+structure - one a case was given, returned, compared or expected - shows **Load value** in its place, which reads
+it a level at a time: its fields when you click it, and the fields of every node as you open it, 100 at a time;
+**Show more** under them reads the next ones. Only what you open is read, so a value of any size opens at once.
 
 The results stay on the server while they are read. When the server runs short of memory, it releases the large
 values the rules returned and compared, such as spreadsheet results, and keeps the rest of the results. A value

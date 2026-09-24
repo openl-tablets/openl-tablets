@@ -15,5 +15,9 @@ public enum TestCaseValue {
 
     /** What came out for a compared value, by the position of the comparison. */
     @JsonProperty("assertion")
-    ASSERTION
+    ASSERTION,
+
+    /** What a comparison expected, by the position of the comparison. */
+    @JsonProperty("expected")
+    EXPECTED
 }

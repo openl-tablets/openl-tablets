@@ -1063,7 +1063,7 @@ public class ProjectsController {
     }
 
     /**
-     * A value of a case: what it returned, what it was given, or what came out for a comparison.
+     * A value of a case: what it returned, what it was given, or what a comparison had come out or expected.
      *
      * @throws NotFoundException when the case was given or compared nothing at that position
      */
@@ -1077,12 +1077,13 @@ public class ProjectsController {
                 }
                 yield inputs[index].getValue();
             }
-            case ASSERTION -> {
+            case ASSERTION, EXPECTED -> {
                 var compared = unit.getComparisonResults();
                 if (index >= compared.size()) {
                     throw new NotFoundException("tests.execution.value.message");
                 }
-                yield compared.get(index).getActualValue();
+                var comparison = compared.get(index);
+                yield of == TestCaseValue.ASSERTION ? comparison.getActualValue() : comparison.getExpectedValue();
             }
         };
     }

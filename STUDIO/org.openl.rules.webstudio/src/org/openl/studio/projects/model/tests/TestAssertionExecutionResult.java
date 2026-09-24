@@ -23,9 +23,15 @@ public record TestAssertionExecutionResult(
         JsonNode actualValue,
 
         @Parameter(description = """
-                Present and true when the actual value is referred to instead of written: it has inner structure \
-                and the server gave it back to free memory. Reading the case runs it again for the value""")
+                Present and true when the actual value is referred to instead of written: it has inner structure, \
+                and the summary was asked for lazy values or the server gave the value back to free memory. It is \
+                read a level at a time; a value given back runs its case again""")
         @Nullable Boolean actualLazy,
+
+        @Parameter(description = """
+                Present and true when the expected value is referred to instead of written: it has inner structure, \
+                and the summary was asked for lazy values. It is read a level at a time""")
+        @Nullable Boolean expectedLazy,
 
         @Parameter(description = "Status of the assertion execution")
         TestStatus status

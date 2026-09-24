@@ -15147,7 +15147,8 @@ Content-Type: application/json
               "enum": [
                 "result",
                 "parameter",
-                "assertion"
+                "assertion",
+                "expected"
               ]
             }
           },
@@ -29515,6 +29516,10 @@ Content-Type: application/json
           },
           "description": {
             "type": "string",
+            "description": "***"
+          },
+          "expectedLazy": {
+            "type": "boolean",
             "description": "***"
           },
           "expectedValue": {

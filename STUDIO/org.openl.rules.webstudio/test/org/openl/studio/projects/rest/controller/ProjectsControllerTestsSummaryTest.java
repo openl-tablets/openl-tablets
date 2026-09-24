@@ -47,6 +47,7 @@ import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.NotFoundException;
@@ -364,6 +365,24 @@ class ProjectsControllerTestsSummaryTest {
 
         assertEquals(List.of("Total, EUR"), binder.convertIfNecessary("Total, EUR", List.class));
         assertEquals(List.of("a,b", "c"), binder.convertIfNecessary(new String[]{"a,b", "c"}, List.class));
+    }
+
+    /** A comparison is read by what came out for it and by what it expected alike. */
+    @Test
+    void getTestCaseLines_ofWhatAComparisonExpected() {
+        var premium = Map.of("premium", 150);
+        var unit = returning(premium);
+        when(unit.getComparisonResults()).thenReturn(
+                List.of(new ComparedResult("_res_", Map.of("total", 140), premium, TestStatus.TR_NEQ)));
+        ended(List.of(runTableOf(testSuiteNamed("DriverRun"), retained(unit))));
+
+        var actual = linesOf(TestCaseValue.ASSERTION, 0, List.of());
+        var expected = linesOf(TestCaseValue.EXPECTED, 0, List.of());
+
+        assertEquals(List.of("premium"), actual.lines().stream().map(ValueLine::name).toList());
+        assertEquals(List.of("total"), expected.lines().stream().map(ValueLine::name).toList());
+        assertEquals(140, expected.lines().getFirst().value().asInt());
+        Reference.reachabilityFence(premium);
     }
 
     /** A level of a value of case 1 of the test table, the first page of it. */

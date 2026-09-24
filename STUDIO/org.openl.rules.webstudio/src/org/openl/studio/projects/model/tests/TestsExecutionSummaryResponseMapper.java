@@ -19,6 +19,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.studio.projects.model.ExecutionValueLevels;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.tables.TableModules;
@@ -129,7 +130,8 @@ public class TestsExecutionSummaryResponseMapper {
                     .mapToObj(i -> mapToTestAssertionResult(results.get(i),
                             i < resultColumnNames.length
                                     ? resultColumnNames[i]
-                                    : null))
+                                    : null,
+                            query))
                     .forEach(builder::testAssertion);
         }
 
@@ -206,16 +208,33 @@ public class TestsExecutionSummaryResponseMapper {
                 .build();
     }
 
-    private TestAssertionExecutionResult mapToTestAssertionResult(ComparedResult assertion, String description) {
+    /**
+     * Writes a comparison of a case.
+     *
+     * <p>A summary asked for lazy values refers to a compared value with inner structure instead of writing it, the
+     * one that came out and the one expected alike: a table that compares whole spreadsheet results would write
+     * every one of them. A value given back to free memory is referred to whatever the summary is asked for.
+     */
+    private TestAssertionExecutionResult mapToTestAssertionResult(ComparedResult assertion,
+                                                                  String description,
+                                                                  TestExecutionSummaryQuery query) {
         // Read once: a value held softly can be given back to free memory between two reads.
         var actualValue = assertion.getActualValue();
-        var released = RetainedTestUnit.isReleased(actualValue);
+        var expectedValue = assertion.getExpectedValue();
+        var actualLazy = RetainedTestUnit.isReleased(actualValue) || referredTo(actualValue, query);
+        var expectedLazy = referredTo(expectedValue, query);
         return TestAssertionExecutionResult.builder()
                 .status(assertion.getStatus())
-                .actualValue(released ? null : writeAssertionValue(actualValue))
-                .actualLazy(released ? Boolean.TRUE : null)
-                .expectedValue(writeAssertionValue(assertion.getExpectedValue()))
+                .actualValue(actualLazy ? null : writeAssertionValue(actualValue))
+                .actualLazy(actualLazy ? Boolean.TRUE : null)
+                .expectedValue(expectedLazy ? null : writeAssertionValue(expectedValue))
+                .expectedLazy(expectedLazy ? Boolean.TRUE : null)
                 .description(description)
                 .build();
+    }
+
+    /** Whether a summary refers to a value instead of writing it: it is asked for lazy values, and the value opens. */
+    private boolean referredTo(@Nullable Object value, TestExecutionSummaryQuery query) {
+        return query.lazyValues() && ExecutionValueLevels.opensIntoLines(objectMapper, value);
     }
 }
