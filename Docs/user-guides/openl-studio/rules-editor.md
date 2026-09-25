@@ -360,6 +360,11 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
 
+    A merged cell grows over the line laid down beside it, the way it does in Excel. A row inserted inside a
+    merged group therefore has a cell only in the columns the group leaves free, and a row inserted under a
+    merged heading is banked across the table as that heading is. The table shows this before anything is
+    typed into the new line, so every value is saved in the column it was typed under.
+
 1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
 2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
 

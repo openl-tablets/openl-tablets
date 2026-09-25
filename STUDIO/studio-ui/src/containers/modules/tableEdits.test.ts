@@ -27,6 +27,19 @@ const after = (...steps: EditStep[]) => replay(table, steps)
 /** What the given steps ask the table to be written with. */
 const sent = (...steps: EditStep[]) => compile(table, after(...steps))
 
+/**
+ * A rules table with a merged group in it, the way an author writes one: the header is banked across the
+ * table and `Young Driver` is one cell over the two rules it names.
+ */
+const grouped: RawTableCell[][] = [
+    [{ cell: 'B4', value: 'Rules', colspan: 3 }, { covered: true }, { covered: true }],
+    [{ cell: 'B5', value: 'R1' }, { cell: 'C5', value: 'Young Driver', rowspan: 2 }, { cell: 'D5', value: 'Married' }],
+    [{ cell: 'B6', value: 'R2' }, { covered: true }, { cell: 'D6', value: 'Single' }],
+]
+
+/** The grouped table as the given steps leave it. */
+const group = (...steps: EditStep[]) => replay(grouped, steps)
+
 describe('tableEdits', () => {
     describe('what the reader did', () => {
         it('keeps the steps in the order they were made', () => {
@@ -260,6 +273,106 @@ describe('tableEdits', () => {
                     target: { type: 'cells', row: 1, column: 1, rowspan: 1, colspan: 1, style: { bold: true } },
                 },
             ])
+        })
+    })
+
+    describe('the merges a line laid down or taken away leaves behind', () => {
+        it('grows the group over a row laid down inside it, and leaves that row no cell of its own there', () => {
+            const state = group({ kind: 'insertRow', at: 2 })
+
+            // The workbook grows the merge over the new row, so the row has cells only where the group
+            // leaves it room — and they line up with their own columns rather than being pushed along.
+            expect(state.rows[1]?.[1]?.rowspan).toBe(3)
+            expect(state.rows[2]?.[1]?.covered).toBe(true)
+            expect(state.rows[2]?.[0]?.value).toBe('')
+            expect(state.rows[2]?.[2]?.value).toBe('')
+        })
+
+        it('grows the group over a row laid down under the last of its rules', () => {
+            const state = group({ kind: 'insertRow', at: 3 })
+
+            expect(state.rows[1]?.[1]?.rowspan).toBe(3)
+            expect(state.rows[3]?.[1]?.covered).toBe(true)
+        })
+
+        it('pushes a group down when the row is laid down above it, and banks that row as the header is', () => {
+            const state = group({ kind: 'insertRow', at: 1 })
+
+            // A line takes the look of the one it is written from, its merges among them. Drawn as three
+            // free cells the new row would take three values and keep one, the rest falling under the bank.
+            expect(state.rows[1]?.[0]?.colspan).toBe(3)
+            expect(state.rows[1]?.[1]?.covered).toBe(true)
+            // The group itself is untouched by a row laid down above it; it only moves down.
+            expect(state.rows[2]?.[1]?.rowspan).toBe(2)
+            expect(state.rows[3]?.[1]?.covered).toBe(true)
+        })
+
+        it('shrinks the group to nothing when one of its two rules is taken away', () => {
+            const state = group({ kind: 'removeRow', at: 2, lines: 1 })
+
+            expect(state.rows[1]?.[1]?.rowspan).toBeUndefined()
+            expect(state.rows[1]?.[1]?.value).toBe('Young Driver')
+        })
+
+        it('takes the group with the rows it stands over', () => {
+            const state = group({ kind: 'removeRow', at: 1, lines: 2 })
+
+            expect(state.rows).toHaveLength(1)
+            expect(state.rows[0]?.[0]?.colspan).toBe(3)
+        })
+
+        it('grows the header over a column laid down under it', () => {
+            const state = group({ kind: 'insertColumn', at: 1 })
+
+            expect(state.rows[0]?.[0]?.colspan).toBe(4)
+            expect(state.rows[0]?.[1]?.covered).toBe(true)
+            expect(state.rows[1]?.[1]?.value).toBe('')
+        })
+
+        it('leaves a merged cell where it began when the column is laid down at it', () => {
+            const state = group({ kind: 'insertColumn', at: 0 })
+
+            // The header keeps the corner OpenL finds the table by, and grows over the new column instead.
+            expect(state.rows[0]?.[0]?.value).toBe('Rules')
+            expect(state.rows[0]?.[0]?.colspan).toBe(4)
+            expect(state.rows[1]?.[0]?.value).toBe('')
+            expect(state.rows[1]?.[1]?.value).toBe('R1')
+        })
+
+        it('narrows the header when a column is taken away from under it', () => {
+            const state = group({ kind: 'removeColumn', at: 2, lines: 1 })
+
+            expect(state.rows[0]?.[0]?.colspan).toBe(2)
+            expect(state.rows[1]).toHaveLength(2)
+        })
+
+        it('sends a row laid down in a group with its values under their own columns', () => {
+            const steps: EditStep[] = [
+                { kind: 'insertRow', at: 2 },
+                { kind: 'value', at: { row: 2, column: 0 }, value: 'R1b' },
+                { kind: 'value', at: { row: 2, column: 2 }, value: 'Widowed' },
+            ]
+
+            // The column the group covers carries nothing and says so: a blank written there would be
+            // dropped without a word, and the values after it would each land one column too far left.
+            expect(compile(grouped, group(...steps))).toEqual([{
+                operation: 'insert',
+                target: {
+                    type: 'rows',
+                    position: 2,
+                    cells: [[{ value: 'R1b' }, { value: '', covered: true }, { value: 'Widowed' }]],
+                },
+            }])
+        })
+
+        it('writes nothing to a cell the group has grown over', () => {
+            const steps: EditStep[] = [
+                { kind: 'insertColumn', at: 0 },
+                { kind: 'value', at: { row: 1, column: 0 }, value: 'first' },
+            ]
+
+            // The header has grown over the new column, so the cell under it is not the reader's to write.
+            expect(compile(grouped, group(...steps)).some(edit => edit.operation === 'update')).toBe(false)
         })
     })
 
