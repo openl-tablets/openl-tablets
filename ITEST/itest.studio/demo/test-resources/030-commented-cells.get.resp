@@ -78,7 +78,8 @@ Content-Type: application/json
     [
       {
         "cell": "C27",
-        "value": "R1"
+        "value": "R1",
+        "rowspan": 12
       },
       {
         "cell": "D27",
@@ -89,10 +90,144 @@ Content-Type: application/json
       },
       {
         "cell": "E27",
-        "value": "NORTHEAST"
+        "value": "NORTHEAST",
+        "rowspan": 12
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D28",
+        "value": "DE"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D29",
+        "value": "DC"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D30",
+        "value": "ME"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D31",
+        "value": "MD"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D32",
+        "value": "MA"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D33",
+        "value": "NH"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D34",
+        "value": "NJ"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D35",
+        "value": "NY"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D36",
+        "value": "PA"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D37",
+        "value": "RI"
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D38",
+        "value": "VT"
+      },
+      {
+        "covered": true
       }
     ]
   ],
   "totalRows": 56,
   "headerHeight": 4
 }
+

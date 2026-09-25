@@ -7,6 +7,7 @@ Content-Type: application/json
       {
         "cell": "C12",
         "value": "#",
+        "rowspan": 2,
         "style": {
           "background": "#376092",
           "color": "#ffffff",
@@ -35,6 +36,7 @@ Content-Type: application/json
       {
         "cell": "D12",
         "value": "Agency",
+        "rowspan": 2,
         "style": {
           "background": "#376092",
           "color": "#ffffff",
@@ -59,6 +61,7 @@ Content-Type: application/json
       {
         "cell": "E12",
         "value": "Rating of Agency",
+        "rowspan": 2,
         "style": {
           "background": "#376092",
           "color": "#ffffff",
@@ -83,6 +86,7 @@ Content-Type: application/json
       {
         "cell": "F12",
         "value": "Bank Rating Group /\nCountry, Financial Data",
+        "rowspan": 2,
         "style": {
           "background": "#376092",
           "color": "#ffffff",
@@ -197,6 +201,153 @@ Content-Type: application/json
           }
         }
       }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "G13",
+        "value": "< 8K",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "H13",
+        "value": "[8K .. 100K)",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "I13",
+        "value": ">= 100K",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "J13",
+        "value": "< 1K",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "K13",
+        "value": "[1K .. 10K)",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "L13",
+        "value": ">= 10K",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "M13",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 2
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      }
     ]
   ]
 }
+
