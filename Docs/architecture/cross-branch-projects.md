@@ -112,6 +112,10 @@ The preference key must be `(user, repositoryId, external project name)`. A pref
 repository membership. It must be removed when the selected branch no longer contains the project or is not readable
 by the user.
 
+Only a branch switch writes the preference. A workspace refresh reads it and must never write back the branch a
+replaced project holds: another request may be switching that project at the same moment, and writing its old branch
+back would undo the switch.
+
 An opened local copy must be associated by `(repositoryId, external project name)` before branch selection. Internal
 paths cannot be used for this association because mapped paths may differ by branch.
 

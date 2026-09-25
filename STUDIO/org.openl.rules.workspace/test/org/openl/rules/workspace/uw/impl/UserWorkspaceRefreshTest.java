@@ -383,6 +383,33 @@ class UserWorkspaceRefreshTest {
     }
 
     @Test
+    void switchSurvivesARefreshThatReplacedTheSwitchedProject() throws IOException, ProjectException {
+        var main = branchProjectRepository("main");
+        var feature = branchProjectRepository("feature/rates");
+        var mainData = new FileData();
+        mainData.setName(DESIGN_PATH);
+        mainData.setVersion("main-revision");
+        var featureData = new FileData();
+        featureData.setName(DESIGN_PATH);
+        featureData.setVersion("feature-revision");
+        when(feature.check(DESIGN_PATH)).thenReturn(featureData);
+        var mainProject = new AProject(main, mainData);
+        var featureProject = new AProject(feature, featureData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(
+                        branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
+        var switched = userWorkspace.getProject("design", PROJECT);
+        // Another thread refreshes the workspace while the switch is under way, replacing the project in hand.
+        userWorkspace.getProject("design", PROJECT);
+
+        userWorkspace.setProjectBranch(switched, "feature/rates");
+
+        assertEquals("feature/rates", userWorkspace.getProject("design", PROJECT).getBranch());
+    }
+
+    @Test
     void openedCopyUsesTheSelectedBranchesMappedPath() throws ProjectException {
         // Every branch keeps the project in the same folder, and each names that folder on its own.
         var main = mappedBranchProjectRepository("main", DESIGN_PATH);

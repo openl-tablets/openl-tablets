@@ -43,6 +43,9 @@ public interface UserWorkspace extends ProjectsContainer {
 
     /**
      * Switches a project to an indexed branch entry and persists the user's selection.
+     *
+     * <p>A refresh of the workspace takes the branch of a closed project from the persisted selection, so the switch
+     * holds even when another request refreshed the workspace and replaced the project in the meantime.
      */
     void setProjectBranch(RulesProject project, String branch) throws ProjectException;
 
