@@ -1,6 +1,7 @@
 package org.openl.itest.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,10 +12,10 @@ import java.net.URI;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,13 +48,18 @@ class HttpClientTest {
     @AutoClose
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final CountDownLatch slowResponse = new CountDownLatch(1);
+    /** The client side port of every request to {@code /json}, which tells the connection it came through. */
+    private final List<Integer> clientPorts = new CopyOnWriteArrayList<>();
     private HttpServer server;
 
     @BeforeEach
     void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         server.setExecutor(executor);
-        server.createContext("/json", exchange -> respond(exchange, "{\"name\":\"foo\"}"));
+        server.createContext("/json", exchange -> {
+            clientPorts.add(exchange.getRemoteAddress().getPort());
+            respond(exchange, "{\"name\":\"foo\"}");
+        });
         server.createContext("/slow", exchange -> {
             try {
                 slowResponse.await();
@@ -78,8 +84,7 @@ class HttpClientTest {
     @SetSystemProperty(key = "http.timeout.read", value = "3000")
     @SetSystemProperty(key = "server.responses", value = "target/failure-report/")
     void failedRequestsAreListedWithTheAssertionTheyFailed(StdOut out, StdErr err) throws Exception {
-        var baseURL = URI.create("http://localhost:" + server.getAddress().getPort());
-        try (var client = new HttpClient(JettyServer.get(), baseURL)) {
+        try (var client = new HttpClient(JettyServer.get(), baseURL())) {
             var error = assertThrows(AssertionError.class, () -> client.test(FOLDER));
 
             assertLinesMatch(List.of(
@@ -102,14 +107,31 @@ class HttpClientTest {
     }
 
     @Test
-    void eachRequestClosesItsClient() throws IOException {
-        var request = Objects.requireNonNull(HttpData.readFile(FOLDER + "/010-ok.req"));
+    void requestsShareOneConnection() throws Exception {
+        try (var client = new HttpClient(JettyServer.get(), baseURL())) {
+            client.send("failure-report/010-ok");
+            client.send("failure-report/010-ok");
+        }
+
+        assertEquals(2, clientPorts.size());
+        assertEquals(clientPorts.getFirst(), clientPorts.getLast(), "Both requests must come from one connection");
+    }
+
+    @Test
+    void closeStopsTheClientThread() throws Exception {
         var open = openClients();
+        List<Thread> started;
+        try (var client = new HttpClient(JettyServer.get(), baseURL())) {
+            // Other clients may start meanwhile, so only a thread this client started counts
+            started = openClients().stream().filter(thread -> !open.contains(thread)).toList();
+            client.send("failure-report/010-ok");
+        }
 
-        HttpData.send(URI.create("http://localhost:" + server.getAddress().getPort()), request, "", Map.of());
-
-        // Other clients may close meanwhile, so only a thread the request started counts
-        var leaked = openClients().stream().filter(client -> !open.contains(client)).toList();
+        assertFalse(started.isEmpty(), "The client runs a selector thread");
+        for (var thread : started) {
+            thread.join(Duration.ofSeconds(5));
+        }
+        var leaked = started.stream().filter(Thread::isAlive).toList();
         assertTrue(leaked.isEmpty(), () -> "Selector threads left open: " + leaked);
     }
 
@@ -148,6 +170,10 @@ class HttpClientTest {
 
     private static String request(String name) {
         return Path.of(FOLDER, name + ".req").toString();
+    }
+
+    private URI baseURL() {
+        return URI.create("http://localhost:" + server.getAddress().getPort());
     }
 
     /** Finds the JDK HTTP clients still open, by the selector thread each of them runs. */

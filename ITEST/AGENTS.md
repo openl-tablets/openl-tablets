@@ -369,6 +369,12 @@ private static final HttpClient client = JettyServer.get().withProfile("multi").
 
 Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`.
 
+Every request of an `HttpClient` goes through one JDK HTTP client, which keeps its connections open for the next
+request instead of connecting anew. Closing the `HttpClient` closes those connections and the client's selector
+thread before it stops the server, so a client that is never closed leaks that thread. An idle connection is kept
+for 20 seconds (`jdk.httpclient.keepalive.timeout` in `ITEST/pom.xml`), less than the 30 seconds after which Jetty
+closes it: the JDK sends a request again on a connection the server has just closed only for a `GET` or `HEAD`.
+
 ### WebSocket / STOMP
 
 `StompTester` (in `server-core`) wraps a STOMP-over-WebSocket client:

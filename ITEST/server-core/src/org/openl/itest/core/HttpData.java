@@ -46,6 +46,7 @@ import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import org.jspecify.annotations.Nullable;
 
 class HttpData {
     private static final String BOUNDARY = "boundary=";
@@ -122,12 +123,19 @@ class HttpData {
     }
 
     /**
-     * Sends the request and reads the response.
+     * Sends the request through the given client and reads the response.
+     *
+     * <p>The client keeps its connections open between requests, so a request reuses the connection of an earlier
+     * one. The wait for the response ignores interrupts.
      *
      * <p>A request that gets no connection or no response in time fails with an {@link AssertionError} whose message
      * starts with {@code Timeout}. The limits are {@code http.timeout.connect} and {@code http.timeout.read}.
      */
-    static HttpData send(URI baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) {
+    static HttpData send(HttpClient client,
+                         URI baseURL,
+                         HttpData httpData,
+                         @Nullable String cookie,
+                         Map<String, String> localEnv) {
         String url = resolvePathVariables(httpData.getUrl(), localEnv);
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(baseURL.toString() + url))
@@ -142,9 +150,7 @@ class HttpData {
         }
 
         long start = System.nanoTime();
-        try (var client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
-                .build()) {
+        try {
             return readData(client.sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray()).join());
         } catch (CompletionException e) {
             if (e.getCause() instanceof HttpTimeoutException timeout) {
