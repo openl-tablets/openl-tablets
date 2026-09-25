@@ -54,7 +54,8 @@ interface BenchmarkResultModalProps {
  * side. The rows that are ticked can be compared with each other, which places them by speed, or deleted.
  */
 export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ projectId, tableId, onClose }) => {
-    const { t } = useTranslation('execution')
+    const { i18n, t } = useTranslation('execution')
+    const locale = i18n.resolvedLanguage ?? i18n.language
     const [measurements, setMeasurements] = useState<BenchmarkResult[] | null>(null)
     const [picked, setPicked] = useState<string[]>([])
     const [compared, setCompared] = useState<string[] | null>(null)
@@ -186,21 +187,21 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
             ),
         }] : []),
         metricColumn('testCaseMs', t('benchmark.testCaseMs'), t('benchmark.testCaseMsHint'),
-            row => formatTime(metricsOf(row).testCaseMs)),
+            row => formatTime(metricsOf(row).testCaseMs, locale)),
         metricColumn('testCasesPerSecond', t('benchmark.testCasesPerSecond'), t('benchmark.testCasesPerSecondHint'),
-            row => formatRate(metricsOf(row).testCasesPerSecond)),
+            row => formatRate(metricsOf(row).testCasesPerSecond, locale)),
         metricColumn('testCases', t('benchmark.testCases'), t('benchmark.testCasesHint'), row => row.testCases),
         metricColumn('runMs', t('benchmark.runMs'), t('benchmark.runMsHint'),
-            row => formatTime(metricsOf(row).runMs)),
+            row => formatTime(metricsOf(row).runMs, locale)),
         metricColumn('runsPerSecond', t('benchmark.runsPerSecond'), t('benchmark.runsPerSecondHint'),
-            row => formatRate(metricsOf(row).runsPerSecond)),
+            row => formatRate(metricsOf(row).runsPerSecond, locale)),
     ]
 
     const comparedColumns: ListTableColumn<BenchmarkResult>[] = [
         { key: 'position', fit: true, title: '#', render: row => <Text type="secondary">{position(row)}</Text> },
         { key: 'name', title: t('benchmark.name'), render: measuredTable },
         metricColumn('testCasesPerSecond', t('benchmark.testCasesPerSecond'), t('benchmark.testCasesPerSecondHint'),
-            row => formatRate(metricsOf(row).testCasesPerSecond)),
+            row => formatRate(metricsOf(row).testCasesPerSecond, locale)),
         {
             key: 'rank',
             fit: true,
@@ -212,7 +213,7 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
             },
         },
         metricColumn('ratio', t('benchmark.ratio'), t('benchmark.ratioHint'),
-            row => formatRatio(ranking.get(row.id)?.ratio ?? Number.NaN)),
+            row => formatRatio(ranking.get(row.id)?.ratio ?? Number.NaN, locale)),
     ]
 
     if (measurements === null || benchmarkFailed) {

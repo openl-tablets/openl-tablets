@@ -39,9 +39,11 @@ vi.mock('antd', async () => {
     return { ...actual, Modal: MockModal }
 })
 
+// The UI language the measured numbers are written in, so that the decimal point a test reads is the one an
+// English screen shows, whatever locale the machine running the test is set to.
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
-    return { useTranslation: () => ({ t }) }
+    return { useTranslation: () => ({ i18n: { language: 'en', resolvedLanguage: 'en' }, t }) }
 })
 
 const read = readBenchmarks as ReturnType<typeof vi.fn>
