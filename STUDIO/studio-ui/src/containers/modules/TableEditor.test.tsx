@@ -209,6 +209,81 @@ describe('TableEditor', () => {
         }])
     })
 
+    describe('with the header rows kept out of sight', () => {
+        // A decision table as the reader meets it with Show Header off: the four header rows are drawn
+        // nowhere, and what they see is the title row and the rules under it.
+        const withHeader: RawTableCell[][] = [
+            [{ cell: 'D57', value: 'Rules Double Premium(String age)', colspan: 2 }, { covered: true }],
+            [{ cell: 'D58', value: 'C1' }, { cell: 'E58', value: 'RET1' }],
+            [{ cell: 'D59', value: 'age' }, { cell: 'E59', value: '' }],
+            [{ cell: 'D60', value: 'String' }, { cell: 'E60', value: '' }],
+            [{ cell: 'D61', value: 'Driver Age' }, { cell: 'E61', value: 'Premium Increase' }],
+            [{ cell: 'D62', value: 'Young Driver' }, { cell: 'E62', value: 700 }],
+            [{ cell: 'D63', value: 'Standard Driver' }, { cell: 'E63', value: 500 }],
+        ]
+        const HIDDEN = 4
+
+        it('draws the table from the first row it shows, and none of the ones put away', async () => {
+            draw({ rows: withHeader, hiddenRows: HIDDEN })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            expect(screen.getByTestId('module-table').querySelectorAll('tr')).toHaveLength(3)
+            expect(screen.queryByText('Rules Double Premium(String age)')).not.toBeInTheDocument()
+            expect(screen.getByText('Driver Age')).toBeInTheDocument()
+        })
+
+        it('writes a cell to the row it stands on in the table, not the row it is drawn at', async () => {
+            draw({ rows: withHeader, hiddenRows: HIDDEN })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            // Opened where it is drawn — the last cell of the third row on screen, which the reader sees as
+            // the premium of Standard Driver.
+            await userEvent.dblClick(cellOf(2, 1))
+            const input = screen.getByTestId('table-cell-input')
+            await userEvent.clear(input)
+            await userEvent.type(input, '555{Enter}')
+            await userEvent.click(screen.getByTestId('table-edit-save'))
+
+            // That cell stands on the seventh row of the table. Addressed as it is drawn it would be written
+            // four rows higher — over another rule, or over the header, which stops the table compiling.
+            await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+                { operation: 'update', target: { type: 'cell', row: 6, column: 1, value: '555' } },
+            ], 'Claims'))
+        })
+
+        it('offers to take away the first row it draws, which is no header of the table', async () => {
+            draw({ rows: withHeader, hiddenRows: HIDDEN })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(cellOf(0, 0))
+
+            // The row that is kept is the table's own first one, and that one is on screen nowhere.
+            expect(screen.getByTestId('table-edit-remove_row')).toBeEnabled()
+        })
+
+        it('keeps the reader among the rows it draws', async () => {
+            draw({ rows: withHeader, hiddenRows: HIDDEN })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(cellOf(0, 0))
+            await userEvent.keyboard('{ArrowUp}')
+            await userEvent.keyboard('{Enter}')
+
+            // Up from the first drawn row leads into the header, which is drawn nowhere: the reader stays.
+            expect(screen.getByTestId('table-cell-input')).toHaveValue('Driver Age')
+        })
+
+        it('counts the rows put away out of the line numbers', async () => {
+            draw({ rows: withHeader, hiddenRows: HIDDEN, layout: { firstDataLine: 5 } })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            // The data begins on the table's sixth row, which is the second of the three drawn — so the
+            // first drawn row is numbered not at all and the rules under it are the first and the second.
+            expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2'])
+            expect(cellOf(1, 0)).toHaveTextContent('1')
+        })
+    })
+
     it('lays a row down inside a merged group without pushing its cells out of their columns', async () => {
         // The group `Young Driver` is one cell over the two rules under it, the way a rules table is written.
         const grouped: RawTableCell[][] = [

@@ -505,23 +505,10 @@ export const ModuleWorkspace = () => {
     }, [moduleName, navigate, projectId])
 
     // "Show Header" puts away the rows the table's header takes, which the read names — the header line, a
-    // properties section, the service rows of a decision table. Cut once: the screen redraws on every status
-    // the compilation pushes, and a table of thousands of rows is not re-cut for each of them.
-    const rows = useMemo(
-        () => showHeader ? table?.source ?? [] : (table?.source ?? []).slice(table?.headerHeight ?? 0),
-        [table, showHeader]
-    )
-
-    // The table says where its data begins in its own rows; the screen may be drawing it without the header
-    // rows, and then the data begins that many rows earlier than the table counts it.
-    const caseNumbering = useMemo(() => {
-        const layout = table?.layout
-        if (layout === undefined) {
-            return undefined
-        }
-        const hidden = showHeader || layout.transposed ? 0 : table?.headerHeight ?? 0
-        return { ...layout, firstDataLine: layout.firstDataLine - hidden }
-    }, [table, showHeader])
+    // properties section, the service rows of a decision table. The table is handed over whole and told how
+    // many rows to keep out of sight: a row put away must keep the number it has in the table, or an edit is
+    // written to the row it is drawn at rather than the row it was made in.
+    const hiddenRows = showHeader ? 0 : table?.headerHeight ?? 0
 
     const openTableById = useCallback((picked: string) => {
         setSearch(params => {
@@ -875,7 +862,8 @@ export const ModuleWorkspace = () => {
                     canWrite={canWriteTable}
                     editing={editing}
                     formulas={showFormulas}
-                    layout={caseNumbering}
+                    hiddenRows={hiddenRows}
+                    layout={table.layout}
                     markCell={raisedCell}
                     maxRows={table.source.length}
                     moduleName={moduleName}
@@ -885,7 +873,7 @@ export const ModuleWorkspace = () => {
                     onSaved={tableRewritten}
                     openAt={editCell}
                     projectId={project.id}
-                    rows={rows}
+                    rows={table.source}
                     tableId={selected.id}
                     testId="module-table"
                     whole={shown >= total}

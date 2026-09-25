@@ -3,6 +3,7 @@ import type { ModuleTable } from 'types/tables'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { useUserStore } from '../store'
 import { ModuleWorkspace } from './ModuleWorkspace'
 import { getModuleTables, getRawTable, listModules } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
@@ -124,13 +125,14 @@ vi.mock('./projects/BranchSwitcher', () => ({
 }))
 // The table itself is drawn and edited elsewhere; this screen is asked only what it hands over.
 vi.mock('./modules/TableEditor', () => ({
-    TableEditor: ({ testId, rows, children }: {
+    TableEditor: ({ testId, rows, hiddenRows, children }: {
         testId?: string
         rows?: unknown[]
+        hiddenRows?: number
         children?: ReactNode
     }) => (
         <div data-testid={testId}>
-            {`rows:${rows?.length ?? 0}`}
+            {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
             {children}
         </div>
     ),
@@ -156,6 +158,7 @@ const project = (status: string) => ({
 describe('ModuleWorkspace', () => {
     beforeEach(() => {
         localStorage.clear()
+        useUserStore.setState({ userProfile: undefined })
         routeParams.projectId = 'p1'
         routeParams.moduleName = 'Bank Rating'
         workspace.opened = false
@@ -183,6 +186,37 @@ describe('ModuleWorkspace', () => {
             name: 'BankRating',
             source: [[{ cell: 'A1', value: 'Bank' }]],
         } as never)
+    })
+
+    it('hands the table over whole with the count of header rows to keep out of sight', async () => {
+        workspace.opened = true
+        useUserStore.setState({ userProfile: { showHeader: false } as never })
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Rules' }], [{ cell: 'A2', value: 'C1' }], [{ cell: 'A3', value: '1' }]],
+            headerHeight: 2,
+        } as never)
+
+        render(<ModuleWorkspace />)
+
+        // "Show Header" puts the header rows away, it does not renumber the rest: cut them off here and every
+        // edit the reader makes below them is written two rows higher than they made it.
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:3 hidden:2'))
+    })
+
+    it('keeps every row in sight when the reader asked to see the header', async () => {
+        workspace.opened = true
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Rules' }], [{ cell: 'A2', value: '1' }]],
+            headerHeight: 1,
+        } as never)
+
+        render(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:2 hidden:0'))
     })
 
     it('says nothing about a module that compiled, and marks one that raised something', async () => {
