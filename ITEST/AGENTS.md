@@ -67,6 +67,11 @@ The `*RdbmsTest` classes run **only on CI** — they are gated on the `CI` envir
 GitHub Actions, GitLab CI, and others) and therefore skip on a local build. To run one locally, set
 `CI=true` (and do not pass `-DnoDocker`).
 
+`OracleRdbmsTest` raises the Oracle process limit from 200 to 1000 when the container initializes. Oracle runs
+every connection in a process of its own: the database takes about 80 of the 200 for itself and the security
+database pool keeps 50 more open, while the JDBC design repository opens a connection for every call. A burst of
+requests used up the rest and failed with `ORA-12516`.
+
 ## Declarative HTTP Testing (*.req / *.resp)
 
 The **primary testing mechanism**. Instead of Java test code, define HTTP exchanges as file pairs.
