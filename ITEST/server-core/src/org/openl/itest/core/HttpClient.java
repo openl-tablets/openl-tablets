@@ -310,7 +310,7 @@ public class HttpClient implements AutoCloseable {
                 if (error != null) {
                     TimeUnit.MILLISECONDS.sleep(100);
                 }
-                response = HttpData.send(baseURL, request, cookie.get(), effectiveEnv);
+                response = HttpData.send(client, baseURL, request, cookie.get(), effectiveEnv);
 
                 rememberCookie(response);
 
@@ -422,8 +422,15 @@ public class HttpClient implements AutoCloseable {
         }
     }
 
+    /**
+     * Closes the connections to the server, then stops the server.
+     */
     @Override
     public void close() throws Exception {
-        server.stop();
+        try {
+            client.close();
+        } finally {
+            server.stop();
+        }
     }
 }
