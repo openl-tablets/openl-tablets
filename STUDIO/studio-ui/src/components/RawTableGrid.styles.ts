@@ -1,5 +1,13 @@
 import { createStyles } from 'antd-style'
 
+/**
+ * How wide a cell is at the least, in pixels: the width Excel gives a column its author never set.
+ *
+ * <p>A column nothing is written in keeps room to write in rather than closing to a line. A column with
+ * something in it is drawn at the width that something needs, which is more than this.
+ */
+const EMPTY_CELL_WIDTH = 64
+
 export const useStyles = createStyles(({ css, token }) => ({
     /**
      * The table is as wide as its own text needs and no wider: stretching it to the screen spreads a few short
@@ -26,6 +34,10 @@ export const useStyles = createStyles(({ css, token }) => ({
     /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past
      * the screen — the way the workbook itself shows it.
+     *
+     * <p>A cell with nothing written in it keeps the room of one that has: a workbook gives every row and
+     * column a size of its own whether anything stands there or not, and a row of empty cells drawn to its
+     * padding alone reads as a crack between the rules rather than as a line to write in.
      */
     cell: css`
         border: 1px solid ${token.colorBorderSecondary};
@@ -35,6 +47,17 @@ export const useStyles = createStyles(({ css, token }) => ({
         white-space: pre-wrap;
         overflow-wrap: anywhere;
         max-width: 420px;
+        min-width: ${EMPTY_CELL_WIDTH}px;
+
+        /* An empty cell has no line of text to give its row a height, so it is given one that takes no room
+           of its own — a row of them then stands as tall as a row with a word in it. Drawn before the text
+           rather than after it: the mark of a cell a reader left a note on is the cell's ::after. */
+        &::before {
+            content: '';
+            display: inline-block;
+            width: 0;
+            height: ${Math.round(token.fontSizeSM * token.lineHeightSM)}px;
+        }
     `,
     /**
      * The number of a line of data, beside the table rather than in it: the workbook has no such cell, and a
