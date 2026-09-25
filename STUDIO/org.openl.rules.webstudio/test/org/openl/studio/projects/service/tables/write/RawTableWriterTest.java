@@ -524,6 +524,25 @@ class RawTableWriterTest {
     }
 
     @Test
+    void laysAColumnDownBeforeTheFirstAndWidensTheHeaderOverIt() {
+        // The other way round: the bank widens over a column laid down before the one it starts in, and the
+        // corner OpenL finds the table by stays where it is.
+        apply(merge(0, 0, 1, 3));
+
+        apply(insertColumn(0, List.of(new RawCellInput(null, null, null, true),
+                new RawCellInput("long", null, null, null),
+                new RawCellInput("id", null, null, null),
+                new RawCellInput("epsilon", null, null, null))));
+
+        var source = reload(mainProject);
+        assertEquals(4, width(source));
+        assertEquals(HEADER, value(source, 0, 0));
+        assertEquals(Integer.valueOf(4), source.getFirst().getFirst().colspan());
+        assertEquals("long", value(source, 1, 0));
+        assertEquals("String", value(source, 1, 1));
+    }
+
+    @Test
     void takesAwayTheFirstColumnAndKeepsTheHeaderBankedOverTheTable() {
         // A table's header is one cell banked across every column, as OpenL writes it. Taking the first column
         // away narrows the bank; the header stays where the engine looks for it.
@@ -1068,7 +1087,9 @@ class RawTableWriterTest {
 
     @Test
     void rejectsDeletingHeaderLine() {
-        // the header row and the leading-label column are protected, symmetric with insert rejecting position 0
+        // Neither line is barred for being the first. What bars these two is that this table's header stands in
+        // one cell at the corner, and either write would leave a table OpenL cannot read a header from — unlike
+        // a header banked across the table, which narrows with the first column and stays where it began.
         assertBadRequest(deleteRow(0));
         assertBadRequest(deleteColumn(0));
     }

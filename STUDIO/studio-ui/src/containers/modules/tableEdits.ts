@@ -177,6 +177,31 @@ const afterRemove = (merges: Merge[], axis: Axis, at: number, lines: number): Me
         return left.rows > 1 || left.columns > 1 ? [left] : []
     })
 
+/**
+ * Carries what a merge holds to the cell that becomes its first, where the line it is held in is going.
+ *
+ * <p>A merge keeps its value in the cell it starts at and nothing in the cells it reaches over. Take that
+ * first line away and the merge still stands — over cells that hold nothing, so a header banked across the
+ * table would read as blank. The workbook carries the value along instead, and so does this.
+ */
+const carryOrigins = (rows: RawTableCell[][], merges: Merge[], axis: Axis, at: number, lines: number): void => {
+    for (const merge of merges) {
+        const reach = axis.reach(merge)
+        const held = rows[merge.row]?.[merge.column]
+        // Only a merge whose first line is among the ones going, and which reaches past them, has anything
+        // to carry: one that goes whole carries nothing, and one starting earlier keeps the cell it is in.
+        if (held === undefined || reach.at < at || reach.at >= at + lines
+                || reach.at + reach.lines <= at + lines) {
+            continue
+        }
+        const to = axis.moved(merge, { at: at + lines, lines: reach.lines })
+        const row = rows[to.row]
+        if (row !== undefined) {
+            row[to.column] = held
+        }
+    }
+}
+
 /** Applies one step, and answers how many rows and columns the reader has added in all. */
 const apply = (state: EditedTable, step: EditStep, added: number): number => {
     switch (step.kind) {
@@ -210,7 +235,9 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
             return added + 1
         }
         case 'removeRow': {
-            const merges = afterRemove(mergesOf(state.rows), DOWN, step.at, step.lines)
+            const standing = mergesOf(state.rows)
+            carryOrigins(state.rows, standing, DOWN, step.at, step.lines)
+            const merges = afterRemove(standing, DOWN, step.at, step.lines)
             state.rows.splice(step.at, step.lines)
             state.rowIds.splice(step.at, step.lines)
             state.rows = laidOut(state.rows, merges)
@@ -229,7 +256,9 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
             return added + 1
         }
         case 'removeColumn': {
-            const merges = afterRemove(mergesOf(state.rows), ACROSS, step.at, step.lines)
+            const standing = mergesOf(state.rows)
+            carryOrigins(state.rows, standing, ACROSS, step.at, step.lines)
+            const merges = afterRemove(standing, ACROSS, step.at, step.lines)
             state.rows.forEach(row => row.splice(step.at, step.lines))
             state.columnIds.splice(step.at, step.lines)
             state.rows = laidOut(state.rows, merges)

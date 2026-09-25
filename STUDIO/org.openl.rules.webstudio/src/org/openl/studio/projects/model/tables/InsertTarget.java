@@ -43,13 +43,13 @@ public sealed interface InsertTarget permits InsertTarget.Rows, InsertTarget.Col
 
     @Schema(name = "InsertColumns", description = """
             Inserts one or more columns at the given position, shifting the \
-            columns at and to the right of it. The first column carries the leading labels, so the position must be \
-            between 1 and the table width (width appends to the end). Each new column must be exactly as tall as the \
-            table. A colspan may cover later columns from the same insert block.""")
+            columns at and to the right of it — the first column included, over which a header banked across the \
+            table widens. The position is between 0 and the table width (width appends to the end). Each new column \
+            must be exactly as tall as the table. A colspan may cover later columns from the same insert block.""")
     record Columns(
-            @Schema(description = "0-based index the first new column will occupy (1..width; width appends to the end).")
+            @Schema(description = "0-based index the first new column will occupy (0..width; width appends to the end).")
             @NotNull
-            @Min(1)
+            @Min(0)
             Integer position,
             @NotEmpty
             @Parameter(description = """

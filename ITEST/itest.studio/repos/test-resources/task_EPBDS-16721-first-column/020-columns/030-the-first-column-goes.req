@@ -1,0 +1,17 @@
+POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NzIx/tables/0a4f264c3991f39ea18e859b30c5ff29/actions/batch HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "delete",
+      "target": {
+        "type": "columns",
+        "position": 0,
+        "count": 1
+      }
+    }
+  ]
+}
+

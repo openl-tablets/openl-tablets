@@ -550,8 +550,6 @@ i18next.addResourceBundle('en', 'repository', {
             edit_done: 'Done',
             edit_header_row_kept: 'The first row holds the table header, which is how OpenL finds the table. '
                 + 'Removing it would leave a table nobody could find again.',
-            edit_header_column_kept: 'The table header is banked from the first column, so a column added '
-                + 'before it would leave the header behind. Add it after the first column.',
             edit_blank_row: 'A row you added is empty. A blank row splits the table, so fill in a cell or '
                 + 'remove the row.',
             edit_blank_column: 'A column you added is empty. A blank column splits the table, so fill in a cell '

@@ -36,12 +36,13 @@ public sealed interface DeleteTarget permits DeleteTarget.Rows, DeleteTarget.Col
 
     @Schema(name = "DeleteColumns", description = """
             Deletes one or more columns starting at the given position, \
-            shifting the columns to the right of the block left. The leading-label column (position 0) cannot be \
-            deleted, and the block must stay within the body.""")
+            shifting the columns to the right of the block left. The first column goes with the rest: a header \
+            banked across the table narrows over the columns that are left. A write that would leave the table \
+            without a header OpenL recognises is refused, as is one reaching past the table.""")
     record Columns(
-            @Schema(description = "0-based index of the first column to delete (1..width-1).")
+            @Schema(description = "0-based index of the first column to delete (0..width-1).")
             @NotNull
-            @Min(1)
+            @Min(0)
             Integer position,
             @Schema(description = "Number of columns to delete (>= 1).")
             @NotNull

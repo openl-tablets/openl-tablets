@@ -78,12 +78,13 @@ describe('TableEditToolbar', () => {
     it('offers on the header only what leaves the corner OpenL finds the table by where it is', () => {
         draw({ picked: { row: 0, column: 0 } })
 
-        // A row laid down under the header and a column taken away from under it leave the corner alone.
+        // The header is banked across the table, and every column action leaves the corner where it is: the
+        // bank widens over a column laid down before the first one and narrows over one taken away.
         expect(screen.getByTestId('table-edit-insert_row')).toBeEnabled()
+        expect(screen.getByTestId('table-edit-insert_column')).toBeEnabled()
         expect(screen.getByTestId('table-edit-remove_column')).toBeEnabled()
-        // Taking the header's own row away, or laying a column down before the one it is banked from, do not.
+        // Taking the header's own row away does not: the table would start on a line OpenL reads as no header.
         expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
-        expect(screen.getByTestId('table-edit-insert_column')).toBeDisabled()
     })
 
     it('opens on the palette and puts the full picker in its place only when asked', async () => {
