@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
@@ -21,9 +22,10 @@ public class ProjectFileRootFactory {
     private final ProjectStateValidator projectStateValidator;
     private final ProjectFileLookupService fileLookupService;
     private final UserManagementService userManagementService;
+    private final DesignTimeRepository designTimeRepository;
 
     public FileRoot of(RulesProject project) {
         return new ProjectFileRoot(project, aclProjectsHelper, projectStateValidator, fileLookupService,
-                () -> AuthoringRepository.currentAuthor(userManagementService));
+                () -> AuthoringRepository.currentAuthor(userManagementService), designTimeRepository);
     }
 }

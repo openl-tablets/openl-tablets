@@ -17,9 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -178,7 +175,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /** Answered when a project does not declare the module a request names. */
     private static final String NO_SUCH_MODULE = "project.module.identifier.message";
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
-    private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
     /** The mark {@link TableSyntaxNodeUtils} appends to a display name it had to shorten. */
     private static final String SHORTENED_NAME_MARK = "...";
     private static final Comparator<ProjectDependency> DEPENDENCY_NAME_ORDER = Comparator
@@ -911,9 +907,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Save project
      *
+     * <p>A project of a repository with branches is saved once the project index publishes the saved revision, so
+     * the next read of the project sees it. When the index does not publish it in time, the saved revision stays
+     * committed and the save reports incomplete indexing.
+     *
      * @param project project
      * @param model   project status update model
      * @throws ProjectException if failed to save project
+     * @throws ConflictException if the project index did not publish the saved revision in time
      */
     public void save(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
         if (!project.isModified()) {
@@ -927,7 +928,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         validateComment(project, comment);
         project.getFileData().setComment(comment);
         commit(project);
+        // The next read of the project is served from the index, which must hold the saved revision by then.
+        var indexPublished = !project.isSupportsBranches()
+                || refreshProjectIndex(project.getDesignRepository(), project.getBranch());
         publishStateChanged(project);
+        if (!indexPublished) {
+            throw new ConflictException("project.indexing.incomplete.message");
+        }
     }
 
     /**
@@ -1097,38 +1104,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private boolean refreshProjectIndex(Repository repository, @Nullable String branch) {
-        var designTimeRepository = getUserWorkspace().getDesignTimeRepository();
-        if (!(repository instanceof BranchRepository) || !repository.supports().branches()) {
-            designTimeRepository.refresh();
-            return true;
-        }
-        try {
-            designTimeRepository.refreshBranch(repository.getId(), Objects.requireNonNull(branch))
-                    .toCompletableFuture()
-                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            return true;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException | TimeoutException e) {
-            log.warn("Project index did not publish branch '{}' in repository '{}'.",
-                    branch, repository.getId(), e);
-        }
-        return false;
+        return ProjectIndex.awaitBranch(getUserWorkspace().getDesignTimeRepository(), repository, branch);
     }
 
     private boolean refreshRepositoryIndex(Repository repository) {
-        try {
-            getUserWorkspace().getDesignTimeRepository()
-                    .refreshRepository(repository.getId())
-                    .toCompletableFuture()
-                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            return true;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException | TimeoutException e) {
-            log.warn("Project index did not publish repository '{}'.", repository.getId(), e);
-        }
-        return false;
+        return ProjectIndex.awaitRepository(getUserWorkspace().getDesignTimeRepository(), repository);
     }
 
     private boolean isAclPathStillUsed(Repository repository, String projectName, String aclPath) {

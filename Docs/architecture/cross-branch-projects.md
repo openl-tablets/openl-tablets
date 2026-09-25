@@ -240,7 +240,9 @@ Refreshes must run outside request threads and follow these rules:
 - The configured-branch listing must remain available only until the first snapshot is published; afterwards the
   published snapshot is served even while its health is still `INDEXING`.
 - Repository change events must mark the repository dirty and schedule a batched status check.
-- A successful Studio write must invalidate the affected branch directly.
+- A successful Studio write must invalidate the affected branch directly. A save and a file write committed
+  directly to a closed project must also wait for that branch's publication before answering, so the next read of
+  the project sees the written revision.
 - One coordinator per repository may run at a time.
 - Different repositories may scan concurrently.
 - Branches within one repository must scan sequentially because branch-view creation shares the Git lock.
@@ -478,6 +480,7 @@ Entries at disjoint mapped paths retain distinct ACL identities.
 - Invalid branch names must fail validation before ref creation.
 - Every creation mode must use the same branch resolution, permission and protection rules.
 - A normal successful write response must guarantee that the published index contains the new membership.
+- A successful save or file write must guarantee that the next project read sees the written revision.
 - Deleting one membership must leave the logical project visible while any membership survives.
 - Deleting a project must not delete its branch.
 - Deleting a branch must remain a whole-repository operation.

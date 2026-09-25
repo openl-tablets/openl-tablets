@@ -19,10 +19,12 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.service.ProjectIndex;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
 
@@ -36,6 +38,9 @@ import org.openl.util.StringUtils;
  * An opened project stays locked until it is saved or closed. A closed project is committed
  * directly to the design repository: it is reserved before its state is resolved and the lock is
  * released as soon as the modification ends.
+ *
+ * <p>A modification of a closed project answers only once the project index publishes the commit, so
+ * the next read of the project sees it.
  *
  * @author Yury Molchan
  */
@@ -51,6 +56,7 @@ public class ProjectFileRoot implements FileRoot {
      * Resolved lazily: only a batch write needs the author, while the mount is built for reads too.
      */
     private final Supplier<UserInfo> author;
+    private final DesignTimeRepository designTimeRepository;
 
     @Override
     public AProjectFolder readFolder(String version) {
@@ -117,6 +123,7 @@ public class ProjectFileRoot implements FileRoot {
             }
             // The save bypasses the artefact tree, so drop its cached state.
             project.refresh();
+            awaitIndexIfClosed();
         } finally {
             unlockIfClosed();
         }
@@ -158,6 +165,23 @@ public class ProjectFileRoot implements FileRoot {
     void lockIfClosed() {
         if (!project.isOpened()) {
             lockForEditing();
+        }
+    }
+
+    /**
+     * Waits until the project index publishes the commit of a closed project, so the next read of the
+     * project sees it.
+     *
+     * <p>A closed project is committed directly to the design repository. An opened project keeps its
+     * changes in its working copy until check-in, so there is nothing to wait for. Neither is there for
+     * a repository without branches: it reports its commits as it makes them.
+     *
+     * @throws ConflictException when the index does not publish the commit in time
+     */
+    void awaitIndexIfClosed() {
+        if (!project.isOpened() && project.isSupportsBranches()
+                && !ProjectIndex.awaitBranch(designTimeRepository, project.getDesignRepository(), project.getBranch())) {
+            throw new ConflictException("project.indexing.incomplete.message");
         }
     }
 
