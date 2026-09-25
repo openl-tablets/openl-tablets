@@ -685,11 +685,11 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private void insertBlankRows(IGridTable developerView, int beforeRow) {
-        run(developerView, new UndoableInsertRowsAction(1, beforeRow, 0, getMetaInfoWriter()));
+        run(developerView, new UndoableInsertRowsAction(1, beforeRow, getMetaInfoWriter()));
     }
 
     private void insertBlankColumns(IGridTable developerView, int beforeColumn) {
-        run(developerView, new UndoableInsertColumnsAction(1, beforeColumn, 0, getMetaInfoWriter()));
+        run(developerView, new UndoableInsertColumnsAction(1, beforeColumn, getMetaInfoWriter()));
     }
 
     private void writeRow(IGridTable developerView, int row, List<RawCellInput> cells, boolean skipCovered) {

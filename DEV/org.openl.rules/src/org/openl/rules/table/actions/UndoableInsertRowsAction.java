@@ -12,15 +12,11 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
  */
 public class UndoableInsertRowsAction extends UndoableInsertAction {
 
-    private final int nRows;
     private final int beforeRow;
-    private final int col;
 
-    public UndoableInsertRowsAction(int nRows, int beforeRow, int col, MetaInfoWriter metaInfoWriter) {
-        super(metaInfoWriter);
-        this.nRows = nRows;
+    public UndoableInsertRowsAction(int nRows, int beforeRow, MetaInfoWriter metaInfoWriter) {
+        super(metaInfoWriter, nRows);
         this.beforeRow = beforeRow;
-        this.col = col;
     }
 
     public static boolean canInsertRows(IGridTable table, int nRows) {
@@ -41,28 +37,16 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     @Override
     protected boolean canPerformAction(IGridTable table) {
-        return UndoableInsertRowsAction.canInsertRows(table, getNumberToInsert(table));
+        return UndoableInsertRowsAction.canInsertRows(table, lines);
     }
 
     @Override
-    protected GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert) {
-        return new GridRegionAction(gridRegion, ROWS, INSERT, ActionType.EXPAND, numberToInsert);
+    protected GridRegionAction getGridRegionAction(IGridRegion gridRegion) {
+        return new GridRegionAction(gridRegion, ROWS, INSERT, ActionType.EXPAND, lines);
     }
 
     @Override
-    protected int getNumberToInsert(IGridTable table) {
-        var cellHeight = getOriginalTable(table).getCell(col, beforeRow).getHeight();
-        var rowsToInsert = nRows;
-        if (cellHeight > 1) { // merged cell
-            rowsToInsert += cellHeight - 1;
-        }
-        return rowsToInsert;
-    }
-
-    @Override
-    protected IUndoableGridTableAction performAction(int numberToInsert,
-                                                     IGridRegion fullTableRegion,
-                                                     IGridTable table) {
-        return GridTool.insertRows(numberToInsert, beforeRow, fullTableRegion, table.getGrid(), metaInfoWriter);
+    protected IUndoableGridTableAction performAction(IGridRegion fullTableRegion, IGridTable table) {
+        return GridTool.insertRows(lines, beforeRow, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 }

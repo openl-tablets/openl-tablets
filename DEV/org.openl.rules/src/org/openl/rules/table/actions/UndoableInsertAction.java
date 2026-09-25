@@ -19,23 +19,26 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
 
     protected final MetaInfoWriter metaInfoWriter;
 
+    /**
+     * How many rows or columns are laid down: what the caller asked for, and nothing beyond it.
+     * <p>
+     * A merge the new line lands beside grows over it — {@code GridTool} resizes it — and that is the whole of
+     * what a merge changes here. The count itself is the caller's: a caller that means to lay a line down past a
+     * merged block says so by the index it inserts at.
+     */
+    protected final int lines;
+
     @Override
     public void doAction(IGridTable table) {
         if (!canPerformAction(table)) {
             moveTable(table, metaInfoWriter);
         }
-        var numberToInsert = getNumberToInsert(table);
         IGridRegion fullTableRegion = getOriginalRegion(table);
         var actions = new ArrayList<IUndoableGridTableAction>();
-        var ua = performAction(numberToInsert, fullTableRegion, table);
-        actions.add(ua);
-
-        var allTable = getGridRegionAction(fullTableRegion, numberToInsert);
-        actions.add(allTable);
-
+        actions.add(performAction(fullTableRegion, table));
+        actions.add(getGridRegionAction(fullTableRegion));
         if (isDecoratorTable(table)) {
-            var displayTable = getGridRegionAction(table.getRegion(), numberToInsert);
-            actions.add(displayTable);
+            actions.add(getGridRegionAction(table.getRegion()));
         }
         new UndoableCompositeAction(actions).doAction(table);
     }
@@ -49,25 +52,14 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
     protected abstract boolean canPerformAction(IGridTable table);
 
     /**
-     * Get actual number of rows or columns to be inserted. It depends whether the cell is merged or not.
-     *
-     * @param table a table to apply the action.
-     * @return actual number to be inserted.
-     */
-    protected abstract int getNumberToInsert(IGridTable table);
-
-    /**
      * Perform action for inserting rows or columns.
      *
-     * @param numberToInsert  number of rows or columns to be inserted.
      * @param fullTableRegion a region of original table
      * @param table           a table to apply the action.
      * @return action for inserting rows or columns.
      */
-    protected abstract IUndoableGridTableAction performAction(int numberToInsert,
-                                                              IGridRegion fullTableRegion,
-                                                              IGridTable table);
+    protected abstract IUndoableGridTableAction performAction(IGridRegion fullTableRegion, IGridTable table);
 
-    protected abstract GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert);
+    protected abstract GridRegionAction getGridRegionAction(IGridRegion gridRegion);
 
 }
