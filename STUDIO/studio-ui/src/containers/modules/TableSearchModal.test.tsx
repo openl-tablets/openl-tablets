@@ -14,7 +14,7 @@ vi.mock('react-i18next', () => {
 vi.mock('../../services/modules', () => ({
     searchTables: vi.fn(),
     getRawTable: vi.fn(),
-    TABLE_PAGE_ROWS: 120,
+    TABLE_PAGE_ROWS: 2000,
 }))
 vi.mock('../../services/projects', () => ({ getProjectProperties: vi.fn() }))
 
