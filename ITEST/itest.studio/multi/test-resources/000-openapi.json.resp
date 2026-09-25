@@ -24062,6 +24062,27 @@ Content-Type: application/json
           }
         }
       },
+      "DeclaredTableEditorsView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TableEditorsView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "areas": {
+                "type": "array",
+                "description": "Parts of the table whose every cell asks for one of the editors",
+                "items": {
+                  "$ref": "#/components/schemas/TableAreaEditorRef"
+                }
+              }
+            }
+          }
+        ],
+        "description": "The editors the parts of a table declare, and the cells that ask for another"
+      },
       "Delete": {
         "type": "object",
         "allOf": [
@@ -27822,6 +27843,15 @@ Content-Type: application/json
           }
         }
       },
+      "RawTableEditorsView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TableEditorsView"
+          }
+        ],
+        "description": "The editors the cells of a table hold, told one cell at a time"
+      },
       "RawTableSourceAction": {
         "type": "object",
         "description": "***",
@@ -29472,6 +29502,37 @@ Content-Type: application/json
           }
         }
       },
+      "TableAreaEditorRef": {
+        "type": "object",
+        "description": "A part of the table and the editor its cells ask for",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based first column of the part in the matrix the raw read returns"
+          },
+          "columns": {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many columns the part covers; null where it covers the rest of the table and every column laid down after it"
+          },
+          "editor": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based index into `editors`"
+          },
+          "row": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based first row of the part in the matrix the raw read returns"
+          },
+          "rows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many rows the part covers; null where it covers the rest of the table and every row laid down after it"
+          }
+        }
+      },
       "TableCellEditorRef": {
         "type": "object",
         "description": "A cell and the editor it asks for",
@@ -29595,20 +29656,43 @@ Content-Type: application/json
       "TableEditorsView": {
         "type": "object",
         "description": "The ways of entering a value a table's cells ask for",
+        "discriminator": {
+          "mapping": {
+            "declared": "#/components/schemas/DeclaredTableEditorsView",
+            "raw": "#/components/schemas/RawTableEditorsView"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/RawTableEditorsView"
+          },
+          {
+            "$ref": "#/components/schemas/DeclaredTableEditorsView"
+          }
+        ],
         "properties": {
           "cells": {
             "type": "array",
-            "description": "Cells that ask for one of the editors; a cell that is absent is written as text",
+            "description": "Cells asking for an editor of their own; a cell that is absent takes the editor of the part of the table it stands in, or plain text where no part holds it",
             "items": {
               "$ref": "#/components/schemas/TableCellEditorRef"
             }
           },
           "editors": {
             "type": "array",
-            "description": "Ways of entering a value this table needs, pointed at by index from `cells`",
+            "description": "Ways of entering a value this table needs, pointed at by index from `cells` and `areas`",
             "items": {
               "$ref": "#/components/schemas/TableCellEditorView"
             }
+          },
+          "kind": {
+            "type": "string",
+            "description": "How the table answers: 'raw' as the cells it holds, 'declared' by the parts it declares",
+            "enum": [
+              "raw",
+              "declared"
+            ]
           }
         }
       },

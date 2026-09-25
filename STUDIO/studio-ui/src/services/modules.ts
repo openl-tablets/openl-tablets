@@ -139,11 +139,48 @@ export interface TableCellEditor {
     entryEditor?: string
 }
 
-/** How the cells of a table take a value: the ways of entering one, and which cell asks for which. */
-export interface TableEditors {
+/** One part of a table whose every cell takes the same way of entering a value. */
+export interface TableEditorArea {
+    /** 0-based first row of the part in the matrix the raw read returns */
+    row: number
+    /** 0-based first column of the part */
+    column: number
+    /** How many rows it covers; null where it covers the rest of the table and every row laid down after it */
+    rows: number | null
+    /** How many columns it covers; null where it covers the rest of the table and beyond */
+    columns: number | null
+    /** Index into `editors` */
+    editor: number
+}
+
+/** What the cells of a table take, shared by every kind of answer. */
+interface TableEditorsBase {
     editors: TableCellEditor[]
     cells: Array<{ row: number, column: number, editor: number }>
 }
+
+/** A table that can only be read as the cells it holds: they are told one by one. */
+export interface RawTableEditors extends TableEditorsBase {
+    kind: 'raw'
+}
+
+/**
+ * A table that declares what a part of it holds — the column of a Data or a Test table, the condition of a
+ * decision table, the cells a lookup's rules meet in.
+ *
+ * <p>The part's editor holds for every cell of it, the ones nobody has written in yet included, and a cell of
+ * its own is named only where that cell is written some other way than its part.
+ */
+export interface DeclaredTableEditors extends TableEditorsBase {
+    kind: 'declared'
+    areas: TableEditorArea[]
+}
+
+/** How the cells of a table take a value: the ways of entering one, and which cell asks for which. */
+export type TableEditors = RawTableEditors | DeclaredTableEditors
+
+/** The answer of a table nothing is known about: every cell of it is written as plain text. */
+export const NO_EDITORS: TableEditors = { cells: [], editors: [], kind: 'raw' }
 
 /**
  * How the cells of a window of a table take a value.

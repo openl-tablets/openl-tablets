@@ -379,8 +379,18 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     A cell is written the way its own type asks for — a whole number takes no decimal point, a date is picked
     from a calendar, a value of a known set is chosen from a list — and it keeps that way of writing wherever a
-    row or a column laid down since has moved it. A cell of a line just added is written as plain text: nothing
-    is known about it until the table is saved and read again.
+    row or a column laid down since has moved it.
+
+    Most tables declare what a whole part of them holds. A Data table and a Test table declare their columns,
+    a decision table its conditions and its returns, a lookup the cells its rules meet in — and every cell of
+    that part is written the way the part was declared, however many rows or rules the table has. A line added
+    to such a table is therefore written the same way at once: a column of dates takes a calendar in the new
+    row too, a rule added to a lookup takes numbers where the returns are, and a column added beside the last
+    one takes the values its horizontal condition allows. A table whose columns are declared and which holds
+    no rows or no rules yet says the same before anything is written in it.
+
+    Elsewhere — in a Spreadsheet, in a Datatype, in a table written as a plain grid — a cell of a line just
+    added is written as plain text: nothing is known about it until the table is saved and read again.
 2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell.

@@ -1,0 +1,3 @@
+GET /rest/projects/ZGVzaWduOkVQQkRTLTE2NzUwLXJ1bGVz/tables/5205c3f5365fc40e4f9e780001450f05/editors HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

@@ -1,6 +1,9 @@
 package org.openl.rules.lang.xls.types.meta;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,6 +18,7 @@ import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
@@ -25,6 +29,16 @@ import org.openl.types.java.JavaOpenClass;
 @Slf4j
 public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNode> {
 
+    /**
+     * What each column of the table holds, worked out once.
+     *
+     * <p>Every cell of a column holds the same thing, and the table is bound before this reader is asked
+     * anything, so the answer cannot change while the reader lives. Working it out per cell instead would ask
+     * a column that reads a foreign key for the domain of that whole foreign table once for every cell of
+     * this one.
+     */
+    private final Map<ColumnDescriptor, CellMetaInfo> columns = new ConcurrentHashMap<>();
+
     public DataTableMetaInfoReader(DataTableBoundNode boundNode) {
         super(boundNode);
     }
@@ -32,6 +46,65 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
     @Override
     protected TableSyntaxNode getTableSyntaxNode() {
         return getBoundNode().getTableSyntaxNode();
+    }
+
+    /**
+     * The columns the table declares, each holding what its header says however many rows follow.
+     * <p>
+     * A column is answered for whether or not anybody has written in it, so the answer holds for a table whose
+     * columns are declared and whose body is empty, and for a row laid down in one.
+     */
+    @Override
+    public List<TableArea> getAreas() {
+        var table = getBoundNode().getTable();
+        if (table == null) {
+            // Datatype contains errors
+            return List.of();
+        }
+        var data = table.getData();
+        var normalOrientation = data.isNormalOrientation();
+        var region = getTableSyntaxNode().getGridTable().getRegion();
+        var dataFrom = dataFrom(table, region);
+        var areas = new ArrayList<TableArea>();
+        for (ColumnDescriptor descriptor : table.getDataModel().getDescriptors()) {
+            var column = descriptor.getColumnIdx();
+            if (column >= data.getWidth()) {
+                continue;
+            }
+            // A column of several values is written over as many of the workbook's own lines as it holds.
+            var width = data.getColumnWidth(column);
+            CellMetaInfo metaInfo;
+            try {
+                metaInfo = getColumnMetaInfo(table, descriptor, width);
+            } catch (SyntaxNodeException e) {
+                log.error(e.getMessage(), e);
+                continue;
+            }
+            if (metaInfo == null) {
+                continue;
+            }
+            var cell = data.getCell(column, 0);
+            var at = normalOrientation ? cell.getAbsoluteColumn() - region.getLeft()
+                    : cell.getAbsoluteRow() - region.getTop();
+            // Down a column and on past the last row, or across a row of a table written the other way round.
+            areas.add(normalOrientation
+                    ? new TableArea(dataFrom, at, TableArea.TO_THE_END, width, metaInfo)
+                    : new TableArea(at, dataFrom, width, TableArea.TO_THE_END, metaInfo));
+        }
+        return areas;
+    }
+
+    /** How many cells of a column its headings take: the table's own rows above the data, and the titles. */
+    private static int dataFrom(ITable table, IGridRegion region) {
+        var data = table.getData();
+        if (data.getHeight() == 0) {
+            return 0;
+        }
+        var first = data.getCell(0, 0);
+        // The data begins under the titles, where the table is written with them.
+        var titles = table.getDataModel().hasColumnTitleRow() ? data.getRowHeight(0) : 0;
+        return titles + (data.isNormalOrientation() ? first.getAbsoluteRow() - region.getTop()
+                : first.getAbsoluteColumn() - region.getLeft());
     }
 
     @Override
@@ -144,39 +217,54 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
         // logicalCol is column for normal orientation and is row for transposed table
         int logicalCol = normalOrientation ? (col - firstCell.getAbsoluteColumn()) : (row - firstCell.getAbsoluteRow());
 
-        for (var i = 0; i < table.getNumberOfColumns(); i++) {
-            var cell = data.getCell(i, 0);
-            var logicalColStart = cell.getColumn();
-            var logicalWidth = data.getColumnWidth(i);
+        for (ColumnDescriptor descriptor : table.getDataModel().getDescriptors()) {
+            var column = descriptor.getColumnIdx();
+            if (column >= data.getWidth()) {
+                continue;
+            }
+            var logicalColStart = data.getCell(column, 0).getColumn();
+            var logicalWidth = data.getColumnWidth(column);
 
             if (logicalColStart <= logicalCol && logicalCol < logicalColStart + logicalWidth) {
                 // Found needed column for cell
-                var descriptor = table.getColumnDescriptor(i);
-                if (descriptor == null) {
-                    continue;
-                }
-                IOpenClass columnType;
-                if (descriptor instanceof ForeignKeyColumnDescriptor columnDescriptor) {
-                    var db = getBoundNode().getDataBase();
-                    columnType = columnDescriptor.getDomainClassForForeignTable(db);
-                } else {
-                    columnType = descriptor.isConstructor() ? table.getDataModel().getType() : descriptor.getType();
-                }
-                if (columnType == null) {
-                    return null;
-                }
-                if (!descriptor.isValuesAnArray()) {
-                    return new CellMetaInfo(columnType, false);
-                } else {
-                    if (descriptor instanceof ForeignKeyColumnDescriptor) {
-                        return new CellMetaInfo(columnType, logicalWidth == 1);
-                    } else {
-                        var elemType = columnType.getAggregateInfo().getComponentType(columnType);
-                        return new CellMetaInfo(elemType, logicalWidth == 1);
-                    }
-                }
+                return getColumnMetaInfo(table, descriptor, logicalWidth);
             }
         }
         return null;
+    }
+
+    /** What every cell of the column holds, worked out once and kept; see {@link #columns}. */
+    private CellMetaInfo getColumnMetaInfo(ITable table, ColumnDescriptor descriptor,
+            int logicalWidth) throws SyntaxNodeException {
+        var kept = columns.get(descriptor);
+        if (kept == null) {
+            kept = columnMetaInfo(table, descriptor, logicalWidth);
+            columns.put(descriptor, kept == null ? NOT_FOUND : kept);
+        }
+        return kept == NOT_FOUND ? null : kept;
+    }
+
+    /** What the type the column was declared with says its cells hold, and whether a cell holds many of them. */
+    private CellMetaInfo columnMetaInfo(ITable table, ColumnDescriptor descriptor,
+            int logicalWidth) throws SyntaxNodeException {
+        IOpenClass columnType;
+        if (descriptor instanceof ForeignKeyColumnDescriptor columnDescriptor) {
+            var db = getBoundNode().getDataBase();
+            columnType = columnDescriptor.getDomainClassForForeignTable(db);
+        } else {
+            // A column standing for the row itself — `this` — holds what the table is a table of.
+            columnType = descriptor.isConstructor() ? table.getDataModel().getType() : descriptor.getType();
+        }
+        if (columnType == null) {
+            return null;
+        }
+        if (!descriptor.isValuesAnArray()) {
+            return new CellMetaInfo(columnType, false);
+        }
+        if (descriptor instanceof ForeignKeyColumnDescriptor) {
+            return new CellMetaInfo(columnType, logicalWidth == 1);
+        }
+        var elemType = columnType.getAggregateInfo().getComponentType(columnType);
+        return new CellMetaInfo(elemType, logicalWidth == 1);
     }
 }

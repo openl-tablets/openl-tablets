@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "kind": "declared",
+  "editors": [
+    {
+      "editor": "numeric",
+      "min": -2147483648,
+      "max": 2147483647,
+      "intOnly": true
+    }
+  ],
+  "cells": [],
+  "areas": [
+    {
+      "row": 3,
+      "column": 0,
+      "rows": null,
+      "columns": 1,
+      "editor": 0
+    }
+  ]
+}
+

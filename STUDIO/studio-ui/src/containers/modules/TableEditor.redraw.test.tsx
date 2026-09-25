@@ -2,12 +2,15 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
-import { getTableEditors } from '../../services/modules'
+import { getTableEditors, NO_EDITORS } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { TableEditor } from './TableEditor'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
-vi.mock('../../services/modules', () => ({ getTableEditors: vi.fn() }))
+vi.mock('../../services/modules', async importOriginal => ({
+    ...await importOriginal<typeof import('../../services/modules')>(),
+    getTableEditors: vi.fn(),
+}))
 vi.mock('react-router-dom', () => ({
     useBlocker: () => ({ state: 'unblocked', proceed: vi.fn(), reset: vi.fn() }),
 }))
@@ -45,7 +48,7 @@ describe('TableEditor redrawing', () => {
     beforeEach(() => {
         grid.drawn = 0
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
-        vi.mocked(getTableEditors).mockResolvedValue({ editors: [], cells: []})
+        vi.mocked(getTableEditors).mockResolvedValue(NO_EDITORS)
     })
 
     const draw = () => render(

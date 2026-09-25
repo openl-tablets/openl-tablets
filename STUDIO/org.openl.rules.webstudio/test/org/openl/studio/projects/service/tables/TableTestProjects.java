@@ -8,7 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -77,6 +79,51 @@ public final class TableTestProjects {
             }
         }
         return dir;
+    }
+
+    /**
+     * Write a single-sheet workbook the caller lays out itself, and compile the module it makes.
+     *
+     * <p>For a test that needs several tables on one sheet, or merges of its own, where the {@code String[][]}
+     * grid above lays out one table starting at B2. Only this module is compiled: the whole-project compile
+     * runs in the background and would replace what the model holds part-way through the test.
+     */
+    public static ProjectModel projectModel(Path dir, String sheetName, Consumer<Sheet> content) throws IOException {
+        Files.createDirectories(dir);
+        try (var workbook = new XSSFWorkbook()) {
+            content.accept(workbook.createSheet(sheetName));
+            try (OutputStream out = Files.newOutputStream(dir.resolve(sheetName + ".xlsx"))) {
+                workbook.write(out);
+            }
+        }
+        try {
+            var module = ProjectResolver.getInstance().resolve(dir).getModules().getFirst();
+            module.getWebstudioConfiguration().setCompileThisModuleOnly(true);
+            var projectModel = new ProjectModel(mock(WebStudio.class), null);
+            projectModel.setModuleInfo(module);
+            return projectModel;
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to resolve project at " + dir, e);
+        }
+    }
+
+    /** The table of the module with the given name. */
+    public static IOpenLTable table(ProjectModel projectModel, String name) {
+        for (var tsn : projectModel.getAllTableSyntaxNodes()) {
+            var table = new TableSyntaxNodeAdapter(tsn);
+            if (name.equals(table.getName())) {
+                return table;
+            }
+        }
+        throw new IllegalStateException("No table named " + name);
+    }
+
+    /** The values across one row of the sheet, written from the given column. */
+    public static void row(Sheet sheet, int rowIndex, int from, String... values) {
+        var sheetRow = sheet.createRow(rowIndex);
+        for (int column = 0; column < values.length; column++) {
+            sheetRow.createCell(column + from).setCellValue(values[column]);
+        }
     }
 
     /** Resolve and compile the single-module project at {@code dir}. */
