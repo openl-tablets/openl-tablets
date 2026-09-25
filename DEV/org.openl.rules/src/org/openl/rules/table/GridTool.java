@@ -92,7 +92,19 @@ public class GridTool {
      * <p>
      * If we delete all we remove all rows/columns in region then region must be deleted(not resized).
      */
-    private static boolean isRegionMustBeResized(IGridRegion region,
+    /**
+     * Whether the merged region grows over the lines being laid down at that place, and so comes to hold them.
+     *
+     * <p>A merge reaching further than what is written grows with it; one exactly as long is replaced instead.
+     * Shared with whoever must know, before a line is written, whether the table will still hold it.
+     *
+     * @param region               the merged region to ask about
+     * @param firstRowOrColumn     the line being laid down, counted from the table's own first line
+     * @param numberOfRowsOrColumns how many lines are laid down there
+     * @param isColumns            whether the lines are columns rather than rows
+     * @param regionOfTable        the table the lines are laid down in
+     */
+    public static boolean isRegionMustBeResized(IGridRegion region,
                                                  int firstRowOrColumn,
                                                  int numberOfRowsOrColumns,
                                                  boolean isColumns,

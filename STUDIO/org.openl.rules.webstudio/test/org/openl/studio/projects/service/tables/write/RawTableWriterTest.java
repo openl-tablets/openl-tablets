@@ -648,11 +648,7 @@ class RawTableWriterTest {
 
     @Test
     void growsAMergeOverAColumnLaidDownInsideIt() throws IOException {
-        var project = writeProjectWithMergedHeader("banked", new String[][]{
-                {HEADER, null, null},
-                {"String", "code", "alpha"},
-                {"String", "text", "beta"}
-        });
+        var project = bankedHeaderProject("banked");
 
         apply(project, insertColumn(1, List.of(new RawCellInput(null, null, null, true),
                 new RawCellInput("one", null, null, null),
@@ -949,6 +945,44 @@ class RawTableWriterTest {
     }
 
     @Test
+    void writesARowAndAColumnWhoseOnlyValueStandsWhereTheyCross() throws IOException {
+        // The header is banked across the table, so the column laid down between two others is inside it and
+        // stays part of the table holding nothing of its own. Neither of the two lines holds anything: the value
+        // they are laid down for stands where they cross, and it belongs to whichever is written second. Asked
+        // of each action apart, the one written first is blank whichever way round the pair is sent.
+        var project = bankedHeaderProject("crossing");
+
+        apply(project, List.of(
+                insertColumns(1, List.of(row(null, null, null))),
+                insertRows(3, List.of(row(null, "k", null, null)))));
+
+        var source = reload(project);
+        assertEquals(4, source.size(), "the row is laid down");
+        assertEquals(4, source.get(1).size(), "the column is laid down");
+        assertEquals("k", value(source, 3, 1), "and the value stands where they cross");
+        assertEquals("code", value(source, 1, 2), "the columns it was laid down before are pushed aside");
+    }
+
+    @Test
+    void rejectsABlankRowNothingReachesOver() throws IOException {
+        var project = bankedHeaderProject("row-first");
+
+        // The header is banked across the columns, so it reaches over a column laid down between them — but
+        // nothing of this table is banked down its rows, so a blank row is held by nothing and is refused. The
+        // Editor lays its columns down before its rows for exactly this reason, and gives the row the value.
+        assertThrows(BadRequestException.class, () -> apply(project, List.of(
+                insertRows(3, List.of(row(null, null, null))),
+                insertColumns(1, List.of(row(null, null, null, "k"))))));
+    }
+
+    @Test
+    void rejectsABlankLineNoMergeOfTheTableReachesOver() {
+        // The header of this table is written into one cell and banked across nothing, so a column laid down
+        // beside it is held by nothing at all: blank, it would end the table where it stands.
+        assertBadRequest(insertColumns(1, List.of(row(null, null, null, null))));
+    }
+
+    @Test
     void rejectsAllEmptyWrittenLine() {
         // a fully blank inserted/appended line would become a table-splitting blank line
         assertBadRequest(insertRows(1, List.of(row(null, null, null))));
@@ -1140,6 +1174,10 @@ class RawTableWriterTest {
         new RawTableWriter(load(project)).apply(action);
     }
 
+    private void apply(Path project, List<RawTableSourceAction> actions) {
+        new RawTableWriter(load(project)).apply(actions);
+    }
+
     private void write(Path project, List<List<RawTableCell>> source) {
         new RawTableWriter(load(project)).write(RawTableView.builder().source(source).build());
     }
@@ -1294,6 +1332,15 @@ class RawTableWriterTest {
 
     private Path writeProject(String name, String[][] grid) throws IOException {
         return TableTestProjects.writeProject(tempDir.resolve(name), name, name, grid);
+    }
+
+    /** A project holding one table whose header is banked across every column of it. */
+    private Path bankedHeaderProject(String name) throws IOException {
+        return writeProjectWithMergedHeader(name, new String[][]{
+                {HEADER, null, null},
+                {"String", "code", "alpha"},
+                {"String", "text", "beta"}
+        });
     }
 
     private Path writeProjectWithMergedHeader(String name, String[][] grid) throws IOException {

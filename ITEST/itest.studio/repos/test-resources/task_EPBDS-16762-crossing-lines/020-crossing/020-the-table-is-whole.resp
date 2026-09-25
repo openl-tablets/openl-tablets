@@ -1,0 +1,202 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "6a3ef566747dbf8015b910e7b7bce7b5",
+  "tableType": "RawSource",
+  "kind": "Data",
+  "name": "addresses",
+  "pos": "C27:I33",
+  "source": [
+    [
+      {
+        "cell": "C27",
+        "value": "Data Address addresses",
+        "colspan": 7
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "C28",
+        "value": "street1"
+      },
+      {
+        "cell": "D28",
+        "value": "street2"
+      },
+      {
+        "cell": "E28"
+      },
+      {
+        "cell": "F28",
+        "value": "city"
+      },
+      {
+        "cell": "G28",
+        "value": "state"
+      },
+      {
+        "cell": "H28",
+        "value": "zip.zip1",
+        "comment": "This is how we can enter aggregated data objects using name chain. In this case zip is the name of attribute in Datatype Address and zip1 is the name of attribute in the Datatype ZipCode. The name chain can be of any length."
+      },
+      {
+        "cell": "I28",
+        "value": "zip.zip2"
+      }
+    ],
+    [
+      {
+        "cell": "C29"
+      },
+      {
+        "cell": "D29"
+      },
+      {
+        "cell": "E29"
+      },
+      {
+        "cell": "F29"
+      },
+      {
+        "cell": "G29",
+        "value": ">states code",
+        "comment": "This is reference to table states, column code. The reference will be resolved automatically by OpenL or will produce an error in compile time."
+      },
+      {
+        "cell": "H29"
+      },
+      {
+        "cell": "I29"
+      }
+    ],
+    [
+      {
+        "cell": "C30",
+        "value": "Street1"
+      },
+      {
+        "cell": "D30",
+        "value": "Street2"
+      },
+      {
+        "cell": "E30"
+      },
+      {
+        "cell": "F30",
+        "value": "City"
+      },
+      {
+        "cell": "G30",
+        "value": "State"
+      },
+      {
+        "cell": "H30",
+        "value": "Zip1"
+      },
+      {
+        "cell": "I30",
+        "value": "Zip2"
+      }
+    ],
+    [
+      {
+        "cell": "C31",
+        "value": "1600 Pennsylvania Avenue NW"
+      },
+      {
+        "cell": "D31"
+      },
+      {
+        "cell": "E31"
+      },
+      {
+        "cell": "F31",
+        "value": "Washington"
+      },
+      {
+        "cell": "G31",
+        "value": "DC"
+      },
+      {
+        "cell": "H31",
+        "value": 20500
+      },
+      {
+        "cell": "I31"
+      }
+    ],
+    [
+      {
+        "cell": "C32",
+        "value": "1085 Summit Dr"
+      },
+      {
+        "cell": "D32"
+      },
+      {
+        "cell": "E32"
+      },
+      {
+        "cell": "F32",
+        "value": "Beverly Hills"
+      },
+      {
+        "cell": "G32",
+        "value": "CA"
+      },
+      {
+        "cell": "H32",
+        "value": 90210
+      },
+      {
+        "cell": "I32",
+        "value": 2814
+      }
+    ],
+    [
+      {
+        "cell": "C33"
+      },
+      {
+        "cell": "D33"
+      },
+      {
+        "cell": "E33",
+        "value": "k"
+      },
+      {
+        "cell": "F33"
+      },
+      {
+        "cell": "G33"
+      },
+      {
+        "cell": "H33"
+      },
+      {
+        "cell": "I33"
+      }
+    ]
+  ],
+  "headerHeight": 3
+}
+
