@@ -94,7 +94,6 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     const { styles, cx } = useStyles()
 
     const row = picked?.row ?? -1
-    const column = picked?.column ?? -1
     const style = cell?.style
 
     const action = (
@@ -120,11 +119,11 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     const rule = <span className={styles.rule} />
 
     /**
-     * Why an action is off, for the two the table's header stands in the way of.
+     * Why an action is off, for the one the table's header stands in the way of.
      *
      * <p>The header is one cell banked across the table, and OpenL finds the table by the corner it starts in.
-     * A row added under the header or a column taken away from under it leave that corner where it is; taking
-     * the header's own row away, or laying a column down before the one it starts in, do not.
+     * A column laid down before the first one, or taken away from under the header, leaves that corner where it
+     * is — the bank widens or narrows over it. Taking the header's own row away does not.
      */
     const off = (why: string) => (picked === null ? t('browser.module.edit_pick_a_cell') : t(why))
 
@@ -151,8 +150,8 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                 { disabled: picked === null || row < 1, why: off('browser.module.edit_header_row_kept') })}
             {rule}
             {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn, {
-                disabled: picked === null || column < 1 || !whole,
-                why: off(column < 1 ? 'browser.module.edit_header_column_kept' : 'browser.module.edit_whole_table'),
+                disabled: picked === null || !whole,
+                why: off('browser.module.edit_whole_table'),
             })}
             {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
             {rule}

@@ -1,0 +1,245 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0a4f264c3991f39ea18e859b30c5ff29",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "DriverPremium2",
+  "messages": [
+    {
+      "id": "*",
+      "summary": "Only one rule row/column allowed.",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "0a4f264c3991f39ea18e859b30c5ff29",
+        "name": "DriverPremium2",
+        "module": "Tutorial1 - Intro to Decision Tables",
+        "projectId": "ZGVzaWduOkVQQkRTLTE2NzIx",
+        "project": "EPBDS-16721",
+        "cell": "D71",
+        "start": 0,
+        "end": 4
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "C70:G79",
+  "source": [
+    [
+      {
+        "cell": "C70",
+        "value": "Rules Double DriverPremium2 (String driverAge, String driverMaritalStatus)",
+        "colspan": 5
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "C71",
+        "value": "Rule",
+        "comment": "Use Rule column to name particular rule rows for explicit rule rows determination. It's necessary column if you'd like to merge some rule cells (vertically) belonging to different rule rows"
+      },
+      {
+        "cell": "D71",
+        "value": "Rule"
+      },
+      {
+        "cell": "E71",
+        "value": "C1"
+      },
+      {
+        "cell": "F71",
+        "value": "C2"
+      },
+      {
+        "cell": "G71",
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "cell": "C72"
+      },
+      {
+        "cell": "D72"
+      },
+      {
+        "cell": "E72",
+        "value": "driverAge"
+      },
+      {
+        "cell": "F72",
+        "value": "driverMaritalStatus"
+      },
+      {
+        "cell": "G72"
+      }
+    ],
+    [
+      {
+        "cell": "C73"
+      },
+      {
+        "cell": "D73"
+      },
+      {
+        "cell": "E73",
+        "value": "String"
+      },
+      {
+        "cell": "F73",
+        "value": "String"
+      },
+      {
+        "cell": "G73"
+      }
+    ],
+    [
+      {
+        "cell": "C74",
+        "value": "# Rule"
+      },
+      {
+        "cell": "D74",
+        "value": "# Rule"
+      },
+      {
+        "cell": "E74",
+        "value": "Driver Age"
+      },
+      {
+        "cell": "F74",
+        "value": "Marital Status"
+      },
+      {
+        "cell": "G74",
+        "value": "Premium Increase"
+      }
+    ],
+    [
+      {
+        "cell": "C75",
+        "value": "R1"
+      },
+      {
+        "cell": "D75",
+        "value": "R1"
+      },
+      {
+        "cell": "E75",
+        "value": "Young Driver",
+        "comment": "Merged cells.",
+        "rowspan": 2
+      },
+      {
+        "cell": "F75",
+        "value": "Married"
+      },
+      {
+        "cell": "G75",
+        "value": 700
+      }
+    ],
+    [
+      {
+        "cell": "C76",
+        "value": "R2"
+      },
+      {
+        "cell": "D76",
+        "value": "R2"
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "F76",
+        "value": "Single"
+      },
+      {
+        "cell": "G76",
+        "value": 720
+      }
+    ],
+    [
+      {
+        "cell": "C77",
+        "value": "R3"
+      },
+      {
+        "cell": "D77",
+        "value": "R3"
+      },
+      {
+        "cell": "E77",
+        "value": "Senior Driver",
+        "rowspan": 2
+      },
+      {
+        "cell": "F77",
+        "value": "Married"
+      },
+      {
+        "cell": "G77",
+        "value": 300
+      }
+    ],
+    [
+      {
+        "cell": "C78",
+        "value": "R4"
+      },
+      {
+        "cell": "D78",
+        "value": "R4"
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "F78",
+        "value": "Single"
+      },
+      {
+        "cell": "G78",
+        "value": 350
+      }
+    ],
+    [
+      {
+        "cell": "C79",
+        "value": "R5"
+      },
+      {
+        "cell": "D79",
+        "value": "R5"
+      },
+      {
+        "cell": "E79",
+        "value": "Standard Driver"
+      },
+      {
+        "cell": "F79"
+      },
+      {
+        "cell": "G79",
+        "value": 500
+      }
+    ]
+  ],
+  "headerHeight": 4
+}
+

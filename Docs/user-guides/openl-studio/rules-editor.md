@@ -365,6 +365,11 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     merged heading is banked across the table as that heading is. The table shows this before anything is
     typed into the new line, so every value is saved in the column it was typed under.
 
+    The first column is the reader's like any other: the table header is banked across every column, so a
+    column inserted before the first one widens that bank and a first column removed narrows it. The header
+    keeps the corner OpenL finds the table by. The header row itself cannot be removed, since a table that
+    starts on a line OpenL reads as no header is a table nobody can find again.
+
 1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
 2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
 

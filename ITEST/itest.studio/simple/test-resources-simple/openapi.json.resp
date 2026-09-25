@@ -23371,7 +23371,7 @@ Content-Type: application/json
                 "type": "integer",
                 "format": "int32",
                 "description": "***",
-                "minimum": 1
+                "minimum": 0
               }
             }
           }
@@ -24267,7 +24267,7 @@ Content-Type: application/json
                 "type": "integer",
                 "format": "int32",
                 "description": "***",
-                "minimum": 1
+                "minimum": 0
               }
             }
           }

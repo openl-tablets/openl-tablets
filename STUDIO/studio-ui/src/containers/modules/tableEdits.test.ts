@@ -339,6 +339,22 @@ describe('tableEdits', () => {
             expect(state.rows[1]?.[1]?.value).toBe('R1')
         })
 
+        it('keeps the header on screen when the column it is banked from is taken away', () => {
+            const state = group({ kind: 'removeColumn', at: 0, lines: 1 })
+
+            // The header holds its text in the cell it starts at. Taking that cell away without carrying the
+            // text along leaves the bank standing over cells that hold nothing, and the table reads headless.
+            expect(state.rows[0]?.[0]?.value).toBe('Rules')
+            expect(state.rows[0]?.[0]?.colspan).toBe(2)
+        })
+
+        it('keeps a group on screen when the row it is named on is taken away', () => {
+            const state = group({ kind: 'removeRow', at: 1, lines: 1 })
+
+            expect(state.rows[1]?.[1]?.value).toBe('Young Driver')
+            expect(state.rows[1]?.[1]?.rowspan).toBeUndefined()
+        })
+
         it('narrows the header when a column is taken away from under it', () => {
             const state = group({ kind: 'removeColumn', at: 2, lines: 1 })
 
