@@ -42,7 +42,7 @@ import {
  * size takes no laid-down line at all, being only what the table declared.
  */
 const areaAt = (asked: TableEditors | null, edited: EditedTable, at: CellAt): TableCellEditor | undefined => {
-    if (asked === null || asked.kind !== 'declared') {
+    if (asked?.kind !== 'declared') {
         return undefined
     }
     const row = rowAsRead(edited, at.row)

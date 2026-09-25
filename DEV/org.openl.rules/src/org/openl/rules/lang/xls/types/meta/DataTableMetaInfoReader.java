@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -61,37 +62,51 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
             // Datatype contains errors
             return List.of();
         }
-        var data = table.getData();
-        var normalOrientation = data.isNormalOrientation();
+        var normalOrientation = table.getData().isNormalOrientation();
         var region = getTableSyntaxNode().getGridTable().getRegion();
         var dataFrom = dataFrom(table, region);
         var areas = new ArrayList<TableArea>();
         for (ColumnDescriptor descriptor : table.getDataModel().getDescriptors()) {
-            var column = descriptor.getColumnIdx();
-            if (column >= data.getWidth()) {
-                continue;
+            var area = areaOf(table, descriptor, region, dataFrom, normalOrientation);
+            if (area != null) {
+                areas.add(area);
             }
-            // A column of several values is written over as many of the workbook's own lines as it holds.
-            var width = data.getColumnWidth(column);
-            CellMetaInfo metaInfo;
-            try {
-                metaInfo = getColumnMetaInfo(table, descriptor, width);
-            } catch (SyntaxNodeException e) {
-                log.error(e.getMessage(), e);
-                continue;
-            }
-            if (metaInfo == null) {
-                continue;
-            }
-            var cell = data.getCell(column, 0);
-            var at = normalOrientation ? cell.getAbsoluteColumn() - region.getLeft()
-                    : cell.getAbsoluteRow() - region.getTop();
-            // Down a column and on past the last row, or across a row of a table written the other way round.
-            areas.add(normalOrientation
-                    ? new TableArea(dataFrom, at, TableArea.TO_THE_END, width, metaInfo)
-                    : new TableArea(at, dataFrom, width, TableArea.TO_THE_END, metaInfo));
         }
         return areas;
+    }
+
+    /**
+     * The part of the table one declared column takes, or {@code null} where the column declares nothing.
+     *
+     * <p>A column the table does not reach, one the compiler could not read, and one carrying no type of its
+     * own each answer nothing: what a line laid down there would hold is not known, so nothing is said of it.
+     */
+    private @Nullable TableArea areaOf(ITable table, ColumnDescriptor descriptor, IGridRegion region,
+                                       int dataFrom, boolean normalOrientation) {
+        var data = table.getData();
+        var column = descriptor.getColumnIdx();
+        if (column >= data.getWidth()) {
+            return null;
+        }
+        // A column of several values is written over as many of the workbook's own lines as it holds.
+        var width = data.getColumnWidth(column);
+        CellMetaInfo metaInfo;
+        try {
+            metaInfo = getColumnMetaInfo(table, descriptor, width);
+        } catch (SyntaxNodeException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+        if (metaInfo == null) {
+            return null;
+        }
+        var cell = data.getCell(column, 0);
+        var at = normalOrientation ? cell.getAbsoluteColumn() - region.getLeft()
+                : cell.getAbsoluteRow() - region.getTop();
+        // Down a column and on past the last row, or across a row of a table written the other way round.
+        return normalOrientation
+                ? new TableArea(dataFrom, at, TableArea.TO_THE_END, width, metaInfo)
+                : new TableArea(at, dataFrom, width, TableArea.TO_THE_END, metaInfo);
     }
 
     /** How many cells of a column its headings take: the table's own rows above the data, and the titles. */

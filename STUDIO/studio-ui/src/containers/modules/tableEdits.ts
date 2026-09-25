@@ -426,12 +426,12 @@ const styleEdits = (state: EditedTable): TableEdit[] => {
             placed.push({ row, column, style })
         }
     })
-    return placed
-        .sort((one, other) => one.row - other.row || one.column - other.column)
-        .map(({ row, column, style }) => ({
-            operation: 'style',
-            target: { type: 'cells', row, column, rowspan: 1, colspan: 1, style },
-        }))
+    // Written down the table and then across it, so a table styled in one gesture is sent in reading order.
+    placed.sort((one, other) => one.row - other.row || one.column - other.column)
+    return placed.map(({ row, column, style }) => ({
+        operation: 'style',
+        target: { type: 'cells', row, column, rowspan: 1, colspan: 1, style },
+    }))
 }
 
 /**

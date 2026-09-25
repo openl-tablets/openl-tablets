@@ -438,18 +438,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private List<TableArea> areas() {
-        var decisionTable = getDecisionTable();
-        if (decisionTable == null) {
+        var decision = getDecisionTable();
+        if (decision == null) {
             return List.of();
         }
         var rows = new ArrayList<FunctionalRow>();
-        if (decisionTable.getConditionRows() != null) {
-            for (IBaseCondition condition : decisionTable.getConditionRows()) {
+        if (decision.getConditionRows() != null) {
+            for (IBaseCondition condition : decision.getConditionRows()) {
                 rows.add((FunctionalRow) condition);
             }
         }
-        if (decisionTable.getActionRows() != null) {
-            for (IBaseAction action : decisionTable.getActionRows()) {
+        if (decision.getActionRows() != null) {
+            for (IBaseAction action : decision.getActionRows()) {
                 rows.add((FunctionalRow) action);
             }
         }
@@ -458,7 +458,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         var corner = lookupCorner(rows);
         // Which way the rules of the table run is the table's own to say, and it says so whether or not any
         // have been written; see DTInfo.
-        var info = decisionTable.getDtInfo();
+        var info = decision.getDtInfo();
         var across = info != null && info.isTransposed();
         var areas = new ArrayList<TableArea>();
         for (FunctionalRow funcRow : rows) {
@@ -530,9 +530,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 continue;
             }
             var title = Box.around(null, titles.getCell(0, i));
-            // Across the row the title stands in, or down its column — under the titles, or under the
-            // horizontal conditions where the table turns a corner.
-            var part = horizontal ? title : (corner == null ? title : corner).under().sameColumnsAs(title);
+            // Across the row the title stands in, or down its column — under the titles themselves, or under
+            // the horizontal conditions where the table turns a corner.
+            var from = Objects.requireNonNullElse(corner, title);
+            var part = horizontal ? title : from.under().sameColumnsAs(title);
             areas.add(part.reaching(region, !horizontal, horizontal, metaInfoOf(param)));
         }
         return areas;
@@ -542,14 +543,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private static Box lookupCorner(List<FunctionalRow> rows) {
         Box corner = null;
         for (FunctionalRow funcRow : rows) {
-            if (!isHorizontal(funcRow)) {
-                continue;
-            }
-            var titles = funcRow.getPresentationTable();
-            if (titles == null) {
-                continue;
-            }
-            for (var i = 0; i < titles.getHeight(); i++) {
+            var titles = isHorizontal(funcRow) ? funcRow.getPresentationTable() : null;
+            for (var i = 0; titles != null && i < titles.getHeight(); i++) {
                 corner = Box.around(corner, titles.getCell(0, i));
             }
         }
@@ -629,38 +624,46 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private static void eachValue(FunctionalRow funcRow, boolean firstRuleOnly, ValueReader reader) {
         var rules = firstRuleOnly ? Math.min(1, funcRow.nValues()) : funcRow.nValues();
         for (var c = 0; c < rules; c++) {
-            // In the case of errors params will be null
-            var params = funcRow.getParams();
-            int paramsCount = params == null ? 0 : params.length;
-            var valueCell = funcRow.getValueCell(c);
-            var paramTable = funcRow.getParamsTable();
-            var offsetByParamTable = 0;
-            var offsetByValueCell = 0;
-            var j = 0;
-            for (var i = 0; i < paramsCount; i++) {
-                offsetByParamTable = offsetByParamTable + (paramTable
-                        .isNormalOrientation() ? paramTable.getRow(i).getSource().getWidth()
-                        : paramTable.getRow(i).getSource().getHeight());
-                var storageValue = funcRow.getStorageValue(i, c);
-                var d = 0;
-                while (offsetByValueCell < offsetByParamTable) {
-                    offsetByValueCell = offsetByValueCell + (valueCell
-                            .isNormalOrientation() ? valueCell.getRow(j).getSource().getWidth()
-                            : valueCell.getRow(j).getSource().getHeight());
-                    d++;
-                    j++;
-                }
-                if (d > 0) {
-                    ILogicalTable cells;
-                    if (valueCell.isNormalOrientation()) {
-                        cells = valueCell.getSubtable(j - d, 0, d, valueCell.getHeight());
-                    } else {
-                        cells = valueCell.getSubtable(0, j - d, valueCell.getWidth(), d);
-                    }
-                    reader.read(i, params[i], storageValue, cells);
-                }
+            eachValueOfRule(funcRow, c, reader);
+        }
+    }
+
+    /** Walks the parameters of one rule, handing each its own block of the cells the rule is written in. */
+    private static void eachValueOfRule(FunctionalRow funcRow, int rule, ValueReader reader) {
+        // In the case of errors params will be null
+        var params = funcRow.getParams();
+        int paramsCount = params == null ? 0 : params.length;
+        var valueCell = funcRow.getValueCell(rule);
+        var paramTable = funcRow.getParamsTable();
+        var offsetByParamTable = 0;
+        var offsetByValueCell = 0;
+        var j = 0;
+        for (var i = 0; i < paramsCount; i++) {
+            offsetByParamTable = offsetByParamTable + lineLength(paramTable, i);
+            var storageValue = funcRow.getStorageValue(i, rule);
+            var d = 0;
+            while (offsetByValueCell < offsetByParamTable) {
+                offsetByValueCell = offsetByValueCell + lineLength(valueCell, j);
+                d++;
+                j++;
+            }
+            if (d > 0) {
+                reader.read(i, params[i], storageValue, blockOf(valueCell, j - d, d));
             }
         }
+    }
+
+    /** How far the given line of the table reaches along the axis the table is written on. */
+    private static int lineLength(ILogicalTable table, int line) {
+        var source = table.getRow(line).getSource();
+        return table.isNormalOrientation() ? source.getWidth() : source.getHeight();
+    }
+
+    /** The block of {@code count} lines the table holds from {@code from}, whichever way round it is written. */
+    private static ILogicalTable blockOf(ILogicalTable table, int from, int count) {
+        return table.isNormalOrientation()
+                ? table.getSubtable(from, 0, count, table.getHeight())
+                : table.getSubtable(0, from, table.getWidth(), count);
     }
 
     /** What a parameter's cell holds: the type it was declared with, and whether one cell holds many of them. */
