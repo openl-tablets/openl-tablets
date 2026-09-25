@@ -342,14 +342,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
-            for (RulesProject project : userRulesProjects.values()) {
-                if (!project.isOpened() && project.isSupportsBranches()) {
-                    branchPreferences.put(project.getDesignRepository().getId(),
-                            getDesignProjectName(project),
-                            project.getBranch());
-                }
-            }
-
+            // The branches of closed projects are taken from the preferences, which only a branch switch writes.
+            // Copying them back from the projects being replaced would undo a switch another request is making
+            // on a project it took before this refresh.
             clearRulesProjectsCache();
 
             // Each project comes with the branches that hold it, resolved in the same pass: asking the design
