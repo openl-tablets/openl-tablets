@@ -131,6 +131,14 @@ interface TableDetailsPanelProps {
     canWrite?: boolean
     /** Runs a write after asking whatever has to be asked first; absent where nothing has to be. */
     confirmWrite?: ConfirmWrite | undefined
+    /**
+     * Written before the properties are, answering the id they are then written to.
+     *
+     * <p>The properties are rows of the table itself, so whatever else of the table is waiting to be written
+     * goes in first — and the table may stand under another id once it has. Answering null calls the whole
+     * write off. Absent where nothing else of the table can be waiting.
+     */
+    beforeSave?: (() => Promise<string | null>) | undefined
     /** The table after its properties were written — under a new id when it had to be moved to grow. */
     onSaved?: ((tableId: string) => void) | undefined
 }
@@ -152,6 +160,7 @@ export const TableDetailsPanel = ({
     onOpenTable,
     canWrite = false,
     confirmWrite,
+    beforeSave,
     onSaved,
 }: TableDetailsPanelProps) => {
     const { t } = useTranslation('repository')
@@ -297,12 +306,21 @@ export const TableDetailsPanel = ({
         // Only what the reader touched is sent: the table keeps every property this panel was not asked about.
         const written = Object.entries(draft).map(([name, value]) => ({ name, value }))
         setSaving(true)
-        const table = await updateTableProperties(projectId, tableId, written, moduleName)
-        setSaving(false)
-        if (table !== null) {
-            setEditing(false)
-            setDraft({})
-            onSaved?.(table)
+        try {
+            // Whatever else of the table is waiting to be written goes first, and says where to write these:
+            // the properties are rows of the same table, and writing them may move it.
+            const writeTo = beforeSave === undefined ? tableId : await beforeSave()
+            if (writeTo === null) {
+                return
+            }
+            const table = await updateTableProperties(projectId, writeTo, written, moduleName)
+            if (table !== null) {
+                setEditing(false)
+                setDraft({})
+                onSaved?.(table)
+            }
+        } finally {
+            setSaving(false)
         }
     }
 

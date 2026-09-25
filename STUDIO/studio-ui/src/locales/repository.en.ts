@@ -540,6 +540,8 @@ i18next.addResourceBundle('en', 'repository', {
                 + 'be lost. Discard them?',
             edit_closing_message: 'The table is not saved. If you close the editor, the cells you edited will '
                 + 'be lost. Discard them?',
+            edit_reloading_message: 'The table is not saved. Reading it again will lose the cells you edited. '
+                + 'Discard them?',
             edit_this_cell: 'Edit cell {{cell}}',
             edit_whole_table: 'Show every row of the table before adding a column: a column is added with a value for each row.',
             edit_pick_a_cell: 'Pick a cell first.',

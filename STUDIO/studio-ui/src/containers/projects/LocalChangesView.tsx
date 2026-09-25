@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
 import { App, Alert, Button, Checkbox, Empty, Modal, Spin, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { createStyles } from 'antd-style'
@@ -19,6 +20,13 @@ interface LocalChangesViewProps {
      * embedded in has always done.
      */
     onRestored?: (() => void) | undefined
+    /**
+     * Runs the restore after asking whatever has to be asked first; absent where nothing has to be.
+     *
+     * <p>A restore writes the workbook back to an earlier version, so anything written on screen and not yet
+     * saved is written over.
+     */
+    beforeRestore?: ConfirmDiscard | undefined
 }
 
 interface LegacyWorkspaceApi {
@@ -79,7 +87,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-export const LocalChangesView = ({ projectId, moduleName, onRestored }: LocalChangesViewProps) => {
+export const LocalChangesView = ({ projectId, moduleName, onRestored, beforeRestore }: LocalChangesViewProps) => {
     const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useListPageStyles()
@@ -223,7 +231,8 @@ export const LocalChangesView = ({ projectId, moduleName, onRestored }: LocalCha
                                                         href="#restore"
                                                         onClick={(event) => {
                                                             event.preventDefault()
-                                                            setRestoreItem(item)
+                                                            const ask = beforeRestore ?? (go => go())
+                                                            ask(() => setRestoreItem(item))
                                                         }}
                                                     >
                                                         {t('browser.local_history.restore')}

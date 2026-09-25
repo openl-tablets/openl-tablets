@@ -68,10 +68,12 @@ interface DrawProps {
     canWrite?: boolean
     onSaved?: (tableId: string) => void
     listed?: boolean
+    beforeSave?: () => Promise<string | null>
 }
 
 const panel = (props: DrawProps) => (
     <TableDetailsPanel
+        beforeSave={props.beforeSave}
         canWrite={props.canWrite ?? false}
         listed={props.listed ?? true}
         moduleName="Claims"
@@ -203,6 +205,36 @@ describe('TableDetailsPanel', () => {
         expect(updateTableProperties).toHaveBeenCalledWith('p1', 'table-1',
             [{ name: 'description', value: 'Greets by the hour' }], 'Claims')
         expect(onSaved).toHaveBeenCalledWith('table-1')
+    })
+
+    it('writes what the table holds before its properties, and writes them to the table that leaves', async () => {
+        // The reader has cells of their own on screen; writing them may move the table, so the properties
+        // are written to the table as it stands afterwards.
+        const beforeSave = vi.fn().mockResolvedValue('table-2')
+        const onSaved = vi.fn()
+        await edit({ beforeSave, onSaved })
+
+        await userEvent.clear(screen.getByTestId('table-details-input-description'))
+        await userEvent.type(screen.getByTestId('table-details-input-description'), 'Greets by the hour')
+        await userEvent.click(screen.getByTestId('table-details-save'))
+
+        expect(beforeSave).toHaveBeenCalled()
+        expect(updateTableProperties).toHaveBeenCalledWith('p1', 'table-2',
+            [{ name: 'description', value: 'Greets by the hour' }], 'Claims')
+        expect(onSaved).toHaveBeenCalledWith('table-1')
+    })
+
+    it('writes no properties where what the table holds cannot be written', async () => {
+        const beforeSave = vi.fn().mockResolvedValue(null)
+        await edit({ beforeSave })
+
+        await userEvent.clear(screen.getByTestId('table-details-input-description'))
+        await userEvent.type(screen.getByTestId('table-details-input-description'), 'Greets by the hour')
+        await userEvent.click(screen.getByTestId('table-details-save'))
+
+        // Written on their own, the properties would be written over the cells waiting beside them.
+        expect(updateTableProperties).not.toHaveBeenCalled()
+        expect(screen.getByTestId('table-details-save')).toBeInTheDocument()
     })
 
     it('writes an inherited value onto the table when the reader changes it', async () => {

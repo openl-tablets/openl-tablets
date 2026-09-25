@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
 import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
@@ -28,6 +29,13 @@ interface BranchSwitcherProps {
      * mark the project busy and block its other actions meanwhile.
      */
     onBusyChange?: ((busy: boolean) => void) | undefined
+    /**
+     * Runs the switch after asking whatever has to be asked first; absent where nothing has to be.
+     *
+     * <p>Switching checks another copy of the project out, so anything written on screen and not yet saved
+     * is gone with the copy it was written in.
+     */
+    beforeSwitch?: ConfirmDiscard | undefined
     /** Blocks the switch while the project is busy with another operation of its own. */
     disabled?: boolean | undefined
     /** Colour tone of the current branch — `secondary` to read like a breadcrumb link. */
@@ -55,6 +63,7 @@ export const BranchSwitcher = ({
     currentBranchDefault,
     onSwitched,
     onBusyChange,
+    beforeSwitch,
     disabled = false,
     tone,
     'data-testid': testId = 'branch-switcher',
@@ -168,7 +177,7 @@ export const BranchSwitcher = ({
                 items={items}
                 loading={loading}
                 onOpen={() => void loadBranches()}
-                onSelect={branch => void switchTo(branch)}
+                onSelect={branch => (beforeSwitch ?? (go => go()))(() => void switchTo(branch))}
                 searchPlaceholder={t('browser.branch.filter')}
                 selectedKey={currentBranch}
                 testId={testId}

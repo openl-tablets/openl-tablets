@@ -1,10 +1,11 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { createRef } from 'react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
 import { getTableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
-import { TableEditor } from './TableEditor'
+import { TableEditor, type TableEditorHandle } from './TableEditor'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
 vi.mock('../../services/modules', () => ({ getTableEditors: vi.fn() }))
@@ -207,6 +208,64 @@ describe('TableEditor', () => {
             operation: 'insert',
             target: { type: 'rows', position: 2, cells: [[{ value: '12' }, { value: '' }]]},
         }])
+    })
+
+    describe('what the screen beside it is told and may ask', () => {
+        it('says while it holds cells the reader has not saved, and says when it holds none again', async () => {
+            const onDirtyChange = vi.fn()
+            draw({ onDirtyChange })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+            expect(onDirtyChange).toHaveBeenLastCalledWith(false)
+
+            await write('Good Morning', 'Buenos Dias')
+
+            // Anything that reads the table again would lose this, so the screen around it has to know.
+            await waitFor(() => expect(onDirtyChange).toHaveBeenLastCalledWith(true))
+
+            await userEvent.click(screen.getByTestId('table-edit-save'))
+
+            await waitFor(() => expect(onDirtyChange).toHaveBeenLastCalledWith(false))
+        })
+
+        it('writes what it holds when asked, and answers the table that write leaves', async () => {
+            vi.mocked(applyTableActions).mockResolvedValue('table-2')
+            const held = createRef<TableEditorHandle>()
+            draw({ ref: held })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+            await write('Good Morning', 'Buenos Dias')
+
+            const written = await act(() => held.current?.write() ?? Promise.resolve(null))
+
+            // The table may be moved to grow as it is written, and what writes its properties next has to
+            // address the table that leaves rather than the one it started from.
+            expect(applyTableActions).toHaveBeenCalled()
+            expect(written).toEqual({ tableId: 'table-2', changed: true })
+        })
+
+        it('answers the table unchanged when it holds nothing to write', async () => {
+            const held = createRef<TableEditorHandle>()
+            draw({ ref: held })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            const written = await act(() => held.current?.write() ?? Promise.resolve(null))
+
+            expect(applyTableActions).not.toHaveBeenCalled()
+            expect(written).toEqual({ tableId: 'table-1', changed: false })
+        })
+
+        it('refuses to write while a row the reader added is empty', async () => {
+            const held = createRef<TableEditorHandle>()
+            draw({ ref: held })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+            await userEvent.click(screen.getByText('Good Morning'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+
+            const written = await act(() => held.current?.write() ?? Promise.resolve(null))
+
+            // A blank row splits the table. Nothing of the table is written, so nothing else of it is either.
+            expect(written).toBeNull()
+            expect(applyTableActions).not.toHaveBeenCalled()
+        })
     })
 
     describe('with the header rows kept out of sight', () => {
