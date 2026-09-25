@@ -12,6 +12,7 @@ import { OpenCell } from './OpenCell'
 import { TableEditToolbar } from './TableEditToolbar'
 import { useStyles } from './TableEditor.styles'
 import {
+    asRead,
     blankLine,
     type CellAt,
     compile,
@@ -228,13 +229,22 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // rows that were not there before are described by nothing until they are asked about.
     useEffect(() => { setAsked(null) }, [tableId, maxRows])
 
-    /** What the cell at the given place asks to be written with, as the table said when editing started. */
-    const askedAt = useCallback((row: number, column: number): TableCellEditor | undefined => {
-        const found = asked?.cells?.find(cell => cell.row === row && cell.column === column)
-        return found === undefined ? undefined : asked?.editors?.[found.editor]
-    }, [asked])
-
     const edited = useMemo(() => replay(rows, buffer.steps), [rows, buffer.steps])
+
+    /**
+     * What the cell now sitting here asks to be written with, as the table said when editing started.
+     *
+     * <p>Asked for by where the cell stood in the table that was read, not by where it sits now: a row or a
+     * column the reader has laid down since has moved it, and the place it now occupies was another cell's.
+     * A cell of a line the reader added is described by nothing until the table is written and read again.
+     */
+    const askedAt = useCallback((at: CellAt): TableCellEditor | undefined => {
+        const was = asRead(edited, at)
+        const found = was === null
+            ? undefined
+            : asked?.cells?.find(cell => cell.row === was.row && cell.column === was.column)
+        return found === undefined ? undefined : asked?.editors?.[found.editor]
+    }, [asked, edited])
     const dirty = buffer.steps.length > 0
 
     // Cells written and not yet saved live on this screen alone: leaving it loses them, so the reader is asked
@@ -494,15 +504,17 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * so only once the text parses, and a reader filling in an empty bound needs the dialog before that.
      */
     const ownKind = (at: CellAt): EditorKind | null => {
+        // The cell as it now stands, which carries what it was read with wherever the reader has moved it.
+        const cell = written[at.row]?.[at.column]
         // A cell written with a formula asks to be written as one, whatever its type would say.
-        if (rows[at.row]?.[at.column]?.formula !== undefined) {
+        if (cell?.formula !== undefined) {
             return 'formula'
         }
-        const editor = askedAt(at.row, at.column)?.editor
+        const editor = askedAt(at)?.editor
         if (editor !== undefined && DRAWN.has(editor)) {
             return editor as EditorKind
         }
-        return (rows[at.row]?.[at.column]?.metaInfo?.type ?? '').endsWith('Range') ? 'range' : null
+        return (cell?.metaInfo?.type ?? '').endsWith('Range') ? 'range' : null
     }
 
     /** How a cell is drawn: picked, waiting to be written, or open for writing. */
@@ -513,7 +525,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                 content: (
                     <OpenCell
                         address={written[at.row]?.[at.column]?.cell}
-                        asked={askedAt(at.row, at.column)}
+                        asked={askedAt(at)}
                         from={open.from}
                         onCancel={() => closeCell(false)}
                         onCommit={value => closeCell(true, value)}

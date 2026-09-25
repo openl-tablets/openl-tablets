@@ -447,3 +447,17 @@ export const compile = (original: RawTableCell[][], state: EditedTable): TableEd
 /** How a cell is named among the ones the reader touched, by where it sits now. */
 export const keyOf = (state: EditedTable, at: CellAt): string =>
     cellKey(state.rowIds[at.row] ?? '', state.columnIds[at.column] ?? '')
+
+/**
+ * Where the cell now sitting here stood in the table that was read, or null when the reader added its line.
+ *
+ * <p>What the compiler knows about a cell — the type it holds, the editor it asks for — was read with the
+ * table and is addressed as the table was then. A row or a column laid down since has moved the cell, so
+ * asking by where it sits now answers for whichever cell used to stand there: a decimal opens as a whole
+ * number, and the value typed is saved without its point.
+ */
+export const asRead = (state: EditedTable, at: CellAt): CellAt | null => {
+    const row = readAt(state.rowIds[at.row] ?? '')
+    const column = readAt(state.columnIds[at.column] ?? '')
+    return row === null || column === null ? null : { row, column }
+}
