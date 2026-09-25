@@ -1,9 +1,8 @@
-import { useCallback } from 'react'
-import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { type ConfirmBefore, useConfirmBefore } from './useConfirmBefore'
 
 /** Runs something that reads the table again, asking first where cells of it are not saved. */
-export type ConfirmDiscard = (read: () => void) => void
+export type ConfirmDiscard = ConfirmBefore
 
 /**
  * Asks before something reads the table again over cells the reader has written and not saved.
@@ -16,19 +15,11 @@ export type ConfirmDiscard = (read: () => void) => void
  * <p>A table with nothing pending is read again without a word.
  */
 export const useDiscardConfirm = (dirty: boolean): ConfirmDiscard => {
-    const { modal } = App.useApp()
     const { t } = useTranslation('repository')
-    return useCallback((read: () => void) => {
-        if (!dirty) {
-            read()
-            return
-        }
-        modal.confirm({
-            title: t('browser.module.edit_leaving'),
-            content: t('browser.module.edit_reloading_message'),
-            okText: t('browser.module.edit_discard'),
-            cancelText: t('browser.module.edit_keep_editing'),
-            onOk: read,
-        })
-    }, [dirty, t])
+    return useConfirmBefore(dirty, {
+        title: t('browser.module.edit_leaving'),
+        content: t('browser.module.edit_reloading_message'),
+        okText: t('browser.module.edit_discard'),
+        cancelText: t('browser.module.edit_keep_editing'),
+    })
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
+import { GO_AHEAD } from '../modules/useConfirmBefore'
 import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
@@ -177,7 +178,7 @@ export const BranchSwitcher = ({
                 items={items}
                 loading={loading}
                 onOpen={() => void loadBranches()}
-                onSelect={branch => (beforeSwitch ?? (go => go()))(() => void switchTo(branch))}
+                onSelect={branch => (beforeSwitch ?? GO_AHEAD)(() => void switchTo(branch))}
                 searchPlaceholder={t('browser.branch.filter')}
                 selectedKey={currentBranch}
                 testId={testId}

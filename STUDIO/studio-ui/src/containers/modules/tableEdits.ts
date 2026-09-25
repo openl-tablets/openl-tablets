@@ -48,8 +48,6 @@ export interface EditedTable {
     styled: Map<string, RawCellStyleInput>
 }
 
-const blank = (): RawTableCell => ({ value: '' })
-
 /**
  * A blank cell wearing the styling of the one it is laid down beside.
  *
@@ -58,7 +56,7 @@ const blank = (): RawTableCell => ({ value: '' })
  * than only once it is saved and read again.
  */
 const blankLike = (cell: RawTableCell | undefined): RawTableCell =>
-    (cell?.style === undefined ? blank() : { value: '', style: cell.style })
+    (cell?.style === undefined ? { value: '' } : { value: '', style: cell.style })
 
 const idsOf = (count: number): string[] => Array.from({ length: count }, (_, index) => `o${index}`)
 
@@ -234,15 +232,9 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
             state.rows = laidOut(state.rows, merges)
             return added + 1
         }
-        case 'removeRow': {
-            const standing = mergesOf(state.rows)
-            carryOrigins(state.rows, standing, DOWN, step.at, step.lines)
-            const merges = afterRemove(standing, DOWN, step.at, step.lines)
-            state.rows.splice(step.at, step.lines)
-            state.rowIds.splice(step.at, step.lines)
-            state.rows = laidOut(state.rows, merges)
+        case 'removeRow':
+            removeLines(state, DOWN, step.at, step.lines)
             return added
-        }
         case 'insertColumn': {
             const merges = afterInsert(mergesOf(state.rows), ACROSS, step.at, step.at)
             state.rows.forEach(row => {
@@ -255,16 +247,30 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
             state.rows = laidOut(state.rows, merges)
             return added + 1
         }
-        case 'removeColumn': {
-            const standing = mergesOf(state.rows)
-            carryOrigins(state.rows, standing, ACROSS, step.at, step.lines)
-            const merges = afterRemove(standing, ACROSS, step.at, step.lines)
-            state.rows.forEach(row => row.splice(step.at, step.lines))
-            state.columnIds.splice(step.at, step.lines)
-            state.rows = laidOut(state.rows, merges)
+        case 'removeColumn':
+            removeLines(state, ACROSS, step.at, step.lines)
             return added
-        }
     }
+}
+
+/**
+ * Takes lines away along the axis, and leaves the groups they ran through standing over what is left.
+ *
+ * <p>A group the lines were the beginning of is carried down to the first line still there, so what it held
+ * is not lost with the line that named it.
+ */
+const removeLines = (state: EditedTable, axis: Axis, at: number, lines: number): void => {
+    const standing = mergesOf(state.rows)
+    carryOrigins(state.rows, standing, axis, at, lines)
+    const merges = afterRemove(standing, axis, at, lines)
+    if (axis === DOWN) {
+        state.rows.splice(at, lines)
+        state.rowIds.splice(at, lines)
+    } else {
+        state.rows.forEach(row => row.splice(at, lines))
+        state.columnIds.splice(at, lines)
+    }
+    state.rows = laidOut(state.rows, merges)
 }
 
 /**
@@ -406,19 +412,26 @@ const valueEdits = (original: RawTableCell[][], state: EditedTable): TableEdit[]
 
 /** The styling the reader asked for, addressed as the cells stand now. */
 const styleEdits = (state: EditedTable): TableEdit[] => {
-    const edits: TableEdit[] = []
-    state.rows.forEach((cells, row) => {
-        cells.forEach((_, column) => {
-            const style = state.styled.get(cellKey(state.rowIds[row] ?? '', state.columnIds[column] ?? ''))
-            if (style !== undefined) {
-                edits.push({
-                    operation: 'style',
-                    target: { type: 'cells', row, column, rowspan: 1, colspan: 1, style },
-                })
-            }
-        })
+    // The reader styles a few cells of a table that holds thousands, so the asking is read from what they
+    // did and placed, rather than every cell being asked what they did to it.
+    const rowAt = new Map(state.rowIds.map((id, row) => [id, row]))
+    const columnAt = new Map(state.columnIds.map((id, column) => [id, column]))
+    const placed: { row: number, column: number, style: RawCellStyleInput }[] = []
+    state.styled.forEach((style, key) => {
+        const [rowId = '', columnId = ''] = key.split('|')
+        const row = rowAt.get(rowId)
+        const column = columnAt.get(columnId)
+        // A cell whose row or column the reader went on to take away has nowhere left to be styled.
+        if (row !== undefined && column !== undefined) {
+            placed.push({ row, column, style })
+        }
     })
-    return edits
+    return placed
+        .sort((one, other) => one.row - other.row || one.column - other.column)
+        .map(({ row, column, style }) => ({
+            operation: 'style',
+            target: { type: 'cells', row, column, rowspan: 1, colspan: 1, style },
+        }))
 }
 
 /**

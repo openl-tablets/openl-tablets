@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
+import { GO_AHEAD } from '../modules/useConfirmBefore'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import { App, Button, Empty, Skeleton, Switch, Tag, Tooltip } from 'antd'
@@ -226,7 +227,7 @@ export const RevisionsPanel = ({
     }
 
     /** Opens a revision, asking first where the screen has something of its own to lose. */
-    const openAsked = (revisionNo: string) => (beforeOpen ?? (go => go()))(() => void open(revisionNo))
+    const openAsked = (revisionNo: string) => (beforeOpen ?? GO_AHEAD)(() => void open(revisionNo))
 
     const open = async (revisionNo: string, discardChanges = false) => {
         if (opening !== null) {

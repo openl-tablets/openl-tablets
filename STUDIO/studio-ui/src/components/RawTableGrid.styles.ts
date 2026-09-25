@@ -6,7 +6,7 @@ import { createStyles } from 'antd-style'
  * <p>A column nothing is written in keeps room to write in rather than closing to a line. A column with
  * something in it is drawn at the width that something needs, which is more than this.
  */
-const EMPTY_CELL_WIDTH = 64
+const MIN_CELL_WIDTH = 64
 
 export const useStyles = createStyles(({ css, token }) => ({
     /**
@@ -47,7 +47,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         white-space: pre-wrap;
         overflow-wrap: anywhere;
         max-width: 420px;
-        min-width: ${EMPTY_CELL_WIDTH}px;
+        min-width: ${MIN_CELL_WIDTH}px;
 
         /* An empty cell has no line of text to give its row a height, so it is given one that takes no room
            of its own — a row of them then stands as tall as a row with a word in it. Drawn before the text
