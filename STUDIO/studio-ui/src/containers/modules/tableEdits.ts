@@ -65,6 +65,118 @@ const idsOf = (count: number): string[] => Array.from({ length: count }, (_, ind
 /** The index the row or column was read at, or null when the reader added it. */
 const readAt = (id: string): number | null => (id.startsWith('o') ? Number(id.slice(1)) : null)
 
+/** A block of cells the workbook holds as one: where it starts, and how far it reaches. */
+interface Merge {
+    row: number
+    column: number
+    rows: number
+    columns: number
+}
+
+/** How far a merge reaches along one direction of the table: the line it starts at, and how many it takes. */
+interface Reach {
+    at: number
+    lines: number
+}
+
+/** One direction of the table, so a line laid down or taken away reads the same down it and across it. */
+interface Axis {
+    reach: (merge: Merge) => Reach
+    moved: (merge: Merge, reach: Reach) => Merge
+}
+
+const DOWN: Axis = {
+    reach: merge => ({ at: merge.row, lines: merge.rows }),
+    moved: (merge, reach) => ({ ...merge, row: reach.at, rows: reach.lines }),
+}
+
+const ACROSS: Axis = {
+    reach: merge => ({ at: merge.column, lines: merge.columns }),
+    moved: (merge, reach) => ({ ...merge, column: reach.at, columns: reach.lines }),
+}
+
+/** The merges of a table, read off the spans its cells carry. */
+const mergesOf = (rows: RawTableCell[][]): Merge[] => {
+    const merges: Merge[] = []
+    rows.forEach((cells, row) => cells.forEach((cell, column) => {
+        if (cell.covered !== true && ((cell.rowspan ?? 1) > 1 || (cell.colspan ?? 1) > 1)) {
+            merges.push({ row, column, rows: cell.rowspan ?? 1, columns: cell.colspan ?? 1 })
+        }
+    }))
+    return merges
+}
+
+/** A cell a merge reaches over, which holds nothing of its own — the way a table is read with one. */
+const COVERED: RawTableCell = { covered: true }
+
+/**
+ * The table laid out with the given merges: the cell a merge starts at reaches over the rest of it, and every
+ * cell it reaches holds nothing.
+ *
+ * <p>A table is read this way and drawn this way, so it has to stay this way while it is edited. A span left
+ * reaching over a line that is no longer beneath it draws the lines after it out of their columns, and a
+ * reader then writes into a cell of one column under the heading of another.
+ */
+const laidOut = (rows: RawTableCell[][], merges: Merge[]): RawTableCell[][] => {
+    const starts = new Map<string, Merge>()
+    const covered = new Set<string>()
+    for (const merge of merges) {
+        starts.set(`${merge.row}:${merge.column}`, merge)
+        for (let row = merge.row; row < merge.row + merge.rows; row++) {
+            for (let column = merge.column; column < merge.column + merge.columns; column++) {
+                covered.add(`${row}:${column}`)
+            }
+        }
+        covered.delete(`${merge.row}:${merge.column}`)
+    }
+    return rows.map((cells, row) => cells.map((cell, column) => {
+        const where = `${row}:${column}`
+        if (covered.has(where)) {
+            return COVERED
+        }
+        const { colspan, covered: reached, rowspan, ...kept } = cell
+        const merge = starts.get(where)
+        return merge === undefined ? kept : {
+            ...kept,
+            ...(merge.rows > 1 && { rowspan: merge.rows }),
+            ...(merge.columns > 1 && { colspan: merge.columns }),
+        }
+    }))
+}
+
+/**
+ * The merges of a table once a line is laid down at `at`, written from the line at `beside`.
+ *
+ * <p>A merge the line at `beside` sits in reaches over the new line too — the workbook grows it rather than
+ * breaking it — and a merge lying along that line is written again on the new one, the way the rest of the
+ * line's look is. Everything starting past the new line moves along by one.
+ */
+const afterInsert = (merges: Merge[], axis: Axis, at: number, beside: number): Merge[] =>
+    merges.flatMap(merge => {
+        const reach = axis.reach(merge)
+        const alongside = reach.at <= beside && beside < reach.at + reach.lines
+        if (alongside && reach.lines > 1) {
+            return [axis.moved(merge, { at: reach.at, lines: reach.lines + 1 })]
+        }
+        const pushed = reach.at < at ? merge : axis.moved(merge, { at: reach.at + 1, lines: reach.lines })
+        return alongside ? [axis.moved(merge, { at, lines: 1 }), pushed] : [pushed]
+    })
+
+/**
+ * The merges of a table once the lines from `at` are taken away.
+ *
+ * <p>A merge loses the lines of it that went and moves back by the ones that went before it. One left holding
+ * a single cell is a merge no longer.
+ */
+const afterRemove = (merges: Merge[], axis: Axis, at: number, lines: number): Merge[] =>
+    merges.flatMap(merge => {
+        const reach = axis.reach(merge)
+        const taken = Math.max(0, Math.min(reach.at + reach.lines, at + lines) - Math.max(reach.at, at))
+        const before = Math.max(0, Math.min(reach.at, at + lines) - at)
+        const left = axis.moved(merge, { at: reach.at - before, lines: reach.lines - taken })
+        return left.rows > 1 || left.columns > 1 ? [left] : []
+    })
+
 /** Applies one step, and answers how many rows and columns the reader has added in all. */
 const apply = (state: EditedTable, step: EditStep, added: number): number => {
     switch (step.kind) {
@@ -90,23 +202,39 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
         }
         case 'insertRow': {
             const above = state.rows[step.at - 1]
+            const merges = afterInsert(mergesOf(state.rows), DOWN, step.at, step.at - 1)
             state.rows.splice(step.at, 0,
                 Array.from({ length: state.columnIds.length }, (_, column) => blankLike(above?.[column])))
             state.rowIds.splice(step.at, 0, `n${added}`)
+            state.rows = laidOut(state.rows, merges)
             return added + 1
         }
-        case 'removeRow':
+        case 'removeRow': {
+            const merges = afterRemove(mergesOf(state.rows), DOWN, step.at, step.lines)
             state.rows.splice(step.at, step.lines)
             state.rowIds.splice(step.at, step.lines)
+            state.rows = laidOut(state.rows, merges)
             return added
-        case 'insertColumn':
-            state.rows.forEach(row => row.splice(step.at, 0, blankLike(row[step.at])))
+        }
+        case 'insertColumn': {
+            const merges = afterInsert(mergesOf(state.rows), ACROSS, step.at, step.at)
+            state.rows.forEach(row => {
+                // A cell the new column falls inside keeps its place, and the blank is laid down within the
+                // merge: the workbook grows the merge from where it began rather than moving it along.
+                const aside = row[step.at]
+                row.splice(step.at + ((aside?.colspan ?? 1) > 1 ? 1 : 0), 0, blankLike(aside))
+            })
             state.columnIds.splice(step.at, 0, `n${added}`)
+            state.rows = laidOut(state.rows, merges)
             return added + 1
-        case 'removeColumn':
+        }
+        case 'removeColumn': {
+            const merges = afterRemove(mergesOf(state.rows), ACROSS, step.at, step.lines)
             state.rows.forEach(row => row.splice(step.at, step.lines))
             state.columnIds.splice(step.at, step.lines)
+            state.rows = laidOut(state.rows, merges)
             return added
+        }
     }
 }
 
@@ -156,8 +284,14 @@ export const redo = (buffer: EditBuffer): EditBuffer => {
     return next === undefined ? buffer : { steps: [...buffer.steps, next], undone: rest }
 }
 
-/** What a cell holds, as the API takes it. */
-const written = (cell: RawTableCell | undefined): RawTableCellInput => ({ value: cell?.value ?? '' })
+/**
+ * What a cell holds, as the API takes it.
+ *
+ * <p>A cell a merge reaches over says so rather than carrying a blank: its value lives in the cell the merge
+ * starts at, and a blank written over it would be dropped without a word.
+ */
+const written = (cell: RawTableCell | undefined): RawTableCellInput =>
+    (cell?.covered === true ? { value: '', covered: true } : { value: cell?.value ?? '' })
 
 /** Whether the cell carries nothing at all, so a line of such cells would split the table. */
 const empty = (cell: RawTableCell | undefined): boolean => cell?.value == null || String(cell.value).trim() === ''
@@ -232,7 +366,8 @@ const valueEdits = (original: RawTableCell[][], state: EditedTable): TableEdit[]
         cells.forEach((cell, column) => {
             const wasColumn = readAt(state.columnIds[column] ?? '')
             const was = wasRow === null || wasColumn === null ? undefined : original[wasRow]?.[wasColumn]
-            if (was !== undefined && String(was.value ?? '') !== String(cell.value ?? '')) {
+            // A cell a merge has grown over holds nothing of its own, and the API refuses a write to one.
+            if (cell.covered !== true && was !== undefined && String(was.value ?? '') !== String(cell.value ?? '')) {
                 edits.push({ operation: 'update', target: { type: 'cell', row, column, value: cell.value ?? '' } })
             }
         })

@@ -557,6 +557,68 @@ class RawTableWriterTest {
     }
 
     @Test
+    void growsAMergeOverARowLaidDownInsideIt() throws IOException {
+        var project = writeProject("grouped", new String[][]{
+                {HEADER, null, null},
+                {"String", "group", "alpha"},
+                {"String", "group", "beta"},
+                {"int", "hour", "gamma"}
+        });
+        apply(project, merge(1, 1, 2, 1));
+
+        apply(project, insertRow(2, List.of(new RawCellInput("long", null, null, null),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput("epsilon", null, null, null))));
+
+        var source = reload(project);
+        // The merge reaches over the new row rather than breaking in two, so the row has a cell only where
+        // the merge leaves it room. A screen drawing the row with a cell there as well puts every cell after
+        // it one column out, and each value is then written under the heading of its neighbour.
+        assertEquals(Integer.valueOf(3), source.get(1).get(1).rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).get(1).covered());
+        assertEquals("long", value(source, 2, 0));
+        assertEquals("epsilon", value(source, 2, 2));
+    }
+
+    @Test
+    void growsAMergeOverAColumnLaidDownInsideIt() throws IOException {
+        var project = writeProjectWithMergedHeader("banked", new String[][]{
+                {HEADER, null, null},
+                {"String", "code", "alpha"},
+                {"String", "text", "beta"}
+        });
+
+        apply(project, insertColumn(1, List.of(new RawCellInput(null, null, null, true),
+                new RawCellInput("one", null, null, null),
+                new RawCellInput("two", null, null, null))));
+
+        var source = reload(project);
+        assertEquals(Integer.valueOf(4), source.getFirst().getFirst().colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(1).covered());
+        assertEquals("one", value(source, 1, 1));
+        assertEquals("code", value(source, 1, 2));
+    }
+
+    @Test
+    void keepsAMergeReachingPastTheRowsTakenAway() throws IOException {
+        var project = writeProject("stacked", new String[][]{
+                {HEADER, null, null},
+                {"String", "code", "alpha"},
+                {"String", "text", "beta"},
+                {"String", "hour", "gamma"}
+        });
+        apply(project, merge(1, 0, 3, 1));
+
+        apply(project, deleteRow(2));
+
+        var source = reload(project);
+        // As with columns: the merge reached past the row that went, so it shortens rather than lingering
+        // over a row that is no longer beneath it.
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).getFirst().covered());
+    }
+
+    @Test
     void refusesToTakeAwayTheRowTheHeaderStandsOn() {
         // Nothing bars the first row itself. What bars this write is that the table would be left starting
         // with a line OpenL does not read as a header, which is a table nobody could find again.

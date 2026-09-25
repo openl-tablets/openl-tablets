@@ -209,6 +209,44 @@ describe('TableEditor', () => {
         }])
     })
 
+    it('lays a row down inside a merged group without pushing its cells out of their columns', async () => {
+        // The group `Young Driver` is one cell over the two rules under it, the way a rules table is written.
+        const grouped: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Premium(String age, String status)', colspan: 3 },
+                { covered: true }, { covered: true }],
+            [{ cell: 'B5', value: 'R1' }, { cell: 'C5', value: 'Young Driver', rowspan: 2 },
+                { cell: 'D5', value: 'Married' }],
+            [{ cell: 'B6', value: 'R2' }, { covered: true }, { cell: 'D6', value: 'Single' }],
+        ]
+        draw({ rows: grouped })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByText('Married'))
+        await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+
+        // The group grows over the new row, so the row has two cells and they stand under their own
+        // headings; drawn with a third the group leaves no room for, they would all be one column out.
+        const laid = screen.getByTestId('module-table').querySelectorAll('tr')[2]
+        expect(laid?.querySelectorAll('td')).toHaveLength(2)
+
+        await userEvent.dblClick(cellOf(2, 0))
+        await userEvent.type(screen.getByTestId('table-cell-input'), 'R1b{Enter}')
+        await userEvent.dblClick(cellOf(2, 1))
+        await userEvent.type(screen.getByTestId('table-cell-input'), 'Widowed{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalled())
+        const [, , actions] = vi.mocked(applyTableActions).mock.calls[0] ?? []
+        expect(actions).toEqual([{
+            operation: 'insert',
+            target: {
+                type: 'rows',
+                position: 2,
+                cells: [[{ value: 'R1b' }, { value: '', covered: true }, { value: 'Widowed' }]],
+            },
+        }])
+    })
+
     it('opens a cell written with a formula as that formula, and keeps it', async () => {
         const withFormula: RawTableCell[][] = [
             [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
