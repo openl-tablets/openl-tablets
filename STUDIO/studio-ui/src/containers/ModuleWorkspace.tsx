@@ -37,11 +37,13 @@ import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { loadShowOther, saveShowOther } from './modules/tableGrouping'
 import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
+import type { TableEditorHandle } from './modules/TableEditor'
 import { TableProblems } from './modules/TableProblems'
 import { TableSearchModal } from './modules/TableSearchModal'
 import { TableEditor } from './modules/TableEditor'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
+import { useDiscardConfirm } from './modules/useDiscardConfirm'
 import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
 import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
@@ -183,6 +185,12 @@ export const ModuleWorkspace = () => {
     // A revision opened for reading is the copy in the workspace, so a write to it saves over everything
     // committed since — which the reader is asked about before the write, not told about after it.
     const confirmWrite = useOverwriteConfirm(project)
+    // Cells the reader has written into the table and not yet saved. Anything that reads the workbook afresh
+    // loses them, so it asks first — and the panel that writes the table's properties writes them along.
+    const [tableDirty, setTableDirty] = useState(false)
+    const confirmDiscard = useDiscardConfirm(tableDirty)
+    const editor = useRef<TableEditorHandle>(null)
+
 
     // The branch the workspace copy of the project stands on. Switching it checks another copy out, and
     // everything this screen read of the project — its modules, their tables, how far it has compiled —
@@ -510,6 +518,18 @@ export const ModuleWorkspace = () => {
     // written to the row it is drawn at rather than the row it was made in.
     const hiddenRows = showHeader ? 0 : table?.headerHeight ?? 0
 
+    /**
+     * Writes what the reader has done to the table's cells, and answers the id to write its properties to.
+     *
+     * <p>The properties of a table are rows of the table itself: written on their own they would be written
+     * over what the reader has on screen, and a table grown by them stands under another id. Answers null
+     * where the cells cannot be written as they stand, so nothing else of the table is written either.
+     */
+    const writeCellsFirst = useCallback(async (): Promise<string | null> => {
+        const written = await editor.current?.write()
+        return written === undefined ? selectedId : written?.tableId ?? null
+    }, [selectedId])
+
     const openTableById = useCallback((picked: string) => {
         setSearch(params => {
             const next = new URLSearchParams(params)
@@ -712,6 +732,7 @@ export const ModuleWorkspace = () => {
                 <>
                     <span aria-hidden>/</span>
                     <BranchSwitcher
+                        beforeSwitch={confirmDiscard}
                         currentBranch={branch ?? ''}
                         currentBranchDefault={project.branchDefault}
                         currentBranchProtected={project.branchProtected}
@@ -858,6 +879,7 @@ export const ModuleWorkspace = () => {
                     partial={table.partial === true}
                 />
                 <TableEditor
+                    ref={editor}
                     canvasClassName={styles.canvas}
                     canWrite={canWriteTable}
                     editing={editing}
@@ -867,6 +889,7 @@ export const ModuleWorkspace = () => {
                     markCell={raisedCell}
                     maxRows={table.source.length}
                     moduleName={moduleName}
+                    onDirtyChange={setTableDirty}
                     onEditingChange={setEditing}
                     onOpenedAt={() => setEditCell(null)}
                     onOpenUsage={openUsage}
@@ -923,6 +946,7 @@ export const ModuleWorkspace = () => {
                         testId="module-header"
                         actions={(
                             <ModuleActionBar
+                                confirmDiscard={confirmDiscard}
                                 // Nothing beside the module's name acts on a module that is not built yet:
                                 // there is nothing to run, nothing to test and nothing to write against.
                                 disabled={closed || !compilation.ready}
@@ -931,7 +955,7 @@ export const ModuleWorkspace = () => {
                                 onProjectChanged={reopenRevision}
                                 onRevisionOpened={reopenRevision}
                                 onTableCreated={openWritten}
-                                onVerify={() => refresh()}
+                                onVerify={() => confirmDiscard(() => refresh())}
                                 project={project}
                                 projectCompiled={projectCompiled}
                                 testCount={testCount}
@@ -977,7 +1001,7 @@ export const ModuleWorkspace = () => {
                                         data-testid="module-refresh"
                                         disabled={closed}
                                         icon={<ReloadOutlined />}
-                                        onClick={() => refresh()}
+                                        onClick={() => confirmDiscard(() => refresh())}
                                         type="text"
                                     />
                                 </Tooltip>
@@ -988,6 +1012,7 @@ export const ModuleWorkspace = () => {
                         <div className={styles.main}>{canvas()}</div>
                         {compilation.ready && !closed && !tableUnlisted && (
                             <TableDetailsPanel
+                                beforeSave={writeCellsFirst}
                                 canWrite={!!project.capabilities?.canWrite}
                                 confirmWrite={confirmWrite}
                                 listed={listed}

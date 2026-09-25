@@ -1,4 +1,5 @@
 import { useState, type MouseEvent as ReactMouseEvent } from 'react'
+import type { ConfirmDiscard } from './useDiscardConfirm'
 import { useTranslation } from 'react-i18next'
 import { Badge, Button, Dropdown, Modal, Space, Tooltip } from 'antd'
 import { CheckCircleOutlined, DownOutlined, ExperimentOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
@@ -47,6 +48,13 @@ interface ModuleActionBarProps {
     verifyNeeded?: boolean
     /** Compiles the module the reader has been editing, and reads it back. */
     onVerify?: (() => void) | undefined
+    /**
+     * Runs what reads the workbook afresh after asking whatever has to be asked first.
+     *
+     * <p>Opening a revision and restoring a local version both replace what the workspace holds, so cells
+     * written on screen and not yet saved go with it.
+     */
+    confirmDiscard?: ConfirmDiscard | undefined
 }
 
 /**
@@ -69,6 +77,7 @@ export const ModuleActionBar = ({
     onTableCreated,
     verifyNeeded = false,
     onVerify,
+    confirmDiscard,
 }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
     const [revisionsOpen, setRevisionsOpen] = useState(false)
@@ -224,6 +233,7 @@ export const ModuleActionBar = ({
                 width={900}
             >
                 <RevisionsPanel
+                    beforeOpen={confirmDiscard}
                     currentRevision={project.revision}
                     projectId={project.id}
                     searchable={supportsRevisionSearch({ features: project.repositoryInfo?.features })}
@@ -243,6 +253,7 @@ export const ModuleActionBar = ({
                 width={900}
             >
                 <LocalChangesView
+                    beforeRestore={confirmDiscard}
                     moduleName={moduleName}
                     projectId={project.id}
                     onRestored={() => {

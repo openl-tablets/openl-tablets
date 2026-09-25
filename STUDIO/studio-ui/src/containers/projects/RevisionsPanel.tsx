@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import { App, Button, Empty, Skeleton, Switch, Tag, Tooltip } from 'antd'
@@ -122,6 +123,13 @@ interface RevisionsPanelProps {
     currentRevision?: string | null
     searchable?: boolean | undefined
     onOpened: () => void
+    /**
+     * Runs the opening after asking whatever has to be asked first; absent where nothing has to be.
+     *
+     * <p>Opening a revision replaces the copy of the project in the workspace, so anything written on screen
+     * and not yet saved is gone with the copy it was written in.
+     */
+    beforeOpen?: ConfirmDiscard | undefined
     /** Bumped when the project reloads (e.g. after a save), forcing the history to refetch. */
     reloadToken?: number
 }
@@ -140,6 +148,7 @@ export const RevisionsPanel = ({
     currentRevision,
     searchable = true,
     onOpened,
+    beforeOpen,
     reloadToken,
 }: RevisionsPanelProps) => {
     const { notification } = App.useApp()
@@ -215,6 +224,9 @@ export const RevisionsPanel = ({
             }
         }
     }
+
+    /** Opens a revision, asking first where the screen has something of its own to lose. */
+    const openAsked = (revisionNo: string) => (beforeOpen ?? (go => go()))(() => void open(revisionNo))
 
     const open = async (revisionNo: string, discardChanges = false) => {
         if (opening !== null) {
@@ -299,7 +311,7 @@ export const RevisionsPanel = ({
                                                             disabled={opening !== null && opening !== revision.revisionNo}
                                                             icon={<SearchOutlined />}
                                                             loading={opening === revision.revisionNo}
-                                                            onClick={() => open(revision.revisionNo)}
+                                                            onClick={() => openAsked(revision.revisionNo)}
                                                             size="small"
                                                         />
                                                     </Tooltip>

@@ -372,6 +372,12 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
 1.  To save changes, click **Save** ![](images/edit-save-icon.png).
 
+    Cells written and not yet saved live on the screen alone. Anything that reads the workbook afresh —
+    switching the branch, opening a revision, restoring a local version, refreshing the module — asks
+    whether to discard them first, so none of them is lost without a word. Saving the table's properties in
+    **Table Details** writes them along with the properties, since the properties are rows of the table
+    itself.
+
     If a table contains an error, the appropriate message is displayed.
 
     ![](images/table-error-example.png)

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Modal, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router-dom'
@@ -81,6 +81,25 @@ const DRAWN: ReadonlySet<string> = new Set([
     'combo', 'multiselect', 'numeric', 'date', 'boolean', 'array', 'range',
 ])
 
+/** What a write of the pending cells came to. */
+export interface Written {
+    /** The table's id afterwards — a new one when the table had to be moved to grow. */
+    tableId: string
+    /** Whether anything reached the workbook, so the module has to be compiled again. */
+    changed: boolean
+}
+
+/**
+ * What the screen around the editor can ask of it.
+ *
+ * <p>The properties of a table are rows of the table itself, so the panel that writes them has to write what
+ * the reader has done to its cells first — and the table may be moved as it is written.
+ */
+export interface TableEditorHandle {
+    /** Writes the pending cells, or answers null when the table cannot be written as it stands. */
+    write: () => Promise<Written | null>
+}
+
 /** The cell the reader is writing in, and what the writing starts from. */
 interface OpenAt extends CellAt {
     /** What the cell held when it was opened — a formula as the formula, not as the value it computed. */
@@ -119,8 +138,12 @@ interface TableEditorProps {
     editing: boolean
     /** Told when the reader starts editing by opening a cell, and when they stop. */
     onEditingChange: (editing: boolean) => void
+    /** Told whether the table holds cells the reader has written and not yet saved. */
+    onDirtyChange?: ((dirty: boolean) => void) | undefined
     /** Told the table's id after a save; it changes when the table had to be moved to grow. */
     onSaved: (tableId: string) => void
+    /** Handed to the screen, so a write of the table can be asked for from beside it. */
+    ref?: React.Ref<TableEditorHandle> | undefined
     /** A cell to open for writing, named as the workbook names it — 'D9'. */
     openAt?: string | null | undefined
     /** A cell a compilation message was raised against, marked so a reader arriving from it finds the cell. */
@@ -156,7 +179,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     canWrite,
     editing,
     onEditingChange,
+    onDirtyChange,
     onSaved,
+    ref,
     openAt,
     onOpenedAt,
     markCell,
@@ -416,23 +441,49 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
     }
 
-    const save = async () => {
+    /**
+     * Writes what the reader has done, and answers the table as it stands afterwards.
+     *
+     * <p>Answers null where the table cannot be written as it stands — a line left blank, which the band of
+     * actions says in place of saving — so a caller writing something else of its own knows not to go on.
+     */
+    const write = useCallback(async (): Promise<Written | null> => {
         const actions = compile(rows, edited)
         // What the reader did may come to nothing — a row added and taken away again, a value written back to
         // what it was. There is nothing to write then, and the table is left as the reader found it.
         if (actions.length === 0) {
             discard()
-            return
+            return { tableId, changed: false }
+        }
+        if (blocked !== null) {
+            return null
         }
         setSaving(true)
         try {
             const savedId = await applyTableActions(projectId, tableId, actions, moduleName)
-            if (savedId !== null) {
-                discard()
-                onSaved(savedId)
+            if (savedId === null) {
+                return null
             }
+            discard()
+            return { tableId: savedId, changed: true }
         } finally {
             setSaving(false)
+        }
+    }, [blocked, edited, moduleName, projectId, rows, tableId])
+
+    useImperativeHandle(ref, () => ({ write }), [write])
+
+    // The screen around the editor is told what it holds, so nothing that reads the table again throws the
+    // reader's work away without asking. It holds nothing once it is gone.
+    useEffect(() => {
+        onDirtyChange?.(dirty)
+        return () => onDirtyChange?.(false)
+    }, [dirty, onDirtyChange])
+
+    const save = async () => {
+        const written = await write()
+        if (written?.changed === true) {
+            onSaved(written.tableId)
         }
     }
 
