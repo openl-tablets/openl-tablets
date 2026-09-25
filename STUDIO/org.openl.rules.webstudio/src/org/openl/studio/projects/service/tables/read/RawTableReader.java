@@ -139,22 +139,22 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var fullHeight = openLTable.getGridTable().getHeight();
         // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
         // region, so rows outside the window are never materialised and cell addresses stay absolute.
-        var gridTable = sliceFrom(openLTable.getGridTable(), startRow);
-        int cap = maxRows == null ? NO_ROW_CAP : maxRows;
+        var window = TableWindow.of(openLTable.getGridTable(), startRow, maxRows);
+        var gridTable = sliceFrom(openLTable.getGridTable(), window.startRow());
         var tableModel = gridTable == null ? null
-                : TableModel.initializeTableModel(gridTable, cap, metaInfoReader);
+                : TableModel.initializeTableModel(gridTable, window.rows(), metaInfoReader);
 
         List<List<RawTableCell>> source = tableModel == null ? List.of()
                 : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, withMetaInfo, modules);
-        // The grid model keeps one extra row rather than hiding a single row; trim to exactly maxRows so the
-        // window size is predictable for paging.
-        if (maxRows != null && source.size() > maxRows) {
-            source = source.subList(0, maxRows);
+        // The grid model keeps one extra row rather than hiding a single row; trim to exactly the window so
+        // its size is predictable for paging.
+        if (window.rows() != TableWindow.EVERY_ROW && source.size() > window.rows()) {
+            source = source.subList(0, window.rows());
         }
         builder.source(source);
         builder.headerHeight(headerHeightOf(openLTable));
         // Report the full height whenever the window omits rows (a non-zero offset or a top cap).
-        if ((startRow != null && startRow > 0) || source.size() < fullHeight) {
+        if (window.partial(fullHeight)) {
             builder.totalRows(fullHeight);
         }
     }

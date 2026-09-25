@@ -19,9 +19,12 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TableTestProjects;
+import org.openl.studio.projects.service.tables.write.RawTableWriter;
 
 /**
  * Confirms the raw reader caps rows at {@code maxRows} and reports the full count when truncated, while the
@@ -153,6 +156,41 @@ class RawTableReaderTest {
         // The engine's own business view of this table drops the header line, and nothing else.
         assertEquals(1, read.headerHeight);
         assertEquals(3, read.source.size(), "the read itself still carries the header");
+    }
+
+    @Test
+    void readsAMergedCellWholeWhereAWindowWouldHaveCutIt(@TempDir Path tempDir) throws Exception {
+        var project = TableTestProjects.writeProject(tempDir.resolve("grouped"), "grouped", "Rules", new String[][]{
+                {"Datatype Greeting", null},
+                {"String", "a"},
+                {"same", "b"},
+                {"same", "c"},
+                {"int", "d"}
+        });
+        // The two middle rows are one cell in the first column, the way a rules table groups its rules.
+        new RawTableWriter(firstTable(project))
+                .apply(new RawTableSourceAction.Merge(new MergeTarget.Cells(2, 0, 2, 1)));
+
+        var window = new RawTableReader().read(firstTable(project), null, 3, false, false, TableModules.none());
+
+        // Three rows would end halfway down the group. Answered so, the group would come back twice — clamped
+        // here and rooted in the next window at a cell that holds nothing — and a screen reading the table
+        // window by window would hold two groups where the workbook holds one.
+        assertEquals(4, window.source.size(), "the window reaches the end of the merge it would have cut");
+        assertEquals(Integer.valueOf(2), window.source.get(2).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, window.source.get(3).getFirst().covered());
+        assertNotNull(window.totalRows, "the window still says how many rows the table has");
+
+        // The next window starts where this one ended, so it starts on no merge either.
+        var next = new RawTableReader().read(firstTable(project), 4, 3, false, false, TableModules.none());
+        assertEquals(1, next.source.size());
+        assertNull(next.source.getFirst().getFirst().rowspan(), "the row after the group stands on its own");
+
+        // A window placed by hand halfway down the group opens on the group instead: answered from where it
+        // was asked for, its first cell would stand for the whole group while holding only half of it.
+        var halfway = new RawTableReader().read(firstTable(project), 3, 2, false, false, TableModules.none());
+        assertEquals(Integer.valueOf(2), halfway.source.getFirst().getFirst().rowspan());
+        assertEquals("same", halfway.source.getFirst().getFirst().value());
     }
 
     private static List<String> cellAddresses(List<RawTableCell> row) {

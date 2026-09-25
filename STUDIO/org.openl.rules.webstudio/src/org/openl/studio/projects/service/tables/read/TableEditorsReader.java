@@ -44,8 +44,6 @@ import org.openl.studio.projects.model.tables.TableEditorsView;
 @Component
 public class TableEditorsReader {
 
-    private static final int NO_ROW_CAP = -1;
-
     private final CellEditorSelector selector = new CellEditorSelector();
 
     /**
@@ -61,13 +59,15 @@ public class TableEditorsReader {
      */
     public TableEditorsView read(IOpenLTable openLTable, @Nullable Integer startRow, @Nullable Integer maxRows) {
         var metaInfoReader = metaInfoReaderOf(openLTable);
-        var gridTable = sliceFrom(openLTable.getGridTable(), startRow);
+        // The same window the raw read answers with, merged cells whole and all; see TableWindow.
+        var window = TableWindow.of(openLTable.getGridTable(), startRow, maxRows);
+        var gridTable = sliceFrom(openLTable.getGridTable(), window.startRow());
         var tableModel = gridTable == null ? null
-                : TableModel.initializeTableModel(gridTable, maxRows == null ? NO_ROW_CAP : maxRows, metaInfoReader);
+                : TableModel.initializeTableModel(gridTable, window.rows(), metaInfoReader);
         if (tableModel == null) {
             return new TableEditorsView(List.of(), List.of());
         }
-        return collect(tableModel, metaInfoReader, maxRows);
+        return collect(tableModel, metaInfoReader, window.rows() == TableWindow.EVERY_ROW ? null : window.rows());
     }
 
     /** Walks the window's cells, keeping each editor once and pointing every cell that asks for it at that one. */
@@ -171,8 +171,8 @@ public class TableEditorsReader {
     }
 
     /** The table from {@code startRow} down, or {@code null} when the window starts past its last row. */
-    private static @Nullable IGridTable sliceFrom(IGridTable table, @Nullable Integer startRow) {
-        if (startRow == null || startRow <= 0) {
+    private static @Nullable IGridTable sliceFrom(IGridTable table, int startRow) {
+        if (startRow <= 0) {
             return table;
         }
         if (startRow >= table.getHeight()) {

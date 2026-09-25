@@ -370,6 +370,11 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     keeps the corner OpenL finds the table by. The header row itself cannot be removed, since a table that
     starts on a line OpenL reads as no header is a table nobody can find again.
 
+    A table too large to draw at once opens on its first rows, with **Show more rows** under it for the rest.
+    A merged cell is never split between two of those readings: the first reading runs on to the end of a
+    group it would otherwise have cut, so the group is one cell on screen and every action on it — taking its
+    rows away, adding a row after it, writing its value — acts on the whole of it.
+
 1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
 2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
 
