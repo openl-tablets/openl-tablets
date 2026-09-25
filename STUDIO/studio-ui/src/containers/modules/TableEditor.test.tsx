@@ -268,6 +268,62 @@ describe('TableEditor', () => {
         })
     })
 
+    describe('what a cell asks to be written with once a line has been laid down', () => {
+        // A datatype as the ticket has it: a decimal default on one row, a whole number on the next.
+        const policy: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Datatype Policy', colspan: 3 }, { covered: true }, { covered: true }],
+            [{ cell: 'B5', value: 'String' }, { cell: 'C5', value: 'name' }, { cell: 'D5', value: 'x' }],
+            [{ cell: 'B6', value: 'Double' }, { cell: 'C6', value: 'rate' }, { cell: 'D6', value: '0.5' }],
+            [{ cell: 'B7', value: 'Integer' }, { cell: 'C7', value: 'count' }, { cell: 'D7', value: '3' }],
+        ]
+
+        const typed = () => {
+            vi.mocked(getTableEditors).mockResolvedValue({
+                editors: [{ editor: 'numeric' }, { editor: 'numeric', intOnly: true }],
+                cells: [{ row: 2, column: 2, editor: 0 }, { row: 3, column: 2, editor: 1 }],
+            })
+            return draw({ rows: policy })
+        }
+
+        it('keeps a decimal a decimal after a row is laid down above it', async () => {
+            typed()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            // The row laid down under `name` moves the decimal into the place the whole number held.
+            await userEvent.click(screen.getByText('name'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+            await userEvent.dblClick(screen.getByText('0.5'))
+            const box = screen.getByTestId('table-cell-input')
+            await userEvent.clear(box)
+            await userEvent.type(box, '0.75{Enter}')
+            // A row left blank would split the table, so it is filled in before the table is written.
+            await userEvent.dblClick(cellOf(2, 0))
+            await userEvent.type(screen.getByTestId('table-cell-input'), 'String{Enter}')
+            await userEvent.click(screen.getByTestId('table-edit-save'))
+
+            // Asked for by where the cell now sits, the decimal would open in the whole number's box, which
+            // takes no point at all: `0.75` would reach the workbook as `75`.
+            await waitFor(() => expect(applyTableActions).toHaveBeenCalled())
+            const [, , actions] = vi.mocked(applyTableActions).mock.calls[0] ?? []
+            expect(actions).toContainEqual({
+                operation: 'update', target: { type: 'cell', row: 3, column: 2, value: '0.75' },
+            })
+        })
+
+        it('writes a cell of the row it laid down as plain text, which nothing is known about yet', async () => {
+            typed()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('name'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+            await userEvent.dblClick(cellOf(2, 2))
+            await userEvent.type(screen.getByTestId('table-cell-input'), 'a note{Enter}')
+
+            // The place it stands in was the decimal's; a box that takes only numbers would refuse the words.
+            expect(cellOf(2, 2)).toHaveTextContent('a note')
+        })
+    })
+
     describe('with the header rows kept out of sight', () => {
         // A decision table as the reader meets it with Show Header off: the four header rows are drawn
         // nowhere, and what they see is the title row and the rules under it.

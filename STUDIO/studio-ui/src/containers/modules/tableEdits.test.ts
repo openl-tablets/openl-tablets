@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { RawTableCell } from 'types/tables'
 import {
+    asRead,
     blankLine,
     compile,
     type EditStep,
@@ -163,6 +164,27 @@ describe('tableEdits', () => {
 
             expect(state.rows[2]?.[1]?.style?.bold).toBe(true)
             expect(state.rows[1]?.[1]?.style?.bold).toBeUndefined()
+        })
+    })
+
+    describe('where a cell stood in the table that was read', () => {
+        it('answers where a cell stood before a row moved it', () => {
+            const state = after({ kind: 'insertRow', at: 1 })
+
+            expect(asRead(state, { row: 2, column: 1 })).toEqual({ row: 1, column: 1 })
+        })
+
+        it('answers where a cell stood before a column moved it', () => {
+            const state = after({ kind: 'insertColumn', at: 0 })
+
+            expect(asRead(state, { row: 1, column: 1 })).toEqual({ row: 1, column: 0 })
+        })
+
+        it('answers nothing for a cell of a line the reader added', () => {
+            const state = after({ kind: 'insertRow', at: 1 })
+
+            // Nothing was read about it, so nothing is known: what it holds is written as plain text.
+            expect(asRead(state, { row: 1, column: 0 })).toBeNull()
         })
     })
 

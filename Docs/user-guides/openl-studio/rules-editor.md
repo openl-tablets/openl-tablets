@@ -376,6 +376,11 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     rows away, adding a row after it, writing its value — acts on the whole of it.
 
 1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
+
+    A cell is written the way its own type asks for — a whole number takes no decimal point, a date is picked
+    from a calendar, a value of a known set is chosen from a list — and it keeps that way of writing wherever a
+    row or a column laid down since has moved it. A cell of a line just added is written as plain text: nothing
+    is known about it until the table is saved and read again.
 2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell.
