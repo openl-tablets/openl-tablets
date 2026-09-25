@@ -297,7 +297,8 @@ public class ExecutionValueLevels {
         var leftOutWhenNull = inclusion != JsonInclude.Include.ALWAYS && inclusion != JsonInclude.Include.USE_DEFAULTS;
         var fields = new ArrayList<Field>();
         named.forEach((name, cell) -> {
-            if (cell instanceof Cell(var row, var column)) {
+            // Typed, not var: on javac 21 a var binding here has an unknown type, which crashes Error Prone.
+            if (cell instanceof Cell(int row, int column)) {
                 fields.add(new Field(name,
                         result -> ((SpreadsheetResult) result).getValue(row, column),
                         leftOutWhenNull));
