@@ -84,24 +84,25 @@ const mute = (colour: string | undefined): string | undefined => {
  * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
  * which are drawn in grey.
  */
-const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean): React.CSSProperties => ({
-    background: painted ? undefined : (muted ? mute(style?.background) : style?.background),
-    color: muted ? mute(style?.color) : style?.color,
-    textAlign: style?.align as React.CSSProperties['textAlign'],
-    verticalAlign: style?.valign as React.CSSProperties['verticalAlign'],
-    fontWeight: style?.bold ? 'bold' : undefined,
-    fontStyle: style?.italic ? 'italic' : undefined,
-    textDecoration: style?.underline ? 'underline' : undefined,
-})
+/** Given to every cell the workbook styled in no way at all, rather than a fresh object each. */
+const PLAIN: React.CSSProperties = {}
 
-/**
- * Draws a table the way its author wrote it in Excel: the same cells, the same merges, the same
- * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
- * cells were written with, which every cell carries beside its value.
- *
- * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
- * this component and only says how its own cells are marked, so a table looks the same everywhere.
- */
+const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean): React.CSSProperties => {
+    // Most cells of a workbook are written in no style at all, and a table holds thousands of them.
+    if (style === undefined && !painted && !muted) {
+        return PLAIN
+    }
+    return {
+        background: painted ? undefined : (muted ? mute(style?.background) : style?.background),
+        color: muted ? mute(style?.color) : style?.color,
+        textAlign: style?.align as React.CSSProperties['textAlign'],
+        verticalAlign: style?.valign as React.CSSProperties['verticalAlign'],
+        fontWeight: style?.bold ? 'bold' : undefined,
+        fontStyle: style?.italic ? 'italic' : undefined,
+        textDecoration: style?.underline ? 'underline' : undefined,
+    }
+}
+
 /**
  * The text of one cell, marked with what the compiler knows about it.
  *
@@ -122,6 +123,14 @@ const cellText = (cell: RawTableCell, formulas: boolean, styles: RawTableGridSty
     return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} styles={styles} text={text} />
 }
 
+/**
+ * Draws a table the way its author wrote it in Excel: the same cells, the same merges, the same
+ * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
+ * cells were written with, which every cell carries beside its value.
+ *
+ * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
+ * this component and only says how its own cells are marked, so a table looks the same everywhere.
+ */
 export const RawTableGrid: React.FC<RawTableGridProps> = ({
     rows,
     decorate,
@@ -162,7 +171,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                 {layout?.transposed && lines > 0 && (
                     <tr>
                         {Array.from({ length: columns }, (unused, column) => (
-                            <td className={styles.lineNumber} key={column}>
+                            <td key={column} className={styles.lineNumber}>
                                 {column >= layout.firstDataLine
                                     ? <span data-testid="table-line-number">{column - layout.firstDataLine + 1}</span>
                                     : null}

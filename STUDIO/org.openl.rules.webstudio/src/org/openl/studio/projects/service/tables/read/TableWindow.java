@@ -1,5 +1,8 @@
 package org.openl.studio.projects.service.tables.read;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.table.IGridRegion;
@@ -34,8 +37,12 @@ record TableWindow(int startRow, int rows) {
      * @param maxRows  how many rows were asked for; {@code null} reads to the end
      */
     static TableWindow of(IGridTable table, @Nullable Integer startRow, @Nullable Integer maxRows) {
-        var from = openedOn(table, startRow == null ? 0 : startRow);
-        return new TableWindow(from, maxRows == null ? EVERY_ROW : wholeRows(table, from, maxRows));
+        // The grid holds the merges of every table on the sheet, so picking out this table's is a scan of them
+        // all — taken once here, and walked by both edges as often as they keep growing.
+        var merges = mergesOf(table);
+        var region = table.getRegion();
+        var from = openedOn(merges, region, startRow == null ? 0 : startRow);
+        return new TableWindow(from, maxRows == null ? EVERY_ROW : wholeRows(merges, region, from, maxRows));
     }
 
     /** Whether the window holds fewer rows than the table has. */
@@ -44,8 +51,7 @@ record TableWindow(int startRow, int rows) {
     }
 
     /** The first row of the merged cell the given row stands inside, or that row itself. */
-    private static int openedOn(IGridTable table, int startRow) {
-        var region = table.getRegion();
+    private static int openedOn(List<IGridRegion> merges, IGridRegion region, int startRow) {
         var first = region.getTop() + startRow;
         // Past the last row there is no window at all, and nothing to open it on.
         if (startRow <= 0 || first > region.getBottom()) {
@@ -53,7 +59,7 @@ record TableWindow(int startRow, int rows) {
         }
         for (var grown = true; grown; ) {
             grown = false;
-            for (var merged : mergesOf(table)) {
+            for (var merged : merges) {
                 if (merged.getTop() < first && merged.getBottom() >= first) {
                     first = Math.max(merged.getTop(), region.getTop());
                     grown = true;
@@ -64,12 +70,11 @@ record TableWindow(int startRow, int rows) {
     }
 
     /** The rows asked for, and then as many more as it takes to reach the end of a merge they would cut. */
-    private static int wholeRows(IGridTable table, int startRow, int maxRows) {
-        var region = table.getRegion();
+    private static int wholeRows(List<IGridRegion> merges, IGridRegion region, int startRow, int maxRows) {
         var last = Math.min(region.getTop() + startRow + maxRows - 1, region.getBottom());
         for (var grown = true; grown; ) {
             grown = false;
-            for (var merged : mergesOf(table)) {
+            for (var merged : merges) {
                 if (merged.getTop() <= last && merged.getBottom() > last) {
                     last = Math.min(merged.getBottom(), region.getBottom());
                     grown = true;
@@ -80,10 +85,10 @@ record TableWindow(int startRow, int rows) {
     }
 
     /** The merged cells of the table itself — the grid holds the merges of every table on the sheet. */
-    private static Iterable<IGridRegion> mergesOf(IGridTable table) {
+    private static List<IGridRegion> mergesOf(IGridTable table) {
         var region = table.getRegion();
         var grid = table.getGrid();
-        var merges = new java.util.ArrayList<IGridRegion>();
+        var merges = new ArrayList<IGridRegion>();
         for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             var merged = grid.getMergedRegion(i);
             if (IGridRegion.Tool.contains(region, merged.getLeft(), merged.getTop())) {

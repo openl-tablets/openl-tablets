@@ -1,11 +1,9 @@
 package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -140,14 +138,14 @@ public class TableEditorsReader {
         var height = window.rows() == TableWindow.EVERY_ROW ? tableModel.getHeight()
                 : Math.min(tableModel.getHeight(), window.rows());
         var width = tableModel.getHeight() > 0 ? tableModel.getCells()[0].length : 0;
-        var covered = new HashSet<CellRef>();
+        var covered = new CoveredCells(height, width);
         for (var row = 0; row < height; row++) {
             for (var column = 0; column < width; column++) {
                 // A cell a merge reaches over holds nothing of its own — the raw read reports it as covered, and
                 // the grid model stands one in for the cell it belongs to rather than describing it.
-                if (!covered.contains(new CellRef(row, column))
+                if (!covered.holds(row, column)
                         && tableModel.getCells()[row][column] instanceof CellModel cellModel) {
-                    markCovered(covered, row, column, cellModel, height, width);
+                    covered.mark(row, column, cellModel);
                     var cell = grid.getCell(cellModel.getColumn(), cellModel.getRow());
                     var editor = editorOf(cell, metaInfoReader);
                     if (editor != null && !alreadySaid(taken, row, column, editor)) {
@@ -195,20 +193,6 @@ public class TableEditorsReader {
             }
         }
         return false;
-    }
-
-    /** Notes the cells a merged one reaches over, so each of them is passed by rather than read. */
-    private static void markCovered(Set<CellRef> covered, int row, int col, CellModel cellModel,
-            int height, int width) {
-        var lastRow = Math.min(row + cellModel.getRowspan(), height);
-        var lastCol = Math.min(col + cellModel.getColspan(), width);
-        for (var r = row; r < lastRow; r++) {
-            for (var c = col; c < lastCol; c++) {
-                if (r > row || c > col) {
-                    covered.add(new CellRef(r, c));
-                }
-            }
-        }
     }
 
     /** The editor the cell asks for, or {@code null} when it takes plain text like any other cell. */

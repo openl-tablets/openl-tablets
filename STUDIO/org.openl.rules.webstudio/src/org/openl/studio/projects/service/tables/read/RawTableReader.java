@@ -1,9 +1,7 @@
 package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
@@ -69,9 +67,6 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         super(RawTableView::builder);
     }
 
-    /** The value that tells {@link TableModel} not to cap rows; used when {@code maxRows} is unspecified. */
-    private static final int NO_ROW_CAP = -1;
-
     /** Picks the editor a cell asks for, the way the Editor picks it. */
     private static final CellEditorSelector EDITOR_SELECTOR = new CellEditorSelector();
 
@@ -120,7 +115,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      */
     public List<List<RawTableCell>> readCells(IOpenLTable openLTable, boolean withStyles) {
         var metaInfoReader = metaInfoReaderOf(openLTable);
-        var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), NO_ROW_CAP, metaInfoReader);
+        var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), TableWindow.EVERY_ROW, metaInfoReader);
         return tableModel == null ? List.of()
                 : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, false, TableModules.none());
     }
@@ -217,20 +212,20 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         int width = height > 0 ? cells[0].length : 0;
 
         // Track which cells have already been covered as merged cells
-        var coveredCells = new HashSet<CellRef>();
+        var coveredCells = new CoveredCells(height, width);
 
         for (var row = 0; row < height; row++) {
             var rowCells = new ArrayList<RawTableCell>();
             for (var col = 0; col < width; col++) {
                 // A cell inside a merged region that is not the one it starts at carries nothing of its own.
-                if (coveredCells.contains(new CellRef(row, col))) {
+                if (coveredCells.holds(row, col)) {
                     rowCells.add(RawTableCell.COVERED_CELL);
                     continue;
                 }
                 var cellModel = (CellModel) cells[row][col];
                 var cell = tableModel.getGridTable().getCell(cellModel.getColumn(), cellModel.getRow());
                 rowCells.add(readCell(cell, cellModel, withStyles, metaInfoReader, withMetaInfo, modules, cellValueReader));
-                markCovered(coveredCells, row, col, cellModel, height, width);
+                coveredCells.mark(row, col, cellModel);
             }
             matrix.add(rowCells);
         }
@@ -262,20 +257,6 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     private static @Nullable String commentOf(ICell cell) {
         var comment = cell.getComment();
         return comment == null ? null : StringUtils.trimToNull(comment.getText());
-    }
-
-    /** Notes the cells a merged one reaches over, so each of them is reported as covered rather than read. */
-    private static void markCovered(Set<CellRef> coveredCells, int row, int col, CellModel cellModel,
-            int height, int width) {
-        var lastRow = Math.min(row + cellModel.getRowspan(), height);
-        var lastCol = Math.min(col + cellModel.getColspan(), width);
-        for (var r = row; r < lastRow; r++) {
-            for (var c = col; c < lastCol; c++) {
-                if (r > row || c > col) {
-                    coveredCells.add(new CellRef(r, c));
-                }
-            }
-        }
     }
 
     /**

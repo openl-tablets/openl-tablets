@@ -240,7 +240,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const [open, setOpen] = useState<OpenAt | null>(null)
     const [saving, setSaving] = useState(false)
     const [asked, setAsked] = useState<TableEditors | null>(null)
-    const [loadingEditors, setLoadingEditors] = useState(false)
+    // Guards the asking against being started again while it is in flight. Nothing on screen turns on it,
+    // so it is held aside rather than in state: the table is large, and a re-render of it is not free.
+    const loadingEditors = useRef(false)
     // Whether the reader asked to close the editor while cells of theirs were still unsaved.
     const [closing, setClosing] = useState(false)
     // Picking another way of writing the cell takes the pointer out of the field, which is not the reader
@@ -252,16 +254,16 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // How the cells take a value is read once, when the reader starts editing, and for the window the table was
     // read as — so nothing is asked while they edit, however many cells they open.
     useEffect(() => {
-        if (!editing || asked !== null || loadingEditors) {
+        if (!editing || asked !== null || loadingEditors.current) {
             return
         }
-        setLoadingEditors(true)
+        loadingEditors.current = true
         getTableEditors(projectId, tableId, { module: moduleName, maxRows })
             .then(setAsked)
             // A table nothing is known about is written as plain text, which is what an empty answer says.
             .catch(() => setAsked(NO_EDITORS))
-            .finally(() => setLoadingEditors(false))
-    }, [asked, editing, loadingEditors, maxRows, moduleName, projectId, tableId])
+            .finally(() => { loadingEditors.current = false })
+    }, [asked, editing, maxRows, moduleName, projectId, tableId])
 
     // Opening another table asks again for the cells of that one, and so does reading more of this one: the
     // rows that were not there before are described by nothing until they are asked about.
@@ -374,6 +376,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         return owners
     }, [written])
 
+    /** The rows the grid is given: the ones the reader sees, with the header left off where it is hidden. */
+    const drawn = useMemo(() => (hidden === 0 ? shown : shown.slice(hidden)), [hidden, shown])
+
     /** The cell a move in the given direction reaches, or null where the table ends. */
     const reached = (from: CellAt, key: string): CellAt | null => {
         const cell = written[from.row]?.[from.column]
@@ -429,7 +434,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
         setPicked({ row, column })
         // Measured while the cell still shows what it holds: once it is open, the field is what stands there.
-        setOpen({ row, column, from: typed ?? heldBy(cell), several: takesSeveralLines(cell.cell, typed ?? heldBy(cell)) })
+        const from = typed ?? heldBy(cell)
+        setOpen({ row, column, from, several: takesSeveralLines(cell.cell, from) })
         onEditingChange(true)
     }, [onEditingChange, written])
 
@@ -592,7 +598,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const at = picked ?? { row: -1, column: -1 }
     // The cell the reader is on, and how far it reaches: a merged cell answers for every row and column it
     // covers, so a line written beside it goes past the whole of it and a line taken away takes all of it.
-    const chosen = picked === null ? undefined : written[at.row]?.[at.column]
+    const chosen = written[at.row]?.[at.column]
     const rowsOfChosen = chosen?.rowspan ?? 1
     const columnsOfChosen = chosen?.colspan ?? 1
 
@@ -665,7 +671,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onOpenCell={canWrite ? (row, column) => openCell(row + hidden, column) : undefined}
                     onOpenUsage={editing ? undefined : onOpenUsage}
                     onPickCell={canWrite ? (row, column) => pick(row + hidden, column) : undefined}
-                    rows={hidden === 0 ? shown : shown.slice(hidden)}
+                    rows={drawn}
                     tableRef={grid}
                     testId={testId}
                 />

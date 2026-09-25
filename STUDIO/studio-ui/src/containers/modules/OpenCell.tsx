@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Dropdown, Popover } from 'antd'
 import { useTranslation } from 'react-i18next'
 import type { TableCellEditor } from '../../services/modules'
@@ -89,7 +89,7 @@ export const OpenCell: React.FC<OpenCellProps> = ({
     }, [address, kind, onCancel])
 
     /** The other ways this cell can be written, which the reader picks from beside it. */
-    const switches = () => {
+    const switches = useMemo(() => {
         // A cell can always be written as a formula, whatever it holds now — as the old editor offered it.
         // The way the cell asks for comes first, and is not offered twice when it is one of those three.
         const others = [...new Set<EditorKind>([...(own === null ? [] : [own]), 'formula', 'multiline', 'text'])]
@@ -106,13 +106,13 @@ export const OpenCell: React.FC<OpenCellProps> = ({
                     onClick: () => setSwitched(other),
                 })),
         }]
-    }
+    }, [kind, own, t])
 
     const inCell = (
         // Another way of writing the value is asked for with the right button, where the Editor asked
         // for it: a button of its own beside the field would widen the cell, and a table whose columns
         // move as a cell is opened is a table the reader loses their place in.
-        <Dropdown menu={{ items: switches() }} onOpenChange={onSwitching} trigger={['contextMenu']}>
+        <Dropdown menu={{ items: switches }} onOpenChange={onSwitching} trigger={['contextMenu']}>
             <div
                 className={styles.open}
                 data-testid="table-cell-switch"
@@ -162,5 +162,3 @@ export const OpenCell: React.FC<OpenCellProps> = ({
         </Popover>
     )
 }
-
-export default OpenCell

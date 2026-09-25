@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
+import { GO_AHEAD } from '../modules/useConfirmBefore'
 import { App, Alert, Button, Checkbox, Empty, Modal, Spin, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { createStyles } from 'antd-style'
@@ -231,7 +232,7 @@ export const LocalChangesView = ({ projectId, moduleName, onRestored, beforeRest
                                                         href="#restore"
                                                         onClick={(event) => {
                                                             event.preventDefault()
-                                                            const ask = beforeRestore ?? (go => go())
+                                                            const ask = beforeRestore ?? GO_AHEAD
                                                             ask(() => setRestoreItem(item))
                                                         }}
                                                     >
