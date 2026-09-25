@@ -13,6 +13,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
@@ -371,7 +372,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
         requireNotEmpty(rows);
         var width = Tool.width(developerView.getRegion());
-        requireBatchLines(rows, position, true, width, ROW_WIDTH_MESSAGE);
+        requireBatchLines(developerView, rows, position, true, width, ROW_WIDTH_MESSAGE);
         // A single multi-row grid insert at the table's top boundary corrupts the region, so allocate the rows one
         // at a time. Do not write or merge them until the complete block exists: a later insertion inside an inline
         // merge would otherwise expand the merge and hide an existing row.
@@ -388,7 +389,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requirePosition(position, 0, Tool.width(developerView.getRegion()));
         requireNotEmpty(columns);
         var height = Tool.height(developerView.getRegion());
-        requireBatchLines(columns, position, false, height, COLUMN_HEIGHT_MESSAGE);
+        requireBatchLines(developerView, columns, position, false, height, COLUMN_HEIGHT_MESSAGE);
         // Allocate the complete block before applying inline merges, for the same reason as row insertion. Column
         // insertion lands the blank at the given index (unlike row insertion).
         for (var i = 0; i < columns.size(); i++) {
@@ -402,7 +403,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireNotEmpty(rows);
         var width = Tool.width(developerView.getRegion());
         var startRow = Tool.height(developerView.getRegion());
-        requireBatchLines(rows, startRow, true, width, ROW_WIDTH_MESSAGE);
+        requireBatchLines(developerView, rows, startRow, true, width, ROW_WIDTH_MESSAGE);
         writeLines(developerView, rows, startRow, true, width, startRow + rows.size());
     }
 
@@ -411,7 +412,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireNotEmpty(columns);
         var height = Tool.height(developerView.getRegion());
         var startColumn = Tool.width(developerView.getRegion());
-        requireBatchLines(columns, startColumn, false, height, COLUMN_HEIGHT_MESSAGE);
+        requireBatchLines(developerView, columns, startColumn, false, height, COLUMN_HEIGHT_MESSAGE);
         writeLines(developerView, columns, startColumn, false, startColumn + columns.size(), height);
     }
 
@@ -877,21 +878,61 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     /**
-     * Validates batch line shapes and permits a content-less line only when every placeholder is covered by a span
-     * declared on an earlier line in the same request.
+     * Validates batch line shapes and permits a content-less line only where something holds it to the table: a
+     * span declared on an earlier line of the same request, or a merge the table already banks across the place
+     * the line is laid down in.
+     *
+     * <p>A line laid down inside a merge is part of the table from the moment it exists, holding nothing of its
+     * own — a Data table's header, banked across every column, keeps a column laid down between two others
+     * attached, and the rules written under it can then be given their values by another action of the same
+     * sequence. A line nothing reaches over is on its own, and blank it would end the table where it stands.
      */
-    private static void requireBatchLines(List<List<RawCellInput>> lines, int startIndex, boolean horizontal,
-                                          int lineLength, String lengthMessageKey) {
+    private static void requireBatchLines(IGridTable view, List<List<RawCellInput>> lines, int startIndex,
+                                          boolean horizontal, int lineLength, String lengthMessageKey) {
         var earlierSpans = new ArrayList<IGridRegion>();
+        // The grid does not change while the request is being read, so its merges are gathered once.
+        var merges = mergesOf(view);
         for (var lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
             var cells = lines.get(lineIndex);
             requireLineLength(cells, lineLength, lengthMessageKey);
             var fixedIndex = startIndex + lineIndex;
-            if (!hasSomeContent(cells) && !isFullyCovered(cells, fixedIndex, horizontal, earlierSpans)) {
+            if (!hasSomeContent(cells) && !isFullyCovered(cells, fixedIndex, horizontal, earlierSpans)
+                    && !reachedByMerge(merges, view.getRegion(), fixedIndex, horizontal)) {
                 throw new BadRequestException("table.action.line.all-empty.message");
             }
             collectLineSpans(cells, fixedIndex, horizontal, earlierSpans);
         }
+    }
+
+    /** The merged regions the table itself holds — the grid carries the merges of every table on the sheet. */
+    private static List<IGridRegion> mergesOf(IGridTable view) {
+        var region = view.getRegion();
+        var grid = view.getGrid();
+        var merges = new ArrayList<IGridRegion>();
+        for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
+            var merged = grid.getMergedRegion(i);
+            if (Tool.contains(region, merged.getLeft(), merged.getTop())
+                    && !grid.isEmpty(merged.getLeft(), merged.getTop())) {
+                merges.add(merged);
+            }
+        }
+        return merges;
+    }
+
+    /**
+     * Whether a merge of the table reaches over the place a line is laid down in, and so grows to hold it.
+     *
+     * <p>Asked of the engine, which decides the same thing when it resizes the merges around a line being
+     * written: the two must answer alike, or a write this refuses is one the grid would have kept whole.
+     *
+     * <p>A row is laid down after the one before it, so the line it takes on the grid is the one before the
+     * position asked for; a column takes the position itself.
+     */
+    private static boolean reachedByMerge(List<IGridRegion> merges, IGridRegion region, int index,
+                                          boolean horizontal) {
+        var line = horizontal ? index - 1 : index;
+        return merges.stream()
+                .anyMatch(merged -> GridTool.isRegionMustBeResized(merged, line, 1, !horizontal, region));
     }
 
     private static boolean isFullyCovered(List<RawCellInput> cells, int fixedIndex, boolean horizontal,

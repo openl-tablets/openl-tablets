@@ -1,0 +1,71 @@
+POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NzYy/tables/6a3ef566747dbf8015b910e7b7bce7b5/actions/batch HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "insert",
+      "target": {
+        "type": "columns",
+        "position": 2,
+        "cells": [
+          [
+            {
+              "value": "",
+              "covered": true
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "operation": "insert",
+      "target": {
+        "type": "rows",
+        "position": 6,
+        "cells": [
+          [
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": "k"
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            },
+            {
+              "value": ""
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}
+
