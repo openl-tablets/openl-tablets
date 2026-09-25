@@ -970,9 +970,11 @@ class RawTableWriterTest {
         // The header is banked across the columns, so it reaches over a column laid down between them — but
         // nothing of this table is banked down its rows, so a blank row is held by nothing and is refused. The
         // Editor lays its columns down before its rows for exactly this reason, and gives the row the value.
-        assertThrows(BadRequestException.class, () -> apply(project, List.of(
+        var actions = List.of(
                 insertRows(3, List.of(row(null, null, null))),
-                insertColumns(1, List.of(row(null, null, null, "k"))))));
+                insertColumns(1, List.of(row(null, null, null, "k"))));
+
+        assertThrows(BadRequestException.class, () -> apply(project, actions));
     }
 
     @Test

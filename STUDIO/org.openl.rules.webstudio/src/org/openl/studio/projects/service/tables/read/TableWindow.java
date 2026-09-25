@@ -57,7 +57,8 @@ record TableWindow(int startRow, int rows) {
         if (startRow <= 0 || first > region.getBottom()) {
             return Math.max(startRow, 0);
         }
-        for (var grown = true; grown; ) {
+        var grown = true;
+        while (grown) {
             grown = false;
             for (var merged : merges) {
                 if (merged.getTop() < first && merged.getBottom() >= first) {
@@ -72,7 +73,8 @@ record TableWindow(int startRow, int rows) {
     /** The rows asked for, and then as many more as it takes to reach the end of a merge they would cut. */
     private static int wholeRows(List<IGridRegion> merges, IGridRegion region, int startRow, int maxRows) {
         var last = Math.min(region.getTop() + startRow + maxRows - 1, region.getBottom());
-        for (var grown = true; grown; ) {
+        var grown = true;
+        while (grown) {
             grown = false;
             for (var merged : merges) {
                 if (merged.getTop() <= last && merged.getBottom() > last) {
