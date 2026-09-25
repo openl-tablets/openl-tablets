@@ -60,8 +60,7 @@ public final class ZipUtils {
             while (ze != null) {
 
                 if (!ze.isDirectory()) {
-                    var unzipped = resolveEntry(target, ze.getName());
-                    extractOneFile(zis, unzipped, target, buffer);
+                    extractOneFile(zis, ze.getName(), target, buffer);
                 }
                 ze = zis.getNextEntry();
             }
@@ -82,16 +81,17 @@ public final class ZipUtils {
     }
 
     private static void extractOneFile(ZipInputStream zis,
-                                       Path targetFile,
+                                       String entryName,
                                        Path outputFolder,
                                        byte[] buffer) throws IOException {
+        var targetFile = resolveEntry(outputFolder, entryName);
         // create all non exists folders
         var folder = Files.createDirectories(targetFile.getParent());
         // A name that stays inside the output folder can still be led out of it by a link on the way, which
         // the name alone does not show. The real path does.
         if (!folder.toRealPath().startsWith(outputFolder.toRealPath()) || Files.isSymbolicLink(targetFile)) {
             throw new IOException("Zip entry '%s' is led outside of the target folder by a link."
-                    .formatted(outputFolder.relativize(targetFile)));
+                    .formatted(entryName));
         }
         try (var fos = Files.newOutputStream(targetFile)) {
             IOUtils.copy(zis, fos, buffer);

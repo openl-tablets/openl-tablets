@@ -18,6 +18,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ZipUtilsTest {
 
@@ -70,18 +72,19 @@ class ZipUtilsTest {
         assertFalse(new File(tempFolder, "absolute.txt").exists());
     }
 
-    @Test
-    void extractAllRejectsAnEntryLedOutOfTheOutputFolderByALink() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"away/escaped.txt", "./away/escaped.txt"})
+    void extractAllRejectsAnEntryLedOutOfTheOutputFolderByALink(String entryName) throws IOException {
         var outputFolder = new File(tempFolder, "out");
         var outside = new File(tempFolder, "outside");
         assertTrue(outside.mkdirs());
         assertTrue(outputFolder.mkdirs());
         assumeSymbolicLink(outputFolder.toPath().resolve("away"), outside.toPath());
-        var archive = zipped("away/escaped.txt");
+        var archive = zipped(entryName);
 
         var error = assertThrows(IOException.class, () -> ZipUtils.extractAll(archive, outputFolder));
 
-        assertEquals("Zip entry 'away/escaped.txt' is led outside of the target folder by a link.",
+        assertEquals("Zip entry '%s' is led outside of the target folder by a link.".formatted(entryName),
                 error.getMessage());
         assertFalse(new File(outside, "escaped.txt").exists());
     }
