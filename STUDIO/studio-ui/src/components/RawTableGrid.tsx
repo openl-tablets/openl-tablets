@@ -2,7 +2,7 @@ import React from 'react'
 import { Tooltip } from 'antd'
 import type { RawTableCell, TableLayout } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
-import { useStyles } from './RawTableGrid.styles'
+import { type RawTableGridStyles, useStyles } from './RawTableGrid.styles'
 
 /** How the screen showing a table marks one of its cells. */
 export interface CellDecoration {
@@ -109,7 +109,8 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
  * cell shown as the formula it was written with is another text altogether, so it is drawn plain — which is
  * what the legacy editor did, where the formula replaced the marked content.
  */
-const cellText = (cell: RawTableCell, formulas: boolean, onOpenUsage?: OpenUsage) => {
+const cellText = (cell: RawTableCell, formulas: boolean, styles: RawTableGridStyles,
+    onOpenUsage?: OpenUsage) => {
     const asFormula = formulas && Boolean(cell.formula)
     const text = formatValue(asFormula ? cell.formula : cell.value)
     const metaInfo = asFormula ? undefined : cell.metaInfo
@@ -118,7 +119,7 @@ const cellText = (cell: RawTableCell, formulas: boolean, onOpenUsage?: OpenUsage
     if (!metaInfo?.usages?.length && !metaInfo?.returnCell) {
         return text
     }
-    return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} text={text} />
+    return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} styles={styles} text={text} />
 }
 
 export const RawTableGrid: React.FC<RawTableGridProps> = ({
@@ -194,7 +195,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                     className={cx(styles.cell, cell.comment !== undefined && styles.commented,
                                         decoration?.className)}
                                 >
-                                    {decoration?.content ?? cellText(cell, !!formulas, onOpenUsage)}
+                                    {decoration?.content ?? cellText(cell, !!formulas, styles, onOpenUsage)}
                                 </td>
                             )
                             // The note is shown while the cell is read. A cell the screen has taken over — one
