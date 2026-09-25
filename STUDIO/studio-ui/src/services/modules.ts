@@ -53,8 +53,16 @@ export const cancelModuleCompilation = async (projectId: string, moduleName: str
     )
 }
 
-/** How many rows of a table are drawn at once; the rest are fetched as the reader asks for them. */
-export const TABLE_PAGE_ROWS = 120
+/**
+ * How many rows of a table are drawn at once; the rest are fetched as the reader asks for them.
+ *
+ * <p>As many as the legacy Editor drew, which this brings the screen into line with. That editor capped a
+ * table at 20 000 cells — `experimental.MAX_NUM_CELLS` in `openl-default.properties`, read by
+ * `HTMLRenderer.getMaxNumRowsToDisplay` — and dropped the rows past the cap. Twenty thousand cells is this
+ * many rows of the ten-column table most rules tables are, so a reader who saw a table whole there sees it
+ * whole here.
+ */
+export const TABLE_PAGE_ROWS = 2000
 
 /**
  * One table as the workbook holds it — the cells with their spans and their Excel styling.

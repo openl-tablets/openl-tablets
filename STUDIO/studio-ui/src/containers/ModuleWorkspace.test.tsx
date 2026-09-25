@@ -53,7 +53,7 @@ vi.mock('../services/modules', () => ({
     getModuleTables: vi.fn(),
     getRawTable: vi.fn(),
     listModules: vi.fn(),
-    TABLE_PAGE_ROWS: 120,
+    TABLE_PAGE_ROWS: 2000,
 }))
 
 // The compilation is followed on the status channel, which this screen is not the place to test: the module is
