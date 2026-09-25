@@ -37,7 +37,7 @@ export const sameCell = (one: CellAt | null, other: CellAt | null): boolean =>
 const cellKey = (rowId: string, columnId: string): string => `${rowId}|${columnId}`
 
 /** The table as the steps leave it, with what each row and column is, and what the reader did to its cells. */
-interface EditedTable {
+export interface EditedTable {
     rows: RawTableCell[][]
     /** What each row is: `o<index>` for one the table was read with, `n<number>` for one the reader added. */
     rowIds: string[]
@@ -457,7 +457,33 @@ export const keyOf = (state: EditedTable, at: CellAt): string =>
  * number, and the value typed is saved without its point.
  */
 export const asRead = (state: EditedTable, at: CellAt): CellAt | null => {
-    const row = readAt(state.rowIds[at.row] ?? '')
-    const column = readAt(state.columnIds[at.column] ?? '')
+    const row = rowAsRead(state, at.row)
+    const column = columnAsRead(state, at.column)
     return row === null || column === null ? null : { row, column }
 }
+
+/** Where the row now sitting here stood in the table that was read, or null when the reader laid it down. */
+export const rowAsRead = (state: EditedTable, row: number): number | null => readAt(state.rowIds[row] ?? '')
+
+/** Where the column now sitting here stood in the table that was read, or null when the reader laid it down. */
+export const columnAsRead = (state: EditedTable, column: number): number | null =>
+    readAt(state.columnIds[column] ?? '')
+
+/**
+ * Where a part of the table beginning at this row of the table that was read begins on screen now.
+ *
+ * <p>A row the reader laid down stood nowhere in the table that was read, so whether it belongs to a part is
+ * settled by where it is drawn: the part begins after the last row that was read before it, wherever that row
+ * has been moved to. A part beginning past the last row the table was read with — the first rule of a table
+ * that holds none — therefore begins right after the headings, which is where such a rule is written.
+ */
+export const rowDrawnFrom = (state: EditedTable, read: number): number => drawnFrom(state.rowIds, read)
+
+/** Where a part beginning at this column of the table that was read begins on screen now. */
+export const columnDrawnFrom = (state: EditedTable, read: number): number => drawnFrom(state.columnIds, read)
+
+const drawnFrom = (ids: string[], read: number): number =>
+    ids.findLastIndex(id => {
+        const at = readAt(id)
+        return at !== null && at < read
+    }) + 1

@@ -1,0 +1,40 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "kind": "declared",
+  "editors": [
+    {
+      "editor": "date"
+    },
+    {
+      "editor": "combo",
+      "choices": [
+        "Male",
+        "Female"
+      ],
+      "displayValues": [
+        "Male",
+        "Female"
+      ]
+    }
+  ],
+  "cells": [],
+  "areas": [
+    {
+      "row": 3,
+      "column": 2,
+      "rows": 1,
+      "columns": null,
+      "editor": 0
+    },
+    {
+      "row": 4,
+      "column": 2,
+      "rows": 1,
+      "columns": null,
+      "editor": 1
+    }
+  ]
+}
+

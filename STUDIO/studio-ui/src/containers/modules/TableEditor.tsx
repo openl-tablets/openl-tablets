@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router-dom'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
 import type { OpenUsage } from '../../components/RawTableCellText'
-import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
+import { getTableEditors, NO_EDITORS, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import type { RawCellStyleInput, RawTableCell, TableLayout } from 'types/tables'
 import type { EditorKind } from './CellValueEditor'
@@ -12,19 +12,57 @@ import { OpenCell } from './OpenCell'
 import { TableEditToolbar } from './TableEditToolbar'
 import { useStyles } from './TableEditor.styles'
 import {
-    asRead,
     blankLine,
     type CellAt,
+    columnAsRead,
+    columnDrawnFrom,
+    type EditedTable,
     compile,
     type EditStep,
     keyOf,
     NO_EDITS,
     redo,
     replay,
+    rowAsRead,
+    rowDrawnFrom,
     sameCell,
     undo,
     withStep,
 } from './tableEdits'
+
+/**
+ * What every cell of the part of the table this one stands in is written with.
+ *
+ * <p>A Data or a Test table, a decision table, a lookup — each declares what a part of it holds and holds it
+ * for however many lines follow, so the answer stands for a cell nobody has written in yet as much as for one
+ * that holds a value.
+ *
+ * <p>A part left open along an axis runs on past the table's edge. A line the reader has laid down stood
+ * nowhere in the table that was read, so it belongs to such a part by where it is drawn; a part of a fixed
+ * size takes no laid-down line at all, being only what the table declared.
+ */
+const areaAt = (asked: TableEditors | null, edited: EditedTable, at: CellAt): TableCellEditor | undefined => {
+    if (asked === null || asked.kind !== 'declared') {
+        return undefined
+    }
+    const row = rowAsRead(edited, at.row)
+    const column = columnAsRead(edited, at.column)
+    const found = asked.areas.find(area =>
+        covers(area.row, area.rows, row, at.row, () => rowDrawnFrom(edited, area.row))
+        && covers(area.column, area.columns, column, at.column, () => columnDrawnFrom(edited, area.column)))
+    return found === undefined ? undefined : asked.editors[found.editor]
+}
+
+/**
+ * Whether a part beginning at `from` and running `size` lines covers the line, along one axis.
+ *
+ * @param read  where the line stood in the table that was read, or null when the reader laid it down
+ * @param drawn where the line is drawn now
+ * @param begins where the part begins on screen, asked for only when the line was laid down
+ */
+const covers = (from: number, size: number | null, read: number | null, drawn: number,
+    begins: () => number): boolean =>
+    read === null ? size === null && drawn >= begins() : read >= from && (size === null || read < from + size)
 
 /**
  * How long a value has to be before its cell is taken to run over more than one line.
@@ -221,7 +259,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         getTableEditors(projectId, tableId, { module: moduleName, maxRows })
             .then(setAsked)
             // A table nothing is known about is written as plain text, which is what an empty answer says.
-            .catch(() => setAsked({ editors: [], cells: []}))
+            .catch(() => setAsked(NO_EDITORS))
             .finally(() => setLoadingEditors(false))
     }, [asked, editing, loadingEditors, maxRows, moduleName, projectId, tableId])
 
@@ -236,14 +274,18 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      *
      * <p>Asked for by where the cell stood in the table that was read, not by where it sits now: a row or a
      * column the reader has laid down since has moved it, and the place it now occupies was another cell's.
-     * A cell of a line the reader added is described by nothing until the table is written and read again.
+     *
+     * <p>A cell the table said nothing of its own about takes what its line takes, where the table declares
+     * its lines — so a row the reader has just laid down in a Data or a Test table is written with the type
+     * its column was declared with rather than as plain text.
      */
     const askedAt = useCallback((at: CellAt): TableCellEditor | undefined => {
-        const was = asRead(edited, at)
-        const found = was === null
+        const row = rowAsRead(edited, at.row)
+        const column = columnAsRead(edited, at.column)
+        const found = row === null || column === null
             ? undefined
-            : asked?.cells?.find(cell => cell.row === was.row && cell.column === was.column)
-        return found === undefined ? undefined : asked?.editors?.[found.editor]
+            : asked?.cells?.find(cell => cell.row === row && cell.column === column)
+        return found === undefined ? areaAt(asked, edited, at) : asked?.editors?.[found.editor]
     }, [asked, edited])
     const dirty = buffer.steps.length > 0
 
@@ -503,14 +545,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * <p>A cell whose type is a range is written as a range even where its text is not one yet — the table says
      * so only once the text parses, and a reader filling in an empty bound needs the dialog before that.
      */
-    const ownKind = (at: CellAt): EditorKind | null => {
+    const ownKind = (at: CellAt, asked: TableCellEditor | undefined): EditorKind | null => {
         // The cell as it now stands, which carries what it was read with wherever the reader has moved it.
         const cell = written[at.row]?.[at.column]
         // A cell written with a formula asks to be written as one, whatever its type would say.
         if (cell?.formula !== undefined) {
             return 'formula'
         }
-        const editor = askedAt(at)?.editor
+        const editor = asked?.editor
         if (editor !== undefined && DRAWN.has(editor)) {
             return editor as EditorKind
         }
@@ -521,16 +563,18 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
         const at = { row, column }
         if (open !== null && sameCell(open, at)) {
+            // What the cell asks to be written with is looked up once and read twice.
+            const asked = askedAt(at)
             return {
                 content: (
                     <OpenCell
                         address={written[at.row]?.[at.column]?.cell}
-                        asked={askedAt(at)}
+                        asked={asked}
                         from={open.from}
                         onCancel={() => closeCell(false)}
                         onCommit={value => closeCell(true, value)}
                         onSwitching={opened => { switching.current = opened }}
-                        own={ownKind(at)}
+                        own={ownKind(at, asked)}
                         several={open.several}
                     />
                 ),

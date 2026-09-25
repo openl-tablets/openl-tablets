@@ -2,6 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "kind": "declared",
   "editors": [
     {
       "editor": "numeric",
@@ -10,46 +11,22 @@ Content-Type: application/json
       "intOnly": true
     }
   ],
-  "cells": [
+  "cells": [],
+  "areas": [
     {
       "row": 5,
       "column": 0,
+      "rows": null,
+      "columns": 1,
       "editor": 0
     },
     {
       "row": 5,
       "column": 1,
-      "editor": 0
-    },
-    {
-      "row": 6,
-      "column": 0,
-      "editor": 0
-    },
-    {
-      "row": 6,
-      "column": 1,
-      "editor": 0
-    },
-    {
-      "row": 7,
-      "column": 0,
-      "editor": 0
-    },
-    {
-      "row": 7,
-      "column": 1,
-      "editor": 0
-    },
-    {
-      "row": 8,
-      "column": 0,
-      "editor": 0
-    },
-    {
-      "row": 8,
-      "column": 1,
+      "rows": null,
+      "columns": 1,
       "editor": 0
     }
   ]
 }
+

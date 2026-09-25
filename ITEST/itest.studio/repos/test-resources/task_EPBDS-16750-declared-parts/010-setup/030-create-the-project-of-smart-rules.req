@@ -1,0 +1,22 @@
+PUT /rest/repos/design/projects/EPBDS-16750-smart HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="templateType"
+
+predefined
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="templateCategory"
+
+tutorials
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="templateName"
+
+Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+OPENED
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

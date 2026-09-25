@@ -546,6 +546,16 @@ public abstract class FunctionalRow implements IDecisionRow {
         return paramsTable;
     }
 
+    /**
+     * The titles the row is shown under, one for each parameter the table gives a title of its own.
+     *
+     * <p>A title stands where the parameter's values are written, so it says where a parameter is written even
+     * in a table no rule has been written in yet. {@code null} once the debug information is removed.
+     */
+    public ILogicalTable getPresentationTable() {
+        return presentationTable;
+    }
+
     public int nValues() {
         return decisionTable.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }

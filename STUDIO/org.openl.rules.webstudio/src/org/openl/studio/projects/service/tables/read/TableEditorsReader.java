@@ -10,8 +10,10 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.TableArea;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -25,6 +27,8 @@ import org.openl.rules.tableeditor.model.NumberRangeEditor.NumberRangeParams;
 import org.openl.rules.tableeditor.model.RangeParam;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.studio.projects.model.tables.DeclaredTableEditorsView;
+import org.openl.studio.projects.model.tables.RawTableEditorsView;
 import org.openl.studio.projects.model.tables.TableCellEditorView;
 import org.openl.studio.projects.model.tables.TableEditorsView;
 
@@ -65,18 +69,76 @@ public class TableEditorsReader {
         var tableModel = gridTable == null ? null
                 : TableModel.initializeTableModel(gridTable, window.rows(), metaInfoReader);
         if (tableModel == null) {
-            return new TableEditorsView(List.of(), List.of());
+            return TableEditorsView.nothing();
         }
-        return collect(tableModel, metaInfoReader, window.rows() == TableWindow.EVERY_ROW ? null : window.rows());
+        Map<TableCellEditorView, Integer> editors = new LinkedHashMap<>();
+        var declared = metaInfoReader.getAreas();
+        // A table that declares what a part of it holds answers for the part, and then only for the cells that
+        // are written some other way than the part they stand in.
+        var taken = byArea(openLTable.getGridTable(), declared, window);
+        var cells = collect(tableModel, metaInfoReader, window, taken, editors);
+        var view = declared.isEmpty() ? RawTableEditorsView.builder()
+                : DeclaredTableEditorsView.builder().areas(taken.stream()
+                        .filter(part -> part.editor() != null)
+                        .map(part -> new DeclaredTableEditorsView.Area(part.row(),
+                                part.column(),
+                                part.rows(),
+                                part.columns(),
+                                indexOf(part.editor(), editors)))
+                        .toList());
+        return view.editors(List.copyOf(editors.keySet())).cells(cells).build();
     }
 
-    /** Walks the window's cells, keeping each editor once and pointing every cell that asks for it at that one. */
-    private TableEditorsView collect(TableModel tableModel, MetaInfoReader metaInfoReader,
-            @Nullable Integer maxRows) {
-        Map<TableCellEditorView, Integer> editors = new LinkedHashMap<>();
+    /**
+     * What the parts the table declares take, by where each of them stands in the window.
+     *
+     * <p>A table declares what a part of it holds — the column of a Data table, the condition of a decision
+     * table, the cells a lookup's rules meet in — and every cell of that part takes it, the ones nobody has
+     * written in yet as much as the ones that hold a value. That is what a line laid down in the table needs
+     * to know, and it is all a table holding no rows has to say.
+     */
+    private List<Taken> byArea(IGridTable table, List<TableArea> declared, TableWindow window) {
+        var taken = new ArrayList<Taken>();
+        for (var area : declared) {
+            var row = area.row() - window.startRow();
+            // A part left open runs on past the table's edge, so the window never cuts it short from below.
+            var rows = area.rows() == TableArea.TO_THE_END ? null : area.rows();
+            if (rows != null && row + rows <= 0) {
+                // The window is a window of rows, and this part is wholly above it.
+                continue;
+            }
+            if (row < 0) {
+                // A part reaching into the window from above begins, for this reading, at its first row.
+                rows = rows == null ? null : rows + row;
+                row = 0;
+            }
+            var columns = area.columns() == TableArea.TO_THE_END ? null : area.columns();
+            taken.add(new Taken(row, area.column(), rows, columns, editorOf(cellOf(table, area), area.metaInfo())));
+        }
+        return taken;
+    }
+
+    /**
+     * A cell of the part whose editor stands for the whole of it: the first one the table holds there, or the
+     * first cell of the part where the table holds nothing there at all.
+     */
+    private static ICell cellOf(IGridTable table, TableArea area) {
+        return table.getCell(Math.clamp(area.column(), 0, table.getWidth() - 1),
+                Math.clamp(area.row(), 0, table.getHeight() - 1));
+    }
+
+    /**
+     * Walks the window's cells, keeping each editor once and pointing every cell that asks for it at that one.
+     *
+     * <p>A cell written the same way as the part it stands in is passed by: the part has said it already, and a
+     * table says the same thing about every cell of a column however many rules are written under it.
+     */
+    private List<TableEditorsView.Cell> collect(TableModel tableModel, MetaInfoReader metaInfoReader,
+            TableWindow window, List<Taken> taken, Map<TableCellEditorView, Integer> editors) {
         var cells = new ArrayList<TableEditorsView.Cell>();
         var grid = tableModel.getGridTable();
-        var height = maxRows == null ? tableModel.getHeight() : Math.min(tableModel.getHeight(), maxRows);
+        var height = window.rows() == TableWindow.EVERY_ROW ? tableModel.getHeight()
+                : Math.min(tableModel.getHeight(), window.rows());
         var width = tableModel.getHeight() > 0 ? tableModel.getCells()[0].length : 0;
         var covered = new HashSet<CellRef>();
         for (var row = 0; row < height; row++) {
@@ -87,22 +149,52 @@ public class TableEditorsReader {
                         && tableModel.getCells()[row][column] instanceof CellModel cellModel) {
                     markCovered(covered, row, column, cellModel, height, width);
                     var cell = grid.getCell(cellModel.getColumn(), cellModel.getRow());
-                    add(cells, row, column, editorOf(cell, metaInfoReader), editors);
+                    var editor = editorOf(cell, metaInfoReader);
+                    if (editor != null && !alreadySaid(taken, row, column, editor)) {
+                        cells.add(new TableEditorsView.Cell(row, column, indexOf(editor, editors)));
+                    }
                 }
             }
         }
-        return new TableEditorsView(List.copyOf(editors.keySet()), cells);
+        return cells;
     }
 
-    /** Points the cell at the editor it asks for, keeping that editor once for the whole table. */
-    private static void add(List<TableEditorsView.Cell> cells, int row, int column,
-            @Nullable TableCellEditorView editor, Map<TableCellEditorView, Integer> editors) {
-        if (editor == null) {
-            return;
-        }
+    /** Where the editor stands among the ones the table needs, keeping it once for the whole table. */
+    private static int indexOf(TableCellEditorView editor, Map<TableCellEditorView, Integer> editors) {
         var next = editors.size();
         var kept = editors.putIfAbsent(editor, next);
-        cells.add(new TableEditorsView.Cell(row, column, kept == null ? next : kept));
+        return kept == null ? next : kept;
+    }
+
+    /**
+     * One part of the window and the editor its cells take.
+     *
+     * @param rows    how many rows it covers, or {@code null} where it runs on past the table's last row
+     * @param columns how many columns it covers, or {@code null} where it runs on past the last column
+     * @param editor  what every cell of it takes, {@code null} where the part takes plain text
+     */
+    private record Taken(int row, int column, @Nullable Integer rows, @Nullable Integer columns,
+            @Nullable TableCellEditorView editor) {
+
+        boolean holds(int row, int column) {
+            return row >= this.row && (rows == null || row < this.row + rows)
+                    && column >= this.column && (columns == null || column < this.column + columns);
+        }
+    }
+
+    /**
+     * Whether the part the cell stands in has already said that the cell is written this way.
+     *
+     * <p>The first part holding the cell answers for it, even where it says the cell takes plain text, so a
+     * part laid over another does not let the one underneath speak for it.
+     */
+    private static boolean alreadySaid(List<Taken> taken, int row, int column, TableCellEditorView editor) {
+        for (Taken part : taken) {
+            if (part.holds(row, column)) {
+                return editor.equals(part.editor());
+            }
+        }
+        return false;
     }
 
     /** Notes the cells a merged one reaches over, so each of them is passed by rather than read. */
@@ -122,9 +214,11 @@ public class TableEditorsReader {
     /** The editor the cell asks for, or {@code null} when it takes plain text like any other cell. */
     private @Nullable TableCellEditorView editorOf(ICell cell, MetaInfoReader metaInfoReader) {
         var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-        if (metaInfo == null) {
-            return null;
-        }
+        return metaInfo == null ? null : editorOf(cell, metaInfo);
+    }
+
+    /** The editor a cell holding what the meta info describes asks for. */
+    private @Nullable TableCellEditorView editorOf(ICell cell, CellMetaInfo metaInfo) {
         var selected = selector.selectEditor(cell, metaInfo);
         return selected == null ? null : describe(selected.getEditorTypeAndMetadata());
     }

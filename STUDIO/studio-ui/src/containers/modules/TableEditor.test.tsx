@@ -3,12 +3,15 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
-import { getTableEditors } from '../../services/modules'
+import { getTableEditors, NO_EDITORS } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
-vi.mock('../../services/modules', () => ({ getTableEditors: vi.fn() }))
+vi.mock('../../services/modules', async importOriginal => ({
+    ...await importOriginal<typeof import('../../services/modules')>(),
+    getTableEditors: vi.fn(),
+}))
 
 const blocker = vi.hoisted(() => ({ state: 'unblocked', proceed: vi.fn(), reset: vi.fn() }))
 vi.mock('react-router-dom', () => ({ useBlocker: () => blocker }))
@@ -63,7 +66,7 @@ const write = async (was: string, becomes: string) => {
 describe('TableEditor', () => {
     beforeEach(() => {
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
-        vi.mocked(getTableEditors).mockResolvedValue({ editors: [], cells: []})
+        vi.mocked(getTableEditors).mockResolvedValue(NO_EDITORS)
     })
 
     it('opens a date cell on the date it holds, whichever of OpenL\'s formats it is written in', async () => {
@@ -72,6 +75,7 @@ describe('TableEditor', () => {
             [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
         ]
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'date' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
@@ -89,6 +93,7 @@ describe('TableEditor', () => {
             [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
         ]
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'date' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
@@ -113,6 +118,7 @@ describe('TableEditor', () => {
             [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
         ]
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'date' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
@@ -279,6 +285,7 @@ describe('TableEditor', () => {
 
         const typed = () => {
             vi.mocked(getTableEditors).mockResolvedValue({
+                ...NO_EDITORS,
                 editors: [{ editor: 'numeric' }, { editor: 'numeric', intOnly: true }],
                 cells: [{ row: 2, column: 2, editor: 0 }, { row: 3, column: 2, editor: 1 }],
             })
@@ -321,6 +328,167 @@ describe('TableEditor', () => {
 
             // The place it stands in was the decimal's; a box that takes only numbers would refuse the words.
             expect(cellOf(2, 2)).toHaveTextContent('a note')
+        })
+    })
+
+    describe('what a cell of a table whose headers declare its columns asks to be written with', () => {
+        // A Data table as the ticket has it: one column declared to hold whole numbers, and one row written.
+        const hours: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Data Integer Hours' }],
+            [{ cell: 'B5', value: 'this' }],
+            [{ cell: 'B6', value: 'Hour' }],
+            [{ cell: 'B7', value: '12' }],
+        ]
+
+        const declared = () => {
+            vi.mocked(getTableEditors).mockResolvedValue({
+                areas: [{ row: 3, column: 0, rows: null, columns: 1, editor: 0 }],
+                cells: [],
+                editors: [{ editor: 'numeric', intOnly: true }],
+                kind: 'declared',
+            })
+            return draw({ rows: hours })
+        }
+
+        it('writes a cell of the row it laid down the way the column it stands in is declared', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('12'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+            await userEvent.dblClick(cellOf(3, 0))
+
+            // The column holds whole numbers however many rows the table has, the new one included, and a
+            // field that took words would let one reach a column the workbook reads as numbers.
+            expect(screen.getByTestId('table-cell-input')).toHaveAttribute('role', 'spinbutton')
+        })
+
+        it('writes a cell the column was already declared for the same way', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.dblClick(screen.getByText('12'))
+
+            expect(screen.getByTestId('table-cell-input')).toHaveAttribute('role', 'spinbutton')
+        })
+
+        it('writes the first cell of a table whose columns are declared and which holds no rows', async () => {
+            // The table as a reader meets it once every row of it has been taken away.
+            vi.mocked(getTableEditors).mockResolvedValue({
+                areas: [{ row: 3, column: 0, rows: null, columns: 1, editor: 0 }],
+                cells: [],
+                editors: [{ editor: 'numeric', intOnly: true }],
+                kind: 'declared',
+            })
+            draw({ rows: hours.slice(0, 3) })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('Hour'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+            await userEvent.dblClick(cellOf(3, 0))
+
+            // The column begins under the title, past the last row the table was read with, and the row just
+            // laid down is the first of it.
+            expect(screen.getByTestId('table-cell-input')).toHaveAttribute('role', 'spinbutton')
+        })
+
+        it('leaves the headings the column is declared in as they are', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            // `this` names the field the column stands for; it is not one of the numbers the column holds.
+            await userEvent.dblClick(screen.getByText('this'))
+
+            expect(screen.getByTestId('table-cell-input')).not.toHaveAttribute('role', 'spinbutton')
+        })
+    })
+
+    describe('what a cell of a lookup asks to be written with', () => {
+        // A lookup as Tutorial 1 has it: the rules run down one condition and across another, and what they
+        // meet in is the return.
+        const lookup: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules Double Premium(String age, String status)', colspan: 3 },
+                { covered: true }, { covered: true }],
+            [{ cell: 'B5', value: 'C1' }, { cell: 'C5', value: 'HC1' }, { cell: 'D5', value: 'RET1' }],
+            [{ cell: 'B6', value: 'age' }, { cell: 'C6', value: 'status' }, { cell: 'D6', value: '' }],
+            [{ cell: 'B7', value: 'String' }, { cell: 'C7', value: 'String' }, { cell: 'D7', value: '' }],
+            [{ cell: 'B8', value: 'Driver Age' }, { cell: 'C8', value: 'Married' }, { cell: 'D8', value: 'Single' }],
+            [{ cell: 'B9', value: 'Young' }, { cell: 'C9', value: '700' }, { cell: 'D9', value: '720' }],
+        ]
+
+        const declared = () => {
+            vi.mocked(getTableEditors).mockResolvedValue({
+                areas: [
+                    // The condition the rules run across, and what they meet the vertical one in. The vertical
+                    // condition holds text, which a screen writes without being told and the table never names.
+                    { row: 4, column: 1, rows: 1, columns: null, editor: 0 },
+                    { row: 5, column: 1, rows: null, columns: null, editor: 1 },
+                ],
+                cells: [],
+                editors: [{ editor: 'combo', choices: ['Married', 'Single']}, { editor: 'numeric' }],
+                kind: 'declared',
+            })
+            return draw({ rows: lookup })
+        }
+
+        it('writes a cell of the row it laid down the way the rules that meet there are written', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('Young'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+            await userEvent.dblClick(cellOf(6, 1))
+
+            // The new rule meets the horizontal one where the returns are, and a return is a number.
+            expect(screen.getByTestId('table-cell-input')).toHaveAttribute('role', 'spinbutton')
+        })
+
+        it('leaves the condition the rules run across where it is when a row is laid down under it', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('Young'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+            await userEvent.dblClick(cellOf(6, 0))
+
+            // The row laid down is a rule of the vertical condition, which holds the driver's age as text.
+            expect(screen.getByTestId('table-cell-input')).not.toHaveAttribute('role', 'spinbutton')
+            expect(screen.queryByRole('combobox')).toBeNull()
+        })
+
+        it('writes a cell of the column it laid down the way the rules that meet there are written', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            // A column laid down beside the last one is another value of the condition the rules run across.
+            await userEvent.click(screen.getByText('720'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_column'))
+            await userEvent.dblClick(cellOf(5, 2))
+
+            expect(screen.getByTestId('table-cell-input')).toHaveAttribute('role', 'spinbutton')
+        })
+
+        it('offers the same choices in the column it laid down as the condition it runs across allows', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('720'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_column'))
+            await userEvent.dblClick(cellOf(4, 2))
+
+            expect(screen.getByRole('combobox')).toBeInTheDocument()
+        })
+
+        it('leaves a heading of the table as it is when a row is laid down under the rules', async () => {
+            declared()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('Young'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+            // `status` names the condition the rules run across; it is no value of the rules themselves.
+            await userEvent.dblClick(screen.getByText('status'))
+
+            expect(screen.getByTestId('table-cell-input')).not.toHaveAttribute('role', 'spinbutton')
         })
     })
 
@@ -488,6 +656,7 @@ describe('TableEditor', () => {
             [{ cell: 'B5', value: 'yes' }, { cell: 'C5', value: 'Good Morning' }],
         ]
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'boolean' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
@@ -506,6 +675,7 @@ describe('TableEditor', () => {
             [{ cell: 'B5', value: 'yes' }, { cell: 'C5', value: 'Good Morning' }],
         ]
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'boolean' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
@@ -523,6 +693,7 @@ describe('TableEditor', () => {
 
     it('takes the whole list of choices at once and says so, as the Editor did', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'multiselect', choices: ['a', 'b'], displayValues: ['Alpha', 'Beta'], separator: ',' }],
             cells: [{ row: 1, column: 1, editor: 0 }],
         })
@@ -550,6 +721,7 @@ describe('TableEditor', () => {
             [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
         ]
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'date' }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
@@ -584,6 +756,7 @@ describe('TableEditor', () => {
 
     it('writes several numbers into an array cell, and lets nothing else in', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'array', separator: ',', entryEditor: 'integer', intOnly: true }],
             cells: [{ row: 1, column: 0, editor: 0 }],
         })
@@ -737,6 +910,7 @@ describe('TableEditor', () => {
 
     it('opens a cell on its field alone, with nothing dropped under it unasked', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
             cells: [{ row: 1, column: 1, editor: 0 }],
         })
@@ -782,6 +956,7 @@ describe('TableEditor', () => {
 
     it('offers a choice standing for none of them, which is how a cell is emptied', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
             cells: [{ row: 1, column: 1, editor: 0 }],
         })
@@ -800,6 +975,7 @@ describe('TableEditor', () => {
 
     it('offers the values a cell is chosen from, as the table said when editing started', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
+            ...NO_EDITORS,
             editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
             cells: [{ row: 1, column: 1, editor: 0 }],
         })
@@ -828,6 +1004,7 @@ describe('TableEditor', () => {
 
     /** A cell the module says holds a range. */
     const rangeCell = () => vi.mocked(getTableEditors).mockResolvedValue({
+        ...NO_EDITORS,
         editors: [{ editor: 'range', entryEditor: 'double' }],
         cells: [{ row: 1, column: 0, editor: 0 }],
     })

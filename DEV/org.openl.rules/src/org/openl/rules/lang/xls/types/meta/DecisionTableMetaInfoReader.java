@@ -20,6 +20,7 @@ import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableBoundNode;
+import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
@@ -28,6 +29,7 @@ import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -411,10 +413,222 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         getMetaInfos().getParametersToReturn().add(Pair.of(parameterStatement, returnStatement));
     }
 
+    /**
+     * The parts of the table its conditions and its actions are written in, each holding what that column was
+     * declared to hold.
+     *
+     * <p>A decision table declares what a condition takes and what an action gives once, in its headers, and
+     * every rule written under them holds it. So a part answers for a rule nobody has written yet: the cells of
+     * a row laid down under the last rule, and the cells of a table whose conditions are declared and which
+     * holds no rules at all.
+     *
+     * <p>Where rules have been written, a part is the cells they were written in, reaching on past the table's
+     * edge — down a Rules table, across a table written the other way round, down and across the cells a
+     * lookup's rules meet in. Where none have, it is read from the title each column is shown under.
+     */
+    @Override
+    public List<TableArea> getAreas() {
+        try {
+            return areas();
+        } catch (Exception e) {
+            // Something unexpected is occurred. Work without the areas.
+            log.error(e.getMessage(), e);
+            return List.of();
+        }
+    }
+
+    private List<TableArea> areas() {
+        var decisionTable = getDecisionTable();
+        if (decisionTable == null) {
+            return List.of();
+        }
+        var rows = new ArrayList<FunctionalRow>();
+        if (decisionTable.getConditionRows() != null) {
+            for (IBaseCondition condition : decisionTable.getConditionRows()) {
+                rows.add((FunctionalRow) condition);
+            }
+        }
+        if (decisionTable.getActionRows() != null) {
+            for (IBaseAction action : decisionTable.getActionRows()) {
+                rows.add((FunctionalRow) action);
+            }
+        }
+        var region = getTableSyntaxNode().getGridTable().getRegion();
+        // Where a lookup's rules run across as well as down, the corner they turn at bounds what is left.
+        var corner = lookupCorner(rows);
+        // Which way the rules of the table run is the table's own to say, and it says so whether or not any
+        // have been written; see DTInfo.
+        var info = decisionTable.getDtInfo();
+        var across = info != null && info.isTransposed();
+        var areas = new ArrayList<TableArea>();
+        for (FunctionalRow funcRow : rows) {
+            areas.addAll(areasOf(funcRow, region, corner, across));
+        }
+        return areas;
+    }
+
+    /**
+     * The parts one condition or one action is written in, each reaching on past the last rule written.
+     *
+     * <p>A condition holds one cell of every rule, so its part runs the way the table grows and is as wide as
+     * the cell it holds. A horizontal condition runs across whichever way the table is written, and the cells a
+     * lookup's rules meet in run both ways.
+     */
+    private static List<TableArea> areasOf(FunctionalRow funcRow, IGridRegion region, Box corner, boolean across) {
+        var params = funcRow.getParams();
+        if (params == null || params.length == 0) {
+            return List.of();
+        }
+        var horizontal = isHorizontal(funcRow);
+        // The cells a lookup's rules meet in are added to by a rule written either way.
+        var meeting = corner != null && funcRow instanceof IBaseAction;
+        var right = meeting || horizontal || across;
+        var down = meeting || !right;
+        // Where each parameter of the row is written, as the first rule written puts it. A part runs on past
+        // the last rule the way the table grows, so only the rule the table begins with settles where it is —
+        // and asking the rest would walk every value of every rule to throw the answer away.
+        var boxes = new Box[params.length];
+        eachValue(funcRow, true, (i, param, storageValue, cells) -> {
+            if (param != null) {
+                boxes[i] = Box.around(boxes[i], cells.getCell(0, 0));
+            }
+        });
+        var areas = new ArrayList<TableArea>();
+        for (var i = 0; i < params.length; i++) {
+            if (params[i] != null && boxes[i] != null) {
+                areas.add(boxes[i].reaching(region, down, right, metaInfoOf(params[i])));
+            }
+        }
+        // A table nobody has written a rule in yet is read from the titles its columns are shown under.
+        return areas.isEmpty() ? declared(funcRow, params, region, corner, horizontal, meeting) : areas;
+    }
+
+    /**
+     * Where a condition or an action would be written in a table that holds no rules, read from its titles.
+     *
+     * <p>A horizontal condition is written across the row its title stands in; anything else is written down
+     * the column of its title, under the last of the horizontal conditions where the table has any. An action
+     * of a lookup has no title of its own — the cells its rules meet in begin where the horizontal conditions
+     * do and run down and across from there.
+     */
+    private static List<TableArea> declared(FunctionalRow funcRow, IParameterDeclaration[] params,
+            IGridRegion region, Box corner, boolean horizontal, boolean meeting) {
+        if (meeting) {
+            // A parameter that did not bind says nothing about what its cells hold.
+            return params[0] == null ? List.of()
+                    : List.of(corner.under().reaching(region, true, true, metaInfoOf(params[0])));
+        }
+        var titles = funcRow.getPresentationTable();
+        if (titles == null) {
+            return List.of();
+        }
+        var areas = new ArrayList<TableArea>();
+        for (var i = 0; i < titles.getHeight(); i++) {
+            // A column shown under one title holds one type, however many parameters the condition reads it as.
+            var param = params[Math.min(i, params.length - 1)];
+            if (param == null) {
+                continue;
+            }
+            var title = Box.around(null, titles.getCell(0, i));
+            // Across the row the title stands in, or down its column — under the titles, or under the
+            // horizontal conditions where the table turns a corner.
+            var part = horizontal ? title : (corner == null ? title : corner).under().sameColumnsAs(title);
+            areas.add(part.reaching(region, !horizontal, horizontal, metaInfoOf(param)));
+        }
+        return areas;
+    }
+
+    /** Where the horizontal conditions of a lookup stand, or {@code null} where the table has none. */
+    private static Box lookupCorner(List<FunctionalRow> rows) {
+        Box corner = null;
+        for (FunctionalRow funcRow : rows) {
+            if (!isHorizontal(funcRow)) {
+                continue;
+            }
+            var titles = funcRow.getPresentationTable();
+            if (titles == null) {
+                continue;
+            }
+            for (var i = 0; i < titles.getHeight(); i++) {
+                corner = Box.around(corner, titles.getCell(0, i));
+            }
+        }
+        return corner;
+    }
+
+    /** Whether the rules of this condition run across the table rather than down it. */
+    private static boolean isHorizontal(FunctionalRow funcRow) {
+        return funcRow.getName() != null && funcRow.getName()
+                .startsWith(DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
+    }
+
+    /**
+     * The cells something is written in, by the workbook's own rows and columns.
+     *
+     * @param top    the first row, the last one being {@code bottom}
+     * @param left   the first column, the last one being {@code right}
+     */
+    private record Box(int top, int left, int bottom, int right) {
+
+        /** The box holding both what was there and the cell, the cell alone where nothing was. */
+        static Box around(Box was, ICell cell) {
+            var merged = cell.getAbsoluteRegion();
+            var added = new Box(merged.getTop(), merged.getLeft(), merged.getBottom(), merged.getRight());
+            return was == null ? added
+                    : new Box(Math.min(was.top, added.top), Math.min(was.left, added.left),
+                            Math.max(was.bottom, added.bottom), Math.max(was.right, added.right));
+        }
+
+        /** The line lying just under this box, as wide as it is. */
+        Box under() {
+            return new Box(bottom + 1, left, bottom + 1, right);
+        }
+
+        /** This box moved into the columns of another, keeping the rows it has. */
+        Box sameColumnsAs(Box other) {
+            return new Box(top, other.left, bottom, other.right);
+        }
+
+        /** The part of the table this box covers, running on past its last cell the ways it is asked to. */
+        TableArea reaching(IGridRegion region, boolean down, boolean right, CellMetaInfo metaInfo) {
+            return new TableArea(top - region.getTop(),
+                    left - region.getLeft(),
+                    down ? TableArea.TO_THE_END : bottom - top + 1,
+                    right ? TableArea.TO_THE_END : this.right - left + 1,
+                    metaInfo);
+        }
+    }
+
     private void saveValueMetaInfo(FunctionalRow funcRow, IGridRegion region) {
-        // Lookup tables are transformed to Rules tables so we cannot predict real column and row of a cell.
-        // In current implementation we run through all of them and if it's current row and cell.
-        for (var c = 0; c < funcRow.nValues(); c++) {
+        eachValue(funcRow, false, (i, param, storageValue, cells) -> {
+            if (storageValue instanceof CompositeMethod) {
+                addMetaInfoForCompositeMethod(region, cells, 0, 0, storageValue);
+            } else if (storageValue instanceof ArrayHolder) {
+                addMetaInfoForArrayHolder(region, cells, storageValue);
+            } else if (param != null) {
+                // Written through the overload that keeps the node usages a cell was already read with.
+                var metaInfo = metaInfoOf(param);
+                var cell = cells.getCell(0, 0);
+                setPreparedMetaInfo(cell.getAbsoluteRow(),
+                        cell.getAbsoluteColumn(),
+                        metaInfo.getDataType(),
+                        metaInfo.isMultiValue());
+            }
+        });
+    }
+
+    /**
+     * Walks every value the row holds, one parameter of one rule at a time.
+     *
+     * <p>Lookup tables are transformed to Rules tables so we cannot predict real column and row of a cell. In
+     * current implementation we run through all of them and if it's current row and cell.
+     *
+     * @param firstRuleOnly reads the rule the table begins with and stops, for a caller that only needs to
+     *                      know where the row is written rather than what every rule of it holds
+     */
+    private static void eachValue(FunctionalRow funcRow, boolean firstRuleOnly, ValueReader reader) {
+        var rules = firstRuleOnly ? Math.min(1, funcRow.nValues()) : funcRow.nValues();
+        for (var c = 0; c < rules; c++) {
             // In the case of errors params will be null
             var params = funcRow.getParams();
             int paramsCount = params == null ? 0 : params.length;
@@ -437,33 +651,31 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     j++;
                 }
                 if (d > 0) {
-                    ILogicalTable logicalTable;
+                    ILogicalTable cells;
                     if (valueCell.isNormalOrientation()) {
-                        logicalTable = valueCell.getSubtable(j - d, 0, d, valueCell.getHeight());
+                        cells = valueCell.getSubtable(j - d, 0, d, valueCell.getHeight());
                     } else {
-                        logicalTable = valueCell.getSubtable(0, j - d, valueCell.getWidth(), d);
+                        cells = valueCell.getSubtable(0, j - d, valueCell.getWidth(), d);
                     }
-
-                    if (storageValue instanceof CompositeMethod) {
-                        addMetaInfoForCompositeMethod(region, logicalTable, 0, 0, storageValue);
-                    } else if (storageValue instanceof ArrayHolder) {
-                        addMetaInfoForArrayHolder(region, logicalTable, storageValue);
-                    } else {
-                        var param = params[i];
-                        if (param != null) {
-                            var type = param.getType();
-                            var multiValue = false;
-                            if (type.isArray()) {
-                                multiValue = true;
-                                type = type.getAggregateInfo().getComponentType(type);
-                            }
-                            var cell = logicalTable.getCell(0, 0);
-                            setPreparedMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), type, multiValue);
-                        }
-                    }
+                    reader.read(i, params[i], storageValue, cells);
                 }
             }
         }
+    }
+
+    /** What a parameter's cell holds: the type it was declared with, and whether one cell holds many of them. */
+    private static CellMetaInfo metaInfoOf(IParameterDeclaration param) {
+        var type = param.getType();
+        if (type.isArray()) {
+            return new CellMetaInfo(type.getAggregateInfo().getComponentType(type), true);
+        }
+        return new CellMetaInfo(type, false);
+    }
+
+    /** Reads one parameter of one rule: what it was declared as, what it holds, and the cells it is written in. */
+    @FunctionalInterface
+    private interface ValueReader {
+        void read(int paramIndex, IParameterDeclaration param, Object storageValue, ILogicalTable cells);
     }
 
     private void addMetaInfoForCompositeMethod(IGridRegion region,

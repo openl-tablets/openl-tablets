@@ -2,6 +2,8 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import org.jspecify.annotations.NonNull;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -22,8 +24,12 @@ public interface ICell {
     int getAbsoluteColumn();
 
     /**
+     * The region of the sheet this cell covers: the merge it belongs to, or the one square it stands on where
+     * it belongs to none. Never {@code null} — a cell always covers somewhere.
+     *
      * @return Absolute region of cell inside the sheet.
      */
+    @NonNull
     IGridRegion getAbsoluteRegion();
 
     int getWidth();
