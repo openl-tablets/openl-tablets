@@ -51,17 +51,25 @@ const decimalsOf = (value: number): number => {
     return 6
 }
 
-/** A measured time in milliseconds, written to as many decimals as it is worth reading to. */
-export const formatTime = (ms: number): string => (Number.isFinite(ms)
-    ? ms.toLocaleString(undefined, { minimumFractionDigits: decimalsOf(ms), maximumFractionDigits: decimalsOf(ms) })
+/**
+ * A measured time in milliseconds, written to as many decimals as it is worth reading to.
+ *
+ * The measured numbers are written in the UI locale, like every other number on a screen, and not in the
+ * locale of the machine the browser runs on: an English screen keeps its decimal point wherever it is read.
+ */
+export const formatTime = (ms: number, locale: string): string => (Number.isFinite(ms)
+    ? new Intl.NumberFormat(locale, {
+        minimumFractionDigits: decimalsOf(ms),
+        maximumFractionDigits: decimalsOf(ms),
+    }).format(ms)
     : '—')
 
 /** A measured rate, written in whole units. */
-export const formatRate = (perSecond: number): string => (Number.isFinite(perSecond)
-    ? Math.round(perSecond).toLocaleString(undefined, { maximumFractionDigits: 0 })
+export const formatRate = (perSecond: number, locale: string): string => (Number.isFinite(perSecond)
+    ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Math.round(perSecond))
     : '—')
 
 /** How many times slower a measurement is than the fastest of those compared, written to two decimals. */
-export const formatRatio = (ratio: number): string => (Number.isFinite(ratio)
-    ? ratio.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+export const formatRatio = (ratio: number, locale: string): string => (Number.isFinite(ratio)
+    ? new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(ratio)
     : '—')

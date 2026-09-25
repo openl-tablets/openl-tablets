@@ -70,6 +70,21 @@ The build writes two pages (`build.rollupOptions.input`):
   `t('system:tabs.repositories')`. A key that no bundle defines renders as the key itself, and component tests mock `t`
   so they cannot notice — `src/locales/lookups.test.ts` resolves every literal `t('…')` and `i18nKey` in the sources
   against the bundles and fails on the first miss.
+- **Formatting numbers and dates**: a number or a date on a screen is written in the **UI language**, never in the
+  locale of the machine the browser runs on. Take the language from `useTranslation()` — `const locale =
+  i18n.resolvedLanguage ?? i18n.language` — and pass it to `new Intl.NumberFormat(locale, …)` or
+  `new Intl.DateTimeFormat(locale, …)`; see `formatSize` in `containers/projects/FileTree.tsx` and the formatters
+  in `containers/execution/benchmarkMetrics.ts`. Never call `toLocaleString()`, `toLocaleDateString()` or
+  `new Intl.*(undefined, …)`: those follow the reader's operating system, so an English screen shows `6,84` and
+  `2 284` on a Russian or German machine, and every test that reads such a number passes on CI and fails on that
+  machine. A formatter kept out of a component takes the locale as an argument rather than reading it itself.
+  A test mocks `react-i18next` with the language alongside `t`:
+  `useTranslation: () => ({ i18n: { language: 'en', resolvedLanguage: 'en' }, t })`.
+  What the machine is asked for on purpose is what the *reader* supplies rather than reads:
+  `Intl.DateTimeFormat().resolvedOptions().timeZone` in `services/repositories.ts`, because the backend wants the
+  reader's own zone, and `datePickerFormatForLocale()` called without a locale in `PropertyValueInput` and
+  `TypedTableValueInput`, because a date is typed into those pickers in the pattern the reader is used to. Both
+  are deliberate; anything else that follows the machine is a defect.
 - **Permissions**: `SecurityProvider` derives system flags from the backend. Use `PermissionContext` and `SystemContext`
   to gate features (e.g., `isUserManagementEnabled`, `isExternalAuthSystem`).
 - **Forms**: `components/form` wraps Ant Design inputs. `hooks/useIsFormChanged.ts` drives dirty-state detection.
