@@ -238,10 +238,12 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   screenful at a time (Ant Design's `Tree` takes `height`, `itemHeight` and `scrollWidth`); and a table is laid
   out at the width its values need rather than squeezed into the screen, which otherwise wraps every value into
   a tower of lines and multiplies the pixels the browser has to paint.
-- **A cell of a long list reads no styles of its own.** antd-style's `useStyles()` copies the whole theme for
-  every component that calls it, about 40 KB each: a table of test results with a hook in every cell ran the
-  browser out of memory. The list reads the styles once and hands them to its cells — `useValueStyles()` and
-  `ValueCell` show how — and a cell draws a plain value without a hook at all.
+- **A component drawn many times over reads no styles of its own.** antd-style's `useStyles()` copies the whole
+  theme for every component that calls it, about 40 KB each: a table of test results with a hook in every cell
+  ran the browser out of memory. Whatever draws the many — a list, a table, a tree — reads the styles once and
+  hands them down as a prop, typed off the hook (`ReturnType<typeof useStyles>['styles']`). `useValueStyles()`
+  with `ValueCell` shows it for the values of a test run, `RawTableGrid` with `RawTableCellText` for the cells
+  of a workbook table. A part that needs no class of its own takes no hook at all.
 - **A tree is built as far as it is opened.** Ant Design's `Tree` walks every node of its `treeData` each time
   it is drawn, open or closed: a whole test value of 1.77 million nodes ran the browser out of memory before its
   first line was read. A node is given its children only once the reader opens it, and lists them a step at a

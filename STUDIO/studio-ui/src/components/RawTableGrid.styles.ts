@@ -102,3 +102,12 @@ export const useStyles = createStyles(({ css, token }) => ({
         }
     `,
 }))
+
+/**
+ * The table's styles, as the table that draws it reads them.
+ *
+ * <p>Read once per table and handed to the cells. `useStyles()` copies the whole theme for every component
+ * that calls it, so a hook in a cell is a copy of the theme per cell — a table of a few hundred marked cells
+ * then costs tens of megabytes and the tab stops answering while it is drawn.
+ */
+export type RawTableGridStyles = ReturnType<typeof useStyles>['styles']

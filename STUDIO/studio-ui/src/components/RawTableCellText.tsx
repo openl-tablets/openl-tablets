@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tooltip } from 'antd'
 import type { RawTableCell, RawTableCellUsage } from 'types/tables'
-import { useStyles } from './RawTableGrid.styles'
+import type { RawTableGridStyles } from './RawTableGrid.styles'
 
 /** Where a usage leads, when the screen showing the table can follow it. */
 export type OpenUsage = (usage: RawTableCellUsage) => void
@@ -11,6 +11,8 @@ interface RawTableCellTextProps {
     text: string
     /** What the compiler knows about the cell; without it the text is shown as it stands. */
     metaInfo: RawTableCell['metaInfo']
+    /** The table's styles, read once by the table: a cell of a long table reads none of its own. */
+    styles: RawTableGridStyles
     /** Follows a usage to the table it names; absent when this screen cannot go there. */
     onOpenUsage?: OpenUsage | undefined
 }
@@ -21,8 +23,7 @@ interface RawTableCellTextProps {
  * Each piece says what it stands for in a tooltip, and one that names a table is a way into that table.
  * The cell a decision table returns carries the star the Editor drew for it.
  */
-export const RawTableCellText: React.FC<RawTableCellTextProps> = ({ text, metaInfo, onOpenUsage }) => {
-    const { styles } = useStyles()
+export const RawTableCellText: React.FC<RawTableCellTextProps> = ({ text, metaInfo, styles, onOpenUsage }) => {
     const usages = metaInfo?.usages ?? []
 
     if (usages.length === 0 && !metaInfo?.returnCell) {
