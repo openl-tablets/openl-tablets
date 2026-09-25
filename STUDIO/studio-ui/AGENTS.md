@@ -244,6 +244,10 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   hands them down as a prop, typed off the hook (`ReturnType<typeof useStyles>['styles']`). `useValueStyles()`
   with `ValueCell` shows it for the values of a test run, `RawTableGrid` with `RawTableCellText` for the cells
   of a workbook table. A part that needs no class of its own takes no hook at all.
+- **What is being written lives in the cell it is written in.** A table draws every cell it holds on every
+  render, so a draft kept in the table's own state redraws all of them at every keystroke — on a 22 000-cell
+  test table a key cost an extra frame, 67 ms against 34. `OpenCell` in `containers/modules` owns the draft
+  and the way the value is being written, and hands the table back only the value it keeps.
 - **A tree is built as far as it is opened.** Ant Design's `Tree` walks every node of its `treeData` each time
   it is drawn, open or closed: a whole test value of 1.77 million nodes ran the browser out of memory before its
   first line was read. A node is given its children only once the reader opens it, and lists them a step at a
