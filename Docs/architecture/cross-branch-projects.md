@@ -195,6 +195,21 @@ The mapping scan must follow these rules:
 - Discovery must not call lazy audit accessors such as author, date, comment or version.
 - Descriptor and Excel discovery must use Git tree and blob revisions for reuse and invalidation.
 
+The mapping lock is the innermost lock of a mapped view, and the view never holds it while it calls the Git
+repository:
+
+- A save holds the repository lock while the access check of its files reads the mapping. A thread that held the
+  mapping lock while it waited for the repository would deadlock with it, and every request of that repository with
+  them.
+- A rebuild scans the repository without the mapping lock and takes it only to put the new mapping in use. Rebuilds
+  run one at a time, and a mapping that a save, a deletion or an added project changes during the scan makes the
+  rebuild scan again. So an older scan never replaces a newer mapping.
+- A save to a new folder maps the folder before it writes it, since the save translates its paths by that mapping. A
+  rebuild keeps the mapping until the save ends, because its scan cannot find the folder earlier. The end of the save
+  makes a rebuild that is still scanning scan again.
+- Only the first mapping of a view is waited for. An expired mapping keeps being served while another thread
+  rebuilds it, because the reader may hold the repository lock that the rebuild waits for.
+
 ## Index Contract
 
 ### Snapshot data

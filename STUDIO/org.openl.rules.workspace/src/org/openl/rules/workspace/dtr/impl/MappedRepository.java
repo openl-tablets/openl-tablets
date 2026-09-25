@@ -11,9 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import javax.xml.xpath.XPathExpressionException;
@@ -62,7 +65,16 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     private Repository delegate;
 
     private final AtomicReference<ProjectIndexCache> indexCache = new AtomicReference<>();
+    /*
+     * The locks are taken in this order: rebuildLock, then the locks of the delegate, then indexLock. indexLock is
+     * never held while the delegate is called: a save holds the lock of the delegate while it checks its files
+     * against the index, so a thread holding indexLock while it waits for the delegate would deadlock with it.
+     */
     private final ReadWriteLock indexLock = new ReentrantReadWriteLock();
+    /** Lets one thread at a time rebuild the index, so a rebuild never publishes an index older than the last one. */
+    private final Lock rebuildLock = new ReentrantLock();
+    /** The folders being saved under a new mapping. A rebuild keeps their mapping, which its scan may not find yet. */
+    private final Set<FileData> foldersBeingMapped = ConcurrentHashMap.newKeySet();
     private BoundedCache<String, ProjectIndex> indexesByTreeRevision =
             new BoundedCache<>(TREE_REVISION_CACHE_CAPACITY);
     private BoundedCache<String, String> projectNamesByDescriptorRevision =
@@ -136,7 +148,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
 
         var internal = new ArrayList<FileData>();
         for (ProjectInfo project : mapping.getProjects()) {
@@ -153,26 +165,26 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public FileData check(String name) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         var check = delegate.check(toInternal(mapping, name));
         return toExternal(mapping, check);
     }
 
     @Override
     public FileItem read(String name) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         return toExternal(mapping, delegate.read(toInternal(mapping, name)));
     }
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         var fileItemsInternal = new ArrayList<FileItem>(fileItems.size());
         for (FileItem fi : fileItems) {
             fileItemsInternal.add(new FileItem(toInternal(mapping, fi.getData()), fi.getStream()));
@@ -184,7 +196,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         var deleted = delegate.delete(toInternal(mapping, data));
         if (deleted) {
             removeMapping(data.getName());
@@ -205,14 +217,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             delegate.setListener(null);
         } else {
             delegate.setListener(() -> {
-                indexLock.writeLock().lock();
                 try {
-                    var updatedIndex = readExternalToInternalMap(delegate);
-                    indexCache.set(new ProjectIndexCache(updatedIndex));
+                    rebuildIndex();
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
-                } finally {
-                    indexLock.writeLock().unlock();
                 }
 
                 callback.onChange();
@@ -222,7 +230,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         return toExternal(mapping, delegate.listHistory(toInternal(mapping, name)));
     }
 
@@ -231,7 +239,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                                       String globalFilter,
                                       boolean techRevs,
                                       Pageable pageable) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         return toExternal(mapping,
                 ((SearchableRepository) delegate)
                         .listHistory(toInternal(mapping, name), globalFilter, techRevs, pageable));
@@ -239,13 +247,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         return toExternal(mapping, delegate.checkHistory(toInternal(mapping, name), version));
     }
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         return toExternal(mapping, delegate.readHistory(toInternal(mapping, name), version));
     }
 
@@ -259,20 +267,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        ProjectIndex mapping;
-        if (isUpdateConfigNeeded(destData)) {
-            mapping = updateConfigFile(destData);
-        } else {
-            mapping = getUpToDateMapping(true);
-        }
-
-        return toExternal(mapping,
-                delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+        return withFolderMapping(destData, mapping -> toExternal(mapping,
+                delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version)));
     }
 
     @Override
     public List<FileData> listFolders(String path) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
 
         var internal = new ArrayList<FileData>();
         for (ProjectInfo project : mapping.getProjects()) {
@@ -295,7 +296,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         return toExternal(mapping, delegate.listFiles(toInternal(mapping, path), version));
     }
 
@@ -303,14 +304,47 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     public FileData save(FileData folderData,
                          Iterable<FileItem> files,
                          ChangesetType changesetType) throws IOException {
-        ProjectIndex mapping;
-        if (isUpdateConfigNeeded(folderData)) {
-            mapping = updateConfigFile(folderData);
-        } else {
-            mapping = getUpToDateMapping(true);
+        return withFolderMapping(folderData, mapping -> toExternal(mapping,
+                delegate.save(toInternal(mapping, folderData), toInternal(mapping, folderData, files), changesetType)));
+    }
+
+    /**
+     * Calls the delegate with the mapping of the folder the data is written to.
+     *
+     * <p>A folder written under a new mapping is mapped before the call. A rebuild keeps that mapping until the call
+     * ends: its scan may not find the folder until the delegate has written it.
+     */
+    private <T> T withFolderMapping(FileData folderData, MappedCall<T> call) throws IOException {
+        if (!isUpdateConfigNeeded(folderData)) {
+            return call.apply(getUpToDateMapping());
         }
-        return toExternal(mapping,
-                delegate.save(toInternal(mapping, folderData), toInternal(mapping, folderData, files), changesetType));
+        foldersBeingMapped.add(folderData);
+        try {
+            return call.apply(updateConfigFile(folderData));
+        } finally {
+            stopKeepingMapping(folderData);
+        }
+    }
+
+    /**
+     * Lets a rebuild drop the mapping of the folder, which the delegate has written or failed to write. A rebuild
+     * that scanned the repository before the write scans it again.
+     */
+    private void stopKeepingMapping(FileData folderData) {
+        indexLock.writeLock().lock();
+        try {
+            foldersBeingMapped.remove(folderData);
+            var cache = indexCache.get();
+            indexCache.set(new ProjectIndexCache(cache.index(), cache.lastUpdateTime()));
+        } finally {
+            indexLock.writeLock().unlock();
+        }
+    }
+
+    /** A call of the delegate, whose paths are translated with the given mapping. */
+    @FunctionalInterface
+    private interface MappedCall<T> {
+        T apply(ProjectIndex mapping) throws IOException;
     }
 
     @Override
@@ -345,7 +379,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                                                                   String path) throws IOException {
         var internalPath = path;
         if (!path.isEmpty()) {
-            internalPath = toInternal(getUpToDateMapping(true), path);
+            internalPath = toInternal(getUpToDateMapping(), path);
         }
         return ((BranchRepository) delegate).getBranchTreeRevisions(branches, internalPath);
     }
@@ -399,24 +433,25 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public void addMapping(String internal) throws IOException {
+        if (internal.endsWith("/")) {
+            internal = internal.substring(0, internal.length() - 1);
+        }
+
+        var fullName = internal + "/rules.xml";
+        var fileData = delegate.check(fullName);
+        ProjectInfo project;
+        if (fileData != null) {
+            var descriptorItem = delegate.read(fullName);
+            try (var is = descriptorItem.getStream()) {
+                project = new ProjectInfo(getProjectName(is, internal), internal);
+            }
+        } else {
+            project = new ProjectInfo(internal.substring(internal.lastIndexOf('/') + 1), internal);
+        }
+        refreshExpiredMapping();
         indexLock.writeLock().lock();
         try {
-            if (internal.endsWith("/")) {
-                internal = internal.substring(0, internal.length() - 1);
-            }
-
-            var fullName = internal + "/rules.xml";
-            var fileData = delegate.check(fullName);
-            ProjectInfo project;
-            if (fileData != null) {
-                var descriptorItem = delegate.read(fullName);
-                try (var is = descriptorItem.getStream()) {
-                    project = new ProjectInfo(getProjectName(is, internal), internal);
-                }
-            } else {
-                project = new ProjectInfo(internal.substring(internal.lastIndexOf('/') + 1), internal);
-            }
-            var externalToInternal = getUpToDateMapping(false);
+            var externalToInternal = currentMappingCopy();
             List<ProjectInfo> projectsWithSameName = externalToInternal.getProjects()
                     .stream()
                     .filter(p -> p.getName().equals(project.getName()))
@@ -436,9 +471,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public void removeMapping(String external) throws IOException {
+        refreshExpiredMapping();
         indexLock.writeLock().lock();
         try {
-            var externalToInternal = getUpToDateMapping(false);
+            var externalToInternal = currentMappingCopy();
             Predicate<ProjectInfo> mapped = projectInfo -> external.equals(baseFolder + getMappedName(projectInfo));
             var projects = externalToInternal.getProjects();
             var discardedFolders = projects.stream().filter(mapped).map(ProjectInfo::getPath).toList();
@@ -469,42 +505,55 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * Get the current in-memory index with refresh check.
      * The index is regenerated from the repository every 30 minutes.
      *
-     * @param withLock if true and refresh is needed then WriteLock will be acquired during refreshing. If false, lock
-     *                 should be managed outside.
      * @return a copy of the current project index
      */
-    private ProjectIndex getUpToDateMapping(boolean withLock) {
-        if (!withLock) {
-            var projectIndex = indexCache.get();
-            if (projectIndex == null || projectIndex.isExpired()) {
-                refreshMapping();
-            }
-            return indexCache.get().getCopy();
-        }
-
+    private ProjectIndex getUpToDateMapping() {
         refreshExpiredMapping();
         // Use read lock for reading the current index
         indexLock.readLock().lock();
         try {
-            return indexCache.get().getCopy();
+            return currentMappingCopy();
         } finally {
             indexLock.readLock().unlock();
         }
     }
 
-    /** Rebuilds the mapping when it has expired. */
+    /** Returns a copy of the index in use. The caller has refreshed the index and holds {@link #indexLock}. */
+    private ProjectIndex currentMappingCopy() {
+        return indexCache.get().getCopy();
+    }
+
+    /**
+     * Rebuilds the mapping when there is none yet or when it has expired.
+     *
+     * <p>The first mapping is waited for. An expired one is rebuilt only when no other thread is rebuilding it, and is
+     * served meanwhile: the caller may hold a lock of the delegate that the other rebuild waits for.
+     */
     private void refreshExpiredMapping() {
-        var projectIndex = indexCache.get();
-        if (projectIndex == null || projectIndex.isExpired()) {
-            indexLock.writeLock().lock();
+        var cache = indexCache.get();
+        if (cache == null) {
+            buildFirstMapping();
+        } else if (cache.isExpired() && rebuildLock.tryLock()) {
             try {
-                projectIndex = indexCache.get();
-                if (projectIndex == null || projectIndex.isExpired()) {
+                // Another thread may have rebuilt it since
+                if (indexCache.get().isExpired()) {
                     refreshMapping();
                 }
             } finally {
-                indexLock.writeLock().unlock();
+                rebuildLock.unlock();
             }
+        }
+    }
+
+    /** Builds the first mapping, unless another thread has built it meanwhile. */
+    private void buildFirstMapping() {
+        rebuildLock.lock();
+        try {
+            if (indexCache.get() == null) {
+                refreshMapping();
+            }
+        } finally {
+            rebuildLock.unlock();
         }
     }
 
@@ -636,10 +685,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         return internalPath;
     }
 
-    public void initialize() throws IOException {
-        if (indexCache.get() == null) {
-            refreshMappingWithLock();
-        }
+    public void initialize() {
+        buildFirstMapping();
     }
 
     @Override
@@ -796,48 +843,70 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         return FileTypeHelper.isExcelFile(fileName);
     }
 
-    private void refreshMappingWithLock() throws IOException {
+    /** Rebuilds the mapping, or leaves an empty one when the repository cannot be read. */
+    private void refreshMapping() {
+        rebuildLock.lock();
+        var scannedOver = indexCache.get();
+        try {
+            rebuildIndex();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            // A mapping changed during the scan is newer than the empty one
+            publish(scannedOver, new ProjectIndex());
+        } finally {
+            rebuildLock.unlock();
+        }
+    }
+
+    /**
+     * Scans the repository and puts the mapping it finds in use.
+     *
+     * <p>One thread at a time rebuilds the mapping. The scan reads the repository without holding
+     * {@link #indexLock}, so the current mapping stays readable meanwhile.
+     *
+     * <p>A save, a deletion or an added project may change the mapping during the scan. The scan is older than such a
+     * change, so the repository is scanned again, and the change is kept.
+     */
+    private void rebuildIndex() throws IOException {
+        rebuildLock.lock();
+        try {
+            ProjectIndexCache scannedOver;
+            ProjectIndex index;
+            do {
+                scannedOver = indexCache.get();
+                index = readExternalToInternalMap(delegate);
+            } while (!publish(scannedOver, index));
+        } finally {
+            rebuildLock.unlock();
+        }
+    }
+
+    /**
+     * Puts the index in use, unless the mapping has changed since the one given was in use. The folders being saved
+     * keep their new mapping.
+     */
+    private boolean publish(@Nullable ProjectIndexCache scannedOver, ProjectIndex index) {
         indexLock.writeLock().lock();
         try {
-            refreshMapping();
+            foldersBeingMapped.forEach(folderData -> map(index, folderData));
+            return indexCache.compareAndSet(scannedOver, new ProjectIndexCache(index));
         } finally {
             indexLock.writeLock().unlock();
         }
     }
 
-    private void refreshMapping() {
-        try {
-            var updatedIndex = readExternalToInternalMap(delegate);
-            indexCache.set(new ProjectIndexCache(updatedIndex));
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            indexCache.set(new ProjectIndexCache(new ProjectIndex()));
-        }
-    }
-
     private ProjectIndex updateConfigFile(FileData folderData) {
-        var mappingData = folderData.getAdditionalData(FileMappingData.class);
-        if (mappingData == null) {
+        if (folderData.getAdditionalData(FileMappingData.class) == null) {
             log.warn("Unexpected behavior: FileMappingData is absent.");
-            return getUpToDateMapping(true);
+            return getUpToDateMapping();
         }
 
+        // We must ensure that our externalToInternal.getProjects() is up to date.
+        refreshExpiredMapping();
         indexLock.writeLock().lock();
         try {
-            // We must ensure that our externalToInternal.getProjects() is up to date.
-            var projectIndex = getUpToDateMapping(false);
-            List<ProjectInfo> projects = projectIndex.getProjects();
-
-            var project = findProject(projectIndex, folderData);
-            var externalPath = mappingData.getExternalPath();
-            String projectName = externalPath.startsWith(baseFolder) ? externalPath.substring(baseFolder.length())
-                    : externalPath;
-            if (project.isPresent()) {
-                project.get().setName(projectName);
-            } else {
-                var info = new ProjectInfo(projectName, mappingData.getInternalPath());
-                projects.add(info);
-            }
+            var projectIndex = currentMappingCopy();
+            map(projectIndex, folderData);
 
             // Update in-memory index
             indexCache.set(new ProjectIndexCache(projectIndex));
@@ -845,6 +914,16 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         } finally {
             indexLock.writeLock().unlock();
         }
+    }
+
+    /** Maps the folder the data is written to under the external path of its {@link FileMappingData}. */
+    private void map(ProjectIndex projectIndex, FileData folderData) {
+        var mappingData = Objects.requireNonNull(folderData.getAdditionalData(FileMappingData.class));
+        var externalPath = mappingData.getExternalPath();
+        String projectName = externalPath.startsWith(baseFolder) ? externalPath.substring(baseFolder.length())
+                : externalPath;
+        findProject(projectIndex, folderData).ifPresentOrElse(project -> project.setName(projectName),
+                () -> projectIndex.getProjects().add(new ProjectInfo(projectName, mappingData.getInternalPath())));
     }
 
 
@@ -876,7 +955,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         var mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
             var internalPath = mappingData.getInternalPath();
-            var externalPath = baseFolder + getUpToDateMapping(true).getProjects()
+            var externalPath = baseFolder + getUpToDateMapping().getProjects()
                     .stream()
                     .filter(p -> p.getPath().equals(internalPath))
                     .findFirst()
@@ -927,7 +1006,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public String findMappedName(String internalPath) {
-        var mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping();
         Optional<ProjectInfo> projectInfo = mapping.getProjects()
                 .stream()
                 .filter(p -> internalPath.equals(p.getPath()) || internalPath.startsWith(p.getPath() + "/"))

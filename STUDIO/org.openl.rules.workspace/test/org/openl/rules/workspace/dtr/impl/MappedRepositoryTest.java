@@ -1,23 +1,37 @@
 package org.openl.rules.workspace.dtr.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -29,6 +43,7 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -270,6 +285,282 @@ class MappedRepositoryTest {
             }
         } finally {
             mapped.close();
+        }
+    }
+
+    /**
+     * A save holds the lock of the repository while it checks its files against the mapping, as the access check of
+     * a secured repository does. Meanwhile the change listener of an earlier save rebuilds the mapping, which reads
+     * the repository. Neither may wait for the other, or both requests hang with every request that needs them.
+     */
+    @Test
+    void saveAndMappingRebuildDoNotWaitForEachOther() throws Exception {
+        var repositoryLock = new ReentrantReadWriteLock();
+        var repository = branchRepository("main", "rules/project", "Project", "descriptor-1", "tree-1");
+        var listener = new AtomicReference<Listener>();
+        doAnswer(invocation -> {
+            listener.set(invocation.getArgument(0));
+            return null;
+        }).when(repository).setListener(any());
+        var mapped = MappedRepository.create(repository, "DESIGN/");
+        mapped.setListener(() -> {
+        });
+        var project = mapped.listFolders("DESIGN/").getFirst();
+
+        var saving = new CountDownLatch(1);
+        var rebuilding = new CountDownLatch(1);
+        when(repository.getBranchTreeRevisions(List.of("main"), "")).thenAnswer(invocation -> {
+            rebuilding.countDown();
+            repositoryLock.readLock().lock();
+            try {
+                return Map.of("main", new BranchTreeRevision("main-tip", "tree-2"));
+            } finally {
+                repositoryLock.readLock().unlock();
+            }
+        });
+        when(repository.save(any(FileData.class), any(), eq(ChangesetType.FULL))).thenAnswer(invocation -> {
+            repositoryLock.writeLock().lock();
+            try {
+                saving.countDown();
+                await(rebuilding);
+                Iterable<FileItem> files = invocation.getArgument(1);
+                files.forEach(file -> {
+                });
+                return invocation.getArgument(0);
+            } finally {
+                repositoryLock.writeLock().unlock();
+            }
+        });
+        Iterable<FileItem> checkedFiles = () -> new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                try {
+                    mapped.check(project.getName());
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+                return false;
+            }
+
+            @Override
+            public FileItem next() {
+                throw new NoSuchElementException();
+            }
+        };
+
+        var failure = new AtomicReference<Exception>();
+        var save = Thread.ofPlatform().daemon().start(() -> {
+            try {
+                mapped.save(project, checkedFiles, ChangesetType.FULL);
+            } catch (IOException | RuntimeException e) {
+                failure.set(e);
+            }
+        });
+        await(saving);
+        var onChange = Objects.requireNonNull(listener.get(), "The mapped repository listens to the repository");
+        var rebuild = Thread.ofPlatform().daemon().start(onChange::onChange);
+        save.join(Duration.ofSeconds(5));
+        rebuild.join(Duration.ofSeconds(5));
+
+        assertFalse(save.isAlive() || rebuild.isAlive(), "The save and the rebuild of the mapping wait for each other");
+        assertNull(failure.get());
+        ((Closeable) mapped).close();
+    }
+
+    /**
+     * A project is added while the change listener of an earlier save scans the repository. The scan listed the
+     * folders before the project was written, so its mapping is older than the one with the added project and must
+     * not replace it.
+     */
+    @Test
+    void aProjectAddedDuringARebuildStaysMapped() throws Exception {
+        writeProject("rules/first", "<project><name>First</name></project>");
+        var listener = new AtomicReference<Listener>();
+        var delegate = watchedRepository(listener);
+        var mapped = MappedRepository.create(delegate, "DESIGN/");
+        try {
+            mapped.setListener(() -> {
+            });
+            var scanned = new CountDownLatch(1);
+            var added = new CountDownLatch(1);
+            var firstScan = new AtomicBoolean(true);
+            doAnswer(invocation -> {
+                var folders = invocation.callRealMethod();
+                if (firstScan.getAndSet(false)) {
+                    scanned.countDown();
+                    await(added);
+                }
+                return folders;
+            }).when(delegate).listFolders("rules/");
+
+            var onChange = Objects.requireNonNull(listener.get(), "The mapped repository listens to the repository");
+            var rebuild = Thread.ofPlatform().daemon().start(onChange::onChange);
+            await(scanned);
+            writeProject("rules/second", "<project><name>Second</name></project>");
+            ((FolderMapper) mapped).addMapping("rules/second");
+            added.countDown();
+            rebuild.join(Duration.ofSeconds(5));
+
+            assertFalse(rebuild.isAlive(), "The rebuild of the mapping did not end");
+            assertEquals(List.of("First", "Second"),
+                    businessNames(mapped.listFolders("DESIGN/")).stream().sorted().toList());
+        } finally {
+            ((Closeable) mapped).close();
+        }
+    }
+
+    /**
+     * A new project is saved under a folder of its own choice. The change listener of an earlier save scans the
+     * repository before the new folder is written, so the scan does not find it. The project must stay mapped while it
+     * is saved, since the save and every other request translate its paths by the mapping.
+     */
+    @Test
+    void aProjectBeingSavedStaysMappedWhileTheMappingIsRebuilt() throws Exception {
+        writeProject("rules/first", "<project><name>First</name></project>");
+        var listener = new AtomicReference<Listener>();
+        var delegate = watchedRepository(listener);
+        var mapped = MappedRepository.create(delegate, "DESIGN/");
+        try {
+            mapped.setListener(() -> {
+            });
+            var saving = new CountDownLatch(1);
+            var rebuilt = new CountDownLatch(1);
+            doAnswer(invocation -> {
+                saving.countDown();
+                await(rebuilt);
+                return invocation.callRealMethod();
+            }).when(delegate).save(any(FileData.class), any(), any(ChangesetType.class));
+            var failure = new AtomicReference<Exception>();
+            var save = Thread.ofPlatform().daemon().start(() -> saveSecondProject(mapped, failure));
+            await(saving);
+            Objects.requireNonNull(listener.get(), "The mapped repository listens to the repository").onChange();
+            var mappedWhileSaving = ((FolderMapper) mapped).findMappedName("rules/second");
+            rebuilt.countDown();
+            save.join(Duration.ofSeconds(5));
+
+            assertTrue(mappedWhileSaving != null && mappedWhileSaving.startsWith("DESIGN/Second:"),
+                    "The rebuild dropped the project being saved, which is mapped as " + mappedWhileSaving);
+            assertFalse(save.isAlive(), "The save did not end");
+            assertNull(failure.get());
+            assertEquals(List.of("First", "Second"),
+                    businessNames(mapped.listFolders("DESIGN/")).stream().sorted().toList());
+        } finally {
+            ((Closeable) mapped).close();
+        }
+    }
+
+    /**
+     * The mapping is rebuilt while a new project is saved under a folder of its own choice. The scan does not find the
+     * folder, which is written only after the scan has listed the folders, and the save ends before the scan does. The
+     * project must stay mapped after the save.
+     */
+    @Test
+    void aProjectSavedDuringARebuildStaysMapped() throws Exception {
+        writeProject("rules/first", "<project><name>First</name></project>");
+        var listener = new AtomicReference<Listener>();
+        var delegate = watchedRepository(listener);
+        var mapped = MappedRepository.create(delegate, "DESIGN/");
+        try {
+            mapped.setListener(() -> {
+            });
+            var saving = new CountDownLatch(1);
+            var scanned = new CountDownLatch(1);
+            var saved = new CountDownLatch(1);
+            doAnswer(invocation -> {
+                saving.countDown();
+                await(scanned);
+                return invocation.callRealMethod();
+            }).when(delegate).save(any(FileData.class), any(), any(ChangesetType.class));
+            var firstScan = new AtomicBoolean(true);
+            doAnswer(invocation -> {
+                var folders = invocation.callRealMethod();
+                if (firstScan.getAndSet(false)) {
+                    scanned.countDown();
+                    await(saved);
+                }
+                return folders;
+            }).when(delegate).listFolders("rules/");
+
+            var failure = new AtomicReference<Exception>();
+            var save = Thread.ofPlatform().daemon().start(() -> {
+                saveSecondProject(mapped, failure);
+                saved.countDown();
+            });
+            await(saving);
+            var onChange = Objects.requireNonNull(listener.get(), "The mapped repository listens to the repository");
+            var rebuild = Thread.ofPlatform().daemon().start(onChange::onChange);
+            save.join(Duration.ofSeconds(5));
+            rebuild.join(Duration.ofSeconds(5));
+
+            assertFalse(save.isAlive() || rebuild.isAlive(), "The save or the rebuild of the mapping did not end");
+            assertNull(failure.get());
+            assertEquals(List.of("First", "Second"),
+                    businessNames(mapped.listFolders("DESIGN/")).stream().sorted().toList());
+        } finally {
+            ((Closeable) mapped).close();
+        }
+    }
+
+    @Test
+    void addedFolderIsMappedByItsDescriptorOrItsName() throws IOException {
+        var delegate = new FileSystemRepository();
+        delegate.setRoot(root);
+        delegate.initialize();
+        var mapped = (FolderMapper) MappedRepository.create(delegate, "DESIGN/");
+        try {
+            // Written after the mapping was built, so only adding them maps them
+            writeProject("rules/described", "<project><name>Described</name></project>");
+            Files.createDirectories(root.resolve("rules/plain"));
+
+            mapped.addMapping("rules/described/");
+            mapped.addMapping("rules/plain");
+
+            assertEquals(List.of("Described", "plain"), businessNames(((Repository) mapped).listFolders("DESIGN/")));
+            assertThrows(IOException.class, () -> mapped.addMapping("rules/described"));
+        } finally {
+            ((Closeable) mapped).close();
+        }
+    }
+
+    @Test
+    void unreadableRepositoryIsMappedAsEmpty() throws Exception {
+        var repository = branchRepository("main", "rules/project", "Project");
+        when(repository.listFolders("")).thenThrow(new IOException("The repository cannot be read"));
+
+        var mapped = MappedRepository.create(repository, "DESIGN/");
+        try {
+            assertTrue(mapped.listFolders("DESIGN/").isEmpty());
+        } finally {
+            ((Closeable) mapped).close();
+        }
+    }
+
+    private static void await(CountDownLatch latch) throws InterruptedException {
+        assertTrue(latch.await(5, TimeUnit.SECONDS), "The other thread did not get there in time");
+    }
+
+    /** A repository of {@link #root}, whose change listener the test notifies itself. */
+    private FileSystemRepository watchedRepository(AtomicReference<Listener> listener) throws IOException {
+        var delegate = spy(new FileSystemRepository());
+        delegate.setRoot(root);
+        delegate.initialize();
+        doAnswer(invocation -> {
+            listener.set(invocation.getArgument(0));
+            return null;
+        }).when(delegate).setListener(any());
+        return delegate;
+    }
+
+    /** Saves the project Second into the rules/second folder, which the mapping does not know yet. */
+    private static void saveSecondProject(Repository mapped, AtomicReference<Exception> failure) {
+        var folder = fileData("DESIGN/Second");
+        folder.addAdditionalData(new FileMappingData("DESIGN/Second", "rules/second"));
+        var descriptor = new FileItem("DESIGN/Second/rules.xml",
+                new ByteArrayInputStream("<project><name>Second</name></project>".getBytes(StandardCharsets.UTF_8)));
+        try {
+            mapped.save(folder, List.of(descriptor), ChangesetType.FULL);
+        } catch (IOException | RuntimeException e) {
+            failure.set(e);
         }
     }
 
