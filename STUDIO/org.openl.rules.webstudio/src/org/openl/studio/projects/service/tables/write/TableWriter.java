@@ -242,11 +242,11 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     private void insertColumns(IGridTable gridTable, int nCols, int beforeCol) {
-        new UndoableInsertColumnsAction(nCols, beforeCol, 0, getMetaInfoWriter()).doAction(gridTable);
+        new UndoableInsertColumnsAction(nCols, beforeCol, getMetaInfoWriter()).doAction(gridTable);
     }
 
     private void insertRows(IGridTable gridTable, int nRows, int beforeRow) {
-        new UndoableInsertRowsAction(nRows, beforeRow, 0, getMetaInfoWriter()).doAction(gridTable);
+        new UndoableInsertRowsAction(nRows, beforeRow, getMetaInfoWriter()).doAction(gridTable);
     }
 
     @SuppressWarnings("rawtypes")

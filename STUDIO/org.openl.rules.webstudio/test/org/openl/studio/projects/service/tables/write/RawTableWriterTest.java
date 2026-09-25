@@ -581,6 +581,53 @@ class RawTableWriterTest {
     }
 
     @Test
+    void laysDownOneRowInsideAGroupMergedInTheFirstColumn() throws IOException {
+        var project = writeProject("grouped-first-column", new String[][]{
+                {HEADER, null, null},
+                {"String", "code", "alpha"},
+                {"String", "text", "beta"},
+                {"String", "hour", "gamma"},
+                {"int", "rate", "delta"}
+        });
+        apply(project, merge(1, 0, 3, 1));
+
+        apply(project, insertRow(2, List.of(new RawCellInput(null, null, null, true),
+                new RawCellInput("id", null, null, null),
+                new RawCellInput("epsilon", null, null, null))));
+
+        var source = reload(project);
+        // One row was asked for and one row is laid down. Counting the height of the group the first column
+        // holds laid down three, of which two stayed blank — and a blank row either splits the table or, once
+        // a caller fills it, is written over the rules that stood at those indexes.
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(4), source.get(1).getFirst().rowspan());
+        assertEquals("id", value(source, 2, 1));
+        assertEquals("text", value(source, 3, 1));
+        assertEquals("rate", value(source, 5, 1));
+    }
+
+    @Test
+    void laysDownOneColumnBesideOneMergedInTheFirstRow() throws IOException {
+        var project = writeProject("grouped-first-row", new String[][]{
+                {HEADER, null, null, null},
+                {"String", "code", "alpha", "one"},
+                {"int", "hour", "gamma", "two"}
+        });
+        apply(project, merge(0, 1, 1, 2));
+
+        apply(project, insertColumn(1, List.of(new RawCellInput(null, null, null, true),
+                new RawCellInput("x", null, null, null),
+                new RawCellInput("y", null, null, null))));
+
+        var source = reload(project);
+        // As with rows: the width of the merge the first row holds is none of the count's business.
+        assertEquals(5, width(source));
+        assertEquals("x", value(source, 1, 1));
+        assertEquals("code", value(source, 1, 2));
+        assertEquals("one", value(source, 1, 4));
+    }
+
+    @Test
     void growsAMergeOverAColumnLaidDownInsideIt() throws IOException {
         var project = writeProjectWithMergedHeader("banked", new String[][]{
                 {HEADER, null, null},

@@ -12,15 +12,11 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
  */
 public class UndoableInsertColumnsAction extends UndoableInsertAction {
 
-    private final int nCols;
     private final int beforeCol;
-    private final int row;
 
-    public UndoableInsertColumnsAction(int nCols, int beforeCol, int row, MetaInfoWriter metaInfoWriter) {
-        super(metaInfoWriter);
-        this.nCols = nCols;
+    public UndoableInsertColumnsAction(int nCols, int beforeCol, MetaInfoWriter metaInfoWriter) {
+        super(metaInfoWriter, nCols);
         this.beforeCol = beforeCol;
-        this.row = row;
     }
 
     public static boolean canInsertColumns(IGridTable table, int nCols) {
@@ -41,29 +37,17 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
 
     @Override
     protected boolean canPerformAction(IGridTable table) {
-        return UndoableInsertColumnsAction.canInsertColumns(table, getNumberToInsert(table));
+        return UndoableInsertColumnsAction.canInsertColumns(table, lines);
     }
 
     @Override
-    protected int getNumberToInsert(IGridTable table) {
-        var cellWidth = getOriginalTable(table).getCell(beforeCol, row).getWidth();
-        var colToInsert = nCols;
-        if (cellWidth > 1) { // merged cell
-            colToInsert += cellWidth - 1;
-        }
-        return colToInsert;
+    protected IUndoableGridTableAction performAction(IGridRegion fullTableRegion, IGridTable table) {
+        return GridTool.insertColumns(lines, beforeCol, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 
     @Override
-    protected IUndoableGridTableAction performAction(int numberToInsert,
-                                                     IGridRegion fullTableRegion,
-                                                     IGridTable table) {
-        return GridTool.insertColumns(numberToInsert, beforeCol, fullTableRegion, table.getGrid(), metaInfoWriter);
-    }
-
-    @Override
-    protected GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert) {
-        return new GridRegionAction(gridRegion, COLUMNS, INSERT, ActionType.EXPAND, numberToInsert);
+    protected GridRegionAction getGridRegionAction(IGridRegion gridRegion) {
+        return new GridRegionAction(gridRegion, COLUMNS, INSERT, ActionType.EXPAND, lines);
     }
 
 }
