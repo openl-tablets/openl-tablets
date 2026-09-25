@@ -1,4 +1,5 @@
 GET /rest/projects/ZGVzaWduOkVQQkRTLTE2NzE1/tests/summary?failuresOnly=true&failures=5 HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Accept: application/json
+X-OpenL-Test-Retry: yes
 
