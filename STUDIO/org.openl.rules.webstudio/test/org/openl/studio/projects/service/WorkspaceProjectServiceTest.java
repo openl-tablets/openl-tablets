@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -509,6 +510,44 @@ class WorkspaceProjectServiceTest {
         service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().save(true).build());
 
         verify(fileData).setComment("Save PricingProject");
+        verify(webStudio).saveProject(project);
+    }
+
+    @Test
+    void save_answers_once_the_project_index_publishes_the_saved_revision() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.refreshBranch("design", "feature/rates"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspaceWith(designTimeRepository),
+                projectStateValidator, webStudio);
+        var project = savableProjectOnBranch(acl, projectStateValidator);
+
+        service.updateProjectStatus(project, ProjectStatusUpdateModel.builder().save(true).build());
+
+        var order = inOrder(webStudio, designTimeRepository);
+        order.verify(webStudio).saveProject(project);
+        order.verify(designTimeRepository).refreshBranch("design", "feature/rates");
+    }
+
+    @Test
+    void save_reports_a_revision_the_project_index_did_not_publish() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.refreshBranch("design", "feature/rates"))
+                .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("The index is down")));
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspaceWith(designTimeRepository),
+                projectStateValidator, webStudio);
+        var project = savableProjectOnBranch(acl, projectStateValidator);
+        var model = ProjectStatusUpdateModel.builder().save(true).build();
+
+        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project, model));
+
+        assertEquals("openl.error.409.project.indexing.incomplete.message", exception.getErrorCode());
         verify(webStudio).saveProject(project);
     }
 
@@ -2542,6 +2581,32 @@ class WorkspaceProjectServiceTest {
         var project = new RulesProject(user, localRepository, null, repository, designFileData, mock(LockEngine.class));
         project.setFileData(designFileData);
         return project;
+    }
+
+    private RulesProject savableProjectOnBranch(RepositoryAclService acl, ProjectStateValidator projectStateValidator) {
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getName()).thenReturn("Design");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        var fileData = mock(FileData.class);
+        when(project.isModified()).thenReturn(true);
+        when(project.getFileData()).thenReturn(fileData);
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(project.getBranch()).thenReturn("feature/rates");
+        when(projectStateValidator.canSave(project)).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        return project;
+    }
+
+    private static UserWorkspace workspaceWith(DesignTimeRepository designTimeRepository) {
+        var userWorkspace = mock(UserWorkspace.class);
+        var user = mock(WorkspaceUser.class);
+        when(userWorkspace.getUser()).thenReturn(user);
+        when(user.getUserName()).thenReturn("jane");
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        return userWorkspace;
     }
 
     private void fillProject(RulesProject project, Repository repository, String name, String folderPath) {

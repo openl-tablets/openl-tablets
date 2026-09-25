@@ -41,6 +41,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ValidationException;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -90,7 +91,7 @@ class ProjectDescriptorWriteValidationTest {
         ProjectStateValidator stateValidator = mock(ProjectStateValidator.class);
         when(stateValidator.canModify(project)).thenReturn(true);
         root = new ProjectFileRoot(project, acl, stateValidator, mock(ProjectFileLookupService.class),
-                () -> new UserInfo("user1"));
+                () -> new UserInfo("user1"), mock(DesignTimeRepository.class));
 
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),

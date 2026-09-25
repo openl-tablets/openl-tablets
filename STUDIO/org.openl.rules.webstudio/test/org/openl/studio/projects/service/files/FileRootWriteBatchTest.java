@@ -34,6 +34,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -78,7 +79,8 @@ class FileRootWriteBatchTest {
         when(project.getFolderPath()).thenReturn("Project1");
         var author = new UserInfo("user1");
         var root = new ProjectFileRoot(project, mock(AclProjectsHelper.class),
-                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class), () -> author);
+                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class), () -> author,
+                mock(DesignTimeRepository.class));
 
         root.writeBatch("data", List.of(item("data/a.txt")), ChangesetType.FULL, "Replace data");
 
@@ -102,7 +104,7 @@ class FileRootWriteBatchTest {
         when(project.getFolderPath()).thenReturn("Project1");
         var root = new ProjectFileRoot(project, mock(AclProjectsHelper.class),
                 mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class),
-                () -> new UserInfo("user1"));
+                () -> new UserInfo("user1"), mock(DesignTimeRepository.class));
 
         root.writeBatch("", List.of(item("a.txt")), ChangesetType.DIFF, "Upload files");
 

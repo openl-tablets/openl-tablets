@@ -159,8 +159,9 @@ response. The framework reads one of them:
 
 Retry is what makes a step wait for the cross-branch project index (see
 [`Docs/architecture/cross-branch-projects.md`](../Docs/architecture/cross-branch-projects.md)). Project creation,
-deletion and branch operations all wait for the index themselves and answer only once it published, so a step that
-follows one of them needs no retry. Two writes do not wait, and the step reading their outcome must retry:
+deletion, saves, file writes to a closed project and branch operations all wait for the index themselves and answer
+only once it published, so a step that follows one of them needs no retry. Two writes do not wait, and the step
+reading their outcome must retry:
 
 - a file written through the repository files API (`POST /repos/{repo}/files/...`) — it plants or removes a project
   without going through project creation, so the index learns of it through repository change monitoring;

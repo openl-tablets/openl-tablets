@@ -120,6 +120,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 lockForEditing(root, path);
                 resource.setContent(validatedContent);
             }
+            awaitIndexIfClosed(root);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.update.failed.message");
         } finally {
@@ -143,6 +144,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 descriptorCleaner.unregisterModules(projectRoot.getProject(), found);
             }
             found.delete();
+            awaitIndexIfClosed(root);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.delete.failed.message");
         } finally {
@@ -165,6 +167,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
                     true, "file.copy.path.conflict.message");
             copyArtefact(source, targetFolder, FilePaths.name(destinationPath));
+            awaitIndexIfClosed(root);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.copy.failed.message");
         } finally {
@@ -190,6 +193,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             String fileName = FilePaths.name(destinationPath);
             copyArtefact(source, targetFolder, fileName);
             deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
+            awaitIndexIfClosed(root);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.move.failed.message");
         } finally {
@@ -215,6 +219,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                         createFolders, "file.path.not.folder.message");
                 targetFolder.addResource(FilePaths.name(path), validatedContent);
             }
+            awaitIndexIfClosed(root);
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.create.failed.message");
         } finally {
@@ -462,6 +467,17 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private static void unlockIfClosed(FileRoot root) {
         if (root instanceof ProjectFileRoot projectRoot) {
             projectRoot.unlockIfClosed();
+        }
+    }
+
+    /**
+     * Waits until the project index publishes a modification committed directly to a closed project, so
+     * the next read of the project sees it. A repository mount and an opened project have nothing to wait
+     * for.
+     */
+    private static void awaitIndexIfClosed(FileRoot root) {
+        if (root instanceof ProjectFileRoot projectRoot) {
+            projectRoot.awaitIndexIfClosed();
         }
     }
 
