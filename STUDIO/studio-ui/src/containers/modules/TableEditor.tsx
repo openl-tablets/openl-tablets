@@ -86,18 +86,20 @@ interface TableEditorProps {
     tableId: string
     /** Module the table is read through, so its editors are answered from the same module. */
     moduleName?: string | undefined
-    /** First row of the window the table was read as, which the editors are read for as well. */
-    startRow?: number | undefined
-    /** How many rows that window holds. */
+    /** How many rows the table was read as, which the editors are read for as well. */
     maxRows?: number | undefined
     /** Whether the whole table is on screen, which adding a column needs: it carries a cell per row. */
     whole?: boolean | undefined
     /** The table body as it was read, which the pending edits are replayed over. */
     rows: RawTableCell[][]
     /**
-     * How the table is laid out, where the screen numbers the lines of its data. Given in the table's own
-     * coordinates, so a screen drawing it without its header rows counts those out itself.
+     * How many rows at the top of the table are kept out of sight — what "Show Header" puts away.
+     *
+     * <p>The table is still given whole, and every row keeps the number it has in the table: a row is written
+     * where the reader made the edit, not where the screen happened to draw it.
      */
+    hiddenRows?: number | undefined
+    /** How the table is laid out, where the screen numbers the lines of its data, in the table's own rows. */
     layout?: TableLayout | undefined
     /** Draw the formula a cell was written with rather than the value it computed. */
     formulas?: boolean | undefined
@@ -136,10 +138,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     projectId,
     tableId,
     moduleName,
-    startRow,
     maxRows,
     whole = true,
     rows,
+    hiddenRows,
     layout,
     formulas,
     onOpenUsage,
@@ -156,6 +158,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
+    // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
+    const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
     const [buffer, setBuffer] = useState(NO_EDITS)
     const [picked, setPicked] = useState<CellAt | null>(null)
     // The colour the reader is holding the pointer over in a palette, shown on the picked cell until they
@@ -187,16 +191,16 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             return
         }
         setLoadingEditors(true)
-        getTableEditors(projectId, tableId, { module: moduleName, startRow, maxRows })
+        getTableEditors(projectId, tableId, { module: moduleName, maxRows })
             .then(setAsked)
             // A table nothing is known about is written as plain text, which is what an empty answer says.
             .catch(() => setAsked({ editors: [], cells: []}))
             .finally(() => setLoadingEditors(false))
-    }, [asked, editing, loadingEditors, maxRows, moduleName, projectId, startRow, tableId])
+    }, [asked, editing, loadingEditors, maxRows, moduleName, projectId, tableId])
 
     // Opening another table asks again for the cells of that one, and so does reading more of this one: the
     // rows that were not there before are described by nothing until they are asked about.
-    useEffect(() => { setAsked(null) }, [tableId, startRow, maxRows])
+    useEffect(() => { setAsked(null) }, [tableId, maxRows])
 
     /** What the cell at the given place asks to be written with, as the table said when editing started. */
     const askedAt = useCallback((row: number, column: number): TableCellEditor | undefined => {
@@ -237,6 +241,17 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         rowsShown[picked.row] = row
         return rowsShown
     }, [written, picked, preview])
+    /**
+     * How the grid numbers the lines of data it draws.
+     *
+     * <p>The table says where its data begins among its own rows, and the grid counts from the first row it
+     * is given — so the rows kept out of sight come off that line. A transposed table numbers its columns,
+     * which putting rows away does not move.
+     */
+    const numbering = useMemo(() => (layout === undefined || hidden === 0 || layout.transposed
+        ? layout
+        : { ...layout, firstDataLine: layout.firstDataLine - hidden }), [hidden, layout])
+
     const blocked = useMemo(() => {
         const line = blankLine(edited)
         return line === null ? null : t(`browser.module.edit_blank_${line}`)
@@ -286,7 +301,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         const cell = written[from.row]?.[from.column]
         const down = key === 'ArrowDown' ? (cell?.rowspan ?? 1) : (key === 'ArrowUp' ? -1 : 0)
         const along = key === 'ArrowRight' ? (cell?.colspan ?? 1) : (key === 'ArrowLeft' ? -1 : 0)
-        return ownerOf.get(`${from.row + down}:${from.column + along}`) ?? null
+        const owner = ownerOf.get(`${from.row + down}:${from.column + along}`)
+        // The rows kept out of sight are not the reader's to move into: they are not drawn.
+        return owner === undefined || owner.row < hidden ? null : owner
     }
 
     /** What the keyboard does with the table, as the old editor did it. */
@@ -347,13 +364,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (openAt == null) {
             return
         }
-        const row = written.findIndex(cells => cells.some(cell => cell.cell === openAt))
+        // A cell among the rows kept out of sight is not drawn, so there is nothing to open.
+        const row = written.findIndex((cells, index) => index >= hidden && cells.some(cell => cell.cell === openAt))
         const column = row < 0 ? -1 : (written[row] ?? []).findIndex(cell => cell.cell === openAt)
         if (row >= 0 && column >= 0) {
             openCell(row, column)
         }
         onOpenedAt?.()
-    }, [onOpenedAt, openAt, openCell, written])
+    }, [hidden, onOpenedAt, openAt, openCell, written])
 
     /**
      * Closes the open cell, keeping what was written into it or leaving it as it was.
@@ -648,17 +666,19 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                 />
             )}
             <div className={canvasClassName}>
+                {/* The grid draws the rows it is given and numbers them from the first of them, so the rows
+                    kept out of sight are taken off here and put back on every place it answers with. */}
                 <RawTableGrid
-                    decorate={decorate}
+                    decorate={(cell, row, column) => decorate(cell, row + hidden, column)}
                     formulas={formulas}
-                    layout={layout}
+                    layout={numbering}
                     // While the table is being edited its cells lead nowhere: a click is meant for the cell
                     // under it, and a reader aiming at one must not be taken to another table by mistake.
                     onKeyDown={canWrite ? onKeyDown : undefined}
-                    onOpenCell={canWrite ? openCell : undefined}
+                    onOpenCell={canWrite ? (row, column) => openCell(row + hidden, column) : undefined}
                     onOpenUsage={editing ? undefined : onOpenUsage}
-                    onPickCell={canWrite ? pick : undefined}
-                    rows={shown}
+                    onPickCell={canWrite ? (row, column) => pick(row + hidden, column) : undefined}
+                    rows={hidden === 0 ? shown : shown.slice(hidden)}
                     tableRef={grid}
                     testId={testId}
                 />
