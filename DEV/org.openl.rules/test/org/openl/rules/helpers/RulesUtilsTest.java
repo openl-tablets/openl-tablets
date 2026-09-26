@@ -704,378 +704,322 @@ class RulesUtilsTest {
 
     @Test
     void testSmallByteType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            byte[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testByteTypeSmall(array, 1));
-            assertEquals(25, instance.testByteTypeSmall(array, 2));
-            assertEquals(32, instance.testByteTypeSmall(array, 3));
-            assertEquals(35, instance.testByteTypeSmall(array, 4));
+        byte[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testByteTypeSmall(array, 1));
+        assertEquals(25, instance.testByteTypeSmall(array, 2));
+        assertEquals(32, instance.testByteTypeSmall(array, 3));
+        assertEquals(35, instance.testByteTypeSmall(array, 4));
 
-            instance.testByteTypeSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testByteTypeSmall(array, 0));
     }
 
     @Test
     void testSmallShortType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            short[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testShortTypeSmall(array, 1));
-            assertEquals(25, instance.testShortTypeSmall(array, 2));
-            assertEquals(32, instance.testShortTypeSmall(array, 3));
-            assertEquals(35, instance.testShortTypeSmall(array, 4));
+        short[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testShortTypeSmall(array, 1));
+        assertEquals(25, instance.testShortTypeSmall(array, 2));
+        assertEquals(32, instance.testShortTypeSmall(array, 3));
+        assertEquals(35, instance.testShortTypeSmall(array, 4));
 
-            instance.testShortTypeSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testShortTypeSmall(array, 0));
     }
 
     @Test
     void testSmallIntegerType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            int[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testIntegerTypeSmall(array, 1));
-            assertEquals(25, instance.testIntegerTypeSmall(array, 2));
-            assertEquals(32, instance.testIntegerTypeSmall(array, 3));
-            assertEquals(35, instance.testIntegerTypeSmall(array, 4));
+        int[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testIntegerTypeSmall(array, 1));
+        assertEquals(25, instance.testIntegerTypeSmall(array, 2));
+        assertEquals(32, instance.testIntegerTypeSmall(array, 3));
+        assertEquals(35, instance.testIntegerTypeSmall(array, 4));
 
-            instance.testIntegerTypeSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testIntegerTypeSmall(array, 0));
     }
 
     @Test
     void testSmallLongType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            long[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testLongTypeSmall(array, 1));
-            assertEquals(25, instance.testLongTypeSmall(array, 2));
-            assertEquals(32, instance.testLongTypeSmall(array, 3));
-            assertEquals(35, instance.testLongTypeSmall(array, 4));
+        long[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testLongTypeSmall(array, 1));
+        assertEquals(25, instance.testLongTypeSmall(array, 2));
+        assertEquals(32, instance.testLongTypeSmall(array, 3));
+        assertEquals(35, instance.testLongTypeSmall(array, 4));
 
-            instance.testLongTypeSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testLongTypeSmall(array, 0));
     }
 
     @Test
     void testSmallFloatType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
-            assertEquals(instance.testFloatTypeSmall(array, 1), (float) 10.1, 0.0);
-            assertEquals(instance.testFloatTypeSmall(array, 2), (float) 25.5, 0.0);
-            assertEquals(instance.testFloatTypeSmall(array, 3), (float) 32.2, 0.0);
-            assertEquals(instance.testFloatTypeSmall(array, 4), (float) 35.4, 0.0);
+        float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
+        assertEquals(instance.testFloatTypeSmall(array, 1), (float) 10.1, 0.0);
+        assertEquals(instance.testFloatTypeSmall(array, 2), (float) 25.5, 0.0);
+        assertEquals(instance.testFloatTypeSmall(array, 3), (float) 32.2, 0.0);
+        assertEquals(instance.testFloatTypeSmall(array, 4), (float) 35.4, 0.0);
 
-            instance.testFloatTypeSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testFloatTypeSmall(array, 0));
     }
 
     @Test
     void testSmallDoubleType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            double[] array = {10.1, 32.2, 35.3, 25.4};
-            assertEquals(10.1, instance.testDoubleTypeSmall(array, 1), 0.0);
-            assertEquals(25.4, instance.testDoubleTypeSmall(array, 2), 0.0);
-            assertEquals(32.2, instance.testDoubleTypeSmall(array, 3), 0.0);
-            assertEquals(35.3, instance.testDoubleTypeSmall(array, 4), 0.0);
+        double[] array = {10.1, 32.2, 35.3, 25.4};
+        assertEquals(10.1, instance.testDoubleTypeSmall(array, 1), 0.0);
+        assertEquals(25.4, instance.testDoubleTypeSmall(array, 2), 0.0);
+        assertEquals(32.2, instance.testDoubleTypeSmall(array, 3), 0.0);
+        assertEquals(35.3, instance.testDoubleTypeSmall(array, 4), 0.0);
 
-            instance.testDoubleTypeSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testDoubleTypeSmall(array, 0));
     }
 
     @Test
     void testSmallBigDecimal() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            BigDecimal[] array = {BigDecimal.valueOf(10),
-                    BigDecimal.valueOf(32),
-                    BigDecimal.valueOf(35),
-                    BigDecimal.valueOf(25)};
-            assertEquals(instance.testBigDecimalSmall(array, 1), BigDecimal.valueOf(10));
-            assertEquals(instance.testBigDecimalSmall(array, 2), BigDecimal.valueOf(25));
-            assertEquals(instance.testBigDecimalSmall(array, 3), BigDecimal.valueOf(32));
-            assertEquals(instance.testBigDecimalSmall(array, 4), BigDecimal.valueOf(35));
+        BigDecimal[] array = {BigDecimal.valueOf(10),
+                BigDecimal.valueOf(32),
+                BigDecimal.valueOf(35),
+                BigDecimal.valueOf(25)};
+        assertEquals(instance.testBigDecimalSmall(array, 1), BigDecimal.valueOf(10));
+        assertEquals(instance.testBigDecimalSmall(array, 2), BigDecimal.valueOf(25));
+        assertEquals(instance.testBigDecimalSmall(array, 3), BigDecimal.valueOf(32));
+        assertEquals(instance.testBigDecimalSmall(array, 4), BigDecimal.valueOf(35));
 
-            instance.testBigDecimalSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testBigDecimalSmall(array, 0));
     }
 
     @Test
     void testSmallBigInteger() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            BigInteger[] array = {BigInteger.valueOf(10),
-                    BigInteger.valueOf(32),
-                    BigInteger.valueOf(35),
-                    BigInteger.valueOf(25)};
-            assertEquals(instance.testBigIntegerSmall(array, 1), BigInteger.valueOf(10));
-            assertEquals(instance.testBigIntegerSmall(array, 2), BigInteger.valueOf(25));
-            assertEquals(instance.testBigIntegerSmall(array, 3), BigInteger.valueOf(32));
-            assertEquals(instance.testBigIntegerSmall(array, 4), BigInteger.valueOf(35));
+        BigInteger[] array = {BigInteger.valueOf(10),
+                BigInteger.valueOf(32),
+                BigInteger.valueOf(35),
+                BigInteger.valueOf(25)};
+        assertEquals(instance.testBigIntegerSmall(array, 1), BigInteger.valueOf(10));
+        assertEquals(instance.testBigIntegerSmall(array, 2), BigInteger.valueOf(25));
+        assertEquals(instance.testBigIntegerSmall(array, 3), BigInteger.valueOf(32));
+        assertEquals(instance.testBigIntegerSmall(array, 4), BigInteger.valueOf(35));
 
-            instance.testBigIntegerSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testBigIntegerSmall(array, 0));
     }
 
     @Test
     void testSmallByte() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Byte[] array = {10, 32, 35, 25};
-            assertSame(instance.testByteSmall(array, 1), (byte) 10);
-            assertSame(instance.testByteSmall(array, 2), (byte) 25);
-            assertSame(instance.testByteSmall(array, 3), (byte) 32);
-            assertSame(instance.testByteSmall(array, 4), (byte) 35);
+        Byte[] array = {10, 32, 35, 25};
+        assertSame(instance.testByteSmall(array, 1), (byte) 10);
+        assertSame(instance.testByteSmall(array, 2), (byte) 25);
+        assertSame(instance.testByteSmall(array, 3), (byte) 32);
+        assertSame(instance.testByteSmall(array, 4), (byte) 35);
 
-            instance.testByteSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testByteSmall(array, 0));
     }
 
     @Test
     void testSmallShort() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Short[] array = {10, 32, 35, 25};
-            assertSame(instance.testShortSmall(array, 1), (short) 10);
-            assertSame(instance.testShortSmall(array, 2), (short) 25);
-            assertSame(instance.testShortSmall(array, 3), (short) 32);
-            assertSame(instance.testShortSmall(array, 4), (short) 35);
+        Short[] array = {10, 32, 35, 25};
+        assertSame(instance.testShortSmall(array, 1), (short) 10);
+        assertSame(instance.testShortSmall(array, 2), (short) 25);
+        assertSame(instance.testShortSmall(array, 3), (short) 32);
+        assertSame(instance.testShortSmall(array, 4), (short) 35);
 
-            instance.testShortSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testShortSmall(array, 0));
     }
 
     @Test
     void testSmallInteger() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Integer[] array = {10, 32, 35, 25};
-            assertSame(10, instance.testIntegerSmall(array, 1));
-            assertSame(25, instance.testIntegerSmall(array, 2));
-            assertSame(32, instance.testIntegerSmall(array, 3));
-            assertSame(35, instance.testIntegerSmall(array, 4));
+        Integer[] array = {10, 32, 35, 25};
+        assertSame(10, instance.testIntegerSmall(array, 1));
+        assertSame(25, instance.testIntegerSmall(array, 2));
+        assertSame(32, instance.testIntegerSmall(array, 3));
+        assertSame(35, instance.testIntegerSmall(array, 4));
 
-            instance.testIntegerSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testIntegerSmall(array, 0));
     }
 
     @Test
     void testSmallLong() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
-            assertSame(Long.valueOf(10), instance.testLongSmall(array, 1));
-            assertSame(Long.valueOf(25), instance.testLongSmall(array, 2));
-            assertSame(Long.valueOf(32), instance.testLongSmall(array, 3));
-            assertSame(Long.valueOf(35), instance.testLongSmall(array, 4));
+        Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
+        assertSame(Long.valueOf(10), instance.testLongSmall(array, 1));
+        assertSame(Long.valueOf(25), instance.testLongSmall(array, 2));
+        assertSame(Long.valueOf(32), instance.testLongSmall(array, 3));
+        assertSame(Long.valueOf(35), instance.testLongSmall(array, 4));
 
-            instance.testLongSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testLongSmall(array, 0));
     }
 
     @Test
     void testSmallFloat() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
-            assertEquals((float) 10.4, instance.testFloatSmall(array, 1));
-            assertEquals((float) 25.7, instance.testFloatSmall(array, 2));
-            assertEquals((float) 32.1, instance.testFloatSmall(array, 3));
-            assertEquals((float) 35.3, instance.testFloatSmall(array, 4));
+        Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
+        assertEquals((float) 10.4, instance.testFloatSmall(array, 1));
+        assertEquals((float) 25.7, instance.testFloatSmall(array, 2));
+        assertEquals((float) 32.1, instance.testFloatSmall(array, 3));
+        assertEquals((float) 35.3, instance.testFloatSmall(array, 4));
 
-            instance.testFloatSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testFloatSmall(array, 0));
     }
 
     @Test
     void testSmallDouble() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Double[] array = {10.4, 32.2, 35.6, 25.2};
-            assertEquals(10.4, instance.testDoubleSmall(array, 1));
-            assertEquals(25.2, instance.testDoubleSmall(array, 2));
-            assertEquals(32.2, instance.testDoubleSmall(array, 3));
-            assertEquals(35.6, instance.testDoubleSmall(array, 4));
+        Double[] array = {10.4, 32.2, 35.6, 25.2};
+        assertEquals(10.4, instance.testDoubleSmall(array, 1));
+        assertEquals(25.2, instance.testDoubleSmall(array, 2));
+        assertEquals(32.2, instance.testDoubleSmall(array, 3));
+        assertEquals(35.6, instance.testDoubleSmall(array, 4));
 
-            instance.testDoubleSmall(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testDoubleSmall(array, 0));
     }
 
     @Test
     void testBigByteType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            byte[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testByteTypeBig(array, 4));
-            assertEquals(25, instance.testByteTypeBig(array, 3));
-            assertEquals(32, instance.testByteTypeBig(array, 2));
-            assertEquals(35, instance.testByteTypeBig(array, 1));
+        byte[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testByteTypeBig(array, 4));
+        assertEquals(25, instance.testByteTypeBig(array, 3));
+        assertEquals(32, instance.testByteTypeBig(array, 2));
+        assertEquals(35, instance.testByteTypeBig(array, 1));
 
-            instance.testByteTypeBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testByteTypeBig(array, 0));
     }
 
     @Test
     void testBigShortType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            short[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testShortTypeBig(array, 4));
-            assertEquals(25, instance.testShortTypeBig(array, 3));
-            assertEquals(32, instance.testShortTypeBig(array, 2));
-            assertEquals(35, instance.testShortTypeBig(array, 1));
+        short[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testShortTypeBig(array, 4));
+        assertEquals(25, instance.testShortTypeBig(array, 3));
+        assertEquals(32, instance.testShortTypeBig(array, 2));
+        assertEquals(35, instance.testShortTypeBig(array, 1));
 
-            instance.testShortTypeBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testShortTypeBig(array, 0));
     }
 
     @Test
     void testBigIntegerType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            int[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testIntegerTypeBig(array, 4));
-            assertEquals(25, instance.testIntegerTypeBig(array, 3));
-            assertEquals(32, instance.testIntegerTypeBig(array, 2));
-            assertEquals(35, instance.testIntegerTypeBig(array, 1));
+        int[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testIntegerTypeBig(array, 4));
+        assertEquals(25, instance.testIntegerTypeBig(array, 3));
+        assertEquals(32, instance.testIntegerTypeBig(array, 2));
+        assertEquals(35, instance.testIntegerTypeBig(array, 1));
 
-            instance.testIntegerTypeBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testIntegerTypeBig(array, 0));
     }
 
     @Test
     void testBigLongType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            long[] array = {10, 32, 35, 25};
-            assertEquals(10, instance.testLongTypeBig(array, 4));
-            assertEquals(25, instance.testLongTypeBig(array, 3));
-            assertEquals(32, instance.testLongTypeBig(array, 2));
-            assertEquals(35, instance.testLongTypeBig(array, 1));
+        long[] array = {10, 32, 35, 25};
+        assertEquals(10, instance.testLongTypeBig(array, 4));
+        assertEquals(25, instance.testLongTypeBig(array, 3));
+        assertEquals(32, instance.testLongTypeBig(array, 2));
+        assertEquals(35, instance.testLongTypeBig(array, 1));
 
-            instance.testLongTypeBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testLongTypeBig(array, 0));
     }
 
     @Test
     void testBigFloatType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
-            assertEquals((float) 10.1, instance.testFloatTypeBig(array, 4));
-            assertEquals((float) 25.5, instance.testFloatTypeBig(array, 3));
-            assertEquals((float) 32.2, instance.testFloatTypeBig(array, 2));
-            assertEquals((float) 35.4, instance.testFloatTypeBig(array, 1));
+        float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
+        assertEquals((float) 10.1, instance.testFloatTypeBig(array, 4));
+        assertEquals((float) 25.5, instance.testFloatTypeBig(array, 3));
+        assertEquals((float) 32.2, instance.testFloatTypeBig(array, 2));
+        assertEquals((float) 35.4, instance.testFloatTypeBig(array, 1));
 
-            instance.testFloatTypeBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testFloatTypeBig(array, 0));
     }
 
     @Test
     void testBigDoubleType() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            double[] array = {10.1, 32.2, 35.3, 25.4};
-            assertEquals(10.1, instance.testDoubleTypeBig(array, 4));
-            assertEquals(25.4, instance.testDoubleTypeBig(array, 3));
-            assertEquals(32.2, instance.testDoubleTypeBig(array, 2));
-            assertEquals(35.3, instance.testDoubleTypeBig(array, 1));
+        double[] array = {10.1, 32.2, 35.3, 25.4};
+        assertEquals(10.1, instance.testDoubleTypeBig(array, 4));
+        assertEquals(25.4, instance.testDoubleTypeBig(array, 3));
+        assertEquals(32.2, instance.testDoubleTypeBig(array, 2));
+        assertEquals(35.3, instance.testDoubleTypeBig(array, 1));
 
-            instance.testDoubleTypeBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testDoubleTypeBig(array, 0));
     }
 
     @Test
     void testBigBigDecimal() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            BigDecimal[] array = {BigDecimal.valueOf(10),
-                    BigDecimal.valueOf(32),
-                    BigDecimal.valueOf(35),
-                    BigDecimal.valueOf(25)};
-            assertEquals(BigDecimal.valueOf(10), instance.testBigDecimalBig(array, 4));
-            assertEquals(BigDecimal.valueOf(25), instance.testBigDecimalBig(array, 3));
-            assertEquals(BigDecimal.valueOf(32), instance.testBigDecimalBig(array, 2));
-            assertEquals(BigDecimal.valueOf(35), instance.testBigDecimalBig(array, 1));
+        BigDecimal[] array = {BigDecimal.valueOf(10),
+                BigDecimal.valueOf(32),
+                BigDecimal.valueOf(35),
+                BigDecimal.valueOf(25)};
+        assertEquals(BigDecimal.valueOf(10), instance.testBigDecimalBig(array, 4));
+        assertEquals(BigDecimal.valueOf(25), instance.testBigDecimalBig(array, 3));
+        assertEquals(BigDecimal.valueOf(32), instance.testBigDecimalBig(array, 2));
+        assertEquals(BigDecimal.valueOf(35), instance.testBigDecimalBig(array, 1));
 
-            instance.testBigDecimalBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testBigDecimalBig(array, 0));
     }
 
     @Test
     void testBigBigInteger() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            BigInteger[] array = {BigInteger.valueOf(10),
-                    BigInteger.valueOf(32),
-                    BigInteger.valueOf(35),
-                    BigInteger.valueOf(25)};
-            assertEquals(BigInteger.valueOf(10), instance.testBigIntegerBig(array, 4));
-            assertEquals(BigInteger.valueOf(25), instance.testBigIntegerBig(array, 3));
-            assertEquals(BigInteger.valueOf(32), instance.testBigIntegerBig(array, 2));
-            assertEquals(BigInteger.valueOf(35), instance.testBigIntegerBig(array, 1));
+        BigInteger[] array = {BigInteger.valueOf(10),
+                BigInteger.valueOf(32),
+                BigInteger.valueOf(35),
+                BigInteger.valueOf(25)};
+        assertEquals(BigInteger.valueOf(10), instance.testBigIntegerBig(array, 4));
+        assertEquals(BigInteger.valueOf(25), instance.testBigIntegerBig(array, 3));
+        assertEquals(BigInteger.valueOf(32), instance.testBigIntegerBig(array, 2));
+        assertEquals(BigInteger.valueOf(35), instance.testBigIntegerBig(array, 1));
 
-            instance.testBigIntegerBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testBigIntegerBig(array, 0));
     }
 
     @Test
     void testBigByte() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Byte[] array = {10, 32, 35, 25};
-            assertSame(Byte.valueOf((byte) 10), instance.testByteBig(array, 4));
-            assertSame(Byte.valueOf((byte) 25), instance.testByteBig(array, 3));
-            assertSame(Byte.valueOf((byte) 32), instance.testByteBig(array, 2));
-            assertSame(Byte.valueOf((byte) 35), instance.testByteBig(array, 1));
+        Byte[] array = {10, 32, 35, 25};
+        assertSame(Byte.valueOf((byte) 10), instance.testByteBig(array, 4));
+        assertSame(Byte.valueOf((byte) 25), instance.testByteBig(array, 3));
+        assertSame(Byte.valueOf((byte) 32), instance.testByteBig(array, 2));
+        assertSame(Byte.valueOf((byte) 35), instance.testByteBig(array, 1));
 
-            instance.testByteBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testByteBig(array, 0));
     }
 
     @Test
     void testBigShort() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Short[] array = {10, 32, 35, 25};
-            assertSame(Short.valueOf((short) 10), instance.testShortBig(array, 4));
-            assertSame(Short.valueOf((short) 25), instance.testShortBig(array, 3));
-            assertSame(Short.valueOf((short) 32), instance.testShortBig(array, 2));
-            assertSame(Short.valueOf((short) 35), instance.testShortBig(array, 1));
+        Short[] array = {10, 32, 35, 25};
+        assertSame(Short.valueOf((short) 10), instance.testShortBig(array, 4));
+        assertSame(Short.valueOf((short) 25), instance.testShortBig(array, 3));
+        assertSame(Short.valueOf((short) 32), instance.testShortBig(array, 2));
+        assertSame(Short.valueOf((short) 35), instance.testShortBig(array, 1));
 
-            instance.testShortBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testShortBig(array, 0));
     }
 
     @Test
     void testBigInteger() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Integer[] array = {10, 32, 35, 25};
-            assertSame(Integer.valueOf(10), instance.testIntegerBig(array, 4));
-            assertSame(Integer.valueOf(25), instance.testIntegerBig(array, 3));
-            assertSame(Integer.valueOf(32), instance.testIntegerBig(array, 2));
-            assertSame(Integer.valueOf(35), instance.testIntegerBig(array, 1));
+        Integer[] array = {10, 32, 35, 25};
+        assertSame(Integer.valueOf(10), instance.testIntegerBig(array, 4));
+        assertSame(Integer.valueOf(25), instance.testIntegerBig(array, 3));
+        assertSame(Integer.valueOf(32), instance.testIntegerBig(array, 2));
+        assertSame(Integer.valueOf(35), instance.testIntegerBig(array, 1));
 
-            instance.testIntegerBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testIntegerBig(array, 0));
     }
 
     @Test
     void testBigLong() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
-            assertSame(Long.valueOf(10), instance.testLongBig(array, 4));
-            assertSame(Long.valueOf(25), instance.testLongBig(array, 3));
-            assertSame(Long.valueOf(32), instance.testLongBig(array, 2));
-            assertSame(Long.valueOf(35), instance.testLongBig(array, 1));
+        Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
+        assertSame(Long.valueOf(10), instance.testLongBig(array, 4));
+        assertSame(Long.valueOf(25), instance.testLongBig(array, 3));
+        assertSame(Long.valueOf(32), instance.testLongBig(array, 2));
+        assertSame(Long.valueOf(35), instance.testLongBig(array, 1));
 
-            instance.testLongBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testLongBig(array, 0));
     }
 
     @Test
     void testBigFloat() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
-            assertEquals((float) 10.4, instance.testFloatBig(array, 4));
-            assertEquals((float) 25.7, instance.testFloatBig(array, 3));
-            assertEquals((float) 32.1, instance.testFloatBig(array, 2));
-            assertEquals((float) 35.3, instance.testFloatBig(array, 1));
+        Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
+        assertEquals((float) 10.4, instance.testFloatBig(array, 4));
+        assertEquals((float) 25.7, instance.testFloatBig(array, 3));
+        assertEquals((float) 32.1, instance.testFloatBig(array, 2));
+        assertEquals((float) 35.3, instance.testFloatBig(array, 1));
 
-            instance.testFloatBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testFloatBig(array, 0));
     }
 
     @Test
     void testBigDouble() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            Double[] array = {10.4, 32.2, 35.6, 25.2};
-            assertEquals(10.4, instance.testDoubleBig(array, 4));
-            assertEquals(25.2, instance.testDoubleBig(array, 3));
-            assertEquals(32.2, instance.testDoubleBig(array, 2));
-            assertEquals(35.6, instance.testDoubleBig(array, 1));
+        Double[] array = {10.4, 32.2, 35.6, 25.2};
+        assertEquals(10.4, instance.testDoubleBig(array, 4));
+        assertEquals(25.2, instance.testDoubleBig(array, 3));
+        assertEquals(32.2, instance.testDoubleBig(array, 2));
+        assertEquals(35.6, instance.testDoubleBig(array, 1));
 
-            instance.testDoubleBig(array, 0);
-        });
+        assertThrows(OpenLRuntimeException.class, () -> instance.testDoubleBig(array, 0));
     }
 
     @Test

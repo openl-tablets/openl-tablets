@@ -26,35 +26,30 @@ class ValidateInputParametersTest {
 
     @Test
     void test() {
-        assertThrows(OutsideOfValidDomainException.class, () -> {
-            var method = engineFactory.getCompiledOpenClass()
-                    .getOpenClass()
-                    .getMethod("SHTable", new IOpenClass[]{JavaOpenClass.STRING});
+        var method = engineFactory.getCompiledOpenClass()
+                .getOpenClass()
+                .getMethod("SHTable", new IOpenClass[]{JavaOpenClass.STRING});
 
-            assertNotNull(method);
+        assertNotNull(method);
 
-            var target = engineFactory.newEngineInstance();
-            var env = new SimpleRulesVM().getRuntimeEnv();
-            method.invoke(target, new Object[]{"ONE2"}, env);
-
-        });
+        var target = engineFactory.newEngineInstance();
+        var env = new SimpleRulesVM().getRuntimeEnv();
+        assertThrows(OutsideOfValidDomainException.class, () -> method.invoke(target, new Object[]{"ONE2"}, env));
 
     }
 
     @Test
     void testArray() {
-        assertThrows(OutsideOfValidDomainException.class, () -> {
-            var method = engineFactory.getCompiledOpenClass()
-                    .getOpenClass()
-                    .getMethod("DTTable2", new IOpenClass[]{JavaOpenClass.getOpenClass(String[].class)});
+        var method = engineFactory.getCompiledOpenClass()
+                .getOpenClass()
+                .getMethod("DTTable2", new IOpenClass[]{JavaOpenClass.getOpenClass(String[].class)});
 
-            assertNotNull(method);
+        assertNotNull(method);
 
-            var target = engineFactory.newEngineInstance();
-            var env = new SimpleRulesVM().getRuntimeEnv();
-            method.invoke(target, new Object[]{new String[]{"ONE", "ONE2"}}, env);
-
-        });
+        var target = engineFactory.newEngineInstance();
+        var env = new SimpleRulesVM().getRuntimeEnv();
+        assertThrows(OutsideOfValidDomainException.class,
+                () -> method.invoke(target, new Object[]{new String[]{"ONE", "ONE2"}}, env));
 
     }
 }

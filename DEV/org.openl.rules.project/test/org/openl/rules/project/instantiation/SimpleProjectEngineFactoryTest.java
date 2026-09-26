@@ -18,18 +18,15 @@ class SimpleProjectEngineFactoryTest {
 
     @Test
     void failureWorkspaceTest() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new SimpleProjectEngineFactoryBuilder<>().setProject("test-resources/test1/third")
-                    .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls")
-                    .build();
-        });
+        var builder = new SimpleProjectEngineFactoryBuilder<>().setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls");
+        assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     void failureProjectArgumentTest() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new SimpleProjectEngineFactoryBuilder<>().setProject(null).setWorkspace("test-resources/test1").build();
-        });
+        var builder = new SimpleProjectEngineFactoryBuilder<>();
+        assertThrows(IllegalArgumentException.class, () -> builder.setProject(null));
     }
 
     @Test
@@ -89,23 +86,19 @@ class SimpleProjectEngineFactoryTest {
 
     @Test
     void wrongProjectDependency() throws Exception {
-        assertThrows(OpenlNotCheckedException.class, () -> {
-            SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-                    .setProject("test-resources/test1/third")
-                    .setProjectDependencies("test-resources/test1")
-                    .build();
-            simpleProjectEngineFactory.newInstance();
-        });
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
+                .setProject("test-resources/test1/third")
+                .setProjectDependencies("test-resources/test1")
+                .build();
+        assertThrows(OpenlNotCheckedException.class, simpleProjectEngineFactory::newInstance);
     }
 
     @Test
     void wrongProjectDependency2() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new SimpleProjectEngineFactoryBuilder<>()
-                    .setProject("test-resources/test1/third")
-                    .setProjectDependencies("test-resources/test1/unknown")
-                    .build();
-        });
+        var builder = new SimpleProjectEngineFactoryBuilder<>()
+                .setProject("test-resources/test1/third")
+                .setProjectDependencies("test-resources/test1/unknown");
+        assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test

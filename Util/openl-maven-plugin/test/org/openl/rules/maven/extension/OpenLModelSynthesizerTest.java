@@ -145,9 +145,10 @@ class OpenLModelSynthesizerTest {
         dep.setMavenArtifact("com.other:domain");
         desc.setDependencies(List.of(dep));
         var domainCoords = new OpenLCoordinates("com.example", "domain");
+        var names = Map.of("Domain", domainCoords);
 
         var ex = assertThrows(IllegalArgumentException.class, () -> OpenLModelSynthesizer.synthesize(
-                coords, "1.0.0", desc, Map.of("Domain", domainCoords), null, null, Map.of()));
+                coords, "1.0.0", desc, names, null, null, Map.of()));
         assertTrue(ex.getMessage().contains("com.other:domain"), "error must name the offending coordinate");
         assertTrue(ex.getMessage().contains("Domain"), "error must name the dependency so the user can locate it");
     }

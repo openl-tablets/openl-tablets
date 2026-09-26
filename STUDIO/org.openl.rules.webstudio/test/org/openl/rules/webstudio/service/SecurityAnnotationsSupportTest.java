@@ -33,10 +33,9 @@ class SecurityAnnotationsSupportTest {
     @Test
     @WithMockUser("oleg")
     void hasRoleAnnotationsDenyTest() {
-        assertThrows(AccessDeniedException.class, () -> {
-            assertNotNull(securedService);
-            securedService.save(new Foo(44L));
-        });
+        assertNotNull(securedService);
+        var foo = new Foo(44L);
+        assertThrows(AccessDeniedException.class, () -> securedService.save(foo));
     }
 
     @Test

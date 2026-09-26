@@ -23,26 +23,20 @@ class String2IntConvertorTest {
 
     @Test
     void testConvertPositiveOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2IntConvertor();
-            converter.parse("2147483648", null);
-        });
+        var converter = new String2IntConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("2147483648", null));
     }
 
     @Test
     void testConvertNegativeOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2IntConvertor();
-            converter.parse("-2147483649", null);
-        });
+        var converter = new String2IntConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("-2147483649", null));
     }
 
     @Test
     void testConvertNonInteger() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2IntConvertor();
-            converter.parse("1.3", null);
-        });
+        var converter = new String2IntConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("1.3", null));
     }
 
 }

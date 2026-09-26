@@ -65,9 +65,11 @@ class ProjectsMergeConflictsServiceImplTest {
     void rejectsDownloadWhenFileDoesNotExistInRequestedRevision() throws Exception {
         var context = createContext();
         when(context.repository().readHistory(FIRST_FILE, "ours")).thenReturn(null);
+        var service = context.service();
+        var conflict = context.conflict();
 
         var exception = assertThrows(NotFoundException.class,
-                () -> context.service().getConflictFileItem(context.conflict(), FIRST_FILE, ConflictBase.OURS));
+                () -> service.getConflictFileItem(conflict, FIRST_FILE, ConflictBase.OURS));
 
         assertEquals("openl.error.404.project.merge.conflict.file.revision.not.found", exception.getErrorCode());
         assertArrayEquals(new Object[]{"ours", FIRST_FILE}, exception.getArgs());

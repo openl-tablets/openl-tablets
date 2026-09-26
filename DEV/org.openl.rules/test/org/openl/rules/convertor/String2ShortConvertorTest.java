@@ -23,26 +23,20 @@ class String2ShortConvertorTest {
 
     @Test
     void testConvertPositiveOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2ShortConvertor();
-            converter.parse("32768", null);
-        });
+        var converter = new String2ShortConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("32768", null));
     }
 
     @Test
     void testConvertNegativeOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2ShortConvertor();
-            converter.parse("-32769", null);
-        });
+        var converter = new String2ShortConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("-32769", null));
     }
 
     @Test
     void testConvertNonInteger() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2ShortConvertor();
-            converter.parse("1.3", null);
-        });
+        var converter = new String2ShortConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("1.3", null));
     }
 
 }

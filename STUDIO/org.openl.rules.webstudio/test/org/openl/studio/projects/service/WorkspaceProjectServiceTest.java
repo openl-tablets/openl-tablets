@@ -1403,9 +1403,10 @@ class WorkspaceProjectServiceTest {
         when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
         var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
         when(model.isTablePart("src-uri")).thenReturn(true);
+        var properties = List.of(new TableProperty("state", "AL"));
 
-        var refused = assertThrows(BadRequestException.class, () -> service
-                .updateTableProperties(project, "src-id", List.of(new TableProperty("state", "AL")), null));
+        var refused = assertThrows(BadRequestException.class,
+                () -> service.updateTableProperties(project, "src-id", properties, null));
 
         // The cells such a table is drawn from do not sit together, so there is nowhere to write back into:
         // refused where the table is resolved, rather than left to fail on the grid it is read through.

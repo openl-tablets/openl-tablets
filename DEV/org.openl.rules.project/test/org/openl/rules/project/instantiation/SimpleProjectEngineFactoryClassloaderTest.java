@@ -24,12 +24,10 @@ class SimpleProjectEngineFactoryClassloaderTest {
 
     @Test
     void singleModuleWithoutDepTest() throws Exception {
-        assertThrows(OpenlNotCheckedException.class, () -> {
-            SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
-                    .setProject("test-resources/classpath/project2")
-                    .build();
-            factory.newInstance();
-        });
+        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
+                .setProject("test-resources/classpath/project2")
+                .build();
+        assertThrows(OpenlNotCheckedException.class, factory::newInstance);
     }
 
     @Test

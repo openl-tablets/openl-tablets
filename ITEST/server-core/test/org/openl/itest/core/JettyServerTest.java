@@ -72,7 +72,8 @@ class JettyServerTest {
     private static IllegalStateException startExpectingFailure(Path webapp) {
         var previous = System.setProperty("webservice-webapp", webapp.toString());
         try {
-            return assertThrows(IllegalStateException.class, () -> JettyServer.get().start());
+            var server = JettyServer.get();
+            return assertThrows(IllegalStateException.class, server::start);
         } finally {
             if (previous == null) {
                 System.clearProperty("webservice-webapp");

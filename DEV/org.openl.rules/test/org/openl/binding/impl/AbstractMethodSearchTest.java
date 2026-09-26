@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Array;
 
@@ -81,14 +80,11 @@ abstract class AbstractMethodSearchTest {
     }
 
     final void assertAmbiguous(Class<?> target, String methodName, Class<?>... classes) {
-        try {
-            JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
-            var openClasses = toOpenClasses(classes);
-            MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
-            fail("AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, openClasses));
-        } catch (AmbiguousMethodException ex) {
-            // expected
-        }
+        JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
+        var openClasses = toOpenClasses(classes);
+        assertThrows(AmbiguousMethodException.class,
+                () -> MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true),
+                () -> "AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, openClasses));
     }
 
     final void assertMethod(Class<?> target,

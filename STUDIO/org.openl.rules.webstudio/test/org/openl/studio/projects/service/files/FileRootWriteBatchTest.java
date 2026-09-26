@@ -214,9 +214,9 @@ class FileRootWriteBatchTest {
         archive[1] = 'K';
         archive[2] = 5;
         archive[3] = 6;
+        var content = new ByteArrayInputStream(archive);
         assertThrows(BadRequestException.class,
-                () -> service.uploadArchive(root, "data", new ByteArrayInputStream(archive), true,
-                        ConflictPolicy.REPLACE));
+                () -> service.uploadArchive(root, "data", content, true, ConflictPolicy.REPLACE));
 
         verify(root, never()).writeBatch(any(), any(), any(), any());
     }

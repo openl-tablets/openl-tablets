@@ -202,13 +202,16 @@ class ProjectHistoryServiceTest {
         var history = Files.createDirectories(historyFolder(workspace));
         var outside = Files.writeString(workspace.resolve("outside"), "outside history");
         Files.createSymbolicLink(history.resolve("linked"), outside);
+        var outsideVersions = List.of("../../outside");
+        var rootVersions = List.of("/");
+        var linkedVersions = List.of("linked");
 
         var error = assertThrows(NotFoundException.class,
-                () -> service.getHistoryVersions(project, "Bank Rating", List.of("../../outside")));
+                () -> service.getHistoryVersions(project, "Bank Rating", outsideVersions));
         var rootError = assertThrows(NotFoundException.class,
-                () -> service.getHistoryVersions(project, "Bank Rating", List.of("/")));
+                () -> service.getHistoryVersions(project, "Bank Rating", rootVersions));
         var linkedError = assertThrows(NotFoundException.class,
-                () -> service.getHistoryVersions(project, "Bank Rating", List.of("linked")));
+                () -> service.getHistoryVersions(project, "Bank Rating", linkedVersions));
 
         assertEquals("openl.error.404.file.version.not.found.message", error.getErrorCode());
         assertEquals(error.getErrorCode(), rootError.getErrorCode());

@@ -125,19 +125,21 @@ class ProjectOpenApiGenerationServiceTest {
 
     @Test
     void refusesAModuleNameARepositoryCannotHold() {
-        var refused = assertThrows(ConflictException.class,
-                () -> service.generateTables(mock(RulesProject.class), asked("Rates/2026", "Models")));
+        var project = mock(RulesProject.class);
+        var request = asked("Rates/2026", "Models");
+
+        var refused = assertThrows(ConflictException.class, () -> service.generateTables(project, request));
 
         assertEquals("openl.error.409.projects.openapi.module-name.invalid.message", refused.getErrorCode());
     }
 
     @Test
     void refusesToWriteBothModulesIntoOneWorkbook() {
+        var project = projectReading();
         var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", "rules/Both.xlsx",
                 "Models", "rules/BOTH.xlsx");
 
-        var refused = assertThrows(ConflictException.class,
-                () -> service.generateTables(projectReading(), request));
+        var refused = assertThrows(ConflictException.class, () -> service.generateTables(project, request));
 
         // Named the same but for their case: one workbook cannot be two modules.
         assertEquals("openl.error.409.projects.openapi.module-path.same.message", refused.getErrorCode());
@@ -158,11 +160,11 @@ class ProjectOpenApiGenerationServiceTest {
 
     @Test
     void refusesToWriteAModuleToAFileThatIsNoWorkbook() {
+        var project = projectReading();
         var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", "rules/Alg.txt",
                 "Models", "rules/Models.xlsx");
 
-        var refused = assertThrows(ConflictException.class,
-                () -> service.generateTables(projectReading(), request));
+        var refused = assertThrows(ConflictException.class, () -> service.generateTables(project, request));
 
         // A module is read from a workbook; a file named anything else is served as that kind of file and
         // read as no module at all, while rules.xml names it as one.
@@ -173,11 +175,11 @@ class ProjectOpenApiGenerationServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"rules/.xlsx", "rules/Al?g.xlsx", "rules/ Alg.xlsx", "rules//Alg.xlsx"})
     void refusesAPathTheRepositoryCannotHold(String workbook) {
+        var project = projectReading();
         var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", workbook,
                 "Models", "rules/Models.xlsx");
 
-        var refused = assertThrows(ConflictException.class,
-                () -> service.generateTables(projectReading(), request));
+        var refused = assertThrows(ConflictException.class, () -> service.generateTables(project, request));
 
         // Refused before either module is written: the repository refuses such a path when the write
         // reaches it, by which time the other module has been replaced.
@@ -187,11 +189,11 @@ class ProjectOpenApiGenerationServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"rules/Alg.xlsx", "rules/Alg.XLS", "rules/Alg.xlsm"})
     void writesAModuleToEveryWorkbookExcelReads(String workbook) {
+        var project = projectReading();
         var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", workbook,
                 "Models", "rules/Models.xlsx");
 
-        var refused = assertThrows(ConflictException.class,
-                () -> service.generateTables(projectReading(), request));
+        var refused = assertThrows(ConflictException.class, () -> service.generateTables(project, request));
 
         // Refused further on, for want of a checked-out copy to read the specification from — the workbook
         // itself was not what stood in the way.

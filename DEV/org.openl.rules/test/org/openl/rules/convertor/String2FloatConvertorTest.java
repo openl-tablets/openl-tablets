@@ -37,18 +37,14 @@ class String2FloatConvertorTest {
 
     @Test
     void testConvertPositiveOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2FloatConvertor();
-            converter.parse("1E39", null);
-        });
+        var converter = new String2FloatConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("1E39", null));
     }
 
     @Test
     void testConvertNegativeOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2FloatConvertor();
-            converter.parse("-1E39", null);
-        });
+        var converter = new String2FloatConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("-1E39", null));
     }
 
 }

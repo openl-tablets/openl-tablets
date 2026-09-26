@@ -101,9 +101,10 @@ class ProjectDescriptorWriteValidationTest {
     @Test
     void updateOfDescriptorWithUnknownProcessorIsRejected() throws Exception {
         projectWithDescriptor();
+        var invalidDescriptor = content(INVALID_PROCESSOR);
 
         var ex = assertThrows(ValidationException.class,
-                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME, content(INVALID_PROCESSOR)));
+                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME, invalidDescriptor));
 
         var error = ex.getBindingResult().getFieldError("propertiesFileNameProcessor");
         assertNotNull(error);
@@ -124,9 +125,10 @@ class ProjectDescriptorWriteValidationTest {
     @Test
     void creationOfDescriptorWithUnknownProcessorIsRejected() throws Exception {
         emptyProject();
+        var invalidDescriptor = content(INVALID_PROCESSOR);
 
         assertThrows(ValidationException.class,
-                () -> service.createResource(root, ProjectDescriptor.FILE_NAME, content(INVALID_PROCESSOR), false));
+                () -> service.createResource(root, ProjectDescriptor.FILE_NAME, invalidDescriptor, false));
 
         verify(repository, never()).save(any(FileData.class), any(InputStream.class));
     }
@@ -152,9 +154,10 @@ class ProjectDescriptorWriteValidationTest {
     @Test
     void descriptorPathWithTrailingSlashIsValidated() throws Exception {
         projectWithDescriptor();
+        var invalidDescriptor = content(INVALID_PROCESSOR);
 
         assertThrows(ValidationException.class,
-                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME + "/", content(INVALID_PROCESSOR)));
+                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME + "/", invalidDescriptor));
 
         verify(repository, never()).save(any(FileData.class), any(InputStream.class));
     }
@@ -166,9 +169,10 @@ class ProjectDescriptorWriteValidationTest {
     @Test
     void oversizedDescriptorIsRefused() throws Exception {
         projectWithDescriptor();
+        var oversizedDescriptor = paddedPastTheCap();
 
         var ex = assertThrows(BadRequestException.class,
-                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME, paddedPastTheCap()));
+                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME, oversizedDescriptor));
 
         assertEquals("openl.error.400.file.descriptor.too-large.message", ex.getErrorCode());
         verify(repository, never()).save(any(FileData.class), any(InputStream.class));
@@ -181,9 +185,10 @@ class ProjectDescriptorWriteValidationTest {
     @Test
     void rejectedDescriptorLeavesTheProjectUnlocked() throws Exception {
         projectWithDescriptor();
+        var invalidDescriptor = content(INVALID_PROCESSOR);
 
         assertThrows(ValidationException.class,
-                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME, content(INVALID_PROCESSOR)));
+                () -> service.updateResource(root, ProjectDescriptor.FILE_NAME, invalidDescriptor));
 
         verify(project, never()).tryLockOrThrow();
     }

@@ -24,18 +24,14 @@ class String2BooleanConvertorTest {
 
     @Test
     void testParseEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2BooleanConvertor();
-            converter.parse("", null);
-        });
+        var converter = new String2BooleanConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("", null));
     }
 
     @Test
     void testParseWrongValue() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2BooleanConvertor();
-            converter.parse("1", null);
-        });
+        var converter = new String2BooleanConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("1", null));
     }
 
     @Test

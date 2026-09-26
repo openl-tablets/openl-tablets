@@ -51,17 +51,13 @@ class String2ArrayConvertorTest {
 
     @Test
     void testParseNotIntegers() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2ArrayConvertor<Integer, Integer[]>(Integer.class);
-            converter.parse("12.30", null);
-        });
+        var converter = new String2ArrayConvertor<Integer, Integer[]>(Integer.class);
+        assertThrows(NumberFormatException.class, () -> converter.parse("12.30", null));
     }
 
     @Test
     void testParseWrongValue() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2ArrayConvertor<Integer, Integer[]>(Integer.class);
-            converter.parse("12,34,_,56", null);
-        });
+        var converter = new String2ArrayConvertor<Integer, Integer[]>(Integer.class);
+        assertThrows(NumberFormatException.class, () -> converter.parse("12,34,_,56", null));
     }
 }
