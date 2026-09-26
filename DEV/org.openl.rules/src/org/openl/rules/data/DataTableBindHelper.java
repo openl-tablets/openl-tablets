@@ -881,7 +881,7 @@ public class DataTableBindHelper {
                 }
             }
 
-            if (fieldIndex > 0 && ((fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField)) && fieldAccessorChain[fieldIndex - 1]
+            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
                     .getType()
                     .equals(JavaOpenClass.OBJECT) && StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
                 var aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
