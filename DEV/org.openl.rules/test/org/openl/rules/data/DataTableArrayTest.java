@@ -7,10 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.TestUtils;
 import org.openl.rules.testmethod.TestUnitsResults;
 
-/*
+/**
  * @author PTarasevich
  */
-
 class DataTableArrayTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 

@@ -6,10 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
-/*
+/**
  * @author PTarasevich
  */
-
 class TestDataAccessFieldTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 

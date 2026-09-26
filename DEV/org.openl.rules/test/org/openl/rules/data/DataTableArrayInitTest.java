@@ -12,10 +12,9 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 
-/*
+/**
  * @author PTarasevich
  */
-
 class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 
