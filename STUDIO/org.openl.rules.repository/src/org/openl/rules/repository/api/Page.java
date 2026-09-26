@@ -11,14 +11,14 @@ import java.util.Objects;
  */
 public final class Page extends Pageable {
 
-    private final int page;
+    private final int pageNumber;
 
     private Page(int page, int size) {
         super(size);
         if (page < 0) {
             throw new IllegalArgumentException("Page number must be greater or equal 0.");
         }
-        this.page = page;
+        this.pageNumber = page;
     }
 
     /**
@@ -28,7 +28,7 @@ public final class Page extends Pageable {
      */
     @Override
     public int getPageNumber() {
-        return page;
+        return pageNumber;
     }
 
     /**
@@ -38,7 +38,7 @@ public final class Page extends Pageable {
      */
     @Override
     public int getOffset() {
-        return page * getPageSize();
+        return pageNumber * getPageSize();
     }
 
     /**
@@ -80,11 +80,11 @@ public final class Page extends Pageable {
         if (!super.equals(o)) {
             return false;
         }
-        return page == page1.page;
+        return pageNumber == page1.pageNumber;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), page);
+        return Objects.hash(super.hashCode(), pageNumber);
     }
 }

@@ -10,9 +10,9 @@ public class OS {
     private OS() {
     }
 
-    private static final String OS = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
+    private static final String OS_NAME = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
 
     public static boolean isWindows() {
-        return OS.contains("win");
+        return OS_NAME.contains("win");
     }
 }

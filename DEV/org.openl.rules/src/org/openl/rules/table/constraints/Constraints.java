@@ -12,7 +12,7 @@ import org.openl.util.CollectionUtils;
  */
 public class Constraints {
 
-    private List<Constraint> constraints = new ArrayList<>();
+    private List<Constraint> items = new ArrayList<>();
     @Getter
     private String constraintsStr;
 
@@ -34,12 +34,12 @@ public class Constraints {
 
     public void setAll(List<Constraint> constraints) {
         if (CollectionUtils.isNotEmpty(constraints)) {
-            this.constraints = new ArrayList<>(constraints);
+            this.items = new ArrayList<>(constraints);
         }
     }
 
     public List<Constraint> getAll() {
-        return new ArrayList<>(constraints);
+        return new ArrayList<>(items);
     }
 
     public void addAll(String constraintsStr) {
@@ -48,27 +48,27 @@ public class Constraints {
 
     public void addAll(List<Constraint> constraints) {
         if (CollectionUtils.isNotEmpty(constraints)) {
-            this.constraints.addAll(constraints);
+            this.items.addAll(constraints);
         }
     }
 
     public void add(Constraint constraint) {
-        constraints.add(constraint);
+        items.add(constraint);
     }
 
     public Constraint get(int index) {
-        return constraints.get(index);
+        return items.get(index);
     }
 
     public void remove(Constraint constraint) {
-        constraints.remove(constraint);
+        items.remove(constraint);
     }
 
     public void remove(int index) {
-        constraints.remove(index);
+        items.remove(index);
     }
 
     public int size() {
-        return constraints.size();
+        return items.size();
     }
 }

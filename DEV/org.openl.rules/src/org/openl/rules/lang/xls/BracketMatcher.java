@@ -14,14 +14,14 @@ class BracketMatcher {
         CURLY("{}"),
         SQUARE("[]");
 
-        private final String brackets;
+        private final String pair;
 
         boolean isOpen(char c) {
-            return c == brackets.charAt(0);
+            return c == pair.charAt(0);
         }
 
         boolean isClosed(char c) {
-            return c == brackets.charAt(1);
+            return c == pair.charAt(1);
         }
 
         static Brackets isBracket(char c) {
