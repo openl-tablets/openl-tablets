@@ -67,9 +67,6 @@ public class GridRegion implements IGridRegion {
         if (right != other.right) {
             return false;
         }
-        if (top != other.top) {
-            return false;
-        }
-        return true;
+        return top == other.top;
     }
 }

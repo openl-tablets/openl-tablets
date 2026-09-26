@@ -64,10 +64,7 @@ import org.openl.rules.table.IGridRegion;
         if (getRight() != other.getRight()) {
             return false;
         }
-        if (getTop() != other.getTop()) {
-            return false;
-        }
-        return true;
+        return getTop() == other.getTop();
     }
 
 }

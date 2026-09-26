@@ -78,12 +78,7 @@ public final class NameChecker {
         }
 
         // check empty name
-        if (artefactName.isEmpty()) {
-            return false;
-        }
-
-        // seems OK
-        return true;
+        return !artefactName.isEmpty();
     }
 
     /**

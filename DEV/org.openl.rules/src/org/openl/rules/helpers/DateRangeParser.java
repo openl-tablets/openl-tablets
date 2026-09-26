@@ -34,10 +34,7 @@ public class DateRangeParser {
                 return false;
             }
             var right = rangeParser.getRight();
-            if (right != null && !SIMPLE_PATTERN.matcher(right).matches()) {
-                return false;
-            }
-            return true;
+            return right == null || SIMPLE_PATTERN.matcher(right).matches();
         } catch (ParseException e) {
             return false;
         }
