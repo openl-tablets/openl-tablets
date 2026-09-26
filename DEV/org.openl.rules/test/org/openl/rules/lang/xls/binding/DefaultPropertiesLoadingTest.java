@@ -22,8 +22,8 @@ class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
         var resultTsn = findTable(tableName);
         if (resultTsn != null) {
 
-            assertEquals(resultTsn.getTableProperties().getTableProperties().size(),
-                    0,
+            assertEquals(0,
+                    resultTsn.getTableProperties().getTableProperties().size(),
                     "Check that number of properties defined in table is 0");
 
             assertFalse(resultTsn.hasPropertiesDefinedInTable(),

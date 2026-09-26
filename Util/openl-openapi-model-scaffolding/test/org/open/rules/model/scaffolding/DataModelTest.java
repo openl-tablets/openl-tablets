@@ -48,9 +48,9 @@ class DataModelTest {
         assertNotEquals(qualityIndicatorsCorrectType, qualityIndicatorsCorrectPathInfo);
         assertNotEquals(qualityIndicatorsCorrectType.hashCode(), qualityIndicatorsCorrectPathInfo.hashCode());
 
-        assertEquals(qualityIndicatorsCorrectPathInfo.getName(), "qualityIndicators");
-        assertEquals(qualityIndicatorsCorrectPathInfo.getType(), "QualityIndicator");
-        assertEquals(qualityIndicatorsCorrectPathInfo.getDatatypeModel(), dtm);
-        assertEquals(qualityIndicatorsCorrectPathInfo.getPathInfo(), qualityInfo);
+        assertEquals("qualityIndicators", qualityIndicatorsCorrectPathInfo.getName());
+        assertEquals("QualityIndicator", qualityIndicatorsCorrectPathInfo.getType());
+        assertEquals(dtm, qualityIndicatorsCorrectPathInfo.getDatatypeModel());
+        assertEquals(qualityInfo, qualityIndicatorsCorrectPathInfo.getPathInfo());
     }
 }
