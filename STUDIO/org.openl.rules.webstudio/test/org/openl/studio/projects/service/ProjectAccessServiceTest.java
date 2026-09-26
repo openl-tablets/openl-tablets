@@ -46,7 +46,8 @@ class ProjectAccessServiceTest {
         listingContext = mock(ProjectListingContext.class);
         designTimeRepository = mock(DesignTimeRepository.class);
         project = mock(UserWorkspaceProject.class);
-        when(project.getRepository()).thenReturn(mock(Repository.class));
+        var repository = mock(Repository.class);
+        when(project.getRepository()).thenReturn(repository);
         service = new ProjectAccessService(aclProjectsHelper, stateValidator, deploymentRepositoryService,
                 designTimeRepositoryService, listingContext, designTimeRepository);
     }

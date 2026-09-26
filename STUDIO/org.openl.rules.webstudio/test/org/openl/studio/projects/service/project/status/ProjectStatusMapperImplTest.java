@@ -78,7 +78,8 @@ class ProjectStatusMapperImplTest {
         when(model.isOpenedModuleCompiled()).thenReturn(true);
         when(model.getModuleInfo()).thenReturn(module);
 
-        when(projectIdentifierMapper.map(project)).thenReturn(mock(ProjectIdModel.class));
+        var projectId = mock(ProjectIdModel.class);
+        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
         when(detailedMessageDescriptionMapper.mapSorted(any(), any())).thenReturn(List.of());
     }
 

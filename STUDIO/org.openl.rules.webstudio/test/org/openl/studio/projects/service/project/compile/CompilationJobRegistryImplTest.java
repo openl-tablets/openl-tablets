@@ -37,7 +37,8 @@ class CompilationJobRegistryImplTest {
         var project = mock(RulesProject.class);
         when(project.getBranch()).thenReturn("main");
         when(webStudio.getCurrentProject()).thenReturn(project);
-        when(webStudio.getCurrentModule()).thenReturn(mock(Module.class));
+        var module = mock(Module.class);
+        when(webStudio.getCurrentModule()).thenReturn(module);
         when(projectIdentifierMapper.map(project)).thenReturn(PROJECT);
 
         var compilation = mock(RegisteredCompilation.class);

@@ -78,9 +78,11 @@ class ProjectsMergeControllerTest {
         lenient().when(handle.awaitCompiled()).thenReturn(model);
 
         projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var userWorkspace = mock(UserWorkspace.class);
         lenient().when(projectService.openProject(project)).thenReturn(handle);
-        lenient().when(projectService.getWebStudio()).thenReturn(mock(WebStudio.class));
-        lenient().when(projectService.getUserWorkspace()).thenReturn(mock(UserWorkspace.class));
+        lenient().when(projectService.getWebStudio()).thenReturn(webStudio);
+        lenient().when(projectService.getUserWorkspace()).thenReturn(userWorkspace);
 
         mergeService = mock(ProjectsMergeService.class);
         lenient().when(mergeService.merge(any(), any(), any(), anyBoolean()))

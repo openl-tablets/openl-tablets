@@ -573,11 +573,14 @@ class ProjectsControllerTest {
         var project = mock(RulesProject.class);
         var model = compiledModel(projectService, project);
         var table = mock(IOpenLTable.class);
+        var method = mock(TestSuiteMethod.class);
+        var userWorkspace = mock(UserWorkspace.class);
+        var listener = mock(ProjectTestsExecutionProgressListener.class);
         when(model.getTableById("t1")).thenReturn(table);
         when(table.getUri()).thenReturn("file.xlsx?sheet=Runs&range=A1:B2");
-        when(model.getMethod("file.xlsx?sheet=Runs&range=A1:B2")).thenReturn(mock(TestSuiteMethod.class));
-        when(projectService.getUserWorkspace()).thenReturn(mock(UserWorkspace.class));
-        when(listeners.create(any(), any(), any(), any())).thenReturn(mock(ProjectTestsExecutionProgressListener.class));
+        when(model.getMethod("file.xlsx?sheet=Runs&range=A1:B2")).thenReturn(method);
+        when(projectService.getUserWorkspace()).thenReturn(userWorkspace);
+        when(listeners.create(any(), any(), any(), any())).thenReturn(listener);
 
         controller.runAllTests(project, null, "t1", null);
 

@@ -281,7 +281,8 @@ class ProjectIdentityConverterTest {
         // project of that business name occupies it now. The folder the id names must win.
         var renamedProject = mock(RulesProject.class);
         when(userWorkspace.getProjectByPath(repoId, projectRealPath)).thenReturn(Optional.of(renamedProject));
-        when(userWorkspace.getProject(repoId, projectBusinessName)).thenReturn(mock(RulesProject.class));
+        var occupyingProject = mock(RulesProject.class);
+        when(userWorkspace.getProject(repoId, projectBusinessName)).thenReturn(occupyingProject);
         when(designRepositoryAclService.isGranted(renamedProject, List.of(BasePermission.READ))).thenReturn(true);
 
         assertSame(renamedProject, projectConverter.convert(projectId));
