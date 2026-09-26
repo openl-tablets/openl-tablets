@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -115,21 +115,14 @@ class CastFactoryTest {
                 }
             }
         }
-        cast = factory.getCast(JavaOpenClass.getOpenClass(Object.class),
+        Integer[][][][] from = x;
+        var downCast = factory.getCast(JavaOpenClass.getOpenClass(Object.class),
                 JavaOpenClass.getOpenClass(int[][][][][].class));
-        assertFalse(cast.isImplicit());
-        try {
-            y = (int[][][][]) cast.convert(x);
-            fail("ClassCastException is expected.");
-        } catch (ClassCastException ignored) {
-        }
-        cast = factory.getCast(JavaOpenClass.getOpenClass(Integer[][][][][].class),
+        assertFalse(downCast.isImplicit());
+        assertThrows(ClassCastException.class, () -> convertTo4DimIntArray(downCast, from));
+        var arrayCast = factory.getCast(JavaOpenClass.getOpenClass(Integer[][][][][].class),
                 JavaOpenClass.getOpenClass(int[][][][][].class));
-        try {
-            y = (int[][][][]) cast.convert(x);
-            fail("ClassCastException is expected.");
-        } catch (ClassCastException ignored) {
-        }
+        assertThrows(ClassCastException.class, () -> convertTo4DimIntArray(arrayCast, from));
 
         assertNull(factory.getCast(JavaOpenClass.getOpenClass(Integer[][][][][].class),
                 JavaOpenClass.getOpenClass(int[][][][].class)));
@@ -253,6 +246,10 @@ class CastFactoryTest {
         var cast = factory.getCast(JavaOpenClass.getOpenClass(from), JavaOpenClass.getOpenClass(to));
         assertNotNull(cast);
 
+    }
+
+    private static int[][][][] convertTo4DimIntArray(IOpenCast cast, Object from) {
+        return (int[][][][]) cast.convert(from);
     }
 
     private static class Apple {

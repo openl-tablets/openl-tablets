@@ -1,11 +1,11 @@
 package org.openl.rules.datatype.binding;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
@@ -136,29 +136,16 @@ class SimpleBeanByteCodeGeneratorTest {
         var clazz = getBeanClass("my.test.EqualsTestBean", fields);
         assertNotNull(clazz);
 
-        Object instance1 = null, instance2 = null;
-        Method equalsMethod = null, setFirstField = null;
-        var isEqual = false;
-        try {
-            instance1 = clazz.getDeclaredConstructor().newInstance();
-            instance2 = clazz.getDeclaredConstructor().newInstance();
-            equalsMethod = clazz.getMethod("equals", Object.class);
-            setFirstField = clazz.getMethod("setFirstField", String.class);
-            isEqual = (Boolean) equalsMethod.invoke(instance1, instance2);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-        assertTrue(isEqual);
+        var instance1 = assertDoesNotThrow(() -> clazz.getDeclaredConstructor().newInstance());
+        var instance2 = assertDoesNotThrow(() -> clazz.getDeclaredConstructor().newInstance());
+        var equalsMethod = assertDoesNotThrow(() -> clazz.getMethod("equals", Object.class));
+        var setFirstField = assertDoesNotThrow(() -> clazz.getMethod("setFirstField", String.class));
+        assertTrue(assertDoesNotThrow(() -> (Boolean) equalsMethod.invoke(instance1, instance2)));
 
         // set field value for one of the instances
-        try {
-            assertNotNull(setFirstField);
-            setFirstField.invoke(instance1, "TestValue");
-            isEqual = (Boolean) equalsMethod.invoke(instance1, instance2);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-        assertFalse(isEqual);
+        assertNotNull(setFirstField);
+        assertDoesNotThrow(() -> setFirstField.invoke(instance1, "TestValue"));
+        assertFalse(assertDoesNotThrow(() -> (Boolean) equalsMethod.invoke(instance1, instance2)));
     }
 
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {

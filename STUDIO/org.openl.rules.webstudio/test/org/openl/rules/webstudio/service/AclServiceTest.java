@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
@@ -62,11 +62,7 @@ class AclServiceTest {
         acl.insertAce(acl.getEntries().size(), BasePermission.WRITE, sid1, false);
         aclService.updateAcl(acl);
 
-        try {
-            acl = (MutableAcl) aclService.readAclById(oi);
-        } catch (NotFoundException nfe) {
-            fail("ACL is not found!");
-        }
+        acl = assertDoesNotThrow(() -> (MutableAcl) aclService.readAclById(oi), "ACL is not found!");
 
         assertTrue(acl.isGranted(List.of(BasePermission.WRITE), List.of(sid), false));
         assertTrue(acl.isGranted(List.of(BasePermission.READ), List.of(sid), false));

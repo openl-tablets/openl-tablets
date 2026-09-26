@@ -1,7 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 
@@ -76,12 +76,9 @@ class ArrayParameterColumnTest {
         property.setType(JavaOpenClass.getOpenClass(String.class));
         var rules = getRules();
 
-        try {
-            new ArrayParameterColumn(property, rules);
-            fail("Exception should be thrown for not array property");
-        } catch (OpenlNotCheckedException e) {
-            assertEquals("Cannot create array parameter column for not an array property", e.getMessage());
-        }
+        var e = assertThrows(OpenlNotCheckedException.class, () -> new ArrayParameterColumn(property, rules),
+                "Exception should be thrown for not array property");
+        assertEquals("Cannot create array parameter column for not an array property", e.getMessage());
     }
 
     private DispatcherTableRules getRules() {

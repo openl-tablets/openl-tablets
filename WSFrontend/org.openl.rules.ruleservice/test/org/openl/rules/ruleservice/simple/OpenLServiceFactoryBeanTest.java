@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.simple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +35,8 @@ class OpenLServiceFactoryBeanTest {
 
     @Test
     void testSimpleServiceAbsentMethods() {
-        try {
-            simpleService.absent(null);
-            fail();
-        } catch (Exception e) {
-            assertEquals("org.openl.rules.ruleservice.simple.MethodInvocationException: Method 'absent(java.lang.String)' is not found in service 'simple/name'.", e.getMessage());
-        }
+        var e = assertThrows(Exception.class, () -> simpleService.absent(null));
+        assertEquals("org.openl.rules.ruleservice.simple.MethodInvocationException: Method 'absent(java.lang.String)' is not found in service 'simple/name'.", e.getMessage());
     }
 
     @Test
@@ -55,22 +50,14 @@ class OpenLServiceFactoryBeanTest {
 
     @Test
     void testDefaultFrontendAbsentMethods() {
-        try {
-            ruleService1.worldHello(null);
-            fail();
-        } catch (Exception e) {
-            assertEquals("org.openl.rules.ruleservice.simple.MethodInvocationException: Method 'worldHello(java.lang.String)' is not found in service 'RulesFrontendTest_multimodule'.", e.getMessage());
-        }
+        var e = assertThrows(Exception.class, () -> ruleService1.worldHello(null));
+        assertEquals("org.openl.rules.ruleservice.simple.MethodInvocationException: Method 'worldHello(java.lang.String)' is not found in service 'RulesFrontendTest_multimodule'.", e.getMessage());
     }
 
     @Test
     void testDefaultFrontendAbsentMethods2() {
-        try {
-            ruleService1.absent(null);
-            fail();
-        } catch (Exception e) {
-            assertEquals("org.openl.rules.ruleservice.simple.MethodInvocationException: Method 'absent(java.lang.String)' is not found in service 'RulesFrontendTest_multimodule'.", e.getMessage());
-        }
+        var e = assertThrows(Exception.class, () -> ruleService1.absent(null));
+        assertEquals("org.openl.rules.ruleservice.simple.MethodInvocationException: Method 'absent(java.lang.String)' is not found in service 'RulesFrontendTest_multimodule'.", e.getMessage());
     }
 
     @Test

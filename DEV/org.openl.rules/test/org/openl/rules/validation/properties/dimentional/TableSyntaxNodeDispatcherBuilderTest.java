@@ -2,7 +2,7 @@ package org.openl.rules.validation.properties.dimentional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.Test;
@@ -26,11 +26,8 @@ class TableSyntaxNodeDispatcherBuilderTest {
 
     @Test
     void testNull() {
-        try {
-            new TableSyntaxNodeDispatcherBuilder(null, null, null);
-            fail("Exception should be thrown");
-        } catch (IllegalArgumentException e) {
-            assertEquals("None of the constructor parameters can be null", e.getMessage());
-        }
+        var e = assertThrows(IllegalArgumentException.class,
+                () -> new TableSyntaxNodeDispatcherBuilder(null, null, null));
+        assertEquals("None of the constructor parameters can be null", e.getMessage());
     }
 }

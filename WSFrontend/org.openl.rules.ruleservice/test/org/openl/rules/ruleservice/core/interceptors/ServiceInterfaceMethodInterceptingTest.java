@@ -2,8 +2,8 @@ package org.openl.rules.ruleservice.core.interceptors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -435,53 +435,39 @@ class ServiceInterfaceMethodInterceptingTest {
 
     @Test
     void testMissingInterfaceClasses() {
-        try {
-            OpenLService service = instantiationFactory
-                    .createService(serviceDescriptionBuilder().setServiceClassName(ELUSIVE_CLASS_NAME).build());
-            service.getServiceClass();
-            fail("Everything went different before...");
-        } catch (RuleServiceInstantiationException e) {
-            Throwable actual = findExceptionByMessage(e,
-                    "Failed to load a service class 'org.openl.test.MustNotBeFoundInClassloader'.");
-            assertNotNull(actual, "Exception must be present");
-            assertTrue(actual.getCause() instanceof ClassNotFoundException);
-        }
-        try {
-            OpenLService service = instantiationFactory
-                    .createService(serviceDescriptionBuilder().setServiceClassName(null)
-                            .setAnnotationTemplateClassName(ELUSIVE_CLASS_NAME)
-                            .build());
-            service.getServiceClass();
-            fail("Everything went different before...");
-        } catch (RuleServiceInstantiationException e) {
-            Throwable actual = findExceptionByMessage(e,
-                    "Failed to load or apply annotation template class 'org.openl.test.MustNotBeFoundInClassloader'.");
-            assertNotNull(actual, "Exception must be present");
-            assertTrue(actual.getCause() instanceof ClassNotFoundException);
-        }
+        OpenLService service = instantiationFactory
+                .createService(serviceDescriptionBuilder().setServiceClassName(ELUSIVE_CLASS_NAME).build());
+        var e = assertThrows(RuleServiceInstantiationException.class, service::getServiceClass);
+        Throwable actual = findExceptionByMessage(e,
+                "Failed to load a service class 'org.openl.test.MustNotBeFoundInClassloader'.");
+        assertNotNull(actual, "Exception must be present");
+        assertTrue(actual.getCause() instanceof ClassNotFoundException);
 
-        try {
-            OpenLService service = instantiationFactory
-                    .createService(serviceDescriptionBuilder().setServiceClassName(null)
-                            .setAnnotationTemplateClassName(Overload.class.getName())
-                            .build());
-            service.getServiceClass();
-            fail("Everything went different before...");
-        } catch (RuleServiceInstantiationException e) {
-            Throwable actual = findExceptionByMessage(e,
-                    "Failed to apply annotation template class 'org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$Overload'. Interface or abstract class is expected, but class is found.");
-            assertNotNull(actual, "Exception must be present");
-        }
-        try {
-            OpenLService service = instantiationFactory
-                    .createService(serviceDescriptionBuilder().setServiceClassName(AOverload.class.getName()).build());
-            service.getServiceClass();
-            fail("Everything went different before...");
-        } catch (RuleServiceInstantiationException e) {
-            Throwable actual = findExceptionByMessage(e,
-                    "Failed to apply service class 'class org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$AOverload'. Interface is expected, but class is found.");
-            assertNotNull(actual, "Exception must be present");
-        }
+        service = instantiationFactory
+                .createService(serviceDescriptionBuilder().setServiceClassName(null)
+                        .setAnnotationTemplateClassName(ELUSIVE_CLASS_NAME)
+                        .build());
+        e = assertThrows(RuleServiceInstantiationException.class, service::getServiceClass);
+        actual = findExceptionByMessage(e,
+                "Failed to load or apply annotation template class 'org.openl.test.MustNotBeFoundInClassloader'.");
+        assertNotNull(actual, "Exception must be present");
+        assertTrue(actual.getCause() instanceof ClassNotFoundException);
+
+        service = instantiationFactory
+                .createService(serviceDescriptionBuilder().setServiceClassName(null)
+                        .setAnnotationTemplateClassName(Overload.class.getName())
+                        .build());
+        e = assertThrows(RuleServiceInstantiationException.class, service::getServiceClass);
+        actual = findExceptionByMessage(e,
+                "Failed to apply annotation template class 'org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$Overload'. Interface or abstract class is expected, but class is found.");
+        assertNotNull(actual, "Exception must be present");
+
+        service = instantiationFactory
+                .createService(serviceDescriptionBuilder().setServiceClassName(AOverload.class.getName()).build());
+        e = assertThrows(RuleServiceInstantiationException.class, service::getServiceClass);
+        actual = findExceptionByMessage(e,
+                "Failed to apply service class 'class org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$AOverload'. Interface is expected, but class is found.");
+        assertNotNull(actual, "Exception must be present");
     }
 
     private static Throwable findExceptionByMessage(Exception e, String expectedMessage) {

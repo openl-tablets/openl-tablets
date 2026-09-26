@@ -2,8 +2,8 @@ package org.openl.rules.table.xls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Calendar;
 
@@ -81,20 +81,12 @@ class XlsCellTest {
 
         assertEquals("hello everybody!", cell.getStringValue());
 
-        try {
-            cell.getNativeDate();
-            fail();
-        } catch (IllegalStateException e) {
-            // can`t get numeric values from string cell
-            assertEquals("Cannot get a NUMERIC value from a STRING cell", e.getMessage());
-        }
-        try {
-            cell.getNativeNumber();
-            fail();
-        } catch (IllegalStateException e) {
-            // can`t get numeric values from string cell
-            assertEquals("Cannot get a NUMERIC value from a STRING cell", e.getMessage());
-        }
+        var e = assertThrows(IllegalStateException.class, cell::getNativeDate);
+        // can`t get numeric values from string cell
+        assertEquals("Cannot get a NUMERIC value from a STRING cell", e.getMessage());
+        e = assertThrows(IllegalStateException.class, cell::getNativeNumber);
+        // can`t get numeric values from string cell
+        assertEquals("Cannot get a NUMERIC value from a STRING cell", e.getMessage());
 
         var font = cell.getFont();
         assertEquals("Arial", font.getName());

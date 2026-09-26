@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,11 +73,8 @@ class RulesFrontendTest {
         assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name"),
                 frontend.getServiceNames());
 
-        try {
-            frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
-            fail();
-        } catch (MethodInvocationException e) {
-            assertTrue(e.getMessage().contains("Service 'RulesFrontendTest_multimodule' is not found."));
-        }
+        var e = assertThrows(MethodInvocationException.class,
+                () -> frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10));
+        assertTrue(e.getMessage().contains("Service 'RulesFrontendTest_multimodule' is not found."));
     }
 }

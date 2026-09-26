@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.service;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,11 +65,7 @@ class SecurityAnnotationsSupportTest {
         var sid = new PrincipalSid("oleg");
         acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, false);
         aclService.updateAcl(acl);
-        try {
-            securedService.read(foo);
-            fail("Expected access deny exception");
-        } catch (AccessDeniedException ignored) {
-        }
+        assertThrows(AccessDeniedException.class, () -> securedService.read(foo));
         acl.deleteAce(acl.getEntries().size() - 1);
         acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
         aclService.updateAcl(acl);

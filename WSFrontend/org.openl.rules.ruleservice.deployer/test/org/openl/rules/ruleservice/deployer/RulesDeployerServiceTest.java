@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.deployer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -257,20 +258,14 @@ class RulesDeployerServiceTest {
     @Test
     void testWrongFile() throws Exception {
         init(Repository.class, true);
-        try {
-            deployer.deploy("customName-deployment", new ByteArrayInputStream("foo".getBytes()), true);
-            fail("Everything went different before...");
-        } catch (Exception e) {
-            assertEquals("Provided file is not an archive!", e.getMessage());
-        }
-        try {
-            var baos = new ByteArrayOutputStream();
-            IOUtils.closeQuietly(new ZipOutputStream(baos)); // make it empty
-            deployer.deploy("customName-deployment", new ByteArrayInputStream(baos.toByteArray()), true);
-            fail("Everything went different before...");
-        } catch (Exception e) {
-            assertEquals("Cannot create a project from the given file. Zip file is empty.", e.getMessage());
-        }
+        var notArchive = new ByteArrayInputStream("foo".getBytes());
+        var e = assertThrows(Exception.class, () -> deployer.deploy("customName-deployment", notArchive, true));
+        assertEquals("Provided file is not an archive!", e.getMessage());
+        var baos = new ByteArrayOutputStream();
+        IOUtils.closeQuietly(new ZipOutputStream(baos)); // make it empty
+        var emptyArchive = new ByteArrayInputStream(baos.toByteArray());
+        e = assertThrows(Exception.class, () -> deployer.deploy("customName-deployment", emptyArchive, true));
+        assertEquals("Cannot create a project from the given file. Zip file is empty.", e.getMessage());
     }
 
     private void assertEPBDS_10894() throws IOException {

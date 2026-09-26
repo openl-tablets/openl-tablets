@@ -1,7 +1,7 @@
 package org.openl.rules.datatype.binding;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -62,12 +62,8 @@ class MockGridTableTest {
         mas[0][0] = null;
         mas[1][0] = CELL1;
         mas[2][0] = null;
-        try {
-            new MockGridTable(mas);
-            fail();
-        } catch (IllegalArgumentException ex) {
-            assertEquals("There should be any not null value before the null.", ex.getMessage());
-        }
+        var ex = assertThrows(IllegalArgumentException.class, () -> new MockGridTable(mas));
+        assertEquals("There should be any not null value before the null.", ex.getMessage());
     }
 
     @Test

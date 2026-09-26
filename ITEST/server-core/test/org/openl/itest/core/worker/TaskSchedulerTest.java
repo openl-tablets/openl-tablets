@@ -2,6 +2,7 @@ package org.openl.itest.core.worker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doAnswer;
@@ -61,14 +62,11 @@ class TaskSchedulerTest {
 
         scheduler.schedule(command1, 1, TimeUnit.MILLISECONDS);
         boolean errors = scheduler.await();
-        try {
-            threadCaptor.await(1);
-            fail("Must be executed only once!");
-        } catch (AssertionError e) {
-            assertEquals("Each thread must be executed at least '2' times ==> expected: <true> but was: <false>", e.getMessage());
-            verify(command1, times(1)).run();
-            assertFalse(errors);
-        }
+        var e = assertThrows(AssertionError.class, () -> threadCaptor.await(1), "Must be executed only once!");
+        assertEquals("Each thread must be executed at least '2' times ==> expected: <true> but was: <false>",
+                e.getMessage());
+        verify(command1, times(1)).run();
+        assertFalse(errors);
     }
 
     @Test

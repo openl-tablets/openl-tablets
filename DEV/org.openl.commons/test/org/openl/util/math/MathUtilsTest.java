@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -308,23 +307,16 @@ class MathUtilsTest {
         assertEquals(Long.valueOf(10), MathUtils.big(mas, 4));
         assertEquals(Long.valueOf(4), MathUtils.big(mas, 5));
 
-        try {
-            MathUtils.big(mas, 6);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array.", e.getMessage());
-        }
+        Long[] values = mas;
+        var e = assertThrows(IllegalArgumentException.class, () -> MathUtils.big(values, 6));
+        assertEquals("There is no position '6' in the given array.", e.getMessage());
 
         mas = null;
         assertNull(MathUtils.big(mas, 5));
 
-        mas = new Long[1];
-        try {
-            MathUtils.big(mas, 0);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array.", e.getMessage());
-        }
+        Long[] nullValue = new Long[1];
+        e = assertThrows(IllegalArgumentException.class, () -> MathUtils.big(nullValue, 0));
+        assertEquals("There is no position '0' in the given array.", e.getMessage());
 
         mas = new Long[]{null, 10L, 45L, 4L, null, 44L, null, 22L};
         assertEquals(Long.valueOf(45), MathUtils.big(mas, 1));
@@ -452,23 +444,16 @@ class MathUtilsTest {
         assertEquals(Long.valueOf(44), MathUtils.small(mas, 4));
         assertEquals(Long.valueOf(45), MathUtils.small(mas, 5));
 
-        try {
-            MathUtils.small(mas, 6);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array.", e.getMessage());
-        }
+        Long[] values = mas;
+        var e = assertThrows(IllegalArgumentException.class, () -> MathUtils.small(values, 6));
+        assertEquals("There is no position '6' in the given array.", e.getMessage());
 
         mas = null;
         assertNull(MathUtils.small(mas, 5));
 
-        mas = new Long[1];
-        try {
-            MathUtils.small(mas, 0);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array.", e.getMessage());
-        }
+        Long[] nullValue = new Long[1];
+        e = assertThrows(IllegalArgumentException.class, () -> MathUtils.small(nullValue, 0));
+        assertEquals("There is no position '0' in the given array.", e.getMessage());
 
         mas = new Long[]{null, 10L, 45L, 4L, null, 44L, null, 22L};
         assertEquals(Long.valueOf(4), MathUtils.small(mas, 1));

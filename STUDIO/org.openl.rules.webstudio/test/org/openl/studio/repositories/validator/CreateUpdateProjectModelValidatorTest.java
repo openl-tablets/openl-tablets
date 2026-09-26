@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -430,12 +429,9 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
         when(designTimeRepository.hasProjectInAnyBranch("design-rating", model.getProjectName()))
                 .thenReturn(Boolean.TRUE);
 
-        try {
-            validateAndGetResult(model, validator);
-            fail("Ooops...");
-        } catch (ConflictException e) {
-            assertEquals("Cannot create a project because the project with such name already exists.", getLocalMessage(e));
-        }
+        var exception = assertThrows(ConflictException.class, () -> validateAndGetResult(model, validator));
+        assertEquals("Cannot create a project because the project with such name already exists.",
+                getLocalMessage(exception));
     }
 
     @Test
@@ -451,14 +447,10 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
         var fileData = mock(FileData.class);
         when(mockedRepo.check(model.getFullPath())).thenReturn(fileData);
 
-        try {
-            validateAndGetResult(model, validator);
-            fail("Ooops...");
-        } catch (ConflictException e) {
-            assertEquals(
-                    "Cannot create a project because the project with such path already exists. Try importing that project from the repository or use another path or name for a new project.",
-                    getLocalMessage(e));
-        }
+        var exception = assertThrows(ConflictException.class, () -> validateAndGetResult(model, validator));
+        assertEquals(
+                "Cannot create a project because the project with such path already exists. Try importing that project from the repository or use another path or name for a new project.",
+                getLocalMessage(exception));
     }
 
     @Test
@@ -494,12 +486,9 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
         res.add(mockProject);
         when(designTimeRepository.getProjects(model.getRepoName())).thenReturn(res);
 
-        try {
-            validateAndGetResult(model, validator);
-            fail("Ooops...");
-        } catch (ConflictException e) {
-            assertEquals("Cannot create a project because the path conflicts with the existing project.", getLocalMessage(e));
-        }
+        var exception = assertThrows(ConflictException.class, () -> validateAndGetResult(model, validator));
+        assertEquals("Cannot create a project because the path conflicts with the existing project.",
+                getLocalMessage(exception));
     }
 
     @Test
@@ -518,12 +507,9 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
         res.add(mockProject);
         when(designTimeRepository.getProjects(model.getRepoName())).thenReturn(res);
 
-        try {
-            validateAndGetResult(model, validator);
-            fail("Ooops...");
-        } catch (ConflictException e) {
-            assertEquals("Cannot create a project because the path conflicts with the existing project.", getLocalMessage(e));
-        }
+        var exception = assertThrows(ConflictException.class, () -> validateAndGetResult(model, validator));
+        assertEquals("Cannot create a project because the path conflicts with the existing project.",
+                getLocalMessage(exception));
     }
 
     @Test
@@ -608,22 +594,14 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
         assertNull(validateAndGetResult(model, validator));
 
         when(mockProject.getRealPath()).thenReturn("foo/bar/foo");
-        try {
-            validateAndGetResult(model, validator);
-            fail("Ooops...");
-        } catch (NotFoundException e) {
-            assertEquals("The project 'Example 1 - Bank Rating' is not found.", getLocalMessage(e));
-        }
+        var exception = assertThrows(NotFoundException.class, () -> validateAndGetResult(model, validator));
+        assertEquals("The project 'Example 1 - Bank Rating' is not found.", getLocalMessage(exception));
 
         when(mockProject.getRealPath()).thenAnswer(inwok -> {
             throw new ProjectException("Project 'Example 1 - Bank Rating' is not found.");
         });
-        try {
-            validateAndGetResult(model, validator);
-            fail("Ooops...");
-        } catch (NotFoundException e) {
-            assertEquals("The project 'Example 1 - Bank Rating' is not found.", getLocalMessage(e));
-        }
+        exception = assertThrows(NotFoundException.class, () -> validateAndGetResult(model, validator));
+        assertEquals("The project 'Example 1 - Bank Rating' is not found.", getLocalMessage(exception));
     }
 
     private <T extends Repository> T mockDesignRepository(Class<T> tClass,

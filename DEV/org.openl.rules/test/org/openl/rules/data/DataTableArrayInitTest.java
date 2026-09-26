@@ -1,5 +1,6 @@
 package org.openl.rules.data;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,15 +35,12 @@ class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
             var typeWitharray = (Object[]) member.getTable().getDataArray();
 
             assertEquals(15, typeWitharray.length);
-            try {
+            assertDoesNotThrow(() -> {
                 assertEquals(3, getAddressArry(typeWitharray[3]).length);
                 assertNull(getAddressArry(typeWitharray[12])[1]);
                 assertEquals(37, getZip(getAddressArry(typeWitharray[12])[0]));
                 assertEquals(51, getZip(getAddressArry(typeWitharray[12])[2]));
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail();
-            }
+            });
         } else {
             fail();
         }
@@ -60,15 +58,12 @@ class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
             var typeWitharray = (Object[]) member.getTable().getDataArray();
 
             assertEquals(15, typeWitharray.length);
-            try {
+            assertDoesNotThrow(() -> {
                 assertEquals(3, getVehicles(getP(typeWitharray[3])).length);
                 assertEquals("37", getModel(getVehicles(getP(typeWitharray[12]))[2]));
                 assertEquals("51", getModel(getVehicles(getP(typeWitharray[12]))[1]));
                 assertNull(getVehicles(getP(typeWitharray[12]))[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail();
-            }
+            });
         } else {
             fail();
         }

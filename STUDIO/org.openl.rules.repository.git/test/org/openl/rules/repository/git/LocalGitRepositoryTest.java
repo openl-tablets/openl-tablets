@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.openl.rules.repository.git.TestGitUtils.assertContains;
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
@@ -126,12 +126,10 @@ class LocalGitRepositoryTest {
 
     @Test
     void testBranches() throws IOException {
-        try {
-            repo.createRepositoryBranch("project1/test1", repo.getBranch());
-            fail("Must fail when create a branch on empty repository");
-        } catch (IOException e) {
-            assertEquals("Cannot create a branch on the empty repository.", e.getMessage());
-        }
+        var baseBranch = repo.getBranch();
+        var e = assertThrows(IOException.class, () -> repo.createRepositoryBranch("project1/test1", baseBranch),
+                "Must fail when create a branch on empty repository");
+        assertEquals("Cannot create a branch on the empty repository.", e.getMessage());
 
         var text = "Some text";
         repo.save(createFileData("initial.txt", text), IOUtils.toInputStream(text));
@@ -234,29 +232,26 @@ class LocalGitRepositoryTest {
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
-        try {
-            repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
-            var conflictDetails = e.getDetails();
-            final var resolveMessage = "Resolve conflict (use theirs)";
+        var author = new UserInfo("admin", "admin@email", "Admin");
+        var e = assertThrows(MergeConflictException.class, () -> repo.merge("branch1", author, null));
+        var conflictDetails = e.getDetails();
+        final var resolveMessage = "Resolve conflict (use theirs)";
 
-            // !!! The text must be same as in branch1 for this test scenario. Resolve with choosing "all theirs".
-            var resolvedFiles = List
-                    .of(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
+        // !!! The text must be same as in branch1 for this test scenario. Resolve with choosing "all theirs".
+        var resolvedFiles = List
+                .of(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
 
-            repo.merge("branch1",
-                    new UserInfo("admin", "admin@email", "Admin"),
-                    new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
+        repo.merge("branch1",
+                new UserInfo("admin", "admin@email", "Admin"),
+                new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
 
-            assertEquals(resolveMessage, repo.check(project1).getComment());
-            assertEquals(textInBranch1, GitRepositoryTest.readText(repo.read(file)));
+        assertEquals(resolveMessage, repo.check(project1).getComment());
+        assertEquals(textInBranch1, GitRepositoryTest.readText(repo.read(file)));
 
-            assertEquals(4, repo.listHistory(project1).size());
-            var lastVersion = repo.listHistory(project1).get(3).getVersion();
-            assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
-                    "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
-        }
+        assertEquals(4, repo.listHistory(project1).size());
+        var lastVersion = repo.listHistory(project1).get(3).getVersion();
+        assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
+                "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
     }
 
     @Test
@@ -271,16 +266,13 @@ class LocalGitRepositoryTest {
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
-        try {
-            repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
-            var conflictDetails = e.getDetails();
-            var diff = conflictDetails.diffs().get(file);
-            assertNotNull(diff);
-            assertTrue(diff.contains("--- \"a/rules/project(1)/file1\""));
-            assertTrue(diff.contains("+++ \"b/rules/project(1)/file1\""));
-        }
+        var author = new UserInfo("admin", "admin@email", "Admin");
+        var e = assertThrows(MergeConflictException.class, () -> repo.merge("branch1", author, null));
+        var conflictDetails = e.getDetails();
+        var diff = conflictDetails.diffs().get(file);
+        assertNotNull(diff);
+        assertTrue(diff.contains("--- \"a/rules/project(1)/file1\""));
+        assertTrue(diff.contains("+++ \"b/rules/project(1)/file1\""));
     }
 
     @Test
@@ -298,34 +290,31 @@ class LocalGitRepositoryTest {
         var treeBeforeMerge = repo.getBranchTreeRevisions(List.of(repo.getBranch()), project1)
                 .get(repo.getBranch())
                 .treeRevision();
-        try {
-            repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
-            var conflictDetails = e.getDetails();
-            final var resolveMessage = "Resolve conflict (use yours)";
+        var author = new UserInfo("admin", "admin@email", "Admin");
+        var e = assertThrows(MergeConflictException.class, () -> repo.merge("branch1", author, null));
+        var conflictDetails = e.getDetails();
+        final var resolveMessage = "Resolve conflict (use yours)";
 
-            // !!! The text must be same as in master for this test scenario. Resolve with choosing "all yours".
-            var resolvedFiles = List
-                    .of(new FileItem(file, IOUtils.toInputStream(textInMaster)));
+        // !!! The text must be same as in master for this test scenario. Resolve with choosing "all yours".
+        var resolvedFiles = List
+                .of(new FileItem(file, IOUtils.toInputStream(textInMaster)));
 
-            repo.merge("branch1",
-                    new UserInfo("admin", "admin@email", "Admin"),
-                    new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
+        repo.merge("branch1",
+                new UserInfo("admin", "admin@email", "Admin"),
+                new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
 
-            assertEquals(resolveMessage, repo.check(project1).getComment());
-            assertEquals(textInMaster, GitRepositoryTest.readText(repo.read(file)));
+        assertEquals(resolveMessage, repo.check(project1).getComment());
+        assertEquals(textInMaster, GitRepositoryTest.readText(repo.read(file)));
 
-            assertEquals(4, repo.listHistory(project1).size());
-            var lastVersion = repo.listHistory(project1).get(3).getVersion();
-            assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
-                    "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
-            var mergeRevision = repo.getBranchTreeRevisions(List.of(repo.getBranch()), project1)
-                    .get(repo.getBranch());
-            assertEquals(treeBeforeMerge, mergeRevision.treeRevision());
-            assertTrue(mergeRevision.tipAffectsPath(),
-                    "An ours merge must refresh project metadata even when its final tree is unchanged.");
-        }
+        assertEquals(4, repo.listHistory(project1).size());
+        var lastVersion = repo.listHistory(project1).get(3).getVersion();
+        assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
+                "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
+        var mergeRevision = repo.getBranchTreeRevisions(List.of(repo.getBranch()), project1)
+                .get(repo.getBranch());
+        assertEquals(treeBeforeMerge, mergeRevision.treeRevision());
+        assertTrue(mergeRevision.tipAffectsPath(),
+                "An ours merge must refresh project metadata even when its final tree is unchanged.");
     }
 
     @Test
@@ -422,34 +411,31 @@ class LocalGitRepositoryTest {
         // Modify a file in branch2 and merge it to main branch with conflict. Choose theirs.
         final var textInBranch2 = "Modify 'file1' in the branch 'branch2'.";
         modifyFile(repoBranch2, "rules/project1/file1", textInBranch2);
-        try {
-            repo.merge(branch2, new UserInfo("admin", "admin@email", "Admin"), null);
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
-            var conflictDetails = e.getDetails();
-            final var resolveMessage = "Resolve conflict (use theirs)";
-            var resolvedFiles = List
-                    .of(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
+        var author = new UserInfo("admin", "admin@email", "Admin");
+        var e = assertThrows(MergeConflictException.class, () -> repo.merge(branch2, author, null));
+        var conflictDetails = e.getDetails();
+        final var resolveMessage = "Resolve conflict (use theirs)";
+        var resolvedFiles = List
+                .of(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
 
-            // Resolve conflict with choosing "theirs".
-            repo.merge(branch2,
-                    new UserInfo("admin", "admin@email", "Admin"),
-                    new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
-            assertTrue(repo.isMergedInto(branch2, mainBranch));
-            // Because it was a conflict, project state in mainBranch differs from the state in branch2
-            assertFalse(repo.isMergedInto(mainBranch, branch2));
+        // Resolve conflict with choosing "theirs".
+        repo.merge(branch2,
+                new UserInfo("admin", "admin@email", "Admin"),
+                new ConflictResolveData(conflictDetails.theirCommit(), resolvedFiles, resolveMessage));
+        assertTrue(repo.isMergedInto(branch2, mainBranch));
+        // Because it was a conflict, project state in mainBranch differs from the state in branch2
+        assertFalse(repo.isMergedInto(mainBranch, branch2));
 
-            assertTrue(repo.isMergedInto(branch1, mainBranch));
-            // Our project (project1) was modified in branch2 and then their changes were discarded when merged into
-            // main. We should be able to retrieve their changes despite that they were discarded.
-            // So we expect that main branch is not merged into branch1 (there are valuable changes in main branch).
-            assertFalse(repo.isMergedInto(mainBranch, branch1));
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        // Our project (project1) was modified in branch2 and then their changes were discarded when merged into
+        // main. We should be able to retrieve their changes despite that they were discarded.
+        // So we expect that main branch is not merged into branch1 (there are valuable changes in main branch).
+        assertFalse(repo.isMergedInto(mainBranch, branch1));
 
-            // Modify again in branch1.
-            modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #2");
-            assertFalse(repo.isMergedInto(branch1, mainBranch));
-            assertFalse(repo.isMergedInto(mainBranch, branch1));
-        }
+        // Modify again in branch1.
+        modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #2");
+        assertFalse(repo.isMergedInto(branch1, mainBranch));
+        assertFalse(repo.isMergedInto(mainBranch, branch1));
     }
 
     private void modifyFile(GitRepository repository, String path, String text) throws IOException {

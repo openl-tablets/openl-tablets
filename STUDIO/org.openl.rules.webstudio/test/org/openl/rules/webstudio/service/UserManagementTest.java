@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -276,13 +276,10 @@ class UserManagementTest {
                 "a\n",
                 "a\r"};
         for (String username : forbiddenNames) {
-            try {
-                saveTask.accept(username);
-                fail("Must be not saved!");
-            } catch (ConstraintViolationException e) {
-                var constraint = e.getConstraintViolations().iterator().next();
-                assertEquals("loginName", constraint.getPropertyPath().toString());
-            }
+            var e = assertThrows(ConstraintViolationException.class, () -> saveTask.accept(username),
+                    "Must be not saved!");
+            var constraint = e.getConstraintViolations().iterator().next();
+            assertEquals("loginName", constraint.getPropertyPath().toString());
             assertFalse(userService.existsByName(username));
         }
 

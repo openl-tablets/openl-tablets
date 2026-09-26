@@ -3,8 +3,8 @@ package org.openl.rules.repository.git;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
 
@@ -128,37 +128,30 @@ class GitRepositoryMergeConflictsInExcelTest {
     void testCase_04() throws IOException, GitAPIException {
         var testCaseData = initializeTestCase("04");
         var branchRepo = repo.forBranch("04");
-        try {
-            branchRepo.merge(Constants.MASTER, USER_INFO, null);
-            fail("¯\\_(ツ)_/¯");
-        } catch (MergeConflictException e) {
-            var conflictDetails = e.getDetails();
-            assertEquals(testCaseData.baseRevision, conflictDetails.baseCommit());
-            assertEquals(testCaseData.ourRevision, conflictDetails.yourCommit());
-            assertEquals(testCaseData.theirRevision, conflictDetails.theirCommit());
-            assertTrue(conflictDetails.diffs().containsKey("04/Bank Rating.xlsx"));
-            assertEquals(1, conflictDetails.diffs().size());
+        var e = assertThrows(MergeConflictException.class, () -> branchRepo.merge(Constants.MASTER, USER_INFO, null));
+        var conflictDetails = e.getDetails();
+        assertEquals(testCaseData.baseRevision, conflictDetails.baseCommit());
+        assertEquals(testCaseData.ourRevision, conflictDetails.yourCommit());
+        assertEquals(testCaseData.theirRevision, conflictDetails.theirCommit());
+        assertTrue(conflictDetails.diffs().containsKey("04/Bank Rating.xlsx"));
+        assertEquals(1, conflictDetails.diffs().size());
 
-            assertTrue(conflictDetails.toAutoResolve().containsKey("04/MyBook.xlsx"));
-            assertEquals(1, conflictDetails.toAutoResolve().size());
-        }
+        assertTrue(conflictDetails.toAutoResolve().containsKey("04/MyBook.xlsx"));
+        assertEquals(1, conflictDetails.toAutoResolve().size());
 
         // Test symmetry merge
-        branchRepo = repo.forBranch(Constants.MASTER);
-        try {
-            branchRepo.merge("04" + COPY_BRANCH_PREF, USER_INFO, null);
-            fail("¯\\_(ツ)_/¯");
-        } catch (MergeConflictException e) {
-            var conflictDetails = e.getDetails();
-            assertEquals(testCaseData.baseRevision, conflictDetails.baseCommit());
-            assertEquals(testCaseData.ourRevision, conflictDetails.theirCommit());
-            assertEquals(testCaseData.theirRevision, conflictDetails.yourCommit());
-            assertTrue(conflictDetails.diffs().containsKey("04/Bank Rating.xlsx"));
-            assertEquals(1, conflictDetails.diffs().size());
+        var masterRepo = repo.forBranch(Constants.MASTER);
+        e = assertThrows(MergeConflictException.class,
+                () -> masterRepo.merge("04" + COPY_BRANCH_PREF, USER_INFO, null));
+        conflictDetails = e.getDetails();
+        assertEquals(testCaseData.baseRevision, conflictDetails.baseCommit());
+        assertEquals(testCaseData.ourRevision, conflictDetails.theirCommit());
+        assertEquals(testCaseData.theirRevision, conflictDetails.yourCommit());
+        assertTrue(conflictDetails.diffs().containsKey("04/Bank Rating.xlsx"));
+        assertEquals(1, conflictDetails.diffs().size());
 
-            assertTrue(conflictDetails.toAutoResolve().containsKey("04/MyBook.xlsx"));
-            assertEquals(1, conflictDetails.toAutoResolve().size());
-        }
+        assertTrue(conflictDetails.toAutoResolve().containsKey("04/MyBook.xlsx"));
+        assertEquals(1, conflictDetails.toAutoResolve().size());
     }
 
     @Test

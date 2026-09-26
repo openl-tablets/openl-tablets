@@ -1,7 +1,7 @@
 package org.openl.rules.table.properties.expressions.match;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -51,12 +51,8 @@ class MatchExpressionTest {
 
         var operationNameTest = "unknownOperation";
 
-        try {
-            testMatchExpression(operationNameTest, operationTest);
-            fail();
-        } catch (OpenLRuntimeException e) {
-            assertEquals("Unknown match expression operation 'UNKNOWNOPERATION'.", e.getMessage());
-        }
+        var e = assertThrows(OpenLRuntimeException.class, () -> testMatchExpression(operationNameTest, operationTest));
+        assertEquals("Unknown match expression operation 'UNKNOWNOPERATION'.", e.getMessage());
     }
 
     private void testMatchExpression(String operationNameTest, String operationTest) {

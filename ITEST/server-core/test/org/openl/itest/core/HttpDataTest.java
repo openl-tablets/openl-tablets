@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -80,39 +79,23 @@ class HttpDataTest {
 
     @Test
     void testWrongLength() {
-        try {
-            HttpData.readFile("/wrong-length.resp");
-            fail("Non reachable");
-        } catch (IOException er) {
-            assertEquals("Unexpected size of the body.", er.getMessage());
-        }
+        var er = assertThrows(IOException.class, () -> HttpData.readFile("/wrong-length.resp"));
+        assertEquals("Unexpected size of the body.", er.getMessage());
     }
 
     @Test
     void testWrongHeader() {
-        try {
-            HttpData.readFile("/wrong-header.resp");
-            fail("Non reachable");
-        } catch (IOException er) {
-            assertEquals("Unexpected end of the stream. Expected CRLF in the end of the line.", er.getMessage());
-        }
+        var er = assertThrows(IOException.class, () -> HttpData.readFile("/wrong-header.resp"));
+        assertEquals("Unexpected end of the stream. Expected CRLF in the end of the line.", er.getMessage());
     }
 
     @Test
     void testWrongChuncked() {
-        try {
-            HttpData.readFile("/wrong-chuncked.resp");
-            fail("Non reachable");
-        } catch (IOException er) {
-            assertEquals("Unexpected format of the chunk.", er.getMessage());
-        }
+        var er = assertThrows(IOException.class, () -> HttpData.readFile("/wrong-chuncked.resp"));
+        assertEquals("Unexpected format of the chunk.", er.getMessage());
 
-        try {
-            HttpData.readFile("/wrong-chuncked2.resp");
-            fail("Non reachable");
-        } catch (IOException er) {
-            assertEquals("Unexpected size of the chunk.", er.getMessage());
-        }
+        er = assertThrows(IOException.class, () -> HttpData.readFile("/wrong-chuncked2.resp"));
+        assertEquals("Unexpected size of the chunk.", er.getMessage());
     }
 
     /**

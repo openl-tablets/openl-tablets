@@ -1,11 +1,12 @@
 package org.openl.rules.repository.zip;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -169,41 +170,24 @@ class ZippedLocalRepositoryTest {
 
     @Test
     void initializationTest() throws IOException {
-        try {
+        assertDoesNotThrow(() -> {
             configureZipRepository("", null);
             configureZipRepository(repositoryRoot.getPath() + "\\singleDeployment", null);
-        } catch (IllegalStateException e) {
-            fail("Ooops...");
-        }
+        });
 
-        try {
-            configureZipRepository("multiDeployment.zip", "multiDeployment.zip");
-            fail("Ooops...");
-        } catch (IllegalStateException e) {
-            assertEquals("An archive name [multiDeployment] is duplicated!", e.getMessage());
-        }
+        var e = assertThrows(IllegalStateException.class,
+                () -> configureZipRepository("multiDeployment.zip", "multiDeployment.zip"));
+        assertEquals("An archive name [multiDeployment] is duplicated!", e.getMessage());
 
-        try {
-            configureZipRepository("/multiDeployment.zip");
-            fail("Ooops...");
-        } catch (IllegalStateException e) {
-            assertEquals("The path [/multiDeployment.zip] does not exist.", e.getMessage());
-        }
+        e = assertThrows(IllegalStateException.class, () -> configureZipRepository("/multiDeployment.zip"));
+        assertEquals("The path [/multiDeployment.zip] does not exist.", e.getMessage());
 
-        try {
-            configureZipRepository("foo.zip");
-            fail("Ooops...");
-        } catch (IllegalStateException e) {
-            assertEquals("The path [foo.zip] does not exist.", e.getMessage());
-        }
+        e = assertThrows(IllegalStateException.class, () -> configureZipRepository("foo.zip"));
+        assertEquals("The path [foo.zip] does not exist.", e.getMessage());
 
         Files.createDirectories(repositoryRoot.toPath().resolve("bar"));
-        try {
-            configureZipRepository("bar");
-            fail("Ooops...");
-        } catch (IllegalStateException e) {
-            assertEquals("[bar] is not archive.", e.getMessage());
-        }
+        e = assertThrows(IllegalStateException.class, () -> configureZipRepository("bar"));
+        assertEquals("[bar] is not archive.", e.getMessage());
     }
 
     @Test
@@ -245,12 +229,8 @@ class ZippedLocalRepositoryTest {
         assertExistsFolderFileData(fileMap.get("multiDeployment/project1"));
         assertExistsFolderFileData(fileMap.get("multiDeployment/project2"));
 
-        try {
-            repository.listFiles("/singleDeployment", null);
-            fail("Ooops...");
-        } catch (IOException e) {
-            assertEquals("Unable to resolve the path [/singleDeployment].", e.getMessage());
-        }
+        var e = assertThrows(IOException.class, () -> repository.listFiles("/singleDeployment", null));
+        assertEquals("Unable to resolve the path [/singleDeployment].", e.getMessage());
     }
 
     @Test

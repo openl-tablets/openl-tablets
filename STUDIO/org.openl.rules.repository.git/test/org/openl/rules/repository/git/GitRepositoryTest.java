@@ -559,16 +559,13 @@ class GitRepositoryTest {
 
     @Test
     void changesShouldBeRolledBackOnError() throws Exception {
-        try {
-            var data = new FileData();
-            data.setName("rules/project1/file2");
-            data.setAuthor(new UserInfo(null));
-            data.setComment(null);
-            repo.save(data, IOUtils.toInputStream("error"));
-            fail("Exception should be thrown");
-        } catch (IOException e) {
-            assertEquals("Commit author name is blank.", e.getCause().getMessage());
-        }
+        var data = new FileData();
+        data.setName("rules/project1/file2");
+        data.setAuthor(new UserInfo(null));
+        data.setComment(null);
+        var stream = IOUtils.toInputStream("error");
+        var e = assertThrows(IOException.class, () -> repo.save(data, stream));
+        assertEquals("Commit author name is blank.", e.getCause().getMessage());
 
         // Check that there are no uncommitted changes after error
         try (Git git = Git.open(local)) {
@@ -685,73 +682,66 @@ class GitRepositoryTest {
 
         try (var repository1 = createRepository(remote, local1, true);
              var repository2 = createRepository(remote, local2, true)) {
-            try {
-                baseCommit = repository1.check(filePath).getVersion();
-                // First user commit
-                var text1 = "foo\nbar";
-                var save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
-                theirCommit = save1.getVersion();
+            baseCommit = repository1.check(filePath).getVersion();
+            // First user commit
+            var text1 = "foo\nbar";
+            var save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
+            theirCommit = save1.getVersion();
 
-                // Second user commit (our). Will merge with first user's change (their).
-                var text2 = "foo\nbaz";
-                repository2.save(createFileData(filePath, text2), IOUtils.toInputStream(text2));
+            // Second user commit (our). Will merge with first user's change (their).
+            var text2 = "foo\nbaz";
+            var ourData = createFileData(filePath, text2);
+            var ourStream = IOUtils.toInputStream(text2);
+            var e = assertThrows(MergeConflictException.class, () -> repository2.save(ourData, ourStream));
+            var conflictDetails = e.getDetails();
+            Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
-                fail("MergeConflictException is expected");
-            } catch (MergeConflictException e) {
-                var conflictDetails = e.getDetails();
-                Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
+            assertEquals(1, conflictedFiles.size());
+            assertEquals(filePath, conflictedFiles.iterator().next());
 
-                assertEquals(1, conflictedFiles.size());
-                assertEquals(filePath, conflictedFiles.iterator().next());
+            assertEquals(baseCommit, conflictDetails.baseCommit());
+            assertEquals(theirCommit, conflictDetails.theirCommit());
+            assertNotNull(conflictDetails.yourCommit());
 
-                assertEquals(baseCommit, conflictDetails.baseCommit());
-                assertEquals(theirCommit, conflictDetails.theirCommit());
-                assertNotNull(conflictDetails.yourCommit());
+            // Check that their changes are still present in repository.
+            assertEquals(theirCommit,
+                    repository2.check(filePath).getVersion(),
+                    "Their changes were reverted in local repository");
 
-                // Check that their changes are still present in repository.
-                assertEquals(theirCommit,
-                        repository2.check(filePath).getVersion(),
-                        "Their changes were reverted in local repository");
+            assertNotEquals(conflictDetails.yourCommit(),
+                    repository2.check(filePath).getVersion(),
+                    "Our conflicted commit must be reverted but it exists.");
 
-                assertNotEquals(conflictDetails.yourCommit(),
-                        repository2.check(filePath).getVersion(),
-                        "Our conflicted commit must be reverted but it exists.");
+            var resolveText = "foo\nbar\nbaz";
+            var mergeMessage = "Merge with " + theirCommit;
 
-                var text2 = "foo\nbaz";
-                var resolveText = "foo\nbar\nbaz";
-                var mergeMessage = "Merge with " + theirCommit;
+            var resolveConflicts = List
+                    .of(new FileItem(filePath, IOUtils.toInputStream(resolveText)));
 
-                var resolveConflicts = List
-                        .of(new FileItem(filePath, IOUtils.toInputStream(resolveText)));
+            FileData fileData = createFileData(filePath, text2);
+            fileData.setVersion(baseCommit);
+            fileData.addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
+            var localData = repository2.save(fileData, IOUtils.toInputStream(text2));
 
-                FileData fileData = createFileData(filePath, text2);
-                fileData.setVersion(baseCommit);
-                fileData.addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
-                var localData = repository2.save(fileData, IOUtils.toInputStream(text2));
+            var remoteItem = repository2.read(filePath);
+            assertEquals(resolveText, readText(remoteItem));
+            var remoteData = remoteItem.getData();
+            assertEquals(localData.getVersion(), remoteData.getVersion());
+            assertEquals("John Smith", remoteData.getAuthor().getName());
+            assertEquals("jsmith@email", remoteData.getAuthor().getEmail());
+            assertEquals(mergeMessage, remoteData.getComment());
 
-                var remoteItem = repository2.read(filePath);
-                assertEquals(resolveText, readText(remoteItem));
-                var remoteData = remoteItem.getData();
-                assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("John Smith", remoteData.getAuthor().getName());
-                assertEquals("jsmith@email", remoteData.getAuthor().getEmail());
-                assertEquals(mergeMessage, remoteData.getComment());
-
-                // User modifies a file based on old version (baseCommit) and gets conflict.
-                // Expected: after conflict their conflicting changes in local repository are not reverted.
-                try {
-                    var text3 = "test\nbaz";
-                    FileData fileData3 = createFileData(filePath, text3);
-                    fileData3.setVersion(baseCommit); // It's is needed for this scenario
-                    repository2.save(fileData3, IOUtils.toInputStream(text3));
-                    fail("MergeConflictException is expected");
-                } catch (MergeConflictException ex) {
-                    // Check that their changes are still present in repository.
-                    assertEquals(localData.getVersion(),
-                            repository2.check(filePath).getVersion(),
-                            "Their changes were reverted in local repository");
-                }
-            }
+            // User modifies a file based on old version (baseCommit) and gets conflict.
+            // Expected: after conflict their conflicting changes in local repository are not reverted.
+            var text3 = "test\nbaz";
+            FileData fileData3 = createFileData(filePath, text3);
+            fileData3.setVersion(baseCommit); // It's is needed for this scenario
+            var stream3 = IOUtils.toInputStream(text3);
+            assertThrows(MergeConflictException.class, () -> repository2.save(fileData3, stream3));
+            // Check that their changes are still present in repository.
+            assertEquals(localData.getVersion(),
+                    repository2.check(filePath).getVersion(),
+                    "Their changes were reverted in local repository");
         }
     }
 
@@ -772,6 +762,7 @@ class GitRepositoryTest {
 
         final var filePath = "rules/project1/file2";
 
+        MergeConflictException e;
         try (var repository1 = createRepository(remote, local1, true);
              var repository2 = createRepository(remote, local2, true)) {
             baseCommit = repository1.check(filePath).getVersion();
@@ -784,236 +775,28 @@ class GitRepositoryTest {
             var text2 = "foo\nbaz";
             FileData fileData = createFileData(filePath, text2);
             InputStream stream = IOUtils.toInputStream(text2);
-            repository2.save(List.of(new FileItem(fileData, stream)));
+            var changes = List.of(new FileItem(fileData, stream));
+            e = assertThrows(MergeConflictException.class, () -> repository2.save(changes));
+        }
+        var conflictDetails = e.getDetails();
+        Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
-            var conflictDetails = e.getDetails();
-            Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
+        assertEquals(1, conflictedFiles.size());
+        assertEquals(filePath, conflictedFiles.iterator().next());
 
-            assertEquals(1, conflictedFiles.size());
-            assertEquals(filePath, conflictedFiles.iterator().next());
+        assertEquals(baseCommit, conflictDetails.baseCommit());
+        assertEquals(theirCommit, conflictDetails.theirCommit());
+        assertNotNull(conflictDetails.yourCommit());
 
-            assertEquals(baseCommit, conflictDetails.baseCommit());
-            assertEquals(theirCommit, conflictDetails.theirCommit());
-            assertNotNull(conflictDetails.yourCommit());
-
-            try (var repository2 = createRepository(remote, local2, false)) {
-                assertNotEquals(conflictDetails.yourCommit(),
-                        repository2.check(filePath).getVersion(),
-                        "Our conflicted commit must be reverted but it exists.");
-            }
+        try (var repository2 = createRepository(remote, local2, false)) {
+            assertNotEquals(conflictDetails.yourCommit(),
+                    repository2.check(filePath).getVersion(),
+                    "Our conflicted commit must be reverted but it exists.");
         }
     }
 
     @Test
     void mergeConflictInFolder() throws IOException {
-        // Prepare the test: clone master branch
-        var local1 = new File(root, "temp1");
-        var local2 = new File(root, "temp2");
-
-        String baseCommit = null;
-        String theirCommit = null;
-
-        final var folderPath = "rules/project1";
-
-        final var conflictedFile = "rules/project1/file2";
-        try (var repository1 = createRepository(remote, local1, true);
-             var repository2 = createRepository(remote, local2, true)) {
-            try {
-                baseCommit = repository1.check(folderPath).getVersion();
-                // First user commit
-                var text1 = "foo\nbar";
-                var changes1 = Arrays.asList(
-                        new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
-                        new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
-
-                var folderData1 = new FileData();
-                folderData1.setName("rules/project1");
-                folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
-                folderData1.setComment("Bulk change by John");
-
-                var save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
-                theirCommit = save1.getVersion();
-
-                // Second user commit (our). Will merge with first user's change (their).
-                var text2 = "foo\nbaz";
-                var changes2 = Arrays.asList(
-                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
-
-                var folderData2 = new FileData();
-                folderData2.setName("rules/project1");
-                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
-                folderData2.setComment("Bulk change by Jane");
-                repository2.save(folderData2, changes2, ChangesetType.DIFF);
-
-                fail("MergeConflictException is expected");
-            } catch (MergeConflictException e) {
-                var conflictDetails = e.getDetails();
-                Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
-
-                assertEquals(1, conflictedFiles.size());
-                assertEquals(conflictedFile, conflictedFiles.iterator().next());
-
-                assertEquals(baseCommit, conflictDetails.baseCommit());
-                assertEquals(theirCommit, conflictDetails.theirCommit());
-                assertNotNull(conflictDetails.yourCommit());
-
-                // Check that their changes are still present in repository.
-                assertEquals(theirCommit,
-                        repository2.check(conflictedFile).getVersion(),
-                        "Their changes were reverted in local repository");
-
-                assertNotEquals(conflictDetails.yourCommit(),
-                        repository2.check(conflictedFile).getVersion(),
-                        "Our conflicted commit must be reverted but it exists.");
-
-                var text2 = "foo\nbaz";
-                var resolveText = "foo\nbar\nbaz";
-                var mergeMessage = "Merge with " + theirCommit;
-
-                var changes2 = Arrays.asList(
-                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
-
-                var resolveConflicts = List
-                        .of(new FileItem(conflictedFile, IOUtils.toInputStream(resolveText)));
-
-                var folderData2 = new FileData();
-                folderData2.setName("rules/project1");
-                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
-                folderData2.setComment("Bulk change by Jane");
-                folderData2.setVersion(baseCommit);
-                folderData2
-                        .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
-                var localData = repository2.save(folderData2, changes2, ChangesetType.DIFF);
-
-                var remoteItem = repository2.read(conflictedFile);
-                assertEquals(resolveText, readText(remoteItem));
-                var remoteData = remoteItem.getData();
-                assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("Jane Smith", remoteData.getAuthor().getName());
-                assertEquals("jasmith@email", remoteData.getAuthor().getEmail());
-                assertEquals(mergeMessage, remoteData.getComment());
-
-                String file1Content = readText(repository2.read("rules/project1/file1"));
-                assertEquals("Modified", file1Content, "Other user's non-conflicting modification is absent.");
-
-                // User modifies a file based on old version (baseCommit) and gets conflict.
-                // Expected: after conflict their conflicting changes in local repository are not reverted.
-                try {
-                    var text3 = "test\nbaz";
-                    var changes3 = Arrays.asList(
-                            new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                            new FileItem(conflictedFile, IOUtils.toInputStream(text3)));
-
-                    var folderData3 = new FileData();
-                    folderData3.setName("rules/project1");
-                    folderData3.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
-                    folderData3.setComment("Bulk change by Jane");
-                    folderData3.setVersion(baseCommit); // It's is needed for this scenario
-                    repository2.save(folderData3, changes3, ChangesetType.DIFF);
-                    fail("MergeConflictException is expected");
-                } catch (MergeConflictException ex) {
-                    // Check that their changes are still present in repository.
-                    assertEquals(localData.getVersion(),
-                            repository2.check(conflictedFile).getVersion(),
-                            "Their changes were reverted in local repository");
-                }
-            }
-        }
-    }
-
-    @Test
-    void mergeConflictInFolderWithFileDeleting() throws IOException {
-        // Prepare the test: clone master branch
-        var local1 = new File(root, "temp1");
-        var local2 = new File(root, "temp2");
-
-        String baseCommit = null;
-        String theirCommit = null;
-
-        final var folderPath = "rules/project1";
-
-        final var conflictedFile = "rules/project1/file2";
-        try (var repository1 = createRepository(remote, local1, true);
-             var repository2 = createRepository(remote, local2, true)) {
-            try {
-                baseCommit = repository1.check(folderPath).getVersion();
-                // First user commit
-                var text1 = "foo\nbar";
-                var changes1 = Arrays.asList(
-                        new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
-                        new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
-
-                var folderData1 = new FileData();
-                folderData1.setName("rules/project1");
-                folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
-                folderData1.setComment("Bulk change by John");
-
-                var save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
-                theirCommit = save1.getVersion();
-
-                // Second user commit (our). Will merge with first user's change (their).
-                var changes2 = Arrays.asList(
-                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, null));
-
-                var folderData2 = new FileData();
-                folderData2.setName("rules/project1");
-                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
-                folderData2.setComment("Bulk change by Jane");
-                repository2.save(folderData2, changes2, ChangesetType.DIFF);
-
-                fail("MergeConflictException is expected");
-            } catch (MergeConflictException e) {
-                var conflictDetails = e.getDetails();
-                Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
-
-                assertEquals(1, conflictedFiles.size());
-                assertEquals(conflictedFile, conflictedFiles.iterator().next());
-
-                assertEquals(baseCommit, conflictDetails.baseCommit());
-                assertEquals(theirCommit, conflictDetails.theirCommit());
-                assertNotNull(conflictDetails.yourCommit());
-
-                // Check that their changes are still present in repository.
-                assertEquals(theirCommit,
-                        repository2.check(conflictedFile).getVersion(),
-                        "Their changes were reverted in local repository");
-
-                assertNotEquals(conflictDetails.yourCommit(),
-                        repository2.check(conflictedFile).getVersion(),
-                        "Our conflicted commit must be reverted but it exists.");
-
-                var mergeMessage = "Merge with " + theirCommit;
-
-                var changes2 = Arrays.asList(
-                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, null));
-
-                var resolveConflicts = List.of(new FileItem(conflictedFile, null));
-
-                var folderData2 = new FileData();
-                folderData2.setName("rules/project1");
-                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
-                folderData2.setComment("Bulk change by Jane");
-                folderData2.setVersion(baseCommit);
-                folderData2
-                        .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
-                repository2.save(folderData2, changes2, ChangesetType.DIFF);
-
-                var remoteItem = repository2.read(conflictedFile);
-                assertNull(remoteItem);
-            }
-        }
-    }
-
-    @Test
-    void mergeConflictInFolderMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
         var local1 = new File(root, "temp1");
         var local2 = new File(root, "temp2");
@@ -1050,12 +833,10 @@ class GitRepositoryTest {
 
             var folderData2 = new FileData();
             folderData2.setName("rules/project1");
-            folderData2.setAuthor(new UserInfo("jasmith", "jasmith@eamil", "Jane Smith"));
+            folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
             folderData2.setComment("Bulk change by Jane");
-            repository2.save(folderData2, changes2, ChangesetType.DIFF);
-
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
+            var e = assertThrows(MergeConflictException.class,
+                    () -> repository2.save(folderData2, changes2, ChangesetType.DIFF));
             var conflictDetails = e.getDetails();
             Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
 
@@ -1066,11 +847,206 @@ class GitRepositoryTest {
             assertEquals(theirCommit, conflictDetails.theirCommit());
             assertNotNull(conflictDetails.yourCommit());
 
-            try (var repository2 = createRepository(remote, local2, false)) {
-                assertNotEquals(conflictDetails.yourCommit(),
-                        repository2.check(conflictedFile).getVersion(),
-                        "Our conflicted commit must be reverted but it exists.");
-            }
+            // Check that their changes are still present in repository.
+            assertEquals(theirCommit,
+                    repository2.check(conflictedFile).getVersion(),
+                    "Their changes were reverted in local repository");
+
+            assertNotEquals(conflictDetails.yourCommit(),
+                    repository2.check(conflictedFile).getVersion(),
+                    "Our conflicted commit must be reverted but it exists.");
+
+            var resolveText = "foo\nbar\nbaz";
+            var mergeMessage = "Merge with " + theirCommit;
+
+            var resolvingChanges = Arrays.asList(
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
+
+            var resolveConflicts = List
+                    .of(new FileItem(conflictedFile, IOUtils.toInputStream(resolveText)));
+
+            var resolvingFolderData = new FileData();
+            resolvingFolderData.setName("rules/project1");
+            resolvingFolderData.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
+            resolvingFolderData.setComment("Bulk change by Jane");
+            resolvingFolderData.setVersion(baseCommit);
+            resolvingFolderData
+                    .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
+            var localData = repository2.save(resolvingFolderData, resolvingChanges, ChangesetType.DIFF);
+
+            var remoteItem = repository2.read(conflictedFile);
+            assertEquals(resolveText, readText(remoteItem));
+            var remoteData = remoteItem.getData();
+            assertEquals(localData.getVersion(), remoteData.getVersion());
+            assertEquals("Jane Smith", remoteData.getAuthor().getName());
+            assertEquals("jasmith@email", remoteData.getAuthor().getEmail());
+            assertEquals(mergeMessage, remoteData.getComment());
+
+            String file1Content = readText(repository2.read("rules/project1/file1"));
+            assertEquals("Modified", file1Content, "Other user's non-conflicting modification is absent.");
+
+            // User modifies a file based on old version (baseCommit) and gets conflict.
+            // Expected: after conflict their conflicting changes in local repository are not reverted.
+            var text3 = "test\nbaz";
+            var changes3 = Arrays.asList(
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text3)));
+
+            var folderData3 = new FileData();
+            folderData3.setName("rules/project1");
+            folderData3.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
+            folderData3.setComment("Bulk change by Jane");
+            folderData3.setVersion(baseCommit); // It's is needed for this scenario
+            assertThrows(MergeConflictException.class,
+                    () -> repository2.save(folderData3, changes3, ChangesetType.DIFF));
+            // Check that their changes are still present in repository.
+            assertEquals(localData.getVersion(),
+                    repository2.check(conflictedFile).getVersion(),
+                    "Their changes were reverted in local repository");
+        }
+    }
+
+    @Test
+    void mergeConflictInFolderWithFileDeleting() throws IOException {
+        // Prepare the test: clone master branch
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
+
+        String baseCommit = null;
+        String theirCommit = null;
+
+        final var folderPath = "rules/project1";
+
+        final var conflictedFile = "rules/project1/file2";
+        try (var repository1 = createRepository(remote, local1, true);
+             var repository2 = createRepository(remote, local2, true)) {
+            baseCommit = repository1.check(folderPath).getVersion();
+            // First user commit
+            var text1 = "foo\nbar";
+            var changes1 = Arrays.asList(
+                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
+
+            var folderData1 = new FileData();
+            folderData1.setName("rules/project1");
+            folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
+            folderData1.setComment("Bulk change by John");
+
+            var save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
+            theirCommit = save1.getVersion();
+
+            // Second user commit (our). Will merge with first user's change (their).
+            var changes2 = Arrays.asList(
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, null));
+
+            var folderData2 = new FileData();
+            folderData2.setName("rules/project1");
+            folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
+            folderData2.setComment("Bulk change by Jane");
+            var e = assertThrows(MergeConflictException.class,
+                    () -> repository2.save(folderData2, changes2, ChangesetType.DIFF));
+            var conflictDetails = e.getDetails();
+            Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
+
+            assertEquals(1, conflictedFiles.size());
+            assertEquals(conflictedFile, conflictedFiles.iterator().next());
+
+            assertEquals(baseCommit, conflictDetails.baseCommit());
+            assertEquals(theirCommit, conflictDetails.theirCommit());
+            assertNotNull(conflictDetails.yourCommit());
+
+            // Check that their changes are still present in repository.
+            assertEquals(theirCommit,
+                    repository2.check(conflictedFile).getVersion(),
+                    "Their changes were reverted in local repository");
+
+            assertNotEquals(conflictDetails.yourCommit(),
+                    repository2.check(conflictedFile).getVersion(),
+                    "Our conflicted commit must be reverted but it exists.");
+
+            var mergeMessage = "Merge with " + theirCommit;
+
+            var resolvingChanges = Arrays.asList(
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, null));
+
+            var resolveConflicts = List.of(new FileItem(conflictedFile, null));
+
+            var resolvingFolderData = new FileData();
+            resolvingFolderData.setName("rules/project1");
+            resolvingFolderData.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
+            resolvingFolderData.setComment("Bulk change by Jane");
+            resolvingFolderData.setVersion(baseCommit);
+            resolvingFolderData
+                    .addAdditionalData(new ConflictResolveData(conflictDetails.theirCommit(), resolveConflicts, mergeMessage));
+            repository2.save(resolvingFolderData, resolvingChanges, ChangesetType.DIFF);
+
+            var remoteItem = repository2.read(conflictedFile);
+            assertNull(remoteItem);
+        }
+    }
+
+    @Test
+    void mergeConflictInFolderMultipleProjects() throws IOException {
+        // Prepare the test: clone master branch
+        var local1 = new File(root, "temp1");
+        var local2 = new File(root, "temp2");
+
+        String baseCommit = null;
+        String theirCommit = null;
+
+        final var folderPath = "rules/project1";
+
+        final var conflictedFile = "rules/project1/file2";
+        MergeConflictException e;
+        try (var repository1 = createRepository(remote, local1, true);
+             var repository2 = createRepository(remote, local2, true)) {
+            baseCommit = repository1.check(folderPath).getVersion();
+            // First user commit
+            var text1 = "foo\nbar";
+            var changes1 = Arrays.asList(
+                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
+
+            var folderData1 = new FileData();
+            folderData1.setName("rules/project1");
+            folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
+            folderData1.setComment("Bulk change by John");
+
+            var save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
+            theirCommit = save1.getVersion();
+
+            // Second user commit (our). Will merge with first user's change (their).
+            var text2 = "foo\nbaz";
+            var changes2 = Arrays.asList(
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
+
+            var folderData2 = new FileData();
+            folderData2.setName("rules/project1");
+            folderData2.setAuthor(new UserInfo("jasmith", "jasmith@eamil", "Jane Smith"));
+            folderData2.setComment("Bulk change by Jane");
+            e = assertThrows(MergeConflictException.class,
+                    () -> repository2.save(folderData2, changes2, ChangesetType.DIFF));
+        }
+        var conflictDetails = e.getDetails();
+        Collection<String> conflictedFiles = conflictDetails.getConflictedFiles();
+
+        assertEquals(1, conflictedFiles.size());
+        assertEquals(conflictedFile, conflictedFiles.iterator().next());
+
+        assertEquals(baseCommit, conflictDetails.baseCommit());
+        assertEquals(theirCommit, conflictDetails.theirCommit());
+        assertNotNull(conflictDetails.yourCommit());
+
+        try (var repository2 = createRepository(remote, local2, false)) {
+            assertNotEquals(conflictDetails.yourCommit(),
+                    repository2.check(conflictedFile).getVersion(),
+                    "Our conflicted commit must be reverted but it exists.");
         }
     }
 

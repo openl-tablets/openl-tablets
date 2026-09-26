@@ -5,7 +5,6 @@ package org.openl.rules.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
@@ -87,11 +86,7 @@ class CharRangeParsingTest {
 
     @Test
     void testNegative() {
-        try {
-            new CharRange(">=A >=Z");
-            fail("Must be failed.");
-        } catch (RuntimeException ignored) {
-        }
+        assertThrows(RuntimeException.class, () -> new CharRange(">=A >=Z"));
     }
 
     @Test

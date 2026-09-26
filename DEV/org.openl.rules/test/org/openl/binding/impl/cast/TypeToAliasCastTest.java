@@ -3,7 +3,7 @@ package org.openl.binding.impl.cast;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,12 +24,8 @@ class TypeToAliasCastTest {
 
         assertNull(cast.convert(null));
 
-        try {
-            cast.convert("Not Existing");
-            fail("Should be exception");
-        } catch (OutsideOfValidDomainException e) {
-            assertEquals("Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]",
-                    e.getOriginalMessage());
-        }
+        var e = assertThrows(OutsideOfValidDomainException.class, () -> cast.convert("Not Existing"));
+        assertEquals("Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]",
+                e.getOriginalMessage());
     }
 }

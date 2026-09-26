@@ -3,8 +3,8 @@ package org.openl.rules.repository.git;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
@@ -43,16 +43,12 @@ class GitRepositoryLockTest {
         Path indexLock = createIndexLock();
         String path = "rules/project1/folder/file4";
         String text = "File located in " + path;
-        try {
-            createCommitAndCheck(repo, path, text);
-            fail("Expected exception");
-        } catch (IOException e) {
-            Throwable cause = e;
-            while (cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-            assertTrue(cause instanceof LockFailedException, "LockFailedException expected");
+        var e = assertThrows(IOException.class, () -> createCommitAndCheck(repo, path, text));
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
         }
+        assertTrue(cause instanceof LockFailedException, "LockFailedException expected");
         assertTrue(Files.exists(indexLock), "Index lock file mustn't be removed");
     }
 

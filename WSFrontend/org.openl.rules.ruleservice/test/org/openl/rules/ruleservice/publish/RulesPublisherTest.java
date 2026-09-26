@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Array;
 
@@ -65,11 +64,7 @@ class RulesPublisherTest {
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
         assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE)));
         publisher.undeploy(TUTORIAL4);
-        try {
-            frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE);
-            fail();
-        } catch (MethodInvocationException ignored) {
-        }
+        assertThrows(MethodInvocationException.class, () -> frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE));
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
     }
 

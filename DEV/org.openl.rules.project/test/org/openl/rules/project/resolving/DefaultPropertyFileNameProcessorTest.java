@@ -167,61 +167,42 @@ class DefaultPropertyFileNameProcessorTest {
 
     @Test
     void testMultiPatterns3() throws InvalidFileNamePatternException {
-        try {
-            PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
-                    .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
-            processor.process("path.to/rules/Tests.xlsx");
-            fail("Ooops...");
-        } catch (NoMatchFileNameException e) {
-            assertEquals(
-                    "File 'path.to/rules/Tests.xlsx' does not match file name pattern 'AUTO-%lob%-%startRequestDate%'.",
-                    e.getMessage());
-        }
+        PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
+                .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+        var e = assertThrows(NoMatchFileNameException.class, () -> processor.process("path.to/rules/Tests.xlsx"));
+        assertEquals(
+                "File 'path.to/rules/Tests.xlsx' does not match file name pattern 'AUTO-%lob%-%startRequestDate%'.",
+                e.getMessage());
     }
 
     @Test
     void testPropertyGroupsWrongDatePattern() throws InvalidFileNamePatternException {
-        try {
-            new DefaultPropertiesFileNameProcessor("%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%")
-                    .process("AUTO-FL,ME-20160101.ext");
-            fail("Ooops...");
-        } catch (NoMatchFileNameException e) {
-            assertEquals(
-                    "File 'AUTO-FL,ME-20160101.ext' does not match file name pattern '%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%'.\r\n Invalid property: effectiveDate.\r\n Message: Failed to parse a date '20160101'..",
-                    e.getMessage());
-        }
+        var processor = new DefaultPropertiesFileNameProcessor(
+                "%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%");
+        var e = assertThrows(NoMatchFileNameException.class, () -> processor.process("AUTO-FL,ME-20160101.ext"));
+        assertEquals(
+                "File 'AUTO-FL,ME-20160101.ext' does not match file name pattern '%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%'.\r\n Invalid property: effectiveDate.\r\n Message: Failed to parse a date '20160101'..",
+                e.getMessage());
     }
 
     @Test
     void testPropertyGroupsNegative() {
-        try {
-            new DefaultPropertiesFileNameProcessor("%lob%-%state%-%effectiveDate,lob%");
-            fail("Ooops...");
-        } catch (InvalidFileNamePatternException e) {
-            assertEquals("Property 'lob' is declared in pattern '%lob%-%state%-%effectiveDate,lob%' several times.",
-                    e.getMessage());
-        }
+        var e = assertThrows(InvalidFileNamePatternException.class,
+                () -> new DefaultPropertiesFileNameProcessor("%lob%-%state%-%effectiveDate,lob%"));
+        assertEquals("Property 'lob' is declared in pattern '%lob%-%state%-%effectiveDate,lob%' several times.",
+                e.getMessage());
 
-        try {
-            new DefaultPropertiesFileNameProcessor("%lob,nature%-%state%-%effectiveDate%");
-            fail("Ooops...");
-        } catch (InvalidFileNamePatternException e) {
-            assertEquals("Incompatible properties in the group: [lob, nature].", e.getMessage());
-        }
+        e = assertThrows(InvalidFileNamePatternException.class,
+                () -> new DefaultPropertiesFileNameProcessor("%lob,nature%-%state%-%effectiveDate%"));
+        assertEquals("Incompatible properties in the group: [lob, nature].", e.getMessage());
 
-        try {
-            new DefaultPropertiesFileNameProcessor("%lob%-%state,lang%-%effectiveDate%");
-            fail("Ooops...");
-        } catch (InvalidFileNamePatternException e) {
-            assertEquals("Incompatible properties in the group: [state, lang].", e.getMessage());
-        }
+        e = assertThrows(InvalidFileNamePatternException.class,
+                () -> new DefaultPropertiesFileNameProcessor("%lob%-%state,lang%-%effectiveDate%"));
+        assertEquals("Incompatible properties in the group: [state, lang].", e.getMessage());
 
-        try {
-            new DefaultPropertiesFileNameProcessor("%lob%-%state,foo%-%effectiveDate%");
-            fail("Ooops...");
-        } catch (InvalidFileNamePatternException e) {
-            assertEquals("Found unsupported property 'foo' in file name pattern.", e.getMessage());
-        }
+        e = assertThrows(InvalidFileNamePatternException.class,
+                () -> new DefaultPropertiesFileNameProcessor("%lob%-%state,foo%-%effectiveDate%"));
+        assertEquals("Found unsupported property 'foo' in file name pattern.", e.getMessage());
     }
 
     @Test

@@ -1,10 +1,9 @@
 package org.openl.rules.ui;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -39,11 +38,7 @@ class ProjectDeleteTest {
         pm.setModuleInfo(getModules().getFirst());
         pm.clearModuleInfo();
 
-        try {
-            FileUtils.delete(projectFolder);
-        } catch (IOException e) {
-            fail("Project is locked and cannot be deleted");
-        }
+        assertDoesNotThrow(() -> FileUtils.delete(projectFolder), "Project is locked and cannot be deleted");
     }
 
     private List<Module> getModules() throws ProjectResolvingException {

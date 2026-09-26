@@ -2,7 +2,7 @@ package org.openl.rules.repository.git;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
@@ -81,12 +81,11 @@ class ProtectedBranchTest {
     void cantSaveInMaster() {
         var path = "rules/project1/file1";
         var text = "File located in " + path;
-        try {
-            repo.save(createFileData(path, text), IOUtils.toInputStream(text));
-            fail("The file shouldn't be committed in master branch");
-        } catch (IOException e) {
-            assertEquals("Rejected by \"pre-push\" hook.\n", e.getMessage());
-        }
+        var fileData = createFileData(path, text);
+        var stream = IOUtils.toInputStream(text);
+        var e = assertThrows(IOException.class, () -> repo.save(fileData, stream),
+                "The file shouldn't be committed in master branch");
+        assertEquals("Rejected by \"pre-push\" hook.\n", e.getMessage());
     }
 
     @Test
@@ -100,16 +99,14 @@ class ProtectedBranchTest {
         final var path2 = "rules/project1/file2";
         repoBranch1.save(createFileData(path2, path2), IOUtils.toInputStream(path2));
 
-        try {
-            repo.merge(BRANCH1, new UserInfo("john", "john@email", "John"), null);
-            fail("Merge must be unavailable because of pre-push hook");
-        } catch (IOException e) {
-            // After merge failure must rollback both commits from 'branch1'.
-            assertNull(repo.check(path1),
-                    "The file " + path1 + " must be absent in 'master' after rolling back merge.");
-            assertNull(repo.check(path2),
-                    "The file " + path2 + " must be absent in 'master' after rolling back merge.");
-        }
+        var author = new UserInfo("john", "john@email", "John");
+        assertThrows(IOException.class, () -> repo.merge(BRANCH1, author, null),
+                "Merge must be unavailable because of pre-push hook");
+        // After merge failure must rollback both commits from 'branch1'.
+        assertNull(repo.check(path1),
+                "The file " + path1 + " must be absent in 'master' after rolling back merge.");
+        assertNull(repo.check(path2),
+                "The file " + path2 + " must be absent in 'master' after rolling back merge.");
     }
 
     private GitRepository createRepository(String remoteUri, File local, String repositoriesFolder, boolean empty) throws IOException {
