@@ -126,7 +126,7 @@ public class BaseTestUnit implements ITestUnit {
     }
 
     private void addComparisonResult(ComparedResult result) {
-        if (!(TestStatus.TR_OK == result.getStatus())) {
+        if (TestStatus.TR_OK != result.getStatus()) {
             numberOfFailedTests++;
         }
         comparisonResults.add(result);

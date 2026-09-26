@@ -78,7 +78,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
                                     ColumnMatch columnMatch) throws SyntaxNodeException {
         var retType = columnMatch.getHeader().getType();
         Class<?> retClass = retType.getInstanceClass();
-        if (!(int.class == retClass) && !(Integer.class == retClass)) {
+        if (int.class != retClass && Integer.class != retClass) {
             var msg = "Score algorithm supports int or Integer return type only.";
             var uri = columnMatch.getSourceUrl();
             throw SyntaxNodeExceptionUtils.createError(msg, new StringSourceCodeModule(null, uri));

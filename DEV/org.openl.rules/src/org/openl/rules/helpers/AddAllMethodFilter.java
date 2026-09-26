@@ -57,7 +57,7 @@ public class AddAllMethodFilter implements MethodFilter {
             } else if (t != null && maxDim == dims[i]) {
                 t = castFactory.findClosestClass(t, callParams[i]);
             }
-            paramAsElement[i] = !(maxDim == dims[i]);
+            paramAsElement[i] = maxDim != dims[i];
         }
         if (t == null) {
             for (IOpenClass callParam : callParams) {
