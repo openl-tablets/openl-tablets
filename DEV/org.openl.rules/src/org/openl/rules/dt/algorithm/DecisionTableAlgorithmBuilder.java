@@ -222,11 +222,11 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                                                     IBindingContext bindingContext) {
         var conditionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
         var nConditions = table.getNumberOfConditions();
-        final IConditionEvaluator[] evaluators = new IConditionEvaluator[nConditions];
+        final IConditionEvaluator[] conditionEvaluators = new IConditionEvaluator[nConditions];
         for (var i = 0; i < nConditions; i++) {
-            evaluators[i] = prepareCondition(ruleExecutionType, conditionBindingContext, i);
+            conditionEvaluators[i] = prepareCondition(ruleExecutionType, conditionBindingContext, i);
         }
-        return evaluators;
+        return conditionEvaluators;
     }
 
     /**

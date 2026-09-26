@@ -250,7 +250,7 @@ public class ValidationAlgorithm {
     @SuppressWarnings("deprecation")
     private IntExpArray makeVars(DecisionTableAnalyzer analyzer) {
 
-        var vars = new ArrayList<IntExp>();
+        var signatureVars = new ArrayList<IntExp>();
 
         Iterator<DecisionTableParamDescription> iterator = analyzer.tableParams();
 
@@ -263,13 +263,13 @@ public class ValidationAlgorithm {
             var var = decisionTableToValidate.getTransformer().makeSignatureVar(varName, varType, constrainer);
 
             if (var != null) {
-                vars.add(var);
+                signatureVars.add(var);
             } else {
                 throw new OpenLRuntimeException("Could not create domain for %s".formatted(varName));
             }
         }
 
-        return new IntExpArray(constrainer, vars);
+        return new IntExpArray(constrainer, signatureVars);
     }
 
     @SuppressWarnings("deprecation")

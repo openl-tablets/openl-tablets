@@ -81,7 +81,7 @@ public class TableEditorModel {
         }
 
         // Initialize meta info writer before any modifications
-        var metaInfoWriter = getMetaInfoWriter();
+        var tableMetaInfoWriter = getMetaInfoWriter();
 
         if (!propExists) {
             var tableWidth = fullTable.getWidth();
@@ -91,7 +91,7 @@ public class TableEditorModel {
             }
             if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1) || !UndoableInsertColumnsAction
                     .canInsertColumns(gridTable, nColsToInsert)) {
-                UndoableEditTableAction.moveTable(fullTable, metaInfoWriter);
+                UndoableEditTableAction.moveTable(fullTable, tableMetaInfoWriter);
             }
             new GridRegionAction(fullTableRegion,
                     UndoableEditTableAction.ROWS,
@@ -100,7 +100,7 @@ public class TableEditorModel {
                     1).doAction(gridTable);
         }
 
-        var action = GridTool.insertProp(fullTableRegion, gridTable.getGrid(), name, value, metaInfoWriter);
+        var action = GridTool.insertProp(fullTableRegion, gridTable.getGrid(), name, value, tableMetaInfoWriter);
         if (action != null) {
             action.doAction(gridTable);
         }

@@ -339,10 +339,10 @@ public class Table implements ITable {
                     } else {
                         // we don't have defined PK lets use first key as PK
                         var foreignKeyIndex = 0;
-                        var dataModel = foreignTable.getDataModel();
-                        var d1 = dataModel.getDescriptors()[0];
+                        var foreignDataModel = foreignTable.getDataModel();
+                        var d1 = foreignDataModel.getDescriptors()[0];
                         if (!d1.isPrimaryKey()) {
-                            var firstColDescriptor = dataModel.getDescriptor(0);
+                            var firstColDescriptor = foreignDataModel.getDescriptor(0);
                             if (firstColDescriptor.isPrimaryKey()) {
                                 // first column is primary key for another level. So return column index for first
                                 // descriptor
@@ -457,10 +457,10 @@ public class Table implements ITable {
                 var prevRes = ColumnDescriptor.PREV_RES_EMPTY;
                 var width = valuesTable.getSource().getWidth();
                 for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
-                    ILogicalTable logicalTable = LogicalTableHelper.make1ColumnTable(
+                    ILogicalTable cellTable = LogicalTableHelper.make1ColumnTable(
                             LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
                                     .getSubtable(0, 0, width, 1));
-                    var res = descriptor.parseCellValue(logicalTable, openlAdapter);
+                    var res = descriptor.parseCellValue(cellTable, openlAdapter);
                     if (!descriptor.isSameValue(res, prevRes)) {
                         rowValues[rowNum - startRow][colNum] = res;
                         prevRes = res;
@@ -535,10 +535,10 @@ public class Table implements ITable {
             }
             var width = valuesTable.getSource().getWidth();
             for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
-                ILogicalTable logicalTable = LogicalTableHelper.make1ColumnTable(
+                ILogicalTable cellTable = LogicalTableHelper.make1ColumnTable(
                         LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
                                 .getSubtable(0, 0, width, 1));
-                rowValues[i][colNum] = descriptor.parseCellValue(logicalTable, openlAdapter);
+                rowValues[i][colNum] = descriptor.parseCellValue(cellTable, openlAdapter);
             }
         }
 

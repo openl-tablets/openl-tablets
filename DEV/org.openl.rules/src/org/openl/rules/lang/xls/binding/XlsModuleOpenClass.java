@@ -171,8 +171,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     public IOpenClass toModuleType(IOpenClass type) {
-        if (type instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass) {
-            if (isDependencyModule(spreadsheetResultOpenClass.getModule(), new IdentityHashMap<>())) {
+        if (type instanceof SpreadsheetResultOpenClass spreadsheetResultType) {
+            if (isDependencyModule(spreadsheetResultType.getModule(), new IdentityHashMap<>())) {
                 return getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             }
         } else if (type instanceof ModuleSpecificType specificType

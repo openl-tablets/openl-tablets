@@ -193,10 +193,10 @@ public class SimpleProjectEngineFactory<T> {
                     // not an OpenL project in the workspace.
                     continue;
                 }
-                for (ProjectDescriptor projectDescriptor : projectsInWorkspace) {
-                    if (dependencyDescriptor.getName().equals(projectDescriptor.getName())) {
-                        projectDescriptors.add(projectDescriptor);
-                        addDependentProjects(projectDescriptors, projectDescriptor, projectsInWorkspace);
+                for (ProjectDescriptor workspaceProject : projectsInWorkspace) {
+                    if (dependencyDescriptor.getName().equals(workspaceProject.getName())) {
+                        projectDescriptors.add(workspaceProject);
+                        addDependentProjects(projectDescriptors, workspaceProject, projectsInWorkspace);
                         break;
                     }
                 }
@@ -214,7 +214,7 @@ public class SimpleProjectEngineFactory<T> {
     protected Collection<ProjectDescriptor> buildProjectDescriptors() throws ProjectResolvingException {
         var projectDescriptors = new ArrayList<ProjectDescriptor>();
         ProjectResolver projectResolver = ProjectResolver.getInstance();
-        var projectDescriptor = getProjectDescriptor();
+        var rootProject = getProjectDescriptor();
         if (projectDependencies != null) {
             var projects = new ArrayList<ProjectDescriptor>();
             var oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -224,9 +224,9 @@ public class SimpleProjectEngineFactory<T> {
                 }
                 for (var file : projectDependencies) {
                     try {
-                        var project = projectResolver.resolve(file);
-                        if (project != null) {
-                            projects.add(project);
+                        var dependencyProject = projectResolver.resolve(file);
+                        if (dependencyProject != null) {
+                            projects.add(dependencyProject);
                         }
                     } catch (Exception ex) {
                         log.warn("Failed to resolve project in {}", file, ex);
@@ -235,10 +235,10 @@ public class SimpleProjectEngineFactory<T> {
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
-            var dependentProjects = getDependentProjects(projectDescriptor, projects);
+            var dependentProjects = getDependentProjects(rootProject, projects);
             projectDescriptors.addAll(dependentProjects);
         }
-        projectDescriptors.add(projectDescriptor);
+        projectDescriptors.add(rootProject);
         return projectDescriptors;
     }
 

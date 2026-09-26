@@ -41,8 +41,8 @@ public class WorkbookSyntaxNode extends NaryNode {
         var sheetNodes = getWorksheetSyntaxNodes();
 
         for (WorksheetSyntaxNode sheetNode : sheetNodes) {
-            var tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
-            tnodes.addAll(Arrays.asList(tableSyntaxNodes));
+            var sheetTableNodes = sheetNode.getTableSyntaxNodes();
+            tnodes.addAll(Arrays.asList(sheetTableNodes));
         }
 
         tnodes.addAll(Arrays.asList(mergedTableParts));

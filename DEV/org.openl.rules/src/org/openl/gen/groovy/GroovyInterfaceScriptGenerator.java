@@ -25,11 +25,11 @@ public class GroovyInterfaceScriptGenerator {
         this.name = dividedName[1];
         this.imports = collectImports(methods);
         if (methods != null) {
-            ChainedGroovyScriptWriter writerChain = null;
+            ChainedGroovyScriptWriter methodWriters = null;
             for (MethodDescription description : methods) {
-                writerChain = new GroovyMethodWriter(description, writerChain);
+                methodWriters = new GroovyMethodWriter(description, methodWriters);
             }
-            this.writerChain = writerChain;
+            this.writerChain = methodWriters;
         } else {
             this.writerChain = null;
         }

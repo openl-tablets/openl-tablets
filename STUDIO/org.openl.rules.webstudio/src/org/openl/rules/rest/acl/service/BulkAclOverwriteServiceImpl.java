@@ -112,12 +112,12 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
             if (!ref.isRepositoryRoot()) {
                 continue;
             }
-            var aclService = aclServiceProvider.getAclService(ref.getRepositoryType().getType());
+            var repoAclService = aclServiceProvider.getAclService(ref.getRepositoryType().getType());
             Stream.ofNullable(resourceAccess.getAces())
                     .flatMap(Collection::stream)
                     .forEach(ace -> {
                         var sid = ace.getSub().toSid();
-                        aclService.addRootPermissions(sid, ace.getRole().getCumulativePermission());
+                        repoAclService.addRootPermissions(sid, ace.getRole().getCumulativePermission());
                     });
         }
     }
@@ -127,15 +127,15 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
         designTimeRepository.getRepositories().stream()
                 .map(Repository::getId)
                 .forEach(repoId -> {
-                    var aclService = aclServiceProvider.getDesignRepoAclService();
-                    aclService.removePermissions(repoId, null);
+                    var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
+                    designRepoAclService.removePermissions(repoId, null);
                 });
 
         deploymentRepositoryService.getRepositories().stream()
                 .map(RepositoryConfiguration::getId)
                 .forEach(repoId -> {
-                    var aclService = aclServiceProvider.getProdRepoAclService();
-                    aclService.removePermissions(repoId, null);
+                    var prodRepoAclService = aclServiceProvider.getProdRepoAclService();
+                    prodRepoAclService.removePermissions(repoId, null);
                 });
 
         // Add permissions for repositories
@@ -144,20 +144,21 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
             if (!ref.isRepository()) {
                 continue;
             }
-            var aclService = aclServiceProvider.getAclService(ref.getRepositoryType().getType());
+            var repoAclService = aclServiceProvider.getAclService(ref.getRepositoryType().getType());
             Stream.ofNullable(resourceAccess.getAces())
                     .flatMap(Collection::stream)
                     .forEach(ace -> {
                         var sid = ace.getSub().toSid();
-                        aclService.addPermissions(ref.getRepositoryId(), null, sid, ace.getRole().getCumulativePermission());
+                        repoAclService.addPermissions(ref.getRepositoryId(), null, sid,
+                                ace.getRole().getCumulativePermission());
                     });
         }
     }
 
     private void syncProjectPermissions(List<AclResourceAccess> resourceAccesses) {
         // Delete all permissions first
-        var aclService = aclServiceProvider.getDesignRepoAclService();
-        designTimeRepository.getProjects().forEach(aclService::removePermissions);
+        var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
+        designTimeRepository.getProjects().forEach(designRepoAclService::removePermissions);
 
         // Add permissions for repositories
         for (var resourceAccess : resourceAccesses) {
@@ -171,7 +172,7 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
                         .flatMap(Collection::stream)
                         .forEach(ace -> {
                             var sid = ace.getSub().toSid();
-                            aclService.addPermissions(project, sid, ace.getRole().getCumulativePermission());
+                            designRepoAclService.addPermissions(project, sid, ace.getRole().getCumulativePermission());
                         });
             } catch (ProjectException ignored) {
                 // a project that is missing or not readable gets no permissions

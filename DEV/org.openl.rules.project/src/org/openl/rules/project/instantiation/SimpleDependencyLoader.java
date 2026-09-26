@@ -120,15 +120,15 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         try {
             ValidationManager.turnOffValidation();
             var compiledOpenClass = compile(source, classLoader);
-            var compiledDependency = new CompiledDependency(dependency,
+            var freshDependency = new CompiledDependency(dependency,
                     compiledOpenClass,
                     isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
             if (isActualDependency()) {
-                onCompilationComplete(this, compiledDependency);
-                this.compiledDependency.set(compiledDependency);
+                onCompilationComplete(this, freshDependency);
+                this.compiledDependency.set(freshDependency);
                 log.debug("Dependency '{}' is saved in cache.", dependency);
             }
-            return compiledDependency;
+            return freshDependency;
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return onCompilationFailure(ex, dependencyManager);

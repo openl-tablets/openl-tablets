@@ -156,10 +156,10 @@ public class OpenApiGenerator {
     }
 
     private ObjectMapper createObjectMapper(ClassLoader serviceClassLoader) {
-        var classLoader = compiledOpenClass.getClassLoader();
+        var projectClassLoader = compiledOpenClass.getClassLoader();
 
         var objectMapperFactoryBean = new ProjectJacksonObjectMapperFactoryBean();
-        objectMapperFactoryBean.setClassLoader(classLoader);
+        objectMapperFactoryBean.setClassLoader(projectClassLoader);
         objectMapperFactoryBean.setRulesDeploy(rulesDeploy);
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) openClass);
         objectMapperFactoryBean.setClassLoader(serviceClassLoader);

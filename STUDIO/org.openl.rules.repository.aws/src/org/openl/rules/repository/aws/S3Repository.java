@@ -458,14 +458,14 @@ public class S3Repository implements Repository, Closeable {
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        String name = data.getName();
+        String fileName = data.getName();
         String version = data.getVersion();
 
         try {
             if (version == null) {
-                deleteAllVersions(name);
+                deleteAllVersions(fileName);
             } else {
-                s3.deleteObject(it -> it.bucket(bucketName).key(name).versionId(version));
+                s3.deleteObject(it -> it.bucket(bucketName).key(fileName).versionId(version));
             }
             onModified();
             return true;

@@ -127,9 +127,9 @@ public class XlsCell implements ICell {
     @Override
     public ICell getTopLeftCellFromRegion() {
         // Gets the top left cell in this region
-        var row = region.getTop();
+        var topRow = region.getTop();
         var col = region.getLeft();
-        return gridModel.getCell(col, row);
+        return gridModel.getCell(col, topRow);
     }
 
     private boolean isCurrentCellATopLeftCellInRegion() {

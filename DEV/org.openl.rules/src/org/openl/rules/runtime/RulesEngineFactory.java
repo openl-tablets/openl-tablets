@@ -114,7 +114,7 @@ public class RulesEngineFactory<T> {
 
     private CompiledOpenClass initializeOpenClass() {
         boolean oldValidationState = ValidationManager.isValidationEnabled();
-        CompiledOpenClass compiledOpenClass;
+        CompiledOpenClass compiledModule;
         try {
             ValidationManager.turnOffValidation();
             CompiledOpenClass result;
@@ -137,7 +137,7 @@ public class RulesEngineFactory<T> {
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
-            compiledOpenClass = result;
+            compiledModule = result;
         } finally {
             if (oldValidationState) {
                 ValidationManager.turnOnValidation();
@@ -148,19 +148,19 @@ public class RulesEngineFactory<T> {
                 IBindingContext bindingContext = getOpenL().getBinder().makeBindingContext();
                 bindingContext.setExecutionMode(isExecutionMode());
                 ValidationManager
-                        .validate(new RulesCompileContext(), compiledOpenClass.getOpenClassWithErrors(), bindingContext);
+                        .validate(new RulesCompileContext(), compiledModule.getOpenClassWithErrors(), bindingContext);
                 ValidatedCompiledOpenClass validatedCompiledOpenClass = ValidatedCompiledOpenClass
-                        .instanceOf(compiledOpenClass);
+                        .instanceOf(compiledModule);
                 if (bindingContext.getMessages() != null) {
                     bindingContext.getMessages().forEach(validatedCompiledOpenClass::addMessage);
                 }
                 return validatedCompiledOpenClass;
             }
-            return compiledOpenClass;
+            return compiledModule;
         } finally {
             // Turning off validation disables cleaning up, because validation works with tsn nodes
             if (isExecutionMode()) {
-                ((XlsModuleOpenClass) compiledOpenClass.getOpenClassWithErrors()).clearForExecutionMode();
+                ((XlsModuleOpenClass) compiledModule.getOpenClassWithErrors()).clearForExecutionMode();
             }
         }
     }

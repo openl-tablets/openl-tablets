@@ -29,9 +29,9 @@ public class JavaOpenField implements IOpenField {
 
     JavaOpenField(Field field) {
         this.field = field;
-        var contextProperty = field.getAnnotation(ContextProperty.class);
-        if (contextProperty != null) {
-            this.contextProperty = contextProperty.value();
+        var contextPropertyAnnotation = field.getAnnotation(ContextProperty.class);
+        if (contextPropertyAnnotation != null) {
+            this.contextProperty = contextPropertyAnnotation.value();
         }
     }
 

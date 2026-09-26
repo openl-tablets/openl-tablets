@@ -109,15 +109,15 @@ public class ComponentBindingContext extends BindingContextDelegator {
         if (openClass == null) {
             return null;
         }
-        var componentOpenClass = openClass;
+        var elementOpenClass = openClass;
         var dim = 0;
-        while (componentOpenClass.isArray()) {
-            componentOpenClass = componentOpenClass.getComponentClass();
+        while (elementOpenClass.isArray()) {
+            elementOpenClass = elementOpenClass.getComponentClass();
             dim++;
         }
-        if (isComponentSpecificOpenClass(componentOpenClass)) {
+        if (isComponentSpecificOpenClass(elementOpenClass)) {
             var thisContextOpenClass = this.findType(
-                    componentOpenClass.getName());
+                    elementOpenClass.getName());
             if (thisContextOpenClass != null) {
                 return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;
             }

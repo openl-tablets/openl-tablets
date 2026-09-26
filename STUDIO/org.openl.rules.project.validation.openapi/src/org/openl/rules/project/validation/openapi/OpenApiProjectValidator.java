@@ -175,10 +175,11 @@ public class OpenApiProjectValidator {
         var serviceClassLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
         context.setServiceClassLoader(serviceClassLoader);
 
-        var rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
-        context.setRulesDeploy(rulesDeploy);
+        var projectRulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
+        context.setRulesDeploy(projectRulesDeploy);
 
-        final var provideRuntimeContext = rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
+        final var provideRuntimeContext = projectRulesDeploy != null
+                && Boolean.TRUE.equals(projectRulesDeploy.isProvideRuntimeContext());
         context.setProvideRuntimeContext(provideRuntimeContext);
 
         try {
@@ -199,7 +200,7 @@ public class OpenApiProjectValidator {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             Class<?> serviceClass;
             try {
-                serviceClass = resolveInterface(rulesDeploy,
+                serviceClass = resolveInterface(projectRulesDeploy,
                         rulesInstantiationStrategy,
                         validatedCompiledOpenClass,
                         provideRuntimeContext);
@@ -244,10 +245,10 @@ public class OpenApiProjectValidator {
     }
 
     private ObjectMapper createObjectMapper(Context context) {
-        var classLoader = context.getValidatedCompiledOpenClass().getClassLoader();
+        var projectClassLoader = context.getValidatedCompiledOpenClass().getClassLoader();
 
         var objectMapperFactoryBean = new ProjectJacksonObjectMapperFactoryBean();
-        objectMapperFactoryBean.setClassLoader(classLoader);
+        objectMapperFactoryBean.setClassLoader(projectClassLoader);
         objectMapperFactoryBean.setRulesDeploy(context.getRulesDeploy());
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) context.getOpenClass());
         objectMapperFactoryBean.setClassLoader(context.getServiceClassLoader());

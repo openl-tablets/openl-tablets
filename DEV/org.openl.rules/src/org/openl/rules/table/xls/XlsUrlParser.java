@@ -62,20 +62,20 @@ public class XlsUrlParser {
         }
         file = StringTool.decodeURL(file);
         wsName = map.get("sheet");
-        var range = map.get("range");
-        var cell = map.get("cell");
+        var rangeRef = map.get("range");
+        var cellRef = map.get("cell");
 
-        if (range == null) {
+        if (rangeRef == null) {
             // TODO line, col
-            range = cell;
+            rangeRef = cellRef;
         }
 
-        if (cell == null && range != null) {
-            cell = range.substring(0, range.indexOf(":"));
+        if (cellRef == null && rangeRef != null) {
+            cellRef = rangeRef.substring(0, rangeRef.indexOf(":"));
         }
 
-        this.range = range;
-        this.cell = cell;
+        this.range = rangeRef;
+        this.cell = cellRef;
 
         if ("null".equals(file)) {
             // there is no file representation

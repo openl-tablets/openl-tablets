@@ -633,9 +633,9 @@ public class ProjectModel {
     }
 
     public Collection<OpenLMessage> getModuleMessages() {
-        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
-        if (compiledOpenClass != null) {
-            return compiledOpenClass.getAllMessages();
+        CompiledOpenClass moduleCompiledOpenClass = getCompiledOpenClass();
+        if (moduleCompiledOpenClass != null) {
+            return moduleCompiledOpenClass.getAllMessages();
         }
         return Collections.emptyList();
     }
@@ -1043,11 +1043,11 @@ public class ProjectModel {
     private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
-            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
-            if (xlsModuleSyntaxNode != null) {
-                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).add(xlsModuleSyntaxNode);
-                if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    xlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+            XlsModuleSyntaxNode dependencySyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            if (dependencySyntaxNode != null) {
+                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).add(dependencySyntaxNode);
+                if (!(dependencySyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                    xlsModuleSyntaxNodes.add(dependencySyntaxNode);
                 }
             }
         }
@@ -1060,11 +1060,11 @@ public class ProjectModel {
     private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
-            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
-            if (xlsModuleSyntaxNode != null) {
-                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).remove(xlsModuleSyntaxNode);
-                if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    xlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
+            XlsModuleSyntaxNode dependencySyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            if (dependencySyntaxNode != null) {
+                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).remove(dependencySyntaxNode);
+                if (!(dependencySyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                    xlsModuleSyntaxNodes.remove(dependencySyntaxNode);
                 }
             }
         }

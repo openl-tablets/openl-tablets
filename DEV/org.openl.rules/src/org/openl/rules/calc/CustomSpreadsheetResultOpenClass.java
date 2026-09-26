@@ -530,9 +530,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
                     var openClass = spreadsheetResult.getCustomSpreadsheetResultOpenClass();
                     if (openClass != null) {
-                        var module = openClass.getModule();
-                        if (module != null) {
-                            var cast = module.getObjectToDataOpenCastConvertor().getConvertor(fromClass, toClass);
+                        var resultModule = openClass.getModule();
+                        if (resultModule != null) {
+                            var cast = resultModule.getObjectToDataOpenCastConvertor().getConvertor(fromClass, toClass);
                             if (cast != null && cast.isImplicit()) {
                                 // Embedded conversion
                                 return cast.convert(v);
@@ -590,9 +590,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, true, fieldsMap, cache);
                         addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, false, fieldsMap, cache);
 
-                        final var beanClassName = getBeanClassName();
-                        var bc = generateBytecode(beanClassName, beanFields);
-                        getModule().getClassGenerationClassLoader().addGeneratedClass(beanClassName, bc);
+                        final var className = getBeanClassName();
+                        var bc = generateBytecode(className, beanFields);
+                        getModule().getClassGenerationClassLoader().addGeneratedClass(className, bc);
 
                         generatedBean.set(new GeneratedBean(bc,
                                 Collections.unmodifiableMap(fieldsMap),

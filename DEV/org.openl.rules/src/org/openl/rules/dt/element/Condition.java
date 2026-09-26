@@ -794,17 +794,17 @@ public class Condition extends FunctionalRow implements ICondition {
                                                IMethodSignature signature,
                                                OpenL openl,
                                                IBindingContext bindingContext) {
-        CompositeMethod indexMethod;
+        CompositeMethod compiledMethod;
         List<SyntaxNodeException> errors;
         try {
             bindingContext.pushErrors();
             bindingContext.pushMessages();
-            indexMethod = super.compileExpressionSource(source, NullOpenClass.the, signature, openl, bindingContext);
+            compiledMethod = super.compileExpressionSource(source, NullOpenClass.the, signature, openl, bindingContext);
         } finally {
             errors = bindingContext.popErrors();
             bindingContext.popMessages();
         }
-        return errors.isEmpty() ? indexMethod : null;
+        return errors.isEmpty() ? compiledMethod : null;
     }
 
     private CompositeMethod compileStaticExpression(ISyntaxNode operator,

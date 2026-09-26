@@ -621,16 +621,16 @@ public abstract class FunctionalRow implements IDecisionRow {
                     var methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
                     RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(),
                             bindingContext);
-                    CompositeMethod method;
+                    CompositeMethod compiledMethod;
                     try {
                         bindingContext.pushErrors();
                         bindingContext.pushMessages();
-                        method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
+                        compiledMethod = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
                     } finally {
                         bindingContext.popMessages();
                         bindingContext.popErrors();
                     }
-                    var type = method.getMethodBodyBoundNode().getType();
+                    var type = compiledMethod.getMethodBodyBoundNode().getType();
 
                     if (type != NullOpenClass.the) {
                         return new ParameterDeclaration(type, makeParamName(), paramSource);

@@ -47,28 +47,28 @@ class ZippedLocalRepositoryTest {
     }
 
     private void configureZipRepository(String... archives) {
-        var repository = new ZippedLocalRepository();
-        repository.setUri(repositoryRoot.getPath());
-        repository.setArchives(archives);
-        repository.initialize();
-        this.repository = repository;
+        var zipRepository = new ZippedLocalRepository();
+        zipRepository.setUri(repositoryRoot.getPath());
+        zipRepository.setArchives(archives);
+        zipRepository.initialize();
+        this.repository = zipRepository;
     }
 
     private void setUpZipRepository() throws IOException {
-        var singleDeployment = new HashMap<String, byte[]>();
-        singleDeployment.put("rules.xml", "foo".getBytes());
-        singleDeployment.put("rules/Algorithm.xlsx", "bar".getBytes());
-        singleDeployment.put("rules/dir/", null);
-        generateZipFile("", "singleDeployment", singleDeployment);
-        this.singleDeployment = Collections.unmodifiableMap(singleDeployment);
+        var singleDeploymentEntries = new HashMap<String, byte[]>();
+        singleDeploymentEntries.put("rules.xml", "foo".getBytes());
+        singleDeploymentEntries.put("rules/Algorithm.xlsx", "bar".getBytes());
+        singleDeploymentEntries.put("rules/dir/", null);
+        generateZipFile("", "singleDeployment", singleDeploymentEntries);
+        this.singleDeployment = Collections.unmodifiableMap(singleDeploymentEntries);
 
-        var multiDeployment = new HashMap<String, byte[]>();
-        multiDeployment.put("project1/rules.xml", "project1-foo".getBytes());
-        multiDeployment.put("project1/rules/Algorithm1.xlsx", "project1-bar".getBytes());
-        multiDeployment.put("project2/rules.xml", "project2-foo".getBytes());
-        multiDeployment.put("project2/Algorithm2.xlsx", "project2-bar".getBytes());
-        generateZipFile("", "multiDeployment.zip", multiDeployment);
-        this.multiDeployment = Collections.unmodifiableMap(multiDeployment);
+        var multiDeploymentEntries = new HashMap<String, byte[]>();
+        multiDeploymentEntries.put("project1/rules.xml", "project1-foo".getBytes());
+        multiDeploymentEntries.put("project1/rules/Algorithm1.xlsx", "project1-bar".getBytes());
+        multiDeploymentEntries.put("project2/rules.xml", "project2-foo".getBytes());
+        multiDeploymentEntries.put("project2/Algorithm2.xlsx", "project2-bar".getBytes());
+        generateZipFile("", "multiDeployment.zip", multiDeploymentEntries);
+        this.multiDeployment = Collections.unmodifiableMap(multiDeploymentEntries);
     }
 
     private void generateZipFile(String dirs, String name, Map<String, byte[]> entries) throws IOException {
@@ -235,9 +235,9 @@ class ZippedLocalRepositoryTest {
 
     @Test
     void testNoUri() throws IOException {
-        var repository = new ZippedLocalRepository();
-        repository.initialize();
-        assertEquals(0, repository.list("/").size());
+        var noUriRepository = new ZippedLocalRepository();
+        noUriRepository.initialize();
+        assertEquals(0, noUriRepository.list("/").size());
     }
 
     private void assertSingleDeployment(String repositoryPath, String name) throws IOException {

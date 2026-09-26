@@ -59,11 +59,11 @@ public class HttpClient implements AutoCloseable {
         if (connectTimeout > 0) {
             builder.connectTimeout(Duration.ofMillis(connectTimeout));
         }
-        int retryTimeout = Integer.parseInt(System.getProperty("http.timeout.read")) * 2;
-        if (retryTimeout <= 0) {
-            retryTimeout = 120_000; // 2 minutes
+        int retryMillis = Integer.parseInt(System.getProperty("http.timeout.read")) * 2;
+        if (retryMillis <= 0) {
+            retryMillis = 120_000; // 2 minutes
         }
-        this.retryTimeout = retryTimeout;
+        this.retryTimeout = retryMillis;
         this.client = builder.build();
     }
 

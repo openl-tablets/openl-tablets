@@ -122,10 +122,10 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
         String className = classFor.getName() + "$EnhancedMixInClassWithSubTypes$" + incrementer.getAndIncrement();
         ClassWriter classWriter = new ClassWriter(0);
-        String typingPropertyName = StringUtils.isNotBlank(
+        String resolvedTypingPropertyName = StringUtils.isNotBlank(
                 getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
         if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
-            typingPropertyName = null;
+            resolvedTypingPropertyName = null;
         }
         ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
                 originalClass,
@@ -133,7 +133,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 subTypeClasses.toArray(new Class<?>[0]),
                 Boolean.TRUE.equals(isSimpleClassNameAsTypingPropertyValue()) && JsonTypeInfo.Id.CLASS
                         .equals(getJsonTypeInfoId()) ? JsonTypeInfo.Id.NAME : getJsonTypeInfoId(),
-                typingPropertyName);
+                resolvedTypingPropertyName);
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
@@ -178,8 +178,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         mapper.setAnnotationIntrospector(introspector);
 
         BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder = null;
-        final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
-        if (polymorphicTypeValidation) {
+        final boolean validatePolymorphicTypes = isPolymorphicTypeValidation();
+        if (validatePolymorphicTypes) {
             basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
             basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
             basicPolymorphicTypeValidatorBuilder.allowIfBaseType(IRulesRuntimeContext.class);
@@ -188,8 +188,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             basicPolymorphicTypeValidatorBuilder.allowIfSubType(DefaultRulesRuntimeContext.class);
         }
 
-        Set<Class<?>> overrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
-                polymorphicTypeValidation);
+        Set<Class<?>> allOverrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
+                validatePolymorphicTypes);
 
         for (Class<?> clazz : getConfigurationClasses()) {
             MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
@@ -217,7 +217,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 default -> null;
             };
             mapper.activateDefaultTypingAsProperty(
-                    polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
+                    validatePolymorphicTypes ? basicPolymorphicTypeValidatorBuilder.build()
                             : LaissezFaireSubTypeValidator.instance,
                     defaultTyping,
                     StringUtils.isNotBlank(getTypingPropertyName()) ? getTypingPropertyName()
@@ -228,10 +228,10 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
         mapper.addMixIn(GroovyObject.class, org.openl.rules.serialization.jackson.groovy.lang.GroovyObject.class);
 
-        for (Class<?> clazz : overrideClasses) {
+        for (Class<?> clazz : allOverrideClasses) {
             Class<?> subtypeMixInClass = enhanceMixInClassWithSubTypes(clazz,
                     mapper.findMixInClassFor(clazz),
-                    overrideClasses,
+                    allOverrideClasses,
                     getClassLoader());
             mapper.addMixIn(clazz, subtypeMixInClass);
         }

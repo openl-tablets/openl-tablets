@@ -45,15 +45,15 @@ public class RangeParser {
     @Override
     public String toString() {
         var s = new StringBuilder(20);
-        var type = getType();
-        switch (type) {
+        var rangeType = getType();
+        switch (rangeType) {
             case OPEN:
             case CLOSED:
             case OPEN_CLOSED:
             case CLOSED_OPEN:
-                s.append(type.left == Range.Bound.OPEN ? '(' : '[');
+                s.append(rangeType.left == Range.Bound.OPEN ? '(' : '[');
                 s.append(left).append(" .. ").append(right);
-                s.append(type.right == Range.Bound.OPEN ? ')' : ']');
+                s.append(rangeType.right == Range.Bound.OPEN ? ')' : ']');
                 break;
             case LEFT_OPEN:
                 s.append(">").append(left);
@@ -68,7 +68,7 @@ public class RangeParser {
                 s.append("<=").append(right);
                 break;
             default:
-                s.append(type).append(": ").append(left).append(" - ").append(right);
+                s.append(rangeType).append(": ").append(left).append(" - ").append(right);
         }
         return s.toString();
     }

@@ -61,10 +61,10 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
         if (annotationDef.isPresent()) {
             var annotation = annotationDef.get();
             var systemPropertyName = annotation.value();
-            Function<Object, Boolean> readOnlyLookup;
+            Function<Object, Boolean> propertyReadOnlyLookup;
             if (systemPropertyName.isBlank()) {
                 var systemPropertySuffix = annotation.suffix();
-                readOnlyLookup = (object) -> {
+                propertyReadOnlyLookup = (object) -> {
                     if (object instanceof ConfigPrefixSettingsHolder holder) {
                         return Props.isDisabled(holder.getConfigPropertyKey(systemPropertySuffix));
                     }
@@ -72,9 +72,9 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
                 };
             } else {
                 var disabled = Props.isDisabled(systemPropertyName);
-                readOnlyLookup = (object) -> disabled;
+                propertyReadOnlyLookup = (object) -> disabled;
             }
-            return new SettingValueWrapperSerializer(readOnlyLookup, annotation.secret());
+            return new SettingValueWrapperSerializer(propertyReadOnlyLookup, annotation.secret());
         }
         return this;
     }

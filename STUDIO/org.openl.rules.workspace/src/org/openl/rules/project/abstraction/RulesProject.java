@@ -353,16 +353,16 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
-        var designRepository = getDesignRepository();
+        var realDesignRepository = getDesignRepository();
         // Unwrap delegate repository to get real repository, because delegate repository can be secured.
         // Get file data can't be secured, because it's used in security check to build identity.
-        while (designRepository instanceof RepositoryDelegate) {
-            designRepository = ((RepositoryDelegate) designRepository).getOriginal();
+        while (realDesignRepository instanceof RepositoryDelegate) {
+            realDesignRepository = ((RepositoryDelegate) realDesignRepository).getOriginal();
         }
         if (isLocalOnly()) {
             var fileData = super.getFileDataForUnversionableRepo(repository);
-            if (designRepository != null && designRepository.supports().branches()) {
-                fileData.setBranch(((BranchRepository) designRepository).getBranch());
+            if (realDesignRepository != null && realDesignRepository.supports().branches()) {
+                fileData.setBranch(((BranchRepository) realDesignRepository).getBranch());
             }
             return fileData;
         }
@@ -374,13 +374,13 @@ public class RulesProject extends UserWorkspaceProject {
         fileData.setName(getFolderPath());
         fileData.setVersion(actualVersion);
 
-        if (designRepository.supports().branches()) {
-            fileData.setBranch(((BranchRepository) designRepository).getBranch());
+        if (realDesignRepository.supports().branches()) {
+            fileData.setBranch(((BranchRepository) realDesignRepository).getBranch());
         }
 
         if (actualVersion != null) {
             try {
-                var repoData = designRepository.checkHistory(designFolderName, actualVersion);
+                var repoData = realDesignRepository.checkHistory(designFolderName, actualVersion);
                 if (repoData != null) {
                     fileData.setAuthor(repoData.getAuthor());
                     fileData.setModifiedAt(repoData.getModifiedAt());
@@ -391,7 +391,7 @@ public class RulesProject extends UserWorkspaceProject {
                     var mappingData = repoData.getAdditionalData(FileMappingData.class);
                     if (mappingData != null) {
                         fileData.addAdditionalData(mappingData);
-                    } else if (!designRepository.supports().mappedFolders()) {
+                    } else if (!realDesignRepository.supports().mappedFolders()) {
                         // For flat folder structure external (virtual) path is equal to internal (real) path.
                         fileData.addAdditionalData(new FileMappingData(repoData.getName(), repoData.getName()));
                     }

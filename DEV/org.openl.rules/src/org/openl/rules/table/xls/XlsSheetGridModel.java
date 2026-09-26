@@ -576,27 +576,27 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     // TODO: move to factory.
     public AXlsCellWriter getCellWriter(Object value) {
-        Map<String, AXlsCellWriter> cellWriters = getCellWriters();
+        Map<String, AXlsCellWriter> writers = getCellWriters();
         AXlsCellWriter result;
         if (value instanceof Number) {
-            result = cellWriters.get(AXlsCellWriter.NUMBER_WRITER);
+            result = writers.get(AXlsCellWriter.NUMBER_WRITER);
         } else if (value instanceof Date) {
-            result = cellWriters.get(AXlsCellWriter.DATE_WRITER);
+            result = writers.get(AXlsCellWriter.DATE_WRITER);
         } else if (value instanceof Boolean) {
-            result = cellWriters.get(AXlsCellWriter.BOOLEAN_WRITER);
+            result = writers.get(AXlsCellWriter.BOOLEAN_WRITER);
         } else if (EnumUtils.isEnum(value)) {
-            result = cellWriters.get(AXlsCellWriter.ENUM_WRITER);
+            result = writers.get(AXlsCellWriter.ENUM_WRITER);
         } else if (EnumUtils.isEnumArray(value)) {
-            result = cellWriters.get(AXlsCellWriter.ENUM_ARRAY_WRITER);
+            result = writers.get(AXlsCellWriter.ENUM_ARRAY_WRITER);
         } else if (value.getClass().isArray()) {
-            result = cellWriters.get(AXlsCellWriter.ARRAY_WRITER);
+            result = writers.get(AXlsCellWriter.ARRAY_WRITER);
         } else { // String
             String strValue = String.valueOf(value);
             // Formula
             if (strValue.startsWith("=")) {
-                result = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
+                result = writers.get(AXlsCellWriter.FORMULA_WRITER);
             } else {
-                result = cellWriters.get(AXlsCellWriter.STRING_WRITER);
+                result = writers.get(AXlsCellWriter.STRING_WRITER);
             }
         }
         return result;

@@ -410,9 +410,9 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (!firstPair.isIndexed()) {
             return null;
         }
-        var indexRoot = firstPair.makeIndex(info.makeRuleIterator());
-        indexNodes(indexRoot, 1, info);
-        return indexRoot;
+        var rootIndex = firstPair.makeIndex(info.makeRuleIterator());
+        indexNodes(rootIndex, 1, info);
+        return rootIndex;
     }
 
     private void indexNodes(IRuleIndex index, int condN, IndexInfo info) {

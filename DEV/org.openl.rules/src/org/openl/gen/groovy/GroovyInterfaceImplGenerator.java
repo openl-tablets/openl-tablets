@@ -19,11 +19,11 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
 
         this.clazzInterface = clazzInterface;
         if (beanStubMethods != null) {
-            ChainedGroovyScriptWriter writerChain = null;
+            ChainedGroovyScriptWriter methodWriters = null;
             for (MethodDescription beanStubMethod : beanStubMethods) {
-                writerChain = new GroovyMethodWriter(beanStubMethod, writerChain);
+                methodWriters = new GroovyMethodWriter(beanStubMethod, methodWriters);
             }
-            this.writerChain = writerChain;
+            this.writerChain = methodWriters;
         } else {
             this.writerChain = null;
         }

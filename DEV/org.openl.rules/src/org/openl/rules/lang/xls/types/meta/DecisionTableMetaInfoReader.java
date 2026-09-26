@@ -142,16 +142,16 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             if (preparedMetaInfos == null) {
                 preparedMetaInfos = new HashMap<>();
             }
-            var decisionTable = getDecisionTable();
+            var table = getDecisionTable();
 
             saveSimpleRulesMetaInfo(region);
             saveCompoundReturnColumn(region);
 
-            var conditionRows = decisionTable.getConditionRows();
-            var actionRows = decisionTable.getActionRows();
+            var conditionRows = table.getConditionRows();
+            var actionRows = table.getActionRows();
 
-            if (!DecisionTableHelper.isSmart(decisionTable.getSyntaxNode()) && !DecisionTableHelper
-                    .isSimple(decisionTable.getSyntaxNode())) {
+            if (!DecisionTableHelper.isSmart(table.getSyntaxNode()) && !DecisionTableHelper
+                    .isSimple(table.getSyntaxNode())) {
                 if (conditionRows != null) {
                     // Condition description
                     for (IBaseCondition conditionRow : conditionRows) {

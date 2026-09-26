@@ -40,10 +40,10 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         this.fields = new HashSet<>(extractFields(field1));
         this.fields.addAll(extractFields(field2));
 
-        List<IOpenClass> declaringClasses = new ArrayList<>();
-        extractFieldDeclaringClasses(field1, declaringClasses);
-        extractFieldDeclaringClasses(field2, declaringClasses);
-        this.declaringClasses = declaringClasses.toArray(IOpenClass.EMPTY);
+        List<IOpenClass> combinedDeclaringClasses = new ArrayList<>();
+        extractFieldDeclaringClasses(field1, combinedDeclaringClasses);
+        extractFieldDeclaringClasses(field2, combinedDeclaringClasses);
+        this.declaringClasses = combinedDeclaringClasses.toArray(IOpenClass.EMPTY);
     }
 
     private Collection<IOpenField> extractFields(IOpenField field) {
@@ -133,12 +133,14 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     }
                     this.casts = new ArrayList<>();
                     this.type = t;
-                    for (IOpenClass type : types) {
-                        if (!NullOpenClass.isAnyNull(type)) {
-                            IOpenCast cast = xlsModuleOpenClass.getRulesModuleBindingContext().getCast(type, this.type);
-                            IOpenClass x = type;
-                            if (type.getInstanceClass() != null && type.getInstanceClass().isPrimitive()) {
-                                x = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(type.getInstanceClass()));
+                    for (IOpenClass fieldType : types) {
+                        if (!NullOpenClass.isAnyNull(fieldType)) {
+                            IOpenCast cast = xlsModuleOpenClass.getRulesModuleBindingContext()
+                                    .getCast(fieldType, this.type);
+                            IOpenClass x = fieldType;
+                            if (fieldType.getInstanceClass() != null && fieldType.getInstanceClass().isPrimitive()) {
+                                x = JavaOpenClass
+                                        .getOpenClass(ClassUtils.primitiveToWrapper(fieldType.getInstanceClass()));
                             }
                             this.casts.add(Pair.of(x, cast));
                         }

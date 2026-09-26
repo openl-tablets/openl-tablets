@@ -96,7 +96,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private String buildRegexpPattern(String fileNamePattern) throws InvalidFileNamePatternException {
         var matcher = PROPERTY_REFERENCE.matcher(fileNamePattern);
         var start = 0;
-        var fileNameRegexpPattern = fileNamePattern.replace('*', '\uffff')
+        var regex = fileNamePattern.replace('*', '\uffff')
                 .replace('.', '\ufffe')
                 .replace('?', '\ufffd')
                 .replace('+', '\ufffc')
@@ -118,7 +118,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 }
                 final var propertyGroup = multyPropertyNames.split(",");
                 Class<?> returnType = null;
-                String pattern;
+                String propertyPattern;
                 StringBuilder finalPattern = null;
                 for (String propertyName : propertyGroup) {
                     if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
@@ -138,76 +138,76 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     }
                     returnType = currentReturnType;
                     try {
-                        pattern = getPattern(propertyName, format, returnType);
+                        propertyPattern = getPattern(propertyName, format, returnType);
                     } catch (RuntimeException e) {
                         throw new InvalidFileNamePatternException(
                                 "Invalid file name pattern at: %s.".formatted(propertyMatch));
                     }
                     if (finalPattern == null) {
-                        finalPattern = new StringBuilder(pattern);
+                        finalPattern = new StringBuilder(propertyPattern);
                     }
                     finalPattern = new StringBuilder("(?<" + propertyName + ">" + finalPattern + ")");
                 }
 
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, finalPattern.toString());
+                regex = regex.replace(propertyMatch, finalPattern.toString());
                 start = matcher.end();
             } else {
                 start = fileNamePattern.length();
             }
         }
 
-        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?<=/)\uffff/", "[^/]+/"); // Ant /*/
-        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?<=/)\uffff\uffff/", "(?:[^/]+/)*"); // Ant /**/
-        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("\ufffe\uffff$", "\\.[^/]*");// File .*
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe\uffff", "[^/]*");// Regexp .*
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\uffff", "[^/]*"); // File *
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe", "\\."); // File .
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffd", "[^/]"); // File ?
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffc", "\\+"); // Just +
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffb", "\\^"); // Just ^
+        regex = regex.replaceAll("(?<=/)\uffff/", "[^/]+/"); // Ant /*/
+        regex = regex.replaceAll("(?<=/)\uffff\uffff/", "(?:[^/]+/)*"); // Ant /**/
+        regex = regex.replaceAll("\ufffe\uffff$", "\\.[^/]*");// File .*
+        regex = regex.replace("\ufffe\uffff", "[^/]*");// Regexp .*
+        regex = regex.replace("\uffff", "[^/]*"); // File *
+        regex = regex.replace("\ufffe", "\\."); // File .
+        regex = regex.replace("\ufffd", "[^/]"); // File ?
+        regex = regex.replace("\ufffc", "\\+"); // Just +
+        regex = regex.replace("\ufffb", "\\^"); // Just ^
 
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("$", "\\$"); // Just $
+        regex = regex.replace("$", "\\$"); // Just $
 
-        if (fileNameRegexpPattern.startsWith("/")) {
-            fileNameRegexpPattern = fileNameRegexpPattern.replaceFirst("^/", "^");
+        if (regex.startsWith("/")) {
+            regex = regex.replaceFirst("^/", "^");
         } else {
-            fileNameRegexpPattern = "^(?:[^/]+/)*" + fileNameRegexpPattern;
+            regex = "^(?:[^/]+/)*" + regex;
         }
 
-        return fileNameRegexpPattern + "(?:\\.[^.]*)??$";
+        return regex + "(?:\\.[^.]*)??$";
     }
 
     private String getPattern(String propertyName, String format, Class<?> returnType) {
-        var pattern = DEFAULT_PATTERN; // Default pattern for non-restricted values.
+        var valuePattern = DEFAULT_PATTERN; // Default pattern for non-restricted values.
         if (Boolean.class == returnType) {
-            pattern = "[a-zA-Z]+";
+            valuePattern = "[a-zA-Z]+";
         } else if (Date.class == returnType) {
             if (format == null) {
                 format = "yyyyMMdd"; // default pattern for easier declaration and be ordered by date naturally
             }
             dateFormats.put(propertyName, createDateFormat(format));
-            pattern = dateFormatToPattern(format);
+            valuePattern = dateFormatToPattern(format);
         } else if (returnType.isEnum()) {
-            pattern = "[a-zA-Z$_][\\w$_]*";
+            valuePattern = "[a-zA-Z$_][\\w$_]*";
         } else if (returnType.isArray()) {
             Class<?> componentClass = returnType.getComponentType();
             if (componentClass.isArray()) {
                 throw new OpenlNotCheckedException("Two dim arrays are not supported.");
             }
-            pattern = getPattern(propertyName, format, componentClass);
-            if (!DEFAULT_PATTERN.equals(pattern)) {
-                pattern = "(?:%s)(?:%s(?:%s))*".formatted(pattern, ARRAY_SEPARATOR, pattern);
+            valuePattern = getPattern(propertyName, format, componentClass);
+            if (!DEFAULT_PATTERN.equals(valuePattern)) {
+                valuePattern = "(?:%s)(?:%s(?:%s))*".formatted(valuePattern, ARRAY_SEPARATOR, valuePattern);
             }
         }
-        return pattern;
+        return valuePattern;
     }
 
     private String dateFormatToPattern(String format) {
-        var pattern = format.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
-        pattern = pattern.replaceAll("MMM+", "\\\\p{Alpha}+");
-        pattern = pattern.replace("MM", "\\d{2}");
-        pattern = pattern.replace("M", "\\d{1,2}");
-        return pattern;
+        var datePattern = format.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
+        datePattern = datePattern.replaceAll("MMM+", "\\\\p{Alpha}+");
+        datePattern = datePattern.replace("MM", "\\d{2}");
+        datePattern = datePattern.replace("M", "\\d{1,2}");
+        return datePattern;
     }
 
     private Object convert(String propertyName, String value) {

@@ -114,11 +114,11 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         try {
             var servicesToBeDeployed = serviceConfigurer
                     .getServicesToBeDeployed(ruleServiceLoader);
-            var services = new HashMap<String, ServiceDescription>();
+            var servicesByDeployPath = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-                services.put(serviceDescription.getDeployPath(), serviceDescription);
+                servicesByDeployPath.put(serviceDescription.getDeployPath(), serviceDescription);
             }
-            return services;
+            return servicesByDeployPath;
         } catch (Exception e) {
             log.error("Failed to gather services to be deployed.", e);
             return Map.of();

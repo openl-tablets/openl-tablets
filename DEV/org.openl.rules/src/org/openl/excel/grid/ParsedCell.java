@@ -52,14 +52,14 @@ public class ParsedCell implements ICell {
 
     @Override
     public int getWidth() {
-        var region = getRegion();
-        return region == null ? 1 : region.getRight() - region.getLeft() + 1;
+        var mergedRegion = getRegion();
+        return mergedRegion == null ? 1 : mergedRegion.getRight() - mergedRegion.getLeft() + 1;
     }
 
     @Override
     public int getHeight() {
-        var region = getRegion();
-        return region == null ? 1 : region.getBottom() - region.getTop() + 1;
+        var mergedRegion = getRegion();
+        return mergedRegion == null ? 1 : mergedRegion.getBottom() - mergedRegion.getTop() + 1;
     }
 
     @Override
@@ -77,13 +77,13 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getStringValue() {
-        var value = getObjectValue();
-        if (value == null) {
+        var cellValue = getObjectValue();
+        if (cellValue == null) {
             return null;
-        } else  if (value instanceof Date date) {
+        } else  if (cellValue instanceof Date date) {
             return ISO8601DateFormater.format(date);
         } else {
-            return value.toString();
+            return cellValue.toString();
         }
     }
 
@@ -109,14 +109,14 @@ public class ParsedCell implements ICell {
 
     @Override
     public int getType() {
-        var value = getObjectValue();
-        if (value == null) {
+        var cellValue = getObjectValue();
+        if (cellValue == null) {
             return IGrid.CELL_TYPE_BLANK;
-        } else if (value instanceof Boolean) {
+        } else if (cellValue instanceof Boolean) {
             return IGrid.CELL_TYPE_BOOLEAN;
-        } else if (value instanceof Number || value instanceof Date) {
+        } else if (cellValue instanceof Number || cellValue instanceof Date) {
             return IGrid.CELL_TYPE_NUMERIC;
-        } else if (value instanceof String) {
+        } else if (cellValue instanceof String) {
             return IGrid.CELL_TYPE_STRING;
         }
         return IGrid.CELL_TYPE_ERROR;
@@ -139,12 +139,12 @@ public class ParsedCell implements ICell {
 
     @Override
     public double getNativeNumber() {
-        var value = getObjectValue();
+        var cellValue = getObjectValue();
 
-        if (value == null) {
+        if (cellValue == null) {
             return 0.0;
         }
-        if (value instanceof Number number) {
+        if (cellValue instanceof Number number) {
             return number.doubleValue();
         }
 
@@ -153,8 +153,8 @@ public class ParsedCell implements ICell {
 
     @Override
     public boolean getNativeBoolean() {
-        var value = getObjectValue();
-        return value != null && (Boolean) value;
+        var cellValue = getObjectValue();
+        return cellValue != null && (Boolean) cellValue;
     }
 
     @Override
@@ -184,8 +184,8 @@ public class ParsedCell implements ICell {
 
     @Override
     public ICell getTopLeftCellFromRegion() {
-        var region = getRegion();
-        return region == null ? this : grid.getCell(region.getLeft(), region.getTop());
+        var mergedRegion = getRegion();
+        return mergedRegion == null ? this : grid.getCell(mergedRegion.getLeft(), mergedRegion.getTop());
     }
 
     private void initializeStyles() {

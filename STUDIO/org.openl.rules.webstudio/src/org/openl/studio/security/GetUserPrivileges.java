@@ -29,9 +29,9 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         var privileges = new ArrayList<GrantedAuthority>();
 
         // Add a default group if it presents
-        var defaultGroup = getDefaultGroup();
-        if (defaultGroup != null) {
-            privileges.add(defaultGroup);
+        var defaultUserGroup = getDefaultGroup();
+        if (defaultUserGroup != null) {
+            privileges.add(defaultUserGroup);
         }
 
         // Map external authorities to OpenL privileges

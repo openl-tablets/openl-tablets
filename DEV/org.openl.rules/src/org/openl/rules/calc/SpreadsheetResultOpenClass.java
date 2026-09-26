@@ -102,7 +102,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 } else {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
-                        if (openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass && customSpreadsheetResultOpenClass
+                        if (openClass instanceof CustomSpreadsheetResultOpenClass spreadsheetType && spreadsheetType
                                 .isSpreadsheet()) {
                             try {
                                 if (g) {
@@ -117,7 +117,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                     SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
                                 }
                             }
-                            var f = customSpreadsheetResultOpenClass.getField(fieldName, strictMatch);
+                            var f = spreadsheetType.getField(fieldName, strictMatch);
                             if (f instanceof CustomSpreadsheetResultField field) {
                                 if (mergedField == null) {
                                     mergedField = field;

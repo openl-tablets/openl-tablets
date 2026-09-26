@@ -178,8 +178,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
             // Generate interface is optional.
             if (interfaceClass != null) {
-                Class<?> interfaceClass = factory.getInterfaceClass();
-                writeInterface(interfaceClass, factory.newInstance());
+                Class<?> rulesInterface = factory.getInterfaceClass();
+                writeInterface(rulesInterface, factory.newInstance());
                 project.addCompileSourceRoot(outputDirectory.getPath());
             }
 

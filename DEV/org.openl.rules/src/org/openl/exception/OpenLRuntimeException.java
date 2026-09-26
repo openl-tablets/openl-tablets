@@ -141,9 +141,9 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         for (IBoundNode node : openlCallStack) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
-                String sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
+                String nodeSourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
                         syntaxNode.getModule());
-                SourceCodeURLTool.printSourceLocation(sourceLocation, writer);
+                SourceCodeURLTool.printSourceLocation(nodeSourceLocation, writer);
             }
         }
 

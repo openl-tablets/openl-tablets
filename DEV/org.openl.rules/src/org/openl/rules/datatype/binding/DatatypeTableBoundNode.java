@@ -253,21 +253,21 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         var firstRow = dataTable.getRow(0);
         if (DatatypeHelper.hasColumnTitles(dataTable.getWidth(),
                 i -> getCellSource(firstRow, cxt, i).getCode())) {
-            var columnTitlesOrder = new HashMap<String, Integer>();
+            var columnIndexByTitle = new HashMap<String, Integer>();
             for (var i = 0; i < dataTable.getWidth(); i++) {
                 var cellSource = getCellSource(dataTable.getRow(0), cxt, i);
                 var title = cellSource.getCode();
                 if (StringUtils.isNotBlank(title)) {
-                    if (columnTitlesOrder.containsKey(title)) {
+                    if (columnIndexByTitle.containsKey(title)) {
                         BindHelper.processError("Column title '%s' is duplicated.".formatted(title), cellSource, cxt);
                     } else if (!COLUMN_TITLES.contains(title)) {
                         BindHelper.processError("Column title '%s' is not allowed. The title must be one of: %s".formatted(title, COMMA_SEPARATED_COLUMN_TITLES), cellSource, cxt);
                     } else {
-                        columnTitlesOrder.put(title, i);
+                        columnIndexByTitle.put(title, i);
                     }
                 }
             }
-            return columnTitlesOrder;
+            return columnIndexByTitle;
         }
 
         // Legacy design - use positional columns

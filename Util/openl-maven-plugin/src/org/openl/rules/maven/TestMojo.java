@@ -307,7 +307,7 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private Summary executeTests(CompiledOpenClass openLRules) {
-        TestRunner testRunner = getTestRunner();
+        TestRunner runner = getTestRunner();
 
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
 
@@ -346,9 +346,9 @@ public final class TestMojo extends BaseOpenLMojo {
                     try {
                         Thread.currentThread().setContextClassLoader(openLRules.getClassLoader());
                         if (testSuiteExecutor == null) {
-                            result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1);
+                            result = new TestSuite(test, runner).invokeSequentially(openClass, 1);
                         } else {
-                            result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1);
+                            result = new TestSuite(test, runner).invokeParallel(testSuiteExecutor, openClass, 1);
                         }
                     } finally {
                         Thread.currentThread().setContextClassLoader(oldClassLoader);

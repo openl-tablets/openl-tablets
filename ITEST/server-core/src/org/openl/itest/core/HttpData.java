@@ -83,9 +83,9 @@ class HttpData {
     private HttpData(String firstLine, Map<String, String> headers, byte[] body, String pathToResource) {
         this.firstLine = firstLine;
         this.headers.putAll(headers);
-        var settings = this.headers.subMap("X-OpenL-Test-", "X-OpenL-Test.");
-        this.settings.putAll(settings);
-        settings.clear();
+        var settingHeaders = this.headers.subMap("X-OpenL-Test-", "X-OpenL-Test.");
+        this.settings.putAll(settingHeaders);
+        settingHeaders.clear();
         this.body = body;
         this.pathToResource = pathToResource;
     }

@@ -34,10 +34,10 @@ public class PaginationValueArgumentResolver implements HandlerMethodArgumentRes
 
     public PaginationValueArgumentResolver(OffsetValueArgumentResolver offsetValueArgResolver,
                                            PageValueArgumentResolver pageValueArgResolver) {
-        Map<Class<? extends Pageable>, AbstractPaginationValueArgumentResolver> paginationResolvers = new HashMap<>(Map.of(
+        Map<Class<? extends Pageable>, AbstractPaginationValueArgumentResolver> resolversByType = new HashMap<>(Map.of(
                 Offset.class, offsetValueArgResolver,
                 Page.class, pageValueArgResolver));
-        this.paginationResolvers = Collections.unmodifiableMap(paginationResolvers);
+        this.paginationResolvers = Collections.unmodifiableMap(resolversByType);
     }
 
     @Override

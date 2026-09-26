@@ -403,8 +403,8 @@ public final class KafkaService implements Runnable {
 
     @SuppressWarnings("FutureReturnValueIgnored")
     private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData, String requestIdHeader) {
-        final var dltTopic = getDltTopic(record);
-        if (StringUtils.isEmpty(dltTopic)) {
+        final var recordDltTopic = getDltTopic(record);
+        if (StringUtils.isEmpty(recordDltTopic)) {
             return;
         }
         try {
@@ -414,10 +414,10 @@ public final class KafkaService implements Runnable {
             ProducerRecord<String, byte[]> dltRecord;
             var header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
             if (header == null) {
-                dltRecord = new ProducerRecord<>(dltTopic, record.key(), record.value().getRawData());
+                dltRecord = new ProducerRecord<>(recordDltTopic, record.key(), record.value().getRawData());
             } else {
                 Integer partition = Integer.parseInt(new String(header.value(), StandardCharsets.UTF_8));
-                dltRecord = new ProducerRecord<>(dltTopic, partition, record.key(), record.value().getRawData());
+                dltRecord = new ProducerRecord<>(recordDltTopic, partition, record.key(), record.value().getRawData());
             }
             forwardHeadersToDlt(record, dltRecord);
             setDltHeaders(record, e, dltRecord);
@@ -431,7 +431,7 @@ public final class KafkaService implements Runnable {
                 }
                 if (exception != null && log.isErrorEnabled()) {
                     log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
-                            dltTopic,
+                            recordDltTopic,
                             System.lineSeparator(),
                             record.value().asText(), exception);
                 } else if (storeLogData != null) {
@@ -445,7 +445,7 @@ public final class KafkaService implements Runnable {
         } catch (Exception e1) {
             if (log.isErrorEnabled()) {
                 log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
-                        dltTopic,
+                        recordDltTopic,
                         System.lineSeparator(),
                         record.value().asText(), e1);
             }

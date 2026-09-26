@@ -20,8 +20,8 @@ public class DefaultPropertyLoader implements ApplicationContextInitializer<Conf
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        var environment = applicationContext.getEnvironment();
-        initialize(environment);
+        var contextEnvironment = applicationContext.getEnvironment();
+        initialize(contextEnvironment);
     }
 
     @Setter

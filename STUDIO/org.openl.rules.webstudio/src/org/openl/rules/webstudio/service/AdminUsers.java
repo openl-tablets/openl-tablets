@@ -72,8 +72,8 @@ public class AdminUsers {
     }
 
     private String assignPrivileges(String user) {
-        var administrators = groupService.getGroupByName(ADMIN_GROUP);
-        if (administrators != null && administrators.hasPrivilege(ADMIN)) {
+        var administratorsGroup = groupService.getGroupByName(ADMIN_GROUP);
+        if (administratorsGroup != null && administratorsGroup.hasPrivilege(ADMIN)) {
             return ADMIN_GROUP;
         }
         for (Group group : groupService.getGroups()) {

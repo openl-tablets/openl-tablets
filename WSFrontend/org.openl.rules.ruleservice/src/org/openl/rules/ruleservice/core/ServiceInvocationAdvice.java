@@ -110,8 +110,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.rulesDeploy = rulesDeployProvider.orElse(null);
         PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
                 .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
-        if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy) {
-            this.sprBeanPropertyNamingStrategy = sprBeanPropertyNamingStrategy;
+        if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy) {
+            this.sprBeanPropertyNamingStrategy = sprNamingStrategy;
         } else {
             this.sprBeanPropertyNamingStrategy = null;
         }
@@ -136,25 +136,25 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.loggingEnabled = Boolean
                 .parseBoolean(applicationContext.getEnvironment().getProperty("ruleservice.logging.enabled"));
 
-        var serviceContext = new AnnotationConfigApplicationContext();
+        var serviceSpringContext = new AnnotationConfigApplicationContext();
         var configurationClass = getConfigurationClass(serviceClassLoader);
         if (configurationClass != null) {
-            serviceContext.setClassLoader(configurationClass.getClassLoader());
-            serviceContext.register(configurationClass);
+            serviceSpringContext.setClassLoader(configurationClass.getClassLoader());
+            serviceSpringContext.register(configurationClass);
         } else {
-            serviceContext.setClassLoader(serviceClassLoader);
+            serviceSpringContext.setClassLoader(serviceClassLoader);
         }
-        serviceContext.setParent(applicationContext);
-        var beanFactory = serviceContext.getBeanFactory();
+        serviceSpringContext.setParent(applicationContext);
+        var beanFactory = serviceSpringContext.getBeanFactory();
         beanFactory.registerSingleton("openClass", openClass);
-        rulesDeployProvider.ifPresent(rulesDeploy -> beanFactory.registerSingleton("rulesDeploy", rulesDeploy));
+        rulesDeployProvider.ifPresent(deployConfig -> beanFactory.registerSingleton("rulesDeploy", deployConfig));
         projectDescriptorProvider.ifPresent(projectDescriptor -> beanFactory.registerSingleton("projectDescriptor", projectDescriptor));
         beanFactory.registerSingleton("serviceClassLoader", serviceClassLoader);
         beanFactory.registerSingleton(OBJECT_MAPPER_ID, mapper);
         beanFactory.registerResolvableDependency(IOpenMember.class, (ObjectFactory<IOpenMember>) iOpenMethodHolder::get);
-        serviceContext.refresh();
+        serviceSpringContext.refresh();
 
-        this.serviceContext = serviceContext;
+        this.serviceContext = serviceSpringContext;
 
         var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {

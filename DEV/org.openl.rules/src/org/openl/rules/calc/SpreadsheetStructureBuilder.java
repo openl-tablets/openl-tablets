@@ -427,25 +427,25 @@ public class SpreadsheetStructureBuilder {
             }
 
             try {
-                var bindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
+                var columnBindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
                 Object result = null;
                 if (String.class == instanceClass) {
-                    result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
+                    result = String2DataConvertorFactory.parse(instanceClass, code, columnBindingContext);
                 } else {
                     if (cell.hasNativeType()) {
                         result = RuleRowHelper.loadNativeValue(cell, type);
                     }
                     if (result == null) {
-                        result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
+                        result = String2DataConvertorFactory.parse(instanceClass, code, columnBindingContext);
                     }
                 }
 
-                if (bindingContext.isExecutionMode() && result instanceof IMetaHolder holder) {
+                if (columnBindingContext.isExecutionMode() && result instanceof IMetaHolder holder) {
                     var meta = new ValueMetaInfo(name, null, source);
                     holder.setMetaInfo(meta);
                 }
 
-                var openCast = bindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
+                var openCast = columnBindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
                 spreadsheetCell.setValue(openCast.convert(result));
             } catch (Exception t) {
                 var message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);

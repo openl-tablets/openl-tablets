@@ -63,8 +63,8 @@ public class CompositeOpenlException extends RuntimeException {
 
         printWriter.print("+++There are " + errorMessages.size() + " exceptions\r\n");
 
-        for (OpenLMessage message : errorMessages) {
-            printWriter.print(message);
+        for (OpenLMessage errorMessage : errorMessages) {
+            printWriter.print(errorMessage);
             printWriter
                     .print("\r\n-------------------------------------------------------------------------------------\r\n");
         }

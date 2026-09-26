@@ -739,8 +739,8 @@ public class AzureBlobRepository implements Repository {
     }
 
     private AzureCommit findCommit(String path, String version) {
-        String name = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
-        final var commitName = VERSIONS_PREFIX + name + "/" + VERSION_FILE;
+        String normalizedPath = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+        final var commitName = VERSIONS_PREFIX + normalizedPath + "/" + VERSION_FILE;
         if (version != null) {
             synchronized (this) {
                 final var cached = commitsCache.get(new CacheKey(commitName, version));
@@ -754,7 +754,8 @@ public class AzureBlobRepository implements Repository {
                 isCommitName = commitsCache.keySet().stream().anyMatch(k -> k.name.equals(commitName));
             }
             if (isCommitName) {
-                return getCommit(blobContainerClient.getBlobClient(VERSIONS_PREFIX + name + "/" + VERSION_FILE));
+                return getCommit(
+                        blobContainerClient.getBlobClient(VERSIONS_PREFIX + normalizedPath + "/" + VERSION_FILE));
             }
         }
         return getCommit(findCommitBlob(path, version));

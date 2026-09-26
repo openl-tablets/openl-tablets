@@ -81,30 +81,30 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     private TestDescription[] initTestsAndIndexes() {
-        var testObjects = getTestObjects();
-        TestDescription[] tests = new TestDescription[testObjects.length];
-        indexes = HashMap.newHashMap(tests.length);
+        var testCaseObjects = getTestObjects();
+        TestDescription[] testDescriptions = new TestDescription[testCaseObjects.length];
+        indexes = HashMap.newHashMap(testDescriptions.length);
         Map<String, Object> properties = getProperties();
         Integer precision = null;
         if (properties != null && properties.containsKey(PRECISION_PARAM)) {
             precision = Integer.parseInt(properties.get(PRECISION_PARAM).toString());
         }
-        var testedMethod = getTestedMethod();
+        var methodUnderTest = getTestedMethod();
         var fieldsToTest = new ArrayList<IOpenField>();
         var errorFieldsToTest = new ArrayList<IOpenField>();
-        createFieldsToTest(fieldsToTest, errorFieldsToTest, testedMethod, getDataModel(), precision);
+        createFieldsToTest(fieldsToTest, errorFieldsToTest, methodUnderTest, getDataModel(), precision);
 
-        for (var i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(testedMethod,
-                    testObjects[i],
+        for (var i = 0; i < testDescriptions.length; i++) {
+            testDescriptions[i] = new TestDescription(methodUnderTest,
+                    testCaseObjects[i],
                     fieldsToTest,
                     errorFieldsToTest,
                     getDataModel(),
                     db);
-            tests[i].setIndex(i);
-            indexes.put(tests[i].getId(), i);
+            testDescriptions[i].setIndex(i);
+            indexes.put(testDescriptions[i].getId(), i);
         }
-        return tests;
+        return testDescriptions;
     }
 
     public synchronized int[] getIndices(String ids) {
@@ -175,9 +175,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     private void updateDependency(BindingDependencies bindingDependencies) {
-        var testedMethod = getTestedMethod();
-        if (testedMethod instanceof ExecutableRulesMethod || testedMethod instanceof OpenMethodDispatcher) {
-            bindingDependencies.addMethodDependency(testedMethod, getBoundNode());
+        var methodUnderTest = getTestedMethod();
+        if (methodUnderTest instanceof ExecutableRulesMethod || methodUnderTest instanceof OpenMethodDispatcher) {
+            bindingDependencies.addMethodDependency(methodUnderTest, getBoundNode());
         }
     }
 

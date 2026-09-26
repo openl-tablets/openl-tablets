@@ -55,10 +55,10 @@ public class EventReader implements ExcelReader {
     @Override
     public TableStyles getTableStyles(SheetDescriptor sheet, IGridRegion tableRegion) {
         try {
-            var listener = new TableStyleListener((EventSheetDescriptor) sheet, tableRegion);
-            listener.process(fileName);
+            var styleListener = new TableStyleListener((EventSheetDescriptor) sheet, tableRegion);
+            styleListener.process(fileName);
 
-            return listener.getTableStyles();
+            return styleListener.getTableStyles();
         } catch (IOException e) {
             throw new ExcelParseException(e);
         }

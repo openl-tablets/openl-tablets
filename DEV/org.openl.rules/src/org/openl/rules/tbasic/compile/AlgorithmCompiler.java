@@ -304,11 +304,11 @@ public class AlgorithmCompiler {
         var openl = context.getOpenL();
         var signature = header.getSignature();
         // create method header for newly created method
-        var header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
+        var methodHeader = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
         var cxt = getAlgorithmBindingContext();
-        RulesModuleBindingContextHelper.compileAllTypesInSignature(header.getSignature(), context);
-        return OpenLManager.makeMethod(openl, src, header, cxt);
+        RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(), context);
+        return OpenLManager.makeMethod(openl, src, methodHeader, cxt);
 
     }
 
@@ -338,9 +338,9 @@ public class AlgorithmCompiler {
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
-            var nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
+            var linkedNodesGroup = nodesToProcess.subList(i, i + linkedNodesGroupSize);
 
-            precompileLinkedNodesGroup(nodesToCompile, bindingContext);
+            precompileLinkedNodesGroup(linkedNodesGroup, bindingContext);
         }
     }
 

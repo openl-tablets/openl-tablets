@@ -22,8 +22,8 @@ public class TypesCombinationNotSupportedException extends OpenlNotCheckedExcept
         var sb = new StringBuilder();
 
         sb.append("Combination of types are not support:\n");
-        for (IOpenClass type : type) {
-            sb.append(type.getName()).append('\n');
+        for (IOpenClass combinedType : type) {
+            sb.append(combinedType.getName()).append('\n');
         }
 
         return sb.toString();

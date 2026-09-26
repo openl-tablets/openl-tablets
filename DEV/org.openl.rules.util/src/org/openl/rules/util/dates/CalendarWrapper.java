@@ -162,10 +162,10 @@ final class CalendarWrapper {
     }
 
     int getPrevMonthLength() {
-        var calendar = getCalendar();
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        setPrevMonth(calendar);
-        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        var prevMonthCalendar = getCalendar();
+        prevMonthCalendar.set(Calendar.DAY_OF_MONTH, 1);
+        setPrevMonth(prevMonthCalendar);
+        return prevMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
     private void setPrevMonth(Calendar calendar) {
@@ -186,8 +186,8 @@ final class CalendarWrapper {
     }
 
     private int getPrevYearLength() {
-        var calendar = getCalendar();
-        calendar.set(Calendar.YEAR, year - 1);
-        return calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+        var prevYearCalendar = getCalendar();
+        prevYearCalendar.set(Calendar.YEAR, year - 1);
+        return prevYearCalendar.getActualMaximum(Calendar.DAY_OF_YEAR);
     }
 }

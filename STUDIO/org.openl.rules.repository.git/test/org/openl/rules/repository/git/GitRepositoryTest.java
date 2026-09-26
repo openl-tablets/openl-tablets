@@ -613,14 +613,14 @@ class GitRepositoryTest {
     @Test
     void neededBranchWasNotClonedBefore() throws IOException {
         // Prepare the test: clone master branch
-        var local = new File(root, "temp");
-        try (var repository = createRepository(remote, local, Constants.MASTER, true)) {
+        var cloneFolder = new File(root, "temp");
+        try (var repository = createRepository(remote, cloneFolder, Constants.MASTER, true)) {
             assertEquals(2, repository.list("").size());
         }
 
         // Check: second time initialize the repo. At this time use the branch "test". It must be pulled
         // successfully and repository must be switched to that branch.
-        try (var repository = createRepository(remote, local, false)) {
+        try (var repository = createRepository(remote, cloneFolder, false)) {
             assertEquals(5, repository.list("").size());
 
             // Check that changes are saved to correct branch.
@@ -1152,15 +1152,15 @@ class GitRepositoryTest {
     @Test
     void pathToRepoInsteadOfUri() throws IOException {
         // Will use this path instead of uri. Git accepts that.
-        var remote = new File(root, "remote").getAbsolutePath();
+        var remotePath = new File(root, "remote").getAbsolutePath();
 
-        try (var repository = createRepository(remote, local, BRANCH, true)) {
+        try (var repository = createRepository(remotePath, local, BRANCH, true)) {
             assertNotNull(repository);
         }
-        try (var repository = createRepository(remote + "/", local, BRANCH, false)) {
+        try (var repository = createRepository(remotePath + "/", local, BRANCH, false)) {
             assertNotNull(repository);
         }
-        try (var repository = createRepository(new File(remote).toURI().toString(), local, BRANCH, false)) {
+        try (var repository = createRepository(new File(remotePath).toURI().toString(), local, BRANCH, false)) {
             assertNotNull(repository);
         }
     }

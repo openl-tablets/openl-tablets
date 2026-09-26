@@ -65,9 +65,9 @@ class AclProjectsHelperImplTest {
     @Test
     void allow_delete_when_allowProjectCreateDelete_is_false() {
         var project = mock(AProject.class);
-        var aclProjectsHelper = new AclProjectsHelperImpl(aclServiceProvider, false);
+        var restrictedHelper = new AclProjectsHelperImpl(aclServiceProvider, false);
 
-        assertFalse(aclProjectsHelper.hasPermission(project, BasePermission.DELETE));
+        assertFalse(restrictedHelper.hasPermission(project, BasePermission.DELETE));
         verify(repositoryAclService, never()).isGranted(any(), anyBoolean(), any());
     }
 
@@ -110,8 +110,8 @@ class AclProjectsHelperImplTest {
 
     @Test
     void not_allow_create_project() {
-        var aclProjectsHelper = new AclProjectsHelperImpl(aclServiceProvider, false);
-        assertFalse(aclProjectsHelper.hasCreateProjectPermission("repo1"));
+        var restrictedHelper = new AclProjectsHelperImpl(aclServiceProvider, false);
+        assertFalse(restrictedHelper.hasCreateProjectPermission("repo1"));
     }
 
 }

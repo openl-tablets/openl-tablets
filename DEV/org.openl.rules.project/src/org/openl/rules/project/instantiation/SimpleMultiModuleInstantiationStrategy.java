@@ -100,7 +100,7 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
     }
 
     protected ClassLoader initClassLoader() throws RulesInstantiationException {
-        OpenLClassLoader classLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
+        OpenLClassLoader modulesClassLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
         try {
             modules.stream()
                     .map(Module::getProject)
@@ -114,14 +114,14 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
                     })
                     .map(CompiledDependency::getCompiledOpenClass)
                     .map(CompiledOpenClass::getClassLoader)
-                    .forEach(classLoader::addClassLoader);
+                    .forEach(modulesClassLoader::addClassLoader);
         } catch (Exception e) {
             // If exception is thrown, we must close classLoader in this method and rethrow exception.
             // If no exception, classLoader will be closed later.
-            IOUtils.closeQuietly(classLoader);
+            IOUtils.closeQuietly(modulesClassLoader);
             throw new RulesInstantiationException(e.getMessage(), e);
         }
-        return classLoader;
+        return modulesClassLoader;
     }
 
     @Override

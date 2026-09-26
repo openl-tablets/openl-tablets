@@ -200,12 +200,12 @@ public class JavaOpenClass extends AOpenClass {
         synchronized (this) {
             info = aggregateInfo.get();
             if (info == null) {
-                Class<?> instanceClass = getInstanceClass();
-                if (List.class.isAssignableFrom(instanceClass)) {
+                Class<?> javaClass = getInstanceClass();
+                if (List.class.isAssignableFrom(javaClass)) {
                     info = JavaListAggregateInfo.LIST_AGGREGATE;
-                } else if (Map.class.isAssignableFrom(instanceClass)) {
+                } else if (Map.class.isAssignableFrom(javaClass)) {
                     info = JavaMapAggregateInfo.MAP_AGGREGATE;
-                } else if (Collection.class.isAssignableFrom(instanceClass)) {
+                } else if (Collection.class.isAssignableFrom(javaClass)) {
                     info = JavaCollectionAggregateInfo.COLLECTION_AGGREGATE;
                 } else {
                     info = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
@@ -218,8 +218,8 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public String getDisplayName(int mode) {
-        var name = getName();
-        return mode == INamedThing.LONG ? name : name.substring(name.lastIndexOf('.') + 1);
+        var fullName = getName();
+        return mode == INamedThing.LONG ? fullName : fullName.substring(fullName.lastIndexOf('.') + 1);
     }
 
     @Override
@@ -370,17 +370,17 @@ public class JavaOpenClass extends AOpenClass {
                 if (candidateField.getType() == JavaOpenClass.CLASS) {
                     continue;
                 }
-                final var name = candidateField.getName();
-                final var origField = fields.get(name);
+                final var fieldName = candidateField.getName();
+                final var origField = fields.get(fieldName);
                 if (origField == null) {
-                    fields.put(name, candidateField);
+                    fields.put(fieldName, candidateField);
                 } else {
                     if (origField.getType().equals(candidateField.getType())) {
                         // we assume that IOpenField always have read or write method
                         if (!origField.isWritable() && candidateField.isWritable()) {
-                            fields.put(name, new OpenFieldCombiner(origField, candidateField));
+                            fields.put(fieldName, new OpenFieldCombiner(origField, candidateField));
                         } else if (!origField.isReadable() && candidateField.isReadable()) {
-                            fields.put(name, new OpenFieldCombiner(candidateField, origField));
+                            fields.put(fieldName, new OpenFieldCombiner(candidateField, origField));
                         }
                     }
                 }

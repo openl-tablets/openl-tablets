@@ -54,19 +54,19 @@ final class DeploymentNameMatcher {
         var patterns = source.split(",", -1);
         Character delimiter = null;
         var regex = new StringBuilder();
-        for (String pattern : patterns) {
-            if (isBlankPattern(pattern)) {
+        for (String namePattern : patterns) {
+            if (isBlankPattern(namePattern)) {
                 continue;
             }
-            if (WILDCARD_REDUNDANT_OCCUR.matcher(pattern).find()) {
-                log.warn("Rule name pattern '{}' cannot have more than one wildcard letter in a row", pattern);
+            if (WILDCARD_REDUNDANT_OCCUR.matcher(namePattern).find()) {
+                log.warn("Rule name pattern '{}' cannot have more than one wildcard letter in a row", namePattern);
             } else {
                 if (delimiter != null) {
                     regex.append(delimiter);
                 } else {
                     delimiter = '|';
                 }
-                regex.append("(\\Q").append(pattern.trim()).append("\\E)");
+                regex.append("(\\Q").append(namePattern.trim()).append("\\E)");
             }
         }
 

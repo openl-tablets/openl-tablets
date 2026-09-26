@@ -60,11 +60,11 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private SpreadsheetResultBeanByteCodeGenerator(String beanNameWithPackage, List<FieldDescription> beanFields) {
-        fixDuplicates(beanFields, (field, name) -> {
-            field.suffix = name.substring(field.fieldName.length());
-            field.fieldName = name;
+        fixDuplicates(beanFields, (field, uniqueName) -> {
+            field.suffix = uniqueName.substring(field.fieldName.length());
+            field.fieldName = uniqueName;
         }, field -> field.fieldName);
-        fixDuplicates(beanFields, (field, name) -> field.xmlName = name, field -> field.xmlName);
+        fixDuplicates(beanFields, (field, uniqueName) -> field.xmlName = uniqueName, field -> field.xmlName);
         this.fields = beanFields;
         this.beanType = Type.getType(ByteCodeUtils.toTypeDescriptor(beanNameWithPackage));
         this.valueOfMethod = Method.getMethod(beanNameWithPackage + " valueOf(org.openl.rules.calc.SpreadsheetResult, java.util.function.BiFunction)");
@@ -363,24 +363,24 @@ final class SpreadsheetResultBeanByteCodeGenerator {
             this.row = row;
             this.column = column;
             this.cell = ASpreadsheetField.createFieldName(column, row);
-            String fieldName;
+            String javaIdentifier;
             if (column == null) {
-                fieldName = JavaKeywordUtils.toJavaIdentifier(row);
-                xmlName = fieldName;
+                javaIdentifier = JavaKeywordUtils.toJavaIdentifier(row);
+                xmlName = javaIdentifier;
             } else if (row == null) {
-                fieldName = JavaKeywordUtils.toJavaIdentifier(column);
-                xmlName = fieldName;
+                javaIdentifier = JavaKeywordUtils.toJavaIdentifier(column);
+                xmlName = javaIdentifier;
             } else {
                 var c = JavaKeywordUtils.toJavaIdentifier(column);
                 var r = JavaKeywordUtils.toJavaIdentifier(row);
-                fieldName = c + StringUtils.capitalize(r);
+                javaIdentifier = c + StringUtils.capitalize(r);
                 xmlName = c + "_" + r;
             }
-            if (fieldName.isEmpty()) {
-                fieldName = "_";
-                xmlName = fieldName;
+            if (javaIdentifier.isEmpty()) {
+                javaIdentifier = "_";
+                xmlName = javaIdentifier;
             }
-            this.fieldName = ClassUtils.decapitalize(fieldName);
+            this.fieldName = ClassUtils.decapitalize(javaIdentifier);
             this.description = description;
             this.allowableValues = allowableValues;
         }

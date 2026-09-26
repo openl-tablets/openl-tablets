@@ -30,25 +30,25 @@ public class JettyServer {
     private final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
     private JettyServer() {
-        var webAppContext = new WebAppContext();
-        webAppContext.setWar(System.getProperty("webservice-webapp"));
+        var webApp = new WebAppContext();
+        webApp.setWar(System.getProperty("webservice-webapp"));
         // Fail the suite with the real deploy exception instead of serving HTTP 503 to every request
-        webAppContext.setThrowUnavailableOnStartupException(true);
-        webAppContext.setExtraClasspath(getExtraClasspath(webAppContext));
+        webApp.setThrowUnavailableOnStartupException(true);
+        webApp.setExtraClasspath(getExtraClasspath(webApp));
         // Solve issue with different slf4j implementations comes from dependencies
-        webAppContext.addProtectedClassMatcher(new ClassMatcher("org.slf4j."));
-        webAppContext.addProtectedClassMatcher(new ClassMatcher("-jakarta.activation."));
+        webApp.addProtectedClassMatcher(new ClassMatcher("org.slf4j."));
+        webApp.addProtectedClassMatcher(new ClassMatcher("-jakarta.activation."));
 
-        webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
+        webApp.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
                 "|.*studio-ui[^/]*\\.jar$"); // For loading UI from the META-INF/resources in OpenL Studio
 
-        var server = new Server(0);
-        server.setStopAtShutdown(true);
-        server.setHandler(webAppContext);
+        var httpServer = new Server(0);
+        httpServer.setStopAtShutdown(true);
+        httpServer.setHandler(webApp);
 
-        this.webAppContext = webAppContext;
-        this.server = server;
+        this.webAppContext = webApp;
+        this.server = httpServer;
     }
 
     private ArrayList<Resource> getExtraClasspath(WebAppContext context) {
