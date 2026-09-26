@@ -42,7 +42,7 @@ class DatatypeModelTest {
 
         var defender = new DatatypeModel("lb");
         defender.setName("defender");
-        assertEquals(defender.getName(), "defender");
+        assertEquals("defender", defender.getName());
     }
 
     @Test

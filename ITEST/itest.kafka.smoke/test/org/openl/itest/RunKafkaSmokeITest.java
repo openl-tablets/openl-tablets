@@ -77,15 +77,15 @@ class RunKafkaSmokeITest {
             producer.send(new ProducerRecord<>("hello-in-topic", "key1", "5"));
 
             checkKafkaResponse(consumer, (response) -> {
-                assertEquals(response.value(), "5");
-                assertEquals(response.key(), "key1");
+                assertEquals("5", response.value());
+                assertEquals("key1", response.key());
                 assertEquals(36, getHeaderValue(response, "X-Id").length());
             });
 
             producer.send(new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 22}"));
             checkKafkaResponse(consumer, (response) -> {
-                assertEquals(response.value(), "{\"hour\": 22}");
-                assertEquals(response.key(), "key1");
+                assertEquals("{\"hour\": 22}", response.value());
+                assertEquals("key1", response.key());
                 assertEquals("fail", getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
             });
 
@@ -187,7 +187,7 @@ class RunKafkaSmokeITest {
             producer.send(producerRecord);
 
             checkKafkaResponse(consumer, (response) -> {
-                assertEquals(response.value(), "5");
+                assertEquals("5", response.value());
 
                 assertEquals("42", getHeaderValue(response, KafkaHeaders.CORRELATION_ID));
                 assertEquals("Hello", getHeaderValue(response, KafkaHeaders.METHOD_NAME));

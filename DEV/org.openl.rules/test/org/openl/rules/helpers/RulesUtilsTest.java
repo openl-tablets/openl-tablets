@@ -842,10 +842,10 @@ class RulesUtilsTest {
     void testSmallInteger() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Integer[] array = {10, 32, 35, 25};
-            assertSame(instance.testIntegerSmall(array, 1), 10);
-            assertSame(instance.testIntegerSmall(array, 2), 25);
-            assertSame(instance.testIntegerSmall(array, 3), 32);
-            assertSame(instance.testIntegerSmall(array, 4), 35);
+            assertSame(10, instance.testIntegerSmall(array, 1));
+            assertSame(25, instance.testIntegerSmall(array, 2));
+            assertSame(32, instance.testIntegerSmall(array, 3));
+            assertSame(35, instance.testIntegerSmall(array, 4));
 
             instance.testIntegerSmall(array, 0);
         });
@@ -4270,8 +4270,8 @@ class RulesUtilsTest {
 
     @Test
     void testCopy() {
-        assertEquals(instance.copyObject("1.1"), "1.1");
-        assertEquals(instance.copyObject(1.1), Double.valueOf(1.1));
+        assertEquals("1.1", instance.copyObject("1.1"));
+        assertEquals(Double.valueOf(1.1), instance.copyObject(1.1));
 
         Some s = new Some();
         s.str = "str1";
@@ -4288,10 +4288,10 @@ class RulesUtilsTest {
 
         copy.num = 4;
 
-        assertEquals(copy.num, 4);
-        assertEquals(copy.obj.num, 4);
-        assertEquals(s.num, 10);
-        assertEquals(s.obj.num, 10);
+        assertEquals(4, copy.num);
+        assertEquals(4, copy.obj.num);
+        assertEquals(10, s.num);
+        assertEquals(10, s.obj.num);
     }
 
     @Test

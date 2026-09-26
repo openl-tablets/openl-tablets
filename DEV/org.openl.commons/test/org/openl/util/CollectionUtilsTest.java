@@ -226,10 +226,10 @@ class CollectionUtilsTest {
     @Test
     void testToArray() {
         assertNull(CollectionUtils.toArray(null, Object.class));
-        assertArrayEquals((int[]) CollectionUtils.toArray(Arrays.asList(3, 1, 2), int.class), new int[]{3, 1, 2});
-        assertArrayEquals((Double[]) CollectionUtils.toArray(Arrays.asList(3.1, 1.2, 2.3), Double.class),
-                new Double[]{3.1, 1.2, 2.3});
-        assertArrayEquals((String[]) CollectionUtils.toArray(List.of(), String.class), new String[0]);
-        assertArrayEquals((byte[]) CollectionUtils.toArray(List.of(), byte.class), new byte[0]);
+        assertArrayEquals(new int[]{3, 1, 2}, (int[]) CollectionUtils.toArray(Arrays.asList(3, 1, 2), int.class));
+        assertArrayEquals(new Double[]{3.1, 1.2, 2.3},
+                (Double[]) CollectionUtils.toArray(Arrays.asList(3.1, 1.2, 2.3), Double.class));
+        assertArrayEquals(new String[0], (String[]) CollectionUtils.toArray(List.of(), String.class));
+        assertArrayEquals(new byte[0], (byte[]) CollectionUtils.toArray(List.of(), byte.class));
     }
 }
