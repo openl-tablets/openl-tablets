@@ -13,7 +13,7 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     @Override
     public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {
         MatchNode checkTree = target.getCheckTree();
-        Object returnValues[] = target.getReturnValues();
+        Object[] returnValues = target.getReturnValues();
 
         // iterate over linearized nodes
         for (MatchNode line : checkTree.getChildren()) {

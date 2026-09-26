@@ -5,7 +5,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.types.impl.DefaultPropertiesIntersectionFinder;
 
 public class IntersectedPropertiesPriorityRule implements IPriorityRule {
-    private static final String PROPERTY_NAMES[] = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+    private static final String[] PROPERTY_NAMES = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
     private final DefaultPropertiesIntersectionFinder intersectionMatcher = new DefaultPropertiesIntersectionFinder();
     private final FilledPropertiesPriorityRule filledPropertiesRule = new FilledPropertiesPriorityRule();
 
