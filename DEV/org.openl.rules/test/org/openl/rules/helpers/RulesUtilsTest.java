@@ -2489,7 +2489,7 @@ class RulesUtilsTest {
 
     @Test
     void testCos() {
-        assertEquals(Math.cos(0.0), instance.testCos(0.0));
+        assertEquals(1.0, instance.testCos(0.0));
         assertEquals(Math.cos(1.0), instance.testCos(1.0));
         assertEquals(Math.cos(0.5), instance.testCos(0.5));
         assertEquals(Math.cos(-0.0), instance.testCos(-0.0));
@@ -2499,7 +2499,7 @@ class RulesUtilsTest {
 
     @Test
     void testCosh() {
-        assertEquals(Math.cosh(0.0), instance.testCosh(0.0));
+        assertEquals(1.0, instance.testCosh(0.0));
         assertEquals(Math.cosh(1.0), instance.testCosh(1.0));
         assertEquals(Math.cosh(0.5), instance.testCosh(0.5));
         assertEquals(Math.cosh(-0.0), instance.testCosh(-0.0));
