@@ -96,12 +96,14 @@ public class UserErrorOpenClass extends ADynamicClass {
                         return field.get(target);
                     }
                 } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                    // there is no public field to read, so the getter is tried
                 }
                 var name = ClassUtils.capitalize(getName()); // According to JavaBeans v1.01
                 try {
                     var getter = targetClass.getMethod("get" + name);
                     return getter.invoke(target);
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+                    // the value cannot be read through a getter either, so there is none
                 }
                 return null;
             }

@@ -761,6 +761,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     runtimeContext.setValue((String) params[0], params[1]);
                     env.pushContext(runtimeContext);
                 } catch (CloneNotSupportedException ignored) {
+                    // a runtime context is Cloneable (see IRuntimeContext), so cloning it does not fail
                 }
             } else {
                 LoggerFactory.getLogger(RulesModuleBindingContext.class)

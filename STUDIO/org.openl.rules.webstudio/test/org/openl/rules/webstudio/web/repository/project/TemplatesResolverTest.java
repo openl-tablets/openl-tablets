@@ -15,6 +15,7 @@ public abstract class TemplatesResolverTest {
             try {
                 IOUtils.closeQuietly(projectFile.getInput());
             } catch (IOException ignored) {
+                // a file whose content cannot be opened has no stream to close
             }
         }
     }

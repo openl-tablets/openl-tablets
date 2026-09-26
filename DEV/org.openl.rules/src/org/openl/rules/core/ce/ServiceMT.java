@@ -93,9 +93,11 @@ public final class ServiceMT {
         var simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         try {
             while (simpleRuntimeEnv.joinActionIfExists()) {
+                // each call joins one forked action
             }
         } finally {
             while (simpleRuntimeEnv.cancelActionIfExists()) {
+                // each call cancels one action that is not joined
             }
         }
     }

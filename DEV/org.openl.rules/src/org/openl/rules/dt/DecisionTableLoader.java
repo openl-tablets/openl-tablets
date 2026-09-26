@@ -607,6 +607,7 @@ public class DecisionTableLoader {
                     errorItr.remove();
                 }
             } catch (Exception ignored) {
+                // an error without a location in a workbook stays with this table
             }
         }
         Iterator<OpenLMessage> messagesItr = messages.iterator();
@@ -619,6 +620,7 @@ public class DecisionTableLoader {
                     messagesItr.remove();
                 }
             } catch (Exception ignored) {
+                // a message without a location in a workbook stays with this table
             }
         }
     }

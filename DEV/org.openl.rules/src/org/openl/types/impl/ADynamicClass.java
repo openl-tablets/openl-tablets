@@ -73,6 +73,7 @@ public abstract class ADynamicClass extends AOpenClass {
                     }
                 }
             } catch (LinkageError ignored) {
+                // methods that refer to classes missing at runtime cannot be listed, so they are left out
             }
         }
 

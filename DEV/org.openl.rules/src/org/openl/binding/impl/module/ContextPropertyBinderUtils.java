@@ -29,6 +29,7 @@ public final class ContextPropertyBinderUtils {
             try {
                 openCast = bindingContext.getCast(expectedType, contextPropertyType);
             } catch (NullPointerException ignored) {
+                // the cast lookup fails on a datatype whose Java class is not generated yet, which counts as no cast
             }
             if (isNonValidCastForContextProperty(openCast)) {
                 errorMessage = "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.".formatted(

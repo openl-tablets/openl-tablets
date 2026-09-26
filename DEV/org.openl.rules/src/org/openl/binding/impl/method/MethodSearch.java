@@ -740,6 +740,7 @@ public final class MethodSearch {
                         return methodFilter.predicate(javaOpenMethod, callParams, castFactory);
                     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
                              | InvocationTargetException ignored) {
+                        // a filter that cannot be created does not restrict the method
                     }
                 }
             }
@@ -773,6 +774,7 @@ public final class MethodSearch {
                     methodCaller = methodCallerWrapper.handle(methodCaller, javaOpenMethod, callParams, castFactory);
                 } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
                          | InvocationTargetException ignored) {
+                    // a wrapper that cannot be created leaves the method caller as it is
                 }
             }
         }

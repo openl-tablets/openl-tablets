@@ -219,7 +219,7 @@ class LockTest {
     }
 
     @Test
-    void testForceLockInterrupting() {
+    void testForceLockInterrupting() throws InterruptedException {
         assertTrue(lock.tryLock("user1"));
 
         var interrupted = new AtomicBoolean(true);
@@ -230,14 +230,10 @@ class LockTest {
         });
 
         // Interrupt long running thread
-        try {
-            executor.shutdownNow();
-            executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException ignored) {
-        } finally {
-            assertTrue(executor.isTerminated(), "Long running thread must be terminated");
-            assertFalse(interrupted.get(), "forceLock() must not get a lock when it was interrupted");
-        }
+        executor.shutdownNow();
+        executor.awaitTermination(5, TimeUnit.SECONDS);
+        assertTrue(executor.isTerminated(), "Long running thread must be terminated");
+        assertFalse(interrupted.get(), "forceLock() must not get a lock when it was interrupted");
 
         // Make sure that the lock is not overridden.
         var lockInfo = lock.info();

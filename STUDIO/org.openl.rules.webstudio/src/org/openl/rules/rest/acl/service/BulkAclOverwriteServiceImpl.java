@@ -174,7 +174,7 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
                             aclService.addPermissions(project, sid, ace.getRole().getCumulativePermission());
                         });
             } catch (ProjectException ignored) {
-
+                // a project that is missing or not readable gets no permissions
             }
         }
     }

@@ -121,6 +121,7 @@ class WebStudioWorkspaceRelatedDependencyManagerTest {
                         try {
                             Thread.sleep(rnd.nextInt(50));
                         } catch (InterruptedException ignored) {
+                            // the pause only varies the timing, so a shorter one does no harm
                         }
                         try {
                             webStudioWorkspaceRelatedDependencyManager.loadDependencyAsync(

@@ -122,9 +122,8 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 } catch (Exception ex) {
                     BindHelper.processError(ex, defaultValueSrc, cxt);
                 }
-            } else if (String.class == constantType.getInstanceClass()) {
+            } else if (String.class == constantType.getInstanceClass() || value == null) {
                 objectValue = value;
-            } else if (value == null) {
             } else if (constantType.getName().startsWith("[[")) {
                 BindHelper.processError("Multi-dimensional arrays are not supported.", defaultValueSrc, cxt);
             } else {

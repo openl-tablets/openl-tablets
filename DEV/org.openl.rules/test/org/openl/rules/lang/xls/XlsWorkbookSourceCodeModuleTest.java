@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -52,12 +53,9 @@ class XlsWorkbookSourceCodeModuleTest {
         when(workbook.getSpreadsheetVersion()).thenReturn(SpreadsheetVersion.EXCEL2007);
         doThrow(new OutOfMemoryError()).when(workbook).write(any(OutputStream.class));
 
-        try {
-            var module = new XlsWorkbookSourceCodeModule(src,
-                    new SimpleWorkbookLoader(workbook));
-            module.save();
-        } catch (OutOfMemoryError ignored) {
-        }
+        var module = new XlsWorkbookSourceCodeModule(src,
+                new SimpleWorkbookLoader(workbook));
+        assertThrows(OutOfMemoryError.class, module::save);
 
         assertEquals(4, tempFile.length(), "File should not cleared if there are no actual write operations");
     }

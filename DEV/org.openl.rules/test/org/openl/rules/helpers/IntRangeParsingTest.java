@@ -1,7 +1,7 @@
 package org.openl.rules.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,11 +32,7 @@ class IntRangeParsingTest {
     }
 
     private void checkWrong(String x) {
-        try {
-            new IntRange(x);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(Exception.class, () -> new IntRange(x));
     }
 
     @Test

@@ -345,8 +345,7 @@ public class Table implements ITable {
                             var foreignKeyIndex = 0;
                             var dataModel = foreignTable.getDataModel();
                             var d1 = dataModel.getDescriptors()[0];
-                            if (d1.isPrimaryKey()) {
-                            } else {
+                            if (!d1.isPrimaryKey()) {
                                 var firstColDescriptor = dataModel.getDescriptor(0);
                                 if (firstColDescriptor.isPrimaryKey()) {
                                     // first column is primary key for another level. So return column index for first

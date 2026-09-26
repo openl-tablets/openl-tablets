@@ -489,6 +489,7 @@ class RunStoreLogDataITest {
             CallableStatement statement = h2Connection.prepareCall("TRUNCATE TABLE " + table);
             statement.execute();
         } catch (SQLException ignored) {
+            // a missing table has nothing to truncate
         }
     }
 

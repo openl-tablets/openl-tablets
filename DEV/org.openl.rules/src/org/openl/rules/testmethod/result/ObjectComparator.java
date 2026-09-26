@@ -33,6 +33,7 @@ class ObjectComparator extends GenericComparator<Object> {
                     var convertor = String2DataConvertorFactory.getConvertor(actualClass);
                     expectedValue = convertor.parse((String) expectedValue, null);
                 } catch (Exception ignored) {
+                    // a text that cannot be converted to the actual type is compared as it is
                 }
             }
         }

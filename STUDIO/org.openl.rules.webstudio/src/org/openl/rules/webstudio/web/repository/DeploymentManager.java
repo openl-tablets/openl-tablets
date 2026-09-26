@@ -269,6 +269,7 @@ public class DeploymentManager implements InitializingBean {
                         }
                     }
                 } catch (ProjectException ignored) {
+                    // a project without a rules deploy file gives no API version
                 }
             } catch (Exception e) {
                 log.error(

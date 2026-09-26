@@ -67,7 +67,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             case EnumDomain<?> enumDomain1 -> result = new EnumDomainAdaptor(enumDomain1);
             case IntRangeDomain irange -> result = new IntRangeDomainAdaptor(irange);
             case JavaEnumDomain enumDomain -> result = new JavaEnumDomainAdaptor(enumDomain);
-            case null, default -> {}
+            case null, default -> { /* other domains have no adaptor */ }
         }
         return result;
     }

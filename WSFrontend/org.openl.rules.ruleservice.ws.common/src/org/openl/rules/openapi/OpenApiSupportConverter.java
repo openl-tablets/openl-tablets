@@ -32,7 +32,7 @@ class OpenApiSupportConverter implements ModelConverter {
             case null -> valueType = Object.class;
             case JavaType javaType -> valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
             case Class<?> class1 -> valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(class1);
-            default -> {}
+            default -> { /* any other type is resolved as it is */ }
         }
         if (valueType != null) {
             annotatedType.setType(valueType);

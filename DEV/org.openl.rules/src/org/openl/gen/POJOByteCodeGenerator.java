@@ -183,6 +183,7 @@ public class POJOByteCodeGenerator {
                 av.visit("type", Type.getType(useType));
             }
         } catch (Exception ignored) {
+            // a primitive or a class that cannot be loaded yet is no interface, so no type is set
         }
         av.visitEnd();
 

@@ -2,8 +2,8 @@ package org.openl.rules.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 
@@ -27,11 +27,7 @@ class DoubleRangeParsingTest {
     }
 
     private void checkWrong(String x) {
-        try {
-            new DoubleRange(x);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(Exception.class, () -> new DoubleRange(x));
     }
 
     @Test

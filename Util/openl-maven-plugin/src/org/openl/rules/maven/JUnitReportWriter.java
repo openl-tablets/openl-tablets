@@ -158,8 +158,7 @@ class JUnitReportWriter {
 
         var testStatus = test.getResultStatus();
         switch (testStatus) {
-            case TR_OK -> {
-            }
+            case TR_OK -> { /* a passed test has neither a failure nor an error element */ }
             case TR_NEQ -> {
                 start("failure");
                 attr("type", "ComparisonFailure");

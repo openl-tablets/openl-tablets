@@ -3,8 +3,8 @@ package org.openl.rules.helpers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -358,11 +358,7 @@ class DateRangeParsingTest {
     }
 
     private void assertParseException(String range) {
-        try {
-            new DateRange(range);
-            fail("Must be failed.");
-        } catch (RuntimeException ignored) {
-        }
+        assertThrows(RuntimeException.class, () -> new DateRange(range));
     }
 
     private void assertInclude(DateRange range, String... args) throws ParseException {

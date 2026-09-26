@@ -55,7 +55,7 @@ public final class BooleanUtils {
             case String string -> bValue = toBooleanObject(string);
             case Integer integer -> bValue = integer != 0;
             case Boolean boolean1 -> bValue = boolean1;
-            case null, default -> {}
+            case null, default -> { /* null and other types give null */ }
         }
         return bValue;
     }

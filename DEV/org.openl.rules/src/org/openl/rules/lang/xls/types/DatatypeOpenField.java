@@ -76,6 +76,7 @@ public class DatatypeOpenField extends AOpenField {
             try {
                 getter = instanceClass.getMethod("get" + name);
             } catch (NoSuchMethodException ignored) {
+                // the class has no getter for the field under either name
             }
         }
         Method setter = null;
@@ -84,6 +85,7 @@ public class DatatypeOpenField extends AOpenField {
             Class<?> type = getType().getInstanceClass();
             setter = instanceClass.getMethod("set" + name, type);
         } catch (NoSuchMethodException ignored) {
+            // the class has no setter for the field
         }
         return new Accessors(getter, setter);
     }

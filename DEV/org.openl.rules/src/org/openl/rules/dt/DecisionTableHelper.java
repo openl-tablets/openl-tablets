@@ -3802,6 +3802,7 @@ public final class DecisionTableHelper {
                         }
                     }
                 } catch (Exception ignored) {
+                    // guessing the column type is a heuristic: a value the checks fail on does not affect it
                 }
             }
         }
@@ -3979,6 +3980,7 @@ public final class DecisionTableHelper {
                         }
                     }
                 } catch (Exception ignored) {
+                    // guessing the column type is a heuristic: a value the checks fail on does not affect it
                 }
             }
         }

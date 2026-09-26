@@ -76,6 +76,7 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
                 tmp = annotations.toArray(new Annotation[0]);
             }
         } catch (IOException ignored) {
+            // an unreadable list leaves no annotations to remove
         }
         this.ifMissedIgnoreAnnotations = tmp != null ? tmp : new Annotation[0];
     }
@@ -144,6 +145,7 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
                 return false;
             });
         } catch (IllegalAccessException ignored) {
+            // the constructor makes the field accessible, so reading it does not fail
         }
     }
 

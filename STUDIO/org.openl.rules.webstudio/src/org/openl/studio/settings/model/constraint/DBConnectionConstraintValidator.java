@@ -52,6 +52,7 @@ public class DBConnectionConstraintValidator implements ConstraintValidator<DBCo
             PropertiesUtils.load(getClass().getResource(SQL_ERRORS_FILE_PATH), properties::put);
             errorMessage = properties.get(Integer.toString(errorCode));
         } catch (Exception ignored) {
+            // without an explanation the driver's own message is shown
         }
         return errorMessage;
     }

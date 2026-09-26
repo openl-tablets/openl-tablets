@@ -254,7 +254,7 @@ class TableViewer {
                         cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
                     }
                 }
-                default -> { }
+                default -> { /* getBorderStyle gives no border wider than 2 */ }
             }
         }
 
@@ -305,7 +305,7 @@ class TableViewer {
                         cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
                     }
                 }
-                default -> { }
+                default -> { /* getBorderStyle gives no border wider than 2 */ }
             }
         }
 

@@ -180,6 +180,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 try {
                     PoiExcelHelper.evaluateFormula(cellTo);
                 } catch (Exception ignored) {
+                    // the formula is copied anyway; it only lacks a cached value until it can be evaluated
                 }
                 break;
             case NUMERIC:
