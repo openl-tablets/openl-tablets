@@ -213,8 +213,8 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
      */
     private String resolveSchemaName(AnnotatedType annotatedType) {
         final JavaType type;
-        if (annotatedType.getType() instanceof JavaType) {
-            type = (JavaType) annotatedType.getType();
+        if (annotatedType.getType() instanceof JavaType javaType) {
+            type = javaType;
         } else {
             type = _mapper.constructType(annotatedType.getType());
         }

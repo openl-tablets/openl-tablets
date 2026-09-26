@@ -65,8 +65,8 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             removeInferredObjectTypeFromUnion(resolvedSchema.getItems());
             if (resolvedSchema.get$ref() != null || (resolvedSchema.getName() != null && OBJECT_TYPE.equals(resolvedSchema.getType()))) {
                 JavaType javaType;
-                if (type.getType() instanceof JavaType) {
-                    javaType = (JavaType) type.getType();
+                if (type.getType() instanceof JavaType jacksonType) {
+                    javaType = jacksonType;
                 } else {
                     javaType = objectMapper.constructType(type.getType());
                 }

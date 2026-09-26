@@ -156,9 +156,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
             t = false;
             for (CompiledDependency compiledDependency : inModule.getDependencies()) {
                 if (compiledDependency.getCompiledOpenClass()
-                        .getOpenClassWithErrors() instanceof ModuleOpenClass && isDependencyModuleRec(module,
-                        (ModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
-                        cache)) {
+                        .getOpenClassWithErrors() instanceof ModuleOpenClass dependencyModule
+                        && isDependencyModuleRec(module, dependencyModule, cache)) {
                     t = true;
                     break;
                 }

@@ -153,16 +153,14 @@ public final class RepositoryValidators {
                     throw new RepositoryValidationException(msg);
                 }
 
-                if (other.getSettings() instanceof CommonRepositorySettings) {
-                    var otherSettings = (CommonRepositorySettings) other.getSettings();
-                    if (path.equals(otherSettings.getUri()) && settings.isSecure() == otherSettings.isSecure()) {
-                        // Different users can access different schemas
-                        var login = settings.getLogin();
-                        if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
-                            var msg = "Repository path '%s' already exists. Please, insert a new one.".formatted(
-                                    path);
-                            throw new RepositoryValidationException(msg);
-                        }
+                if (other.getSettings() instanceof CommonRepositorySettings otherSettings
+                        && path.equals(otherSettings.getUri()) && settings.isSecure() == otherSettings.isSecure()) {
+                    // Different users can access different schemas
+                    var login = settings.getLogin();
+                    if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
+                        var msg = "Repository path '%s' already exists. Please, insert a new one.".formatted(
+                                path);
+                        throw new RepositoryValidationException(msg);
                     }
                 }
             }

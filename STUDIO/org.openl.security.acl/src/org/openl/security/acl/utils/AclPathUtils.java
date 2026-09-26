@@ -70,8 +70,7 @@ public final class AclPathUtils {
      * @return internal path
      */
     public static String extractInternalPath(AProjectArtefact projectArtefact) {
-        if (projectArtefact.getRepository() instanceof LocalRepository) {
-            var localRepository = (LocalRepository) projectArtefact.getRepository();
+        if (projectArtefact.getRepository() instanceof LocalRepository localRepository) {
             var projectState = localRepository
                     .getProjectState(projectArtefact.getProject().getFileData().getName());
             if (projectState.getFileData() != null) {

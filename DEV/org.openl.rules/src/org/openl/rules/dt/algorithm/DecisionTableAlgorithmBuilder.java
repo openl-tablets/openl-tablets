@@ -181,16 +181,15 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     private void clearMemoryAfterDTCompilationCompleted(DecisionTableDataType ruleExecutionType) {
         var exprOpenField = ruleExecutionType.getField(DecisionTableDataType.EXPR_FIELD_NAME);
-        if (exprOpenField != null && exprOpenField.getType() instanceof DecisionExprFieldDataType) {
-            var decisionExprFieldDataType = (DecisionExprFieldDataType) exprOpenField.getType();
-            if (!decisionExprFieldDataType.isExprParameterFieldIsUsed()) {
-                // $Expr.* field is not used in expressions, so we can clear all related data to save memory
-                for (IBaseCondition condition : table.getConditionRows()) {
-                    ((IDecisionRow) condition).clearExprs();
-                }
-                for (IBaseAction action : table.getActionRows()) {
-                    ((IDecisionRow) action).clearExprs();
-                }
+        if (exprOpenField != null
+                && exprOpenField.getType() instanceof DecisionExprFieldDataType decisionExprFieldDataType
+                && !decisionExprFieldDataType.isExprParameterFieldIsUsed()) {
+            // $Expr.* field is not used in expressions, so we can clear all related data to save memory
+            for (IBaseCondition condition : table.getConditionRows()) {
+                ((IDecisionRow) condition).clearExprs();
+            }
+            for (IBaseAction action : table.getActionRows()) {
+                ((IDecisionRow) action).clearExprs();
             }
         }
     }

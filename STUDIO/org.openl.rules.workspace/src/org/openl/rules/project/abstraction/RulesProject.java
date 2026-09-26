@@ -356,8 +356,8 @@ public class RulesProject extends UserWorkspaceProject {
         var realDesignRepository = getDesignRepository();
         // Unwrap delegate repository to get real repository, because delegate repository can be secured.
         // Get file data can't be secured, because it's used in security check to build identity.
-        while (realDesignRepository instanceof RepositoryDelegate) {
-            realDesignRepository = ((RepositoryDelegate) realDesignRepository).getOriginal();
+        while (realDesignRepository instanceof RepositoryDelegate delegate) {
+            realDesignRepository = delegate.getOriginal();
         }
         if (isLocalOnly()) {
             var fileData = super.getFileDataForUnversionableRepo(repository);

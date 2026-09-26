@@ -50,8 +50,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     }
 
     protected IGridTable getGridTable() {
-        if (getTableSyntaxNode().getGridTable().getGrid() instanceof CompositeGrid) {
-            return ((CompositeGrid) getTableSyntaxNode().getGridTable().getGrid()).getGridTables()[0];
+        if (getTableSyntaxNode().getGridTable().getGrid() instanceof CompositeGrid compositeGrid) {
+            return compositeGrid.getGridTables()[0];
         } else {
             return getTableSyntaxNode().getGridTable();
         }

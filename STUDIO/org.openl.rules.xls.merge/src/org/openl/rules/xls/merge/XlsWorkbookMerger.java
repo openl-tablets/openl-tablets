@@ -242,8 +242,8 @@ public class XlsWorkbookMerger implements Closeable {
                 var formulaEvaluator = ourBook.getCreationHelper().createFormulaEvaluator();
                 formulas.forEach(formulaEvaluator::evaluateFormulaCell);
                 // optimize styles
-                if (ourBook.unwrap() instanceof HSSFWorkbook) {
-                    HSSFOptimiser.optimiseCellStyles((HSSFWorkbook) ourBook.unwrap());
+                if (ourBook.unwrap() instanceof HSSFWorkbook ourHssfBook) {
+                    HSSFOptimiser.optimiseCellStyles(ourHssfBook);
                 }
             }
             if (paletteDifResult.hasChangesToMerge()) {

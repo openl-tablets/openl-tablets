@@ -125,8 +125,8 @@ public class SpreadsheetContext extends ComponentBindingContext {
                     }
                 }
             }
-            if (componentBindingContext.getDelegate() instanceof ComponentBindingContext) {
-                componentBindingContext = (ComponentBindingContext) componentBindingContext.getDelegate();
+            if (componentBindingContext.getDelegate() instanceof ComponentBindingContext delegateContext) {
+                componentBindingContext = delegateContext;
                 componentOpenClass = componentBindingContext.getComponentOpenClass();
             } else {
                 componentOpenClass = null;

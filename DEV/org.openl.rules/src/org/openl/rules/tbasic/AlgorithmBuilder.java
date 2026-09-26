@@ -346,11 +346,10 @@ public class AlgorithmBuilder {
                     aRow.setOperationLevel(i);
 
                     if (!bindingContext.isExecutionMode() && tsn
-                            .getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
+                            .getMetaInfoReader() instanceof AlgorithmMetaInfoReader algorithmMetaInfoReader) {
                         var operationColumn = grid.getCell(c, r)
                     .getAbsoluteColumn();
-                        ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader())
-                    .setOperationColumn(operationColumn);
+                        algorithmMetaInfoReader.setOperationColumn(operationColumn);
                     }
                 }
             }

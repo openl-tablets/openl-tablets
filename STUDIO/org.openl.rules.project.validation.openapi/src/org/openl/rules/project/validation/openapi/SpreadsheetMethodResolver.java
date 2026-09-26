@@ -23,9 +23,7 @@ final class SpreadsheetMethodResolver {
     private void initialize() {
         cache = new HashMap<>();
         for (IOpenMethod method : context.getOpenClass().getMethods()) {
-            if (method.getType() instanceof CustomSpreadsheetResultOpenClass) {
-                var customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) method
-                        .getType();
+            if (method.getType() instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
                 cache.put(customSpreadsheetResultOpenClass.getBeanClass(), method);
             }
         }

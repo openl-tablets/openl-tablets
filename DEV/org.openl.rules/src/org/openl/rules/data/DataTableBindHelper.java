@@ -730,9 +730,8 @@ public class DataTableBindHelper {
                                                    IBindingContext bindingContext) {
         var typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
         if (typeSeparatorIndex < 0) {
-            if (testMethodOpenClass != null && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod) {
-                var executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass
-                        .getTestedMethod();
+            if (testMethodOpenClass != null
+                    && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod executableRulesMethod) {
                 var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
                 if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
                     var cType = bindingContext
@@ -1160,8 +1159,8 @@ public class DataTableBindHelper {
                                            IBindingContext bindingContext) throws SyntaxNodeException {
         var s = currentFieldNameNode.getIdentifier();
         s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
-        if (testMethodOpenClass != null && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod) {
-            var executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass.getTestedMethod();
+        if (testMethodOpenClass != null
+                && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod executableRulesMethod) {
             var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
                 var keyOpenClass = bindingContext.findType(

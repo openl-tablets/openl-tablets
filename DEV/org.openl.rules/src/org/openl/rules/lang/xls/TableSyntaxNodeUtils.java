@@ -46,8 +46,8 @@ public final class TableSyntaxNodeUtils {
         var dimensionInfo = StringUtils.EMPTY;
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode
-                .getMember() instanceof IOpenMethod && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())
-                && dictionary.getAllMethodOverloads((IOpenMethod) tableSyntaxNode.getMember()).size() > 1) {
+                .getMember() instanceof IOpenMethod method && dictionary.contains(method)
+                && dictionary.getAllMethodOverloads(method).size() > 1) {
             // Add dimension properties info only if there are more than one table in dictionary.
             // For single table don`t add this info.
             //

@@ -475,8 +475,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void applyToDependentParsedCode(IParsedCode parsedCode) {
         Objects.requireNonNull(parsedCode, "parsedCode cannot be null");
-        if (parsedCode.getTopNode() instanceof XlsModuleSyntaxNode) {
-            var xlsModuleSyntaxNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
+        if (parsedCode.getTopNode() instanceof XlsModuleSyntaxNode xlsModuleSyntaxNode) {
             for (String value : getImports()) {
                 xlsModuleSyntaxNode.addImport(value);
             }

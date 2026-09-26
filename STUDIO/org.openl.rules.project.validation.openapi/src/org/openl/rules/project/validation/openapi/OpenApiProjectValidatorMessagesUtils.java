@@ -58,15 +58,11 @@ final class OpenApiProjectValidatorMessagesUtils {
                     if (openFieldInSpr != null) {
                         if (context.getIsIncompatibleTypesPredicate() != null) {
                             Class<?> instanceClass;
-                            if (openFieldInSpr
-                                    .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openFieldInSpr
-                                    .getType()).getModule() != null) {
-                                instanceClass = ((SpreadsheetResultOpenClass) openFieldInSpr.getType())
-                                        .toCustomSpreadsheetResultOpenClass()
-                                        .getBeanClass();
-                            } else if (openFieldInSpr.getType() instanceof CustomSpreadsheetResultOpenClass) {
-                                instanceClass = ((CustomSpreadsheetResultOpenClass) openFieldInSpr.getType())
-                                        .getBeanClass();
+                            if (openFieldInSpr.getType() instanceof SpreadsheetResultOpenClass sprType
+                                    && sprType.getModule() != null) {
+                                instanceClass = sprType.toCustomSpreadsheetResultOpenClass().getBeanClass();
+                            } else if (openFieldInSpr.getType() instanceof CustomSpreadsheetResultOpenClass csrType) {
+                                instanceClass = csrType.getBeanClass();
                             } else {
                                 instanceClass = openFieldInSpr.getType().getInstanceClass();
                             }

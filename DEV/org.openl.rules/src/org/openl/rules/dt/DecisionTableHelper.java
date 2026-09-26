@@ -2261,8 +2261,7 @@ public final class DecisionTableHelper {
                         false,
                         horizontal > 0));
             } else {
-                if (fuzzyResult.getToken() instanceof PredicateToken) {
-                    var predicateToken = (PredicateToken) fuzzyResult.getToken();
+                if (fuzzyResult.getToken() instanceof PredicateToken predicateToken) {
                     dtHeaders.add(new FuzzyDTHeader(predicateToken.isTrue() ? "true" : "false",
                             title,
                             new IOpenField[]{},
@@ -2659,18 +2658,16 @@ public final class DecisionTableHelper {
         Arrays.fill(f, false);
         for (var i = 0; i < dtHeaders.size() - 1; i++) {
             for (var j = i + 1; j < dtHeaders.size(); j++) {
-                if (dtHeaders.get(i) instanceof DeclaredDTHeader && dtHeaders.get(j) instanceof DeclaredDTHeader) {
-                    var d1 = (DeclaredDTHeader) dtHeaders.get(i);
-                    var d2 = (DeclaredDTHeader) dtHeaders.get(j);
-                    if (!d1.isHCondition() && !d2.isHCondition()
-                            && !(d1.getColumn() == d2.getColumn() && d1.getWidth() == d2.getWidth()) && intersects(
-                            d1.getColumn(),
-                            d1.getColumn() + d1.getWidth() - 1,
-                            d2.getColumn(),
-                            d2.getColumn() + d2.getWidth() - 1)) {
-                        f[i] = true;
-                        f[j] = true;
-                    }
+                if (dtHeaders.get(i) instanceof DeclaredDTHeader d1
+                        && dtHeaders.get(j) instanceof DeclaredDTHeader d2
+                        && !d1.isHCondition() && !d2.isHCondition()
+                        && !(d1.getColumn() == d2.getColumn() && d1.getWidth() == d2.getWidth())
+                        && intersects(d1.getColumn(),
+                                d1.getColumn() + d1.getWidth() - 1,
+                                d2.getColumn(),
+                                d2.getColumn() + d2.getWidth() - 1)) {
+                    f[i] = true;
+                    f[j] = true;
                 }
             }
         }

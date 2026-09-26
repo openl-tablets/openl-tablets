@@ -57,10 +57,10 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     }
 
     private XlsModuleOpenClass getModule() {
-        if (getDeclaringClass() instanceof CustomSpreadsheetResultOpenClass) {
-            return ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule();
-        } else if (getDeclaringClass() instanceof SpreadsheetResultOpenClass) {
-            return ((SpreadsheetResultOpenClass) getDeclaringClass()).getModule();
+        if (getDeclaringClass() instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+            return customSpreadsheetResultOpenClass.getModule();
+        } else if (getDeclaringClass() instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass) {
+            return spreadsheetResultOpenClass.getModule();
         }
         return null;
     }
@@ -103,11 +103,11 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 boolean allTypesCustomSpreadsheetResult = true;
                 Set<XlsModuleOpenClass> modules = Collections.newSetFromMap(new IdentityHashMap<>());
                 for (IOpenClass openClass : types) {
-                    if (!(openClass instanceof CustomSpreadsheetResultOpenClass)) {
+                    if (!(openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass)) {
                         allTypesCustomSpreadsheetResult = false;
                         break;
                     } else {
-                        modules.add(((CustomSpreadsheetResultOpenClass) openClass).getModule());
+                        modules.add(customSpreadsheetResultOpenClass.getModule());
                     }
                 }
                 if (allTypesCustomSpreadsheetResult && modules.size() == 1 && modules.iterator()

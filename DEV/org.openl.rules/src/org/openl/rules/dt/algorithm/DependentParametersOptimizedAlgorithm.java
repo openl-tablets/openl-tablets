@@ -329,11 +329,11 @@ class DependentParametersOptimizedAlgorithm {
         }
 
         if (indexNode.getTargetNode() != null) {
-            if (indexNode.getTargetNode() instanceof FieldBoundNode) {
-                return buildFieldName((FieldBoundNode) indexNode.getTargetNode(), bindingContext) + value;
+            if (indexNode.getTargetNode() instanceof FieldBoundNode targetFieldNode) {
+                return buildFieldName(targetFieldNode, bindingContext) + value;
             }
-            if (indexNode.getTargetNode() instanceof IndexNode) {
-                return value + buildFieldName((IndexNode) indexNode.getTargetNode(), bindingContext);
+            if (indexNode.getTargetNode() instanceof IndexNode targetIndexNode) {
+                return value + buildFieldName(targetIndexNode, bindingContext);
             }
             BindHelper.processError("Cannot parse array index.", indexNode.getSyntaxNode(), bindingContext);
         }
@@ -343,11 +343,11 @@ class DependentParametersOptimizedAlgorithm {
     private static String buildFieldName(FieldBoundNode field, IBindingContext bindingContext) {
         var value = field.getFieldName();
         if (field.getTargetNode() != null) {
-            if (field.getTargetNode() instanceof FieldBoundNode) {
-                return buildFieldName((FieldBoundNode) field.getTargetNode(), bindingContext) + "." + value;
+            if (field.getTargetNode() instanceof FieldBoundNode targetFieldNode) {
+                return buildFieldName(targetFieldNode, bindingContext) + "." + value;
             }
-            if (field.getTargetNode() instanceof IndexNode) {
-                return buildFieldName((IndexNode) field.getTargetNode(), bindingContext) + "." + value;
+            if (field.getTargetNode() instanceof IndexNode targetIndexNode) {
+                return buildFieldName(targetIndexNode, bindingContext) + "." + value;
             }
             return null;
         }

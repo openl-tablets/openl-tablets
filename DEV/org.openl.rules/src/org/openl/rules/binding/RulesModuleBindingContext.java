@@ -426,15 +426,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         @Override
         public Object get(Object target, IRuntimeEnv env) {
             if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
-                if (simpleRuntimeEnv.getMethodWrapper().getDelegate() instanceof ExecutableRulesMethod) {
-                    var executableRulesMethod = (ExecutableRulesMethod) simpleRuntimeEnv
-                            .getMethodWrapper()
-                            .getDelegate();
+                if (simpleRuntimeEnv.getMethodWrapper()
+                        .getDelegate() instanceof ExecutableRulesMethod executableRulesMethod) {
                     return new TableProperties(executableRulesMethod.getMethodProperties());
-                } else if (simpleRuntimeEnv.getMethodWrapper().getDelegate() instanceof OpenMethodDispatcher) {
-                    var openMethodDispatcher = (OpenMethodDispatcher) simpleRuntimeEnv
-                            .getMethodWrapper()
-                            .getDelegate();
+                } else if (simpleRuntimeEnv.getMethodWrapper()
+                        .getDelegate() instanceof OpenMethodDispatcher openMethodDispatcher) {
                     var method = openMethodDispatcher.findMatchingMethod(env);
                     if (method instanceof ExecutableRulesMethod executableRulesMethod) {
                         return new TableProperties(executableRulesMethod.getMethodProperties());

@@ -33,8 +33,8 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
             try {
                 return rulesFrontend.execute(serviceName, method.getName(), method.getParameterTypes(), args);
             } catch (MethodInvocationException e) {
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
+                if (e.getCause() instanceof RuntimeException cause) {
+                    throw cause;
                 } else {
                     throw new MethodInvocationRuntimeException(e);
                 }

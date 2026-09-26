@@ -798,9 +798,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     private CellMetaInfo getPreparedMetaInfo(int row, int col) {
         if (preparedMetaInfos == null) {
-            if (getTableSyntaxNode().getGridTable().getGrid() instanceof CompositeGrid) {
-                for (IGridTable gridTable : ((CompositeGrid) getTableSyntaxNode().getGridTable().getGrid())
-                        .getGridTables()) {
+            if (getTableSyntaxNode().getGridTable().getGrid() instanceof CompositeGrid compositeGrid) {
+                for (IGridTable gridTable : compositeGrid.getGridTables()) {
                     prepare(gridTable.getRegion());
                 }
             } else {

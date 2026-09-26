@@ -208,8 +208,8 @@ public class XlsBinder implements IOpenBinder {
             bindingContext = openlBinder.makeBindingContext();
         } else {
             var bc1 = bindingContext;
-            while (bc1 instanceof BindingContextDelegator) {
-                bc1 = ((BindingContextDelegator) bc1).getDelegate();
+            while (bc1 instanceof BindingContextDelegator delegator) {
+                bc1 = delegator.getDelegate();
             }
             if (bc1 instanceof BindingContext bc && (bc.getOpenL() == null || bc.getBinder() == null)) { // Workaround
                 bc.setOpenl(openl);

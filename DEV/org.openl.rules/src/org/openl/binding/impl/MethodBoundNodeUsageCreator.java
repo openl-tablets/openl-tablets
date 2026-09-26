@@ -34,8 +34,8 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
         var methodCaller = methodBoundNode.getMethodCaller();
         if (methodCaller != null && location != null && location.isTextLocation()) {
             IOpenMethod method;
-            while (methodCaller instanceof AOpenMethodDelegator) {
-                methodCaller = ((AOpenMethodDelegator) methodCaller).getDelegate();
+            while (methodCaller instanceof AOpenMethodDelegator delegator) {
+                methodCaller = delegator.getDelegate();
             }
             if (methodCaller instanceof IOpenMethod openMethod) {
                 method = openMethod;

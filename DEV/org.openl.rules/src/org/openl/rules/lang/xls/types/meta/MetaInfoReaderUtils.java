@@ -34,9 +34,9 @@ public class MetaInfoReaderUtils {
         } else {
             var src = source;
             // extract original cell source
-            while (src instanceof SubTextSourceCodeModule) {
+            while (src instanceof SubTextSourceCodeModule subTextModule) {
                 startIndex += src.getStartPosition();
-                src = ((SubTextSourceCodeModule) src).getBaseModule();
+                src = subTextModule.getBaseModule();
             }
             if (src instanceof GridCellSourceCodeModule) {
                 var nodeUsages = getNodeUsages(method, source.getCode(), startIndex);

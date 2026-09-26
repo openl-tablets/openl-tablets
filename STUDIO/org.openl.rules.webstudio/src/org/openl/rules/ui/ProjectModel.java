@@ -209,8 +209,8 @@ public class ProjectModel {
 
     private boolean findInCompositeGrid(CompositeGrid compositeGrid, XlsUrlParser p1) {
         for (IGridTable gridTable : compositeGrid.getGridTables()) {
-            if (gridTable.getGrid() instanceof CompositeGrid) {
-                if (findInCompositeGrid((CompositeGrid) gridTable.getGrid(), p1)) {
+            if (gridTable.getGrid() instanceof CompositeGrid nestedGrid) {
+                if (findInCompositeGrid(nestedGrid, p1)) {
                     return true;
                 }
             } else {
@@ -338,8 +338,8 @@ public class ProjectModel {
         // CompiledOpenClass
         // e.g. elder inactive versions of methods
         TableSyntaxNode tsn = getNode(tableUri);
-        if (tsn != null && tsn.getMember() instanceof IOpenMethod) {
-            return WrapperLogic.wrapOpenMethod((IOpenMethod) tsn.getMember(), (XlsModuleOpenClass) openClass, false);
+        if (tsn != null && tsn.getMember() instanceof IOpenMethod tableMethod) {
+            return WrapperLogic.wrapOpenMethod(tableMethod, (XlsModuleOpenClass) openClass, false);
         }
 
         return null;

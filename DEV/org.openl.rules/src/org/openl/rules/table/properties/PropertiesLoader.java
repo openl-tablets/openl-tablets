@@ -218,14 +218,13 @@ public class PropertiesLoader {
         Map<String, Object> externalParams = bindingContext.getExternalParams();
 
         if (externalParams != null && externalParams.containsKey(EXTERNAL_MODULE_PROPERTIES_KEY) && externalParams
-                .get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties) {
+                .get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties externalProperties) {
 
             if (tsn.getTableProperties() == null) {
                 createTableProperties(tsn);
             }
 
             var properties = tsn.getTableProperties();
-            var externalProperties = (ITableProperties) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY);
             if (moduleProperties != null) {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().containsKey(key)) {

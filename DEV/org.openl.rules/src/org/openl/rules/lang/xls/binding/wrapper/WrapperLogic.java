@@ -65,9 +65,8 @@ public final class WrapperLogic {
         var env1 = env;
         if (env instanceof TBasicContextHolderEnv tBasicContextHolderEnv) {
             env1 = tBasicContextHolderEnv.getEnv();
-            while (env1 instanceof TBasicContextHolderEnv) {
-                tBasicContextHolderEnv = (TBasicContextHolderEnv) env1;
-                env1 = tBasicContextHolderEnv.getEnv();
+            while (env1 instanceof TBasicContextHolderEnv nestedEnv) {
+                env1 = nestedEnv.getEnv();
             }
         }
         return (SimpleRuntimeEnv) env1;
@@ -119,10 +118,10 @@ public final class WrapperLogic {
                 cache = new IdentityHashMap<>();
             }
             IOpenClass t = toModuleType(parameterTypes[i], xlsModuleOpenClass, cache);
-            if (openMethod.getSignature() instanceof MethodSignature) {
+            if (openMethod.getSignature() instanceof MethodSignature methodSignature) {
                 parameterDeclarations[i] = new ParameterDeclaration(t,
                         openMethod.getSignature().getParameterName(i),
-                        ((MethodSignature) openMethod.getSignature()).getParameterDeclaration(i).getContextProperty());
+                        methodSignature.getParameterDeclaration(i).getContextProperty());
             } else {
                 parameterDeclarations[i] = new ParameterDeclaration(t, openMethod.getSignature().getParameterName(i));
             }
@@ -259,16 +258,15 @@ public final class WrapperLogic {
                 : WrapperLogic.invoke(wrapper, target, params, env);
         // Set custom spreadsheet type to work in the correct classloader with spreadsheet result been types
         if (ret != null) {
-            if (wrapper.getType() instanceof CustomSpreadsheetResultOpenClass) {
+            if (wrapper.getType() instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
                 if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
-                    ((SpreadsheetResult) ret)
-                            .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) wrapper.getType());
+                    ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass(customSpreadsheetResultOpenClass);
                 }
-            } else if (wrapper
-                    .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) wrapper.getType())
-                    .getModule() != null && ((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
+            } else if (wrapper.getType() instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass
+                    && spreadsheetResultOpenClass.getModule() != null
+                    && ((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
                 ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass(
-                        ((SpreadsheetResultOpenClass) wrapper.getType()).toCustomSpreadsheetResultOpenClass());
+                        spreadsheetResultOpenClass.toCustomSpreadsheetResultOpenClass());
             }
         }
         return ret;

@@ -637,7 +637,7 @@ public class Table implements ITable {
                         var nonEmptyResCell = !(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
                                 .getStringValue() != null && d.getField() != null;
                         return nonEmptyResCell && d.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
-                                d.getField() instanceof FieldChain && ((FieldChain) d.getField()).getFields().length > 1;
+                                d.getField() instanceof FieldChain fieldChain && fieldChain.getFields().length > 1;
                     })
                     .map(d -> {
                         var fieldChain = (FieldChain) d.getField();
@@ -647,12 +647,10 @@ public class Table implements ITable {
         }
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
             var hasValue = false;
-            if (columnDescriptor.getField() instanceof FieldChain) {
-                var fieldChain = (FieldChain) columnDescriptor.getField();
-                if (fieldChain.getFields().length > 1) {
-                    String fieldName = FieldChain.makeNames(Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length - 1));
-                    hasValue = fieldWithValue.contains(fieldName);
-                }
+            if (columnDescriptor.getField() instanceof FieldChain fieldChain && fieldChain.getFields().length > 1) {
+                String fieldName = FieldChain.makeNames(
+                        Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length - 1));
+                hasValue = fieldWithValue.contains(fieldName);
             }
             literal = processColumn(columnDescriptor, openlAdapter, constructor, rowNum, literal, env, hasError, hasValue);
         }

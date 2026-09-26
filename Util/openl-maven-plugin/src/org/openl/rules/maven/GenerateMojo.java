@@ -172,8 +172,9 @@ public final class GenerateMojo extends BaseOpenLMojo {
             // Generate Java beans from OpenL dataTypes
             writeJavaBeans(compiledOpenClass.getTypes());
 
-            if (generateSpreadsheetResultBeans && compiledOpenClass.getOpenClass() instanceof XlsModuleOpenClass) {
-                writeCustomSpreadsheetResultBeans((XlsModuleOpenClass) compiledOpenClass.getOpenClass());
+            if (generateSpreadsheetResultBeans
+                    && compiledOpenClass.getOpenClass() instanceof XlsModuleOpenClass xlsModuleOpenClass) {
+                writeCustomSpreadsheetResultBeans(xlsModuleOpenClass);
             }
 
             // Generate interface is optional.
@@ -253,14 +254,10 @@ public final class GenerateMojo extends BaseOpenLMojo {
             Files.write(filePath, customSpreadsheetResultOpenClass.getBeanClassByteCode());
             writtenSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
             for (IOpenField openField : customSpreadsheetResultOpenClass.getFields()) {
-                if (openField.getType() instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = (CustomSpreadsheetResultOpenClass) openField
-                            .getType();
+                if (openField.getType() instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1) {
                     writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass1,
                             writtenSpreadsheetResultOpenClasses);
-                } else if (openField.getType() instanceof SpreadsheetResultOpenClass) {
-                    SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openField
-                            .getType();
+                } else if (openField.getType() instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass) {
                     writeCustomSpreadsheetResultBeans(spreadsheetResultOpenClass.toCustomSpreadsheetResultOpenClass(),
                             writtenSpreadsheetResultOpenClasses);
                 }

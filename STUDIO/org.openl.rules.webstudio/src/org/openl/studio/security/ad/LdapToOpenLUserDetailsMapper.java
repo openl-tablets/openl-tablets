@@ -128,9 +128,9 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         Collection<? extends GrantedAuthority> userAuthorities = null;
 
         Authentication authentication = AuthenticationHolder.getAuthentication();
-        if (authentication != null && authentication.getCredentials() instanceof String) {
+        if (authentication != null && authentication.getCredentials() instanceof String password) {
             // Try to load nested groups and primary group of a user
-            userAuthorities = loadUserAuthorities(ctx, username, (String) authentication.getCredentials());
+            userAuthorities = loadUserAuthorities(ctx, username, password);
         }
 
         if (userAuthorities == null) {

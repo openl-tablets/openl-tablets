@@ -20,8 +20,8 @@ public class GridTableUtils {
     public static IGridTable getOriginalTable(IGridTable table) {
         var resultTable = table;
 
-        while (resultTable instanceof AGridTableDecorator) {
-            resultTable = ((AGridTableDecorator) resultTable).getOriginalGridTable();
+        while (resultTable instanceof AGridTableDecorator decorator) {
+            resultTable = decorator.getOriginalGridTable();
         }
 
         return resultTable;
