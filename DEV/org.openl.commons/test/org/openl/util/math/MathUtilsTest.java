@@ -479,6 +479,23 @@ class MathUtilsTest {
     }
 
     @Test
+    void refusesAPositionInAnArrayWithoutValues() {
+        Long[] empty = {};
+        Long[] onlyNulls = {null, null};
+
+        var smallOfEmpty = assertThrows(IllegalArgumentException.class, () -> MathUtils.small(empty, 1));
+        var bigOfEmpty = assertThrows(IllegalArgumentException.class, () -> MathUtils.big(empty, 1));
+        var smallOfNulls = assertThrows(IllegalArgumentException.class, () -> MathUtils.small(onlyNulls, 1));
+        var bigOfNulls = assertThrows(IllegalArgumentException.class, () -> MathUtils.big(onlyNulls, 1));
+
+        var message = "There is no position '1' in the given array.";
+        assertEquals(message, smallOfEmpty.getMessage());
+        assertEquals(message, bigOfEmpty.getMessage());
+        assertEquals(message, smallOfNulls.getMessage());
+        assertEquals(message, bigOfNulls.getMessage());
+    }
+
+    @Test
     void testSumForByte() {
         byte[] arr = null;
         assertNull(MathUtils.sum(arr));
