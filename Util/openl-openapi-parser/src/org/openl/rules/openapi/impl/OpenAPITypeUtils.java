@@ -128,8 +128,7 @@ public class OpenAPITypeUtils {
         var format = schema.getFormat();
         TypeInfo result = null;
         if ("string".equals(schemaType)) {
-            result = "date".equals(format) || "date-time".equals(format) ? WRAPPER_CLASSES.get(DATE)
-                    : WRAPPER_CLASSES.get(STRING);
+            result = WRAPPER_CLASSES.get("date".equals(format) || "date-time".equals(format) ? DATE : STRING);
         } else if ("number".equals(schemaType)) {
             if (FLOAT_PRIMITIVE.equals(format) || DOUBLE_PRIMITIVE.equals(format)) {
                 result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(format) : WRAPPER_CLASSES.get(format);

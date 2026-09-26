@@ -94,9 +94,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         var pos = rollWhitespaces(source, from);
         var start = pos;
         pos = rollIdentifier(source, pos);
-        return start < pos
-                ? new ParsedIdentifier(pos, source.substring(start, pos))
-                : new ParsedIdentifier(pos, null);
+        return new ParsedIdentifier(pos, start < pos ? source.substring(start, pos) : null);
     }
 
     static int rollIdentifier(String s, int pos) {

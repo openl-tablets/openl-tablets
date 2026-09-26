@@ -197,7 +197,7 @@ class HttpData {
         if (!matcher.find()) {
             return StandardCharsets.UTF_8;
         }
-        return Charset.forName(matcher.group(1) != null ? matcher.group(1) : matcher.group(2));
+        return Charset.forName(matcher.group(matcher.group(1) != null ? 1 : 2));
     }
 
     private static boolean isTextBody(String contentType) {
