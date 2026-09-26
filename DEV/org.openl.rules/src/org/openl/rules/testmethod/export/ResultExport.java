@@ -60,16 +60,14 @@ public abstract class ResultExport extends BaseExport {
                 var resultsList = listsWithResults.get(i);
                 sheet = workbook.createSheet("Parameters " + (i + 1));
 
-                // Tracking all columns for auto sizing is expensive
-                // sheet.trackAllColumnsForAutoSizing();
+                // Tracking all columns for auto sizing is expensive, so it is not enabled here
                 parameterExport.write(sheet, resultsList, skipEmptyParameters);
 
                 // EPBDS-7848 Previously we added regions without validation, so it's better to validate in the end.
                 // But on a big project "Test into file" with validation runs ~2 min 20 sec and without validation
                 // it runs ~1 min.
-                // That's why validateMergedRegions() was commented. We assume that we create merged regions without
+                // That's why validateMergedRegions() is not called. We assume that we create merged regions without
                 // collisions and xlsx file should not be damaged.
-                // sheet.validateMergedRegions();
             }
 
             workbook.write(outputStream);

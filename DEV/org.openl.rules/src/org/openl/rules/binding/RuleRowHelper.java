@@ -162,7 +162,6 @@ public final class RuleRowHelper {
         var src = theValueCell.getStringValue();
         // TODO review our using of intern()
         // @see http://java-performance.info/string-intern-in-java-6-7-8/
-        // if (src != null) src = src.intern();
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src);
     }
 

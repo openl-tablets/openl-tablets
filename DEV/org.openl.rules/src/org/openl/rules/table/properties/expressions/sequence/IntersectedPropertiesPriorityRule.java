@@ -43,7 +43,7 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
         }
 
         // Not intersected and partly intersected properties cannot be
-        // sorted. For such cases for (partly) backward compatibility use
+        // sorted. For such cases for partial backward compatibility use
         // the previous version of comparator
         return filledPropertiesRule.compare(tableProperties1, tableProperties2);
     }

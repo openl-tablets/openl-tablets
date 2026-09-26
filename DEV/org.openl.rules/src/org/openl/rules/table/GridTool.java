@@ -462,12 +462,7 @@ public class GridTool {
                         borderStyle[1],
                         BorderStyle.NONE,
                         BorderStyle.NONE};
-                /*
-                 * FIXME add bottom border for expender row (only for last) if (actionType != null && actionType ==
-                 * ActionType.EXPAND) { borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], borderStyle[2],
-                 * CellStyle.BORDER_NONE}; } else { borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1],
-                 * CellStyle.BORDER_NONE, CellStyle.BORDER_NONE}; }
-                 */
+                // FIXME add bottom border for expender row (only for last)
             }
         } else {
             borderStyle = new BorderStyle[]{BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE};

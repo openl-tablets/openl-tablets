@@ -36,7 +36,7 @@ public class EqualsWriter extends DefaultBeanByteCodeWriter {
         trueIfTheSame(mv);
         falseIfNull(mv);
         falseIfDifferentClassNames(mv);
-        doCast(mv); // CastType other = (CastType) arg0;
+        doCast(mv); // CastType other = (CastType) arg0
 
         Label retFalse = new Label();
         // comparing by fields

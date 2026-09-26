@@ -199,7 +199,6 @@ public class DecisionTableLookupConvertor {
         var lookupTableWidth = lookupValuesTable.getWidth();
 
         var isMultiplier = lookupTableWidth % retTableWidth == 0;
-        // lookupTableWidth/retTableWidth*retTableWidth == lookupTableWidth;
 
         if (!isMultiplier) {
             var w = getWidthWithIgnoredEmptyCells(lookupValuesTable);

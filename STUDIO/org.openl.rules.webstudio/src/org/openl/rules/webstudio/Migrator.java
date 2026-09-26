@@ -611,7 +611,7 @@ public class Migrator {
                         var branchName = "";
                         // if lockPath does not contains lockBranchPath - repository has no branches
                         if (lockPath.startsWith("branches/")) {
-                            // ./branches/{Project Name}/{branch/name}/{Project Name}
+                            // The lock path is ./branches/{Project Name}/{branch/name}/{Project Name}.
                             var branchPath = lockPath.subpath(2, lockPath.getNameCount() - 1);
                             branchName = "[branches]/" + branchPath;
                         }

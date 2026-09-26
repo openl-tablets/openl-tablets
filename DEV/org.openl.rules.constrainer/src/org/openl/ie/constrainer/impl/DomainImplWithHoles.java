@@ -16,9 +16,7 @@ import org.openl.ie.tools.FastVector;
  */
 public final class DomainImplWithHoles extends DomainImpl {
     private FastVector _values; // vector of DomainUnterval(s), for example
-    // domain {0,1,2,5,6,9}
-
-    // contains 3 intervals [(0;2), (5;6), (9;9)]
+    // domain {0,1,2,5,6,9} contains 3 intervals [(0;2), (5;6), (9;9)]
 
     public DomainImplWithHoles(IntVar var, int min, int max) // throws
     // Failure

@@ -28,7 +28,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
         var child = node.getChild(0);
 
         if (child.getType().equals("new.array.initialized")) {
-            // Bind new int[] {1,2,3}
+            // Bind new int[] {1,2,3}.
             IOpenClass arrayType = getType(child.getChild(0), bindingContext);
             return bindTypeNode(child.getChild(1), bindingContext, arrayType);
         } else {

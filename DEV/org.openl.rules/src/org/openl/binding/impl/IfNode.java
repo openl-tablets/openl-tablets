@@ -48,7 +48,7 @@ public class IfNode extends ABoundNode {
 
         var res = conditionNode.evaluate(env);
 
-        // if (condition) { TrueBranch } else { NullOrFalseBranch }
+        // if condition then TrueBranch else NullOrFalseBranch
         return Boolean.TRUE.equals(res) ? thenNode.evaluate(env) : elseNode != null ? elseNode.evaluate(env) : null;
     }
 

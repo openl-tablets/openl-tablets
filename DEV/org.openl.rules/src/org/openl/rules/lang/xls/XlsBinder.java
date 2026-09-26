@@ -304,7 +304,7 @@ public class XlsBinder implements IOpenBinder {
             // Datatypes
             var datatypeNodes = selectNodes(moduleNode, dataTypeSelector);
 
-            // Conditions && Returns && Actions
+            // Conditions, Returns and Actions
             var dtHeaderDefinitionsNodes = selectNodes(moduleNode, dtDefinitionSelector);
 
             // Select nodes excluding Properties, Datatype, Spreadsheet, Test,

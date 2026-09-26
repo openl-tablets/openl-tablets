@@ -65,9 +65,10 @@ import org.openl.ie.tools.FastVector;
  * Implementation notes
  *
  * GOALS EXECUTION. There are two major stacks: execution stack "EXE" and alternative stack "ALT". At each choice point
- * we create a new reversibility stack "REV". EXE.push(goal); while(!EXE.empty()) { execute(EXE.pop()); Goal execution
- * could: - push new subgoal on EXE (GoalAnd) - push goals on ALT (GoalOr) - fail. When failed: - pop from EXE all goals
- * pushed on it after the last choice point (done via marker) - if ALT.empty, FAILURE! - EXE.push(ALT.pop()) } SUCCESS!
+ * we create a new reversibility stack "REV". EXE.push(goal), then, while EXE is not empty, execute(EXE.pop()). Goal
+ * execution could: - push new subgoal on EXE (GoalAnd) - push goals on ALT (GoalOr) - fail. When failed: - pop from EXE
+ * all goals pushed on it after the last choice point (done via marker) - if ALT.empty, FAILURE! - EXE.push(ALT.pop()).
+ * When EXE is empty, SUCCESS!
  *
  */
 

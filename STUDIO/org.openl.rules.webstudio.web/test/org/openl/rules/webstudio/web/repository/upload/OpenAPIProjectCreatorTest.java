@@ -169,7 +169,6 @@ class OpenAPIProjectCreatorTest {
             return false;
         }
         var files = testsDir.listFiles();
-        // files = new File[] {new File(testsDir, "EPBDS-10072_ALL_multiple")};
         if (files == null) {
             log.warn("Test folder is not found.");
             return false;

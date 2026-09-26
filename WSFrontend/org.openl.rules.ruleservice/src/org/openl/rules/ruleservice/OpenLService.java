@@ -181,9 +181,7 @@ public class OpenLService {
         } catch (Exception ignore) {
             // JSON serialization failed; fall back to a manually built JSON string below
         }
-        /*
-        {"result":null,"error":{"message":"@","type":"$"}}
-         */
+        // {"result":null,"error":{"message":"@","type":"$"}} with the escaped message as @ and the type as $
         return "{\"result\":null,\"error\":{\"message\":\"" + message.replace("\\", "\\\\").replace("\"", "\\\"") +
                 "\",\"type\":\"" + type + "\"}}";
     }

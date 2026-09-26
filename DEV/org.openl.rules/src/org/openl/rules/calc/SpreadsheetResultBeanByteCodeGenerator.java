@@ -238,7 +238,6 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     private void visitValueOf(ClassWriter classWriter) {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, valueOfMethod, null, null, classWriter);
 
-        // {
         mg.visitCode();
 
         // bean = new Bean();
@@ -309,7 +308,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         mg.loadLocal(cell); // cell
         mg.loadArg(1); // converter
 
-        // _v = sr.getFieldValue(cell);
+        // _v = sr.getFieldValue(cell)
         mg.loadArg(0); // sr
         mg.loadLocal(cell); // cell
         mg.invokeVirtual(SR_TYPE, SR_GET_VALUE);

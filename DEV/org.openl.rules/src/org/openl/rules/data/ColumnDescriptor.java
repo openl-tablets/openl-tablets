@@ -193,10 +193,7 @@ public class ColumnDescriptor {
         if (field == null) {
             /*
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
-             * processed during prepDaring column descriptor. See {@link
-             * DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL
-             * openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean
-             * hasColumnTitleRow)}
+             * processed during prepDaring column descriptor. See {@link DataTableBindHelper#makeDescriptors}.
              */
             return literal;
         }

@@ -119,7 +119,7 @@ public class MethodInfo {
         }
 
         public Builder pathPattern(String pathPattern) {
-            // Normalize Spring's catch-all {*varName} syntax to OpenAPI-compatible {varName}
+            // Normalize Spring's catch-all {*varName} syntax to OpenAPI-compatible {varName}.
             this.pathPattern = pathPattern.replaceAll("\\{\\*([^}]+)}", "{$1}");
             return this;
         }

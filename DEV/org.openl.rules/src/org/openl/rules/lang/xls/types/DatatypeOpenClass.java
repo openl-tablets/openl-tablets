@@ -81,8 +81,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         // NOTE! The instance class during the construction is null.
         // It will be set after the generating the appropriate byte code for the
         // datatype.
-        // See {@link
-        // org.openl.rules.datatype.binding.DatatypeTableBoundNode.addFields()}
+        // See {@link org.openl.rules.datatype.binding.DatatypeTableBoundNode.addFields()}
         //
         // @author Denis Levchuk
         //

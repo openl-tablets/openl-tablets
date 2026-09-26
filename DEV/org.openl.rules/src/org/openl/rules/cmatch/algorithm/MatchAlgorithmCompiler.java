@@ -73,8 +73,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     String msg = MessageFormat.format("Illegal indent. 0..{0} expected.", prevIndent + 1);
                     throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
                 } else {
-                    // if (indent == prevIndent)
-                    // if (indent 1..prevIndent-1)
+                    // indent == prevIndent, or indent is within 1..prevIndent-1
                     lastForIndent[indent].getParent().add(node);
                 }
             }

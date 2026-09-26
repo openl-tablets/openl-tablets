@@ -123,7 +123,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                     } else if (completelyOverlaps(_dt.getRule(rules[B]), _dt.getRule(rules[A]))) {
                         this.overlappings
                                 .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.OVERRIDE));
-                    } else /* if (!blocks && !overrides) */ {
+                    } else {
                         this.overlappings
                                 .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.PARTIAL));
                     }

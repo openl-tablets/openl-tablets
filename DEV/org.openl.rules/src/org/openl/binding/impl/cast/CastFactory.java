@@ -1015,8 +1015,8 @@ public class CastFactory implements ICastFactory {
                 // autocast operation.
                 // For example:
                 // <code>
-                // Integer a = 1;
-                // double d = a;
+                // Integer a = 1
+                // double d = a
                 // </code>
                 // For OpenL we are omitting the check that 'to' type must be
                 // primitive type for our case to simplify understanding type
@@ -1038,8 +1038,8 @@ public class CastFactory implements ICastFactory {
                 // 2) boxing operation.
                 // For example:
                 // <code>
-                // int a = 1;
-                // Double d = a;
+                // int a = 1
+                // Double d = a
                 // </code>
                 // For OpenL we are omitting the check that 'from' type must be
                 // primitive type for our case to simplify understanding type

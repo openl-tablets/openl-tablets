@@ -142,7 +142,7 @@ public class PathCheckedRepository implements BranchRepository {
         validatePath(folderData.getName());
         // FIXME: this Iterable cannot be used multiple times due delegating it to the Stream API.
         //     It needs to refactor the Repository API to allow the following:
-        //     files.peek(x -> validatePath(x.getData().getName()));
+        //     files.peek(x -> validatePath(x.getData().getName()))
         return delegate.save(folderData, files, changesetType);
     }
 

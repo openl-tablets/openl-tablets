@@ -59,8 +59,6 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
         var nameOfAlgorithm = cutNameOfAlgorithm(tableSyntaxNode, src, headerTokenLength);
         if (nameOfAlgorithm != null) {
             var name = nameOfAlgorithm.getCode();
-            // TODO
-            // headerTokenLength = name.getEndPosition() + 1;
             headerTokenLength = nameOfAlgorithm.getStartPosition() + name.length() + 1;
         }
 
