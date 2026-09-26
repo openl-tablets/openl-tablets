@@ -100,7 +100,10 @@ public final class WrapperLogic {
             dim++;
         }
         var t = xlsModuleOpenClass.toModuleType(g);
-        return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : type;
+        if (t == null) {
+            return type;
+        }
+        return dim > 0 ? t.getArrayType(dim) : t;
     }
 
     public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {

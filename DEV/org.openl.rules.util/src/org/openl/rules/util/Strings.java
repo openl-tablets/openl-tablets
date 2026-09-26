@@ -539,7 +539,7 @@ public final class Strings {
         final var replLength = searchString.length();
         var increase = replacement.length() - replLength;
         increase = increase < 0 ? 0 : increase;
-        increase *= max < 0 ? 16 : max > 64 ? 64 : max;
+        increase *= max < 0 ? 16 : Math.min(max, 64);
         final var buf = new StringBuilder(str.length() + increase);
         while (end != -1) {
             buf.append(str, start, end).append(replacement);

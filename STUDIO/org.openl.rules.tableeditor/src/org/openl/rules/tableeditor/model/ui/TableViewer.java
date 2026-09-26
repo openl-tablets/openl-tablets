@@ -190,8 +190,7 @@ class TableViewer {
             return new short[]{0, 0, 0};
         }
 
-        return bs1 == null ? bs2.getRgb()
-                : bs2 == null ? bs1.getRgb() : bs1 == BorderStyle.NONE ? bs2.getRgb() : bs1.getRgb();
+        return dominant(bs1, bs2).getRgb();
     }
 
     void setGrid(TableModel tm) {
@@ -316,8 +315,7 @@ class TableViewer {
             return "none";
         }
 
-        return bs1 == null ? bs2.getStyle()
-                : bs2 == null ? bs1.getStyle() : bs1 == BorderStyle.NONE ? bs2.getStyle() : bs1.getStyle();
+        return dominant(bs1, bs2).getStyle();
     }
 
     int width(BorderStyle bs1, BorderStyle bs2) {
@@ -325,7 +323,24 @@ class TableViewer {
             return 0;
         }
 
-        return bs1 == null ? bs2.getWidth() : bs2 == null ? bs1.getWidth() : Math.max(bs1.getWidth(), bs2.getWidth());
+        if (bs1 == null) {
+            return bs2.getWidth();
+        }
+        return bs2 == null ? bs1.getWidth() : Math.max(bs1.getWidth(), bs2.getWidth());
+    }
+
+    /**
+     * Picks the style drawn on a border two cells share: the first one, unless it is missing or it is
+     * {@link BorderStyle#NONE} while the second one is present.
+     */
+    private static BorderStyle dominant(BorderStyle bs1, BorderStyle bs2) {
+        if (bs1 == null) {
+            return bs2;
+        }
+        if (bs2 == null) {
+            return bs1;
+        }
+        return bs1 == BorderStyle.NONE ? bs2 : bs1;
     }
 
 }

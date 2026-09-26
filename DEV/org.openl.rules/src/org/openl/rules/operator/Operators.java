@@ -804,13 +804,17 @@ public class Operators {
     }
 
     public static Boolean or(Boolean x, Boolean y) {
-        return Boolean.TRUE.equals(
-                x) ? Boolean.TRUE : Boolean.TRUE.equals(y) ? Boolean.TRUE : x == null || y == null ? null : Boolean.FALSE;
+        if (Boolean.TRUE.equals(x) || Boolean.TRUE.equals(y)) {
+            return Boolean.TRUE;
+        }
+        return x == null || y == null ? null : Boolean.FALSE;
     }
 
     public static Boolean and(Boolean x, Boolean y) {
-        return Boolean.FALSE.equals(
-                x) ? Boolean.FALSE : Boolean.FALSE.equals(y) ? Boolean.FALSE : x == null || y == null ? null : Boolean.TRUE;
+        if (Boolean.FALSE.equals(x) || Boolean.FALSE.equals(y)) {
+            return Boolean.FALSE;
+        }
+        return x == null || y == null ? null : Boolean.TRUE;
     }
 
     // operator '%' implementations

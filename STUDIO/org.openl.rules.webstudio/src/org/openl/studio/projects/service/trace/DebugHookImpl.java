@@ -346,7 +346,11 @@ final class DebugHookImpl implements DebugHook {
         // Bound this frame's subtree by its parent's remaining budget and the per-branch cap, so a deep branch
         // entered early cannot use up the whole tree before its siblings run. A frame that was not admitted gets
         // no budget, so nothing is retained under it either.
-        frame.setBudget(recorded ? (parent == null ? maxTreeNodes : Math.min(parent.getBudget(), MAX_BRANCH_NODES)) : 0);
+        if (recorded) {
+            frame.setBudget(parent == null ? maxTreeNodes : Math.min(parent.getBudget(), MAX_BRANCH_NODES));
+        } else {
+            frame.setBudget(0);
+        }
         // A profiled sub-call the tree could not admit is one the caller made but the tree no longer keeps; count
         // it on the caller so its node can honestly report how many of its sub-calls were dropped.
         if (profiling && !recorded && parent != null) {

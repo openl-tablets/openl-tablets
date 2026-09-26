@@ -48,7 +48,10 @@ public final class Var {
 
             @Override
             public Double result() {
-                return counter <= 1 ? null : (result == null ? null : result / (counter - 1));
+                if (counter <= 1 || result == null) {
+                    return null;
+                }
+                return result / (counter - 1);
             }
         });
     }
@@ -70,7 +73,10 @@ public final class Var {
 
             @Override
             public Float result() {
-                return counter <= 1 ? null : (result == null ? null : result / (counter - 1));
+                if (counter <= 1 || result == null) {
+                    return null;
+                }
+                return result / (counter - 1);
             }
         });
     }
@@ -96,7 +102,11 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128));
+                if (counter <= 1 || result == null) {
+                    return null;
+                }
+                return BigDecimal.ZERO.compareTo(result) == 0 ? result
+                        : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
             }
         });
     }
@@ -122,7 +132,11 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return counter <= 1 ? null : (result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128));
+                if (counter <= 1 || result == null) {
+                    return null;
+                }
+                return BigDecimal.ZERO.compareTo(result) == 0 ? result
+                        : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
             }
         });
     }

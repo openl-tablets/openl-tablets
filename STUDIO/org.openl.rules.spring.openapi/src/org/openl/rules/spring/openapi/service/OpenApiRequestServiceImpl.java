@@ -371,10 +371,11 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     private void expandModelAttributeFields(ParameterInfo paramInfo,
                                             ObjectSchema objectSchema,
                                             Components components) {
-        var paramType = paramInfo.getType();
-        Class<?> modelClass = paramType instanceof Class<?> c ? c :
-                paramType instanceof ParameterizedType pt ?
-                        (Class<?>) pt.getRawType() : null;
+        Class<?> modelClass = switch (paramInfo.getType()) {
+            case Class<?> c -> c;
+            case ParameterizedType pt -> (Class<?>) pt.getRawType();
+            case null, default -> null;
+        };
 
         if (modelClass == null) {
             return;

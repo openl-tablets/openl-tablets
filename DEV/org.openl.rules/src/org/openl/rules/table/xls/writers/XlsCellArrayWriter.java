@@ -55,8 +55,10 @@ public class XlsCellArrayWriter extends AXlsCellWriter {
     }
 
     private String serializeElement(@Nullable Object value) {
-        var text = value instanceof Date date ? formatDate(date) : value == null ? StringUtils.EMPTY : value.toString();
-        return escapeSeparator(text);
+        if (value instanceof Date date) {
+            return escapeSeparator(formatDate(date));
+        }
+        return serializeElementWithoutCellFormat(value);
     }
 
     private String formatDate(Date value) {

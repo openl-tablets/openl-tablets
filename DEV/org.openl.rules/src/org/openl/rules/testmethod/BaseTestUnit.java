@@ -81,7 +81,11 @@ public class BaseTestUnit implements ITestUnit {
      */
     private TestStatus compareResult(Object expectedError, Object expectedResult, Object actualResult) {
         if (actualError != null) {
-            String oldStyleMessage = expectedError != null ? ((expectedError instanceof UserErrorOpenClass.Entry e) ? e.get().toString() : expectedError.toString()) : null;
+            String oldStyleMessage = switch (expectedError) {
+                case null -> null;
+                case UserErrorOpenClass.Entry e -> e.get().toString();
+                default -> expectedError.toString();
+            };
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
             if (rootCause instanceof OpenLUserRuntimeException exception) {
                 var detailedEx = exception.getBody();

@@ -6,7 +6,10 @@ public class DefaultFormatter implements IFormatter {
 
     @Override
     public String format(Object obj) {
-        return obj == null ? null : obj.getClass().isArray() ? Arrays.deepToString((Object[]) obj) : obj.toString();
+        if (obj == null) {
+            return null;
+        }
+        return obj.getClass().isArray() ? Arrays.deepToString((Object[]) obj) : obj.toString();
     }
 
     @Override

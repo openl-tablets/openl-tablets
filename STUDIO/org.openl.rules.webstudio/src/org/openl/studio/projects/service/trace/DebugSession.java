@@ -91,8 +91,10 @@ public final class DebugSession {
     public TraceDebugMapper mapper(Supplier<TraceDebugMapper> factory) {
         var existing = mapperCache.get();
         // Build off the fast path once set; on a first-use race updateAndGet keeps the first writer's instance.
-        return existing != null ? existing
-                : mapperCache.updateAndGet(current -> current != null ? current : factory.get());
+        if (existing != null) {
+            return existing;
+        }
+        return mapperCache.updateAndGet(current -> current != null ? current : factory.get());
     }
 
     /** Cancel the session, releasing the worker thread. Never blocks on the session lock so it preempts. */

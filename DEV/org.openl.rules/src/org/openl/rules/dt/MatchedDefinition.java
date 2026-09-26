@@ -105,24 +105,16 @@ class MatchedDefinition {
             var start = identifier.getLocation().getStart().getAbsolutePosition(textInfo);
             var end = identifier.getLocation().getEnd().getAbsolutePosition(textInfo);
             for (Pair<Map<String, String>, Boolean> m : namesMaps) {
-                if (m != null && m.getKey() != null && m.getKey()
-                        .containsKey(
-                                identifier.getIdentifier() != null
-                                        ? (Boolean.TRUE.equals(
-                                        m.getValue()) ? identifier.getIdentifier().toLowerCase()
-                                        : identifier.getIdentifier())
-                                        : null)) {
-                    sb.replace(start,
-                            end + 1,
-                            m.getKey()
-                                    .get(identifier.getIdentifier() != null
-                                            ? (Boolean.TRUE.equals(m.getValue()) ? identifier
-                                            .getIdentifier()
-                                            .toLowerCase() : identifier.getIdentifier())
-                                            : null));
+                if (m != null && m.getKey() != null && m.getKey().containsKey(lookupKey(identifier, m.getValue()))) {
+                    sb.replace(start, end + 1, m.getKey().get(lookupKey(identifier, m.getValue())));
                 }
             }
         }
         return sb.toString();
+    }
+
+    private static String lookupKey(ExpressionIdentifier identifier, Boolean lowerCase) {
+        var name = identifier.getIdentifier();
+        return Boolean.TRUE.equals(lowerCase) ? name.toLowerCase() : name;
     }
 }

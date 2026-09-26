@@ -221,11 +221,9 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
 
         final Annotation resolvedSchemaOrArrayAnnotation = AnnotationsUtils.mergeSchemaAnnotations(annotatedType.getCtxAnnotations(), type);
         final io.swagger.v3.oas.annotations.media.Schema resolvedSchemaAnnotation =
-                resolvedSchemaOrArrayAnnotation == null ?
-                        null :
-                        resolvedSchemaOrArrayAnnotation instanceof io.swagger.v3.oas.annotations.media.ArraySchema as ?
-                                as.schema() :
-                                (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
+                resolvedSchemaOrArrayAnnotation instanceof io.swagger.v3.oas.annotations.media.ArraySchema as ?
+                        as.schema() :
+                        (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
 
         final BeanDescription beanDesc = introspectSerializedType(type);
 
