@@ -3571,21 +3571,23 @@ public final class DecisionTableHelper {
         } else {
             type = isMoreThanOneColumnIsUsed ? 1 : 0;
         }
-        if (type == 0) {
-            return Triple.of(new String[]{rangeClass.getSimpleName()},
+        return switch (type) {
+            case 0 -> Triple.of(new String[]{rangeClass.getSimpleName()},
                     JavaOpenClass.getOpenClass(rangeClass),
                     condition.getStatement());
-        } else if (type == 1) {
-            final var paramName = "_" + condition.getStatement().replace('.', '_');
-            return Triple.of(new String[]{rangeClass.getSimpleName() + "[]", paramName},
-                    AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 1),
-                    "contains(" + paramName + ", " + condition.statement + ")");
-        } else {
-            final var paramName = "_" + condition.getStatement().replace('.', '_');
-            return Triple.of(new String[]{rangeClass.getSimpleName() + "[][]", paramName},
-                    AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 2),
-                    "contains(" + paramName + ", " + condition.statement + ")");
-        }
+            case 1 -> {
+                final var paramName = "_" + condition.getStatement().replace('.', '_');
+                yield Triple.of(new String[]{rangeClass.getSimpleName() + "[]", paramName},
+                        AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 1),
+                        "contains(" + paramName + ", " + condition.statement + ")");
+            }
+            default -> {
+                final var paramName = "_" + condition.getStatement().replace('.', '_');
+                yield Triple.of(new String[]{rangeClass.getSimpleName() + "[][]", paramName},
+                        AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 2),
+                        "contains(" + paramName + ", " + condition.statement + ")");
+            }
+        };
     }
 
     private static class CellValue {
@@ -4078,17 +4080,15 @@ public final class DecisionTableHelper {
             v = isMoreThanOneColumnIsUsed ? 1 : 0;
         }
 
-        if (v == 0) {
-            return Triple.of(new String[]{getTypeNameForCode(type, module, cache)}, type, condition.getStatement());
-        } else if (v == 1) {
-            return Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[]"},
+        return switch (v) {
+            case 0 -> Triple.of(new String[]{getTypeNameForCode(type, module, cache)}, type, condition.getStatement());
+            case 1 -> Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[]"},
                     AOpenClass.getArrayType(type, 1),
                     condition.getStatement());
-        } else {
-            return Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[][]"},
+            default -> Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[][]"},
                     AOpenClass.getArrayType(type, 2),
                     condition.getStatement());
-        }
+        };
     }
 
     private static IOpenClass getTypeForCondition(DecisionTable decisionTable, DTHeader condition) {

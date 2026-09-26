@@ -108,26 +108,28 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     protected RequestMessage buildRequestMessage(Entry entry, byte[] rawData) throws IOException {
         final var method = entry.method;
         final var numOfParameters = method.getParameterCount();
-        if (numOfParameters == 0) {
-            return new RequestMessage(method, new Object[]{}, rawData, encoding);
-        } else if (numOfParameters == 1) {
-            var arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
-            return new RequestMessage(method, new Object[]{arg}, rawData, encoding);
-        } else {
-            Object[] parameters = new Object[numOfParameters];
+        return switch (numOfParameters) {
+            case 0 -> new RequestMessage(method, new Object[]{}, rawData, encoding);
+            case 1 -> {
+                var arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
+                yield new RequestMessage(method, new Object[]{arg}, rawData, encoding);
+            }
+            default -> {
+                Object[] parameters = new Object[numOfParameters];
 
-            var tree = objectMapper.readTree(rawData);
-            if (!tree.isObject()) {
-                throw new IllegalArgumentException("Expecting a JSON object");
+                var tree = objectMapper.readTree(rawData);
+                if (!tree.isObject()) {
+                    throw new IllegalArgumentException("Expecting a JSON object");
+                }
+                for (var i = 0; i < method.getParameterCount(); i++) {
+                    var name = entry.paramNames[i];
+                    var type = method.getParameterTypes()[i];
+                    var node = tree.get(name);
+                    parameters[i] = objectMapper.treeToValue(node, type);
+                }
+                yield new RequestMessage(method, parameters, rawData, encoding);
             }
-            for (var i = 0; i < method.getParameterCount(); i++) {
-                var name = entry.paramNames[i];
-                var type = method.getParameterTypes()[i];
-                var node = tree.get(name);
-                parameters[i] = objectMapper.treeToValue(node, type);
-            }
-            return new RequestMessage(method, parameters, rawData, encoding);
-        }
+        };
     }
 
     private void putCachedMethodParametersWrapperClassInfo(String methodName, String methodParameters, Entry entry) {

@@ -277,17 +277,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     protected IOpenField processFieldBeforeAdding(IOpenField openField) {
         IOpenClass type = WrapperLogic.toModuleType(openField.getType(), this, new IdentityHashMap<>());
         if (type != openField.getType()) {
-            if (openField instanceof DataOpenField field1) {
-                DataOpenField f = openField instanceof DataOpenFieldWrapper dofw ? dofw
-                        .getDelegate() : field1;
-                return new DataOpenFieldWrapper(f, type);
-            } else if (openField instanceof ConstantOpenField field) {
-                ConstantOpenField f = openField instanceof ConstantOpenFieldWrapper cofw ? cofw
-                        .getDelegate() : field;
-                return new ConstantOpenFieldWrapper(f, type);
-            } else {
-                return new ModuleSpecificOpenField(openField, type);
-            }
+            return switch (openField) {
+                case DataOpenField field1 -> {
+                    DataOpenField f = openField instanceof DataOpenFieldWrapper dofw ? dofw
+                            .getDelegate() : field1;
+                    yield new DataOpenFieldWrapper(f, type);
+                }
+                case ConstantOpenField field -> {
+                    ConstantOpenField f = openField instanceof ConstantOpenFieldWrapper cofw ? cofw
+                            .getDelegate() : field;
+                    yield new ConstantOpenFieldWrapper(f, type);
+                }
+                default -> new ModuleSpecificOpenField(openField, type);
+            };
         }
         return openField;
     }

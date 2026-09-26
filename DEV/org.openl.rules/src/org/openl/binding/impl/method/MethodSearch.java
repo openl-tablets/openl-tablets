@@ -960,17 +960,15 @@ public final class MethodSearch {
             }
 
             int countOfFoundMethods = mostSpecificIndexes.size();
-            if (countOfFoundMethods == 1) {
-                return mostSpecificIndexes.getFirst();
-            } else if (countOfFoundMethods == 0) {
-                throw new AmbiguousMethodException(name,
+            return switch (countOfFoundMethods) {
+                case 1 -> mostSpecificIndexes.getFirst();
+                case 0 -> throw new AmbiguousMethodException(name,
                         params,
                         matches.stream().map(Match::getMethod).collect(Collectors.toList()));
-            } else {
-                throw new AmbiguousMethodException(name,
+                default -> throw new AmbiguousMethodException(name,
                         params,
                         moreSpecificIndexes.stream().map(matches::get).map(Match::getMethod).collect(Collectors.toList()));
-            }
+            };
         }
     }
 

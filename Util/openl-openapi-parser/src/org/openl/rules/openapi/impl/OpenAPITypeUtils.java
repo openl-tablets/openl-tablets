@@ -183,25 +183,19 @@ public class OpenAPITypeUtils {
     }
 
     public static String getArrayClassName(String javaName, int dim) {
-        String className;
-        if (dim == 0) {
-            className = javaName;
-        } else if (dim == 1) {
-            className = "[L" + javaName + ";";
-        } else {
-            className = "[" + javaName;
-        }
-        return className;
+        return switch (dim) {
+            case 0 -> javaName;
+            case 1 -> "[L" + javaName + ";";
+            default -> "[" + javaName;
+        };
     }
 
     public static String getSpreadsheetArrayClassName(int dim) {
-        if (dim == 0) {
-            return SPREADSHEET_RESULT_CLASS_NAME;
-        } else if (dim == 1) {
-            return "[L" + SPREADSHEET_RESULT_CLASS_NAME + ";";
-        } else {
-            return "[" + getSpreadsheetArrayClassName(dim - 1);
-        }
+        return switch (dim) {
+            case 0 -> SPREADSHEET_RESULT_CLASS_NAME;
+            case 1 -> "[L" + SPREADSHEET_RESULT_CLASS_NAME + ";";
+            default -> "[" + getSpreadsheetArrayClassName(dim - 1);
+        };
     }
 
     public static String getSimpleName(String ref) {

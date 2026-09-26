@@ -393,21 +393,23 @@ public final class RuleServiceInstantiationFactoryHelper {
                     type = type.getComponentClass();
                     dim++;
                 }
-                if (type instanceof CustomSpreadsheetResultOpenClass class2) {
-                    Class<?> t = class2.getBeanClass();
-                    return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
-                } else if (type instanceof SpreadsheetResultOpenClass class1) {
-                    Class<?> t;
-                    // Check: custom spreadsheet is enabled
-                    if (class1.getModule() != null) {
-                        t = class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
-                    } else {
-                        t = type.getInstanceClass();
+                return switch (type) {
+                    case CustomSpreadsheetResultOpenClass class2 -> {
+                        Class<?> t = class2.getBeanClass();
+                        yield dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                     }
-                    return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
-                } else {
-                    return returnType.getInstanceClass();
-                }
+                    case SpreadsheetResultOpenClass class1 -> {
+                        Class<?> t;
+                        // Check: custom spreadsheet is enabled
+                        if (class1.getModule() != null) {
+                            t = class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
+                        } else {
+                            t = type.getInstanceClass();
+                        }
+                        yield dim > 0 ? Array.newInstance(t, dim).getClass() : t;
+                    }
+                    default -> returnType.getInstanceClass();
+                };
             }
             default -> throw new IllegalStateException();
         }
@@ -468,15 +470,12 @@ public final class RuleServiceInstantiationFactoryHelper {
                 dim++;
             }
             if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
-                Class<?> t;
-                if (type instanceof CustomSpreadsheetResultOpenClass class2) {
-                    t = class2.getBeanClass();
-                } else if (type instanceof SpreadsheetResultOpenClass class1 && class1
-                        .getModule() != null) {
-                    t = class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
-                } else {
-                    t = Map.class;
-                }
+                Class<?> t = switch (type) {
+                    case CustomSpreadsheetResultOpenClass class2 -> class2.getBeanClass();
+                    case SpreadsheetResultOpenClass class1 when class1.getModule() != null ->
+                            class1.toCustomSpreadsheetResultOpenClass().getBeanClass();
+                    default -> Map.class;
+                };
                 if (dim > 0) {
                     t = Array.newInstance(t, new int[dim]).getClass();
                 }

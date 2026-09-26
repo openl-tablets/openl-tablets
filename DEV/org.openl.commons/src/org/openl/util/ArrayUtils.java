@@ -11,29 +11,18 @@ public final class ArrayUtils {
     }
 
     public static boolean deepEquals(Object e1, Object e2) {
-        boolean eq;
-        if (e1 instanceof Object[] objects && e2 instanceof Object[] objects1) {
-            eq = Arrays.deepEquals(objects, objects1);
-        } else if (e1 instanceof byte[] bytes && e2 instanceof byte[] bytes1) {
-            eq = Arrays.equals(bytes, bytes1);
-        } else if (e1 instanceof short[] shorts && e2 instanceof short[] shorts1) {
-            eq = Arrays.equals(shorts, shorts1);
-        } else if (e1 instanceof int[] ints && e2 instanceof int[] ints1) {
-            eq = Arrays.equals(ints, ints1);
-        } else if (e1 instanceof long[] longs && e2 instanceof long[] longs1) {
-            eq = Arrays.equals(longs, longs1);
-        } else if (e1 instanceof char[] chars && e2 instanceof char[] chars1) {
-            eq = Arrays.equals(chars, chars1);
-        } else if (e1 instanceof float[] floats && e2 instanceof float[] floats1) {
-            eq = Arrays.equals(floats, floats1);
-        } else if (e1 instanceof double[] doubles && e2 instanceof double[] doubles1) {
-            eq = Arrays.equals(doubles, doubles1);
-        } else if (e1 instanceof boolean[] booleans && e2 instanceof boolean[] booleans1) {
-            eq = Arrays.equals(booleans, booleans1);
-        } else {
-            eq = Objects.equals(e1, e2);
-        }
-        return eq;
+        return switch (e1) {
+            case Object[] objects when e2 instanceof Object[] objects1 -> Arrays.deepEquals(objects, objects1);
+            case byte[] bytes when e2 instanceof byte[] bytes1 -> Arrays.equals(bytes, bytes1);
+            case short[] shorts when e2 instanceof short[] shorts1 -> Arrays.equals(shorts, shorts1);
+            case int[] ints when e2 instanceof int[] ints1 -> Arrays.equals(ints, ints1);
+            case long[] longs when e2 instanceof long[] longs1 -> Arrays.equals(longs, longs1);
+            case char[] chars when e2 instanceof char[] chars1 -> Arrays.equals(chars, chars1);
+            case float[] floats when e2 instanceof float[] floats1 -> Arrays.equals(floats, floats1);
+            case double[] doubles when e2 instanceof double[] doubles1 -> Arrays.equals(doubles, doubles1);
+            case boolean[] booleans when e2 instanceof boolean[] booleans1 -> Arrays.equals(booleans, booleans1);
+            case null, default -> Objects.equals(e1, e2);
+        };
     }
 
     /**

@@ -10,15 +10,13 @@ public final class SecuredRepositoryFactory {
 
     public static Repository wrapToSecureRepo(Repository repository,
                                               SimpleRepositoryAclService simpleRepositoryAclService) {
-        if (repository == null) {
-            return null;
-        }
-        if (repository instanceof MappedRepository mappedRepository) {
-            return new SecureMappedRepository(mappedRepository, simpleRepositoryAclService);
-        } else if (repository instanceof BranchRepository branchRepository) {
-            return new SecureBranchRepository(branchRepository, simpleRepositoryAclService);
-        } else {
-            return new SecureRepository(repository, simpleRepositoryAclService);
-        }
+        return switch (repository) {
+            case null -> null;
+            case MappedRepository mappedRepository ->
+                    new SecureMappedRepository(mappedRepository, simpleRepositoryAclService);
+            case BranchRepository branchRepository ->
+                    new SecureBranchRepository(branchRepository, simpleRepositoryAclService);
+            default -> new SecureRepository(repository, simpleRepositoryAclService);
+        };
     }
 }
