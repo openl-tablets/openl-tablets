@@ -55,17 +55,17 @@ class FieldProjectionOpenApiCustomizerTest {
 
     @Test
     void addsParameterForListOfProjectableDto() {
-        assertTrue(customize(new TypeReference<List<ProjectTestView>>() {}.getType()) != null);
+        assertNotNull(customize(new TypeReference<List<ProjectTestView>>() {}.getType()));
     }
 
     @Test
     void addsParameterForPageOfProjectableDto() {
-        assertTrue(customize(new TypeReference<PageResponse<ProjectTestView>>() {}.getType()) != null);
+        assertNotNull(customize(new TypeReference<PageResponse<ProjectTestView>>() {}.getType()));
     }
 
     @Test
     void addsParameterForResponseEntityOfProjectableDto() {
-        assertTrue(customize(new TypeReference<ResponseEntity<ProjectTestView>>() {}.getType()) != null);
+        assertNotNull(customize(new TypeReference<ResponseEntity<ProjectTestView>>() {}.getType()));
     }
 
     @Test
@@ -80,7 +80,7 @@ class FieldProjectionOpenApiCustomizerTest {
      */
     @Test
     void addsParameterForInterfaceReturnTypeInScope() {
-        assertTrue(customize(InScopeInterface.class) != null);
+        assertNotNull(customize(InScopeInterface.class));
     }
 
     /** In-scope interface used to verify the OpenAPI customizer treats interfaces as projectable. */

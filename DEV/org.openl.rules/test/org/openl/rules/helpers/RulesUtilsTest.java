@@ -855,10 +855,10 @@ class RulesUtilsTest {
     void testSmallLong() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
-            assertTrue(instance.testLongSmall(array, 1) == Long.valueOf(10));
-            assertTrue(instance.testLongSmall(array, 2) == Long.valueOf(25));
-            assertTrue(instance.testLongSmall(array, 3) == Long.valueOf(32));
-            assertTrue(instance.testLongSmall(array, 4) == Long.valueOf(35));
+            assertSame(Long.valueOf(10), instance.testLongSmall(array, 1));
+            assertSame(Long.valueOf(25), instance.testLongSmall(array, 2));
+            assertSame(Long.valueOf(32), instance.testLongSmall(array, 3));
+            assertSame(Long.valueOf(35), instance.testLongSmall(array, 4));
 
             instance.testLongSmall(array, 0);
         });
@@ -868,10 +868,10 @@ class RulesUtilsTest {
     void testSmallFloat() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
-            assertTrue(instance.testFloatSmall(array, 1).equals((float) 10.4));
-            assertTrue(instance.testFloatSmall(array, 2).equals((float) 25.7));
-            assertTrue(instance.testFloatSmall(array, 3).equals((float) 32.1));
-            assertTrue(instance.testFloatSmall(array, 4).equals((float) 35.3));
+            assertEquals((float) 10.4, instance.testFloatSmall(array, 1));
+            assertEquals((float) 25.7, instance.testFloatSmall(array, 2));
+            assertEquals((float) 32.1, instance.testFloatSmall(array, 3));
+            assertEquals((float) 35.3, instance.testFloatSmall(array, 4));
 
             instance.testFloatSmall(array, 0);
         });
@@ -881,10 +881,10 @@ class RulesUtilsTest {
     void testSmallDouble() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Double[] array = {10.4, 32.2, 35.6, 25.2};
-            assertTrue(instance.testDoubleSmall(array, 1).equals(10.4));
-            assertTrue(instance.testDoubleSmall(array, 2).equals(25.2));
-            assertTrue(instance.testDoubleSmall(array, 3).equals(32.2));
-            assertTrue(instance.testDoubleSmall(array, 4).equals(35.6));
+            assertEquals(10.4, instance.testDoubleSmall(array, 1));
+            assertEquals(25.2, instance.testDoubleSmall(array, 2));
+            assertEquals(32.2, instance.testDoubleSmall(array, 3));
+            assertEquals(35.6, instance.testDoubleSmall(array, 4));
 
             instance.testDoubleSmall(array, 0);
         });
@@ -894,10 +894,10 @@ class RulesUtilsTest {
     void testBigByteType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             byte[] array = {10, 32, 35, 25};
-            assertTrue(instance.testByteTypeBig(array, 4) == 10);
-            assertTrue(instance.testByteTypeBig(array, 3) == 25);
-            assertTrue(instance.testByteTypeBig(array, 2) == 32);
-            assertTrue(instance.testByteTypeBig(array, 1) == 35);
+            assertEquals(10, instance.testByteTypeBig(array, 4));
+            assertEquals(25, instance.testByteTypeBig(array, 3));
+            assertEquals(32, instance.testByteTypeBig(array, 2));
+            assertEquals(35, instance.testByteTypeBig(array, 1));
 
             instance.testByteTypeBig(array, 0);
         });
@@ -907,10 +907,10 @@ class RulesUtilsTest {
     void testBigShortType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             short[] array = {10, 32, 35, 25};
-            assertTrue(instance.testShortTypeBig(array, 4) == 10);
-            assertTrue(instance.testShortTypeBig(array, 3) == 25);
-            assertTrue(instance.testShortTypeBig(array, 2) == 32);
-            assertTrue(instance.testShortTypeBig(array, 1) == 35);
+            assertEquals(10, instance.testShortTypeBig(array, 4));
+            assertEquals(25, instance.testShortTypeBig(array, 3));
+            assertEquals(32, instance.testShortTypeBig(array, 2));
+            assertEquals(35, instance.testShortTypeBig(array, 1));
 
             instance.testShortTypeBig(array, 0);
         });
@@ -920,10 +920,10 @@ class RulesUtilsTest {
     void testBigIntegerType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             int[] array = {10, 32, 35, 25};
-            assertTrue(instance.testIntegerTypeBig(array, 4) == 10);
-            assertTrue(instance.testIntegerTypeBig(array, 3) == 25);
-            assertTrue(instance.testIntegerTypeBig(array, 2) == 32);
-            assertTrue(instance.testIntegerTypeBig(array, 1) == 35);
+            assertEquals(10, instance.testIntegerTypeBig(array, 4));
+            assertEquals(25, instance.testIntegerTypeBig(array, 3));
+            assertEquals(32, instance.testIntegerTypeBig(array, 2));
+            assertEquals(35, instance.testIntegerTypeBig(array, 1));
 
             instance.testIntegerTypeBig(array, 0);
         });
@@ -933,10 +933,10 @@ class RulesUtilsTest {
     void testBigLongType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             long[] array = {10, 32, 35, 25};
-            assertTrue(instance.testLongTypeBig(array, 4) == 10);
-            assertTrue(instance.testLongTypeBig(array, 3) == 25);
-            assertTrue(instance.testLongTypeBig(array, 2) == 32);
-            assertTrue(instance.testLongTypeBig(array, 1) == 35);
+            assertEquals(10, instance.testLongTypeBig(array, 4));
+            assertEquals(25, instance.testLongTypeBig(array, 3));
+            assertEquals(32, instance.testLongTypeBig(array, 2));
+            assertEquals(35, instance.testLongTypeBig(array, 1));
 
             instance.testLongTypeBig(array, 0);
         });
@@ -946,10 +946,10 @@ class RulesUtilsTest {
     void testBigFloatType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
-            assertTrue(instance.testFloatTypeBig(array, 4) == (float) 10.1);
-            assertTrue(instance.testFloatTypeBig(array, 3) == (float) 25.5);
-            assertTrue(instance.testFloatTypeBig(array, 2) == (float) 32.2);
-            assertTrue(instance.testFloatTypeBig(array, 1) == (float) 35.4);
+            assertEquals((float) 10.1, instance.testFloatTypeBig(array, 4));
+            assertEquals((float) 25.5, instance.testFloatTypeBig(array, 3));
+            assertEquals((float) 32.2, instance.testFloatTypeBig(array, 2));
+            assertEquals((float) 35.4, instance.testFloatTypeBig(array, 1));
 
             instance.testFloatTypeBig(array, 0);
         });
@@ -959,10 +959,10 @@ class RulesUtilsTest {
     void testBigDoubleType() {
         assertThrows(OpenLRuntimeException.class, () -> {
             double[] array = {10.1, 32.2, 35.3, 25.4};
-            assertTrue(instance.testDoubleTypeBig(array, 4) == 10.1);
-            assertTrue(instance.testDoubleTypeBig(array, 3) == 25.4);
-            assertTrue(instance.testDoubleTypeBig(array, 2) == 32.2);
-            assertTrue(instance.testDoubleTypeBig(array, 1) == 35.3);
+            assertEquals(10.1, instance.testDoubleTypeBig(array, 4));
+            assertEquals(25.4, instance.testDoubleTypeBig(array, 3));
+            assertEquals(32.2, instance.testDoubleTypeBig(array, 2));
+            assertEquals(35.3, instance.testDoubleTypeBig(array, 1));
 
             instance.testDoubleTypeBig(array, 0);
         });
@@ -975,10 +975,10 @@ class RulesUtilsTest {
                     BigDecimal.valueOf(32),
                     BigDecimal.valueOf(35),
                     BigDecimal.valueOf(25)};
-            assertTrue(instance.testBigDecimalBig(array, 4).equals(BigDecimal.valueOf(10)));
-            assertTrue(instance.testBigDecimalBig(array, 3).equals(BigDecimal.valueOf(25)));
-            assertTrue(instance.testBigDecimalBig(array, 2).equals(BigDecimal.valueOf(32)));
-            assertTrue(instance.testBigDecimalBig(array, 1).equals(BigDecimal.valueOf(35)));
+            assertEquals(BigDecimal.valueOf(10), instance.testBigDecimalBig(array, 4));
+            assertEquals(BigDecimal.valueOf(25), instance.testBigDecimalBig(array, 3));
+            assertEquals(BigDecimal.valueOf(32), instance.testBigDecimalBig(array, 2));
+            assertEquals(BigDecimal.valueOf(35), instance.testBigDecimalBig(array, 1));
 
             instance.testBigDecimalBig(array, 0);
         });
@@ -991,10 +991,10 @@ class RulesUtilsTest {
                     BigInteger.valueOf(32),
                     BigInteger.valueOf(35),
                     BigInteger.valueOf(25)};
-            assertTrue(instance.testBigIntegerBig(array, 4).equals(BigInteger.valueOf(10)));
-            assertTrue(instance.testBigIntegerBig(array, 3).equals(BigInteger.valueOf(25)));
-            assertTrue(instance.testBigIntegerBig(array, 2).equals(BigInteger.valueOf(32)));
-            assertTrue(instance.testBigIntegerBig(array, 1).equals(BigInteger.valueOf(35)));
+            assertEquals(BigInteger.valueOf(10), instance.testBigIntegerBig(array, 4));
+            assertEquals(BigInteger.valueOf(25), instance.testBigIntegerBig(array, 3));
+            assertEquals(BigInteger.valueOf(32), instance.testBigIntegerBig(array, 2));
+            assertEquals(BigInteger.valueOf(35), instance.testBigIntegerBig(array, 1));
 
             instance.testBigIntegerBig(array, 0);
         });
@@ -1004,10 +1004,10 @@ class RulesUtilsTest {
     void testBigByte() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Byte[] array = {10, 32, 35, 25};
-            assertTrue(instance.testByteBig(array, 4) == Byte.valueOf((byte) 10));
-            assertTrue(instance.testByteBig(array, 3) == Byte.valueOf((byte) 25));
-            assertTrue(instance.testByteBig(array, 2) == Byte.valueOf((byte) 32));
-            assertTrue(instance.testByteBig(array, 1) == Byte.valueOf((byte) 35));
+            assertSame(Byte.valueOf((byte) 10), instance.testByteBig(array, 4));
+            assertSame(Byte.valueOf((byte) 25), instance.testByteBig(array, 3));
+            assertSame(Byte.valueOf((byte) 32), instance.testByteBig(array, 2));
+            assertSame(Byte.valueOf((byte) 35), instance.testByteBig(array, 1));
 
             instance.testByteBig(array, 0);
         });
@@ -1017,10 +1017,10 @@ class RulesUtilsTest {
     void testBigShort() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Short[] array = {10, 32, 35, 25};
-            assertTrue(instance.testShortBig(array, 4) == Short.valueOf((short) 10));
-            assertTrue(instance.testShortBig(array, 3) == Short.valueOf((short) 25));
-            assertTrue(instance.testShortBig(array, 2) == Short.valueOf((short) 32));
-            assertTrue(instance.testShortBig(array, 1) == Short.valueOf((short) 35));
+            assertSame(Short.valueOf((short) 10), instance.testShortBig(array, 4));
+            assertSame(Short.valueOf((short) 25), instance.testShortBig(array, 3));
+            assertSame(Short.valueOf((short) 32), instance.testShortBig(array, 2));
+            assertSame(Short.valueOf((short) 35), instance.testShortBig(array, 1));
 
             instance.testShortBig(array, 0);
         });
@@ -1030,10 +1030,10 @@ class RulesUtilsTest {
     void testBigInteger() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Integer[] array = {10, 32, 35, 25};
-            assertTrue(instance.testIntegerBig(array, 4) == Integer.valueOf(10));
-            assertTrue(instance.testIntegerBig(array, 3) == Integer.valueOf(25));
-            assertTrue(instance.testIntegerBig(array, 2) == Integer.valueOf(32));
-            assertTrue(instance.testIntegerBig(array, 1) == Integer.valueOf(35));
+            assertSame(Integer.valueOf(10), instance.testIntegerBig(array, 4));
+            assertSame(Integer.valueOf(25), instance.testIntegerBig(array, 3));
+            assertSame(Integer.valueOf(32), instance.testIntegerBig(array, 2));
+            assertSame(Integer.valueOf(35), instance.testIntegerBig(array, 1));
 
             instance.testIntegerBig(array, 0);
         });
@@ -1043,10 +1043,10 @@ class RulesUtilsTest {
     void testBigLong() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Long[] array = {(long) 10, (long) 32, (long) 35, (long) 25};
-            assertTrue(instance.testLongBig(array, 4) == Long.valueOf(10));
-            assertTrue(instance.testLongBig(array, 3) == Long.valueOf(25));
-            assertTrue(instance.testLongBig(array, 2) == Long.valueOf(32));
-            assertTrue(instance.testLongBig(array, 1) == Long.valueOf(35));
+            assertSame(Long.valueOf(10), instance.testLongBig(array, 4));
+            assertSame(Long.valueOf(25), instance.testLongBig(array, 3));
+            assertSame(Long.valueOf(32), instance.testLongBig(array, 2));
+            assertSame(Long.valueOf(35), instance.testLongBig(array, 1));
 
             instance.testLongBig(array, 0);
         });
@@ -1056,10 +1056,10 @@ class RulesUtilsTest {
     void testBigFloat() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
-            assertTrue(instance.testFloatBig(array, 4).equals((float) 10.4));
-            assertTrue(instance.testFloatBig(array, 3).equals((float) 25.7));
-            assertTrue(instance.testFloatBig(array, 2).equals((float) 32.1));
-            assertTrue(instance.testFloatBig(array, 1).equals((float) 35.3));
+            assertEquals((float) 10.4, instance.testFloatBig(array, 4));
+            assertEquals((float) 25.7, instance.testFloatBig(array, 3));
+            assertEquals((float) 32.1, instance.testFloatBig(array, 2));
+            assertEquals((float) 35.3, instance.testFloatBig(array, 1));
 
             instance.testFloatBig(array, 0);
         });
@@ -1069,10 +1069,10 @@ class RulesUtilsTest {
     void testBigDouble() {
         assertThrows(OpenLRuntimeException.class, () -> {
             Double[] array = {10.4, 32.2, 35.6, 25.2};
-            assertTrue(instance.testDoubleBig(array, 4).equals(10.4));
-            assertTrue(instance.testDoubleBig(array, 3).equals(25.2));
-            assertTrue(instance.testDoubleBig(array, 2).equals(32.2));
-            assertTrue(instance.testDoubleBig(array, 1).equals(35.6));
+            assertEquals(10.4, instance.testDoubleBig(array, 4));
+            assertEquals(25.2, instance.testDoubleBig(array, 3));
+            assertEquals(32.2, instance.testDoubleBig(array, 2));
+            assertEquals(35.6, instance.testDoubleBig(array, 1));
 
             instance.testDoubleBig(array, 0);
         });
