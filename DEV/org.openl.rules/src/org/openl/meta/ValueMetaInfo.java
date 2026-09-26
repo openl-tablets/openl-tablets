@@ -34,8 +34,7 @@ public class ValueMetaInfo implements IMetaInfo {
     @Override
     public String getDisplayName(int mode) {
         switch (mode) {
-            case SHORT:
-            case REGULAR:
+            case SHORT, REGULAR:
                 return shortName;
             case LONG:
             default:

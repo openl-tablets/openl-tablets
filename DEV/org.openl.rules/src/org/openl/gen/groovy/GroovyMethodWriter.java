@@ -96,10 +96,7 @@ public class GroovyMethodWriter extends ChainedGroovyScriptWriter {
         switch (type) {
             case "void":
                 return "";
-            case "byte":
-            case "short":
-            case "int":
-            case "char":
+            case "byte", "short", "int", "char":
                 return "0";
             case "boolean":
                 return "false";

@@ -167,10 +167,9 @@ public class SheetHandler extends DefaultHandler {
                     var first = value.charAt(0);
                     parsedValue = first != '0';
                     break;
-                case FORMULA:
-                    // To be precise it's a formula with String type. But we care only about a value.
+                case FORMULA, INLINE_STRING:
+                    // To be precise a FORMULA is a formula with String type. But we care only about a value.
                     // Fallback to INLINE_STRING
-                case INLINE_STRING:
                     parsedValue = StringUtils.trimToNull(value.toString());
                     break;
                 case SHARED_STRING_TABLE_STRING:

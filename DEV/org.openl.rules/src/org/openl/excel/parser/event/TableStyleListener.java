@@ -170,13 +170,13 @@ public class TableStyleListener implements HSSFListener {
                     }
                 }
                 break;
-            case SSTRecord.sid: // Holds all the strings for LabelSSTRecords
-            case BoolErrRecord.sid:
-            case LabelRecord.sid: // Strings stored directly in the cell
-            case LabelSSTRecord.sid: // String in the shared string table
-            case NumberRecord.sid: // Numeric cell value
-            case RKRecord.sid: // Excel internal number record
-            case BlankRecord.sid:
+            case SSTRecord.sid, // Holds all the strings for LabelSSTRecords
+                 BoolErrRecord.sid,
+                 LabelRecord.sid, // Strings stored directly in the cell
+                 LabelSSTRecord.sid, // String in the shared string table
+                 NumberRecord.sid, // Numeric cell value
+                 RKRecord.sid, // Excel internal number record
+                 BlankRecord.sid:
                 if (isNeededSheet()) {
                     var r = (CellValueRecordInterface) rec;
                     var row = r.getRow();
@@ -188,11 +188,7 @@ public class TableStyleListener implements HSSFListener {
                 }
 
                 break;
-            case NoteRecord.sid:
-            case ContinueRecord.sid:
-            case ObjRecord.sid:
-            case TextObjectRecord.sid:
-            case DrawingRecord.sid:
+            case NoteRecord.sid, ContinueRecord.sid, ObjRecord.sid, TextObjectRecord.sid, DrawingRecord.sid:
                 if (isNeededSheet()) {
                     shapeRecords.add(rec);
                 }

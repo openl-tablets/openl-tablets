@@ -1931,8 +1931,7 @@ public final class DecisionTableHelper {
                         usedMethodParameterIndexes.add(i);
                         String newParam;
                         switch (mt) {
-                            case STRICT_CASTED:
-                            case METHOD_ARGS_RENAMED_CASTED:
+                            case STRICT_CASTED, METHOD_ARGS_RENAMED_CASTED:
                                 var typeName = type.getInstanceClass().getSimpleName();
                                 if (bindingContext.findType(typeName) == null) {
                                     typeName = type.getJavaName();

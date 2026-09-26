@@ -20,13 +20,10 @@ public class OpenApiSecurityServiceImpl implements OpenApiSecurityService {
 
     public OpenApiSecurityServiceImpl(@Value("${user.mode}") String userMode) {
         switch (userMode) {
-            case "ad":
-            case "multi":
+            case "ad", "multi":
                 securitySchemePair = new SecuritySchemePair("basicAuth", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic"));
                 break;
-            case "oauth2":
-            case "saml":
-            case "single":
+            case "oauth2", "saml", "single":
             default:
                 securitySchemePair = null;
                 break;

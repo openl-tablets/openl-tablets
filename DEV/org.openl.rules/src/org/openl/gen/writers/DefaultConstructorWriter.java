@@ -90,9 +90,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             case Type.BOOLEAN:
                 mg.push((Boolean) value);
                 break;
-            case Type.BYTE:
-            case Type.SHORT:
-            case Type.INT:
+            case Type.BYTE, Type.SHORT, Type.INT:
                 mg.push(((Number) value).intValue());
                 break;
             case Type.CHAR:

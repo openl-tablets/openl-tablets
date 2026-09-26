@@ -60,8 +60,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                             res[i][j] = cell.isDefaultPrimitiveCell() ? cell.getValue()
                                     : SpreadsheetResultCalculator.EMPTY_CELL;
                             break;
-                        case VALUE:
-                        case CONSTANT:
+                        case VALUE, CONSTANT:
                             res[i][j] = cell.getValue();
                             break;
                         case METHOD:

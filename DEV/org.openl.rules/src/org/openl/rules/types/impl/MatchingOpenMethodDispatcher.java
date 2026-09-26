@@ -130,12 +130,10 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 case CONTAINS:
                     contains = true;
                     break;
-                case EQUALS:
-                case UNKNOWN:
+                case EQUALS, UNKNOWN:
                     // do nothing
                     break;
-                case NO_INTERSECTION:
-                case PARTLY_INTERSECTS:
+                case NO_INTERSECTION, PARTLY_INTERSECTS:
                     nested = false;
                     contains = false;
                     break propsLoop;

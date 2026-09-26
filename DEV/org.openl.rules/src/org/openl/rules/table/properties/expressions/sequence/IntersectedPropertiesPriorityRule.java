@@ -26,8 +26,7 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
                 case EQUALS:
                     // do nothing
                     break;
-                case NO_INTERSECTION:
-                case PARTLY_INTERSECTS:
+                case NO_INTERSECTION, PARTLY_INTERSECTS:
                     nested = false;
                     contains = false;
                     break propsLoop;

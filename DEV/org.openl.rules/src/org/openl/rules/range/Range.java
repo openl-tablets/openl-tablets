@@ -150,10 +150,7 @@ public abstract class Range<T> {
         var s = new StringBuilder(20);
         var type = getType();
         switch (type) {
-            case OPEN:
-            case CLOSED:
-            case OPEN_CLOSED:
-            case CLOSED_OPEN:
+            case OPEN, CLOSED, OPEN_CLOSED, CLOSED_OPEN:
                 s.append(type.left == Bound.OPEN ? '(' : '[');
                 format(s, getLeft());
                 s.append("..");

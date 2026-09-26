@@ -47,10 +47,7 @@ public class RangeParser {
         var s = new StringBuilder(20);
         var rangeType = getType();
         switch (rangeType) {
-            case OPEN:
-            case CLOSED:
-            case OPEN_CLOSED:
-            case CLOSED_OPEN:
+            case OPEN, CLOSED, OPEN_CLOSED, CLOSED_OPEN:
                 s.append(rangeType.left == Range.Bound.OPEN ? '(' : '[');
                 s.append(left).append(" .. ").append(right);
                 s.append(rangeType.right == Range.Bound.OPEN ? ')' : ']');

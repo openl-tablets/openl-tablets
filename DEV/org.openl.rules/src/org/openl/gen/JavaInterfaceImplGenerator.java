@@ -76,11 +76,7 @@ class JavaInterfaceImplGenerator extends POJOByteCodeGenerator {
         switch (type) {
             case "void":
                 break;
-            case "byte":
-            case "short":
-            case "int":
-            case "char":
-            case "boolean":
+            case "byte", "short", "int", "char", "boolean":
                 methodVisitor.visitInsn(Opcodes.ICONST_0);
                 break;
             case "long":

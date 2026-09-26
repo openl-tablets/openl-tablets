@@ -90,14 +90,7 @@ public class StringNodeBinder extends ANodeBinder {
                         buf.append(processUnicode(s, i + 1));
                         i += 4;
                         break;
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
+                    case '0', '1', '2', '3', '4', '5', '6', '7':
                         buf.append(processOctal(s, i));
                         i += calcOctalLen(s, i) - 1;
                         break;
