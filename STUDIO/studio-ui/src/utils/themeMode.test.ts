@@ -17,12 +17,12 @@ import {
 } from './themeMode'
 
 describe('themeMode', () => {
+    beforeEach(() => localStorage.clear())
+
     it('is read by the page shell under the same key before the bundle loads', () => {
         const shell = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8')
         expect(shell).toContain(`localStorage.getItem('${THEME_MODE_KEY}')`)
     })
-
-    beforeEach(() => localStorage.clear())
 
     it('names the appearance a mode stands for without waiting for an effect', () => {
         expect(appearanceOf('dark')).toBe('dark')
