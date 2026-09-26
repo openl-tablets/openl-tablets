@@ -90,7 +90,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
                 return f;
             } else {
                 var decisionRowFields = conditionParameterFields.stream()
-                        .filter(e -> e instanceof DecisionRowField)
+                        .filter(DecisionRowField.class::isInstance)
                         .toList();
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);

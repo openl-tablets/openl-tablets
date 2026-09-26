@@ -215,7 +215,7 @@ public class TableStyleListener implements HSSFListener {
                         sharedValueManager);
                 var formulaTokens = formulaAggregate.getFormulaTokens();
                 var workbookDependentFormula = Arrays.stream(formulaTokens)
-                        .anyMatch(t -> t instanceof WorkbookDependentFormula);
+                        .anyMatch(WorkbookDependentFormula.class::isInstance);
                 if (workbookDependentFormula) {
                     formulas.put(new CellAddress(row, column), "");
                 } else {

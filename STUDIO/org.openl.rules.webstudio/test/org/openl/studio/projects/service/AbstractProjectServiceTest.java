@@ -32,6 +32,7 @@ import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.projects.model.FacetCount;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.project.status.CompileState;
@@ -109,11 +110,11 @@ class AbstractProjectServiceTest {
                 .build(), Pageable.unpaged());
 
         assertEquals(List.of("design", "ro"), response.getRepositoryCounts().stream()
-                .map(count -> count.id())
+                .map(FacetCount::id)
                 .sorted()
                 .toList());
         assertEquals(List.of("Benefits", "Payroll"), response.getTagCounts().getFirst().values().stream()
-                .map(count -> count.id())
+                .map(FacetCount::id)
                 .sorted()
                 .toList());
     }
@@ -138,11 +139,11 @@ class AbstractProjectServiceTest {
                 .map(project -> project.name)
                 .toList());
         assertEquals(List.of("design", "ro"), response.getRepositoryCounts().stream()
-                .map(count -> count.id())
+                .map(FacetCount::id)
                 .sorted()
                 .toList());
         assertEquals(List.of("Benefits", "Payroll"), response.getTagCounts().getFirst().values().stream()
-                .map(count -> count.id())
+                .map(FacetCount::id)
                 .sorted()
                 .toList());
     }

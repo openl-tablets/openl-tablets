@@ -65,7 +65,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         String uri = null;
         if (boundField instanceof IOriginalDeclaredClassesOpenField combinedOpenField) {
             var declaredClasses = combinedOpenField.getDeclaringClasses();
-            if (Arrays.stream(declaredClasses).allMatch(e -> e instanceof CustomSpreadsheetResultOpenClass)) {
+            if (Arrays.stream(declaredClasses).allMatch(CustomSpreadsheetResultOpenClass.class::isInstance)) {
                 var customSpreadsheetResultOpenClasses = Arrays
                         .stream(declaredClasses)
                         .map(CustomSpreadsheetResultOpenClass.class::cast)

@@ -12,7 +12,7 @@ import org.openl.studio.projects.model.files.FsNode;
 public interface FileNodeMapper {
 
     Comparator<FsNode> NODE_COMPARATOR = Comparator
-            .comparing((FsNode r) -> r instanceof FileNode)
+            .<FsNode, Boolean>comparing(FileNode.class::isInstance)
             .thenComparing(FsNode::getName, String.CASE_INSENSITIVE_ORDER);
 
     FsNode map(AProjectArtefact artefact);

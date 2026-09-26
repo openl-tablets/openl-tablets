@@ -674,7 +674,7 @@ public class XlsBinder implements IOpenBinder {
             if (children instanceof DatatypeTableBoundNode datatypeTableBoundNode) {
                 if (datatypeTableBoundNodes == null) {
                     datatypeTableBoundNodes = Arrays.stream(childrens)
-                            .filter(e -> e instanceof DatatypeTableBoundNode)
+                            .filter(DatatypeTableBoundNode.class::isInstance)
                             .map(DatatypeTableBoundNode.class::cast)
                             .toList();
                 }

@@ -37,7 +37,7 @@ public final class PropertiesLoader {
         var props = new Properties();
         var propSources = ((AbstractEnvironment) env).getPropertySources();
         StreamSupport.stream(propSources.spliterator(), false)
-                .filter(ps -> ps instanceof EnumerablePropertySource)
+                .filter(EnumerablePropertySource.class::isInstance)
                 .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
                 .flatMap(Arrays::stream)
                 .filter(propName -> validateProperty(env, propName))

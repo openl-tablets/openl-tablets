@@ -840,7 +840,7 @@ public final class DecisionTableHelper {
                                                      IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
                                                      IBindingContext bindingContext) {
         var fuzzyReturns = dtHeaders.stream()
-                .filter(e -> e instanceof FuzzyDTHeader)
+                .filter(FuzzyDTHeader.class::isInstance)
                 .map(e -> (FuzzyDTHeader) e)
                 .filter(FuzzyDTHeader::isReturn)
                 .toList();
@@ -1456,7 +1456,7 @@ public final class DecisionTableHelper {
                                               int firstColumnHeight,
                                               IBindingContext bindingContext) throws OpenLCompilationException {
         var unmatched = dtHeaders.stream()
-                .filter(e -> e instanceof UnmatchedDtHeader)
+                .filter(UnmatchedDtHeader.class::isInstance)
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
         for (DTHeader dtHeader : unmatched) {
             var column = dtHeader.getColumn();
@@ -2576,7 +2576,7 @@ public final class DecisionTableHelper {
         for (MatchType type : matchTypes) {
             fits = filterHeadersByMax(fits,
                     e -> e.stream()
-                            .filter(x -> x instanceof DeclaredDTHeader)
+                            .filter(DeclaredDTHeader.class::isInstance)
                             .map(x -> (DeclaredDTHeader) x)
                             .filter(x -> type.equals(x.getMatchedDefinition().getMatchType()))
                             .mapToLong(x -> x.getMatchedDefinition().getDtColumnsDefinition().getNumberOfTitles())
@@ -2690,28 +2690,28 @@ public final class DecisionTableHelper {
     private static List<List<DTHeader>> fitFuzzyDtHeaders(List<List<DTHeader>> fits) {
         fits = filterHeadersByMax(fits,
                 e -> e.stream()
-                        .filter(x -> x instanceof FuzzyDTHeader)
+                        .filter(FuzzyDTHeader.class::isInstance)
                         .map(x -> (FuzzyDTHeader) x)
                         .mapToInt(x -> x.getFuzzyResult().getFoundTokensCount())
                         .sum(),
                 e -> true);
         fits = filterHeadersByMin(fits,
                 e -> e.stream()
-                        .filter(x -> x instanceof FuzzyDTHeader)
+                        .filter(FuzzyDTHeader.class::isInstance)
                         .map(x -> (FuzzyDTHeader) x)
                         .mapToInt(x -> x.getFuzzyResult().getMissedTokensCount())
                         .sum(),
                 e -> true);
         fits = filterHeadersByMin(fits,
                 e -> e.stream()
-                        .filter(x -> x instanceof FuzzyDTHeader)
+                        .filter(FuzzyDTHeader.class::isInstance)
                         .map(x -> (FuzzyDTHeader) x)
                         .mapToInt(x -> x.getFuzzyResult().getToken().getDistance())
                         .sum(),
                 e -> true);
         fits = filterHeadersByMin(fits,
                 e -> e.stream()
-                        .filter(x -> x instanceof FuzzyDTHeader)
+                        .filter(FuzzyDTHeader.class::isInstance)
                         .map(x -> (FuzzyDTHeader) x)
                         .mapToInt(x -> x.getFuzzyResult().getUnmatchedTokensCount())
                         .sum(),
@@ -2821,7 +2821,7 @@ public final class DecisionTableHelper {
         // Declared covered columns filter
         fits = filterHeadersByMax(fits,
                 e -> e.stream()
-                        .filter(x -> x instanceof DeclaredDTHeader)
+                        .filter(DeclaredDTHeader.class::isInstance)
                         .mapToLong(
                                 x -> ((DeclaredDTHeader) x).getMatchedDefinition().getDtColumnsDefinition().getNumberOfTitles())
                         .sum(),
@@ -2846,11 +2846,11 @@ public final class DecisionTableHelper {
 
         fits = filterHeadersByMin(fits,
                 e -> e.stream()
-                        .filter(x -> x instanceof DeclaredDTHeader)
+                        .filter(DeclaredDTHeader.class::isInstance)
                         .map(x -> (DeclaredDTHeader) x)
                         .mapToLong(x -> x.getMatchedDefinition().isMayHaveCompilationErrors() ? 1 : 0)
                         .sum(),
-                e -> e.stream().anyMatch(x -> x instanceof DeclaredDTHeader));
+                e -> e.stream().anyMatch(DeclaredDTHeader.class::isInstance));
 
         fits = filterHeadersByMatchType(decisionTable, fits);
 
@@ -2859,7 +2859,7 @@ public final class DecisionTableHelper {
                 e -> e.stream().anyMatch(x -> x.isCondition() && x instanceof DeclaredDTHeader));
 
         fits = filterHeadersByMin(fits,
-                e -> e.stream().filter(x -> x instanceof SimpleReturnDTHeader).count(),
+                e -> e.stream().filter(SimpleReturnDTHeader.class::isInstance).count(),
                 e -> e.stream().anyMatch(DTHeader::isReturn));
 
         fits = fitFuzzyDtHeaders(fits);
@@ -2922,13 +2922,13 @@ public final class DecisionTableHelper {
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isReturn).count(), all);
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isAction).count(), all);
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isCondition).count(), all);
-            if (fits.stream().anyMatch(e -> e instanceof FuzzyDTHeader)) {
+            if (fits.stream().anyMatch(FuzzyDTHeader.class::isInstance)) {
                 fits = filterHeadersByMax(fits,
                         e -> e.stream()
-                                .filter(e1 -> e1 instanceof FuzzyDTHeader)
+                                .filter(FuzzyDTHeader.class::isInstance)
                                 .mapToLong(
                                         e1 -> (long) ((FuzzyDTHeader) e1).getFuzzyResult().getAcceptableSimilarity() * 1000000L)
-                                .sum() / e.stream().filter(e1 -> e1 instanceof FuzzyDTHeader).count(),
+                                .sum() / e.stream().filter(FuzzyDTHeader.class::isInstance).count(),
                         all);
             }
             return fits.getFirst();

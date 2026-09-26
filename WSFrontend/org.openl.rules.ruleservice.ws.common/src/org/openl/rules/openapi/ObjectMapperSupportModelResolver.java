@@ -174,11 +174,11 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                 // Some properties are generated with wrong property name in an OpenAPI schema.
                 // For example "aBC" field is represented as "getaBC" in the OpenAPI schema.
                 Arrays.stream(annotations)
-                        .filter(e -> e instanceof XmlElement)
+                        .filter(XmlElement.class::isInstance)
                         .map(x -> ((XmlElement) x).name())
                         .findFirst()
                         .or(() -> Arrays.stream(annotations)
-                                .filter(e -> e instanceof XmlAttribute)
+                                .filter(XmlAttribute.class::isInstance)
                                 .map(x -> ((XmlAttribute) x).name())
                                 .findFirst()
                         ).ifPresent(property::setName);

@@ -22,7 +22,7 @@ class OpenApiSupportConverter implements ModelConverter {
                              Iterator<ModelConverter> chain) {
         // Skip transient fields
         if (annotatedType.getCtxAnnotations() != null
-                && Arrays.stream(annotatedType.getCtxAnnotations()).anyMatch(e -> e instanceof XmlTransient)) {
+                && Arrays.stream(annotatedType.getCtxAnnotations()).anyMatch(XmlTransient.class::isInstance)) {
             return null;
         }
         // Replace with JAXB adapter type

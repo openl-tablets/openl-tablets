@@ -66,7 +66,8 @@ public class AdminUsers {
         } else if (!user.hasPrivilege(ADMIN)) {
             var groups = new HashSet<String>();
             groups.add(adminGroup);
-            user.getAuthorities().stream().filter(g -> g instanceof Group).map(GrantedAuthority::getAuthority).forEach(groups::add);
+            user.getAuthorities().stream().filter(Group.class::isInstance).map(GrantedAuthority::getAuthority)
+                    .forEach(groups::add);
             userService.updateAuthorities(username, groups);
         }
     }

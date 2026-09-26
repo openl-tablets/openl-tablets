@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -226,7 +227,7 @@ class ProjectHistoryServiceTest {
 
         var versions = service.getHistoryVersions(project, "Bank Rating", List.of("first", "second"));
 
-        assertEquals(List.of("first", "second"), versions.stream().map(file -> file.getName()).toList());
+        assertEquals(List.of("first", "second"), versions.stream().map(File::getName).toList());
     }
 
     @Test

@@ -157,7 +157,7 @@ public class IdentifierBinder extends ANodeBinder {
                                                 ISyntaxNode node,
                                                 IBindingContext bindingContext) {
         Collection<IOpenField> matchingFields = ex.getMatchingFields();
-        if (matchingFields.stream().allMatch(e -> e instanceof OpenFieldDelegator)) {
+        if (matchingFields.stream().allMatch(OpenFieldDelegator.class::isInstance)) {
             var arraysCount = matchingFields.stream()
                     .filter(e -> ((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField)
                     .count();

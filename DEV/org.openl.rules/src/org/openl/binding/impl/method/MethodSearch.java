@@ -630,7 +630,7 @@ public final class MethodSearch {
                     continue;
                 }
                 long oneElementToArrayCastCount = Arrays.stream(match.paramCasts)
-                        .filter(e -> e instanceof IOneElementArrayCast)
+                        .filter(IOneElementArrayCast.class::isInstance)
                         .count();
                 int multiCallParamsHolderCount = allowMultiCallParams ? countMultiCallParams(match) : 0;
                 if (oneElementToArrayCastCount < bestOneElementToArrayCastCount || oneElementToArrayCastCount == bestOneElementToArrayCastCount && multiCallParamsHolderCount < bestMultiCallParamsCount || oneElementToArrayCastCount == bestOneElementToArrayCastCount && multiCallParamsHolderCount == bestMultiCallParamsCount && lq(

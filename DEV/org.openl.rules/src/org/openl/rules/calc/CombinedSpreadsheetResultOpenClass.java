@@ -108,7 +108,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
             }
             var customSpreadsheetResultOpenClasses = getCombinedTypes().stream()
                     .map(((XlsModuleOpenClass) module)::toModuleType)
-                    .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
+                    .filter(CustomSpreadsheetResultOpenClass.class::isInstance)
                     .map(CustomSpreadsheetResultOpenClass.class::cast)
                     .toArray(CustomSpreadsheetResultOpenClass[]::new);
             var type = ((XlsModuleOpenClass) module)

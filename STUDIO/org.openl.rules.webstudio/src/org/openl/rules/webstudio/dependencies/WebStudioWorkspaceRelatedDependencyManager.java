@@ -201,7 +201,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 if (compiledDependency.getCompiledOpenClass()
                         .getAllMessages()
                         .stream()
-                        .anyMatch(e -> e instanceof CompilationInterruptedOpenLErrorMessage)) {
+                        .anyMatch(CompilationInterruptedOpenLErrorMessage.class::isInstance)) {
                     if (active) {
                         loadDependencyAsync(dependency, consumer);
                     }

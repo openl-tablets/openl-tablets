@@ -245,7 +245,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             throw new IllegalArgumentException("openClass cannot be null");
         }
         var customSpreadsheetResultOpenClasses = Arrays.stream(openClasses)
-                .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
+                .filter(CustomSpreadsheetResultOpenClass.class::isInstance)
                 .map(CustomSpreadsheetResultOpenClass.class::cast)
                 .toArray(CustomSpreadsheetResultOpenClass[]::new);
         if (customSpreadsheetResultOpenClasses.length != openClasses.length) {
