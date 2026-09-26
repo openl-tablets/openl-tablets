@@ -315,6 +315,9 @@ public class UsersController {
         }
     }
 
+    /**
+     * @deprecated Use {@code GET /settings} instead.
+     */
     @Deprecated
     @Operation(description = "users.options.desc", summary = "users.options.summary")
     @GetMapping("/options")

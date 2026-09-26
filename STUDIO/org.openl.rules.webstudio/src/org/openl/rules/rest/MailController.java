@@ -93,6 +93,9 @@ public class MailController {
         }
     }
 
+    /**
+     * @deprecated Use {@code GET /admin/settings/mail} instead.
+     */
     @Operation(summary = "mail.mail-config.summary", description = "mail.mail-config.desc")
     @GetMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
     @Deprecated(forRemoval = true)
@@ -102,6 +105,9 @@ public class MailController {
                 .setPassword(propertyResolver.getProperty(MailVerificationServerSettings.MAIL_PASSWORD));
     }
 
+    /**
+     * @deprecated Use {@code POST /admin/settings/mail} instead.
+     */
     @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")
     @PutMapping("/settings")
     @AdminPrivilege

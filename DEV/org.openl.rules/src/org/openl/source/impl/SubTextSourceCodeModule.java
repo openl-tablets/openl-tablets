@@ -23,6 +23,7 @@ import org.openl.util.fast.FastStringReader;
  * Contains substring of the base code between start and end positions. End position can have either positive or
  * negative values. If positive, it is the absolute end position from the beginning of the base code, if
  * negative it is the relative position from the end of the base code
+ * @deprecated It will be removed without replacement.
  */
 @Deprecated
 @RequiredArgsConstructor

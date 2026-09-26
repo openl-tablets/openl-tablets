@@ -5,6 +5,9 @@ import java.io.Reader;
 
 import org.openl.source.impl.ASourceCodeModule;
 
+/**
+ * @deprecated It will be removed without replacement.
+ */
 @Deprecated
 public class VirtualSourceCodeModule extends ASourceCodeModule {
 

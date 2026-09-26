@@ -19,6 +19,7 @@ import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author snshor
+ * @deprecated It will be removed without replacement.
  */
 @Deprecated
 @RequiredArgsConstructor

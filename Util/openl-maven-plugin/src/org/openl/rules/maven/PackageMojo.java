@@ -86,6 +86,8 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     /**
      * Folder to store dependencies inside the OpenL Tablets project.
+     *
+     * @deprecated It will be removed without replacement.
      */
     @Deprecated(forRemoval = true, since = "6.1.2")
     @Parameter(defaultValue = "lib/")

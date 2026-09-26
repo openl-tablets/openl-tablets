@@ -65,6 +65,8 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
 
     /**
      * Kept for backward compatibility.
+     *
+     * @deprecated Use {@link #OpenLServiceFactoryBean(Class, String)} instead.
      */
     @Deprecated
     public OpenLServiceFactoryBean() {

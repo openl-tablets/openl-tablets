@@ -83,6 +83,7 @@ public class RulesDeployerService implements Closeable {
      * Initializes repository using target properties
      *
      * @param properties repository settings
+     * @deprecated Use {@link #RulesDeployerService(Function)} instead.
      */
     @Deprecated
     public RulesDeployerService(Properties properties) {
@@ -133,6 +134,9 @@ public class RulesDeployerService implements Closeable {
         deploy(null, in, ignoreIfExists);
     }
 
+    /**
+     * @deprecated Use {@link #deploy(Path, boolean)} instead.
+     */
     @Deprecated(since = "6.1.0")
     public void deploy(File file, boolean ignoreIfExists) throws IOException {
         deploy(file.toPath(), ignoreIfExists);

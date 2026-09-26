@@ -28,6 +28,9 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.FileUtils;
 import org.openl.util.StringTool;
 
+/**
+ * @deprecated It will be removed without replacement.
+ */
 @Deprecated
 @RequiredArgsConstructor
 @Slf4j

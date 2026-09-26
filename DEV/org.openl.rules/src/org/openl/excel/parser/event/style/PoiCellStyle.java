@@ -64,6 +64,9 @@ class PoiCellStyle implements CellStyle {
         return format.getFontIndex();
     }
 
+    /**
+     * @deprecated Use {@link #getFontIndex()} instead.
+     */
     @Deprecated
     @Override
     public int getFontIndexAsInt() {

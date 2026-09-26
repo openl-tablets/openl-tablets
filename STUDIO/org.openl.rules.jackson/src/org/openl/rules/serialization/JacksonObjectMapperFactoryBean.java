@@ -91,6 +91,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     @Setter
     private ClassLoader classLoader;
 
+    /**
+     * @deprecated Set the jsonTypeInfoId property to NAME instead.
+     */
     @Deprecated
     @Setter
     private Boolean simpleClassNameAsTypingPropertyValue;

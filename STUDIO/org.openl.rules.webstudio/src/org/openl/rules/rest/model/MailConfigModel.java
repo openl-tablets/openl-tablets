@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import org.openl.rules.rest.validation.MailConfigConstraint;
 
+/**
+ * @deprecated Use {@link org.openl.rules.webstudio.web.admin.MailVerificationServerSettings} instead.
+ */
 @MailConfigConstraint
 @Deprecated(forRemoval = true)
 public class MailConfigModel {

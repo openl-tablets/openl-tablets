@@ -435,176 +435,281 @@ public class Operators {
 
     // Bitwise operators
     //
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static float dec(float x) {
         return x - 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static double dec(double x) {
         return x - 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static byte dec(byte x) {
         return (byte) (x - 1);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static short dec(short x) {
         return (short) (x - 1);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static int dec(int x) {
         return x - 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static long dec(long x) {
         return x - 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Byte dec(Byte x) {
         return subtract(x, Byte.valueOf((byte) 1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Short dec(Short x) {
         return subtract(x, Short.valueOf((byte) 1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Integer dec(Integer x) {
         return subtract(x, Integer.valueOf(1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Long dec(Long x) {
         return subtract(x, Long.valueOf(1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Float dec(Float x) {
         return subtract(x, Float.valueOf(1f));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Double dec(Double x) {
         return subtract(x, Double.valueOf(1d));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigInteger dec(BigInteger x) {
         return subtract(x, BigInteger.ONE);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigDecimal dec(BigDecimal x) {
         return subtract(x, BigDecimal.ONE);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static byte inc(byte x) {
         return (byte) (x + 1);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static short inc(short x) {
         return (short) (x + 1);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static float inc(float x) {
         return x + 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static double inc(double x) {
         return x + 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static int inc(int x) {
         return x + 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static long inc(long x) {
         return x + 1;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Byte inc(Byte x) {
         return add(x, Byte.valueOf((byte) 1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Short inc(Short x) {
         return add(x, Short.valueOf((byte) 1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Integer inc(Integer x) {
         return add(x, Integer.valueOf(1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Long inc(Long x) {
         return add(x, Long.valueOf(1));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Float inc(Float x) {
         return add(x, Float.valueOf(1f));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Double inc(Double x) {
         return add(x, Double.valueOf(1d));
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigInteger inc(BigInteger x) {
         return add(x, BigInteger.ONE);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigDecimal inc(BigDecimal x) {
         return add(x, BigDecimal.ONE);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static byte pow(byte x, byte y) {
         return (byte) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static short pow(short x, short y) {
         return (short) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static int pow(int x, int y) {
         return (int) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static long pow(long x, long y) {
         return (long) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static float pow(float x, float y) {
         return (float) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static double pow(double x, double y) {
         return Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Byte pow(Byte x, Byte y) {
         if (x == null) {
@@ -615,6 +720,9 @@ public class Operators {
         return (byte) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Short pow(Short x, Short y) {
         if (x == null) {
@@ -625,6 +733,9 @@ public class Operators {
         return (short) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Integer pow(Integer x, Integer y) {
         if (x == null) {
@@ -635,6 +746,9 @@ public class Operators {
         return (int) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Long pow(Long x, Long y) {
         if (x == null) {
@@ -645,6 +759,9 @@ public class Operators {
         return (long) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Float pow(Float x, Float y) {
         if (x == null) {
@@ -655,6 +772,9 @@ public class Operators {
         return (float) Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static Double pow(Double x, Double y) {
         if (x == null) {
@@ -665,6 +785,9 @@ public class Operators {
         return Math.pow(x, y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigInteger pow(BigInteger x, BigInteger y) {
         if (x == null) {
@@ -675,6 +798,9 @@ public class Operators {
         return x.pow(y.intValue());
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigDecimal pow(BigDecimal x, BigDecimal y) {
         if (x == null) {
@@ -819,41 +945,65 @@ public class Operators {
 
     // operator '%' implementations
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static byte rem(byte x, byte y) {
         return (byte) (x % y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static short rem(short x, short y) {
         return (short) (x % y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static int rem(int x, int y) {
         return x % y;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static long rem(long x, long y) {
         return x % y;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static float rem(float x, float y) {
         return x % y;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static double rem(double x, double y) {
         return x % y;
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigInteger rem(BigInteger x, BigInteger y) {
         return x.remainder(y);
     }
 
+    /**
+     * @deprecated It will be removed without replacement.
+     */
     @Deprecated
     public static BigDecimal rem(BigDecimal x, BigDecimal y) {
         return x.remainder(y);

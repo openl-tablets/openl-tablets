@@ -11,6 +11,9 @@ import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.util.StringUtils;
 
+/**
+ * @deprecated Use {@link MailVerificationServerSettingsConstraintValidator} instead.
+ */
 @Deprecated(forRemoval = true)
 @Slf4j
 public class MailConfigConstraintValidator implements ConstraintValidator<MailConfigConstraint, MailConfigModel> {

@@ -1246,6 +1246,7 @@ public final class RulesUtils {
      *
      * @param date
      * @return formated date value
+     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date)} instead.
      */
     @Deprecated
     public static String format(Date date) {
@@ -1258,6 +1259,7 @@ public final class RulesUtils {
      * @param date
      * @param format
      * @return String formated date value
+     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date, String)} instead.
      */
     @Deprecated
     public static String format(Date date, String format) {
@@ -1270,6 +1272,7 @@ public final class RulesUtils {
      * @param date
      * @param dateFormat
      * @return String formated date value
+     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date, String)} instead.
      */
     @Deprecated
     public static String dateToString(Date date, String dateFormat) {
@@ -1288,6 +1291,7 @@ public final class RulesUtils {
      * @param date date to format
      * @return String formated date value
      * @see DateTool#dateToString;
+     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date)} instead.
      */
     @Deprecated
     public static String dateToString(Date date) {
@@ -1300,6 +1304,9 @@ public final class RulesUtils {
         return stringDate;
     }
 
+    /**
+     * @deprecated Use {@link org.openl.rules.util.Dates#toDate(String)} instead.
+     */
     @Deprecated
     public static Date stringToDate(String value) throws ParseException {
         DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
@@ -1364,6 +1371,8 @@ public final class RulesUtils {
      * Parse the represented string value to the double. Uses default Locale for it.
      * <p/>
      * Shouldn`t be used.
+     *
+     * @deprecated It will be removed without replacement.
      */
     @Deprecated
     public static double parseFormattedDouble(String s) throws ParseException {
@@ -1375,6 +1384,8 @@ public final class RulesUtils {
      * {@link DecimalFormat#DecimalFormat(String)}
      * <p/>
      * Shouldn`t be used.
+     *
+     * @deprecated It will be removed without replacement.
      */
     @Deprecated
     public static double parseFormattedDouble(String s, String fmt) throws ParseException {
@@ -2554,6 +2565,7 @@ public final class RulesUtils {
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
+     * @deprecated It will be removed without replacement.
      */
     @Deprecated
     public static <T> T[] addIgnoreNull(T[] array, int index, T element) {
@@ -2592,6 +2604,7 @@ public final class RulesUtils {
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
+     * @deprecated It will be removed without replacement.
      */
     @Deprecated
     public static <T> T[] addIgnoreNull(T[] array, T element) {
@@ -2602,7 +2615,7 @@ public final class RulesUtils {
     }
 
     /**
-     * Use {@link #addIgnoreNull(Object[], int, Object)} instead.
+     * @deprecated Use {@link #addIgnoreNull(Object[], int, Object)} instead.
      */
     @Deprecated
     public static Object[] addArrayElementIgnoreNull(Object[] array, int index, Object element) {
@@ -2610,7 +2623,7 @@ public final class RulesUtils {
     }
 
     /**
-     * Use {@link #addIgnoreNull(Object[], Object)} instead.
+     * @deprecated Use {@link #addIgnoreNull(Object[], Object)} instead.
      */
     @Deprecated
     public static Object[] addArrayElementIgnoreNull(Object[] array, Object element) {

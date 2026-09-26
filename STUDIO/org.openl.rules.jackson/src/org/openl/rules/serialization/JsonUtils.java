@@ -13,6 +13,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * @deprecated Use an {@link ObjectMapper} created by {@link JacksonObjectMapperFactoryBean} directly instead.
+ */
 @Deprecated(forRemoval = true, since = "6.1.0")
 public final class JsonUtils {
     private static final WeakHashMap<Object, ObjectMapper> cache = new WeakHashMap<>();

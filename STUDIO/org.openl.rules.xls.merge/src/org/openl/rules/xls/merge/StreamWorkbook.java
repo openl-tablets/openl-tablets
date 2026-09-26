@@ -176,6 +176,9 @@ class StreamWorkbook implements Workbook {
         return delegator.getNumberOfFonts();
     }
 
+    /**
+     * @deprecated Use {@link #getNumberOfFonts()} instead.
+     */
     @Override
     @Removal(version = "6.0.0")
     @Deprecated
