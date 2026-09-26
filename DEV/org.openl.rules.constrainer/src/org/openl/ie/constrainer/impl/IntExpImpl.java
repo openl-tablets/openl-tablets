@@ -136,7 +136,8 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public void removeValue(int value) throws Failure {
-        int min, max;
+        int min;
+        int max;
         if (value == (min = min())) {
             setMin(min + 1);
         } else if (value == (max = max())) {

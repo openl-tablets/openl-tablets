@@ -15,7 +15,8 @@ import org.openl.util.text.TextInfo;
  */
 public class GridPosition implements IPosition {
 
-    private final int x, y;
+    private final int x;
+    private final int y;
 
     private final String uri;
 

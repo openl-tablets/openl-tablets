@@ -89,7 +89,9 @@ public abstract class Point {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BigPoint extends Point {
         @Getter
-        final int column, row;
+        final int column;
+        @Getter
+        final int row;
 
         @Override
         public boolean equals(Object o) {

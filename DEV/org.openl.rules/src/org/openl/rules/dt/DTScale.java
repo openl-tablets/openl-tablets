@@ -2,7 +2,8 @@ package org.openl.rules.dt;
 
 public class DTScale {
 
-    private final int vScale, hScale;
+    private final int vScale;
+    private final int hScale;
 
     public DTScale(int vScale, int hScale) {
         this.vScale = vScale;

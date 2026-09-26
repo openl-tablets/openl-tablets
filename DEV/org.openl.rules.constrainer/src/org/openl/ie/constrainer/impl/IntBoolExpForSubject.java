@@ -21,7 +21,8 @@ import org.openl.ie.constrainer.UndoableInt;
  * An abstract implementation of the IntBoolExp that is based on some boolean subject.
  */
 public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
-    protected UndoableInt _subjectMin, _subjectMax;
+    protected UndoableInt _subjectMin;
+    protected UndoableInt _subjectMax;
 
     /**
      * Constructor with a given constrainer.

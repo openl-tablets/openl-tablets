@@ -74,7 +74,10 @@ public class Version implements Comparable<Version> {
 
     }
 
-    public static final int MAJOR = 0, MINOR = 1, VARIANT = 2, BUILD = 3;
+    public static final int MAJOR = 0;
+    public static final int MINOR = 1;
+    public static final int VARIANT = 2;
+    public static final int BUILD = 3;
     public static final String JAVA_VERSION_PATTERN = ".._";
 
     private final int[] version = new int[]{-1, -1, -1, -1};

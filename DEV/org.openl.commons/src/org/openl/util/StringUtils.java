@@ -102,7 +102,9 @@ public class StringUtils {
         var result = new String[count];
 
         // splitting by separator and stripping a token
-        int i = 0, start = 0, end = 0;
+        int i = 0;
+        int start = 0;
+        int end = 0;
         match = false;
         count = 0;
         while (i < len) {

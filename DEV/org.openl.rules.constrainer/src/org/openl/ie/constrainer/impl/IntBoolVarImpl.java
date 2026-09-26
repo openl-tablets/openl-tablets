@@ -24,7 +24,8 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
 
         };
 
-        int _int_value, _type;
+        int _int_value;
+        int _type;
 
         static IntEventBool getEvent(IntExp exp, boolean val) {
             var ev = (IntEventBool) FACTORY.getElement();
@@ -206,7 +207,8 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
 
         };
 
-        int _min, _max;
+        int _min;
+        int _max;
 
         static UndoIntBoolVar getBoolVarUndo() {
             return (UndoIntBoolVar) FACTORY.getElement();

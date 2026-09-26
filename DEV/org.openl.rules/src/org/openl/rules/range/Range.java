@@ -36,7 +36,8 @@ public abstract class Range<T> {
         DEGENERATE(Bound.CLOSED, Bound.CLOSED); // [x; x]
 
 
-        public final Bound left, right;
+        public final Bound left;
+        public final Bound right;
     }
 
     protected RangeParser parse(String text) {

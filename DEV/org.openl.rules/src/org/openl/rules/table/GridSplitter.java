@@ -58,7 +58,8 @@ public class GridSplitter {
     }
 
     void defineTableBoundaries(int col, int row, int endX) {
-        int y, x;
+        int y;
+        int x;
         x = endX;
         while (containsCell(x, row)) {
             ++x;

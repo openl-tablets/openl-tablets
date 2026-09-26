@@ -27,11 +27,15 @@ public final class IntDomainHistory implements Serializable {
 
         };
 
-        private int _min, _max, _oldmin, _oldmax;
+        private int _min;
+        private int _max;
+        private int _oldmin;
+        private int _oldmax;
 
         private int _type_mask;
         IntDomainHistory _history;
-        int _removeIndex, _numberOfRemoves;
+        int _removeIndex;
+        int _numberOfRemoves;
 
         static IntEventDomain getEvent(IntDomainHistory history) {
             var ev = (IntEventDomain) FACTORY.getElement();
@@ -122,7 +126,11 @@ public final class IntDomainHistory implements Serializable {
 
     } // ~IntEventDomain
 
-    static final int MIN_IDX = 0, MAX_IDX = 1, SIZE_IDX = 2, REMOVE_IDX = 3, LAST_IDX = 4;
+    static final int MIN_IDX = 0;
+    static final int MAX_IDX = 1;
+    static final int SIZE_IDX = 2;
+    static final int REMOVE_IDX = 3;
+    static final int LAST_IDX = 4;
     final IntVar _var;
     final FastVectorInt _history;
 
@@ -132,7 +140,8 @@ public final class IntDomainHistory implements Serializable {
 
     int _mask;
 
-    int _min, _max;
+    int _min;
+    int _max;
 
     public IntDomainHistory(IntVar var) {
         _var = var;

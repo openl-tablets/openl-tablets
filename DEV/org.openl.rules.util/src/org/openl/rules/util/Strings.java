@@ -789,7 +789,8 @@ public final class Strings {
         var list = new ArrayList<String>();
         final var len = str.length();
         final var lenDelim = delimiter.length();
-        int start = 0, pos = 0;
+        int start = 0;
+        int pos = 0;
         while (pos < len) {
             var posDelim = 0;
             var matched = true;

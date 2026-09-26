@@ -18,7 +18,10 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
  */
 public interface ICellStyle {
 
-    int TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3;
+    int TOP = 0;
+    int RIGHT = 1;
+    int BOTTOM = 2;
+    int LEFT = 3;
 
     /**
      * @return RGB colors for all border sides.

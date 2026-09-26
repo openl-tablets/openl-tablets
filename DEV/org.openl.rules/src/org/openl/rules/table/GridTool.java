@@ -30,7 +30,10 @@ public class GridTool {
     }
 
     private static final String PROPERTIES_SECTION_NAME = "properties";
-    private static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
+    private static final boolean COLUMNS = true;
+    private static final boolean ROWS = false;
+    private static final boolean INSERT = true;
+    private static final boolean REMOVE = false;
 
     /**
      * Searches all merged regions inside the specified region of table for regions that have to be resized.
@@ -568,7 +571,9 @@ public class GridTool {
         }
 
         // The second step: shift cells
-        int direction, colFromCopy, colToCopy;
+        int direction;
+        int colFromCopy;
+        int colToCopy;
         if (isInsert) {// shift columns left
             direction = -1;
             colFromCopy = region.getRight();
@@ -623,7 +628,8 @@ public class GridTool {
         }
 
         // The second step: shift cells
-        int direction, rowFromCopy;
+        int direction;
+        int rowFromCopy;
         if (isInsert) {// shift rows down
             direction = -1;
             rowFromCopy = region.getBottom(); // we gets the bottom row from the region, and are

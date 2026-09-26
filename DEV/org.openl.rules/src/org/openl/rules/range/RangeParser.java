@@ -26,7 +26,9 @@ public class RangeParser {
     @Getter
     Range.Type type;
     @Getter
-    String left, right;
+    String left;
+    @Getter
+    String right;
 
     private RangeParser(Range.Type type, String left, String right) {
         this.type = type;
