@@ -1376,7 +1376,8 @@ class WorkspaceProjectServiceTest {
                 mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
         var project = project(repository(), "PricingProject", "PricingProject");
         when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
-        when(webStudio.getCurrentProject()).thenReturn(mock(RulesProject.class));
+        var currentProject = mock(RulesProject.class);
+        when(webStudio.getCurrentProject()).thenReturn(currentProject);
         stubResolvedSource(service, project, mock(IOpenLTable.class));
         var properties = List.of(new TableProperty("state", "AL"));
         when(tablePropertiesService.write(any(), eq(properties)))

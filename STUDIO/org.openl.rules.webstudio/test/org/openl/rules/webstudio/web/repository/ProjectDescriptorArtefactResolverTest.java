@@ -27,7 +27,8 @@ class ProjectDescriptorArtefactResolverTest {
 
     private static AProject mockProject(String rulesXml, String realPath) throws Exception {
         AProject project = mock(AProject.class);
-        when(project.getFileData()).thenReturn(mock(FileData.class));
+        var fileData = mock(FileData.class);
+        when(project.getFileData()).thenReturn(fileData);
         when(project.getName()).thenReturn("physical-folder");
         when(project.getRealPath()).thenReturn(realPath);
         when(project.hasArtefact(ProjectDescriptor.FILE_NAME)).thenReturn(true);
