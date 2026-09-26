@@ -227,25 +227,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                                 as.schema() :
                                 (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
 
-        final BeanDescription beanDesc;
-        {
-            var recurBeanDesc = _mapper.getSerializationConfig().introspect(type);
-
-            var visited = new HashSet<String>();
-            var jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
-            while (jsonSerialize != null && !Void.class.equals(jsonSerialize.as())) {
-                var asName = jsonSerialize.as().getName();
-                if (visited.contains(asName)) break;
-                visited.add(asName);
-
-                recurBeanDesc = _mapper.getSerializationConfig().introspect(
-                        _mapper.constructType(jsonSerialize.as())
-                );
-                jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
-            }
-            beanDesc = recurBeanDesc;
-        }
-
+        final BeanDescription beanDesc = introspectSerializedType(type);
 
         var name = annotatedType.getName();
         if (StringUtils.isBlank(name)) {
@@ -259,5 +241,29 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         }
 
         return decorateModelName(annotatedType, name);
+    }
+
+    /**
+     * Describes the type that values of the given type are serialized as.
+     *
+     * <p>A type annotated with {@link JsonSerialize#as()} is serialized as the type the annotation names, which may
+     * carry the annotation in turn. The chain is followed to its end; a type that repeats ends it.
+     */
+    private BeanDescription introspectSerializedType(JavaType type) {
+        var recurBeanDesc = _mapper.getSerializationConfig().introspect(type);
+
+        var visited = new HashSet<String>();
+        var jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
+        while (jsonSerialize != null && !Void.class.equals(jsonSerialize.as())) {
+            var asName = jsonSerialize.as().getName();
+            if (visited.contains(asName)) break;
+            visited.add(asName);
+
+            recurBeanDesc = _mapper.getSerializationConfig().introspect(
+                    _mapper.constructType(jsonSerialize.as())
+            );
+            jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
+        }
+        return recurBeanDesc;
     }
 }
