@@ -1,7 +1,6 @@
 package org.openl.studio.repositories.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +65,6 @@ public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryServ
                         // dialog can refuse before the deploy does. Any other repository stays silent.
                         .mainBranchOnly(repo.getSettings().isMainBranchOnly() ? true : null)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 }

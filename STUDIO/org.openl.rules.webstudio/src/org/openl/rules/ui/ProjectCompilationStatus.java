@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -50,7 +49,7 @@ public final class ProjectCompilationStatus {
     }
 
     public Collection<OpenLMessage> getAllMessage() {
-        return messages.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        return messages.values().stream().flatMap(Collection::stream).toList();
     }
 
     /**

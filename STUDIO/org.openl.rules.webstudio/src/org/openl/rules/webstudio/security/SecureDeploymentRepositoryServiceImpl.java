@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
     public List<RepositoryConfiguration> getRepositories() {
         return getRepositories(BasePermission.READ)
                 .sorted(RepositoryConfiguration.COMPARATOR)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -70,7 +69,7 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
     public List<RepositoryConfiguration> getManageableRepositories() {
         return getRepositories(BasePermission.ADMINISTRATION)
                 .sorted(RepositoryConfiguration.COMPARATOR)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Stream<RepositoryConfiguration> getRepositories(Permission permission) {

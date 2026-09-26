@@ -1,7 +1,6 @@
 package org.openl.studio.users.service.pat;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,7 @@ public class PersonalAccessTokenServiceImpl implements PersonalAccessTokenServic
     @Transactional(readOnly = true)
     @Override
     public List<PersonalAccessTokenResponse> getTokensByUser(String loginName) {
-        return tokenDao.getByLoginName(loginName).stream().map(this::toTokenResponse).collect(Collectors.toList());
+        return tokenDao.getByLoginName(loginName).stream().map(this::toTokenResponse).toList();
     }
 
     /**

@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.openl.types.IOpenMethodHeader;
 
@@ -16,7 +15,7 @@ class PreBinderMethods {
         return binderMethods.values()
                 .stream()
                 .filter(e -> Objects.equals(e.getName(), methodName))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public RecursiveOpenMethodPreBinder get(IOpenMethodHeader header) {

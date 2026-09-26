@@ -3,7 +3,6 @@ package org.openl.rules.xls.merge;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -114,7 +113,7 @@ class Cursor {
         return getSheetShapes().stream()
                 .filter(XSSFPicture.class::isInstance)
                 .map(XSSFPicture.class::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void addFormulaCell(Cell formulaCell) {

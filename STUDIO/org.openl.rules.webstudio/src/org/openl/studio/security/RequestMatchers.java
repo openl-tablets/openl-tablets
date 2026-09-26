@@ -1,6 +1,5 @@
 package org.openl.studio.security;
 
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -20,7 +19,7 @@ public final class RequestMatchers {
         }
         var matchers = Stream.of(patterns)
                 .map(RequestMatchers::matcher)
-                .collect(Collectors.toList());
+                .toList();
         if (matchers.size() == 1) {
             return matchers.getFirst();
         }

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -39,13 +38,13 @@ public class AsyncExecutor {
      */
     AsyncExecutor(int threads, Runnable command) {
         this.threads = threads;
-        this.workers = Stream.generate(() -> new Wrapper(command)).limit(this.threads).collect(Collectors.toList());
+        this.workers = Stream.generate(() -> new Wrapper(command)).limit(this.threads).toList();
         this.executor = Executors.newFixedThreadPool(this.threads);
     }
 
     private AsyncExecutor(Runnable... commands) {
         this.threads = commands.length;
-        this.workers = Stream.of(commands).map(Wrapper::new).collect(Collectors.toList());
+        this.workers = Stream.of(commands).map(Wrapper::new).toList();
         this.executor = Executors.newFixedThreadPool(this.threads);
     }
 

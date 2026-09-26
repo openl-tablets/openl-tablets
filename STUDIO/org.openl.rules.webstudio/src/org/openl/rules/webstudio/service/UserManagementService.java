@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -42,7 +41,7 @@ public class UserManagementService {
 
     @Transactional(readOnly = true)
     public List<org.openl.rules.security.User> getAllUsers() {
-        return userDao.getAllUsers().stream().map(this::createSecurityUser).collect(Collectors.toList());
+        return userDao.getAllUsers().stream().map(this::createSecurityUser).toList();
     }
 
     @Transactional(readOnly = true)
@@ -69,7 +68,7 @@ public class UserManagementService {
         return userDao.getUsersInGroup(groupName)
                 .stream()
                 .map(user -> createSecurityUser(user, Set.of()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

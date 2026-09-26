@@ -6,7 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -114,7 +113,7 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
             if (parameterKeys[i].size() > 1) {
                 var conflictMethods = parameterKeys[i].stream()
                         .map(ParameterKey::getMethod)
-                        .collect(Collectors.toList());
+                        .toList();
                 for (var j = 0; j < conflictMethods.size() - 1; j++) {
                     for (var k = j + 1; k < conflictMethods.size(); k++) {
                         methodPairs.add(new MethodPairKey(conflictMethods.get(j), conflictMethods.get(k)));

@@ -845,7 +845,7 @@ public final class DecisionTableHelper {
                 .filter(e -> e instanceof FuzzyDTHeader)
                 .map(e -> (FuzzyDTHeader) e)
                 .filter(FuzzyDTHeader::isReturn)
-                .collect(toList());
+                .toList();
         var m = new HashMap<IOpenField[], List<Token>>();
         for (Token token : fuzzyContext.getFuzzyReturnTokens()) {
             var returnTypeFieldsChains = fuzzyContext.getFieldsChainsForReturnToken(token);
@@ -989,7 +989,7 @@ public final class DecisionTableHelper {
                 .filter(e -> e instanceof FuzzyDTHeader && e.isReturn())
                 .map(e -> (FuzzyDTHeader) e)
                 .filter(e -> e.getFieldsChain() != null)
-                .collect(toList());
+                .toList();
 
         var variableAssignments = new HashSet<String>();
 
@@ -1755,7 +1755,7 @@ public final class DecisionTableHelper {
                                                     Map<DTHeader, IOpenClass> hConditionTypes) {
         var metaInfoReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         var j = 0;
-        var hDtHeaders = conditions.stream().filter(DTHeader::isHCondition).collect(toList());
+        var hDtHeaders = conditions.stream().filter(DTHeader::isHCondition).toList();
         int minColumn;
         if (!WithVerticalTitles.NO.equals(withVerticalTitles) && firstColumnForHCondition > 0) {
             minColumn = firstColumnForHCondition - originalTable.getSource()
@@ -1763,7 +1763,7 @@ public final class DecisionTableHelper {
                     .getWidth();
             var vDtHeaders = conditions.stream()
                     .filter(e -> e.isCondition() && !e.isHCondition())
-                    .collect(toList());
+                    .toList();
             if (!vDtHeaders.isEmpty()) {
                 var lastVCondition = vDtHeaders.getLast();
                 if (lastVCondition instanceof DeclaredDTHeader declaredDTHeader) {
@@ -2621,7 +2621,7 @@ public final class DecisionTableHelper {
         return fits.stream()
                 .filter(
                         e -> e.isEmpty() || isLastDtColumnValid(e.getLast(), maxColumn, twoColumnsInReturn ? w1 : 0))
-                .collect(toList());
+                .toList();
     }
 
     private static boolean fieldsChainsIsCrossed(IOpenField[] m1, IOpenField[] m2) {
@@ -2843,10 +2843,10 @@ public final class DecisionTableHelper {
 
         if (numberOfHConditions == 0) {
             // Prefer full matches with return headers
-            fits = fits.stream().filter(e -> e.stream().anyMatch(DTHeader::isReturn)).collect(toList());
+            fits = fits.stream().filter(e -> e.stream().anyMatch(DTHeader::isReturn)).toList();
         } else {
             // Lookup table with no returns columns
-            fits = fits.stream().filter(e -> e.stream().noneMatch(DTHeader::isReturn)).collect(toList());
+            fits = fits.stream().filter(e -> e.stream().noneMatch(DTHeader::isReturn)).toList();
         }
 
         // matches with min returns

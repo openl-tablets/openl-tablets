@@ -11,7 +11,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,7 +87,7 @@ class DataTypeConverterTest {
         assertEquals(2, datatypeModels.size());
         var fields = datatypeModels.stream()
                 .flatMap(x -> x.getFields().stream())
-                .collect(Collectors.toList());
+                .toList();
         assertFalse(fields.isEmpty());
         assertEquals(4, fields.size());
         var datatypeModel = findDataTypeModel(datatypeModels, "Animal");
@@ -103,7 +102,7 @@ class DataTypeConverterTest {
         assertEquals(6, datatypeModels.size());
         var fieldModels = datatypeModels.stream()
                 .flatMap(x -> x.getFields().stream())
-                .collect(Collectors.toList());
+                .toList();
         assertFalse(fieldModels.isEmpty());
         assertEquals(8, fieldModels.size());
         Optional<FieldModel> birthDate = fieldModels.stream().filter(x -> x.getName().equals("birthDate")).findFirst();

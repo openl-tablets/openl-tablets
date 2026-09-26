@@ -73,7 +73,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                                 e -> e instanceof CombinedSpreadsheetResultOpenClass csroc ? csroc
                                         .getCombinedTypes()
                                         .stream() : Stream.of(e))
-                        .collect(Collectors.toList());
+                        .toList();
                 var groupedByTypes = customSpreadsheetResultOpenClasses
                         .stream()
                         .filter(e -> e.getField(boundField.getName()) != null)

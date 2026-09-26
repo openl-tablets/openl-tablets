@@ -1,7 +1,6 @@
 package org.openl.rules.rest.acl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jakarta.annotation.Nonnull;
 import jakarta.validation.Valid;
@@ -75,7 +74,7 @@ public class AclRepositoriesController {
         return Stream.concat(aclRepoModels,
                         deploymentRepositoryService.getManageableRepositories().stream()
                                 .flatMap(repo -> mapAclRepositoryModel(AclRepositoryType.PROD, repo.getId(), sid)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Operation(summary = "Get a list of ALC rules for a single repository")
@@ -84,7 +83,7 @@ public class AclRepositoriesController {
     @JsonView(AclView.Sid.class)
     public List<AclRepositoryModel> getAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId) {
         return mapAclRepositoryModelForSid(aclRepoId.getType(), aclRepoId.getId())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Operation(summary = "Update existing ACL rule for a single repository")
@@ -129,7 +128,7 @@ public class AclRepositoriesController {
     public List<AclRepositoryModel> getAclRepositoryRulesForRoot(@NotNull @SidExistsConstraint Sid sid) {
         return Stream.concat(mapAclRepositoryModelForRoot(AclRepositoryType.DESIGN, sid),
                         mapAclRepositoryModelForRoot(AclRepositoryType.PROD, sid))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Operation(summary = "Update ACL rule for a repository root")

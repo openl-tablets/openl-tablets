@@ -107,7 +107,7 @@ class SpreadsheetsConverterTest {
         assertFalse(spreadsheetModels.isEmpty());
         var firstModel = findSpreadsheet(spreadsheetModels, "bla");
         List<StepModel> steps = firstModel.getSteps();
-        var stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
+        var stepsNames = steps.stream().map(StepModel::getName).toList();
         assertEquals(expectedStepsForBla, stepsNames);
 
         var helloKittyModel = findSpreadsheet(spreadsheetModels, "$H1ello$Kitty");
@@ -282,7 +282,7 @@ class SpreadsheetsConverterTest {
         var params = projectModelWithDRC.getSpreadsheetResultModels()
                 .stream()
                 .flatMap(x -> x.getParameters().stream())
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(0, params.size());
 
         var projectModelWithNotAllDRC = converter
@@ -472,7 +472,7 @@ class SpreadsheetsConverterTest {
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         var fields = datatypeModels.stream()
                 .flatMap(x -> x.getFields().stream())
-                .collect(Collectors.toList());
+                .toList();
         Optional<FieldModel> anyClassField = fields.stream().filter(x -> x.getName().equals("@class")).findAny();
         assertFalse(anyClassField.isPresent());
 
@@ -603,7 +603,7 @@ class SpreadsheetsConverterTest {
                 "WorkIncentiveFactor",
                 "NetClaimCostAggregatedFactor");
         List<StepModel> steps = mySprModel.getSteps();
-        var stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
+        var stepsNames = steps.stream().map(StepModel::getName).toList();
         assertEquals(expectedStepsForBla, stepsNames);
 
         var projectModel2 = converter

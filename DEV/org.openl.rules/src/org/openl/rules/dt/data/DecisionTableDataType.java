@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -92,7 +91,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
             } else {
                 var decisionRowFields = conditionParameterFields.stream()
                         .filter(e -> e instanceof DecisionRowField)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);
                 } else {

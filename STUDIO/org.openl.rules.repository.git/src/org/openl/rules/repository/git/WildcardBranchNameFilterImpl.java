@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -63,7 +62,7 @@ final class WildcardBranchNameFilterImpl implements WildcardBranchNameFilter {
         final FileSystem fs = FileSystems.getDefault();
         matchers = Stream.of(patterns)
                 .map(pattern -> fs.getPathMatcher("glob:" + pattern))
-                .collect(Collectors.toList());
+                .toList();
         if (matchers.isEmpty()) {
             throw new IllegalArgumentException("Branch name pattern list cannot be empty.");
         }

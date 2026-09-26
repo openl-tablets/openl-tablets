@@ -405,8 +405,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         var allParameterDeclarations = dtColumnsDefinition.getParameters()
                 .stream()
                 .filter(e -> e != null && e.getName() != null)
-                .collect(Collectors.toList())
-                .toArray(IParameterDeclaration.EMPTY);
+                .toArray(IParameterDeclaration[]::new);
         var newSignature = ((MethodSignature) preBindDetail.header.getSignature())
                 .merge(allParameterDeclarations);
         RulesModuleBindingContextHelper.compileAllTypesInSignature(newSignature, bindingContext);

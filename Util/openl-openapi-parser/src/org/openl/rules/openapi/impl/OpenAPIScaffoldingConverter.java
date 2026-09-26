@@ -232,7 +232,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                         .anyMatch(field -> refSpreadsheets
                                 .contains(SCHEMAS_LINK + OpenAPITypeUtils.removeArrayBrackets(field.getType()))))
                 .map(Pair::getLeft)
-                .collect(Collectors.toList());
+                .toList();
 
         dts.removeIf(
                 x -> notUsedDataTypeWithRefToSpreadsheet.contains(x.getName()) || SPREADSHEET_RESULT.equals(x.getName()));
@@ -447,7 +447,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                         .getFormattedPath()
                         .startsWith(GET_PREFIX) && (CollectionUtils
                         .isEmpty(x.getModel().getParameters()) || containsOnlyRuntimeContext(x.getModel().getParameters())))
-                .collect(Collectors.toList());
+                .toList();
         var dataModels = new ArrayList<DataModel>();
         for (SpreadsheetParserModel potentialDataModel : potentialDataModels) {
             final var returnType = potentialDataModel.getModel().getPathInfo().getReturnType();

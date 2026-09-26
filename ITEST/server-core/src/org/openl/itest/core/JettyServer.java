@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
@@ -60,7 +59,7 @@ public class JettyServer {
         }
         try (Stream<Path> stream = Files.walk(Path.of("libs"))) {
 
-            classPath.addAll(stream.map(Path::toUri).map(context::newResource).collect(Collectors.toList()));
+            classPath.addAll(stream.map(Path::toUri).map(context::newResource).toList());
         } catch (IOException ignored) {
             // ignore
         }

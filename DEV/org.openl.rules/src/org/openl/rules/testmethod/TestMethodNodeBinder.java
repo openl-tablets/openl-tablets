@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -200,11 +199,11 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             }
             if (exactMatches.isEmpty()) {
                 throw new AmbiguousMethodException(methodName,
-                        noErrorsCases.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
+                        noErrorsCases.stream().map(e -> e.testedMethod).toList());
             }
             if (exactMatches.size() > 1) {
                 throw new AmbiguousMethodException(methodName,
-                        exactMatches.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
+                        exactMatches.stream().map(e -> e.testedMethod).toList());
             } else {
                 best = exactMatches.getFirst();
             }

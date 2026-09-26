@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -49,7 +48,7 @@ public class OpenAPIRefResolver {
         try {
             for (String expressionPart : Arrays.stream(expressionParts)
                     .map(e -> e.substring(1))
-                    .collect(Collectors.toList())) {
+                    .toList()) {
                 if (resolvedByRef != null) {
                     try {
                         resolvedByRef = ClassUtils.get(resolvedByRef, expressionPart);

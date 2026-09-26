@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -2982,7 +2981,7 @@ public final class RulesUtils {
         for (var i = 0; i < data.length; i++) {
             var openCast = flattenMethodDetails.getOpenCasts()[i];
             values
-                    .addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).collect(Collectors.toList()));
+                    .addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).toList());
         }
         var result = (Object[]) Array
                 .newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(), 0);

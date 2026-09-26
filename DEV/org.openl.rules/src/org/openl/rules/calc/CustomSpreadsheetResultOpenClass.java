@@ -280,8 +280,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         String[][] newDescriptions = new String[nRowNames.size()][nColumnNames.size()];
-        var rowNames1 = Arrays.stream(rowNames).collect(toList());
-        var colNames1 = Arrays.stream(columnNames).collect(toList());
+        var rowNames1 = Arrays.stream(rowNames).toList();
+        var colNames1 = Arrays.stream(columnNames).toList();
         for (var i = 0; i < nRowNames.size(); i++) {
             for (var j = 0; j < nColumnNames.size(); j++) {
                 if (i < this.descriptions.length && j < this.descriptions[i].length) {
@@ -617,7 +617,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return getFields().stream()
                 .map(e -> Pair.of(fieldsCoordinates.get(e.getName()), e))
                 .sorted(COMP)
-                .collect(toList());
+                .toList();
     }
 
     public Map<String, List<IOpenField>> getBeanFieldsMap() {

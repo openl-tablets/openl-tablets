@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -506,8 +505,7 @@ public class XlsBinder implements IOpenBinder {
         var xlsTableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
         return Arrays.stream(xlsTableSyntaxNodes)
                 .filter(childSelector)
-                .collect(Collectors.toList())
-                .toArray(TableSyntaxNode.EMPTY_ARRAY);
+                .toArray(TableSyntaxNode[]::new);
     }
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
@@ -680,7 +678,7 @@ public class XlsBinder implements IOpenBinder {
                     datatypeTableBoundNodes = Arrays.stream(childrens)
                             .filter(e -> e instanceof DatatypeTableBoundNode)
                             .map(DatatypeTableBoundNode.class::cast)
-                            .collect(Collectors.toList());
+                            .toList();
                 }
                 var parentDatatypeTableBoundNode = datatypeTableBoundNodes.stream()
                         .filter(d -> Objects.equals(d.getDataType().getJavaName(),

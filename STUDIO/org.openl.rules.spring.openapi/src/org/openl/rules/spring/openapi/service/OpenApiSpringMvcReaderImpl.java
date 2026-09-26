@@ -98,7 +98,7 @@ public class OpenApiSpringMvcReaderImpl {
                 .values()
                 .stream()
                 .map(ControllerAdviceInfo::new)
-                .collect(Collectors.toList());
+                .toList();
         handlerMethodsHelper.getHandlerMethods()
                 .entrySet()
                 .stream()
@@ -514,7 +514,7 @@ public class OpenApiSpringMvcReaderImpl {
             Class<?> beanType) {
         return controllerAdvices.stream()
                 .filter(controllerAdvice -> createHandlerTypePredicate(controllerAdvice).test(beanType))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static HandlerTypePredicate createHandlerTypePredicate(Object bean) {

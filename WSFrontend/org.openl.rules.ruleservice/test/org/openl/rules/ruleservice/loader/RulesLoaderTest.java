@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,7 @@ class RulesLoaderTest {
                 .flatMap(d -> d.getProjects().stream())
                 .map(IProjectFolder::getName)
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(List.of(), d0);
 
         // First version deploy
@@ -52,7 +51,7 @@ class RulesLoaderTest {
                 .flatMap(d -> d.getProjects().stream())
                 .map(IProjectFolder::getName)
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(List.of("project1"), d1);
 
         updateProject(repository, "deployment1", "project2", false);
@@ -61,7 +60,7 @@ class RulesLoaderTest {
                 .flatMap(d -> d.getProjects().stream())
                 .map(IProjectFolder::getName)
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(Arrays.asList("project1", "project2"), d2);
 
         // Second version deploy
@@ -71,7 +70,7 @@ class RulesLoaderTest {
                 .flatMap(d -> d.getProjects().stream())
                 .map(IProjectFolder::getName)
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(List.of("project2"), d3);
 
         updateProject(repository, "deployment1", "project2", false);
@@ -80,7 +79,7 @@ class RulesLoaderTest {
                 .flatMap(d -> d.getProjects().stream())
                 .map(IProjectFolder::getName)
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(List.of("project2"), d4);
 
         updateProject(repository, "org.openl.tablets.tutorial4", "org.openl.tablets.tutorial4", false);
@@ -89,7 +88,7 @@ class RulesLoaderTest {
                 .flatMap(d -> d.getProjects().stream())
                 .map(IProjectFolder::getName)
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(Arrays.asList("org.openl.tablets.tutorial4", "project2"), d5);
 
         var commonVersion = new CommonVersionImpl("1");

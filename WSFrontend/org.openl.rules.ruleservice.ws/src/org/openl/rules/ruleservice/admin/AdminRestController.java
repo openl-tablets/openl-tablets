@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.admin;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -115,7 +114,7 @@ public class AdminRestController {
         var urls = serviceManager.getServicesInfo().stream()
                 .filter(k -> getRestUrl(k) != null)
                 .map(k -> Map.of("name", k.getName(), "url", getRestUrl(k) + "/openapi.json"))
-                .collect(Collectors.toList());
+                .toList();
         return Response.ok(Map.of("urls", urls)).build();
     }
 

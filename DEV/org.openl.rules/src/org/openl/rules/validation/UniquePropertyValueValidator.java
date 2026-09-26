@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -118,7 +117,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
         return CollectionUtils.findAll(methods.stream()
                 .filter(ExecutableRulesMethod.class::isInstance)
                 .map(ExecutableRulesMethod.class::cast)
-                .collect(Collectors.toList()), method -> {
+                .toList(), method -> {
             if (method.getMethodProperties() == null || method.getMethodProperties().getActive() == null) {
                 // if property is not mentioned, consider it is true
                 // by default.

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -127,7 +126,7 @@ public class UsersController {
     @GetMapping
     @AdminPrivilege
     public List<UserModel> getAllUsers() {
-        return userManagementService.getAllUsers().stream().map(this::mapUser).collect(Collectors.toList());
+        return userManagementService.getAllUsers().stream().map(this::mapUser).toList();
     }
 
     @Operation(description = "users.get-user.desc", summary = "users.get-user.summary")

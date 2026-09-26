@@ -82,7 +82,7 @@ class GroupManagementTest {
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
-        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()),
+        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
         queryCount = QueryCountHolder.getGrandTotal();
@@ -117,7 +117,7 @@ class GroupManagementTest {
         assertCollectionEquals(privileges.stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(p -> !"Analysts".equals(p) && !"Deployers".equals(p))
-                .collect(Collectors.toList()), notMatchedExtGroups, Group::getAuthority);
+                .toList(), notMatchedExtGroups, Group::getAuthority);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
         assertEquals(1, queryCount.getTotal());
@@ -157,7 +157,7 @@ class GroupManagementTest {
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
-        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()),
+        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
         long cntExternalGroups = externalGroupService.countAllForUser("jdoe");
@@ -189,7 +189,7 @@ class GroupManagementTest {
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
-        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()),
+        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
         long cntExternalGroups = externalGroupService.countAllForUser("jdoe");
@@ -209,7 +209,7 @@ class GroupManagementTest {
 
         QueryCountHolder.clear();
         extGroups = externalGroupService.findAllForUser("jdoe");
-        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()),
+        assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
         cntExternalGroups = externalGroupService.countAllForUser("jdoe");
@@ -254,12 +254,12 @@ class GroupManagementTest {
         List<Group> groups = groupService.getGroups();
         assertEquals(6, groups.size());
         assertCollectionEquals(Stream.of("Administrators", "Analysts", "Deployers", "Developers", "Testers", "Viewers")
-                .collect(Collectors.toList()), groups, Group::getAuthority);
+                .toList(), groups, Group::getAuthority);
 
         Map<String, Group> mappedGroups = groups.stream()
                 .collect(Collectors.toMap(Group::getAuthority, Function.identity()));
 
-        assertCollectionEquals(Stream.of("ADMIN").collect(Collectors.toList()),
+        assertCollectionEquals(Stream.of("ADMIN").toList(),
                 mappedGroups.get("Administrators").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
@@ -320,7 +320,7 @@ class GroupManagementTest {
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllByName("GROUP_1", 10);
-        assertCollectionEquals(Stream.of("GROUP_1", "GROUP_10", "GROUP_11", "GROUP_12").collect(Collectors.toList()),
+        assertCollectionEquals(Stream.of("GROUP_1", "GROUP_10", "GROUP_11", "GROUP_12").toList(),
                 extGroups,
                 Group::getAuthority);
         queryCount = QueryCountHolder.getGrandTotal();
@@ -329,7 +329,7 @@ class GroupManagementTest {
 
         QueryCountHolder.clear();
         extGroups = externalGroupService.findAllByName("GROUP_1", 2);
-        assertCollectionEquals(Stream.of("GROUP_1", "GROUP_10").collect(Collectors.toList()),
+        assertCollectionEquals(Stream.of("GROUP_1", "GROUP_10").toList(),
                 extGroups,
                 Group::getAuthority);
         queryCount = QueryCountHolder.getGrandTotal();
@@ -367,11 +367,11 @@ class GroupManagementTest {
 
         externalGroupService.mergeAllForUser("jdoe", Stream.of("foo", "baz")
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList()));
+                .toList());
 
         externalGroupService.mergeAllForUser("jsmith", Stream.of( "baz")
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList()));
+                .toList());
 
         userManagementService.updateAuthorities("jdoe", Set.of("Analysts", "Developers"));
         userManagementService.updateAuthorities("jsmith", Set.of("Developers"));
@@ -442,7 +442,7 @@ class GroupManagementTest {
     private static <T, R> void assertCollectionEquals(Collection<R> expected,
                                                       Collection<T> actual,
                                                       Function<T, R> attr) {
-        List<R> transformedActual = actual.stream().map(attr).collect(Collectors.toList());
+        List<R> transformedActual = actual.stream().map(attr).toList();
         List<R> rest = new ArrayList<>(transformedActual);
         rest.removeAll(expected);
         if (!rest.isEmpty()) {

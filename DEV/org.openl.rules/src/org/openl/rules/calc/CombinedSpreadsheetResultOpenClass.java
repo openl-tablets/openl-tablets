@@ -149,7 +149,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         var types = getCombinedTypes().stream()
                 .distinct()
                 .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
-                .collect(Collectors.toList());
+                .toList();
         for (CustomSpreadsheetResultOpenClass c : types) {
             if (!sb.isEmpty()) {
                 sb.append(" & ");

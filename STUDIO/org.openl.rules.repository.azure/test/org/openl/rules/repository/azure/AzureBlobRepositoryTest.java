@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
@@ -284,7 +283,7 @@ class AzureBlobRepositoryTest {
             List<BlobEmulation> versions = blobs.get(options.getPrefix());
             final var list = new ArrayList<BlobItem>(
                     versions == null ? List.of()
-                            : versions.stream().map(BlobEmulation::getBlobItem).collect(Collectors.toList()));
+                            : versions.stream().map(BlobEmulation::getBlobItem).toList());
             // To conform behavior of Azure Blob Storage
             Collections.reverse(list);
             return mockPagedIterable(list);
@@ -293,7 +292,7 @@ class AzureBlobRepositoryTest {
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(options.getPrefix()))
                 .map(entry -> entry.getValue().getFirst().getBlobItem())
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     private BlobClient mockGetBlobVersionClient(String blobName, String versionId) throws IOException {

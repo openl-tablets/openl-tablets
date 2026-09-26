@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
@@ -39,7 +38,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
                         || isGrantedToAnyProject(e.getId(), List.of(BasePermission.READ))
                 )
                 .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, designRepositoryAclService))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -50,7 +49,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
                         .isGranted(e.getId(), null, List.of(BasePermission.ADMINISTRATION))
                 )
                 .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, designRepositoryAclService))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isGrantedToAnyProject(String repoId, List<Permission> permissions) {
@@ -167,7 +166,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
                 .stream()
                 .map(this::secureVisibleProject)
                 .flatMap(Optional::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

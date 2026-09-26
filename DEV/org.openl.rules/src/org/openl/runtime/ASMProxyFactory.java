@@ -3,7 +3,6 @@ package org.openl.runtime;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -104,7 +103,7 @@ public final class ASMProxyFactory {
     private static byte[] generateProxyByteCode(String proxyClassName, Class<?>[] interfaces) {
         var proxyType = Type.getObjectType(proxyClassName.replace('.', '/'));
         var cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        var listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
+        var listInterfaces = Arrays.stream(interfaces).toList();
         cw.visit(Opcodes.V1_8,
                 Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_FINAL,
                 proxyType.getInternalName(),

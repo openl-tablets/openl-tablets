@@ -2,7 +2,6 @@ package org.openl.studio.repositories.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.PropertyResolver;
@@ -45,7 +44,7 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
                         .capabilities(repositoryAccessService.computeCapabilities(repo, AclRepositoryType.DESIGN))
                         .features(new RepositoryFeatures(repo.supports()))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

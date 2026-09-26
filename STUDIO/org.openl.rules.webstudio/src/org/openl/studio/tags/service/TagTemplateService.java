@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class TagTemplateService {
     private final TagTemplateDao tagTemplateDao;
 
     public List<String> getTemplates() {
-        return tagTemplateDao.getAll().stream().map(TagTemplate::getTemplate).collect(Collectors.toList());
+        return tagTemplateDao.getAll().stream().map(TagTemplate::getTemplate).toList();
     }
 
     @Transactional

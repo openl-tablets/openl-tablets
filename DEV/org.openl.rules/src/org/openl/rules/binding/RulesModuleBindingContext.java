@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -138,7 +137,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     @Override
     public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) {
         var select = CollectionUtils.findAll(
-                preBinderMethods.values().stream().map(IOpenMethod.class::cast).collect(Collectors.toList()),
+                preBinderMethods.values().stream().map(IOpenMethod.class::cast).toList(),
                 e -> Objects.equals(methodName, e.getName()));
         IMethodCaller method;
         try {
@@ -253,7 +252,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (customSpreadsheetResultOpenClasses.length != openClasses.length) {
             throw new TypesCombinationNotSupportedException(Arrays.stream(openClasses)
                     .filter(e -> !(e instanceof CustomSpreadsheetResultOpenClass))
-                    .collect(Collectors.toList()));
+                    .toList());
         } else {
             return getModule().buildOrGetCombinedSpreadsheetResult(customSpreadsheetResultOpenClasses);
         }
@@ -292,7 +291,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName());
             openMethodBinders = openMethodBinders.stream()
                     .filter(RecursiveOpenMethodPreBinder::isSpreadsheetWithCustomSpreadsheetResult)
-                    .collect(Collectors.toList());
+                    .toList();
             final var customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
                     .getName();
             var openClass = super.findType(customSpreadsheetResultTypeName);

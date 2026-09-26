@@ -14,7 +14,6 @@ import java.util.Spliterators;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -130,11 +129,11 @@ class RunTracingITest {
                         spanAsMap.put(n.getKey(), val);
                     });
                     return spanAsMap;
-                }).collect(Collectors.toList());
+                }).toList();
 
         var methodSpans = allSpans.stream()
                 .filter(span -> span.get("name").equals(expectedOpenLMethodSpanName))
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(1, methodSpans.size());
         var methodSpan = methodSpans.getFirst();
@@ -148,7 +147,7 @@ class RunTracingITest {
         var parentSpans = allSpans.stream()
                 .filter(s -> s.get("parentSpanId") == null)
                 .filter(s -> s.get("traceId").equals(traceId))
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(1, parentSpans.size());
         var parentSpan = parentSpans.getFirst();
