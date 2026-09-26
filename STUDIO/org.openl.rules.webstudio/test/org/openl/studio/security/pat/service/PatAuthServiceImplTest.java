@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -70,8 +69,8 @@ class PatAuthServiceImplTest {
 
         var userDetails = createUserDetails("jdoe", "ROLE_USER", "ROLE_ADMIN");
 
-        when(validator.validate(eq(patToken))).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
+        when(validator.validate(patToken)).thenReturn(validResult);
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(userDetails);
 
         // Act
         var resolution = authService.resolveAuthentication(patToken);
@@ -88,8 +87,8 @@ class PatAuthServiceImplTest {
         assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
         assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
 
-        verify(validator, times(1)).validate(eq(patToken));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(1)).validate(patToken);
+        verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
     }
 
     @Test
@@ -98,7 +97,7 @@ class PatAuthServiceImplTest {
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
         PatValidationResult invalidResult = PatValidationResult.invalid();
 
-        when(validator.validate(eq(patToken))).thenReturn(invalidResult);
+        when(validator.validate(patToken)).thenReturn(invalidResult);
 
         // Act
         var resolution = authService.resolveAuthentication(patToken);
@@ -107,8 +106,8 @@ class PatAuthServiceImplTest {
         assertFalse(resolution.valid());
         assertNull(resolution.authentication());
 
-        verify(validator, times(1)).validate(eq(patToken));
-        verify(userDetailsService, never()).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(1)).validate(patToken);
+        verify(userDetailsService, never()).loadUserByUsername("jdoe");
     }
 
 
@@ -119,16 +118,16 @@ class PatAuthServiceImplTest {
         var storedToken = createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe");
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
 
-        when(validator.validate(eq(patToken))).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername(eq("jdoe")))
+        when(validator.validate(patToken)).thenReturn(validResult);
+        when(userDetailsService.loadUserByUsername("jdoe"))
                 .thenThrow(new UsernameNotFoundException("User not found"));
 
         // Act & Assert
         assertThrows(UsernameNotFoundException.class,
                 () -> authService.resolveAuthentication(patToken));
 
-        verify(validator, times(1)).validate(eq(patToken));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(1)).validate(patToken);
+        verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
     }
 
     @Test
@@ -140,8 +139,8 @@ class PatAuthServiceImplTest {
 
         var userDetails = createUserDetails("jdoe"); // No authorities
 
-        when(validator.validate(eq(patToken))).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
+        when(validator.validate(patToken)).thenReturn(validResult);
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(userDetails);
 
         // Act
         var resolution = authService.resolveAuthentication(patToken);
@@ -153,8 +152,8 @@ class PatAuthServiceImplTest {
         var auth = resolution.authentication();
         assertTrue(auth.getAuthorities().isEmpty());
 
-        verify(validator, times(1)).validate(eq(patToken));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(1)).validate(patToken);
+        verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
     }
 
     @Test
@@ -166,8 +165,8 @@ class PatAuthServiceImplTest {
 
         var userDetails = createUserDetails("jdoe", "ROLE_VIEWER");
 
-        when(validator.validate(eq(patToken))).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
+        when(validator.validate(patToken)).thenReturn(validResult);
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(userDetails);
 
         // Act
         var resolution = authService.resolveAuthentication(patToken);
@@ -181,8 +180,8 @@ class PatAuthServiceImplTest {
         assertTrue(auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER")));
 
-        verify(validator, times(1)).validate(eq(patToken));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(1)).validate(patToken);
+        verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
     }
 
     @Test
@@ -200,10 +199,10 @@ class PatAuthServiceImplTest {
         PatValidationResult validResult2 = PatValidationResult.valid(storedToken2);
         var userDetails2 = createUserDetails("jsmith", "ROLE_ADMIN");
 
-        when(validator.validate(eq(patToken1))).thenReturn(validResult1);
-        when(validator.validate(eq(patToken2))).thenReturn(validResult2);
-        when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails1);
-        when(userDetailsService.loadUserByUsername(eq("jsmith"))).thenReturn(userDetails2);
+        when(validator.validate(patToken1)).thenReturn(validResult1);
+        when(validator.validate(patToken2)).thenReturn(validResult2);
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(userDetails1);
+        when(userDetailsService.loadUserByUsername("jsmith")).thenReturn(userDetails2);
 
         // Act
         var resolution1 = authService.resolveAuthentication(patToken1);
@@ -220,10 +219,10 @@ class PatAuthServiceImplTest {
         assertTrue(resolution2.authentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
 
-        verify(validator, times(1)).validate(eq(patToken1));
-        verify(validator, times(1)).validate(eq(patToken2));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jdoe"));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jsmith"));
+        verify(validator, times(1)).validate(patToken1);
+        verify(validator, times(1)).validate(patToken2);
+        verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
+        verify(userDetailsService, times(1)).loadUserByUsername("jsmith");
     }
 
     @Test
@@ -234,8 +233,8 @@ class PatAuthServiceImplTest {
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
         var userDetails = createUserDetails("jdoe", "ROLE_USER");
 
-        when(validator.validate(eq(patToken))).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
+        when(validator.validate(patToken)).thenReturn(validResult);
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(userDetails);
 
         // Act
         var resolution = authService.resolveAuthentication(patToken);
@@ -248,8 +247,8 @@ class PatAuthServiceImplTest {
         var auth = resolution.authentication();
         assertTrue(auth.isAuthenticated(), "Authentication should be marked as authenticated");
 
-        verify(validator, times(1)).validate(eq(patToken));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(1)).validate(patToken);
+        verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
     }
 
     @Test
@@ -260,8 +259,8 @@ class PatAuthServiceImplTest {
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
         var userDetails = createUserDetails("jdoe", "ROLE_USER", "ROLE_ADMIN");
 
-        when(validator.validate(eq(patToken))).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
+        when(validator.validate(patToken)).thenReturn(validResult);
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(userDetails);
 
         // Act
         var resolution = authService.resolveAuthentication(patToken);
@@ -280,8 +279,8 @@ class PatAuthServiceImplTest {
         assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
         assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
 
-        verify(validator, times(1)).validate(eq(patToken));
-        verify(userDetailsService, times(1)).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(1)).validate(patToken);
+        verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
     }
 
     @Test
@@ -292,8 +291,8 @@ class PatAuthServiceImplTest {
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
         var userDetails = createUserDetails("jdoe", "ROLE_USER");
 
-        when(validator.validate(eq(patToken))).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername(eq("jdoe"))).thenReturn(userDetails);
+        when(validator.validate(patToken)).thenReturn(validResult);
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(userDetails);
 
         // Act - call multiple times with same token
         var resolution1 = authService.resolveAuthentication(patToken);
@@ -306,8 +305,8 @@ class PatAuthServiceImplTest {
         assertEquals("jdoe", ((UserDetails) resolution2.authentication().getPrincipal()).getUsername());
 
         // Verify called twice
-        verify(validator, times(2)).validate(eq(patToken));
-        verify(userDetailsService, times(2)).loadUserByUsername(eq("jdoe"));
+        verify(validator, times(2)).validate(patToken);
+        verify(userDetailsService, times(2)).loadUserByUsername("jdoe");
     }
 
     /**

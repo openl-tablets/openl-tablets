@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,7 +66,7 @@ class PatValidationServiceImplTest {
     void testValidate_ValidToken() {
         // Arrange
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
@@ -81,13 +80,13 @@ class PatValidationServiceImplTest {
         assertEquals(TEST_PUBLIC_ID, result.token().getPublicId());
         assertEquals("jdoe", result.token().getLoginName());
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
     void testValidate_TokenNotFound() {
         // Arrange
-        when(tokenDao.getByPublicId(eq(NONEXISTENT_ID))).thenReturn(null);
+        when(tokenDao.getByPublicId(NONEXISTENT_ID)).thenReturn(null);
 
         var patToken = new PatToken(NONEXISTENT_ID, TEST_SECRET);
 
@@ -100,14 +99,14 @@ class PatValidationServiceImplTest {
         assertFalse(result.valid());
         assertNull(result.token());
 
-        verify(tokenDao, times(1)).getByPublicId(eq(NONEXISTENT_ID));
+        verify(tokenDao, times(1)).getByPublicId(NONEXISTENT_ID);
     }
 
     @Test
     void testValidate_SecretMismatch() {
         // Arrange
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         // Try to validate with different secret
         var patToken = new PatToken(TEST_PUBLIC_ID, WRONG_SECRET);
@@ -119,7 +118,7 @@ class PatValidationServiceImplTest {
         assertFalse(result.valid());
         assertNull(result.token());
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
@@ -127,7 +126,7 @@ class PatValidationServiceImplTest {
         // Arrange
         var oneHourAgo = FIXED_TIME.minusSeconds(3600);
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneHourAgo);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
@@ -138,14 +137,14 @@ class PatValidationServiceImplTest {
         assertFalse(result.valid());
         assertNull(result.token());
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
     void testValidate_TokenWithoutExpiration() {
         // Arrange
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
@@ -157,7 +156,7 @@ class PatValidationServiceImplTest {
         assertNotNull(result.token());
         assertNull(result.token().getExpiresAt(), "Token should have no expiration");
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
@@ -165,7 +164,7 @@ class PatValidationServiceImplTest {
         // Arrange
         var oneDayLater = FIXED_TIME.plusSeconds(86400);
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneDayLater);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
@@ -176,7 +175,7 @@ class PatValidationServiceImplTest {
         assertTrue(result.valid());
         assertNotNull(result.token());
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
@@ -184,7 +183,7 @@ class PatValidationServiceImplTest {
         // Arrange
         // Token expires at exactly the current time (boundary condition)
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, FIXED_TIME);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
@@ -196,7 +195,7 @@ class PatValidationServiceImplTest {
         assertTrue(result.valid());
         assertNotNull(result.token());
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
@@ -204,7 +203,7 @@ class PatValidationServiceImplTest {
         // Arrange
         var justExpired = FIXED_TIME.minusMillis(1);
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, justExpired);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
@@ -215,7 +214,7 @@ class PatValidationServiceImplTest {
         assertFalse(result.valid());
         assertNull(result.token());
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
@@ -224,8 +223,8 @@ class PatValidationServiceImplTest {
         var token1 = createToken(TEST_PUBLIC_ID_2, "jdoe", TEST_SECRET_2, null);
         var token2 = createToken(TEST_PUBLIC_ID_3, "jsmith", TEST_SECRET_3, null);
 
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID_2))).thenReturn(token1);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID_3))).thenReturn(token2);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID_2)).thenReturn(token1);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID_3)).thenReturn(token2);
 
         // Act & Assert - validate jdoe's token
         var result1 = validationService.validate(new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_2));
@@ -241,8 +240,8 @@ class PatValidationServiceImplTest {
         var result3 = validationService.validate(new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_3));
         assertFalse(result3.valid());
 
-        verify(tokenDao, times(2)).getByPublicId(eq(TEST_PUBLIC_ID_2));
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID_3));
+        verify(tokenDao, times(2)).getByPublicId(TEST_PUBLIC_ID_2);
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID_3);
     }
 
     @Test
@@ -252,7 +251,7 @@ class PatValidationServiceImplTest {
         var wrongCaseSecret = "mysecretabc123456789012345678xy"; // same but lowercase
 
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", caseSensitiveSecret, null);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         // Act & Assert - exact match
         var result1 = validationService.validate(new PatToken(TEST_PUBLIC_ID, caseSensitiveSecret));
@@ -262,7 +261,7 @@ class PatValidationServiceImplTest {
         var result2 = validationService.validate(new PatToken(TEST_PUBLIC_ID, wrongCaseSecret));
         assertFalse(result2.valid());
 
-        verify(tokenDao, times(2)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(2)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     @Test
@@ -271,7 +270,7 @@ class PatValidationServiceImplTest {
         // Even though secret is correct, token should be rejected if expired
         var oneHourAgo = FIXED_TIME.minusSeconds(3600);
         var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneHourAgo);
-        when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
 
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
@@ -282,7 +281,7 @@ class PatValidationServiceImplTest {
         assertFalse(result.valid());
         assertNull(result.token(), "Expired token should not be returned even with correct secret");
 
-        verify(tokenDao, times(1)).getByPublicId(eq(TEST_PUBLIC_ID));
+        verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
     }
 
     /**

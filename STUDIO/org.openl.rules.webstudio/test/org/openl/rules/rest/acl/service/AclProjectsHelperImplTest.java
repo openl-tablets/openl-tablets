@@ -57,9 +57,9 @@ class AclProjectsHelperImplTest {
         var project = mock(AProject.class);
         when(aclServiceProvider.getDesignRepoAclService()).thenReturn(repositoryAclService);
 
-        when(repositoryAclService.isGranted(eq(project), eq(true), eq(BasePermission.DELETE))).thenReturn(true);
+        when(repositoryAclService.isGranted(project, true, BasePermission.DELETE)).thenReturn(true);
         assertTrue(aclProjectsHelper.hasPermission(project, BasePermission.DELETE));
-        verify(repositoryAclService).isGranted(eq(project), eq(true), eq(BasePermission.DELETE));
+        verify(repositoryAclService).isGranted(project, true, BasePermission.DELETE);
     }
 
     @Test
@@ -75,10 +75,10 @@ class AclProjectsHelperImplTest {
     void allow_create_when_allowProjectCreateDelete_is_true() {
         var project = mock(AProject.class);
         when(aclServiceProvider.getDesignRepoAclService()).thenReturn(repositoryAclService);
-        when(repositoryAclService.isGranted(eq(project), eq(List.of(BasePermission.CREATE)))).thenReturn(true);
+        when(repositoryAclService.isGranted(project, List.of(BasePermission.CREATE))).thenReturn(true);
         assertTrue(aclProjectsHelper.hasPermission(project, BasePermission.CREATE));
 
-        verify(repositoryAclService).isGranted(eq(project), eq(List.of(BasePermission.CREATE)));
+        verify(repositoryAclService).isGranted(project, List.of(BasePermission.CREATE));
     }
 
     @Test
@@ -87,7 +87,7 @@ class AclProjectsHelperImplTest {
 
         var child = mock(AProjectArtefact.class);
 
-        when(repositoryAclService.isGranted(eq(child), eq(true), eq(BasePermission.DELETE))).thenReturn(true);
+        when(repositoryAclService.isGranted(child, true, BasePermission.DELETE)).thenReturn(true);
         assertTrue(aclProjectsHelper.hasPermission(child, BasePermission.DELETE));
     }
 
@@ -97,7 +97,7 @@ class AclProjectsHelperImplTest {
 
         var child = mock(AProjectArtefact.class);
 
-        when(repositoryAclService.isGranted(eq(child), eq(false), eq(BasePermission.WRITE))).thenReturn(true);
+        when(repositoryAclService.isGranted(child, false, BasePermission.WRITE)).thenReturn(true);
         assertTrue(aclProjectsHelper.hasPermission(child, BasePermission.WRITE));
     }
 
