@@ -535,10 +535,15 @@ describe('ProjectDetail', () => {
         expect(searchParamsMock.get('tab')).toBe('files')
     })
 
-    it('removes the file parameter when the selection is cleared', async () => {
-        setParams('tab=files&file=rules.xlsx')
+    it.each([
+        ['removes the file parameter when the selection is cleared', 'tab=files&file=rules.xlsx', 'file-tree-clear'],
+        ['clears the file selection after a folder is deleted', 'tab=files&file=rules', 'folder-deleted'],
+        ['clears the file selection after a file is deleted from the preview', 'tab=files&file=rules.xlsx',
+            'preview-deleted'],
+    ])('%s', async (_behaviour, params, trigger) => {
+        setParams(params)
         renderProjectDetail()
-        await userEvent.click(screen.getByTestId('file-tree-clear'))
+        await userEvent.click(screen.getByTestId(trigger))
         expect(searchParamsMock.has('file')).toBe(false)
     })
 
@@ -681,13 +686,6 @@ describe('ProjectDetail', () => {
         expect(onChanged).toHaveBeenCalled()
     })
 
-    it('clears the file selection after a folder is deleted', async () => {
-        setParams('tab=files&file=rules')
-        renderProjectDetail()
-        await userEvent.click(screen.getByTestId('folder-deleted'))
-        expect(searchParamsMock.has('file')).toBe(false)
-    })
-
     it('refreshes the project after a file preview change', async () => {
         const onChanged = vi.fn()
         setParams('tab=files&file=rules.xlsx')
@@ -713,13 +711,6 @@ describe('ProjectDetail', () => {
         )
         await userEvent.click(screen.getByTestId('preview-changed'))
         expect(onChanged).toHaveBeenCalled()
-    })
-
-    it('clears the file selection after a file is deleted from the preview', async () => {
-        setParams('tab=files&file=rules.xlsx')
-        renderProjectDetail()
-        await userEvent.click(screen.getByTestId('preview-deleted'))
-        expect(searchParamsMock.has('file')).toBe(false)
     })
 
     it('updates the file filter from the toolbar', async () => {

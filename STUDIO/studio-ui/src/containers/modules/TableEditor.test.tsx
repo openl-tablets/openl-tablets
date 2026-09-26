@@ -778,47 +778,24 @@ describe('TableEditor', () => {
     /** The value of the cell that is open for writing, which says where the keyboard landed. */
     const openValue = () => (screen.getByTestId('table-cell-input') as HTMLInputElement).value
 
-    it('moves between cells with the arrows, and opens one with Enter', async () => {
-        draw({ editing: false })
-        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
-
-        await userEvent.click(screen.getByText('0'))
-        await userEvent.keyboard('{ArrowRight}{Enter}')
-
-        expect(openValue()).toBe('Good Morning')
-    })
-
-    it('lands on the cell that owns the place a move reached', async () => {
-        draw({ editing: false })
-        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
-
+    it.each([
+        ['moves between cells with the arrows, and opens one with Enter', '0', '{ArrowRight}{Enter}', 'Good Morning'],
         // The header spans both columns, so moving up from either of them lands on the header itself.
-        await userEvent.click(screen.getByText('Good Morning'))
-        await userEvent.keyboard('{ArrowUp}{Enter}')
-
-        expect(openValue()).toBe('Rules String Greeting(Integer hour)')
-    })
-
-    it('turns back to the cell it came from rather than to the neighbour', async () => {
-        draw({ editing: false })
-        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
-
+        ['lands on the cell that owns the place a move reached',
+            'Good Morning', '{ArrowUp}{Enter}', 'Rules String Greeting(Integer hour)'],
         // Up from the second column lands on the header, which spans both; coming back must return to the
         // cell that was left, not to the first column the header begins in.
-        await userEvent.click(screen.getByText('Good Morning'))
-        await userEvent.keyboard('{ArrowUp}{ArrowDown}{Enter}')
-
-        expect(openValue()).toBe('Good Morning')
-    })
-
-    it('opens a cell on the character the reader types, and takes it as the value', async () => {
+        ['turns back to the cell it came from rather than to the neighbour',
+            'Good Morning', '{ArrowUp}{ArrowDown}{Enter}', 'Good Morning'],
+        ['opens a cell on the character the reader types, and takes it as the value', 'Good Morning', 'N', 'N'],
+    ])('%s', async (_behaviour, from, keys, opened) => {
         draw({ editing: false })
         await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
 
-        await userEvent.click(screen.getByText('Good Morning'))
-        await userEvent.keyboard('N')
+        await userEvent.click(screen.getByText(from))
+        await userEvent.keyboard(keys)
 
-        expect(openValue()).toBe('N')
+        expect(openValue()).toBe(opened)
     })
 
     it('puts the caret at either end of what the cell holds', async () => {

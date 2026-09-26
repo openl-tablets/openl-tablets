@@ -291,36 +291,17 @@ describe('ConflictResolutionStep', () => {
             expect(screen.getByText('merge:resolution.upload_custom')).toBeInTheDocument()
         })
 
-        it('selects OURS resolution and shows resolved', async () => {
+        it.each([
+            ['selects OURS resolution and shows resolved', 'OURS', 'merge:resolution.resolved'],
+            ['selects THEIRS resolution and shows resolved', 'THEIRS', 'merge:resolution.resolved'],
+            ['selects BASE resolution and shows resolved', 'BASE', 'merge:resolution.resolved'],
+            ['shows upload button when CUSTOM is selected', 'CUSTOM', 'merge:upload.select_file'],
+        ])('%s', async (_behaviour, resolution, shown) => {
             await renderAndLoad()
 
-            await userEvent.click(screen.getByDisplayValue('OURS'))
+            await userEvent.click(screen.getByDisplayValue(resolution))
 
-            expect(screen.getByText('merge:resolution.resolved')).toBeInTheDocument()
-        })
-
-        it('selects THEIRS resolution and shows resolved', async () => {
-            await renderAndLoad()
-
-            await userEvent.click(screen.getByDisplayValue('THEIRS'))
-
-            expect(screen.getByText('merge:resolution.resolved')).toBeInTheDocument()
-        })
-
-        it('selects BASE resolution and shows resolved', async () => {
-            await renderAndLoad()
-
-            await userEvent.click(screen.getByDisplayValue('BASE'))
-
-            expect(screen.getByText('merge:resolution.resolved')).toBeInTheDocument()
-        })
-
-        it('shows upload button when CUSTOM is selected', async () => {
-            await renderAndLoad()
-
-            await userEvent.click(screen.getByDisplayValue('CUSTOM'))
-
-            expect(screen.getByText('merge:upload.select_file')).toBeInTheDocument()
+            expect(screen.getByText(shown)).toBeInTheDocument()
         })
     })
 
