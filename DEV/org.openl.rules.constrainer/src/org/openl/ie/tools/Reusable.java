@@ -2,7 +2,6 @@ package org.openl.ie.tools;
 
 import java.io.Serializable;
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
  * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
@@ -15,7 +14,6 @@ import java.io.Serializable;
  * stipulated in the agreement/contract under which
  * the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 
 /**
  * An interface for the reusable object. Reusable objects allow the developer to reuse the memory allocated and freed

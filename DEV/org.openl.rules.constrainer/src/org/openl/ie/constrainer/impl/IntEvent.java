@@ -3,7 +3,6 @@ package org.openl.ie.constrainer.impl;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.IntExp;
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
  * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
@@ -16,7 +15,6 @@ import org.openl.ie.constrainer.IntExp;
  * stipulated in the agreement/contract under which
  * the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 
 /**
  * A delta-event about the change(s) in the domain of the constraint integer expression. This event contains an

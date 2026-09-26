@@ -1,6 +1,5 @@
 package org.openl.ie.tools;
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
  * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
@@ -13,7 +12,6 @@ package org.openl.ie.tools;
  * stipulated in the agreement/contract under which
  * the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 
 import java.io.Serializable;
 

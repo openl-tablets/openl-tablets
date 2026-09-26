@@ -4,7 +4,6 @@ import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.ConstrainerObjectImpl;
 import org.openl.ie.constrainer.Undoable;
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
  * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
@@ -17,7 +16,6 @@ import org.openl.ie.constrainer.Undoable;
  * stipulated in the agreement/contract under which
  * the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 
 /**
  * An implementation of the Undoable interface for the undoable only once object.

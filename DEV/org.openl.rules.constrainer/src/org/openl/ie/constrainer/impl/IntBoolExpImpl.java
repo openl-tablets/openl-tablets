@@ -6,7 +6,6 @@ import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntBoolExpConst;
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
  * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
@@ -19,7 +18,6 @@ import org.openl.ie.constrainer.IntBoolExpConst;
  * stipulated in the agreement/contract under which
  * the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 
 /**
  * A generic implementation of the IntBoolExp interface.

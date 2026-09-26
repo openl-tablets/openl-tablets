@@ -187,7 +187,7 @@ public class ParsedGrid extends AGrid {
         return new CellRowCol(endRow, endCol);
     }
 
-    /////////////////////////// Methods used in ParsedCell ///////////////////////////////////
+    // Methods used in ParsedCell
 
     protected Object getCellValue(int row, int column) {
         var internalRow = row - getFirstRowNum();
@@ -302,8 +302,6 @@ public class ParsedGrid extends AGrid {
     protected boolean isEditing() {
         return writableGrid != null;
     }
-
-    //////////////////////////////////////////////////////////////////////
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class CellRowCol {

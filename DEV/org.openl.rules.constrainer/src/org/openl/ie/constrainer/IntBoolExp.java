@@ -1,6 +1,5 @@
 package org.openl.ie.constrainer;
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
  * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
@@ -13,7 +12,6 @@ package org.openl.ie.constrainer;
  * stipulated in the agreement/contract under which
  * the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 
 /**
  * An interface for the constraint boolean expression as an [0..1] integer expression where 0 is false and 1 is true.

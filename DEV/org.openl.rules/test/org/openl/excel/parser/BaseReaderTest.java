@@ -60,7 +60,7 @@ public abstract class BaseReaderTest {
         assertEquals(15, cells.length);
         assertEquals(1, cells[0].length);
 
-        //// Different type assertions
+        // Different type assertions
         var row = 0;
         assertEquals("Value", cells[row][0]);
 
@@ -89,7 +89,7 @@ public abstract class BaseReaderTest {
         expected.set(2018, Calendar.DECEMBER, 21);
         assertEquals(expected.getTime(), cells[row][0]);
 
-        //// Assertions for formulas
+        // Assertions for formulas
         // Double
         row++;
         assertThat(cells[row][0], instanceOf(Double.class));
@@ -109,14 +109,14 @@ public abstract class BaseReaderTest {
         row++;
         assertEquals(Boolean.TRUE, cells[row][0]);
 
-        //// Indention assertions
+        // Indention assertions
         row++;
         assertEquals(new AlignedValue("Indent 1", (short) 1), cells[row][0]);
 
         row++;
         assertEquals(new AlignedValue("Indent 2", (short) 2), cells[row][0]);
 
-        //// Trim assertions
+        // Trim assertions
         row++;
         assertEquals("Trim me!", cells[row][0]);
 

@@ -42,7 +42,6 @@ final class BitArray implements Serializable {
 
 } // ~BitArray
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
  *
@@ -50,7 +49,6 @@ final class BitArray implements Serializable {
  * program(s) may be used and/or copied only with the written permission of Exigen Group or in accordance with the terms
  * and conditions stipulated in the agreement/contract under which the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 //
 // : DomainBits2.java
 //

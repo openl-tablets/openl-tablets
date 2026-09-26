@@ -8,7 +8,6 @@ import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
  * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
@@ -21,7 +20,6 @@ import org.openl.ie.constrainer.Subject;
  * stipulated in the agreement/contract under which
  * the program(s) have been supplied.
  */
-///////////////////////////////////////////////////////////////////////////////
 
 /**
  * An implementation of the expression: <code>(IntBoolExp1 && IntBoolExp2)</code>.
