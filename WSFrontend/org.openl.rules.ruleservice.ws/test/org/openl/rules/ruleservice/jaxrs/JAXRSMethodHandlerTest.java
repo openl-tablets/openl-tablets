@@ -29,20 +29,19 @@ class JAXRSMethodHandlerTest {
 
     @Test
     void checkNullMethodsConstructorArgument() {
+        var target = new Object();
         assertThrows(NullPointerException.class, () -> {
-            new JAXRSMethodHandler(new Object(), null);
+            new JAXRSMethodHandler(target, null);
         });
     }
 
     @Test
     void checkInvokeOnUnknownMethod() throws Throwable {
-        assertThrows(IllegalStateException.class, () -> {
-            var target = new Object();
-            var methods = new HashMap<Method, Method>();
-            var handler = new JAXRSMethodHandler(target, methods);
-            var unknownMethod = Object.class.getDeclaredMethod("hashCode");
-            handler.invoke(unknownMethod, null);
-        });
+        var target = new Object();
+        var methods = new HashMap<Method, Method>();
+        var handler = new JAXRSMethodHandler(target, methods);
+        var unknownMethod = Object.class.getDeclaredMethod("hashCode");
+        assertThrows(IllegalStateException.class, () -> handler.invoke(unknownMethod, null));
     }
 
     @Test

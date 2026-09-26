@@ -121,10 +121,10 @@ class HeaderOnlyTableWriteTest {
         var appended = new SpreadsheetAppend();
         appended.setRows(List.of(SpreadsheetRowView.builder().name("Sum").build()));
         appended.setCells(new SpreadsheetCellView[][]{{SpreadsheetCellView.builder().value("= 1").build()}});
+        var writer = new SpreadsheetTableWriter(TableTestProjects.onlyTable(project));
 
         // A header alone has no data columns to append a value to.
-        assertThrows(BadRequestException.class,
-                () -> new SpreadsheetTableWriter(TableTestProjects.onlyTable(project)).append(appended));
+        assertThrows(BadRequestException.class, () -> writer.append(appended));
 
         // Asking for the body to check the request against did not touch the table.
         assertEquals(List.of(row("Spreadsheet")), rawSource(project));

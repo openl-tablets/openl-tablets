@@ -152,44 +152,34 @@ class String2NumberConverterTest {
 
     @Test
     void testParseNotNumber() {
-        assertThrows(NumberFormatException.class, () -> {
-            String2NumberConverter<Number> converter = getNumberConverter();
-            converter.parse("3.1415d", null);
-        });
+        String2NumberConverter<Number> converter = getNumberConverter();
+        assertThrows(NumberFormatException.class, () -> converter.parse("3.1415d", null));
     }
 
     @Test
     void testParseEmpty() {
-        assertThrows(NumberFormatException.class, () -> {
-            String2NumberConverter<Number> converter = getNumberConverter();
-            // skip using a String Pool in runtime
-            converter.parse("", null);
-        });
+        String2NumberConverter<Number> converter = getNumberConverter();
+        // skip using a String Pool in runtime
+        assertThrows(NumberFormatException.class, () -> converter.parse("", null));
     }
 
     @Test
     void testParsePercentSign() {
-        assertThrows(NumberFormatException.class, () -> {
-            String2NumberConverter<Number> converter = getNumberConverter();
-            // skip using a String Pool in runtime
-            converter.parse("%", null);
-        });
+        String2NumberConverter<Number> converter = getNumberConverter();
+        // skip using a String Pool in runtime
+        assertThrows(NumberFormatException.class, () -> converter.parse("%", null));
     }
 
     @Test
     void testParseNotENumber() {
-        assertThrows(NumberFormatException.class, () -> {
-            String2NumberConverter<Number> converter = getNumberConverter();
-            converter.parse("1e1", null);
-        });
+        String2NumberConverter<Number> converter = getNumberConverter();
+        assertThrows(NumberFormatException.class, () -> converter.parse("1e1", null));
     }
 
     @Test
     void testParseWithSpaces() {
-        assertThrows(NumberFormatException.class, () -> {
-            String2NumberConverter<Number> converter = getNumberConverter();
-            converter.parse("1 ", null);
-        });
+        String2NumberConverter<Number> converter = getNumberConverter();
+        assertThrows(NumberFormatException.class, () -> converter.parse("1 ", null));
     }
 
     private String2NumberConverter<Number> getNumberConverter() {

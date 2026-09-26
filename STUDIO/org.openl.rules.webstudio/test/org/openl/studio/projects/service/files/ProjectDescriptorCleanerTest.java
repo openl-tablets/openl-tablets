@@ -143,8 +143,8 @@ class ProjectDescriptorCleanerTest {
         givenDescriptor(descriptor(module("Main", "rules/Main.xlsx")));
         when(aclProjectsHelper.hasPermission(descriptorResource, BasePermission.WRITE)).thenReturn(false);
 
-        assertThrows(ForbiddenException.class,
-                () -> cleaner.unregisterModules(project, excelFile("rules/Main.xlsx")));
+        var mainFile = excelFile("rules/Main.xlsx");
+        assertThrows(ForbiddenException.class, () -> cleaner.unregisterModules(project, mainFile));
 
         verify(descriptorResource, never()).setContent(any());
     }

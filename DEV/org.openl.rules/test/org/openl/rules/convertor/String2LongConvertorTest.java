@@ -23,26 +23,20 @@ class String2LongConvertorTest {
 
     @Test
     void testConvertPositiveOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2LongConvertor();
-            converter.parse("9223372036854775808", null);
-        });
+        var converter = new String2LongConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("9223372036854775808", null));
     }
 
     @Test
     void testConvertNegativeOverflow() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2LongConvertor();
-            converter.parse("-9223372036854775809", null);
-        });
+        var converter = new String2LongConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("-9223372036854775809", null));
     }
 
     @Test
     void testConvertNonInteger() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2LongConvertor();
-            converter.parse("1.3", null);
-        });
+        var converter = new String2LongConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("1.3", null));
     }
 
 }

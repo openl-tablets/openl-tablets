@@ -65,9 +65,10 @@ class RepoFilesLockGuardTest {
     @Test
     void writeInsideProjectLockedByAnotherUserIsRejected() throws Exception {
         lockedBy("userA");
+        var items = List.of(item("rules/P1/a.txt"));
 
         var ex = assertThrows(ConflictException.class,
-                () -> root.writeBatch("rules", List.of(item("rules/P1/a.txt")), ChangesetType.DIFF, "Upload"));
+                () -> root.writeBatch("rules", items, ChangesetType.DIFF, "Upload"));
 
         assertEquals("openl.error.409.file.project.locked.message", ex.getErrorCode());
         verify(repository, never()).save(any(), any(), any());
@@ -102,9 +103,10 @@ class RepoFilesLockGuardTest {
     @Test
     void fullChangesetChecksTheWholeSubtree() throws Exception {
         lockedBy("userA");
+        var items = List.of(item("docs/readme.txt"));
 
         var ex = assertThrows(ConflictException.class,
-                () -> root.writeBatch("", List.of(item("docs/readme.txt")), ChangesetType.FULL, "Replace"));
+                () -> root.writeBatch("", items, ChangesetType.FULL, "Replace"));
 
         assertEquals("openl.error.409.file.project.locked.message", ex.getErrorCode());
         verify(repository, never()).save(any(), any(), any());
@@ -113,8 +115,9 @@ class RepoFilesLockGuardTest {
     @Test
     void folderContainingTheProjectIsGuardedToo() {
         lockedBy("userA");
+        var paths = List.of("rules");
 
-        var ex = assertThrows(ConflictException.class, () -> root.requireUnlocked(List.of("rules")));
+        var ex = assertThrows(ConflictException.class, () -> root.requireUnlocked(paths));
 
         assertEquals("openl.error.409.file.project.locked.message", ex.getErrorCode());
     }

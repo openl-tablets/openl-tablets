@@ -684,7 +684,8 @@ class RawTableWriterTest {
     void refusesToTakeAwayTheRowTheHeaderStandsOn() {
         // Nothing bars the first row itself. What bars this write is that the table would be left starting
         // with a line OpenL does not read as a header, which is a table nobody could find again.
-        assertThrows(BadRequestException.class, () -> apply(deleteRow(0)));
+        var deletion = deleteRow(0);
+        assertThrows(BadRequestException.class, () -> apply(deletion));
 
         var source = reload(mainProject);
         assertEquals(4, source.size());
@@ -696,9 +697,9 @@ class RawTableWriterTest {
         // The header is banked from the first column, and a column laid down before it moves the bank aside:
         // the corner OpenL finds the table by is left blank.
         apply(merge(0, 0, 1, 3));
+        var insertion = insertColumn(0, row(null, "long", "id", "epsilon"));
 
-        assertThrows(BadRequestException.class,
-                () -> apply(insertColumn(0, row(null, "long", "id", "epsilon"))));
+        assertThrows(BadRequestException.class, () -> apply(insertion));
 
         var source = reload(mainProject);
         assertEquals(3, width(source));

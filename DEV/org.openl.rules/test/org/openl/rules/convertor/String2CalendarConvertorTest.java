@@ -47,18 +47,14 @@ class String2CalendarConvertorTest {
 
     @Test
     void testParseEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2CalendarConvertor();
-            converter.parse("", null);
-        });
+        var converter = new String2CalendarConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("", null));
     }
 
     @Test
     void testParseWrongValue() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2CalendarConvertor();
-            converter.parse("Kin-Dza-Dza", null);
-        });
+        var converter = new String2CalendarConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("Kin-Dza-Dza", null));
     }
 
     @Test

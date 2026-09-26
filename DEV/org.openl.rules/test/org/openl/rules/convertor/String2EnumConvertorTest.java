@@ -31,10 +31,8 @@ class String2EnumConvertorTest {
 
     @Test
     void testParseNotPresent() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2EnumConvertor<EnumRes>(EnumRes.class);
-            converter.parse("Val4", null);
-        });
+        var converter = new String2EnumConvertor<EnumRes>(EnumRes.class);
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("Val4", null));
     }
 
     @Test

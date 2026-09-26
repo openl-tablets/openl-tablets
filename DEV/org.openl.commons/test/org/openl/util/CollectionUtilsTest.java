@@ -159,8 +159,9 @@ class CollectionUtilsTest {
 
     @Test
     void testNullMapperMap() {
+        var numbers = Arrays.asList(1, 2, 3);
         assertThrows(NullPointerException.class, () -> {
-            CollectionUtils.map(Arrays.asList(1, 2, 3), null);
+            CollectionUtils.map(numbers, null);
             fail("NullPointerException is expected but not appeared");
         });
     }
@@ -179,8 +180,9 @@ class CollectionUtilsTest {
 
     @Test
     void testNullPredicateFindFirst() {
+        var numbers = Arrays.asList(2, 0, 6, 10);
         assertThrows(NullPointerException.class, () -> {
-            CollectionUtils.findFirst(Arrays.asList(2, 0, 6, 10), null);
+            CollectionUtils.findFirst(numbers, null);
             fail("NullPointerException is expected but not appeared");
         });
     }
@@ -201,8 +203,9 @@ class CollectionUtilsTest {
 
     @Test
     void testNullPredicateFindAll() {
+        var numbers = Arrays.asList(2, 0, 6, 10);
         assertThrows(NullPointerException.class, () -> {
-            CollectionUtils.findAll(Arrays.asList(2, 0, 6, 10), null);
+            CollectionUtils.findAll(numbers, null);
             fail("NullPointerException is expected but not appeared");
         });
     }

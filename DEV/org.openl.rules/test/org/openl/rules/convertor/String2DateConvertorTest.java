@@ -48,34 +48,26 @@ class String2DateConvertorTest {
 
     @Test
     void testParseEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2DateConvertor();
-            converter.parse("", null);
-        });
+        var converter = new String2DateConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("", null));
     }
 
     @Test
     void testParseWrongValue() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2DateConvertor();
-            converter.parse("Kin-Dza-Dza", null);
-        });
+        var converter = new String2DateConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("Kin-Dza-Dza", null));
     }
 
     @Test
     void testParseExtraSymbol() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2DateConvertor();
-            converter.parse("2021-01-01T", null);
-        });
+        var converter = new String2DateConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("2021-01-01T", null));
     }
 
     @Test
     void testParseMissprint() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            var converter = new String2DateConvertor();
-            converter.parse("10/13/20 17", null);
-        });
+        var converter = new String2DateConvertor();
+        assertThrows(IllegalArgumentException.class, () -> converter.parse("10/13/20 17", null));
     }
 
     @Test

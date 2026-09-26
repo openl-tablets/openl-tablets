@@ -77,9 +77,10 @@ class ProjectFilesEditLockTest {
     @Test
     void uploadToProjectLockedByAnotherUserIsRejected() throws Exception {
         lockedByAnotherUser();
+        var items = List.of(item("a.txt"));
 
         var ex = assertThrows(ConflictException.class,
-                () -> root.writeBatch("", List.of(item("a.txt")), ChangesetType.DIFF, "Upload files"));
+                () -> root.writeBatch("", items, ChangesetType.DIFF, "Upload files"));
 
         assertEquals("openl.error.409.project.locked.message", ex.getErrorCode());
         verify(repository, never()).save(any(), any(), any());
@@ -109,9 +110,9 @@ class ProjectFilesEditLockTest {
     void failedUploadToClosedProjectDoesNotLeaveTheLock() throws Exception {
         closedProject();
         doThrow(new IOException()).when(repository).save(any(FileData.class), any(), any());
+        var items = List.of(item("a.txt"));
 
-        assertThrows(ConflictException.class,
-                () -> root.writeBatch("", List.of(item("a.txt")), ChangesetType.DIFF, "Upload files"));
+        assertThrows(ConflictException.class, () -> root.writeBatch("", items, ChangesetType.DIFF, "Upload files"));
 
         verify(project).unlock();
     }
@@ -120,9 +121,9 @@ class ProjectFilesEditLockTest {
     void lockOfAnotherUserOnClosedProjectIsNeverTouched() throws Exception {
         when(project.isOpened()).thenReturn(false);
         lockedByAnotherUser();
+        var items = List.of(item("a.txt"));
 
-        assertThrows(ConflictException.class,
-                () -> root.writeBatch("", List.of(item("a.txt")), ChangesetType.DIFF, "Upload files"));
+        assertThrows(ConflictException.class, () -> root.writeBatch("", items, ChangesetType.DIFF, "Upload files"));
 
         verify(project, never()).unlock();
     }
@@ -164,9 +165,9 @@ class ProjectFilesEditLockTest {
     @Test
     void closedProjectIsReservedBeforeResolutionAndReleasedOnFailure() throws Exception {
         closedProject();
+        var content = new ByteArrayInputStream(new byte[0]);
 
-        assertThrows(NotFoundException.class,
-                () -> service.updateResource(root, "missing.txt", new ByteArrayInputStream(new byte[0])));
+        assertThrows(NotFoundException.class, () -> service.updateResource(root, "missing.txt", content));
 
         verify(project).tryLockOrThrow();
         verify(project).unlock();
@@ -174,8 +175,9 @@ class ProjectFilesEditLockTest {
 
     @Test
     void openedProjectIsNotLockedByARejectedRequest() throws Exception {
-        assertThrows(NotFoundException.class,
-                () -> service.updateResource(root, "missing.txt", new ByteArrayInputStream(new byte[0])));
+        var content = new ByteArrayInputStream(new byte[0]);
+
+        assertThrows(NotFoundException.class, () -> service.updateResource(root, "missing.txt", content));
 
         verify(project, never()).tryLockOrThrow();
         verify(project, never()).unlock();
@@ -185,9 +187,9 @@ class ProjectFilesEditLockTest {
     void updateInProjectLockedByAnotherUserIsRejected() throws Exception {
         lockedByAnotherUser();
         projectWithFile("data.txt");
+        var content = new ByteArrayInputStream(new byte[0]);
 
-        var ex = assertThrows(ConflictException.class,
-                () -> service.updateResource(root, "data.txt", new ByteArrayInputStream(new byte[0])));
+        var ex = assertThrows(ConflictException.class, () -> service.updateResource(root, "data.txt", content));
 
         assertEquals("openl.error.409.project.locked.message", ex.getErrorCode());
         verify(repository, never()).save(any(FileData.class), any(InputStream.class));
@@ -196,9 +198,9 @@ class ProjectFilesEditLockTest {
     @Test
     void creationInProjectLockedByAnotherUserIsRejected() throws Exception {
         lockedByAnotherUser();
+        var content = new ByteArrayInputStream(new byte[0]);
 
-        var ex = assertThrows(ConflictException.class,
-                () -> service.createResource(root, "new.txt", new ByteArrayInputStream(new byte[0]), false));
+        var ex = assertThrows(ConflictException.class, () -> service.createResource(root, "new.txt", content, false));
 
         assertEquals("openl.error.409.project.locked.message", ex.getErrorCode());
         verify(repository, never()).save(any(FileData.class), any(InputStream.class));

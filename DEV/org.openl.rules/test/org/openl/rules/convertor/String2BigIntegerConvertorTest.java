@@ -25,9 +25,7 @@ class String2BigIntegerConvertorTest {
 
     @Test
     void testConvertNonInteger() {
-        assertThrows(NumberFormatException.class, () -> {
-            var converter = new String2BigIntegerConvertor();
-            converter.parse("1.3", null);
-        });
+        var converter = new String2BigIntegerConvertor();
+        assertThrows(NumberFormatException.class, () -> converter.parse("1.3", null));
     }
 }

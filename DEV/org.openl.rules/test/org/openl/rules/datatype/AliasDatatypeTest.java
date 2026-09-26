@@ -58,11 +58,9 @@ class AliasDatatypeTest {
 
     @Test
     void test2() {
-        assertThrows(RuntimeException.class, () -> {
 
-            ITest instance = TestUtils.create(SRC, ITest.class);
-            instance.test1("Something that does not belong to domain");
-        });
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertThrows(RuntimeException.class, () -> instance.test1("Something that does not belong to domain"));
     }
 
     @Test
@@ -103,11 +101,9 @@ class AliasDatatypeTest {
 
     @Test
     void test5() {
-        assertThrows(RuntimeException.class, () -> {
 
-            ITest instance = TestUtils.create(SRC, ITest.class);
-            instance.method1();
-        });
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertThrows(RuntimeException.class, instance::method1);
     }
 
     @Test

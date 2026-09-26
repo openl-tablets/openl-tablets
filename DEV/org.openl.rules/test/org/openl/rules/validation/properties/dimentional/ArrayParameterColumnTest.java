@@ -74,9 +74,10 @@ class ArrayParameterColumnTest {
         //
         var property = new TablePropertyDefinition();
         property.setType(JavaOpenClass.getOpenClass(String.class));
+        var rules = getRules();
 
         try {
-            new ArrayParameterColumn(property, getRules());
+            new ArrayParameterColumn(property, rules);
             fail("Exception should be thrown for not array property");
         } catch (OpenlNotCheckedException e) {
             assertEquals("Cannot create array parameter column for not an array property", e.getMessage());
