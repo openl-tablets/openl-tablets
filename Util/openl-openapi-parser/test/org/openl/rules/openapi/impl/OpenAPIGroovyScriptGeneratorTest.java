@@ -502,7 +502,7 @@ class OpenAPIGroovyScriptGeneratorTest {
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());
-        assertTrue((interfaceClass.getModifiers() & Modifier.PUBLIC) != 0, "Interface must be public");
+        assertTrue(Modifier.isPublic(interfaceClass.getModifiers()), "Interface must be public");
         assertEquals(expectedName, interfaceClass.getName());
     }
 
@@ -521,7 +521,7 @@ class OpenAPIGroovyScriptGeneratorTest {
             InstantiationException {
 
         assertFalse(clazz.isInterface());
-        assertTrue((clazz.getModifiers() & Modifier.PUBLIC) != 0, "Class must be public");
+        assertTrue(Modifier.isPublic(clazz.getModifiers()), "Class must be public");
         assertEquals(expectedName, clazz.getName());
         clazz.newInstance();// just for sure
     }
