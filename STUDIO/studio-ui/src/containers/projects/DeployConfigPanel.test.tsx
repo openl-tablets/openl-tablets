@@ -106,11 +106,8 @@ const panel = (canWrite = true, onSaved: () => void = vi.fn(), reloadToken = 0) 
 )
 
 async function renderPanel(canWrite = true, onSaved = vi.fn()) {
-    let result!: ReturnType<typeof render>
-    await act(async () => {
-        result = render(panel(canWrite, onSaved))
-        await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    const result = render(panel(canWrite, onSaved))
+    await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument())
     return result
 }
 

@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { UserProfileCompletionModal } from './UserProfileCompletionModal'
 import * as services from 'services'
@@ -48,12 +48,9 @@ const defaultProps = () => ({
     onCancel: vi.fn(),
 })
 
-const renderModal = async (props = defaultProps()) => {
-    let result: ReturnType<typeof render>
-    await act(async () => {
-        result = render(<UserProfileCompletionModal {...props} />)
-    })
-    return { ...result!, props }
+const renderModal = (props = defaultProps()) => {
+    const result = render(<UserProfileCompletionModal {...props} />)
+    return { ...result, props }
 }
 
 const getDisplayNameInput = () =>
@@ -71,7 +68,7 @@ describe('UserProfileCompletionModal', () => {
     })
 
     it('renders the profile form while open', async () => {
-        await renderModal()
+        renderModal()
 
         expect(screen.getByText('users:profile_completion.title')).toBeInTheDocument()
         expect(getEmailInput()).toBeInTheDocument()
@@ -83,7 +80,7 @@ describe('UserProfileCompletionModal', () => {
     it('does not render the profile form when closed', async () => {
         const props = defaultProps()
         props.open = false
-        await renderModal(props)
+        renderModal(props)
 
         expect(screen.queryByText('users:profile_completion.title')).not.toBeInTheDocument()
     })
@@ -97,7 +94,7 @@ describe('UserProfileCompletionModal', () => {
             email: 'john@example.com',
         })
 
-        await renderModal(props)
+        renderModal(props)
 
         expect(getFirstNameInput()).toHaveValue('John')
         expect(getLastNameInput()).toHaveValue('Doe')
@@ -107,7 +104,7 @@ describe('UserProfileCompletionModal', () => {
 
     it('requires email and display name while allowing empty first and last names', async () => {
         mockApiCall.mockResolvedValueOnce({})
-        const { props } = await renderModal()
+        const { props } = renderModal()
 
         await user.type(getEmailInput(), 'jane@example.com')
         await user.type(getDisplayNameInput(), 'Jane Doe')
@@ -133,7 +130,7 @@ describe('UserProfileCompletionModal', () => {
     })
 
     it('does not submit when required fields are empty', async () => {
-        const { props } = await renderModal()
+        const { props } = renderModal()
 
         await user.click(getSaveButton())
 
@@ -142,7 +139,7 @@ describe('UserProfileCompletionModal', () => {
     })
 
     it('does not submit a whitespace-only display name', async () => {
-        const { props } = await renderModal()
+        const { props } = renderModal()
 
         await user.type(getEmailInput(), 'jane@example.com')
         await user.type(getDisplayNameInput(), '   ')
@@ -161,7 +158,7 @@ describe('UserProfileCompletionModal', () => {
         })
         mockApiCall.mockResolvedValueOnce({})
 
-        await renderModal(props)
+        renderModal(props)
 
         expect(getDisplayNameInput()).toHaveValue('Jane Doe')
         expect(getDisplayNameInput()).toBeDisabled()
@@ -194,7 +191,7 @@ describe('UserProfileCompletionModal', () => {
         })
         mockApiCall.mockRejectedValueOnce(new Error('Save failed'))
 
-        await renderModal(props)
+        renderModal(props)
         await user.click(getSaveButton())
 
         await waitFor(() => expect(screen.getByText('Save failed')).toBeInTheDocument())
@@ -211,7 +208,7 @@ describe('UserProfileCompletionModal', () => {
         })
         mockApiCall.mockRejectedValueOnce({})
 
-        await renderModal(props)
+        renderModal(props)
         await user.click(getSaveButton())
 
         await waitFor(() => {
@@ -223,14 +220,14 @@ describe('UserProfileCompletionModal', () => {
         const props = defaultProps()
         props.required = true
 
-        await renderModal(props)
+        renderModal(props)
 
         expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
         expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument()
     })
 
     it('can be cancelled when used as a defensive action guard', async () => {
-        const { props } = await renderModal()
+        const { props } = renderModal()
         const cancelButton = screen
             .getAllByRole('button')
             .find(button => button !== getSaveButton() && button.getAttribute('aria-label') !== 'Close')
@@ -250,7 +247,7 @@ describe('UserProfileCompletionModal', () => {
             email: 'john@example.com',
         })
 
-        await renderModal(props)
+        renderModal(props)
 
         expect(getDisplayNameInput()).toHaveValue('JD')
         expect(getDisplayNameInput()).not.toBeDisabled()
@@ -269,7 +266,7 @@ describe('UserProfileCompletionModal', () => {
             },
         })
 
-        await renderModal(props)
+        renderModal(props)
 
         expect(getEmailInput()).toBeDisabled()
         expect(getDisplayNameInput()).not.toBeDisabled()
@@ -286,7 +283,7 @@ describe('UserProfileCompletionModal', () => {
             email: 'jane@example.com',
         })
 
-        await renderModal(props)
+        renderModal(props)
         const cancelButton = screen
             .getAllByRole('button')
             .find(button => button !== getSaveButton() && button.getAttribute('aria-label') !== 'Close')

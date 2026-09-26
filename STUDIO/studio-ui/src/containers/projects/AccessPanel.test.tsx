@@ -131,10 +131,7 @@ describe('AccessPanel', () => {
             entry('repo-user', 'repository'),
         ])
 
-        await act(async () => {
-            render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
 
         await waitFor(() => expect(screen.getByText('repo-user')).toBeTruthy())
         expect(screen.getByText('browser.access.source_project')).toBeTruthy()
@@ -148,10 +145,7 @@ describe('AccessPanel', () => {
     it('shows an error state when ACL loading fails', async () => {
         vi.mocked(getProjectAcl).mockRejectedValue(new Error('network'))
 
-        await act(async () => {
-            render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
 
         await waitFor(() => expect(screen.getByText('browser.access.load_failed')).toBeTruthy())
     })
@@ -159,10 +153,7 @@ describe('AccessPanel', () => {
     it('updates and removes direct project ACL entries', async () => {
         vi.mocked(getProjectAcl).mockResolvedValue([entry('direct-user', 'project')])
 
-        await act(async () => {
-            render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
 
         await waitFor(() => expect(screen.getByTestId('access-role-project-direct-user')).toBeTruthy())
 
@@ -185,10 +176,7 @@ describe('AccessPanel', () => {
             entry('direct-user', 'project'),
         ])
 
-        await act(async () => {
-            render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        render(<AccessPanel canManage projectId="p1" projectName="Alpha" />)
 
         await waitFor(() => expect(screen.getByTestId('access-remove-project-direct-user')).toBeTruthy())
         // Both rows named "me" share the test id; only the group row keeps its remove button.
@@ -200,11 +188,9 @@ describe('AccessPanel', () => {
     it('hides add controls when the user cannot manage access', async () => {
         vi.mocked(getProjectAcl).mockResolvedValue([entry('viewer', 'project')])
 
-        await act(async () => {
-            render(<AccessPanel canManage={false} projectId="p1" projectName="Alpha" />)
-            await new Promise(resolve => setTimeout(resolve, 0))
-        })
+        render(<AccessPanel canManage={false} projectId="p1" projectName="Alpha" />)
 
+        await screen.findByText('viewer')
         expect(screen.queryByTestId('access-add')).toBeNull()
     })
 })

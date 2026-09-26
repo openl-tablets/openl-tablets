@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import * as services from 'services'
@@ -66,9 +66,7 @@ describe('Tags', () => {
     })
 
     it('renders and loads tag types and templates on mount', async () => {
-        await act(async () => {
-            render(<Tags />)
-        })
+        render(<Tags />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/tag-config/types')
@@ -77,9 +75,7 @@ describe('Tags', () => {
     })
 
     it('loads templates into textarea', async () => {
-        await act(async () => {
-            render(<Tags />)
-        })
+        render(<Tags />)
 
         await waitFor(() => {
             const textarea = document.querySelector('textarea')
@@ -92,13 +88,12 @@ describe('Tags', () => {
         mockApiCall
             .mockResolvedValueOnce(undefined) // saveTemplatesRequest (PUT)
 
-        await act(async () => {
-            render(<Tags />)
-        })
+        render(<Tags />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledTimes(2) // initial fetches
         })
+        await screen.findByDisplayValue('%Domain%-*')
 
         const saveButton = screen.getByRole('button', { name: /tags:save_templates/i })
         await userEvent.click(saveButton)
@@ -119,13 +114,12 @@ describe('Tags', () => {
         mockApiCall
             .mockRejectedValueOnce(new Error('Invalid tag template: Cannot find tag type \'Foo\'.'))
 
-        await act(async () => {
-            render(<Tags />)
-        })
+        render(<Tags />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledTimes(2)
         })
+        await screen.findByDisplayValue('%Domain%-*')
 
         const saveButton = screen.getByRole('button', { name: /tags:save_templates/i })
         await userEvent.click(saveButton)
@@ -142,13 +136,12 @@ describe('Tags', () => {
             .mockResolvedValueOnce(undefined) // saveTemplatesRequest (PUT)
             .mockResolvedValueOnce([]) // the preview the modal loads
 
-        await act(async () => {
-            render(<Tags />)
-        })
+        render(<Tags />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledTimes(2)
         })
+        await screen.findByDisplayValue('%Domain%-*')
 
         const fillButton = screen.getByRole('button', { name: /tags:fill_tags_for_project/i })
         await userEvent.click(fillButton)
@@ -207,15 +200,14 @@ describe('Tags', () => {
         mockApiCall.mockReset()
         mockApiCall
             .mockResolvedValueOnce(undefined) // fetchTagTypes returns undefined on error
-            .mockResolvedValueOnce([]) // fetchTemplates
+            .mockResolvedValueOnce(['%Domain%-*']) // fetchTemplates, shown once both answers are handled
 
-        await act(async () => {
-            render(<Tags />)
-        })
+        render(<Tags />)
 
         // Should not crash — tagTypes stays as empty array
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledTimes(2)
         })
+        await screen.findByDisplayValue('%Domain%-*')
     })
 })

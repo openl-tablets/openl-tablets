@@ -57,10 +57,8 @@ const value = { tableName: 'DetermineVehiclePremium', executionTimeMs: 12.4 }
 
 const show = async (result: Record<string, unknown>) => {
     readResult.mockResolvedValue(result)
-    await act(async () => {
-        render(<RunResultModal fileOptions={{ skipEmptyParameters: true }} onClose={vi.fn()} projectId="p1" tableId="t1" />)
-        await new Promise(resolve => setTimeout(resolve, 20))
-    })
+    render(<RunResultModal fileOptions={{ skipEmptyParameters: true }} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+    await screen.findByTestId('run-save')
 }
 
 describe('RunResultModal', () => {

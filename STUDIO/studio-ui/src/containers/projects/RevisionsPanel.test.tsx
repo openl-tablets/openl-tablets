@@ -108,17 +108,15 @@ async function renderPanel(props: {
     onOpened?: () => void
     searchable?: boolean
 } = {}) {
-    await act(async () => {
-        render(
-            <RevisionsPanel
-                currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
-                onOpened={props.onOpened ?? vi.fn()}
-                projectId="p1"
-                searchable={props.searchable}
-            />
-        )
-        await new Promise(resolve => setTimeout(resolve, 0))
-    })
+    render(
+        <RevisionsPanel
+            currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
+            onOpened={props.onOpened ?? vi.fn()}
+            projectId="p1"
+            searchable={props.searchable}
+        />
+    )
+    await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument())
 }
 
 describe('RevisionsPanel', () => {

@@ -123,10 +123,10 @@ const listedCases = () => screen.getByTestId('test-results-tt1').querySelectorAl
 const turnTo = async (page: number) =>
     userEvent.click(within(screen.getByTestId('test-cases-pagination-tt1')).getByTitle(String(page)))
 
-const show = async () => act(async () => {
+const show = async () => {
     render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
-    await new Promise(resolve => setTimeout(resolve, 20))
-})
+    await screen.findByTestId('tests-save')
+}
 
 describe('TestsResultModal', () => {
     beforeEach(() => {
@@ -297,13 +297,10 @@ describe('TestsResultModal', () => {
 
     it('leads to the test table, through the module it is written in', async () => {
         const onClose = vi.fn()
-        await act(async () => {
-            render(<MemoryRouter><TestsResultModal onClose={onClose} projectId="p1" tableId="t1" /></MemoryRouter>)
-            await new Promise(resolve => setTimeout(resolve, 20))
-        })
+        render(<MemoryRouter><TestsResultModal onClose={onClose} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         // The editor opens a module and reads the table through it; the results already name both.
-        expect(screen.getByTestId('test-table-tt1'))
+        expect(await screen.findByTestId('test-table-tt1'))
             .toHaveAttribute('href', '/projects/p1/modules/Auto%20Policy%20Tests?table=tt1')
 
         await userEvent.click(screen.getByTestId('test-table-tt1'))

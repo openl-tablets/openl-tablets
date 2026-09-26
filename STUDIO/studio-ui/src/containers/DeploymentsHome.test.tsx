@@ -97,10 +97,8 @@ const deployments = [
 ]
 
 async function renderPage() {
-    await act(async () => {
-        render(<DeploymentsHome />)
-        await new Promise(resolve => setTimeout(resolve, 50))
-    })
+    render(<DeploymentsHome />)
+    await waitFor(() => expect(screen.queryByTestId('deployments-loading')).not.toBeInTheDocument())
 }
 
 describe('DeploymentsHome', () => {

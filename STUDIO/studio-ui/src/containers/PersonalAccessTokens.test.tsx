@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import { PersonalAccessTokens } from './PersonalAccessTokens'
@@ -110,15 +110,11 @@ const systemContextValue = {
     isPersonalAccessTokenEnabled: true,
 } as React.ContextType<typeof SystemContext>
 
-const renderPat = async (contextValue = systemContextValue) => {
-    await act(async () => {
-        render(
-            <SystemContext.Provider value={contextValue}>
-                <PersonalAccessTokens />
-            </SystemContext.Provider>
-        )
-    })
-}
+const renderPat = (contextValue = systemContextValue) => render(
+    <SystemContext.Provider value={contextValue}>
+        <PersonalAccessTokens />
+    </SystemContext.Provider>
+)
 
 describe('PersonalAccessTokens', () => {
     beforeEach(() => {
@@ -134,15 +130,15 @@ describe('PersonalAccessTokens', () => {
     it('renders nothing when personal access tokens are disabled', async () => {
         mockApiCall.mockResolvedValue([])
         const disabled = { isPersonalAccessTokenEnabled: false } as React.ContextType<typeof SystemContext>
-        await renderPat(disabled)
-        expect(screen.queryByText('pat:title')).not.toBeInTheDocument()
+        renderPat(disabled)
+        await waitFor(() => expect(screen.queryByText('pat:title')).not.toBeInTheDocument())
     })
 
     it('creates a token and copies it to clipboard with feedback', async () => {
         mockApiCall.mockResolvedValueOnce([]) // initial token list
 
-        await renderPat()
-        expect(screen.getByText('pat:no_tokens')).toBeInTheDocument()
+        renderPat()
+        expect(await screen.findByText('pat:no_tokens')).toBeInTheDocument()
 
         // Open the create drawer and submit the form
         await userEvent.click(screen.getByRole('button', { name: /pat:create_token/ }))

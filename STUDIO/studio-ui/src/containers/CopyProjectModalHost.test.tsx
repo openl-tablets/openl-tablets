@@ -49,9 +49,7 @@ const repositories = [
     { id: 'locked', capabilities: {} },
 ] as Repository[]
 
-const renderHost = () => act(async () => {
-    render(<CopyProjectModalHost />)
-})
+const renderHost = () => render(<CopyProjectModalHost />)
 
 const open = async (onSuccess = vi.fn()) => {
     await act(async () => {
@@ -69,7 +67,7 @@ describe('CopyProjectModalHost', () => {
     })
 
     it('stays closed until the editor asks for it', async () => {
-        await renderHost()
+        renderHost()
 
         expect(screen.queryByTestId('copy-project-modal')).not.toBeInTheDocument()
         expect(mockGetProject).not.toHaveBeenCalled()
@@ -77,7 +75,7 @@ describe('CopyProjectModalHost', () => {
 
     // The editor page sends the id alone, so everything the dialog works off is read here.
     it('reads the project and opens the dialog on the event', async () => {
-        await renderHost()
+        renderHost()
 
         await open()
 
@@ -89,7 +87,7 @@ describe('CopyProjectModalHost', () => {
 
     // A repository the user cannot create in is not a copy target, so it is never offered as one.
     it('offers only the repositories a project may be created in', async () => {
-        await renderHost()
+        renderHost()
 
         await open()
 
@@ -98,7 +96,7 @@ describe('CopyProjectModalHost', () => {
     })
 
     it('reports the copy back to the page that opened the dialog', async () => {
-        await renderHost()
+        renderHost()
         const onSuccess = await open()
         await waitFor(() => expect(latest().project).toEqual(project))
 
@@ -110,7 +108,7 @@ describe('CopyProjectModalHost', () => {
     // An empty dialog would offer a copy of nothing, so a project that cannot be read keeps it shut.
     it('keeps the dialog closed when the project cannot be read', async () => {
         mockGetProject.mockRejectedValue(new Error('offline'))
-        await renderHost()
+        renderHost()
 
         await open()
 
@@ -121,7 +119,7 @@ describe('CopyProjectModalHost', () => {
     // silently came back empty would read as "this project cannot be copied anywhere".
     it('opens the dialog even when the repositories cannot be read, and says so', async () => {
         mockGetRepositories.mockRejectedValue(new Error('offline'))
-        await renderHost()
+        renderHost()
 
         await open()
 
@@ -138,7 +136,7 @@ describe('CopyProjectModalHost', () => {
         mockGetRepositories.mockReturnValue(new Promise<Repository[]>(resolve => {
             settleRepositories = resolve
         }))
-        await renderHost()
+        renderHost()
 
         await open()
         await waitFor(() => expect(mockGetProject).toHaveBeenCalled())

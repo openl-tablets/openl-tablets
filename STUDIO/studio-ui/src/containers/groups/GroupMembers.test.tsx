@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import * as services from 'services'
 import type { MockedFunction } from 'vitest'
 
@@ -29,9 +29,7 @@ describe('GroupMembers', () => {
             { username: 'jsmith', displayName: 'John Smith' },
         ])
 
-        await act(async () => {
-            render(<GroupMembers groupId={42} />)
-        })
+        render(<GroupMembers groupId={42} />)
 
         expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups/42/users', undefined,
             { suppressErrorPages: true, throwError: true })
@@ -44,9 +42,7 @@ describe('GroupMembers', () => {
     it('shows a message when the group has no members', async () => {
         mockApiCall.mockResolvedValue([])
 
-        await act(async () => {
-            render(<GroupMembers groupId={42} />)
-        })
+        render(<GroupMembers groupId={42} />)
 
         await waitFor(() => {
             expect(screen.getByText('groups:no_members')).toBeInTheDocument()
@@ -56,9 +52,7 @@ describe('GroupMembers', () => {
     it('shows an error when the members cannot be loaded', async () => {
         mockApiCall.mockRejectedValue(new Error('boom'))
 
-        await act(async () => {
-            render(<GroupMembers groupId={42} />)
-        })
+        render(<GroupMembers groupId={42} />)
 
         await waitFor(() => {
             expect(screen.getByText('groups:failed_to_load_members')).toBeInTheDocument()

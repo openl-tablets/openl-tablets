@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import traceService from 'services/traceService'
 import { NotFoundError } from 'services'
 import { useTraceStore } from 'store/traceStore'
@@ -208,24 +208,18 @@ describe('TraceTableView', () => {
         getFrameHighlights.mockResolvedValue([])
         uncachedFrame(() => new Promise<RawTableView>(() => undefined)) // never resolves: stays loading
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-            await new Promise(resolve => setTimeout(resolve, 50))
-        })
+        render(<TraceTableView frameIndex={0} />)
 
-        expect(screen.getByText('loadingTable')).toBeInTheDocument()
+        expect(await screen.findByText('loadingTable')).toBeInTheDocument()
     })
 
     it('shows an error when the table structure fails to load', async () => {
         getFrameHighlights.mockResolvedValue([])
         uncachedFrame(() => Promise.reject(new Error('boom')))
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-            await new Promise(resolve => setTimeout(resolve, 50))
-        })
+        render(<TraceTableView frameIndex={0} />)
 
-        expect(screen.getByText('boom')).toBeInTheDocument()
+        expect(await screen.findByText('boom')).toBeInTheDocument()
         expect(screen.queryByTestId('trace-table')).toBeNull()
     })
 
@@ -233,10 +227,8 @@ describe('TraceTableView', () => {
         getFrameHighlights.mockResolvedValue([])
         uncachedFrame(() => Promise.reject(new NotFoundError('no table')))
 
-        await act(async () => {
-            render(<TraceTableView frameIndex={0} />)
-            await new Promise(resolve => setTimeout(resolve, 50))
-        })
+        render(<TraceTableView frameIndex={0} />)
+        await waitFor(() => expect(screen.queryByText('loadingTable')).not.toBeInTheDocument())
 
         // A 404 is not an error: no table, no message, nothing rendered.
         expect(screen.queryByTestId('trace-table')).toBeNull()

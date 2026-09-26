@@ -166,15 +166,19 @@ Tests are co-located with sources (e.g. `src/containers/DeployModal.test.tsx` ne
     await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(...))
     ```
 
-  Wrapping the initial `render()` in `await act(async () => { render(...) })` is still fine — that flushes mount-time
-  effects before the first assertion. Only `userEvent` interactions should not be wrapped.
+  Do not wrap `render()` or `fireEvent` in `act` either — RTL already runs them inside `act` (Sonar
+  `typescript:S8980`). When the first assertion needs what a mount-time effect loads, wait for it with
+  `await screen.findBy…(...)` or `await waitFor(...)`. Wait on something the load changes — the loaded content, or a
+  loading placeholder going away: a `waitFor` that passes at once (on a mock called at mount) returns before React
+  draws the answer, so a negative assertion after it proves nothing. `act` stays for what the test itself does outside
+  React — resolving a deferred answer it handed a mock, or calling a callback it captured.
 - **Ant Design Modal in jsdom**: Modal uses CSS animations (`ant-zoom-appear`) that block synchronous rendering of body
-  content. Wrap the initial `render()` in `await act(async () => { ... })` to flush async effects (e.g., API loads in
-  `useEffect`), or use `waitFor` for content to appear.
+  content. Wait for the content with `await screen.findBy…(...)` or `await waitFor(...)`, which also covers async
+  effects such as API loads in `useEffect`.
 - **Ant Design `Table` causes infinite `act()` loops in jsdom**: components that render `Table`, `Descriptions`, or
   other heavy AntD components with async `useEffect` data loading hang during `act()`. Mock `antd` entirely with simple
-  HTML equivalents (`<table>`, `<dl>`, `<button>`, …) and flush async effects via
-  `await act(async () => { render(...); await new Promise(r => setTimeout(r, 50)) })`. See
+  HTML equivalents (`<table>`, `<dl>`, `<button>`, …) and wait for the loading placeholder to go —
+  `await waitFor(() => expect(screen.queryByTestId('spin')).not.toBeInTheDocument())`. See
   `ConflictResolutionStep.test.tsx`.
 - **Per-test store overrides**: use `vi.spyOn(storeModule, 'useUserStore').mockReturnValue(...)` with `mockRestore()` in
   a `finally` block. Never mutate module exports directly — if the test throws before restoration, leaked state breaks

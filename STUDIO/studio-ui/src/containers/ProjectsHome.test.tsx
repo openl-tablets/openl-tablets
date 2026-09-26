@@ -326,10 +326,7 @@ const projects = [
 const rowOrder = () => screen.getAllByTestId(/^project-row-/).map(el => el.getAttribute('data-testid'))
 
 async function renderHome() {
-    await act(async () => {
-        render(<ProjectsHome />)
-        await new Promise(resolve => setTimeout(resolve, 50))
-    })
+    render(<ProjectsHome />)
     // The screen restores the saved filters before it asks for anything, so wait for the answer itself
     // rather than for a fixed delay — on a busy machine the fetch lands after it.
     await waitFor(() => expect(screen.queryByText('skeleton')).toBeNull())

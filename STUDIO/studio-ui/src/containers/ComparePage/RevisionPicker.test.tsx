@@ -69,9 +69,9 @@ describe('RevisionPicker', () => {
     })
 
     const renderPicker = async (onChange = vi.fn()) => {
-        await act(async () => {
-            render(<RevisionPicker onChange={onChange} projectId="p1" />)
-        })
+        render(<RevisionPicker onChange={onChange} projectId="p1" />)
+        await waitFor(() => expect(getProjectCompareFiles)
+            .toHaveBeenCalledWith('p1', { branch: 'master', revision: 'rev-2' }))
         return onChange
     }
 
@@ -95,9 +95,7 @@ describe('RevisionPicker', () => {
         await renderPicker()
         await waitFor(() => expect(screen.getByTestId('compare-revision')).toHaveValue('rev-2'))
 
-        await act(async () => {
-            fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
-        })
+        fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
 
         expect(useProjectRevisions).toHaveBeenLastCalledWith({ id: 'p1' }, true, undefined, 'dev')
         await waitFor(() => expect(getProjectCompareFiles)
@@ -171,9 +169,7 @@ describe('RevisionPicker', () => {
         })
 
         await renderPicker()
-        await act(async () => {
-            fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
-        })
+        fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
         await act(async () => {
             refuseTheOldRevision()
         })
@@ -187,9 +183,7 @@ describe('RevisionPicker', () => {
         await screen.findByTestId('compare-picker-error')
 
         vi.mocked(getProjectCompareFiles).mockResolvedValue(['rules/Main.xlsx'])
-        await act(async () => {
-            fireEvent.change(screen.getByTestId('compare-revision'), { target: { value: 'rev-1' } })
-        })
+        fireEvent.change(screen.getByTestId('compare-revision'), { target: { value: 'rev-1' } })
 
         await waitFor(() => expect(screen.queryByTestId('compare-picker-error')).toBeNull())
     })

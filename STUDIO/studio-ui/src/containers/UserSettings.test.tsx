@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import { UserSettings } from './UserSettings'
@@ -45,9 +45,7 @@ describe('UserSettings', () => {
 
     it('shows a success notification when settings are saved', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
-        await act(async () => {
-            render(<UserSettings />)
-        })
+        render(<UserSettings />)
 
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
@@ -58,9 +56,7 @@ describe('UserSettings', () => {
 
     it('shows an error notification when saving settings fails', async () => {
         mockApiCall.mockRejectedValueOnce(new Error('save failed'))
-        await act(async () => {
-            render(<UserSettings />)
-        })
+        render(<UserSettings />)
 
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 

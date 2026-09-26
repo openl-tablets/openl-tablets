@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConflictResolutionStep } from 'containers/MergeModal/ConflictResolutionStep'
 import * as services from 'services'
@@ -171,15 +171,12 @@ const defaultProps = () => ({
 
 /**
  * Renders the component and waits for the async loadConflictDetails to complete.
- * Must use act + setTimeout because the state update from the useEffect's async callback
- * requires explicit flushing in jsdom.
+ * The spinner stands in for the whole step until the details are read.
  */
 const renderAndLoad = async (props = defaultProps(), details: ConflictDetails = conflictDetails) => {
     mockApiCall.mockResolvedValueOnce(details)
-    await act(async () => {
-        render(<ConflictResolutionStep {...props} />)
-        await new Promise(r => setTimeout(r, 50))
-    })
+    render(<ConflictResolutionStep {...props} />)
+    await waitFor(() => expect(screen.queryByTestId('spin')).not.toBeInTheDocument())
     return props
 }
 
@@ -202,23 +199,17 @@ describe('ConflictResolutionStep', () => {
         it('shows error when loading fails', async () => {
             mockApiCall.mockRejectedValueOnce(new Error('Load error'))
 
-            await act(async () => {
-                render(<ConflictResolutionStep {...defaultProps()} />)
-                await new Promise(r => setTimeout(r, 50))
-            })
+            render(<ConflictResolutionStep {...defaultProps()} />)
 
-            expect(screen.getByText('Load error')).toBeInTheDocument()
+            expect(await screen.findByText('Load error')).toBeInTheDocument()
         })
 
         it('shows generic error when loading fails without message', async () => {
             mockApiCall.mockRejectedValueOnce({})
 
-            await act(async () => {
-                render(<ConflictResolutionStep {...defaultProps()} />)
-                await new Promise(r => setTimeout(r, 50))
-            })
+            render(<ConflictResolutionStep {...defaultProps()} />)
 
-            expect(screen.getByText('merge:errors.load_failed')).toBeInTheDocument()
+            expect(await screen.findByText('merge:errors.load_failed')).toBeInTheDocument()
         })
     })
 
@@ -581,17 +572,14 @@ describe('ConflictResolutionStep', () => {
 
             mockApiCall.mockResolvedValueOnce({}) // delete
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.cancel'))
-                await new Promise(r => setTimeout(r, 50))
-            })
+            await userEvent.click(screen.getByText('merge:buttons.cancel'))
 
             expect(mockApiCall).toHaveBeenCalledWith(
                 '/projects/proj-1/merge/conflicts',
                 { method: 'DELETE' },
                 true
             )
-            expect(props.onCancel).toHaveBeenCalled()
+            await waitFor(() => expect(props.onCancel).toHaveBeenCalled())
         })
 
         it('calls onCancel even when DELETE fails', async () => {
@@ -599,12 +587,9 @@ describe('ConflictResolutionStep', () => {
 
             mockApiCall.mockRejectedValueOnce(new Error('Delete error'))
 
-            await act(async () => {
-                await userEvent.click(screen.getByText('merge:buttons.cancel'))
-                await new Promise(r => setTimeout(r, 50))
-            })
+            await userEvent.click(screen.getByText('merge:buttons.cancel'))
 
-            expect(props.onCancel).toHaveBeenCalled()
+            await waitFor(() => expect(props.onCancel).toHaveBeenCalled())
         })
     })
 

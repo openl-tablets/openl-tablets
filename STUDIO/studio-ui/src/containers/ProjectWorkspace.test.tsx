@@ -298,11 +298,8 @@ function deferred<T>() {
 }
 
 async function renderWorkspace() {
-    let view!: ReturnType<typeof render>
-    await act(async () => {
-        view = render(<ProjectWorkspace />)
-        await new Promise(resolve => setTimeout(resolve, 50))
-    })
+    const view = render(<ProjectWorkspace />)
+    await waitFor(() => expect(screen.queryByTestId('project-workspace-loading')).not.toBeInTheDocument())
     return view
 }
 
@@ -443,10 +440,7 @@ describe('ProjectWorkspace', () => {
             return (id === 'p1' ? firstLoad.promise : secondLoad.promise) as never
         })
 
-        let view!: ReturnType<typeof render>
-        await act(async () => {
-            view = render(<ProjectWorkspace />)
-        })
+        const view = render(<ProjectWorkspace />)
 
         routeParams.projectId = 'p2'
         await act(async () => {
@@ -664,11 +658,7 @@ describe('ProjectWorkspace', () => {
         window.addEventListener('openProjectModal', listener)
 
         try {
-            let view!: ReturnType<typeof render>
-            await act(async () => {
-                view = render(<ProjectWorkspace />)
-                await new Promise(resolve => setTimeout(resolve, 50))
-            })
+            const view = await renderWorkspace()
 
             await userEvent.click(screen.getByTestId('open-p1'))
             expect(events.at(-1)?.detail?.projectName).toBe('Alpha')
@@ -908,9 +898,9 @@ describe('ProjectWorkspace', () => {
     it('replaces a project name in the address with the project id, and shows the project there', async () => {
         routeParams.projectId = 'Alpha'
         searchParamsMock.set('tab', 'files')
-        const view = await renderWorkspace()
+        const view = render(<ProjectWorkspace />)
 
-        expect(navigateMock).toHaveBeenCalledWith('/projects/p1?tab=files', { replace: true })
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/projects/p1?tab=files', { replace: true }))
         // The project is shown at the id's address, not under the name.
         expect(screen.getByTestId('project-workspace-loading')).toBeTruthy()
         expect(screen.queryByTestId('project-workspace-missing')).toBeNull()

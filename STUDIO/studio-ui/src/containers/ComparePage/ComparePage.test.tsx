@@ -193,13 +193,7 @@ const startComparison = async () => {
     await waitFor(() => expect(startFileComparison).toHaveBeenCalled())
 }
 
-const openPage = async () => {
-    let page!: ReturnType<typeof render>
-    await act(async () => {
-        page = render(<ComparePage />)
-    })
-    return page
-}
+const openPage = () => render(<ComparePage />)
 
 describe('ComparePage', () => {
     beforeEach(() => {
@@ -214,7 +208,7 @@ describe('ComparePage', () => {
     })
 
     it('asks for the two files before it compares anything', async () => {
-        await openPage()
+        openPage()
 
         expect(screen.getByTestId('compare-files')).toBeInTheDocument()
         expect(screen.getByTestId('compare-start')).toBeDisabled()
@@ -226,7 +220,7 @@ describe('ComparePage', () => {
     })
 
     it('compares the two picked files and shows what they hold', async () => {
-        await openPage()
+        openPage()
 
         await startComparison()
 
@@ -245,7 +239,7 @@ describe('ComparePage', () => {
         // the first ask, made while it was still running, was answered with nothing to read yet.
         connected = false
         vi.mocked(getComparison).mockRejectedValueOnce(stillRunning())
-        const page = await openPage()
+        const page = openPage()
         await startComparison()
 
         expect(subscribe).not.toHaveBeenCalled()
@@ -265,7 +259,7 @@ describe('ComparePage', () => {
         connected = false
         vi.mocked(getComparison).mockRejectedValue(new Error('The comparison was stopped'))
 
-        await openPage()
+        openPage()
         await startComparison()
 
         expect(await screen.findByTestId('compare-error')).toBeInTheDocument()
@@ -277,7 +271,7 @@ describe('ComparePage', () => {
         // that is still running.
         connected = false
         vi.mocked(getComparison).mockRejectedValueOnce(stillRunning())
-        await openPage()
+        openPage()
         await startComparison()
 
         expect(screen.queryByText('Rules')).toBeNull()
@@ -296,7 +290,7 @@ describe('ComparePage', () => {
         })
         vi.mocked(startLocalHistoryComparison).mockResolvedValue('cmp-1')
 
-        await openPage()
+        openPage()
 
         await waitFor(() => expect(startLocalHistoryComparison)
             .toHaveBeenCalledWith('p1', 'Pricing', '100', '200_current'))
@@ -314,7 +308,7 @@ describe('ComparePage', () => {
         searchParams = new URLSearchParams({ projectId: 'p1', first: '100', second: '200_current' })
         vi.mocked(startLocalHistoryComparison).mockRejectedValue(new Error('The version is not found'))
 
-        await openPage()
+        openPage()
 
         expect(await screen.findByTestId('compare-error')).toHaveTextContent('The version is not found')
         expect(screen.queryByTestId('compare-files')).toBeNull()
@@ -324,7 +318,7 @@ describe('ComparePage', () => {
         searchParams = new URLSearchParams({ projectId: 'p1' })
         vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
 
-        await openPage()
+        openPage()
 
         // The files are picked out of the project rather than uploaded.
         expect(screen.getByTestId('revision-picker')).toHaveTextContent('p1')
@@ -348,7 +342,7 @@ describe('ComparePage', () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
         vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
 
-        await openPage()
+        openPage()
 
         await waitFor(() => expect(startConflictComparison).toHaveBeenCalledWith('p1', 'rules/Main.xlsx'))
         expect(screen.queryByTestId('compare-files')).toBeNull()
@@ -368,19 +362,19 @@ describe('ComparePage', () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'Project/rules/Main.xlsx' })
         vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
 
-        await openPage()
+        openPage()
 
         // The window is opened away from the screen that asked for it, so it says which file this is.
         const head = await screen.findByTestId('compare-conflict-head')
         expect(head).toHaveTextContent('file_name: Main.xlsx')
-        expect(head).toHaveTextContent('file_status: status_modified')
+        await waitFor(() => expect(head).toHaveTextContent('file_status: status_modified'))
     })
 
     it('says that one of the versions no longer holds the file', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'Project/rules/Main.xlsx' })
         vi.mocked(getConflictFileStatus).mockResolvedValue('deleted')
 
-        await openPage()
+        openPage()
 
         expect(await screen.findByTestId('compare-conflict-deleted')).toBeInTheDocument()
         expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('file_status: status_deleted')
@@ -391,9 +385,10 @@ describe('ComparePage', () => {
     it('reads a conflicted file that is not a workbook line by line', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/notes.txt' })
 
-        await openPage()
+        openPage()
 
         expect(screen.getByTestId('conflict-text')).toHaveTextContent('p1:rules/notes.txt')
+        await waitFor(() => expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('status_modified'))
         // A file of that kind is never handed to the comparison of workbooks.
         expect(startConflictComparison).not.toHaveBeenCalled()
     })
@@ -402,7 +397,7 @@ describe('ComparePage', () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/notes.txt' })
         vi.mocked(getConflictFileStatus).mockResolvedValue('deleted')
 
-        await openPage()
+        openPage()
 
         expect(await screen.findByTestId('compare-conflict-deleted')).toBeInTheDocument()
         expect(screen.queryByTestId('conflict-text')).not.toBeInTheDocument()
@@ -412,7 +407,8 @@ describe('ComparePage', () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
         vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
 
-        await openPage()
+        openPage()
+        await waitFor(() => expect(subscribe).toHaveBeenCalled())
         push('COMPLETED')
 
         // The control heads the list of elements, because the files it usually stands next to are not here.
@@ -423,7 +419,7 @@ describe('ComparePage', () => {
     })
 
     it('lists only the elements that differ, and the equal ones when they were asked for', async () => {
-        await openPage()
+        openPage()
         await startComparison()
         push('COMPLETED')
 
@@ -441,7 +437,7 @@ describe('ComparePage', () => {
     })
 
     it('reads the two versions side by side, and as one table when that is asked for', async () => {
-        await openPage()
+        openPage()
         await startComparison()
         push('COMPLETED')
         await screen.findByText('Rules')
@@ -457,7 +453,7 @@ describe('ComparePage', () => {
     })
 
     it('lets the comparison go when the window is left, and only once', async () => {
-        const page = await openPage()
+        const page = openPage()
         await startComparison()
         push('COMPLETED')
         await screen.findByText('Rules')
@@ -473,7 +469,7 @@ describe('ComparePage', () => {
     })
 
     it('goes back to the files and lets the comparison go', async () => {
-        await openPage()
+        openPage()
         await startComparison()
         push('COMPLETED')
         await screen.findByText('Rules')
@@ -486,7 +482,7 @@ describe('ComparePage', () => {
     })
 
     it('reads the two sides of the element that is picked', async () => {
-        await openPage()
+        openPage()
         await startComparison()
         push('COMPLETED')
 
@@ -503,7 +499,7 @@ describe('ComparePage', () => {
     })
 
     it('reads a comparison that was over before the screen was listening', async () => {
-        await openPage()
+        openPage()
         await startComparison()
 
         // No status arrives: the comparison had finished by the time the screen subscribed.
@@ -514,7 +510,7 @@ describe('ComparePage', () => {
     it('waits for the comparison that is still running', async () => {
         // A comparison that has not finished answers that it is not ready, however often it is asked.
         vi.mocked(getComparison).mockRejectedValue(stillRunning())
-        await openPage()
+        openPage()
         await startComparison()
         await waitFor(() => expect(getComparison).toHaveBeenCalledWith('cmp-1'))
         expect(screen.queryByTestId('compare-error')).toBeNull()
@@ -529,7 +525,7 @@ describe('ComparePage', () => {
     it('says why the files could not be compared', async () => {
         // While the comparison runs it has no result to give; then it says it could not be made.
         vi.mocked(getComparison).mockRejectedValue(stillRunning())
-        await openPage()
+        openPage()
         await startComparison()
 
         push('{"status":"ERROR","message":"Cannot read the file"}')
@@ -541,7 +537,7 @@ describe('ComparePage', () => {
 
     it('says why the comparison could not be started, without leaving the files', async () => {
         vi.mocked(startFileComparison).mockRejectedValueOnce(new Error('Only Excel files can be compared.'))
-        await openPage()
+        openPage()
 
         pickFiles()
         await waitFor(() => expect(screen.getByTestId('compare-start')).not.toBeDisabled())
@@ -552,7 +548,7 @@ describe('ComparePage', () => {
     })
 
     it('lists the picked files and lets one of them go', async () => {
-        await openPage()
+        openPage()
 
         pickFiles()
 
@@ -567,7 +563,7 @@ describe('ComparePage', () => {
     })
 
     it('hides the list of elements and brings it back', async () => {
-        await openPage()
+        openPage()
         await startComparison()
         push('COMPLETED')
         await screen.findByText('Rules')
@@ -587,7 +583,7 @@ describe('ComparePage', () => {
     })
 
     it('releases the comparison when the window is closed', async () => {
-        await openPage()
+        openPage()
         await startComparison()
 
         act(() => {

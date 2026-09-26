@@ -115,9 +115,7 @@ describe('Security', () => {
     })
 
     it('fetches security settings on mount', async () => {
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
@@ -125,9 +123,7 @@ describe('Security', () => {
     })
 
     it('renders user mode radio group with all options', async () => {
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('radiogroup-userMode')).toBeInTheDocument()
@@ -140,9 +136,7 @@ describe('Security', () => {
     })
 
     it('renders apply button', async () => {
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByText('common:btn.apply')).toBeInTheDocument()
@@ -150,9 +144,7 @@ describe('Security', () => {
     })
 
     it('renders allowProjectCreateDelete checkbox', async () => {
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('checkbox-allowProjectCreateDelete')).toBeInTheDocument()
@@ -160,9 +152,7 @@ describe('Security', () => {
     })
 
     it('renders allowBypassProtectedBranches checkbox', async () => {
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('checkbox-allowBypassProtectedBranches')).toBeInTheDocument()
@@ -170,9 +160,7 @@ describe('Security', () => {
     })
 
     it('renders section titles', async () => {
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByText('security:select_user_mode')).toBeInTheDocument()
@@ -183,9 +171,7 @@ describe('Security', () => {
     it('renders SingleMode component when userMode is single', async () => {
         mockUserMode = SecurityUserMode.SINGLE
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('single-mode')).toBeInTheDocument()
@@ -197,9 +183,7 @@ describe('Security', () => {
     it('renders InitialUsers without default group for multi mode', async () => {
         mockUserMode = SecurityUserMode.MULTI
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('initial-users')).toBeInTheDocument()
@@ -210,9 +194,7 @@ describe('Security', () => {
     it('renders ActiveDirectoryMode and InitialUsers with default group for AD mode', async () => {
         mockUserMode = SecurityUserMode.AD
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('ad-mode')).toBeInTheDocument()
@@ -224,9 +206,7 @@ describe('Security', () => {
     it('renders SAMLMode for SAML mode', async () => {
         mockUserMode = SecurityUserMode.SAML
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('saml-mode')).toBeInTheDocument()
@@ -237,9 +217,7 @@ describe('Security', () => {
     it('renders OAuth2Mode for OAuth2 mode', async () => {
         mockUserMode = SecurityUserMode.OAUTH2
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('oauth2-mode')).toBeInTheDocument()
@@ -250,9 +228,7 @@ describe('Security', () => {
     it('renders SingleMode and hides InitialUsers when wrapped userMode is read-only single', async () => {
         mockUserMode = { value: SecurityUserMode.SINGLE, readOnly: true }
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('single-mode')).toBeInTheDocument()
@@ -263,9 +239,7 @@ describe('Security', () => {
     it('renders InitialUsers without default group when wrapped userMode is read-only multi', async () => {
         mockUserMode = { value: SecurityUserMode.MULTI, readOnly: true }
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('initial-users')).toBeInTheDocument()
@@ -281,9 +255,7 @@ describe('Security', () => {
             .mockResolvedValueOnce(groupsResponse)
         mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(screen.getByTestId('ad-mode')).toBeInTheDocument()
@@ -300,9 +272,7 @@ describe('Security', () => {
             .mockResolvedValueOnce(groupsResponse) // fetchUserGroups
         mockUserMode = SecurityUserMode.AD
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups', undefined, expect.objectContaining({
@@ -318,9 +288,7 @@ describe('Security', () => {
         mockApiCall.mockResolvedValueOnce(defaultSettings)
         mockUserMode = SecurityUserMode.AD
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
@@ -332,9 +300,7 @@ describe('Security', () => {
         mockApiCall.mockResolvedValueOnce(defaultSettings)
         mockUserMode = { value: SecurityUserMode.MULTI, readOnly: true }
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication')
@@ -350,9 +316,7 @@ describe('Security', () => {
             .mockResolvedValueOnce(groupsResponse)
         mockUserMode = { value: SecurityUserMode.AD, readOnly: true }
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/management/groups', undefined, expect.objectContaining({
@@ -370,9 +334,7 @@ describe('Security', () => {
             .mockResolvedValueOnce({ Admins: {} }) // fetchUserGroups
         mockUserMode = SecurityUserMode.AD
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         await waitFor(() => {
             expect(mockApiCall).toHaveBeenCalledWith('/admin/settings/authentication/template', expect.objectContaining({
@@ -384,9 +346,7 @@ describe('Security', () => {
     it('shows confirm modal on form submit', async () => {
         mockUserMode = SecurityUserMode.MULTI
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         const submitButton = screen.getByText('common:btn.apply')
         await userEvent.click(submitButton)
@@ -403,9 +363,7 @@ describe('Security', () => {
     it('calls save API on confirm and reloads page', async () => {
         mockUserMode = SecurityUserMode.MULTI
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         const submitButton = screen.getByText('common:btn.apply')
         await userEvent.click(submitButton)
@@ -441,9 +399,7 @@ describe('Security', () => {
             return Promise.resolve(defaultSettings)
         })
 
-        await act(async () => {
-            render(<Security />)
-        })
+        render(<Security />)
 
         const submitButton = screen.getByText('common:btn.apply')
         await userEvent.click(submitButton)

@@ -1,6 +1,6 @@
 import { MemoryRouter } from 'react-router-dom'
 import React from 'react'
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { deleteBenchmarks, getBenchmarks, readBenchmarks } from 'services/execution'
 import { BenchmarkResultModal } from 'containers/execution/BenchmarkResultModal'
@@ -65,10 +65,8 @@ const measurement = (over: Partial<BenchmarkResult> = {}): BenchmarkResult => ({
 const show = async (measurements: BenchmarkResult[]) => {
     read.mockResolvedValue(measurements)
     readAgain.mockResolvedValue(measurements)
-    await act(async () => {
-        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
-        await new Promise(resolve => setTimeout(resolve, 20))
-    })
+    render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+    await screen.findByTestId('benchmark-table')
 }
 
 describe('BenchmarkResultModal', () => {
@@ -144,15 +142,12 @@ describe('BenchmarkResultModal', () => {
         progress.current = { status: 'COMPLETED', error: null, arrived: 0, subscribed: true }
         read.mockResolvedValue([measurement()])
 
-        await act(async () => {
-            render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
-            await new Promise(resolve => setTimeout(resolve, 20))
-        })
+        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         // The read waits out the moment the benchmark needs to publish what it measured.
         expect(read).toHaveBeenCalledWith('p1')
         expect(readAgain).not.toHaveBeenCalled()
-        expect(screen.getByTestId('benchmark-table')).toHaveTextContent('PolicyTest')
+        expect(await screen.findByTestId('benchmark-table')).toHaveTextContent('PolicyTest')
     })
 
     it('says that a benchmark failed instead of showing the measurements before it', async () => {
@@ -160,10 +155,7 @@ describe('BenchmarkResultModal', () => {
         read.mockResolvedValue([measurement()])
         readAgain.mockResolvedValue([measurement()])
 
-        await act(async () => {
-            render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
-            await new Promise(resolve => setTimeout(resolve, 20))
-        })
+        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(screen.getByText('Division by zero')).toBeInTheDocument()
         expect(screen.getByText('benchmark.failed')).toBeInTheDocument()
