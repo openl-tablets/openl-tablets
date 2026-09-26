@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.history;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,7 +21,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -31,7 +36,11 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -71,6 +80,7 @@ class ProjectHistoryServiceTest {
     @AfterEach
     void tearDown() {
         Props.setEnvironment(previousEnvironment);
+        RequestContextHolder.resetRequestAttributes();
     }
 
     @Test
@@ -242,6 +252,37 @@ class ProjectHistoryServiceTest {
 
         assertFalse(Files.exists(workspace.resolve(FolderHelper.HISTORY_FOLDER).resolve("TestProject")));
         assertTrue(Files.exists(otherHistory));
+    }
+
+    @Test
+    void deletesTheProjectHistoryOfTheSessionUser() throws Exception {
+        Files.createDirectories(historyFolder(workspace));
+        var otherHistory = Files.createDirectories(workspace.resolve(FolderHelper.HISTORY_FOLDER)
+                .resolve("OtherProject"));
+        var localWorkspace = mock(LocalWorkspace.class);
+        when(localWorkspace.getLocation()).thenReturn(workspace.toFile());
+        var userWorkspace = mock(UserWorkspace.class);
+        when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        var rulesUserSession = mock(RulesUserSession.class);
+        when(rulesUserSession.getUserWorkspace()).thenReturn(userWorkspace);
+        var request = new MockHttpServletRequest();
+        request.setSession(new MockHttpSession());
+        WebStudioUtils.registerRulesUserSession(request.getSession(), rulesUserSession);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        ProjectHistoryService.deleteHistory("TestProject");
+
+        assertFalse(Files.exists(workspace.resolve(FolderHelper.HISTORY_FOLDER).resolve("TestProject")));
+        assertTrue(Files.exists(otherHistory));
+    }
+
+    @Test
+    void deletingTheProjectHistoryOutsideAUserSessionDoesNothing() throws Exception {
+        var projectHistory = Files.createDirectories(historyFolder(workspace));
+        RequestContextHolder.resetRequestAttributes();
+
+        assertDoesNotThrow(() -> ProjectHistoryService.deleteHistory("TestProject"));
+        assertTrue(Files.exists(projectHistory));
     }
 
     @Test

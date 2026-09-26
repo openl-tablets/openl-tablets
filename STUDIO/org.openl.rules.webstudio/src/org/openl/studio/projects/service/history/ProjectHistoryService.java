@@ -258,10 +258,13 @@ public class ProjectHistoryService {
     }
 
     public static void deleteHistory(String projectName) throws IOException {
-        var userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                .getLocalWorkspace()
-                .getLocation();
-        var projectHistoryPath = Path.of(userWorkspace.getPath(), FolderHelper.HISTORY_FOLDER, projectName)
+        var userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        if (userWorkspace == null) {
+            // Without a user workspace there is no history to delete
+            return;
+        }
+        var workspaceFolder = userWorkspace.getLocalWorkspace().getLocation();
+        var projectHistoryPath = Path.of(workspaceFolder.getPath(), FolderHelper.HISTORY_FOLDER, projectName)
                 .toString();
         var dir = new File(projectHistoryPath);
         // Project can contain no history
