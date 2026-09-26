@@ -28,10 +28,10 @@ public record ConditionCheck(Object condition, int[] rules, boolean successful) 
         if (this == o) {
             return true;
         }
-        return o instanceof ConditionCheck other
-                && successful == other.successful
-                && Objects.equals(condition, other.condition)
-                && Arrays.equals(rules, other.rules);
+        return o instanceof ConditionCheck(Object otherCondition, int[] otherRules, boolean otherSuccessful)
+                && successful == otherSuccessful
+                && Objects.equals(condition, otherCondition)
+                && Arrays.equals(rules, otherRules);
     }
 
     @Override

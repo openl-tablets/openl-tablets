@@ -217,19 +217,21 @@ public class TableEditorsReader {
         }
         var described = TableCellEditorView.builder().editor(kind);
         switch (response.params()) {
-            case MultiChoiceParam params -> described.choices(List.of(params.choices()))
-                    .displayValues(displayValues(params.displayValues()))
-                    .separator(params.separator())
-                    .separatorEscaper(params.separatorEscaper());
-            case ComboBoxParam params -> described.choices(List.of(params.choices()))
-                    .displayValues(displayValues(params.displayValues()));
-            case RangeParam params -> described.min(params.min())
-                    .max(params.max())
-                    .intOnly(params.intOnly());
-            case ArrayEditorParams params -> described.separator(params.separator())
-                    .entryEditor(params.entryEditor())
-                    .intOnly(params.intOnly());
-            case NumberRangeParams params -> described.entryEditor(params.entryEditor());
+            case MultiChoiceParam(String[] choices, String[] displayValues, String separator,
+                                  String separatorEscaper) -> described.choices(List.of(choices))
+                    .displayValues(displayValues(displayValues))
+                    .separator(separator)
+                    .separatorEscaper(separatorEscaper);
+            case ComboBoxParam(String[] choices, String[] displayValues) -> described.choices(List.of(choices))
+                    .displayValues(displayValues(displayValues));
+            case RangeParam(Number min, Number max, boolean intOnly) -> described.min(min)
+                    .max(max)
+                    .intOnly(intOnly);
+            case ArrayEditorParams(String separator, String entryEditor, boolean intOnly) -> described
+                    .separator(separator)
+                    .entryEditor(entryEditor)
+                    .intOnly(intOnly);
+            case NumberRangeParams(String entryEditor) -> described.entryEditor(entryEditor);
             case null, default -> {
                 // A date or a boolean is entered the same way wherever it stands, so it carries nothing.
             }
