@@ -555,7 +555,7 @@ describe('MergeBranchesStep', () => {
             const callsAfterFirstAttempt = mockApiCall.mock.calls.length
 
             // Simulate the user dismissing the modal — onOk is never invoked
-            expect(mockApiCall.mock.calls.length).toBe(callsAfterFirstAttempt)
+            expect(mockApiCall).toHaveBeenCalledTimes(callsAfterFirstAttempt)
             expect(props.onMergeSuccess).not.toHaveBeenCalled()
         })
     })

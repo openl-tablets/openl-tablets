@@ -928,7 +928,7 @@ describe('ProjectsHome row actions', () => {
 
         // Opening the dialog changed nothing yet: refreshing now would only flash the overlay behind it.
         // The dialog reloads the list itself once the branch is actually deleted.
-        expect(vi.mocked(getProjects).mock.calls.length).toBe(readsBefore)
+        expect(getProjects).toHaveBeenCalledTimes(readsBefore)
     })
 
     it('gates a row while a branch switch and the reload behind it run', async () => {
