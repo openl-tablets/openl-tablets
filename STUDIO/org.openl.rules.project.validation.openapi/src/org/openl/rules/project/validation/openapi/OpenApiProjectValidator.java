@@ -1214,9 +1214,7 @@ public class OpenApiProjectValidator {
         if (OBJECT_TYPE.equals(schema.getType())) {
             return OBJECT_TYPE;
         } else if ("string".equals(schema.getType())) {
-            if ("date".equals(schema.getFormat())) {
-                return "Date";
-            } else if ("date-time".equals(schema.getFormat())) {
+            if ("date".equals(schema.getFormat()) || "date-time".equals(schema.getFormat())) {
                 return "Date";
             }
             return "String";

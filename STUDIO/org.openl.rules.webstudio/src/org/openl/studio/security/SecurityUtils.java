@@ -23,9 +23,8 @@ public class SecurityUtils {
             return false;
         }
         for (var grantedAuthority : authentication.getAuthorities()) {
-            if (grantedAuthority.getAuthority().equals(authority)) {
-                return true;
-            } else if (grantedAuthority instanceof Group group && group.hasPrivilege(authority)) {
+            if (grantedAuthority.getAuthority().equals(authority)
+                    || grantedAuthority instanceof Group group && group.hasPrivilege(authority)) {
                 return true;
             }
         }

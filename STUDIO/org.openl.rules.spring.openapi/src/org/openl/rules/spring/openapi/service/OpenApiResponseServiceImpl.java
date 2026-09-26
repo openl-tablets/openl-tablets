@@ -289,9 +289,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
                         .map(HttpStatus::value)
                         .map(String::valueOf)
                         .orElse("204");
-                if (responses.isEmpty()) {
-                    responses.addApiResponse(responseCode, createDefaultApiResponse());
-                } else if (responses.get(responseCode) == null) {
+                if (responses.isEmpty() || responses.get(responseCode) == null) {
                     responses.addApiResponse(responseCode, createDefaultApiResponse());
                 }
             }
