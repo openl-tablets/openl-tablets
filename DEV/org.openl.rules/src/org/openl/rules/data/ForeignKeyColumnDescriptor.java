@@ -317,127 +317,124 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                                             IDataBase db,
                                             IBindingContext cxt,
                                             IRuntimeEnv env) throws Exception {
-        if (getField() != null) {
+        if (getField() != null && foreignKeyTable != null) {
 
-            if (foreignKeyTable != null) {
+            var foreignKeyTableName = foreignKeyTable.getIdentifier();
+            var foreignTable = db.getTable(foreignKeyTableName);
+            if (foreignTable == null) {
+                throw SyntaxNodeExceptionUtils.createError("Table '%s' is not found.".formatted(foreignKeyTableName),
+                        foreignKeyTable);
+            }
 
-                var foreignKeyTableName = foreignKeyTable.getIdentifier();
-                var foreignTable = db.getTable(foreignKeyTableName);
-                if (foreignTable == null) {
-                    throw SyntaxNodeExceptionUtils.createError("Table '%s' is not found.".formatted(foreignKeyTableName),
-                            foreignKeyTable);
-                }
+            var foreignKeyIndex = getForeignKeyIndex(foreignTable);
 
-                var foreignKeyIndex = getForeignKeyIndex(foreignTable);
+            // table will have 1xN size
+            //
+            valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
-                // table will have 1xN size
-                //
-                valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
+            var fieldType = getField().getType();
 
-                var fieldType = getField().getType();
-
-                var resType = foreignTable.getDataModel().getType();
-                var s = getCellStringValue(valuesTable);
-                if (!StringUtils.isEmpty(s)) {
-                    Object result;
-                    result = foreignTable.findObject(foreignKeyIndex, s, cxt);
-                    if (result != null) {
-                        var chainRes = getChainObject(cxt,
-                                resType,
-                                result,
-                                foreignKeyTableAccessorChainTokens);
-                        if (chainRes == null) {
-                            throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
-                        }
-                        resType = chainRes.getType();
-                    }
-                }
-
-                var isCollection = ClassUtils.isAssignable(fieldType.getInstanceClass(), Collection.class);
-
-                var f = true;
-                if (fieldType.isArray()) {
-                    f = !fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass());
-                } else if (isCollection) {
-                    f = fieldType.isAssignableFrom(resType);
-                }
-
-                if (isSupportMultirows()) {
-                    populateLiteralByForeignKeyWithMultiRowSupport(target,
-                            valuesTable,
-                            cxt,
-                            foreignTable,
-                            foreignKeyIndex,
-                            !f,
+            var resType = foreignTable.getDataModel().getType();
+            var s = getCellStringValue(valuesTable);
+            if (!StringUtils.isEmpty(s)) {
+                Object result;
+                result = foreignTable.findObject(foreignKeyIndex, s, cxt);
+                if (result != null) {
+                    var chainRes = getChainObject(cxt,
                             resType,
-                            env);
-                    return;
+                            result,
+                            foreignKeyTableAccessorChainTokens);
+                    if (chainRes == null) {
+                        throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
+                    }
+                    resType = chainRes.getType();
                 }
+            }
 
-                if (f) {
-                    if (!StringUtils.isEmpty(s)) {
-                        var cast = cxt.getCast(resType, fieldType);
-                        if (cast == null || !cast.isImplicit()) {
-                            String message = MessageUtils
-                                    .getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
-                            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                        }
-                        var res = getValueByForeignKeyIndex(cxt,
-                                foreignTable,
-                                foreignKeyIndex,
-                                foreignKeyTableAccessorChainTokens,
-                                valuesTable,
-                                s);
-                        getField().set(target, cast.convert(res), env);
+            var isCollection = ClassUtils.isAssignable(fieldType.getInstanceClass(), Collection.class);
+
+            var f = true;
+            if (fieldType.isArray()) {
+                f = !fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass());
+            } else if (isCollection) {
+                f = fieldType.isAssignableFrom(resType);
+            }
+
+            if (isSupportMultirows()) {
+                populateLiteralByForeignKeyWithMultiRowSupport(target,
+                        valuesTable,
+                        cxt,
+                        foreignTable,
+                        foreignKeyIndex,
+                        !f,
+                        resType,
+                        env);
+                return;
+            }
+
+            if (f) {
+                if (!StringUtils.isEmpty(s)) {
+                    var cast = cxt.getCast(resType, fieldType);
+                    if (cast == null || !cast.isImplicit()) {
+                        String message = MessageUtils
+                                .getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
+                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                     }
-                } else {
-                    var componentType = getComponentType(fieldType);
-                    IOpenCast cast = null;
-                    if (fieldType.isArray()) {
-                        cast = cxt.getCast(resType, componentType);
-                        if (cast == null || !cast.isImplicit()) {
-                            String message = MessageUtils
-                                    .getIncompatibleTypesErrorMessage(getField(), fieldType, resType.getArrayType(1));
-                            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                        }
-                    }
-                    // processing array or list values.
-                    var cellValues = getArrayValuesByForeignKey(valuesTable,
-                            cxt,
+                    var res = getValueByForeignKeyIndex(cxt,
                             foreignTable,
                             foreignKeyIndex,
-                            foreignKeyTableAccessorChainTokens);
-                    // Cell can contain empty reference value. As a result we
-                    // will
-                    // receive collection with one null value element. The
-                    // following code snippet
-                    // searches null value elements and removes them.
-                    //
-
-                    var values = CollectionUtils.findAll(cellValues, Objects::nonNull);
-                    if (!values.isEmpty()) {
-                        var size = values.size();
-                        var v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
-
-                        // Populate result array with values.
-                        //
-                        var isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
-                        var isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
-                        for (var i = 0; i < size; i++) {
-                            var value = values.get(i);
-                            if (cast != null) {
-                                value = cast.convert(value);
-                            }
-                            if (isList) {
-                                ((List<Object>) v).set(i, cast != null ? cast.convert(value) : value);
-                            } else if (isSet) {
-                                ((Set<Object>) v).add(cast != null ? cast.convert(value) : value);
-                            } else {
-                                Array.set(v, i, value);
-                            }
-                        }
-                        getField().set(target, v, env);
+                            foreignKeyTableAccessorChainTokens,
+                            valuesTable,
+                            s);
+                    getField().set(target, cast.convert(res), env);
+                }
+            } else {
+                var componentType = getComponentType(fieldType);
+                IOpenCast cast = null;
+                if (fieldType.isArray()) {
+                    cast = cxt.getCast(resType, componentType);
+                    if (cast == null || !cast.isImplicit()) {
+                        String message = MessageUtils
+                                .getIncompatibleTypesErrorMessage(getField(), fieldType, resType.getArrayType(1));
+                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                     }
+                }
+                // processing array or list values.
+                var cellValues = getArrayValuesByForeignKey(valuesTable,
+                        cxt,
+                        foreignTable,
+                        foreignKeyIndex,
+                        foreignKeyTableAccessorChainTokens);
+                // Cell can contain empty reference value. As a result we
+                // will
+                // receive collection with one null value element. The
+                // following code snippet
+                // searches null value elements and removes them.
+                //
+
+                var values = CollectionUtils.findAll(cellValues, Objects::nonNull);
+                if (!values.isEmpty()) {
+                    var size = values.size();
+                    var v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
+
+                    // Populate result array with values.
+                    //
+                    var isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
+                    var isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
+                    for (var i = 0; i < size; i++) {
+                        var value = values.get(i);
+                        if (cast != null) {
+                            value = cast.convert(value);
+                        }
+                        if (isList) {
+                            ((List<Object>) v).set(i, cast != null ? cast.convert(value) : value);
+                        } else if (isSet) {
+                            ((Set<Object>) v).add(cast != null ? cast.convert(value) : value);
+                        } else {
+                            Array.set(v, i, value);
+                        }
+                    }
+                    getField().set(target, v, env);
                 }
             }
         }

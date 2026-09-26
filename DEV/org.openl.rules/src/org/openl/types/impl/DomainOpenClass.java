@@ -159,12 +159,9 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (baseClass.isAssignableFrom(ioc)) {
-            if (ioc instanceof DomainOpenClass domainOpenClass) {
-                if (domainOpenClass.baseClass == baseClass) {
-                    return isFromValuesIncludedToValues(domainOpenClass, this, null);
-                }
-            }
+        if (baseClass.isAssignableFrom(ioc)
+                && ioc instanceof DomainOpenClass domainOpenClass && domainOpenClass.baseClass == baseClass) {
+            return isFromValuesIncludedToValues(domainOpenClass, this, null);
         }
         return false;
     }

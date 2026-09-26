@@ -313,13 +313,12 @@ public class SheetHandler extends DefaultHandler {
         for (CellRangeAddress mergedCell : mergedCells) {
             var r = mergedCell.getFirstRow() - start.getRow();
             var c = mergedCell.getFirstColumn() - start.getColumn();
-            if (r >= 0 && c >= 0 && cells[r][c] != null) {
-                if (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd
-                        .getColumn()) {
-                    var maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
-                    var maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
-                    effectiveEnd = new CellAddress(maxRow, maxCol);
-                }
+            if (r >= 0 && c >= 0 && cells[r][c] != null
+                    && (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd
+                    .getColumn())) {
+                var maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
+                var maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
+                effectiveEnd = new CellAddress(maxRow, maxCol);
             }
         }
 

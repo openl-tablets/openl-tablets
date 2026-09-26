@@ -607,10 +607,8 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
             var file = resolution.filePath();
             // In non-flat repositories we should see full path. In flat repos only essential part.
-            if (!designRepository.supports().mappedFolders()) {
-                if (file.startsWith(rulesLocation)) {
-                    file = file.substring(rulesLocation.length());
-                }
+            if (!designRepository.supports().mappedFolders() && file.startsWith(rulesLocation)) {
+                file = file.substring(rulesLocation.length());
             }
             messageBuilder.append("\n\t").append(file);
 
@@ -632,10 +630,8 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             messageBuilder.append("\n\n Automatically resolved conflicts:");
             for (Map.Entry<String, WorkbookDiffResult> entry : conflictDetails.toAutoResolve().entrySet()) {
                 var file = entry.getKey();
-                if (!designRepository.supports().mappedFolders()) {
-                    if (file.startsWith(rulesLocation)) {
-                        file = file.substring(rulesLocation.length());
-                    }
+                if (!designRepository.supports().mappedFolders() && file.startsWith(rulesLocation)) {
+                    file = file.substring(rulesLocation.length());
                 }
                 messageBuilder.append("\n\t").append(file);
                 var diffResult = entry.getValue();

@@ -648,10 +648,8 @@ public final class DecisionTableHelper {
             g = g.getComponentClass();
             dim++;
         }
-        if (g instanceof BelongsToModuleOpenClass class1) {
-            if (!module.isDependencyModule(class1.getModule(), cache)) {
-                return class1.getExternalRefName() + "[]".repeat(Math.max(0, dim));
-            }
+        if (g instanceof BelongsToModuleOpenClass class1 && !module.isDependencyModule(class1.getModule(), cache)) {
+            return class1.getExternalRefName() + "[]".repeat(Math.max(0, dim));
         }
         if (NullOpenClass.the.equals(g)) {
             return JavaOpenClass.OBJECT.getName() + "[]".repeat(Math.max(0, dim));
@@ -1766,10 +1764,9 @@ public final class DecisionTableHelper {
                     .toList();
             if (!vDtHeaders.isEmpty()) {
                 var lastVCondition = vDtHeaders.getLast();
-                if (lastVCondition instanceof DeclaredDTHeader declaredDTHeader) {
-                    if (!declaredDTHeader.isVerticalConditionWithMergedTitle()) {
-                        minColumn = hDtHeaders.stream().mapToInt(DTHeader::getColumn).min().orElse(0);
-                    }
+                if (lastVCondition instanceof DeclaredDTHeader declaredDTHeader
+                        && !declaredDTHeader.isVerticalConditionWithMergedTitle()) {
+                    minColumn = hDtHeaders.stream().mapToInt(DTHeader::getColumn).min().orElse(0);
                 }
             }
         } else {
@@ -2354,12 +2351,10 @@ public final class DecisionTableHelper {
         }
 
         if (a instanceof FuzzyDTHeader a1 && b instanceof FuzzyDTHeader b1) {
-            if (a1.isMethodParameterUsed() && b1.isMethodParameterUsed()) {
-                if (a1.isCondition() && b1
-                        .isCondition() && a1.getMethodParameterIndex() == b1.getMethodParameterIndex() && Arrays
-                        .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
-                    return false;
-                }
+            if (a1.isMethodParameterUsed() && b1.isMethodParameterUsed() && a1.isCondition() && b1
+                    .isCondition() && a1.getMethodParameterIndex() == b1.getMethodParameterIndex() && Arrays
+                    .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
+                return false;
             }
 
             if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
@@ -2430,10 +2425,8 @@ public final class DecisionTableHelper {
                 if (f) {
                     var dtHeader = dtHeaders.get(index);
                     var isFuzzyReturn = false;
-                    if (dtHeader instanceof FuzzyDTHeader fuzzyDTHeader) {
-                        if (fuzzyDTHeader.isReturn()) {
-                            isFuzzyReturn = true;
-                        }
+                    if (dtHeader instanceof FuzzyDTHeader fuzzyDTHeader && fuzzyDTHeader.isReturn()) {
+                        isFuzzyReturn = true;
                     }
                     if (isFuzzyReturn && fuzzyReturnsFlag == 2) {
                         continue;
@@ -2669,15 +2662,14 @@ public final class DecisionTableHelper {
                 if (dtHeaders.get(i) instanceof DeclaredDTHeader && dtHeaders.get(j) instanceof DeclaredDTHeader) {
                     var d1 = (DeclaredDTHeader) dtHeaders.get(i);
                     var d2 = (DeclaredDTHeader) dtHeaders.get(j);
-                    if (!d1.isHCondition() && !d2.isHCondition()) {
-                        if (!(d1.getColumn() == d2.getColumn() && d1.getWidth() == d2.getWidth()) && intersects(
-                                d1.getColumn(),
-                                d1.getColumn() + d1.getWidth() - 1,
-                                d2.getColumn(),
-                                d2.getColumn() + d2.getWidth() - 1)) {
-                            f[i] = true;
-                            f[j] = true;
-                        }
+                    if (!d1.isHCondition() && !d2.isHCondition()
+                            && !(d1.getColumn() == d2.getColumn() && d1.getWidth() == d2.getWidth()) && intersects(
+                            d1.getColumn(),
+                            d1.getColumn() + d1.getWidth() - 1,
+                            d2.getColumn(),
+                            d2.getColumn() + d2.getWidth() - 1)) {
+                        f[i] = true;
+                        f[j] = true;
                     }
                 }
             }

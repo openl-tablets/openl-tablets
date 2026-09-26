@@ -141,10 +141,9 @@ class FullClassnameSupport {
                     type = f.getType();
                     ret++;
                     continue;
-                } else if (j == identifierChain.size() - 1) {
-                    if (type.getMethods().stream().anyMatch(e -> e.getName().equals(part))) {
-                        return identifierChain.size();
-                    }
+                } else if (j == identifierChain.size() - 1
+                        && type.getMethods().stream().anyMatch(e -> e.getName().equals(part))) {
+                    return identifierChain.size();
                 }
                 break;
             }

@@ -186,10 +186,8 @@ public class String2DataConvertorFactory {
                 if (cl == classLoader) {
                     toRemove.add(clazz);
                 }
-                if (classLoader instanceof OpenLClassLoader loader) {
-                    if (loader.containsClassLoader(cl)) {
-                        toRemove.add(clazz);
-                    }
+                if (classLoader instanceof OpenLClassLoader loader && loader.containsClassLoader(cl)) {
+                    toRemove.add(clazz);
                 }
             }
             for (Class<?> clazz : toRemove) {

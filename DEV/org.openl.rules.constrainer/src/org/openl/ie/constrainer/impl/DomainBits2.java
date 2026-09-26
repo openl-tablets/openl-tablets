@@ -101,11 +101,8 @@ public final class DomainBits2 extends DomainImpl {
     @Override
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
         for (var i = _min - _initial_min; i <= _max - _initial_min; ++i) {
-            if (_bits.at(i)) {
-                if (!it.doSomethingOrStop(i + _initial_min)) {
-                    return;
-                }
-
+            if (_bits.at(i) && !it.doSomethingOrStop(i + _initial_min)) {
+                return;
             }
         }
     }

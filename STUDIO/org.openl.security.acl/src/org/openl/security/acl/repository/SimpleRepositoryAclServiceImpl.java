@@ -157,11 +157,9 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             Acl acl = sids == null ? aclService.readAclById(objectIdentity)
                     : aclService.readAclById(objectIdentity, sids);
             for (AccessControlEntry ace : acl.getEntries()) {
-                if (ace.isGranting()) {
-                    if (sids == null || sids.contains(ace.getSid())) {
-                        var p = map.computeIfAbsent(ace.getSid(), k -> new ArrayList<>());
-                        p.add(ace.getPermission());
-                    }
+                if (ace.isGranting() && (sids == null || sids.contains(ace.getSid()))) {
+                    var p = map.computeIfAbsent(ace.getSid(), k -> new ArrayList<>());
+                    p.add(ace.getPermission());
                 }
             }
             return map;

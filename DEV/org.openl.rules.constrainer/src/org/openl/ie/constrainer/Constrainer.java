@@ -389,10 +389,8 @@ public final class Constrainer implements Serializable {
 
         allowUndos();
 
-        if (success) {
-            if (_backtrack_objects.size() > 0) {
-                printObjects(_out, "BACKTRACK: ", _backtrack_objects);
-            }
+        if (success && _backtrack_objects.size() > 0) {
+            printObjects(_out, "BACKTRACK: ", _backtrack_objects);
         }
 
         return success;
@@ -522,10 +520,8 @@ public final class Constrainer implements Serializable {
 
         _execution_time += System.currentTimeMillis() - execution_start;
 
-        if (_print_information) {
-            if (!(main_goal instanceof Constraint)) {
-                doPrintInformation();
-            }
+        if (_print_information && !(main_goal instanceof Constraint)) {
+            doPrintInformation();
         }
 
         _goal_stack = old_goal_stack;

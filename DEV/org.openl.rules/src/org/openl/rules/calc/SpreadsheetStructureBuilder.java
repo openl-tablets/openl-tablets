@@ -791,14 +791,12 @@ public class SpreadsheetStructureBuilder {
                 .equals(tableSyntaxNode.getTableProperties().getAutoType()) && returnHeaderDefinition.getType() == null) {
             //  Spreadsheet auto type is disabled and no type is defined in the cell name like  RowName:Double
             returnHeaderDefinition.setType(spreadsheetHeaderType);
-        } else if (spreadsheetHeaderType
+        } else if ((spreadsheetHeaderType
                 .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
                 .getAggregateInfo()
-                .getComponentType(spreadsheetHeaderType) == null) {
+                .getComponentType(spreadsheetHeaderType) == null) && hasOnlyOneEmptyCell(returnHeaderDefinition)) {
             // No Java array in the return method signature
-            if (hasOnlyOneEmptyCell(returnHeaderDefinition)) {
-                returnHeaderDefinition.setType(spreadsheetHeaderType);
-            }
+            returnHeaderDefinition.setType(spreadsheetHeaderType);
         }
     }
 

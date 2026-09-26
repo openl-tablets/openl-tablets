@@ -461,12 +461,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         return JavaOpenClass.getOpenClass(toClass).nullObject();
                     }
                     var fromClass = v.getClass();
-                    if (toClass.equals(Object.class)) {
-                        if (v instanceof SpreadsheetResult sr) {
-                            var customClass = sr.getCustomSpreadsheetResultOpenClass();
-                            if (customClass != null) {
-                                return customClass.createBean(sr, namingStrategy);
-                            }
+                    if (toClass.equals(Object.class) && v instanceof SpreadsheetResult sr) {
+                        var customClass = sr.getCustomSpreadsheetResultOpenClass();
+                        if (customClass != null) {
+                            return customClass.createBean(sr, namingStrategy);
                         }
                     }
 
@@ -474,16 +472,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     while (toComponentType.isArray()) {
                         toComponentType = toComponentType.getComponentType();
                     }
-                    if (toComponentType.equals(Object.class)) {
-                        if (fromClass.isArray()) {
-                            // Optimized case for SpreadsheetResult[][][]...
-                            var fromComponentType = fromClass;
-                            while (fromComponentType.isArray()) {
-                                fromComponentType = fromComponentType.getComponentType();
-                            }
-                            if (SpreadsheetResult.class.isAssignableFrom(fromComponentType)) {
-                                return ArrayUtils.convert(v, x -> apply(x, Object.class));
-                            }
+                    if (toComponentType.equals(Object.class) && fromClass.isArray()) {
+                        // Optimized case for SpreadsheetResult[][][]...
+                        var fromComponentType = fromClass;
+                        while (fromComponentType.isArray()) {
+                            fromComponentType = fromComponentType.getComponentType();
+                        }
+                        if (SpreadsheetResult.class.isAssignableFrom(fromComponentType)) {
+                            return ArrayUtils.convert(v, x -> apply(x, Object.class));
                         }
                     }
                     if (v instanceof SpreadsheetResult result && toClass.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {

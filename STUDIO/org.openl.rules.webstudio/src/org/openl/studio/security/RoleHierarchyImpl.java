@@ -24,13 +24,11 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         var p = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
         while (!queue.isEmpty()) {
             var ga = queue.poll();
-            if (ga instanceof Group group) {
-                if (group.getPrivileges() != null) {
-                    for (GrantedAuthority g : group.getPrivileges()) {
-                        if (!p.contains(g.getAuthority())) {
-                            queue.add(g);
-                            p.add(g.getAuthority());
-                        }
+            if (ga instanceof Group group && group.getPrivileges() != null) {
+                for (GrantedAuthority g : group.getPrivileges()) {
+                    if (!p.contains(g.getAuthority())) {
+                        queue.add(g);
+                        p.add(g.getAuthority());
                     }
                 }
             }

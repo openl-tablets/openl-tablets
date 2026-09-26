@@ -47,10 +47,8 @@ public final class ContextPropertyBinderUtils {
     }
 
     private static IOpenCast extractIfNestedOpenCast(IOpenCast openCast) {
-        if (openCast instanceof INestedCastOpenCast nestedCastOpenCast) {
-            if (nestedCastOpenCast.hasNestedOpenCast()) {
-                return nestedCastOpenCast.getNestedOpenCast();
-            }
+        if (openCast instanceof INestedCastOpenCast nestedCastOpenCast && nestedCastOpenCast.hasNestedOpenCast()) {
+            return nestedCastOpenCast.getNestedOpenCast();
         }
         return openCast;
     }

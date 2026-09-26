@@ -256,12 +256,10 @@ public class CastFactory implements ICastFactory {
         }
 
         // If one class is not primitive we use wrapper for prevent NPE
-        if (openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null) {
-            if (!openClass1.getInstanceClass().isPrimitive() || !openClass2.getInstanceClass().isPrimitive()) {
-                if (ret.getInstanceClass().isPrimitive()) {
-                    return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
-                }
-            }
+        if (openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null
+                && (!openClass1.getInstanceClass().isPrimitive() || !openClass2.getInstanceClass().isPrimitive())
+                && ret.getInstanceClass().isPrimitive()) {
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
         }
 
         return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(ret, dim) : ret;
@@ -292,18 +290,17 @@ public class CastFactory implements ICastFactory {
             return returnWithPrimitiveLogic(openClass1);
         }
 
-        if (openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null) {
-            if (openClass1.getInstanceClass().isPrimitive() && !openClass2.getInstanceClass()
-                    .isPrimitive() || !openClass1.getInstanceClass().isPrimitive() && openClass2.getInstanceClass()
-                    .isPrimitive()) {
-                if (openClass1.getInstanceClass().isPrimitive()) {
-                    openClass1 = JavaOpenClass
-                            .getOpenClass(ClassUtils.primitiveToWrapper(openClass1.getInstanceClass()));
-                }
-                if (openClass2.getInstanceClass().isPrimitive()) {
-                    openClass2 = JavaOpenClass
-                            .getOpenClass(ClassUtils.primitiveToWrapper(openClass2.getInstanceClass()));
-                }
+        if (openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null
+                && (openClass1.getInstanceClass().isPrimitive() && !openClass2.getInstanceClass()
+                .isPrimitive() || !openClass1.getInstanceClass().isPrimitive() && openClass2.getInstanceClass()
+                .isPrimitive())) {
+            if (openClass1.getInstanceClass().isPrimitive()) {
+                openClass1 = JavaOpenClass
+                        .getOpenClass(ClassUtils.primitiveToWrapper(openClass1.getInstanceClass()));
+            }
+            if (openClass2.getInstanceClass().isPrimitive()) {
+                openClass2 = JavaOpenClass
+                        .getOpenClass(ClassUtils.primitiveToWrapper(openClass2.getInstanceClass()));
             }
         }
 
@@ -1008,50 +1005,46 @@ public class CastFactory implements ICastFactory {
             // Try to find matching auto cast method
             castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{from, to});
 
-            if (castCaller == null) {
-                // If from parameter is wrapper for primitive type try to find
-                // auto cast method using 'from' as primitive type. In this case
-                // we are emulate 2 operations: 1) unboxing operation 2)
-                // autocast operation.
-                // For example:
-                // <code>
-                // Integer a = 1
-                // double d = a
-                // </code>
-                // For OpenL we are omitting the check that 'to' type must be
-                // primitive type for our case to simplify understanding type
-                // operations in
-                // engine by end-user.
-                //
-                if (primitiveClassFrom != null) {
-                    IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
-                    fromOpenClass = openClassFrom;
-                    toOpenClass = to;
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{openClassFrom, to});
-                }
+            // If from parameter is wrapper for primitive type try to find
+            // auto cast method using 'from' as primitive type. In this case
+            // we are emulate 2 operations: 1) unboxing operation 2)
+            // autocast operation.
+            // For example:
+            // <code>
+            // Integer a = 1
+            // double d = a
+            // </code>
+            // For OpenL we are omitting the check that 'to' type must be
+            // primitive type for our case to simplify understanding type
+            // operations in
+            // engine by end-user.
+            //
+            if (castCaller == null && primitiveClassFrom != null) {
+                IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                fromOpenClass = openClassFrom;
+                toOpenClass = to;
+                castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{openClassFrom, to});
             }
 
-            if (castCaller == null) {
-                // If to parameter is wrapper for primitive type try to find
-                // auto cast method using 'to' as primitive type. In this case
-                // we are emulate 2 operations: 1) autocast operation,
-                // 2) boxing operation.
-                // For example:
-                // <code>
-                // int a = 1
-                // Double d = a
-                // </code>
-                // For OpenL we are omitting the check that 'from' type must be
-                // primitive type for our case to simplify understanding type
-                // operations in
-                // engine by end-user.
-                //
-                if (primitiveClassTo != null) {
-                    IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{from, openClassTo});
-                    fromOpenClass = from;
-                    toOpenClass = openClassTo;
-                }
+            // If to parameter is wrapper for primitive type try to find
+            // auto cast method using 'to' as primitive type. In this case
+            // we are emulate 2 operations: 1) autocast operation,
+            // 2) boxing operation.
+            // For example:
+            // <code>
+            // int a = 1
+            // Double d = a
+            // </code>
+            // For OpenL we are omitting the check that 'from' type must be
+            // primitive type for our case to simplify understanding type
+            // operations in
+            // engine by end-user.
+            //
+            if (castCaller == null && primitiveClassTo != null) {
+                IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{from, openClassTo});
+                fromOpenClass = from;
+                toOpenClass = openClassTo;
             }
 
             if (castCaller == null && primitiveClassFrom != null && primitiveClassTo != null) {

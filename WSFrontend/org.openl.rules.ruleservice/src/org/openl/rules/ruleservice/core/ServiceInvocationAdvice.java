@@ -233,10 +233,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             if (o instanceof IOpenClassAware aware) {
                 aware.setIOpenClass(openClass);
             }
-            if (o instanceof IOpenMemberAware aware) {
-                if (openMember != null) {
-                    aware.setIOpenMember(openMember);
-                }
+            if (o instanceof IOpenMemberAware aware && openMember != null) {
+                aware.setIOpenMember(openMember);
             }
             if (o instanceof ServiceClassLoaderAware aware) {
                 aware.setServiceClassLoader(serviceClassLoader);

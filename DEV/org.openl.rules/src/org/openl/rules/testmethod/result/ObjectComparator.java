@@ -27,14 +27,12 @@ class ObjectComparator extends GenericComparator<Object> {
     boolean equals(Object expectedValue, Object actualValue) {
         Class<?> expectedClass = expectedValue.getClass();
         Class<?> actualClass = actualValue.getClass();
-        if (expectedClass != actualClass) {
-            if (String.class == expectedClass) {
-                try {
-                    var convertor = String2DataConvertorFactory.getConvertor(actualClass);
-                    expectedValue = convertor.parse((String) expectedValue, null);
-                } catch (Exception ignored) {
-                    // a text that cannot be converted to the actual type is compared as it is
-                }
+        if (expectedClass != actualClass && String.class == expectedClass) {
+            try {
+                var convertor = String2DataConvertorFactory.getConvertor(actualClass);
+                expectedValue = convertor.parse((String) expectedValue, null);
+            } catch (Exception ignored) {
+                // a text that cannot be converted to the actual type is compared as it is
             }
         }
         TestResultComparator comparator = TestResultComparatorFactory.getComparator(expectedValue.getClass(), delta);

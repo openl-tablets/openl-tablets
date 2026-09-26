@@ -41,21 +41,19 @@ public class GapOverlapValidator extends TablesValidator {
         var messages = new LinkedHashSet<OpenLMessage>();
 
         for (IOpenMethod method : allModuleMethods) {
-            if (method instanceof ExecutableRulesMethod executableMethod) {
-                if (isValidatableMethod(executableMethod)) {
-                    // can cast to DecisionTable, as validateDT property belongs
-                    // only to DT.
-                    //
-                    var decisionTable = (IDecisionTable) executableMethod;
-                    var dtValidResult = validate(messages, openClass, decisionTable);
-                    if (dtValidResult != null && dtValidResult.hasProblems()) {
-                        decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
-                        if (dtValidResult.hasErrors()) {
-                            addError(messages, decisionTable.getSyntaxNode(), dtValidResult.toString());
-                        } else {
-                            messages.add(OpenLMessagesUtils.newWarnMessage(dtValidResult.toString(),
-                                    decisionTable.getSyntaxNode()));
-                        }
+            if (method instanceof ExecutableRulesMethod executableMethod && isValidatableMethod(executableMethod)) {
+                // can cast to DecisionTable, as validateDT property belongs
+                // only to DT.
+                //
+                var decisionTable = (IDecisionTable) executableMethod;
+                var dtValidResult = validate(messages, openClass, decisionTable);
+                if (dtValidResult != null && dtValidResult.hasProblems()) {
+                    decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
+                    if (dtValidResult.hasErrors()) {
+                        addError(messages, decisionTable.getSyntaxNode(), dtValidResult.toString());
+                    } else {
+                        messages.add(OpenLMessagesUtils.newWarnMessage(dtValidResult.toString(),
+                                decisionTable.getSyntaxNode()));
                     }
                 }
             }

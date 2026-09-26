@@ -1482,37 +1482,37 @@ public class OpenApiProjectValidator {
                 Map<String, Schema> propertiesOfActualSchema = null;
                 var parentPresentedInBothSchemas = false;
 
-                if (resolvedExpectedSchema instanceof ComposedSchema expectedComposedSchema && resolvedActualSchema instanceof ComposedSchema actualComposedSchema) {
-                    if (isParentPresented(actualComposedSchema) && isParentPresented(expectedComposedSchema)) {
-                        var superClass = getSuperClass(openClass);
-                        if (superClass != null) {
-                            try {
-                                validateType(context,
-                                        extractParentSchema(actualComposedSchema),
-                                        extractParentSchema(expectedComposedSchema),
-                                        superClass,
-                                        validatedBySchemasRef,
-                                        validatedByFieldType);
-                            } catch (DifferentTypesException e) {
-                                var schemaToString = schemaToString(context,
-                                        extractParentSchema(expectedComposedSchema));
-                                OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                                        (
-                                                OPEN_API_VALIDATION_MSG_PREFIX + "Parent '%s' of type '%s' mismatches to declared schema%s").formatted(
-                                                superClass.getDisplayName(INamedThing.REGULAR),
-                                                openClass.getDisplayName(INamedThing.REGULAR),
-                                                schemaToString == null ? "." : ":\n" + schemaToString));
-                            }
-                            propertiesOfExpectedSchema = extractObjectSchema(expectedComposedSchema).getProperties();
-                            propertiesOfActualSchema = extractObjectSchema(actualComposedSchema).getProperties();
-                            if (propertiesOfActualSchema == null) {
-                                propertiesOfActualSchema = Map.of();
-                            }
-                            if (propertiesOfExpectedSchema == null) {
-                                propertiesOfExpectedSchema = Map.of();
-                            }
-                            parentPresentedInBothSchemas = true;
+                if (resolvedExpectedSchema instanceof ComposedSchema expectedComposedSchema
+                        && resolvedActualSchema instanceof ComposedSchema actualComposedSchema
+                        && isParentPresented(actualComposedSchema) && isParentPresented(expectedComposedSchema)) {
+                    var superClass = getSuperClass(openClass);
+                    if (superClass != null) {
+                        try {
+                            validateType(context,
+                                    extractParentSchema(actualComposedSchema),
+                                    extractParentSchema(expectedComposedSchema),
+                                    superClass,
+                                    validatedBySchemasRef,
+                                    validatedByFieldType);
+                        } catch (DifferentTypesException e) {
+                            var schemaToString = schemaToString(context,
+                                    extractParentSchema(expectedComposedSchema));
+                            OpenApiProjectValidatorMessagesUtils.addTypeError(context,
+                                    (
+                                            OPEN_API_VALIDATION_MSG_PREFIX + "Parent '%s' of type '%s' mismatches to declared schema%s").formatted(
+                                            superClass.getDisplayName(INamedThing.REGULAR),
+                                            openClass.getDisplayName(INamedThing.REGULAR),
+                                            schemaToString == null ? "." : ":\n" + schemaToString));
                         }
+                        propertiesOfExpectedSchema = extractObjectSchema(expectedComposedSchema).getProperties();
+                        propertiesOfActualSchema = extractObjectSchema(actualComposedSchema).getProperties();
+                        if (propertiesOfActualSchema == null) {
+                            propertiesOfActualSchema = Map.of();
+                        }
+                        if (propertiesOfExpectedSchema == null) {
+                            propertiesOfExpectedSchema = Map.of();
+                        }
+                        parentPresentedInBothSchemas = true;
                     }
                 }
                 if (!parentPresentedInBothSchemas) {
@@ -1651,12 +1651,11 @@ public class OpenApiProjectValidator {
                     }
                 }
 
-                if (countOfValidFields == 0 && !wrongFields.isEmpty()) {
-                    if (expectedSchema.get$ref() == null || actualSchema.get$ref() == null || !Objects.equals(
-                            RefUtils.computeDefinitionName(expectedSchema.get$ref()),
-                            RefUtils.computeDefinitionName(actualSchema.get$ref()))) {
-                        throw new DifferentTypesException();
-                    }
+                if (countOfValidFields == 0 && !wrongFields.isEmpty()
+                        && (expectedSchema.get$ref() == null || actualSchema.get$ref() == null || !Objects.equals(
+                        RefUtils.computeDefinitionName(expectedSchema.get$ref()),
+                        RefUtils.computeDefinitionName(actualSchema.get$ref())))) {
+                    throw new DifferentTypesException();
                 }
                 wrongFields.forEach(Runnable::run);
             }

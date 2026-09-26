@@ -229,10 +229,9 @@ public class ProjectModel {
                 if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
                     for (TableSyntaxNode tableSyntaxNode : nodes) {
                         IGridTable table = tableSyntaxNode.getGridTable();
-                        if (table.getGrid() instanceof CompositeGrid compositeGrid) {
-                            if (findInCompositeGrid(compositeGrid, p1)) {
-                                return tableSyntaxNode;
-                            }
+                        if (table.getGrid() instanceof CompositeGrid compositeGrid
+                                && findInCompositeGrid(compositeGrid, p1)) {
+                            return tableSyntaxNode;
                         }
                     }
                 }
@@ -376,11 +375,9 @@ public class ProjectModel {
     private IOpenMethod resolveMethod(IOpenMethod method, String uri) {
 
         if (isInstanceOfTable(method, uri)) {
-            if (method instanceof ExecutableRulesMethod executableRulesMethod) {
-                // Skip Alias tables to find original one
-                if (executableRulesMethod.isAlias()) {
-                    return null;
-                }
+            // Skip Alias tables to find original one
+            if (method instanceof ExecutableRulesMethod executableRulesMethod && executableRulesMethod.isAlias()) {
+                return null;
             }
             return method;
         }
@@ -681,10 +678,9 @@ public class ProjectModel {
             } catch (ProjectException e) {
                 return false;
             }
-            if (currentModule != null) {
-                if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(BasePermission.WRITE))) {
-                    return false;
-                }
+            if (currentModule != null && !studio.getDesignRepositoryAclService()
+                    .isGranted(currentModule, List.of(BasePermission.WRITE))) {
+                return false;
             }
             return isEditableProject(currentProject);
         }

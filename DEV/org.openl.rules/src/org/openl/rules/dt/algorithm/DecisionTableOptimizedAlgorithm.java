@@ -453,10 +453,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     public void cleanParamValuesForIndexedConditions() {
         if (dependencies != null) {
             for (ConditionToEvaluatorHolder eval : evaluators) {
-                if (eval.isIndexed()) {
-                    if (!isDependencyOnConditionExists(eval.getCondition())) {
-                        eval.getCondition().clearParamValues();
-                    }
+                if (eval.isIndexed() && !isDependencyOnConditionExists(eval.getCondition())) {
+                    eval.getCondition().clearParamValues();
                 }
             }
             // we do not need dependencies after clearing conditions

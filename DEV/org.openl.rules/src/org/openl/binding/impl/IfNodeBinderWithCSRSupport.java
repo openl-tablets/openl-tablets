@@ -26,14 +26,14 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
                                          IOpenClass type,
                                          IBoundNode elseNode,
                                          IOpenClass elseType) {
-        if (type instanceof CustomSpreadsheetResultOpenClass type1 && elseType instanceof CustomSpreadsheetResultOpenClass type2) {
-            if (!type1.equals(type2) && type1.getModule() == type2.getModule()) {
-                return new IfNode(node,
-                        conditionNode,
-                        thenNode,
-                        elseNode,
-                        mergeTwoCustomSpreadsheetResultTypes(type1, type2));
-            }
+        if (type instanceof CustomSpreadsheetResultOpenClass type1
+                && elseType instanceof CustomSpreadsheetResultOpenClass type2
+                && !type1.equals(type2) && type1.getModule() == type2.getModule()) {
+            return new IfNode(node,
+                    conditionNode,
+                    thenNode,
+                    elseNode,
+                    mergeTwoCustomSpreadsheetResultTypes(type1, type2));
         }
         return super.buildIfElseNode(node, bindingContext, conditionNode, thenNode, type, elseNode, elseType);
     }

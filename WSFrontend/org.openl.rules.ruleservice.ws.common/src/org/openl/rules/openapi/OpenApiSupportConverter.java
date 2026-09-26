@@ -20,11 +20,10 @@ class OpenApiSupportConverter implements ModelConverter {
     public Schema<?> resolve(AnnotatedType annotatedType,
                              ModelConverterContext context,
                              Iterator<ModelConverter> chain) {
-        if (annotatedType.getCtxAnnotations() != null) {
-            // Skip transient fields
-            if (Arrays.stream(annotatedType.getCtxAnnotations()).anyMatch(e -> e instanceof XmlTransient)) {
-                return null;
-            }
+        // Skip transient fields
+        if (annotatedType.getCtxAnnotations() != null
+                && Arrays.stream(annotatedType.getCtxAnnotations()).anyMatch(e -> e instanceof XmlTransient)) {
+            return null;
         }
         // Replace with JAXB adapter type
         var valueType = annotatedType.getType();

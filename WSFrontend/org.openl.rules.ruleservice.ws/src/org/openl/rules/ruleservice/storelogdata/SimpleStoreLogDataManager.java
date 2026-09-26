@@ -33,11 +33,9 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
 
     @Override
     public void store(StoreLogData storeLogData) throws StoreLogDataException {
-        if (!storeLogData.isIgnorable()) {
-            if (!ignoreByFault(storeLogData)) {
-                for (StoreLogDataService storeLogDataService : storeLogDataServices) {
-                    storeLogDataService.save(storeLogData);
-                }
+        if (!storeLogData.isIgnorable() && !ignoreByFault(storeLogData)) {
+            for (StoreLogDataService storeLogDataService : storeLogDataServices) {
+                storeLogDataService.save(storeLogData);
             }
         }
     }

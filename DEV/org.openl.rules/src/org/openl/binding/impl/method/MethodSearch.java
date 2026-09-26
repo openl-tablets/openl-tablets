@@ -645,13 +645,10 @@ public final class MethodSearch {
                     continue;
                 }
 
-                if (oneElementToArrayCastCount == bestOneElementToArrayCastCount && multiCallParamsHolderCount == bestMultiCallParamsCount && eq(
-                        match,
-                        bestMethodMatch)) {
-                    if (!f) {
-                        matchingResult.add(match);
-                        f = true;
-                    }
+                if (oneElementToArrayCastCount == bestOneElementToArrayCastCount
+                        && multiCallParamsHolderCount == bestMultiCallParamsCount && eq(match, bestMethodMatch) && !f) {
+                    matchingResult.add(match);
+                    f = true;
                 }
             }
         }

@@ -211,11 +211,9 @@ public class XlsBinder implements IOpenBinder {
             while (bc1 instanceof BindingContextDelegator) {
                 bc1 = ((BindingContextDelegator) bc1).getDelegate();
             }
-            if (bc1 instanceof BindingContext bc) {
-                if (bc.getOpenL() == null || bc.getBinder() == null) { // Workaround
-                    bc.setOpenl(openl);
-                    bc.setBinder(openl.getBinder());
-                }
+            if (bc1 instanceof BindingContext bc && (bc.getOpenL() == null || bc.getBinder() == null)) { // Workaround
+                bc.setOpenl(openl);
+                bc.setBinder(openl.getBinder());
             }
         }
         // add collected exceptions

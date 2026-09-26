@@ -172,10 +172,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
             // Generate Java beans from OpenL dataTypes
             writeJavaBeans(compiledOpenClass.getTypes());
 
-            if (generateSpreadsheetResultBeans) {
-                if (compiledOpenClass.getOpenClass() instanceof XlsModuleOpenClass) {
-                    writeCustomSpreadsheetResultBeans((XlsModuleOpenClass) compiledOpenClass.getOpenClass());
-                }
+            if (generateSpreadsheetResultBeans && compiledOpenClass.getOpenClass() instanceof XlsModuleOpenClass) {
+                writeCustomSpreadsheetResultBeans((XlsModuleOpenClass) compiledOpenClass.getOpenClass());
             }
 
             // Generate interface is optional.

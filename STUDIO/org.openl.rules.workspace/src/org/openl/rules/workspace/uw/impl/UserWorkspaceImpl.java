@@ -246,24 +246,22 @@ public class UserWorkspaceImpl implements UserWorkspace {
         var anyProjectRenamed = false;
         for (RulesProject rPr : getProjects(false)) {
             var repository = designTimeRepository.getRepository(rPr.getRepository().getId());
-            if (repository != null && repository.supports().mappedFolders()) {
-                if (rPr.isOpened() && !rPr.isLocalOnly()) {
-                    try {
-                        var realProjectName = getActualName(rPr);
-                        if (!rPr.getLocalFolderName().equals(realProjectName)) {
-                            // We cannot close and then open a project in workspace, we should rename the folder
-                            // in file system directly. Otherwise we will lose unsaved user changes.
-                            var prevPath = rPr.getFolderPath();
-                            var index = prevPath.lastIndexOf('/');
-                            var newPath = prevPath.substring(0, index + 1) + realProjectName;
-                            anyProjectRenamed |= localWorkspace.getMetainfoRegistry()
-                                    .renameProjectFolder(prevPath, newPath);
-                        }
-                    } catch (Exception e) {
-                        log.warn("Could not rename the project '{}' because of error: {}",
-                                rPr.getName(),
-                                e.getMessage(), e);
+            if (repository != null && repository.supports().mappedFolders() && rPr.isOpened() && !rPr.isLocalOnly()) {
+                try {
+                    var realProjectName = getActualName(rPr);
+                    if (!rPr.getLocalFolderName().equals(realProjectName)) {
+                        // We cannot close and then open a project in workspace, we should rename the folder
+                        // in file system directly. Otherwise we will lose unsaved user changes.
+                        var prevPath = rPr.getFolderPath();
+                        var index = prevPath.lastIndexOf('/');
+                        var newPath = prevPath.substring(0, index + 1) + realProjectName;
+                        anyProjectRenamed |= localWorkspace.getMetainfoRegistry()
+                                .renameProjectFolder(prevPath, newPath);
                     }
+                } catch (Exception e) {
+                    log.warn("Could not rename the project '{}' because of error: {}",
+                            rPr.getName(),
+                            e.getMessage(), e);
                 }
             }
         }
@@ -399,18 +397,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         selectedProject.getFileData(),
                         projectsLockEngine);
 
-                if (cleanUpOnActivation) {
-                    // Clean ups after session activation (should be done only once).
-                    if (!isVersionExistInHistory(project)) {
-                        log.warn("The Project '{}' has a version {}, but absents in the history.",
-                                project.getName(),
-                                project.getHistoryVersion());
-                        if (!project.isModified()) {
-                            log.warn(
-                                    "The project '{}' is not modified and will be closed because it absents in the history.",
-                                    project.getName());
-                            closeProject = true;
-                        }
+                // Clean ups after session activation (should be done only once).
+                if (cleanUpOnActivation && !isVersionExistInHistory(project)) {
+                    log.warn("The Project '{}' has a version {}, but absents in the history.",
+                            project.getName(),
+                            project.getHistoryVersion());
+                    if (!project.isModified()) {
+                        log.warn(
+                                "The project '{}' is not modified and will be closed because it absents in the history.",
+                                project.getName());
+                        closeProject = true;
                     }
                 }
 

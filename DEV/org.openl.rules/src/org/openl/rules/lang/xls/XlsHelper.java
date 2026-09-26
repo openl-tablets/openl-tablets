@@ -147,26 +147,25 @@ public final class XlsHelper {
         // Collect token concatenation
         var collectParameters = new ArrayList<String>();
         var isCollect = false;
-        if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header
+        if ((header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header
                 .equals(IXlsTableNames.SMART_DECISION_TABLE) || header
-                .equals(IXlsTableNames.SIMPLE_DECISION_LOOKUP) || header.equals(IXlsTableNames.SMART_DECISION_LOOKUP)) {
-            if (headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)) {
-                isCollect = true;
-                if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)) {
-                    var i = 3;
+                .equals(IXlsTableNames.SIMPLE_DECISION_LOOKUP) || header.equals(IXlsTableNames.SMART_DECISION_LOOKUP))
+                && headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)) {
+            isCollect = true;
+            if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)) {
+                var i = 3;
+                collectParameters.add(headerTokens[i].getIdentifier());
+                if (headerTokens[i + 1].getIdentifier().equals(IXlsTableNames.COLLECT_AND)) {
+                    i = i + 2;
                     collectParameters.add(headerTokens[i].getIdentifier());
-                    if (headerTokens[i + 1].getIdentifier().equals(IXlsTableNames.COLLECT_AND)) {
-                        i = i + 2;
-                        collectParameters.add(headerTokens[i].getIdentifier());
-                    }
-                    var location = new TextInterval(headerToken.getLocation().getStart(),
-                            headerTokens[i].getLocation().getEnd());
-                    headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
-                } else {
-                    var location = new TextInterval(headerToken.getLocation().getStart(),
-                            headerTokens[1].getLocation().getEnd());
-                    headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
                 }
+                var location = new TextInterval(headerToken.getLocation().getStart(),
+                        headerTokens[i].getLocation().getEnd());
+                headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
+            } else {
+                var location = new TextInterval(headerToken.getLocation().getStart(),
+                        headerTokens[1].getLocation().getEnd());
+                headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
             }
         }
 

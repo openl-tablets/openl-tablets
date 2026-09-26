@@ -36,12 +36,10 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
     public SimpleUser convert(Map<String, Object> claims) {
         final var grantedAuthorities = new ArrayList<GrantedAuthority>();
         var claimGroups = claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
-        if (claimGroups != null) {
-            if (List.class.isAssignableFrom(claimGroups.getClass())) {
-                var groups = (List<?>) claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
-                for (Object name : groups) {
-                    grantedAuthorities.add(new SimpleGrantedAuthority(name.toString()));
-                }
+        if (claimGroups != null && List.class.isAssignableFrom(claimGroups.getClass())) {
+            var groups = (List<?>) claims.get(propertyResolver.getProperty("security.oauth2.attribute.groups"));
+            for (Object name : groups) {
+                grantedAuthorities.add(new SimpleGrantedAuthority(name.toString()));
             }
         }
 

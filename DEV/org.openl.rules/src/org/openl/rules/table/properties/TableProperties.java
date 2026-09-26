@@ -67,10 +67,9 @@ public class TableProperties implements ITableProperties {
             var upLevelPropertyName = upLevelProperty.getKey();
             var upLevelPropertyValue = upLevelProperty.getValue();
 
-            if (PropertiesChecker.isPropertySuitableForTableType(upLevelPropertyName, currentTableType)) {
-                if (!downLevelProperties.containsKey(upLevelPropertyName)) {
-                    downLevelProperties.put(upLevelPropertyName, upLevelPropertyValue);
-                }
+            if (PropertiesChecker.isPropertySuitableForTableType(upLevelPropertyName, currentTableType)
+                    && !downLevelProperties.containsKey(upLevelPropertyName)) {
+                downLevelProperties.put(upLevelPropertyName, upLevelPropertyValue);
             }
         }
         return downLevelProperties;

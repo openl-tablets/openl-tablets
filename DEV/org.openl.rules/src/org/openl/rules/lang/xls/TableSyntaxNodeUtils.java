@@ -46,29 +46,27 @@ public final class TableSyntaxNodeUtils {
         var dimensionInfo = StringUtils.EMPTY;
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode
-                .getMember() instanceof IOpenMethod && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
+                .getMember() instanceof IOpenMethod && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())
+                && dictionary.getAllMethodOverloads((IOpenMethod) tableSyntaxNode.getMember()).size() > 1) {
+            // Add dimension properties info only if there are more than one table in dictionary.
+            // For single table don`t add this info.
+            //
+            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
 
-            if (dictionary.getAllMethodOverloads((IOpenMethod) tableSyntaxNode.getMember()).size() > 1) {
-                // Add dimension properties info only if there are more than one table in dictionary.
-                // For single table don`t add this info.
-                //
-                String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+            for (String dimensionalPropertyName : dimensionalPropertyNames) {
+                String value;
 
-                for (String dimensionalPropertyName : dimensionalPropertyNames) {
-                    String value;
+                var propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
+                if (formats != null && propertyValue instanceof Date date) {
+                    value = formats.formatDateOrDateTime(date);
+                } else {
+                    value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
+                }
 
-                    var propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
-                    if (formats != null && propertyValue instanceof Date date) {
-                        value = formats.formatDateOrDateTime(date);
-                    } else {
-                        value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
-                    }
-
-                    if (StringUtils.isNotEmpty(value)) {
-                        var propertyInfo = dimensionalPropertyName + "=" + value;
-                        dimensionInfo = dimensionInfo + (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY
-                                : ", ") + propertyInfo;
-                    }
+                if (StringUtils.isNotEmpty(value)) {
+                    var propertyInfo = dimensionalPropertyName + "=" + value;
+                    dimensionInfo = dimensionInfo + (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY
+                            : ", ") + propertyInfo;
                 }
             }
         }

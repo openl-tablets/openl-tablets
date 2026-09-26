@@ -263,11 +263,9 @@ public final class WrapperLogic {
                 }
             } else if (wrapper
                     .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) wrapper.getType())
-                    .getModule() != null) {
-                if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
-                    ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass(
-                            ((SpreadsheetResultOpenClass) wrapper.getType()).toCustomSpreadsheetResultOpenClass());
-                }
+                    .getModule() != null && ((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
+                ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass(
+                        ((SpreadsheetResultOpenClass) wrapper.getType()).toCustomSpreadsheetResultOpenClass());
             }
         }
         return ret;

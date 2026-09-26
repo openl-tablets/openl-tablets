@@ -59,32 +59,31 @@ public class GridTool {
             var existingMergedRegion = grid.getMergedRegion(i);
             // merged region is contained by region of grid
             if (IGridRegion.Tool
-                    .contains(regionOfTable, existingMergedRegion.getLeft(), existingMergedRegion.getTop())) {
-                if (isRegionMustBeResized(existingMergedRegion,
-                        firstRowOrColumn,
-                        numberOfRowsOrColumns,
-                        isColumns,
-                        regionOfTable)) {
-                    var oldCellStyle = grid
-                            .getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom())
-                            .getStyle();
+                    .contains(regionOfTable, existingMergedRegion.getLeft(), existingMergedRegion.getTop())
+                    && isRegionMustBeResized(existingMergedRegion,
+                    firstRowOrColumn,
+                    numberOfRowsOrColumns,
+                    isColumns,
+                    regionOfTable)) {
+                var oldCellStyle = grid
+                        .getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom())
+                        .getStyle();
 
-                    if (!isColumns && isInsert) {
-                        for (var j = 1; j <= numberOfRowsOrColumns; j++) {
-                            grid.getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom() + 1)
-                                    .getStyle();
-                            resizeActions.add(new SetBorderStyleAction(existingMergedRegion.getLeft(),
-                                    existingMergedRegion.getBottom() + j,
-                                    oldCellStyle,
-                                    metaInfoWriter));
-                        }
+                if (!isColumns && isInsert) {
+                    for (var j = 1; j <= numberOfRowsOrColumns; j++) {
+                        grid.getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom() + 1)
+                                .getStyle();
+                        resizeActions.add(new SetBorderStyleAction(existingMergedRegion.getLeft(),
+                                existingMergedRegion.getBottom() + j,
+                                oldCellStyle,
+                                metaInfoWriter));
                     }
-
-                    resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion,
-                            numberOfRowsOrColumns,
-                            isInsert,
-                            isColumns));
                 }
+
+                resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion,
+                        numberOfRowsOrColumns,
+                        isInsert,
+                        isColumns));
             }
         }
         return resizeActions;

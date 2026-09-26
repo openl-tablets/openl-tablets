@@ -399,12 +399,10 @@ public class DecisionTableLoader {
                     .createError("Expected exactly one parameter for return type '%s'.".formatted(
                     type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
         }
-        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
-            if (parametersCount != 2) {
-                throw SyntaxNodeExceptionUtils
-                        .createError("Expected two parameters for return type '%s'.".formatted(
-                        type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
-            }
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class) && parametersCount != 2) {
+            throw SyntaxNodeExceptionUtils
+                    .createError("Expected two parameters for return type '%s'.".formatted(
+                    type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
         }
         for (String parameterType : tableSyntaxNode.getHeader().getCollectParameters()) {
             IOpenClass t = bindingContext.findType(parameterType);

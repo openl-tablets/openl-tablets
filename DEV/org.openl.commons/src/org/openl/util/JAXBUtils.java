@@ -10,10 +10,9 @@ public final class JAXBUtils {
     public static Class<?> extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(Class<?> boundType) {
         if (!boundType.isPrimitive()) {
             var adapter = boundType.getAnnotation(XmlJavaTypeAdapter.class);
-            if (adapter != null && adapter.value().getGenericSuperclass() instanceof ParameterizedType type) {
-                if (type.getActualTypeArguments()[0] instanceof Class<?> clazz) {
-                    return clazz;
-                }
+            if (adapter != null && adapter.value().getGenericSuperclass() instanceof ParameterizedType type
+                    && type.getActualTypeArguments()[0] instanceof Class<?> clazz) {
+                return clazz;
             }
         }
         return null;

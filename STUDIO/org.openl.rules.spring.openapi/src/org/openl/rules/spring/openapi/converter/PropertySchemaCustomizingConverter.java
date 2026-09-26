@@ -109,10 +109,9 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
                         if (schemaApi != null && schemaApi.allowableValues().length > 0) {
                             propSchema.setEnum(Arrays.asList(schemaApi.allowableValues()));
                         }
-                        if (paramApi.required()) {
-                            if (!CollectionUtils.containsInstance(definedSchema.getRequired(), property.getName())) {
-                                definedSchema.addRequiredItem(property.getName());
-                            }
+                        if (paramApi.required()
+                                && !CollectionUtils.containsInstance(definedSchema.getRequired(), property.getName())) {
+                            definedSchema.addRequiredItem(property.getName());
                         }
                     }
                     expandEnumKeyedMap(property, propSchema);

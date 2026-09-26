@@ -42,12 +42,10 @@ public final class RepositoryValidators {
 
         // Check for name uniqueness.
         for (RepositoryConfiguration other : repositoryConfigurations) {
-            if (other != repoConfig) {
-                if (repoConfig.getName().equals(other.getName())) {
-                    var msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
-                            repoConfig.getName());
-                    throw new RepositoryValidationException(msg);
-                }
+            if (other != repoConfig && repoConfig.getName().equals(other.getName())) {
+                var msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
+                        repoConfig.getName());
+                throw new RepositoryValidationException(msg);
             }
         }
 

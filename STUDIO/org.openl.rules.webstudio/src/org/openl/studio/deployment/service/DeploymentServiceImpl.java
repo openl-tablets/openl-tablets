@@ -154,10 +154,8 @@ public class DeploymentServiceImpl implements DeploymentService {
                             deploymentId.getRepository()));
         }
 
-        if (deployments.isEmpty()) {
-            if (!aclProjectsHelper.hasCreateDeploymentPermission(deploymentId.getRepository())) {
-                throw new ForbiddenException("default.message");
-            }
+        if (deployments.isEmpty() && !aclProjectsHelper.hasCreateDeploymentPermission(deploymentId.getRepository())) {
+            throw new ForbiddenException("default.message");
         }
 
         var deploymentRequest = DeploymentRequest.builder()

@@ -363,40 +363,38 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     public static PropertyNamingStrategy extractPropertyNamingStrategy(RulesDeploy rulesDeploy,
                                                                        ClassLoader classLoader) {
-        if (rulesDeploy != null) {
-            if (rulesDeploy.getConfiguration() != null) {
-                var propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
-                if (propertyNamingStrategy != null) {
-                    if (propertyNamingStrategy instanceof String propertyNamingStrategyClassName) {
-                        try {
-                            var propertyNamingStrategyClass = classLoader
-                                    .loadClass(propertyNamingStrategyClassName);
-                            if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
-                                throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.".formatted(
-                                        JACKSON_PROPERTY_NAMING_STRATEGY,
-                                        rulesDeploy.getServiceName(),
-                                        PropertyNamingStrategy.class.getTypeName()));
-                            }
-                            try {
-                                return (PropertyNamingStrategy) propertyNamingStrategyClass.getDeclaredConstructor().newInstance();
-                            } catch (ReflectiveOperationException e) {
-                                throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s' for service '%s'.".formatted(
-                                        JACKSON_PROPERTY_NAMING_STRATEGY,
-                                        rulesDeploy.getServiceName()), e);
-                            }
-                        } catch (ClassNotFoundException e) {
-                            throw new ObjectMapperConfigurationParsingException(
-                                    "Failed to load property naming strategy class '%s' for service '%s'.".formatted(
-                                            JACKSON_PROPERTY_NAMING_STRATEGY,
-                                            rulesDeploy.getServiceName()),
-                                    e);
+        if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
+            var propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
+            if (propertyNamingStrategy != null) {
+                if (propertyNamingStrategy instanceof String propertyNamingStrategyClassName) {
+                    try {
+                        var propertyNamingStrategyClass = classLoader
+                                .loadClass(propertyNamingStrategyClassName);
+                        if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
+                            throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.".formatted(
+                                    JACKSON_PROPERTY_NAMING_STRATEGY,
+                                    rulesDeploy.getServiceName(),
+                                    PropertyNamingStrategy.class.getTypeName()));
                         }
-                    } else {
+                        try {
+                            return (PropertyNamingStrategy) propertyNamingStrategyClass.getDeclaredConstructor().newInstance();
+                        } catch (ReflectiveOperationException e) {
+                            throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s' for service '%s'.".formatted(
+                                    JACKSON_PROPERTY_NAMING_STRATEGY,
+                                    rulesDeploy.getServiceName()), e);
+                        }
+                    } catch (ClassNotFoundException e) {
                         throw new ObjectMapperConfigurationParsingException(
-                                EXPECTED_STRING_VALUE.formatted(
+                                "Failed to load property naming strategy class '%s' for service '%s'.".formatted(
                                         JACKSON_PROPERTY_NAMING_STRATEGY,
-                                        rulesDeploy.getServiceName()));
+                                        rulesDeploy.getServiceName()),
+                                e);
                     }
+                } else {
+                    throw new ObjectMapperConfigurationParsingException(
+                            EXPECTED_STRING_VALUE.formatted(
+                                    JACKSON_PROPERTY_NAMING_STRATEGY,
+                                    rulesDeploy.getServiceName()));
                 }
             }
         }

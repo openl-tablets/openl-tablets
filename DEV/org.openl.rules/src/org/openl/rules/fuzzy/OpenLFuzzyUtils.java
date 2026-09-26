@@ -125,51 +125,49 @@ public final class OpenLFuzzyUtils {
         var ret = new HashMap<Token, LinkedList<LinkedList<IOpenField>>>();
         if (!openClass.isSimple()) {
             for (IOpenField field : openClass.getFields()) {
-                if (!field.isStatic() && !field.isConst()) {
-                    if (writable ? field.isWritable() : field.isReadable()) {
-                        var fieldName = field.getName();
-                        String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
-                        var fields = new LinkedList<IOpenField>();
-                        fields.add(field);
-                        LinkedList<LinkedList<IOpenField>> x = null;
-                        for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : ret.entrySet()) {
-                            var token = entry.getKey();
-                            if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
-                                x = entry.getValue();
-                                break;
-                            }
+                if (!field.isStatic() && !field.isConst() && (writable ? field.isWritable() : field.isReadable())) {
+                    var fieldName = field.getName();
+                    String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
+                    var fields = new LinkedList<IOpenField>();
+                    fields.add(field);
+                    LinkedList<LinkedList<IOpenField>> x = null;
+                    for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : ret.entrySet()) {
+                        var token = entry.getKey();
+                        if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
+                            x = entry.getValue();
+                            break;
                         }
-                        if (x == null) {
-                            x = new LinkedList<>();
-                            x.add(fields);
-                            ret.put(new Token(t, deepLevel), x);
-                        } else {
-                            x.add(fields);
-                        }
+                    }
+                    if (x == null) {
+                        x = new LinkedList<>();
+                        x.add(fields);
+                        ret.put(new Token(t, deepLevel), x);
+                    } else {
+                        x.add(fields);
+                    }
 
-                        var type = field.getType();
-                        if (!type.isSimple() && !type.isArray()) {
-                            var map = buildTokensMapToOpenClassFieldsRecursively(
-                                    type,
-                                    deepLevel + 1,
-                                    writable);
-                            for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
-                                if (!entry.getValue().isEmpty()) {
-                                    var k = new Token(t + " " + entry.getKey().getValue(),
-                                            entry.getKey().getDistance() + 1);
-                                    var v = ret.computeIfAbsent(k,
-                                            e -> new LinkedList<>());
-                                    for (LinkedList<IOpenField> y : entry.getValue()) {
-                                        var y1 = new LinkedList<IOpenField>(y);
-                                        y1.addFirst(field);
-                                        v.add(y1);
-                                    }
-                                    v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
-                                    for (LinkedList<IOpenField> y : entry.getValue()) {
-                                        var y1 = new LinkedList<IOpenField>(y);
-                                        y1.addFirst(field);
-                                        v.add(y1);
-                                    }
+                    var type = field.getType();
+                    if (!type.isSimple() && !type.isArray()) {
+                        var map = buildTokensMapToOpenClassFieldsRecursively(
+                                type,
+                                deepLevel + 1,
+                                writable);
+                        for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
+                            if (!entry.getValue().isEmpty()) {
+                                var k = new Token(t + " " + entry.getKey().getValue(),
+                                        entry.getKey().getDistance() + 1);
+                                var v = ret.computeIfAbsent(k,
+                                        e -> new LinkedList<>());
+                                for (LinkedList<IOpenField> y : entry.getValue()) {
+                                    var y1 = new LinkedList<IOpenField>(y);
+                                    y1.addFirst(field);
+                                    v.add(y1);
+                                }
+                                v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
+                                for (LinkedList<IOpenField> y : entry.getValue()) {
+                                    var y1 = new LinkedList<IOpenField>(y);
+                                    y1.addFirst(field);
+                                    v.add(y1);
                                 }
                             }
                         }

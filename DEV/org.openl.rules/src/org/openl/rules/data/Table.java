@@ -284,25 +284,22 @@ public class Table implements ITable {
             for (var j = 0; j < columns; j++) {
                 var descriptor = dataModel.getDescriptor(j);
 
-                if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor) {
-
-                    if (fkDescriptor.isReference()) {
-                        try {
-                            if (descriptor.isConstructor()) {
-                                target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
-                                        logicalTable.getSubtable(j, rowNum, 1, height),
-                                        dataBase,
-                                        bindingContext);
-                            } else {
-                                fkDescriptor.populateLiteralByForeignKey(target,
-                                        logicalTable.getSubtable(j, rowNum, 1, height),
-                                        dataBase,
-                                        bindingContext,
-                                        env);
-                            }
-                        } catch (SyntaxNodeException e) {
-                            bindingContext.addError(e);
+                if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor && fkDescriptor.isReference()) {
+                    try {
+                        if (descriptor.isConstructor()) {
+                            target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
+                                    logicalTable.getSubtable(j, rowNum, 1, height),
+                                    dataBase,
+                                    bindingContext);
+                        } else {
+                            fkDescriptor.populateLiteralByForeignKey(target,
+                                    logicalTable.getSubtable(j, rowNum, 1, height),
+                                    dataBase,
+                                    bindingContext,
+                                    env);
                         }
+                    } catch (SyntaxNodeException e) {
+                        bindingContext.addError(e);
                     }
                 }
             }
@@ -319,54 +316,52 @@ public class Table implements ITable {
         for (var j = 0; j < columns; j++) {
             SyntaxNodeException ex = null;
             var descriptor = dataModel.getDescriptor(j);
-            if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor) {
-                if (fkDescriptor.isReference()) {
-                    var foreignKeyTable = fkDescriptor.getForeignKeyTable();
-                    var foreignKey = fkDescriptor.getForeignKey();
-                    var foreignKeyTableName = foreignKeyTable.getIdentifier();
-                    var foreignTable = dataBase.getTable(foreignKeyTableName);
+            if (descriptor instanceof ForeignKeyColumnDescriptor fkDescriptor && fkDescriptor.isReference()) {
+                var foreignKeyTable = fkDescriptor.getForeignKeyTable();
+                var foreignKey = fkDescriptor.getForeignKey();
+                var foreignKeyTableName = foreignKeyTable.getIdentifier();
+                var foreignTable = dataBase.getTable(foreignKeyTableName);
 
-                    if (foreignTable == null) {
-                        String message = MessageUtils.getTableNotFoundErrorMessage(foreignKeyTableName);
-                        ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                    } else {
-                        if (foreignKey != null) {
-                            var columnName = foreignKey.getIdentifier();
-                            var foreignKeyIndex = foreignTable.getColumnIndex(columnName);
-                            if (foreignKeyIndex == -1) {
-                                String message = MessageUtils.getColumnNotFoundErrorMessage(columnName);
-                                ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
-                            } else {
-                                foreignTable.getColumnDescriptor(foreignKeyIndex)
-                                        .getUniqueIndex(foreignTable, foreignKeyIndex, bindingContext);
-                            }
+                if (foreignTable == null) {
+                    String message = MessageUtils.getTableNotFoundErrorMessage(foreignKeyTableName);
+                    ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                } else {
+                    if (foreignKey != null) {
+                        var columnName = foreignKey.getIdentifier();
+                        var foreignKeyIndex = foreignTable.getColumnIndex(columnName);
+                        if (foreignKeyIndex == -1) {
+                            String message = MessageUtils.getColumnNotFoundErrorMessage(columnName);
+                            ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                         } else {
-                            // we don't have defined PK lets use first key as PK
-                            var foreignKeyIndex = 0;
-                            var dataModel = foreignTable.getDataModel();
-                            var d1 = dataModel.getDescriptors()[0];
-                            if (!d1.isPrimaryKey()) {
-                                var firstColDescriptor = dataModel.getDescriptor(0);
-                                if (firstColDescriptor.isPrimaryKey()) {
-                                    // first column is primary key for another level. So return column index for first
-                                    // descriptor
-                                    foreignKeyIndex = descriptor.getColumnIdx();
-                                }
-                                foreignTable.getColumnDescriptor(foreignKeyIndex)
-                                        .getUniqueIndex(foreignTable, foreignKeyIndex, bindingContext);
-
+                            foreignTable.getColumnDescriptor(foreignKeyIndex)
+                                    .getUniqueIndex(foreignTable, foreignKeyIndex, bindingContext);
+                        }
+                    } else {
+                        // we don't have defined PK lets use first key as PK
+                        var foreignKeyIndex = 0;
+                        var dataModel = foreignTable.getDataModel();
+                        var d1 = dataModel.getDescriptors()[0];
+                        if (!d1.isPrimaryKey()) {
+                            var firstColDescriptor = dataModel.getDescriptor(0);
+                            if (firstColDescriptor.isPrimaryKey()) {
+                                // first column is primary key for another level. So return column index for first
+                                // descriptor
+                                foreignKeyIndex = descriptor.getColumnIdx();
                             }
+                            foreignTable.getColumnDescriptor(foreignKeyIndex)
+                                    .getUniqueIndex(foreignTable, foreignKeyIndex, bindingContext);
 
-                            var errors = bindingContext.getErrors();
-                            for (SyntaxNodeException error : errors) {
-                                var sourceLocation = error.getSourceLocation();
-                                if (sourceLocation != null && foreignTable.getTableSyntaxNode()
-                                        .getUriParser()
-                                        .intersects(new XlsUrlParser(sourceLocation))) {
-                                    String message = MessageUtils
-                                            .getForeignTableCompilationErrorsMessage(foreignKeyTableName);
-                                    ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                                }
+                        }
+
+                        var errors = bindingContext.getErrors();
+                        for (SyntaxNodeException error : errors) {
+                            var sourceLocation = error.getSourceLocation();
+                            if (sourceLocation != null && foreignTable.getTableSyntaxNode()
+                                    .getUriParser()
+                                    .intersects(new XlsUrlParser(sourceLocation))) {
+                                String message = MessageUtils
+                                        .getForeignTableCompilationErrorsMessage(foreignKeyTableName);
+                                ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                             }
                         }
                     }

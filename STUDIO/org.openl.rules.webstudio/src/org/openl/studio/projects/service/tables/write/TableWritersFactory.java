@@ -74,10 +74,9 @@ public class TableWritersFactory {
             if (DataView.TABLE_TYPE.equals(tableType)) {
                 return new DataTableWriter(table);
             }
-        } else if (Objects.equals(XlsNodeTypes.XLS_TEST_METHOD.toString(), table.getType())) {
-            if (TestView.TABLE_TYPE.equals(tableType)) {
-                return new TestTableWriter(table);
-            }
+        } else if (Objects.equals(XlsNodeTypes.XLS_TEST_METHOD.toString(), table.getType())
+                && TestView.TABLE_TYPE.equals(tableType)) {
+            return new TestTableWriter(table);
         }
         throw new UnsupportedOperationException("Table type doesn't match writer type");
     }

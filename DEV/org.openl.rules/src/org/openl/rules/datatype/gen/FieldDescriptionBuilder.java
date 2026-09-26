@@ -115,19 +115,17 @@ public class FieldDescriptionBuilder {
      * with {@link Integer}.
      */
     private Object getDefaultValue() {
-        if (defaultValue == null) {
-            if (defaultValueAsString != null) {
-                if (DefaultValue.DEFAULT.equals(defaultValueAsString)) {
-                    // Keep the default value key word for all the types of the field as the default value.
-                    //
-                    defaultValue = DefaultValue.DEFAULT;
-                } else {
-                    if (typeName.startsWith("[[")) {
-                        throw new IllegalStateException("Multi-dimensional arrays are not supported.");
-                    }
-                    IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
-                    defaultValue = convertor.parse(defaultValueAsString, null);
+        if (defaultValue == null && defaultValueAsString != null) {
+            if (DefaultValue.DEFAULT.equals(defaultValueAsString)) {
+                // Keep the default value key word for all the types of the field as the default value.
+                //
+                defaultValue = DefaultValue.DEFAULT;
+            } else {
+                if (typeName.startsWith("[[")) {
+                    throw new IllegalStateException("Multi-dimensional arrays are not supported.");
                 }
+                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
+                defaultValue = convertor.parse(defaultValueAsString, null);
             }
         }
         return defaultValue;

@@ -51,10 +51,8 @@ public class SimpleGroup implements Group {
                 return true;
             }
 
-            if (auth instanceof Group group) {
-                if (group.hasPrivilege(privilege)) {
-                    return true;
-                }
+            if (auth instanceof Group group && group.hasPrivilege(privilege)) {
+                return true;
             }
         }
 

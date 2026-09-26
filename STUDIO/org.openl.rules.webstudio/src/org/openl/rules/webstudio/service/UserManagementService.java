@@ -252,10 +252,9 @@ public class UserManagementService {
                         if (Objects.equals(username, userDetails.getUsername())) {
                             return principal;
                         }
-                    } else if (principal instanceof AuthenticatedPrincipal authPrincipal) {
-                        if (Objects.equals(username, authPrincipal.getName())) {
-                            return principal;
-                        }
+                    } else if (principal instanceof AuthenticatedPrincipal authPrincipal
+                            && Objects.equals(username, authPrincipal.getName())) {
+                        return principal;
                     }
                     return null;
                 })

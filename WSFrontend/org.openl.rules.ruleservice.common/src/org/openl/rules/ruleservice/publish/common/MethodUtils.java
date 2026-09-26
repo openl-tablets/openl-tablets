@@ -61,13 +61,11 @@ public final class MethodUtils {
                 }
                 i++;
             }
-        } else if (openMember instanceof IOpenField openField) {
-            if (ClassUtils.getter(openField.getName()).equals(method.getName())) {
-                if (provideRuntimeContext && method.getParameterTypes().length > 0 && IRulesRuntimeContext.class
-                        .isAssignableFrom(method.getParameterTypes()[0])) {
-                    parameterTypes[0] = JAVA_OPEN_CLASS_RUNTIME_CONTEXT;
-                }
-            }
+        } else if (openMember instanceof IOpenField openField
+                && ClassUtils.getter(openField.getName()).equals(method.getName())
+                && provideRuntimeContext && method.getParameterTypes().length > 0 && IRulesRuntimeContext.class
+                .isAssignableFrom(method.getParameterTypes()[0])) {
+            parameterTypes[0] = JAVA_OPEN_CLASS_RUNTIME_CONTEXT;
         }
         return parameterTypes;
     }
@@ -90,13 +88,11 @@ public final class MethodUtils {
                 }
                 i++;
             }
-        } else if (openMember instanceof IOpenField openField) {
-            if (ClassUtils.getter(openField.getName()).equals(method.getName())) {
-                if (provideRuntimeContext && method.getParameterTypes().length > 0 && IRulesRuntimeContext.class
-                        .isAssignableFrom(method.getParameterTypes()[0])) {
-                    parameterNames[0] = "runtimeContext";
-                }
-            }
+        } else if (openMember instanceof IOpenField openField
+                && ClassUtils.getter(openField.getName()).equals(method.getName())
+                && provideRuntimeContext && method.getParameterTypes().length > 0 && IRulesRuntimeContext.class
+                .isAssignableFrom(method.getParameterTypes()[0])) {
+            parameterNames[0] = "runtimeContext";
         }
         var j = 0;
         for (var i = 0; i < parameterNames.length; i++) {

@@ -175,18 +175,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             if (isDependencyModule(spreadsheetResultOpenClass.getModule(), new IdentityHashMap<>())) {
                 return getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             }
-        } else if (type instanceof ModuleSpecificType specificType) {
-            if (isDependencyModule((XlsModuleOpenClass) specificType.getModule(),
-                    new IdentityHashMap<>())) {
-                if (type instanceof CombinedSpreadsheetResultOpenClass class1) {
-                    return class1.convertToModuleType(this, false);
-                }
-                var p = findType(type.getName());
-                if (p == null) {
-                    return specificType.convertToModuleTypeAndRegister(this);
-                }
-                return p;
+        } else if (type instanceof ModuleSpecificType specificType
+                && isDependencyModule((XlsModuleOpenClass) specificType.getModule(),
+                new IdentityHashMap<>())) {
+            if (type instanceof CombinedSpreadsheetResultOpenClass class1) {
+                return class1.convertToModuleType(this, false);
             }
+            var p = findType(type.getName());
+            if (p == null) {
+                return specificType.convertToModuleTypeAndRegister(this);
+            }
+            return p;
         }
         return type;
     }
@@ -332,12 +331,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
         var field = super.getField(fname, strictMatch);
-        if (field == null) {
-            if (strictMatch && hiddenFields.containsKey(fname) || !strictMatch && hiddenLowerCasedFields
-                    .containsKey(fname)) {
-                throw new AmbiguousFieldException(fname,
-                        strictMatch ? hiddenFields.get(fname) : hiddenLowerCasedFields.get(fname.toLowerCase()));
-            }
+        if (field == null && (strictMatch && hiddenFields.containsKey(fname) || !strictMatch && hiddenLowerCasedFields
+                .containsKey(fname))) {
+            throw new AmbiguousFieldException(fname,
+                    strictMatch ? hiddenFields.get(fname) : hiddenLowerCasedFields.get(fname.toLowerCase()));
         }
         return field;
     }
@@ -348,15 +345,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             for (var j = i + 1; j < fields.size(); j++) {
                 var openField1 = fields.get(i);
                 var openField2 = fields.get(j);
-                if (Objects.equals(openField1.getName(),
-                        openField2
-                                .getName()) && openField1 instanceof DataOpenField field && openField2 instanceof DataOpenField field1 && XlsNodeTypes.XLS_DATA
-                        .equals(field.getNodeType()) && XlsNodeTypes.XLS_DATA
-                        .equals(field1.getNodeType())) {
-                    if (!Objects.equals(field.getUri(), field1.getUri())) {
-                        fieldsToHide.add(i);
-                        fieldsToHide.add(j);
-                    }
+                if (Objects.equals(openField1.getName(), openField2.getName())
+                        && openField1 instanceof DataOpenField field && openField2 instanceof DataOpenField field1
+                        && XlsNodeTypes.XLS_DATA.equals(field.getNodeType())
+                        && XlsNodeTypes.XLS_DATA.equals(field1.getNodeType())
+                        && !Objects.equals(field.getUri(), field1.getUri())) {
+                    fieldsToHide.add(i);
+                    fieldsToHide.add(j);
                 }
             }
         }
@@ -382,17 +377,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private void collectDataTables(CompiledDependency dependency, Map<String, ITable> dataTables) {
         var openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
-        if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
-            if (xlsModuleOpenClass.getDataBase() != null) {
-                for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
-                    if (XlsNodeTypes.XLS_DATA.equals(table.getXlsNodeType())) {
-                        if (!dataTables.containsKey(table.getName())) {
-                            dataTables.put(table.getName(), table);
-                        } else {
-                            var existingTable = dataTables.get(table.getName());
-                            if (existingTable != null && !Objects.equals(existingTable.getUri(), table.getUri())) {
-                                dataTables.put(table.getName(), null);
-                            }
+        if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass && xlsModuleOpenClass.getDataBase() != null) {
+            for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
+                if (XlsNodeTypes.XLS_DATA.equals(table.getXlsNodeType())) {
+                    if (!dataTables.containsKey(table.getName())) {
+                        dataTables.put(table.getName(), table);
+                    } else {
+                        var existingTable = dataTables.get(table.getName());
+                        if (existingTable != null && !Objects.equals(existingTable.getUri(), table.getUri())) {
+                            dataTables.put(table.getName(), null);
                         }
                     }
                 }
@@ -508,13 +501,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     .equals(field1.getNodeType())) {
                 return;
             }
-            if (openField instanceof ConstantOpenField field && existedField instanceof ConstantOpenField field1) {
-                // Ignore constants with the same values
-                if (Objects.equals(field.getValue(),
-                        field1.getValue()) && openField.getType()
-                        .equals(existedField.getType())) {
-                    return;
-                }
+            // Ignore constants with the same values
+            if (openField instanceof ConstantOpenField field && existedField instanceof ConstantOpenField field1
+                    && Objects.equals(field.getValue(),
+                    field1.getValue()) && openField.getType()
+                    .equals(existedField.getType())) {
+                return;
             }
             throw new DuplicatedFieldException("", openField.getName());
         }
@@ -675,11 +667,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private void validateType(IOpenClass type) {
         if (type instanceof CustomSpreadsheetResultOpenClass) {
             for (IOpenClass t : getTypes()) {
-                if (t instanceof CustomSpreadsheetResultOpenClass csrType) {
-                    if (Objects.equals(csrType.getName(), type.getName()) && csrType.isBeanClassInitialized()) {
-                        throw new IllegalStateException("This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for existing custom spreadsheet result type.".formatted(
-                                csrType.getName()));
-                    }
+                if (t instanceof CustomSpreadsheetResultOpenClass csrType
+                        && Objects.equals(csrType.getName(), type.getName()) && csrType.isBeanClassInitialized()) {
+                    throw new IllegalStateException("This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for existing custom spreadsheet result type.".formatted(
+                            csrType.getName()));
                 }
             }
         }

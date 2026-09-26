@@ -456,11 +456,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                     .stream()
                     .filter(p -> p.getName().equals(project.getName()))
                     .toList();
-            if (!projectsWithSameName.isEmpty()) {
-                if (projectsWithSameName.stream().anyMatch(p -> p.getPath().equals(project.getPath()))) {
-                    throw new IOException("Project \"" + project.getName() + "\" with path \"" + project
-                            .getPath() + "\" is already imported.");
-                }
+            if (!projectsWithSameName.isEmpty()
+                    && projectsWithSameName.stream().anyMatch(p -> p.getPath().equals(project.getPath()))) {
+                throw new IOException("Project \"" + project.getName() + "\" with path \"" + project
+                        .getPath() + "\" is already imported.");
             }
             externalToInternal.getProjects().add(project);
             indexCache.set(new ProjectIndexCache(externalToInternal));

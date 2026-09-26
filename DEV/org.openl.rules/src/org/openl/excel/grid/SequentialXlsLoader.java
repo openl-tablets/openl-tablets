@@ -207,11 +207,9 @@ public class SequentialXlsLoader {
             if (pp1[i].equals(".")) {
                 continue;
             }
-            if (pp1[i].equals("..")) {
-                if (!result.isEmpty() && !result.getLast().equals("..")) {
-                    result.removeLast();
-                    continue;
-                }
+            if (pp1[i].equals("..") && !result.isEmpty() && !result.getLast().equals("..")) {
+                result.removeLast();
+                continue;
             }
             result.add(pp1[i]);
         }

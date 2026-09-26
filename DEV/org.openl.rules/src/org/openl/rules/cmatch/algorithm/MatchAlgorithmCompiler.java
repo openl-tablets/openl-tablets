@@ -87,12 +87,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     private void checkColumnValue(TableRow row, ColumnDefinition colDef) {
         var values = row.get(colDef.getName());
-        if (!colDef.isMultipleValueAllowed()) {
-            // only 1
-            if (values.length != 1) {
-                throw new IllegalArgumentException(
-                        "Column %s can have single value only.".formatted(colDef.getName()));
-            }
+        // only 1
+        if (!colDef.isMultipleValueAllowed() && values.length != 1) {
+            throw new IllegalArgumentException(
+                    "Column %s can have single value only.".formatted(colDef.getName()));
         }
     }
 

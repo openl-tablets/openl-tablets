@@ -100,17 +100,16 @@ public class Migrator {
         // so running it on every start is safe.
         migrateUserWorkspacesToMetainfoRegistry();
 
-        if ("saml".equals(Props.text("user.mode"))) {
-            // Generating required a private key and its certificate if they are missed
-            // Due they should be unique and private per installation they cannot be defined in openl-default.properties
-            // So it should be executed always there on startup
-            // Introduced in 5.26
-            if (Props.text("security.saml.local-key") == null || Props.text("security.saml.local-certificate") == null) {
-                Pair<String, String> pair = KeyPairCertUtils.generateCertificate();
-                if (pair != null) {
-                    props.put("security.saml.local-key", pair.getKey());
-                    props.put("security.saml.local-certificate", pair.getValue());
-                }
+        // Generating required a private key and its certificate if they are missed
+        // Due they should be unique and private per installation they cannot be defined in openl-default.properties
+        // So it should be executed always there on startup
+        // Introduced in 5.26
+        if ("saml".equals(Props.text("user.mode")) && (Props.text("security.saml.local-key") == null
+                || Props.text("security.saml.local-certificate") == null)) {
+            Pair<String, String> pair = KeyPairCertUtils.generateCertificate();
+            if (pair != null) {
+                props.put("security.saml.local-key", pair.getKey());
+                props.put("security.saml.local-certificate", pair.getValue());
             }
         }
 

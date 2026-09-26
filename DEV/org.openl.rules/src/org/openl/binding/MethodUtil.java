@@ -192,15 +192,14 @@ public final class MethodUtil {
         var methods = methodOwner.getMethods();
         for (Method method : methods) {
             var signatureParams = method.getParameterTypes();
-            if (methodName.equals(method.getName()) && signatureParams.length == argTypes.length) {
-                if (isAssignable(argTypes, signatureParams)) {
-                    method = MethodUtils.getAccessibleMethod(method);// kills inherited methods
-                    if (method != null) {
-                        if (resultMethod != null) {
-                            resultMethod = getCloserMethod(resultMethod, method, argTypes);
-                        } else {
-                            resultMethod = method;
-                        }
+            if (methodName.equals(method.getName()) && signatureParams.length == argTypes.length
+                    && isAssignable(argTypes, signatureParams)) {
+                method = MethodUtils.getAccessibleMethod(method);// kills inherited methods
+                if (method != null) {
+                    if (resultMethod != null) {
+                        resultMethod = getCloserMethod(resultMethod, method, argTypes);
+                    } else {
+                        resultMethod = method;
                     }
                 }
             }

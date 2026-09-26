@@ -28,10 +28,9 @@ public final class SystemValuesManager {
                 if (!systemValues.containsKey(CURRENT_USER_DESCRIPTOR)) {
                     systemValues.put(CURRENT_USER_DESCRIPTOR, new CurrentUserValue());
                 }
-            } else if (CURRENT_DATE_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())) {
-                if (!systemValues.containsKey(CURRENT_DATE_DESCRIPTOR)) {
-                    systemValues.put(CURRENT_DATE_DESCRIPTOR, new CurrentDateValue());
-                }
+            } else if (CURRENT_DATE_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())
+                    && !systemValues.containsKey(CURRENT_DATE_DESCRIPTOR)) {
+                systemValues.put(CURRENT_DATE_DESCRIPTOR, new CurrentDateValue());
             }
         }
     }

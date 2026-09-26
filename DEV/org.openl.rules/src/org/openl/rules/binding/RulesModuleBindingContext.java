@@ -224,18 +224,17 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (openClass instanceof SpreadsheetResultOpenClass class1 && class1
                 .getModule() == null) {
             return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-        } else if (openClass instanceof CustomSpreadsheetResultOpenClass csrOpenClass) {
-            if (!csrOpenClass.isIgnoreCompilation()) {
-                // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
-                // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
-                final var methodName = csrOpenClass.getName()
-                        .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-                preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
-                    if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
-                        preBindMethod(openMethodBinder.getHeader());
-                    }
-                });
-            }
+        } else if (openClass instanceof CustomSpreadsheetResultOpenClass csrOpenClass
+                && !csrOpenClass.isIgnoreCompilation()) {
+            // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
+            // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
+            final var methodName = csrOpenClass.getName()
+                    .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+            preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
+                if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
+                    preBindMethod(openMethodBinder.getHeader());
+                }
+            });
         }
         return openClass;
     }

@@ -182,10 +182,8 @@ public final class RuleRowHelper {
             if (!Character.isDigit(cs.charAt(i))) {
                 return false;
             }
-            if (cs.charAt(i) == '.') {
-                if (++dots > 1) {
-                    return false;
-                }
+            if (cs.charAt(i) == '.' && ++dots > 1) {
+                return false;
             }
         }
         return true;
@@ -239,14 +237,13 @@ public final class RuleRowHelper {
                         var cell = table.getCell(j, i);
                         if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
                                 .getAbsoluteRegion()
-                                .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null) {
-                            if (!cell.getStringValue().startsWith(COMMENTARY)) {
-                                BindHelper.processError(
-                                        "Table structure is wrong. More than one cell with data found where only one cell is expected.",
-                                        new GridCellSourceCodeModule(table.getSource(), bindingContext),
-                                        bindingContext);
-                                return;
-                            }
+                                .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null
+                                && !cell.getStringValue().startsWith(COMMENTARY)) {
+                            BindHelper.processError(
+                                    "Table structure is wrong. More than one cell with data found where only one cell is expected.",
+                                    new GridCellSourceCodeModule(table.getSource(), bindingContext),
+                                    bindingContext);
+                            return;
                         }
                     }
                 }
