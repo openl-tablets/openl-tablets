@@ -141,7 +141,7 @@ class ProjectDescriptorCleanerTest {
     @Test
     void withoutWritePermission_throwsForbiddenAndKeepsDescriptor() throws Exception {
         givenDescriptor(descriptor(module("Main", "rules/Main.xlsx")));
-        when(aclProjectsHelper.hasPermission(eq(descriptorResource), eq(BasePermission.WRITE))).thenReturn(false);
+        when(aclProjectsHelper.hasPermission(descriptorResource, BasePermission.WRITE)).thenReturn(false);
 
         assertThrows(ForbiddenException.class,
                 () -> cleaner.unregisterModules(project, excelFile("rules/Main.xlsx")));

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -474,7 +473,7 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
         FileData deletedProject = new FileData();
         deletedProject.setDeleted(true);
 
-        when(mockedRepo.check(eq(model.getFullPath()))).thenReturn(deletedProject);
+        when(mockedRepo.check(model.getFullPath())).thenReturn(deletedProject);
 
         assertNull(validateAndGetResult(model, validator));
     }

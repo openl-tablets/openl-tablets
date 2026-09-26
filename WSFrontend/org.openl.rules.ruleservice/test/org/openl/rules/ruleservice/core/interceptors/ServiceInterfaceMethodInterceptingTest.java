@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -334,8 +333,8 @@ class ServiceInterfaceMethodInterceptingTest {
         when(deployment.getProjects()).thenReturn(projects);
         when(deployment.getDeploymentName()).thenReturn(deploymentDescription.getName());
         when(deployment.getCommonVersion()).thenReturn(deploymentDescription.getVersion());
-        when(ruleServiceLoader.getDeployment(eq(deploymentDescription.getName()),
-                eq(deploymentDescription.getVersion()))).thenReturn(deployment);
+        when(ruleServiceLoader.getDeployment(deploymentDescription.getName(),
+                deploymentDescription.getVersion())).thenReturn(deployment);
         when(ruleServiceLoader
                 .resolveProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
                 .thenReturn(projectDescriptor);

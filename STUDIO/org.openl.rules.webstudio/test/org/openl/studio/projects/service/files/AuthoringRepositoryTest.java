@@ -97,7 +97,7 @@ class AuthoringRepositoryTest {
 
         repository.save(folder, entries, ChangesetType.FULL);
 
-        verify(delegate).save(eq(folder), eq(entries), eq(ChangesetType.FULL));
+        verify(delegate).save(folder, entries, ChangesetType.FULL);
         assertSame(author, folder.getAuthor());
         entries.forEach(item -> assertSame(author, item.getData().getAuthor()));
     }

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -103,8 +102,8 @@ class PatAuthenticationFilterTest {
         // Assert
         verify(patAuthService, times(1)).resolveAuthentication(any(PatToken.class));
         verify(securityContextHolderStrategy, times(1)).createEmptyContext();
-        verify(securityContext, times(1)).setAuthentication(eq(authentication));
-        verify(securityContextHolderStrategy, times(1)).setContext(eq(securityContext));
+        verify(securityContext, times(1)).setAuthentication(authentication);
+        verify(securityContextHolderStrategy, times(1)).setContext(securityContext);
         verify(filterChain, times(1)).doFilter(request, response);
 
         // Response should be successful (filter passed through)
@@ -316,8 +315,8 @@ class PatAuthenticationFilterTest {
         verify(patAuthService, times(1)).resolveAuthentication(any(PatToken.class));
         // Should set new authentication because different user
         verify(securityContextHolderStrategy, times(1)).createEmptyContext();
-        verify(securityContext, times(1)).setAuthentication(eq(newAuth));
-        verify(securityContextHolderStrategy, times(1)).setContext(eq(securityContext));
+        verify(securityContext, times(1)).setAuthentication(newAuth);
+        verify(securityContextHolderStrategy, times(1)).setContext(securityContext);
         verify(filterChain, times(1)).doFilter(request, response);
 
         assertEquals(200, response.getStatus());
@@ -354,8 +353,8 @@ class PatAuthenticationFilterTest {
         verify(patAuthService, times(1)).resolveAuthentication(any(PatToken.class));
         // Should replace anonymous authentication with PAT authentication
         verify(securityContextHolderStrategy, times(1)).createEmptyContext();
-        verify(securityContext, times(1)).setAuthentication(eq(newAuth));
-        verify(securityContextHolderStrategy, times(1)).setContext(eq(securityContext));
+        verify(securityContext, times(1)).setAuthentication(newAuth);
+        verify(securityContextHolderStrategy, times(1)).setContext(securityContext);
         verify(filterChain, times(1)).doFilter(request, response);
 
         assertEquals(200, response.getStatus());
@@ -390,8 +389,8 @@ class PatAuthenticationFilterTest {
         verify(patAuthService, times(1)).resolveAuthentication(any(PatToken.class));
         // Should set authentication because existing auth is not authenticated
         verify(securityContextHolderStrategy, times(1)).createEmptyContext();
-        verify(securityContext, times(1)).setAuthentication(eq(newAuth));
-        verify(securityContextHolderStrategy, times(1)).setContext(eq(securityContext));
+        verify(securityContext, times(1)).setAuthentication(newAuth);
+        verify(securityContextHolderStrategy, times(1)).setContext(securityContext);
         verify(filterChain, times(1)).doFilter(request, response);
 
         assertEquals(200, response.getStatus());
