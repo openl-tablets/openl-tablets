@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.message.Severity;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
@@ -17,7 +16,7 @@ class InspectionsTest {
     private static final String ALWAYS_FALSE = "Condition is always false.";
 
     @Test
-    void testConditionTypes() throws OpenLCompilationException {
+    void testConditionTypes() {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num ==== num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num <= num ? 1 : 2", ALWAYS_TRUE);
@@ -34,7 +33,7 @@ class InspectionsTest {
     }
 
     @Test
-    void testDifferentExpressionTypes() throws OpenLCompilationException {
+    void testDifferentExpressionTypes() {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         // Same field of same object
         checkWarning("String[] arr = {\"bb\"}; arr == arr ? 1 : 2", ALWAYS_TRUE);
@@ -59,7 +58,7 @@ class InspectionsTest {
     }
 
     @Test
-    void testNoWarning() throws OpenLCompilationException {
+    void testNoWarning() {
         Object result;
 
         result = checkNoMessage(
@@ -80,7 +79,7 @@ class InspectionsTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkWarning(String expression, String expectedMessage) throws OpenLCompilationException {
+    private <T> T checkWarning(String expression, String expectedMessage) {
         var source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance();
         var bindingContext = openl.getBinder().makeBindingContext();
@@ -97,7 +96,7 @@ class InspectionsTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkNoMessage(String expression) throws OpenLCompilationException {
+    private <T> T checkNoMessage(String expression) {
         var source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance();
         var bindingContext = openl.getBinder().makeBindingContext();

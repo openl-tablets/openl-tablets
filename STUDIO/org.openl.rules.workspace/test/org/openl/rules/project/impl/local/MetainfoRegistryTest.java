@@ -214,7 +214,7 @@ class MetainfoRegistryTest {
     }
 
     @Test
-    void removeDropsRecordAndDirtyState() throws IOException {
+    void removeDropsRecordAndDirtyState() {
         registry.save(PROJECT, localMetainfo());
         registry.markDirty(PROJECT);
 

@@ -59,7 +59,7 @@ class RulesDeployerServiceTest {
     private ArgumentCaptor<FileChangesFromZip> fileChangesFromZipCaptor;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         fileDataCaptor = forClass(FileData.class);
         streamCaptor = forClass(InputStream.class);
         fileChangesFromZipCaptor = forClass(FileChangesFromZip.class);

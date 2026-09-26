@@ -181,7 +181,7 @@ class ExecutionModeTest {
     }
 
     @Test
-    void testRuntimeErrors() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void testRuntimeErrors() {
         assertThrows(InvocationTargetException.class, () -> {
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/dt/RuntimeErrorTest.xls");
             engineFactory.setExecutionMode(true);

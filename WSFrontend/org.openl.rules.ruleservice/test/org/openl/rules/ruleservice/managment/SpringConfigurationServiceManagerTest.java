@@ -46,7 +46,7 @@ class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
     }
 
     @Test
-    void testExceptionFramework() throws Exception {
+    void testExceptionFramework() {
         assertThrows(MethodInvocationException.class, () -> {
             assertNotNull(applicationContext);
             var serviceManager = applicationContext.getBean(ServiceManagerImpl.class);

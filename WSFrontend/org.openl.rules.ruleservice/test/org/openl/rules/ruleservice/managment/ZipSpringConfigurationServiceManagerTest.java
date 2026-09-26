@@ -34,7 +34,7 @@ class ZipSpringConfigurationServiceManagerTest {
     }
 
     @Test
-    void testExceptionFramework() throws Exception {
+    void testExceptionFramework() {
         assertThrows(MethodInvocationException.class, () -> {
             frontend.execute("ErrorTest_ErrorTest",
                     "vehicleEligibilityScore",

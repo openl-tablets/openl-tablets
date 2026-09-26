@@ -58,7 +58,7 @@ class FileUtilsTest {
     }
 
     @Test
-    void testGetBaseName() throws Exception {
+    void testGetBaseName() {
         assertNull(FileUtils.getBaseName(null));
 
         assertEquals("", FileUtils.getBaseName(""));
@@ -80,7 +80,7 @@ class FileUtilsTest {
     }
 
     @Test
-    void testGetName() throws Exception {
+    void testGetName() {
         assertNull(FileUtils.getName(null));
 
         assertEquals("", FileUtils.getName(""));
@@ -105,7 +105,7 @@ class FileUtilsTest {
     }
 
     @Test
-    void testGetExtension() throws Exception {
+    void testGetExtension() {
         assertNull(FileUtils.getExtension(null));
 
         assertEquals("", FileUtils.getExtension(""));
@@ -129,7 +129,7 @@ class FileUtilsTest {
     }
 
     @Test
-    void testRemoveExtension() throws Exception {
+    void testRemoveExtension() {
         assertNull(FileUtils.removeExtension(null));
 
         assertEquals("", FileUtils.removeExtension(""));

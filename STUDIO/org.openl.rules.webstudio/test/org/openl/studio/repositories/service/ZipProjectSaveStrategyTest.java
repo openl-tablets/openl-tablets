@@ -292,8 +292,7 @@ class ZipProjectSaveStrategyTest {
 
     private ProjectDescriptor assertProjectDescriptor(String expectedRootFolder,
                                                       String expectedName,
-                                                      FileItem descriptor)
-            throws IOException {
+                                                      FileItem descriptor) {
         assertNotNull(descriptor);
         assertEquals(expectedRootFolder + ProjectDescriptor.FILE_NAME,
                 descriptor.getData().getName());

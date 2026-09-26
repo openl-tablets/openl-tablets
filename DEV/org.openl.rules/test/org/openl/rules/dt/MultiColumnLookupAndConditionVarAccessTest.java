@@ -21,7 +21,7 @@ class MultiColumnLookupAndConditionVarAccessTest {
     private IMultiColumnLookupTest instance;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         var engineFactory = new RulesEngineFactory<IMultiColumnLookupTest>(SRC,
                 IMultiColumnLookupTest.class);
 

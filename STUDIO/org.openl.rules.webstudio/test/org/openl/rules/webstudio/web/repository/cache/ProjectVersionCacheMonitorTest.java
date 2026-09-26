@@ -54,7 +54,7 @@ class ProjectVersionCacheMonitorTest {
     private ProjectVersionH2CacheDB projectVersionCacheDB;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         repo = createRepository(new File(root, "design-repository"));
         projectVersionCacheMonitor = new ProjectVersionCacheMonitor(new SimpleGrantedAuthority("Administrators"));
         projectVersionCacheManager = new ProjectVersionCacheManager();

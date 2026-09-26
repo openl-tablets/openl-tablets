@@ -30,7 +30,7 @@ class RepositoryInstatiatorTest {
     }
 
     @Test
-    void illegal() throws IOException {
+    void illegal() {
         assertThrows(InvalidPathException.class, () -> {
             repo.list("target/../../");
         });

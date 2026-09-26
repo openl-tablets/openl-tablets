@@ -23,7 +23,7 @@ class ProjectDescriptorManagerTest {
     private static final Path DESCRIPTOR_ZIP = Path.of("test-resources/descriptor.zip");
 
     @Test
-    void testIsCoveredByWildcardModule() throws Exception {
+    void testIsCoveredByWildcardModule() {
         assertIsCoveredByWildcardModule(ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml")));
     }
 
@@ -83,7 +83,7 @@ class ProjectDescriptorManagerTest {
     }
 
     @Test
-    void registerModuleCoveredByDeclaredWildcardAddsNothing() throws Exception {
+    void registerModuleCoveredByDeclaredWildcardAddsNothing() {
         var manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml"));
 
@@ -130,7 +130,7 @@ class ProjectDescriptorManagerTest {
     }
 
     @Test
-    void declareModuleAppendsDespiteCoveringWildcard() throws Exception {
+    void declareModuleAppendsDespiteCoveringWildcard() {
         var manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml"));
 

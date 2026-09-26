@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,7 @@ class HistoryForRevertedCommitTest {
     private Path localRepositoriesFolder;
 
     @BeforeEach
-    void setUp() throws GitAPIException, IOException {
+    void setUp() throws IOException {
         var gitRepo = new File(REPO_URI, ".git");
         if (!gitRepo.exists()) {
             var designGit = new File(REPO_URI, "git");

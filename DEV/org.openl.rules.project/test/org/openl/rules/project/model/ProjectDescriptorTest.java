@@ -182,7 +182,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadDescriptor3_emptyModules() throws Exception {
+    void testReadDescriptor3_emptyModules() {
         var descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules3.xml"));
         assertTrue(descriptor.getModules().isEmpty());
     }
@@ -196,7 +196,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteDescriptor1() throws Exception {
+    void testWriteDescriptor1() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("name1");
         descriptor.setComment("comment1");
@@ -298,7 +298,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testClassPathUrls() throws Exception {
+    void testClassPathUrls() {
         var projectDescriptor = ProjectDescriptor.read(Path.of("./test-resources/descriptor/rules-clspth.xml"));
         assertEquals(10, projectDescriptor.getClassPathUrls().length);
     }
@@ -362,7 +362,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadPropertiesFileNamePattern() throws Exception {
+    void testReadPropertiesFileNamePattern() {
         ProjectDescriptor pd = ProjectDescriptor.read(Path.of("test-resources/xml/rules1.xml"));
 
         assertArrayEquals(new String[]{"properties-file-name-pattern"}, pd.getPropertiesFileNamePatterns());
@@ -370,7 +370,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadMultiPropertiesFileNamePatterns() throws Exception {
+    void testReadMultiPropertiesFileNamePatterns() {
         ProjectDescriptor pd = ProjectDescriptor.read(Path.of("test-resources/multi-file-name-pattern/rules.xml"));
 
         assertEquals("test ?", pd.getName());
@@ -384,7 +384,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadExposedMethods() throws Exception {
+    void testReadExposedMethods() {
         ProjectDescriptor pd = ProjectDescriptor.read(Path.of("test-resources/xml/rules-with-exposed-methods.xml"));
 
         assertNotNull(pd.getExposedMethods());
@@ -398,14 +398,14 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadWithoutExposedMethods() throws Exception {
+    void testReadWithoutExposedMethods() {
         ProjectDescriptor pd = ProjectDescriptor.read(Path.of("test-resources/xml/rules1.xml"));
 
         assertNull(pd.getExposedMethods());
     }
 
     @Test
-    void testExposedMethodsRoundTrip() throws Exception {
+    void testExposedMethodsRoundTrip() {
         var pd = ProjectDescriptor.read(Path.of("test-resources/xml/rules-with-exposed-methods.xml"));
 
         var pd2 = ProjectDescriptor.read(new ByteArrayInputStream(pd.toBytes()));
@@ -419,7 +419,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testMultiPropertiesFileNamePatternsRoundTrip() throws Exception {
+    void testMultiPropertiesFileNamePatternsRoundTrip() {
         var pd = ProjectDescriptor.read(Path.of("test-resources/multi-file-name-pattern/rules.xml"));
 
         var pd1 = ProjectDescriptor.read(new ByteArrayInputStream(pd.toBytes()));
@@ -435,7 +435,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteOmitsBlankProjectFields() throws Exception {
+    void testWriteOmitsBlankProjectFields() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("   ");
         descriptor.setComment("");
@@ -455,7 +455,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteFiltersBlankPropertiesFileNamePatterns() throws Exception {
+    void testWriteFiltersBlankPropertiesFileNamePatterns() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setPropertiesFileNamePatterns(new String[]{"", "{lob}-{state}", null, "  "});
@@ -471,7 +471,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteFiltersBlankClasspathEntries() throws Exception {
+    void testWriteFiltersBlankClasspathEntries() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setClasspath(new ArrayList<>(List.of("lib/*.jar", "")));
@@ -489,7 +489,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteKeepsOpenApiWithPath() throws Exception {
+    void testWriteKeepsOpenApiWithPath() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("api.yaml", OpenAPI.Mode.RECONCILIATION, "", null));
@@ -508,7 +508,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteOmitsDefaultReconciliationOpenApi() throws Exception {
+    void testWriteOmitsDefaultReconciliationOpenApi() {
         for (String defaultPath : List.of("openapi.yaml", "openapi.yml", "openapi.json")) {
             var descriptor = new ProjectDescriptor();
             descriptor.setName("p");
@@ -525,7 +525,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteKeepsGenerationOpenApiEvenForDefaultPath() throws Exception {
+    void testWriteKeepsGenerationOpenApiEvenForDefaultPath() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("openapi.yaml", OpenAPI.Mode.GENERATION, null, null));
@@ -544,7 +544,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteKeepsReconciliationOpenApiWithModelOverrides() throws Exception {
+    void testWriteKeepsReconciliationOpenApiWithModelOverrides() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("openapi2.yaml", OpenAPI.Mode.RECONCILIATION, "Model", null));
@@ -564,7 +564,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteDropsModulesWithoutRulesRootPath() throws Exception {
+    void testWriteDropsModulesWithoutRulesRootPath() {
         var noPath = new Module();
         noPath.setName("orphan");
         var blankPath = new Module();
@@ -592,7 +592,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadSkipsBlankAndMissingClasspathEntries() throws Exception {
+    void testReadSkipsBlankAndMissingClasspathEntries() {
         var xml = """
                 <project>
                     <name>p</name>
@@ -613,7 +613,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadBlankClasspathEntriesDoesNotBreakClassPathUrlsResolution() throws Exception {
+    void testReadBlankClasspathEntriesDoesNotBreakClassPathUrlsResolution() {
         var xml = """
                 <project>
                     <name>p</name>
@@ -630,7 +630,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testReadTrimsRulesRootPathAttribute() throws Exception {
+    void testReadTrimsRulesRootPathAttribute() {
         var xml = """
                 <project>
                     <name>p</name>
@@ -659,7 +659,7 @@ class ProjectDescriptorTest {
     }
 
     @Test
-    void testWriteOmitsEmptyMethodFilterOnValidModule() throws Exception {
+    void testWriteOmitsEmptyMethodFilterOnValidModule() {
         var module = new Module();
         module.setName("  ");
         module.setRulesRootPath("rules/A.xlsx");

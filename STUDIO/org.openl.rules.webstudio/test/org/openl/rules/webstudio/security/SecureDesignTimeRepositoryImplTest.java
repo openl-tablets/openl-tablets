@@ -309,7 +309,7 @@ class SecureDesignTimeRepositoryImplTest {
     }
 
     @Test
-    void offeringARepositoryTakesOnePermissionBatchPerProjectAndNoSecuredView() throws Exception {
+    void offeringARepositoryTakesOnePermissionBatchPerProjectAndNoSecuredView() {
         var entries = new LinkedHashMap<String, BranchEntry>();
         entries.put("main", entry(project("main", "DESIGN/Readable/Rates"),
                 Instant.parse("2026-07-29T09:00:00Z")));

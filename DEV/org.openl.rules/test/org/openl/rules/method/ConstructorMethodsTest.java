@@ -3,7 +3,6 @@ package org.openl.rules.method;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,7 @@ class ConstructorMethodsTest {
     private RulesEngineFactory<Object> engineFactory;
 
     @BeforeEach
-    void init() throws IOException {
+    void init() {
         engineFactory = new RulesEngineFactory<>(SRC);
     }
 

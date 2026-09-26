@@ -18,7 +18,7 @@ class ZipCharsetDetectorTest {
     private static final String TEST_WORKSPACE = "test-resources/upload/zip/test-workspace.zip";
 
     @Test
-    void detectCharsetUsingRulesXml() throws Exception {
+    void detectCharsetUsingRulesXml() {
         assumeCharsetSupported("IBM866");
 
         String[] charsetNames = {"windows-1252", "windows-1251", "IBM866"};
@@ -29,7 +29,7 @@ class ZipCharsetDetectorTest {
     }
 
     @Test
-    void detectCharsetUsingWorkspace() throws Exception {
+    void detectCharsetUsingWorkspace() {
         assumeCharsetSupported("IBM866");
 
         // Check the case when some files can be renamed/deleted/added and some can stay with same name.
@@ -45,7 +45,7 @@ class ZipCharsetDetectorTest {
     }
 
     @Test
-    void noNeedToDetectCharset() throws Exception {
+    void noNeedToDetectCharset() {
         // This file can be unzipped using UTF-8
         String[] charsetNames = {"windows-1252", "IBM866"};
         var detector = new ZipCharsetDetector(charsetNames, null);
@@ -54,7 +54,7 @@ class ZipCharsetDetectorTest {
     }
 
     @Test
-    void emptyCharsetList() throws Exception {
+    void emptyCharsetList() {
         // Forget to set charset list.
         var detector = new ZipCharsetDetector(null, null);
 
@@ -65,7 +65,7 @@ class ZipCharsetDetectorTest {
     }
 
     @Test
-    void skipNotExistingCharset() throws Exception {
+    void skipNotExistingCharset() {
         assumeCharsetSupported("IBM437");
 
         // If some charset does not exist in JVM, don't fail, just skip it.

@@ -15,7 +15,7 @@ import org.openl.source.impl.URLSourceCodeModule;
 class TablesTest {
 
     @Test
-    void testSplitter() throws Exception {
+    void testSplitter() {
 
         var source = new URLSourceCodeModule("./test/rules/Test2.xls");
         var wbSrc = new XlsWorkbookSourceCodeModule(source);
@@ -100,7 +100,7 @@ class TablesTest {
         }
     }
 
-    private void subtestRegion(ILogicalTable testHeader1) throws Exception {
+    private void subtestRegion(ILogicalTable testHeader1) {
 
         var bb = testHeader1.getSubtable(1, 0, 1, 1);
 

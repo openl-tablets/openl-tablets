@@ -540,7 +540,7 @@ class MappedRepositoryTest {
     }
 
     /** A repository of {@link #root}, whose change listener the test notifies itself. */
-    private FileSystemRepository watchedRepository(AtomicReference<Listener> listener) throws IOException {
+    private FileSystemRepository watchedRepository(AtomicReference<Listener> listener) {
         var delegate = spy(new FileSystemRepository());
         delegate.setRoot(root);
         delegate.initialize();

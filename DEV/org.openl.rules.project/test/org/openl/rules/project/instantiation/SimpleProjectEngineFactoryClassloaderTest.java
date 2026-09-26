@@ -23,7 +23,7 @@ class SimpleProjectEngineFactoryClassloaderTest {
     }
 
     @Test
-    void singleModuleWithoutDepTest() throws Exception {
+    void singleModuleWithoutDepTest() {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/classpath/project2")
                 .build();

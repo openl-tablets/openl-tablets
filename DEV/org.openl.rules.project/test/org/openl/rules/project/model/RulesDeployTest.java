@@ -16,7 +16,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 class RulesDeployTest {
 
     @Test
-    void testReadRulesDeploy() throws Exception {
+    void testReadRulesDeploy() {
         var rulesDeploy = RulesDeploy.read(Path.of("test-resources/rules-deploy/"));
 
         assertNotNull(rulesDeploy);
@@ -36,7 +36,7 @@ class RulesDeployTest {
     }
 
     @Test
-    void testWriteRulesDeploy() throws Exception {
+    void testWriteRulesDeploy() {
         var rulesDeploy = new RulesDeploy();
         rulesDeploy.setServiceName("rulesDeployName");
         rulesDeploy.setProvideRuntimeContext(false);
@@ -55,7 +55,7 @@ class RulesDeployTest {
     }
 
     @Test
-    void testReadSkipsDeprecatedPublishers() throws Exception {
+    void testReadSkipsDeprecatedPublishers() {
         var xml = """
                 <rules-deploy>
                     <publishers>
@@ -75,7 +75,7 @@ class RulesDeployTest {
     }
 
     @Test
-    void testPublisherTypeAdapterHandlesNullAndBlankInput() throws Exception {
+    void testPublisherTypeAdapterHandlesNullAndBlankInput() {
         var adapter = new RulesDeploy.PublisherTypeXmlAdapter();
         assertNull(adapter.unmarshal(null));
         assertNull(adapter.unmarshal(""));
@@ -84,7 +84,7 @@ class RulesDeployTest {
     }
 
     @Test
-    void testReadConfigurationSkipsMalformedEntries() throws Exception {
+    void testReadConfigurationSkipsMalformedEntries() {
         var xml = """
                 <rules-deploy>
                     <configuration>
@@ -106,7 +106,7 @@ class RulesDeployTest {
     }
 
     @Test
-    void testReadSkipsBlankAndMissingPublisherValues() throws Exception {
+    void testReadSkipsBlankAndMissingPublisherValues() {
         var xml = """
                 <rules-deploy>
                     <publishers>
@@ -125,7 +125,7 @@ class RulesDeployTest {
     }
 
     @Test
-    void testReadOmitsPublishersWhenOnlyDeprecated() throws Exception {
+    void testReadOmitsPublishersWhenOnlyDeprecated() {
         var xml = """
                 <rules-deploy>
                     <publishers>
@@ -140,7 +140,7 @@ class RulesDeployTest {
     }
 
     @Test
-    void testWriteOmitsBlankFields() throws Exception {
+    void testWriteOmitsBlankFields() {
         var rulesDeploy = new RulesDeploy();
         rulesDeploy.setServiceName("svc");
         rulesDeploy.setUrl("   ");

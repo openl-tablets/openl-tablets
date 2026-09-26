@@ -61,7 +61,7 @@ class PropertiesUtilsTest {
     }
 
     @Test
-    void failNotFullUnicode() throws IOException {
+    void failNotFullUnicode() {
         assertThrows(EOFException.class, () -> {
             var result = new ArrayList<String>();
             PropertiesUtils.load(new StringReader("x=1\n\ry=\\u123"), (k, v) -> result.add(k + "=" + v));

@@ -43,7 +43,7 @@ class OpenLClassCastsTest {
     }
 
     @Test
-    void testCastFromPrimitiveToOtherPrimitiveWrapper() throws Exception {
+    void testCastFromPrimitiveToOtherPrimitiveWrapper() {
         JavaOpenClass doubleWrapperClass = JavaOpenClass.getOpenClass(Double.class);
 
         var autocast = castFactory.getCast(JavaOpenClass.INT, doubleWrapperClass);

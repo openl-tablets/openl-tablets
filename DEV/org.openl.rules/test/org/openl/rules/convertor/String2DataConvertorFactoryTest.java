@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  */
 class String2DataConvertorFactoryTest {
     @Test
-    void testUnregisterClassLoader() throws Exception {
+    void testUnregisterClassLoader() {
         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(String.class);
         IString2DataConvertor convertorArray = String2DataConvertorFactory.getConvertor(String[].class);
 

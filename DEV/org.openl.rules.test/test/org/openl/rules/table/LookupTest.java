@@ -12,7 +12,7 @@ import org.openl.source.impl.URLSourceCodeModule;
 class LookupTest {
 
     @Test
-    void testMergeBounds() throws Exception {
+    void testMergeBounds() {
 
         var url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestLookup.xls");
 

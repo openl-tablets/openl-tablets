@@ -254,7 +254,7 @@ class ClassUtilsTest {
     }
 
     @Test
-    void testGetType() throws Exception {
+    void testGetType() {
         var bean = new Bean();
         assertEquals(String.class, ClassUtils.getType(bean, "a"));
         assertEquals(String.class, ClassUtils.getType(bean, "b"));

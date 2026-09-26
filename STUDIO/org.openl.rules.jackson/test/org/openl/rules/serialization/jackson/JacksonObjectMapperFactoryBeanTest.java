@@ -155,7 +155,7 @@ class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    void testOverrideTypesEnableMissedClass() throws ClassNotFoundException, IOException {
+    void testOverrideTypesEnableMissedClass() {
         assertThrows(InvalidTypeIdException.class, () -> {
             var bean = new JacksonObjectMapperFactoryBean();
             bean.setDefaultTypingMode(DefaultTypingMode.NON_FINAL);

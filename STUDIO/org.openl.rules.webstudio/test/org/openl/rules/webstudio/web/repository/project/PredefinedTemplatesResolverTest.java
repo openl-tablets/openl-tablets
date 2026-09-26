@@ -25,14 +25,14 @@ import org.openl.rules.project.model.ProjectDescriptor;
  */
 class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
     @Test
-    void testGetCategories() throws Exception {
+    void testGetCategories() {
         Collection<String> categories = new PredefinedTemplatesResolver().getCategories();
         assertEquals(3, categories.size());
         assertTrue(categories.containsAll(Arrays.asList("templates", "examples", "tutorials")));
     }
 
     @Test
-    void testGetTemplates() throws Exception {
+    void testGetTemplates() {
         var templatesResolver = new PredefinedTemplatesResolver();
 
         var templates = templatesResolver.getTemplates("templates");
@@ -43,7 +43,7 @@ class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
     }
 
     @Test
-    void testGetProjectFiles() throws Exception {
+    void testGetProjectFiles() {
         var templatesResolver = new PredefinedTemplatesResolver();
         var projectFiles = templatesResolver.getProjectFiles("examples",
                 "Example 3 - Auto Policy Calculation");

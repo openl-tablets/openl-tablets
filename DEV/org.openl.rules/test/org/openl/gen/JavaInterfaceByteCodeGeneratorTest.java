@@ -10,7 +10,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -28,7 +27,7 @@ class JavaInterfaceByteCodeGeneratorTest {
     private static final Class<?>[] NO_ARGS = new Class<?>[0];
 
     @Test
-    void testGenerateEmpty() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+    void testGenerateEmpty() throws ClassNotFoundException {
         final String expectedName = "org.openl.generated.test.ServiceEmpty";
         JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
                 Collections.emptyList());
@@ -37,10 +36,7 @@ class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    void testGenerateWithMethods() throws IllegalAccessException,
-            InvocationTargetException,
-            ClassNotFoundException,
-            NoSuchMethodException {
+    void testGenerateWithMethods() throws ClassNotFoundException, NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethods";
         final Class<?>[] args2 = new Class<?>[]{Object.class, int.class, Date.class};
         final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
@@ -60,10 +56,7 @@ class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    void testGenerateWithMethodsAndAnnotations() throws IllegalAccessException,
-            InvocationTargetException,
-            ClassNotFoundException,
-            NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotations() throws ClassNotFoundException, NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
@@ -106,10 +99,7 @@ class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    void testGenerateWithMethodsAndAnnotationsBuilder2() throws IllegalAccessException,
-            InvocationTargetException,
-            ClassNotFoundException,
-            NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotationsBuilder2() throws ClassNotFoundException, NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
@@ -143,10 +133,7 @@ class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    void testGenerateWithMethodsAndAnnotationsBuilder3() throws IllegalAccessException,
-            InvocationTargetException,
-            ClassNotFoundException,
-            NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotationsBuilder3() throws ClassNotFoundException, NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
@@ -180,10 +167,7 @@ class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    void testGenerateWithMethodsAndAnnotationsBuilder() throws IllegalAccessException,
-            InvocationTargetException,
-            ClassNotFoundException,
-            NoSuchMethodException {
+    void testGenerateWithMethodsAndAnnotationsBuilder() throws ClassNotFoundException, NoSuchMethodException {
         final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
@@ -239,7 +223,7 @@ class JavaInterfaceByteCodeGeneratorTest {
     }
 
     private static Class<?> defineClass(String name,
-                                        byte[] bytes) throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
+                                        byte[] bytes) throws ClassNotFoundException {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             ClassLoader newClassLoader = new OpenLClassLoader(oldClassLoader);

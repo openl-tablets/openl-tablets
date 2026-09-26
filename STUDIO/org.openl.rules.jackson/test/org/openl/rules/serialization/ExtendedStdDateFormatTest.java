@@ -233,7 +233,7 @@ class ExtendedStdDateFormatTest {
     }
 
     @Test
-    void testParseException() throws ParseException {
+    void testParseException() {
         assertThrows(ParseException.class, () -> {
             df.parse("asasas");
             fail("Oooops...");

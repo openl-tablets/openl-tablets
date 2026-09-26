@@ -27,7 +27,7 @@ class LockTest {
     static final int MAX_THREADS = Math.min(12, Runtime.getRuntime().availableProcessors() * 2);
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         lock = new Lock(tempDirectoryPath, "my/lock/id");
     }
 

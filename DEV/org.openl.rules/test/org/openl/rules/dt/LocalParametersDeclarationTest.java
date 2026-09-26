@@ -42,7 +42,7 @@ class LocalParametersDeclarationTest {
     private ILocalParametersDeclarationTest instance;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         var engineFactory = new RulesEngineFactory<ILocalParametersDeclarationTest>(SRC,
                 ILocalParametersDeclarationTest.class);
 

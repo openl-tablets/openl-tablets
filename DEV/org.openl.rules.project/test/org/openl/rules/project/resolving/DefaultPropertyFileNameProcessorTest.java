@@ -93,8 +93,7 @@ class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    void testPatternProperty_with_unknownEnumValue_array() throws NoMatchFileNameException,
-            InvalidFileNamePatternException {
+    void testPatternProperty_with_unknownEnumValue_array() {
         assertThrows(NoMatchFileNameException.class, () -> {
 
             new DefaultPropertiesFileNameProcessor(
@@ -317,7 +316,7 @@ class DefaultPropertyFileNameProcessorTest {
     }
 
     @Test
-    void testFolderNoMatch() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+    void testFolderNoMatch() throws InvalidFileNamePatternException {
         var processor1 = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%startRequestDate%");
         assertNotMatch(processor1, "AUTO--20200712");

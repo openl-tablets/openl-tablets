@@ -56,7 +56,7 @@ class StringPoolTest {
     }
 
     @Test
-    void testGC() throws InterruptedException {
+    void testGC() {
         StringPool.intern(new String("intern1"));
         var str = new String("intern2"); // Strong Reference
         StringPool.intern(str);

@@ -3,8 +3,6 @@ package org.openl.rules.method;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +18,7 @@ class ValidateInputParametersTest {
     private RulesEngineFactory<Object> engineFactory;
 
     @BeforeEach
-    void init() throws IOException {
+    void init() {
         engineFactory = new RulesEngineFactory<>(SRC);
     }
 

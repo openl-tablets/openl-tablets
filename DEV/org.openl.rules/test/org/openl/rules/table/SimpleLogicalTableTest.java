@@ -20,7 +20,7 @@ class SimpleLogicalTableTest {
     }
 
     @Test
-    void testSimpleLogicalTable() throws Exception {
+    void testSimpleLogicalTable() {
 
         var sheetSrc = getXlsGrid();
 

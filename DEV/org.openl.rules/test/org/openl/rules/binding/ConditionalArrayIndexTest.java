@@ -18,7 +18,7 @@ class ConditionalArrayIndexTest {
     }
 
     @Test
-    void testXPathLikeExpression() throws Exception {
+    void testXPathLikeExpression() {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[2], TestUtils.invoke(instance, "driverSelectOne", (Object) drivers));
         Object[] selectManyResult = TestUtils.invoke(instance, "driverSelectMany", (Object) drivers);

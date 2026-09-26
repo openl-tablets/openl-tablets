@@ -17,20 +17,20 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 class SimpleProjectEngineFactoryTest {
 
     @Test
-    void failureWorkspaceTest() throws Exception {
+    void failureWorkspaceTest() {
         var builder = new SimpleProjectEngineFactoryBuilder<>().setProject("test-resources/test1/third")
                 .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls");
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
-    void failureProjectArgumentTest() throws Exception {
+    void failureProjectArgumentTest() {
         var builder = new SimpleProjectEngineFactoryBuilder<>();
         assertThrows(IllegalArgumentException.class, () -> builder.setProject(null));
     }
 
     @Test
-    void failureProjectTest() throws Exception {
+    void failureProjectTest() {
         assertThrows(ProjectResolvingException.class, () -> {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                     .setProject("test-resources/project-engine")
@@ -85,7 +85,7 @@ class SimpleProjectEngineFactoryTest {
     }
 
     @Test
-    void wrongProjectDependency() throws Exception {
+    void wrongProjectDependency() {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/test1/third")
                 .setProjectDependencies("test-resources/test1")

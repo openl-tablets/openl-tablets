@@ -20,7 +20,6 @@ import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -121,7 +120,7 @@ class ModuleTest {
      * @param expr
      * @return
      */
-    private boolean executeBooleanOpenLExprression(Object context, String expr) throws SyntaxNodeException {
+    private boolean executeBooleanOpenLExprression(Object context, String expr) {
         var retType = JavaOpenClass.BOOLEAN;
         return (Boolean) executeOpenLExprression(context, expr, retType);
     }
@@ -135,7 +134,7 @@ class ModuleTest {
      * @param retType OpenL return type of expression
      * @return
      */
-    private Object executeOpenLExprression(Object context, String expr, IOpenClass retType) throws SyntaxNodeException {
+    private Object executeOpenLExprression(Object context, String expr, IOpenClass retType) {
         var src = new StringSourceCodeModule(expr, null);
         OpenL op = OpenL.getInstance();
 
@@ -160,7 +159,7 @@ class ModuleTest {
      * @param expr
      * @return
      */
-    private Object executeOpenLGetExpression(Object context, String expr) throws SyntaxNodeException {
+    private Object executeOpenLGetExpression(Object context, String expr) {
         var retType = JavaOpenClass.OBJECT;
         return executeOpenLExprression(context, expr, retType);
     }
@@ -177,7 +176,7 @@ class ModuleTest {
      * time or once per thread, but it does not have significant performance overhead)
      */
 
-    private Object executeOpenLOGNLExprression(Object context, String expr) throws SyntaxNodeException {
+    private Object executeOpenLOGNLExprression(Object context, String expr) {
         var src = new StringSourceCodeModule(expr, null);
         OpenL op = OpenL.getInstance();
 
@@ -195,7 +194,7 @@ class ModuleTest {
         return method.invoke(null, new Object[]{context}, env);
     }
 
-    private IOpenMethod makeMethod(ModuleOpenClass module, String expr, IOpenClass retType, OpenL op) throws SyntaxNodeException {
+    private IOpenMethod makeMethod(ModuleOpenClass module, String expr, IOpenClass retType, OpenL op) {
         var src = new StringSourceCodeModule(expr, null);
 
         var signature = IMethodSignature.VOID;
@@ -236,7 +235,7 @@ class ModuleTest {
     }
 
     @Test
-    void testModule() throws SyntaxNodeException {
+    void testModule() {
         OpenL op = OpenL.getInstance();
 
         var module = new ModuleOpenClass("ZZZ", op);
@@ -280,7 +279,7 @@ class ModuleTest {
      * Test sample "assert" expressions is OpenL
      */
     @Test
-    void testOpenL() throws SyntaxNodeException {
+    void testOpenL() {
         boolean b;
         var t = System.currentTimeMillis();
         b = executeBooleanOpenLExprression(data, OPENL_EXPR);
@@ -295,7 +294,7 @@ class ModuleTest {
      * Test sample "get" expression in OpenL
      */
     @Test
-    void testOpenLGet() throws SyntaxNodeException {
+    void testOpenLGet() {
         var obj = executeOpenLGetExpression(data, OPENL_GET_ADDRESS);
         assertSame(obj, data.getAddress());
     }
@@ -304,7 +303,7 @@ class ModuleTest {
      * Test sample arithemtic expression in OpenL
      */
     @Test
-    void testOpenLMath() throws SyntaxNodeException {
+    void testOpenLMath() {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */
@@ -323,7 +322,7 @@ class ModuleTest {
     }
 
     @Test
-    void testOpenLOGNLMath() throws SyntaxNodeException {
+    void testOpenLOGNLMath() {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */

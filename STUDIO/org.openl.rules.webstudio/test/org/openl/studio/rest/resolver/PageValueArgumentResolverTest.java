@@ -44,7 +44,7 @@ class PageValueArgumentResolverTest {
     private ArgumentCaptor<Pageable> pageableCaptor;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         pageableCaptor = forClass(Pageable.class);
     }
 

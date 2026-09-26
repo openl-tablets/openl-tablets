@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.OpenL;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -85,7 +84,7 @@ class BinderTest {
     }
 
     @Test
-    void testMethodHeader() throws OpenLCompilationException {
+    void testMethodHeader() {
         _testMethodHeader("int x()", JavaOpenClass.INT, 0);
         _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, 2);
     }

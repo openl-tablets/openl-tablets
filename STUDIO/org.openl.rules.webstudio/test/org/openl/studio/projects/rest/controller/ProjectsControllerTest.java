@@ -311,7 +311,7 @@ class ProjectsControllerTest {
     }
 
     @Test
-    void changingTheProjectItselfStillResetsTheSession() throws Exception {
+    void changingTheProjectItselfStillResetsTheSession() {
         var projectService = mock(WorkspaceProjectService.class);
         var webStudio = mock(WebStudio.class);
         var controller = controller(projectService, webStudio);
