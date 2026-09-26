@@ -58,6 +58,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
@@ -873,7 +874,10 @@ public class OpenApiProjectValidator {
     }
 
     @SuppressWarnings("rawtypes")
-    private String buildOpenApiTypeMessagePart(Schema schema) {
+    private String buildOpenApiTypeMessagePart(@Nullable Schema schema) {
+        if (schema == null) {
+            return SCHEMA;
+        }
         var s = resolveSimplifiedName(schema);
         if (s == null) {
             return SCHEMA;

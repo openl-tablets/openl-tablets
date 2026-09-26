@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -102,7 +103,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.serviceTarget = serviceTarget;
         this.methodMap = methodMap;
         this.serviceClassLoader = serviceClassLoader;
-        this.openClass = openClass;
+        this.openClass = Objects.requireNonNull(openClass, "openClass");
         this.serviceMethodAdviceListeners = serviceMethodAdviceListeners != null ? new ArrayList<>(
                 serviceMethodAdviceListeners) : new ArrayList<>();
         this.mapClassToSprOpenClass = initMapClassToSprOpenClass();

@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ASyntaxNode;
@@ -10,7 +12,7 @@ public class CellSyntaxNode extends ASyntaxNode {
         super(type, null, module);
     }
 
-    public GridCellSourceCodeModule getCellSource() {
+    public @Nullable GridCellSourceCodeModule getCellSource() {
         return (GridCellSourceCodeModule) getModule();
     }
 
@@ -24,7 +26,7 @@ public class CellSyntaxNode extends ASyntaxNode {
         return 0;
     }
 
-    public String getSourceString() {
+    public @Nullable String getSourceString() {
         var source = getCellSource();
         return source == null ? null : source.getCode();
     }
