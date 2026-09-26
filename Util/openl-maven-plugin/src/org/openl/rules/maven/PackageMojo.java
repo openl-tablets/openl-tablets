@@ -121,6 +121,9 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter
     private String classifier;
 
+    /** Name of the {@link #dependenciesThreshold} parameter; referenced by {@code PomlessConverter}. */
+    static final String DEPENDENCIES_THRESHOLD_PARAM = "dependenciesThreshold";
+
     /**
      * Allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL Tablets rules require
      * a few dependencies, such as domain models, that is, Java beans, or some utils, for example, JSON parsing.
@@ -128,9 +131,6 @@ public final class PackageMojo extends BaseOpenLMojo {
      * incorrectly, the size of the ZIP package increases dramatically. This parameter allows preventing such situation
      * by failing packaging.
      */
-    /** Name of the {@link #dependenciesThreshold} parameter; referenced by {@code PomlessConverter}. */
-    static final String DEPENDENCIES_THRESHOLD_PARAM = "dependenciesThreshold";
-
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
 
