@@ -746,7 +746,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         }
                     }
 
-                    fieldName = ClassUtils.decapitalize(fieldName); // FIXME: WSDL decapitalize field name without this
+                    fieldName = ClassUtils.decapitalize(fieldName);
                     if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName) || addFieldNameWithCollisions) {
                         if (usedXmlNames.containsKey(fieldName) || usedXmlNames.containsValue(xmlName)) {
                             var newFieldName = fieldName;

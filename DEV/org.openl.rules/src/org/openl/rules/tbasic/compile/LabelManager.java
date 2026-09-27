@@ -37,7 +37,6 @@ public class LabelManager {
 
         @Override
         public int hashCode() {
-            // FIXME
             return name.hashCode() + (loopLabel ? 11 : 0);
         }
 

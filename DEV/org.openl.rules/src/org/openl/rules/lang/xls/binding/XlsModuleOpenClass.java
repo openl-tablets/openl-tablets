@@ -539,7 +539,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
              *
              * Previously there was problems because dispatcher from dependency was either added to dispatcher of
              * current module(dispatcher as a candidate in another dispatcher) or added to current module and was
-             * modified during the current module processing. FIXME
+             * modified during the current module processing.
              */
             for (IOpenMethod candidate : dispatcher.getCandidates()) {
                 addMethod(candidate);
