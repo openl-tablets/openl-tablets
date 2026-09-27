@@ -4,8 +4,8 @@ import java.time.Clock;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
@@ -45,24 +45,20 @@ import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 @Import(SpringMvcOpenApiConfiguration.class)
 @EnableWebMvc
 @EnableAsync
+@RequiredArgsConstructor
 public class ApiConfig implements WebMvcConfigurer {
 
     // No custom argument resolvers in Wizard
-    @Autowired(required = false)
-    private List<HandlerMethodArgumentResolver> argumentResolvers;
+    private final ObjectProvider<HandlerMethodArgumentResolver> argumentResolvers;
 
-    @Autowired(required = false)
-    private List<Converter<?, ?>> converters;
+    private final ObjectProvider<Converter<?, ?>> converters;
 
-    @Autowired(required = false)
-    private List<ConverterFactory<?, ?>> converterFactories;
+    private final ObjectProvider<ConverterFactory<?, ?>> converterFactories;
 
-    @Autowired
     @Qualifier("webstudioValidatorBean")
-    private CustomValidatorBean validator;
+    private final CustomValidatorBean validator;
 
-    @Autowired
-    private ObjectProvider<ObjectMapper> objectMapperProvider;
+    private final ObjectProvider<ObjectMapper> objectMapperProvider;
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -77,9 +73,7 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        if (argumentResolvers != null) {
-            resolvers.addAll(argumentResolvers);
-        }
+        argumentResolvers.orderedStream().forEach(resolvers::add);
     }
 
     @Override
@@ -123,12 +117,8 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        if (converters != null) {
-            converters.forEach(registry::addConverter);
-        }
-        if (converterFactories != null) {
-            converterFactories.forEach(registry::addConverterFactory);
-        }
+        converters.orderedStream().forEach(registry::addConverter);
+        converterFactories.orderedStream().forEach(registry::addConverterFactory);
     }
 
     @Bean

@@ -3,9 +3,9 @@ package org.openl.rules.rest.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
@@ -15,11 +15,11 @@ import org.openl.util.StringUtils;
  * @deprecated Use {@link MailVerificationServerSettingsConstraintValidator} instead.
  */
 @Deprecated(forRemoval = true)
+@RequiredArgsConstructor
 @Slf4j
 public class MailConfigConstraintValidator implements ConstraintValidator<MailConfigConstraint, MailConfigModel> {
 
-    @Autowired
-    private MailSender mailSender;
+    private final MailSender mailSender;
 
     @Override
     public void initialize(MailConfigConstraint constraintAnnotation) {

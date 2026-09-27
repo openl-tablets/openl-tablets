@@ -3,7 +3,7 @@ package org.openl.rules.rest.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.openl.rules.rest.model.ChangePasswordModel;
@@ -11,16 +11,14 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.studio.security.CurrentUserInfo;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 public class ChangePasswordConstraintValidator implements ConstraintValidator<ChangePasswordConstraint, ChangePasswordModel> {
 
-    @Autowired
-    private UserManagementService userManagementService;
+    private final UserManagementService userManagementService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private CurrentUserInfo currentUserInfo;
+    private final CurrentUserInfo currentUserInfo;
 
     @Override
     public void initialize(ChangePasswordConstraint constraintAnnotation) {

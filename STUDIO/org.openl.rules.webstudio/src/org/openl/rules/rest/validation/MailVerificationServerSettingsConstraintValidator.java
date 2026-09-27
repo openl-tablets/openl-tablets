@@ -3,19 +3,19 @@ package org.openl.rules.rest.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.web.admin.MailVerificationServerSettings;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class MailVerificationServerSettingsConstraintValidator implements ConstraintValidator<MailConfigConstraint, MailVerificationServerSettings> {
 
-    @Autowired
-    private MailSender mailSender;
+    private final MailSender mailSender;
 
     @Override
     public void initialize(MailConfigConstraint constraintAnnotation) {

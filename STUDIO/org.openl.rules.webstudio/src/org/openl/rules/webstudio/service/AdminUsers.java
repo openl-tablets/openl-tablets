@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -23,16 +23,14 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
+@RequiredArgsConstructor
 public class AdminUsers {
 
-    @Autowired
-    private UserManagementService userService;
+    private final UserManagementService userService;
 
-    @Autowired
-    private GroupManagementService groupService;
+    private final GroupManagementService groupService;
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
     private Set<String> administrators;
 

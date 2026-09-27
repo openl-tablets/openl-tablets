@@ -3,14 +3,14 @@ package org.openl.rules.rest.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.webstudio.service.UserManagementService;
 
+@RequiredArgsConstructor
 public class UsernameExistsConstraintValidator implements ConstraintValidator<UsernameExistsConstraint, String> {
 
-    @Autowired
-    private UserManagementService userManagementService;
+    private final UserManagementService userManagementService;
 
     @Override
     public void initialize(UsernameExistsConstraint constraintAnnotation) {
