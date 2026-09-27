@@ -69,145 +69,8 @@ public class RulesInFolderTestRunner {
         }
 
         for (File file : files) {
-            int messagesCount = 0;
-            final long startTime = System.nanoTime();
-            String sourceFile = file.getName();
-            CompiledOpenClass compiledOpenClass = file.isDirectory() ? compileProject(file, startTime)
-                    : compileWorkbook(path, file, startTime);
-            if (compiledOpenClass == null) {
+            if (new SourceCheck(file.getName()).isFailed(path, testsDir, file)) {
                 testsFailed = true;
-            }
-
-            boolean success = true;
-
-            // Check messages
-            File msgFile = new File(testsDir, sourceFile + ".msg.txt");
-            List<String> expectedMessages = new ArrayList<>();
-            if (compiledOpenClass == null || msgFile.exists() && executionMode) {
-                // Nothing to check when the compilation fails, and messages are not checked in the execution mode
-                continue;
-            }
-            if (msgFile.exists()) {
-                try (var input = new FileInputStream(msgFile)) {
-                    String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-                    for (String message : content
-                            .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
-                        if (!StringUtils.isBlank(message)) {
-                            expectedMessages.add(message.trim());
-                        }
-                    }
-                } catch (IOException exc) {
-                    error(messagesCount++,
-                            startTime,
-                            sourceFile,
-                            "Failed to read the message file '{}'.",
-                            msgFile,
-                            exc);
-                }
-
-                Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
-                List<String> restMessages = new ArrayList<>(expectedMessages);
-                for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
-                    String actual = msg.getSeverity() + ": " + msg.getSummary();
-                    if (msg.getSeverity().equals(Severity.ERROR)) {
-                        success = false;
-                    }
-                    Iterator<String> itr = restMessages.iterator();
-                    boolean found = false;
-                    while (itr.hasNext()) {
-                        if (actual.contains(itr.next())) {
-                            itr.remove();
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        unexpectedMessages.add(msg);
-                    }
-                }
-                if (!unexpectedMessages.isEmpty()) {
-                    success = false;
-                    error(messagesCount++, startTime, sourceFile, "  UNEXPECTED messages:");
-                    for (OpenLMessage msg : unexpectedMessages) {
-                        error(messagesCount++,
-                                startTime,
-                                sourceFile,
-                                "   {}: {}    at {}",
-                                msg.getSeverity(),
-                                msg.getSummary(),
-                                msg.getSourceLocation());
-                    }
-                }
-                if (!restMessages.isEmpty()) {
-                    success = false;
-                    error(messagesCount++, startTime, sourceFile, "  MISSED messages:");
-                    for (String msg : restMessages) {
-                        error(messagesCount++, startTime, sourceFile, "   {}", msg);
-                    }
-                }
-            }
-
-            // Check compilation
-            if (success && compiledOpenClass.hasErrors()) {
-                for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
-                    error(messagesCount++,
-                            startTime,
-                            sourceFile,
-                            "   {}: {}    at {}",
-                            msg.getSeverity(),
-                            msg.getSummary(),
-                            msg.getSourceLocation());
-                }
-                success = false;
-            }
-
-            // Run tests
-            if (success && !executionMode) {
-                IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-                IOpenClass openClass = compiledOpenClass.getOpenClass();
-                Object target = openClass.newInstance(env);
-                for (IOpenMethod method : openClass.getDeclaredMethods()) {
-                    if (method instanceof TestSuiteMethod) {
-                        TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
-                        final int numberOfFailures = res.getNumberOfFailures();
-                        if (!allTestsMustFails) {
-                            if (numberOfFailures != 0) {
-                                error(messagesCount++,
-                                        startTime,
-                                        sourceFile,
-                                        "Failed test: {}  Errors #: {}",
-                                        res.getName(),
-                                        numberOfFailures);
-                                List<ITestUnit> failed = res.getFilteredTestUnits(true, 3);
-                                for (ITestUnit testcase : failed) {
-                                    error(messagesCount++,
-                                            startTime,
-                                            sourceFile,
-                                            "\n   #{}  \n Actual: {} \n Expected: {}",
-                                            testcase.getTest().getId(),
-                                            testcase.getActualResult(),
-                                            testcase.getExpectedResult());
-                                }
-                            }
-                        } else {
-                            if (numberOfFailures != res.getNumberOfTestUnits()) {
-                                error(messagesCount++,
-                                        startTime,
-                                        sourceFile,
-                                        "Unexpected test result: {}  Errors #: {}",
-                                        res.getName(),
-                                        res.getNumberOfTestUnits() - numberOfFailures);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Output
-            if (messagesCount != 0) {
-                testsFailed = true;
-            } else {
-                ok(startTime, sourceFile);
             }
         }
         return testsFailed;
@@ -297,5 +160,172 @@ public class RulesInFolderTestRunner {
 
     private long duration(long startTime) {
         return (System.nanoTime() - startTime) / 1000000;
+    }
+
+    /**
+     * Checks the compilation messages of one rules source and runs its tests. Every reported error is counted, and
+     * the first one is preceded by the failure header of the source.
+     */
+    private final class SourceCheck {
+        private final long startTime = System.nanoTime();
+        private final String sourceFile;
+        private int messagesCount;
+
+        private SourceCheck(String sourceFile) {
+            this.sourceFile = sourceFile;
+        }
+
+        /**
+         * Compiles the rules source, checks its messages and runs its tests.
+         *
+         * @return {@code true} when the compilation fails or an error is reported
+         */
+        private boolean isFailed(String path, File testsDir, File file) {
+            CompiledOpenClass compiledOpenClass = file.isDirectory() ? compileProject(file, startTime)
+                    : compileWorkbook(path, file, startTime);
+            if (compiledOpenClass == null) {
+                // Nothing to check when the compilation fails
+                return true;
+            }
+
+            boolean success = true;
+
+            // Check messages
+            File msgFile = new File(testsDir, sourceFile + ".msg.txt");
+            if (msgFile.exists() && executionMode) {
+                // Messages are not checked in the execution mode
+                return false;
+            }
+            if (msgFile.exists()) {
+                success = checkMessages(compiledOpenClass, msgFile);
+            }
+
+            // Check compilation
+            if (success && compiledOpenClass.hasErrors()) {
+                for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
+                    reportError("   {}: {}    at {}", msg.getSeverity(), msg.getSummary(), msg.getSourceLocation());
+                }
+                success = false;
+            }
+
+            // Run tests
+            if (success && !executionMode) {
+                runTests(compiledOpenClass);
+            }
+
+            // Output
+            if (messagesCount != 0) {
+                return true;
+            }
+            ok(startTime, sourceFile);
+            return false;
+        }
+
+        /**
+         * Compares the messages of the compilation with the expected ones from the message file.
+         *
+         * @return {@code false} when an error is compiled, or a message is unexpected or missed
+         */
+        private boolean checkMessages(CompiledOpenClass compiledOpenClass, File msgFile) {
+            boolean success = true;
+            List<String> expectedMessages = readExpectedMessages(msgFile);
+
+            Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
+            List<String> restMessages = new ArrayList<>(expectedMessages);
+            for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
+                String actual = msg.getSeverity() + ": " + msg.getSummary();
+                if (msg.getSeverity().equals(Severity.ERROR)) {
+                    success = false;
+                }
+                if (!removeExpectedMessage(restMessages, actual)) {
+                    unexpectedMessages.add(msg);
+                }
+            }
+            if (!unexpectedMessages.isEmpty()) {
+                success = false;
+                reportError("  UNEXPECTED messages:");
+                for (OpenLMessage msg : unexpectedMessages) {
+                    reportError("   {}: {}    at {}", msg.getSeverity(), msg.getSummary(), msg.getSourceLocation());
+                }
+            }
+            if (!restMessages.isEmpty()) {
+                success = false;
+                reportError("  MISSED messages:");
+                for (String msg : restMessages) {
+                    reportError("   {}", msg);
+                }
+            }
+            return success;
+        }
+
+        private List<String> readExpectedMessages(File msgFile) {
+            List<String> expectedMessages = new ArrayList<>();
+            try (var input = new FileInputStream(msgFile)) {
+                String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+                for (String message : content
+                        .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
+                    if (!StringUtils.isBlank(message)) {
+                        expectedMessages.add(message.trim());
+                    }
+                }
+            } catch (IOException exc) {
+                reportError("Failed to read the message file '{}'.", msgFile, exc);
+            }
+            return expectedMessages;
+        }
+
+        private void runTests(CompiledOpenClass compiledOpenClass) {
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            IOpenClass openClass = compiledOpenClass.getOpenClass();
+            Object target = openClass.newInstance(env);
+            for (IOpenMethod method : openClass.getDeclaredMethods()) {
+                if (method instanceof TestSuiteMethod) {
+                    TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
+                    checkTestResults(res);
+                }
+            }
+        }
+
+        private void checkTestResults(TestUnitsResults res) {
+            final int numberOfFailures = res.getNumberOfFailures();
+            if (!allTestsMustFails) {
+                if (numberOfFailures != 0) {
+                    reportError("Failed test: {}  Errors #: {}", res.getName(), numberOfFailures);
+                    List<ITestUnit> failed = res.getFilteredTestUnits(true, 3);
+                    for (ITestUnit testcase : failed) {
+                        reportError("\n   #{}  \n Actual: {} \n Expected: {}",
+                                testcase.getTest().getId(),
+                                testcase.getActualResult(),
+                                testcase.getExpectedResult());
+                    }
+                }
+            } else {
+                if (numberOfFailures != res.getNumberOfTestUnits()) {
+                    reportError("Unexpected test result: {}  Errors #: {}",
+                            res.getName(),
+                            res.getNumberOfTestUnits() - numberOfFailures);
+                }
+            }
+        }
+
+        private void reportError(String msg, Object... args) {
+            error(messagesCount++, startTime, sourceFile, msg, args);
+        }
+    }
+
+    /**
+     * Removes the first expected message that the actual message contains.
+     *
+     * @return {@code true} when such a message is found
+     */
+    private static boolean removeExpectedMessage(List<String> restMessages, String actual) {
+        Iterator<String> itr = restMessages.iterator();
+        while (itr.hasNext()) {
+            if (actual.contains(itr.next())) {
+                itr.remove();
+                return true;
+            }
+        }
+        return false;
     }
 }
