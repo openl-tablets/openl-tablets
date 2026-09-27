@@ -6,7 +6,7 @@ interface UserStore {
     userProfile?: UserProfile | undefined
     userDetails?: UserDetails | undefined
     loading: boolean
-    error: any | null
+    error: unknown
     isLoggedIn: boolean
     fetchUserInfo: () => Promise<void>
     fetchUserProfile: () => Promise<void>

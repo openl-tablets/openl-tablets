@@ -4,7 +4,7 @@ import { webSocketService, WebSocketMessage } from '../services/websocket'
 interface NotificationStore {
     notification?: string
     loading?: boolean
-    error?: any | null
+    error?: unknown
     isWebSocketConnected?: boolean
     setNotification: (notification: string) => Promise<void>
     initializeWebSocket: () => void
