@@ -71,17 +71,17 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     @SuppressWarnings("unchecked")
-    private static void validateComparisonLiteralWithDomainTypeInternal(IBoundNode b1,
-                                                                        IBoundNode b2,
+    private static void validateComparisonLiteralWithDomainTypeInternal(IBoundNode domainNode,
+                                                                        IBoundNode literalNode,
                                                                         IOpenMethod method,
                                                                         ISyntaxNode node,
                                                                         IBindingContext bindingContext) {
-        if (b1.getType().getDomain() != null && b2 instanceof LiteralBoundNode literalBoundNode) {
-            var domain = (IDomain<Object>) b1.getType().getDomain();
+        if (domainNode.getType().getDomain() != null && literalNode instanceof LiteralBoundNode literalBoundNode) {
+            var domain = (IDomain<Object>) domainNode.getType().getDomain();
             if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
                 BindHelper.processWarn("Warning: Object '%s' is outside of valid domain '%s'. The comparison always returns %s.".formatted(
                         literalBoundNode.getValue(),
-                        b1.getType().getName(),
+                        domainNode.getType().getName(),
                         "ne".equals(method.getName())), node, bindingContext);
             }
         }

@@ -682,10 +682,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     private void addMetaInfoForCompositeMethod(IGridRegion region,
                                                ILogicalTable valueCell,
-                                               int i,
-                                               int j,
+                                               int rowIndex,
+                                               int columnIndex,
                                                Object storageValue) {
-        var cell = valueCell.getCell(j, i); // See EPBDS-7774 for an example when "i" is needed
+        var cell = valueCell.getCell(columnIndex, rowIndex); // See EPBDS-7774 for an example when "rowIndex" is needed
         var row = cell.getAbsoluteRow();
         var col = cell.getAbsoluteColumn();
         if (IGridRegion.Tool.contains(region, col, row)) {
