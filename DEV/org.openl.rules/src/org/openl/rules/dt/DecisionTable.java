@@ -226,19 +226,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     public void updateDependency(BindingDependencies dependencies) {
         if (conditionRows != null) {
             for (IBaseCondition condition : conditionRows) {
-                var method = (CompositeMethod) condition.getMethod();
-                if (method != null) {
-                    method.updateDependency(dependencies);
-                }
-
-                if (condition instanceof  ICondition iCondition) {
-                    var indexMethod = iCondition.getIndexMethod();
-                    if (indexMethod != null) {
-                        indexMethod.updateDependency(dependencies);
-                    }
-                }
-
-                updateValueDependency((FunctionalRow) condition, dependencies);
+                updateConditionDependency(condition, dependencies);
             }
         }
 
@@ -252,6 +240,22 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
                 updateValueDependency((FunctionalRow) action, dependencies);
             }
         }
+    }
+
+    private void updateConditionDependency(IBaseCondition condition, BindingDependencies dependencies) {
+        var method = (CompositeMethod) condition.getMethod();
+        if (method != null) {
+            method.updateDependency(dependencies);
+        }
+
+        if (condition instanceof  ICondition iCondition) {
+            var indexMethod = iCondition.getIndexMethod();
+            if (indexMethod != null) {
+                indexMethod.updateDependency(dependencies);
+            }
+        }
+
+        updateValueDependency((FunctionalRow) condition, dependencies);
     }
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {

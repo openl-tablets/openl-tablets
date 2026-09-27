@@ -58,71 +58,83 @@ public class ActionInvoker implements Invokable {
         return returnValue;
     }
 
-    @SuppressWarnings("unchecked")
     private Object processReturnValue(Object returnValues, Object keyValues, boolean[] f, IOpenClass type) {
         if (type.isArray()) {
-            var c = 0;
-            for (boolean b : f) {
-                if (b) {
-                    c++;
-                }
-            }
-            var returnValuesLength = Array.getLength(returnValues);
-            Object ret;
-            if (c == 0) {
-                var retLength = 0;
-                for (var i = 0; i < returnValuesLength; i++) {
-                    if (isValidResult(Array.get(returnValues, i))) {
-                        retLength++;
-                    }
-                }
-                ret = Array.newInstance(type.getComponentClass().getInstanceClass(), retLength);
-            } else {
-                ret = Array.newInstance(type.getComponentClass().getInstanceClass(), c);
-            }
-            var j = 0;
-            for (var i = 0; i < returnValuesLength; i++) {
-                if ((f[i] || c == 0) && (isValidResult(Array.get(returnValues, i)))) {
-                    Array.set(ret, j, Array.get(returnValues, i));
-                    j++;
-                }
-            }
-            return ret;
+            return toArray(returnValues, f, type);
         } else {
-            if (Map.class == type.getInstanceClass()) {
-                return addReturnValues(new HashMap<>(), returnValues, keyValues, f);
-            }
-            if (SortedMap.class == type.getInstanceClass()) {
-                return addReturnValues(new TreeMap<>(), returnValues, keyValues, f);
-            }
-            if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
-                try {
-                    return addReturnValues((Map<Object, Object>) type.getInstanceClass().getDeclaredConstructor().newInstance(),
-                            returnValues,
-                            keyValues,
-                            f);
-                } catch (Exception e) {
-                    throw new OpenLRuntimeException(e);
-                }
-            }
-            if (Collection.class == type.getInstanceClass() || List.class == type.getInstanceClass()) {
-                return addReturnValues(new ArrayList<>(), returnValues, f);
-            }
-            if (Set.class == type.getInstanceClass()) {
-                return addReturnValues(new HashSet<>(), returnValues, f);
-            }
-            if (SortedSet.class == type.getInstanceClass()) {
-                return addReturnValues(new TreeSet<>(), returnValues, f);
-            }
-            if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
-                try {
-                    return addReturnValues((Collection<Object>) type.getInstanceClass().getDeclaredConstructor().newInstance(), returnValues, f);
-                } catch (Exception e) {
-                    throw new OpenLRuntimeException(e);
-                }
-            }
-            throw new OpenLRuntimeException();
+            return toCollectionOrMap(returnValues, keyValues, f, type);
         }
+    }
+
+    private Object toArray(Object returnValues, boolean[] f, IOpenClass type) {
+        var c = 0;
+        for (boolean b : f) {
+            if (b) {
+                c++;
+            }
+        }
+        var returnValuesLength = Array.getLength(returnValues);
+        Object ret;
+        if (c == 0) {
+            var retLength = 0;
+            for (var i = 0; i < returnValuesLength; i++) {
+                if (isValidResult(Array.get(returnValues, i))) {
+                    retLength++;
+                }
+            }
+            ret = Array.newInstance(type.getComponentClass().getInstanceClass(), retLength);
+        } else {
+            ret = Array.newInstance(type.getComponentClass().getInstanceClass(), c);
+        }
+        var j = 0;
+        for (var i = 0; i < returnValuesLength; i++) {
+            if ((f[i] || c == 0) && (isValidResult(Array.get(returnValues, i)))) {
+                Array.set(ret, j, Array.get(returnValues, i));
+                j++;
+            }
+        }
+        return ret;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object toCollectionOrMap(Object returnValues, Object keyValues, boolean[] f, IOpenClass type) {
+        if (Map.class == type.getInstanceClass()) {
+            return addReturnValues(new HashMap<>(), returnValues, keyValues, f);
+        }
+        if (SortedMap.class == type.getInstanceClass()) {
+            return addReturnValues(new TreeMap<>(), returnValues, keyValues, f);
+        }
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
+            try {
+                return addReturnValues(
+                        (Map<Object, Object>) type.getInstanceClass().getDeclaredConstructor().newInstance(),
+                        returnValues,
+                        keyValues,
+                        f);
+            } catch (Exception e) {
+                throw new OpenLRuntimeException(e);
+            }
+        }
+        if (Collection.class == type.getInstanceClass() || List.class == type.getInstanceClass()) {
+            return addReturnValues(new ArrayList<>(), returnValues, f);
+        }
+        if (Set.class == type.getInstanceClass()) {
+            return addReturnValues(new HashSet<>(), returnValues, f);
+        }
+        if (SortedSet.class == type.getInstanceClass()) {
+            return addReturnValues(new TreeSet<>(), returnValues, f);
+        }
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
+            try {
+                return addReturnValues(
+                        (Collection<Object>) type.getInstanceClass().getDeclaredConstructor().newInstance(),
+                        returnValues,
+                        f);
+            } catch (Exception e) {
+                throw new OpenLRuntimeException(e);
+            }
+        }
+        throw new OpenLRuntimeException();
     }
 
     private boolean isValidResult(Object actionResult) {
@@ -143,15 +155,8 @@ public class ActionInvoker implements Invokable {
                 var rules = getRules();
                 if (returnValues == null) {
                     type = action.getType();
-                    if (type.isArray()) {
-                        returnValues = Array.newInstance(type.getComponentClass().getInstanceClass(), rules.length);
-                    } else {
-                        returnValues = new Object[rules.length];
-                    }
-                    if (f == null) {
-                        f = new boolean[rules.length];
-                        Arrays.fill(f, false);
-                    }
+                    returnValues = newReturnValues(type, rules.length);
+                    f = newFlagsIfAbsent(f, rules.length);
                 }
                 executeActionAndWriteValues(target, params, env, returnValues, f, action, rules);
                 retVal = returnValues;
@@ -160,33 +165,12 @@ public class ActionInvoker implements Invokable {
                 var rules = getRules();
                 if (keyValues == null) {
                     keyValues = new Object[rules.length];
-                    if (f == null) {
-                        f = new boolean[rules.length];
-                        Arrays.fill(f, false);
-                    }
+                    f = newFlagsIfAbsent(f, rules.length);
                 }
                 executeActionAndWriteValues(target, params, env, keyValues, f, action, rules);
             } else {
-                Object actionResult = null;
-                var itr = new SmartIterator(firedRules.iterator(), rulesIntIterator);
-                var newFiredRules = new ArrayList<Integer>();
-                while (itr.hasNext()) {
-                    var g = itr.itr1.hasNext();
-                    var rule = itr.next();
-                    if (!g) {
-                        newFiredRules.add(rule);
-                    }
-                    if (action.isReturnAction()) {
-                        actionResult = action.executeAction(rule, target, params, env);
-                        if (isValidResult(actionResult)) {
-                            break;
-                        }
-                    } else {
-                        action.executeAction(rule, target, params, env);
-                    }
-                }
-                firedRules.addAll(newFiredRules);
-                if (retVal == null && actionResult != null) {
+                var actionResult = executeAction(action, target, params, env);
+                if (retVal == null) {
                     retVal = actionResult;
                 }
             }
@@ -195,6 +179,51 @@ public class ActionInvoker implements Invokable {
             return processReturnValue(retVal, keyValues, f, type);
         }
         return retVal;
+    }
+
+    private static Object newReturnValues(IOpenClass type, int length) {
+        if (type.isArray()) {
+            return Array.newInstance(type.getComponentClass().getInstanceClass(), length);
+        } else {
+            return new Object[length];
+        }
+    }
+
+    private static boolean[] newFlagsIfAbsent(boolean[] f, int length) {
+        if (f != null) {
+            return f;
+        }
+        var flags = new boolean[length];
+        Arrays.fill(flags, false);
+        return flags;
+    }
+
+    /**
+     * Executes the action for the fired rules. A return action stops at the first rule that returns a valid result.
+     *
+     * @return the valid result of a return action, or {@code null} when there is none
+     */
+    private Object executeAction(IBaseAction action, Object target, Object[] params, IRuntimeEnv env) {
+        Object actionResult = null;
+        var itr = new SmartIterator(firedRules.iterator(), rulesIntIterator);
+        var newFiredRules = new ArrayList<Integer>();
+        while (itr.hasNext()) {
+            var g = itr.itr1.hasNext();
+            var rule = itr.next();
+            if (!g) {
+                newFiredRules.add(rule);
+            }
+            if (action.isReturnAction()) {
+                actionResult = action.executeAction(rule, target, params, env);
+                if (isValidResult(actionResult)) {
+                    break;
+                }
+            } else {
+                action.executeAction(rule, target, params, env);
+            }
+        }
+        firedRules.addAll(newFiredRules);
+        return actionResult;
     }
 
     private void executeActionAndWriteValues(Object target,

@@ -301,23 +301,27 @@ public abstract class FunctionalRow implements IDecisionRow {
     public void prepareParams(OpenL openl, IBindingContext bindingContext) {
         for (var i = 0; i < paramsTable.getHeight(); i++) {
             if (!paramInitialized.get(i)) {
-                var paramTable = paramsTable.getRow(i);
-                var paramSource = new GridCellSourceCodeModule(paramTable.getSource(),
-                        bindingContext);
-                var code = paramSource.getCode();
-                if (!StringUtils.isBlank(code)) {
-                    IParameterDeclaration pd = OpenLManager
-                            .makeParameterDeclaration(openl, paramSource, bindingContext);
-                    if (pd != null && pd.getName() != null) {
-                        params[i] = pd;
-                        if (!paramsUniqueNames.add(params[i].getName())) {
-                            BindHelper.processError("Duplicated parameter name: " + params[i].getName(),
-                                    paramSource,
-                                    bindingContext);
-                        }
-                        paramInitialized.set(i);
-                    }
+                prepareParam(i, openl, bindingContext);
+            }
+        }
+    }
+
+    private void prepareParam(int i, OpenL openl, IBindingContext bindingContext) {
+        var paramTable = paramsTable.getRow(i);
+        var paramSource = new GridCellSourceCodeModule(paramTable.getSource(),
+                bindingContext);
+        var code = paramSource.getCode();
+        if (!StringUtils.isBlank(code)) {
+            IParameterDeclaration pd = OpenLManager
+                    .makeParameterDeclaration(openl, paramSource, bindingContext);
+            if (pd != null && pd.getName() != null) {
+                params[i] = pd;
+                if (!paramsUniqueNames.add(params[i].getName())) {
+                    BindHelper.processError("Duplicated parameter name: " + params[i].getName(),
+                            paramSource,
+                            bindingContext);
                 }
+                paramInitialized.set(i);
             }
         }
     }
@@ -339,73 +343,107 @@ public abstract class FunctionalRow implements IDecisionRow {
         storage = new IStorage<?>[builders.length];
         for (var i = 0; i < builders.length; i++) {
             storage[i] = builders[i].optimizeAndBuild();
-            var paramType = params[i].getType();
-            var paramDim = 0;
-            while (paramType.isArray()) {
-                paramType = paramType.getComponentClass();
-                paramDim++;
+            updateSpreadsheetResultParamType(decisionTable, i);
+        }
+
+    }
+
+    /**
+     * Narrows the type of a {@code SpreadsheetResult} parameter to the spreadsheet result types that the formulas of
+     * the parameter return.
+     */
+    private void updateSpreadsheetResultParamType(DecisionTable decisionTable, int i) {
+        var paramType = params[i].getType();
+        var paramDim = 0;
+        while (paramType.isArray()) {
+            paramType = paramType.getComponentClass();
+            paramDim++;
+        }
+        if (paramType.getInstanceClass() == SpreadsheetResult.class) {
+            var customSpreadsheetResultOpenClasses = new HashSet<CustomSpreadsheetResultOpenClass>();
+            var anySpreadsheetResult = collectSpreadsheetResultTypes(storage[i],
+                    paramDim,
+                    customSpreadsheetResultOpenClasses);
+            IOpenClass newType = null;
+            if (anySpreadsheetResult) {
+                newType = AnySpreadsheetResultOpenClass.INSTANCE;
+            } else if (!customSpreadsheetResultOpenClasses.isEmpty()) {
+                newType = ((XlsModuleOpenClass) decisionTable.getModule()).buildOrGetCombinedSpreadsheetResult(
+                        customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
             }
-            if (paramType.getInstanceClass() == SpreadsheetResult.class) {
-                var customSpreadsheetResultOpenClasses = new HashSet<CustomSpreadsheetResultOpenClass>();
-                var anySpreadsheetResult = false;
-                for (var j = 0; j < storage[i].size(); j++) {
-                    if (storage[i].getValue(j) instanceof CompositeMethod) {
-                        anySpreadsheetResult = processCompositeMethod((CompositeMethod) storage[i].getValue(j),
-                                customSpreadsheetResultOpenClasses,
-                                paramDim,
-                                anySpreadsheetResult);
-                        if (anySpreadsheetResult) {
-                            break;
-                        }
-                    } else if (storage[i].getValue(j) instanceof ArrayHolder) {
-                        var arrayHolder = (ArrayHolder) storage[i].getValue(j);
-                        if (paramDim > 1 && arrayHolder.is2DimArray()) {
-                            var values = arrayHolder.get2DimValues();
-                            for (Object[] value : values) {
-                                for (Object o : value) {
-                                    if (o instanceof CompositeMethod compositeMethod) {
-                                        anySpreadsheetResult = processCompositeMethod(compositeMethod,
-                                                customSpreadsheetResultOpenClasses,
-                                                paramDim - 2,
-                                                anySpreadsheetResult);
-                                        if (anySpreadsheetResult) {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        } else if (paramDim > 0) {
-                            var values = arrayHolder.getValues();
-                            for (Object o : values) {
-                                if (o instanceof CompositeMethod compositeMethod) {
-                                    anySpreadsheetResult = processCompositeMethod(compositeMethod,
-                                            customSpreadsheetResultOpenClasses,
-                                            paramDim - 1,
-                                            anySpreadsheetResult);
-                                    if (anySpreadsheetResult) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
+            if (newType != null) {
+                if (paramDim > 0) {
+                    newType = newType.getArrayType(paramDim);
                 }
-                IOpenClass newType = null;
+                params[i] = new ParameterDeclaration(newType, params[i].getName(), params[i].getModule());
+            }
+        }
+    }
+
+    /**
+     * Collects the spreadsheet result types returned by the formulas of the parameter values.
+     *
+     * @return {@code true} when a formula returns a spreadsheet result of any type
+     */
+    private boolean collectSpreadsheetResultTypes(
+            IStorage<?> paramStorage,
+            int paramDim,
+            Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses) {
+        var anySpreadsheetResult = false;
+        for (var j = 0; j < paramStorage.size(); j++) {
+            if (paramStorage.getValue(j) instanceof CompositeMethod) {
+                anySpreadsheetResult = processCompositeMethod((CompositeMethod) paramStorage.getValue(j),
+                        customSpreadsheetResultOpenClasses,
+                        paramDim,
+                        anySpreadsheetResult);
                 if (anySpreadsheetResult) {
-                    newType = AnySpreadsheetResultOpenClass.INSTANCE;
-                } else if (!customSpreadsheetResultOpenClasses.isEmpty()) {
-                    newType = ((XlsModuleOpenClass) decisionTable.getModule()).buildOrGetCombinedSpreadsheetResult(
-                            customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+                    break;
                 }
-                if (newType != null) {
-                    if (paramDim > 0) {
-                        newType = newType.getArrayType(paramDim);
-                    }
-                    params[i] = new ParameterDeclaration(newType, params[i].getName(), params[i].getModule());
+            } else if (paramStorage.getValue(j) instanceof ArrayHolder) {
+                var arrayHolder = (ArrayHolder) paramStorage.getValue(j);
+                anySpreadsheetResult = processArrayHolder(arrayHolder,
+                        customSpreadsheetResultOpenClasses,
+                        paramDim,
+                        anySpreadsheetResult);
+            }
+        }
+        return anySpreadsheetResult;
+    }
+
+    private boolean processArrayHolder(ArrayHolder arrayHolder,
+                                       Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses,
+                                       int paramDim,
+                                       boolean anySpreadsheetResult) {
+        var result = anySpreadsheetResult;
+        if (paramDim > 1 && arrayHolder.is2DimArray()) {
+            var values = arrayHolder.get2DimValues();
+            for (Object[] value : values) {
+                result = processCompositeMethods(value, customSpreadsheetResultOpenClasses, paramDim - 2, result);
+            }
+        } else if (paramDim > 0) {
+            var values = arrayHolder.getValues();
+            result = processCompositeMethods(values, customSpreadsheetResultOpenClasses, paramDim - 1, result);
+        }
+        return result;
+    }
+
+    private boolean processCompositeMethods(Object[] values,
+                                            Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses,
+                                            int expectedDim,
+                                            boolean anySpreadsheetResult) {
+        var result = anySpreadsheetResult;
+        for (Object o : values) {
+            if (o instanceof CompositeMethod compositeMethod) {
+                result = processCompositeMethod(compositeMethod,
+                        customSpreadsheetResultOpenClasses,
+                        expectedDim,
+                        result);
+                if (result) {
+                    break;
                 }
             }
         }
-
+        return result;
     }
 
     private boolean processCompositeMethod(CompositeMethod o,

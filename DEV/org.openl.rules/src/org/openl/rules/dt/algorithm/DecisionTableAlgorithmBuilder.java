@@ -32,6 +32,7 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -295,31 +296,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         }
         var methodType = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode().getType();
         if (condition.isDependentOnOtherColumnsParams()) {
-            if (isBooleanType(methodType)) {
-                // a lookup that reads the values of several columns is the only shape indexed here
-                var conditionEvaluator = makeDependentParamsEvaluator(condition, index, bindingContext);
-                if (conditionEvaluator instanceof ContainsInInputArrayIndexedEvaluator) {
-                    applyDependentParamsEvaluator(condition, conditionEvaluator);
-                    return conditionEvaluator;
-                }
-                condition.resetOptimizedExpression();
-            }
-            condition.setConditionEvaluator(DefaultConditionEvaluator.INSTANCE);
-            if (!isBooleanType(methodType)) {
-                if (condition.getParams().length != 1) {
-                    BindHelper.processError(
-                            "Condition expression must return a boolean type if it uses condition parameters.",
-                            source,
-                            bindingContext);
-                    return DefaultConditionEvaluator.INSTANCE;
-                } else {
-                    var openCast = bindingContext.getCast(methodType, condition.getParams()[0].getType());
-                    if (openCast.isImplicit()) {
-                        condition.setComparisonCast(openCast);
-                    }
-                }
-            }
-            return DefaultConditionEvaluator.INSTANCE;
+            return prepareConditionDependentOnOtherColumns(condition, index, methodType, source, bindingContext);
         }
 
         if (condition.isDependentOnInputParams() || condition.isRuleIdOrRuleNameUsed()) {
@@ -349,6 +326,38 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             condition.setConditionEvaluator(dtcev);
             return dtcev;
         }
+    }
+
+    private IConditionEvaluator prepareConditionDependentOnOtherColumns(ICondition condition,
+                                                                        int index,
+                                                                        IOpenClass methodType,
+                                                                        IOpenSourceCodeModule source,
+                                                                        IBindingContext bindingContext) {
+        if (isBooleanType(methodType)) {
+            // a lookup that reads the values of several columns is the only shape indexed here
+            var conditionEvaluator = makeDependentParamsEvaluator(condition, index, bindingContext);
+            if (conditionEvaluator instanceof ContainsInInputArrayIndexedEvaluator) {
+                applyDependentParamsEvaluator(condition, conditionEvaluator);
+                return conditionEvaluator;
+            }
+            condition.resetOptimizedExpression();
+        }
+        condition.setConditionEvaluator(DefaultConditionEvaluator.INSTANCE);
+        if (!isBooleanType(methodType)) {
+            if (condition.getParams().length != 1) {
+                BindHelper.processError(
+                        "Condition expression must return a boolean type if it uses condition parameters.",
+                        source,
+                        bindingContext);
+                return DefaultConditionEvaluator.INSTANCE;
+            } else {
+                var openCast = bindingContext.getCast(methodType, condition.getParams()[0].getType());
+                if (openCast.isImplicit()) {
+                    condition.setComparisonCast(openCast);
+                }
+            }
+        }
+        return DefaultConditionEvaluator.INSTANCE;
     }
 
     private static boolean isBooleanType(IOpenClass methodType) {

@@ -270,28 +270,32 @@ public class DecisionTableLookupConvertor {
         while (d < nCol) {
             var hTable = rowHeader.getSource().getColumn(d);
             if (d >= firstLookupColumn) {
-                var headerStr = hTable.getCell(0, 0).getStringValue();
-                if (headerStr != null) {
-                    headerStr = headerStr.toUpperCase();
-
-                    if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
-                        if (hTable.getWidth() != 1) {
-                            throw new OpenLCompilationException("Column HC must have width = 1.");
-                        }
-                        hcHeaders.add(hTable);
-                    } else if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
-                            .isValidCRetHeader(headerStr)) {
-                        if (retTable != null) {
-                            throw new OpenLCompilationException("Only one RET column is allowed for Lookup table.");
-                        }
-                        retTable = hTable;
-                    } else {
-                        throw new OpenLCompilationException(
-                                "Lookup Table allows only HC or RET or CRET columns after vertical conditions: " + headerStr);
-                    }
-                }
+                loadHorizConditionOrReturnColumn(hTable);
             }
             d = d + hTable.getCell(0, 0).getWidth();
+        }
+    }
+
+    private void loadHorizConditionOrReturnColumn(IGridTable hTable) throws OpenLCompilationException {
+        var headerStr = hTable.getCell(0, 0).getStringValue();
+        if (headerStr != null) {
+            headerStr = headerStr.toUpperCase();
+
+            if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
+                if (hTable.getWidth() != 1) {
+                    throw new OpenLCompilationException("Column HC must have width = 1.");
+                }
+                hcHeaders.add(hTable);
+            } else if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
+                    .isValidCRetHeader(headerStr)) {
+                if (retTable != null) {
+                    throw new OpenLCompilationException("Only one RET column is allowed for Lookup table.");
+                }
+                retTable = hTable;
+            } else {
+                throw new OpenLCompilationException(
+                        "Lookup Table allows only HC or RET or CRET columns after vertical conditions: " + headerStr);
+            }
         }
     }
 

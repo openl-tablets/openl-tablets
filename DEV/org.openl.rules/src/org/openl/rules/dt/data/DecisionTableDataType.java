@@ -82,28 +82,34 @@ public class DecisionTableDataType extends ComponentOpenClass {
             conditionParameterFields = nonConflictConditionParamNamesNonStrictMatch.get(fname.toLowerCase());
         }
         if (conditionParameterFields != null && !conditionParameterFields.isEmpty()) {
-            if (conditionParameterFields.size() == 1) {
-                var f = conditionParameterFields.getFirst();
+            return getConditionParameterField(fname, conditionParameterFields);
+        }
+        return super.getField(fname, strictMatch);
+    }
+
+    private IOpenField getConditionParameterField(
+            String fname,
+            List<IOpenField> conditionParameterFields) throws AmbiguousFieldException {
+        if (conditionParameterFields.size() == 1) {
+            var f = conditionParameterFields.getFirst();
+            if (traceUsedFields) {
+                usedFields.add(f);
+            }
+            return f;
+        } else {
+            var decisionRowFields = conditionParameterFields.stream()
+                    .filter(DecisionRowField.class::isInstance)
+                    .toList();
+            if (decisionRowFields.size() != 1) {
+                throw new AmbiguousFieldException(fname, conditionParameterFields);
+            } else {
+                var f = decisionRowFields.getFirst();
                 if (traceUsedFields) {
                     usedFields.add(f);
                 }
                 return f;
-            } else {
-                var decisionRowFields = conditionParameterFields.stream()
-                        .filter(DecisionRowField.class::isInstance)
-                        .toList();
-                if (decisionRowFields.size() != 1) {
-                    throw new AmbiguousFieldException(fname, conditionParameterFields);
-                } else {
-                    var f = decisionRowFields.getFirst();
-                    if (traceUsedFields) {
-                        usedFields.add(f);
-                    }
-                    return f;
-                }
             }
         }
-        return super.getField(fname, strictMatch);
     }
 
     public void addDecisionTableField(IOpenField f) {

@@ -55,6 +55,24 @@ public class AST {
         var s = start.getAbsolutePosition(textInfo);
         var e = end.getAbsolutePosition(textInfo);
         var text = textInfo.getText().substring(s, e + 1);
+        var k = countUnmatchedClosingBrackets(text);
+        while (k > 0 && s - 1 >= 0) {
+            if (textInfo.getText().charAt(s - 1) == '(') {
+                k--;
+            }
+            s--;
+        }
+        k = countUnmatchedOpeningBrackets(text);
+        while (k > 0 && e + 1 < textInfo.getText().length()) {
+            if (textInfo.getText().charAt(e + 1) == ')') {
+                k--;
+            }
+            e++;
+        }
+        return new TextInterval(new AbsolutePosition(s), new AbsolutePosition(e));
+    }
+
+    private static int countUnmatchedClosingBrackets(String text) {
         var m = 0;
         var k = 0;
         for (char c : text.toCharArray()) {
@@ -68,14 +86,16 @@ public class AST {
                 }
             }
         }
-        while (k > 0 && s - 1 >= 0) {
-            if (textInfo.getText().charAt(s - 1) == '(') {
-                k--;
-            }
-            s--;
-        }
-        m = 0;
-        k = 0;
+        return k;
+    }
+
+    /**
+     * Counts the opening brackets that are not closed later in the text. The first character of the text is not
+     * checked.
+     */
+    private static int countUnmatchedOpeningBrackets(String text) {
+        var m = 0;
+        var k = 0;
         var i = text.length() - 1;
         while (i > 0) {
             if (text.charAt(i) == ')') {
@@ -89,13 +109,7 @@ public class AST {
             }
             i--;
         }
-        while (k > 0 && e + 1 < textInfo.getText().length()) {
-            if (textInfo.getText().charAt(e + 1) == ')') {
-                k--;
-            }
-            e++;
-        }
-        return new TextInterval(new AbsolutePosition(s), new AbsolutePosition(e));
+        return k;
     }
 
     private Pair<IPosition, IPosition> buildLocationMaps(IBoundNode boundNode,

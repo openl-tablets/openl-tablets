@@ -230,25 +230,7 @@ public class Action extends FunctionalRow implements IAction {
                               IOpenClass ruleExecutionType,
                               TableSyntaxNode tableSyntaxNode) throws Exception {
 
-        IOpenClass methodType = JavaOpenClass.VOID;
-        if (isReturnAction()) {
-            methodType = header.getType();
-            if (decisionTable.isTypeCustomSpreadsheetResult()) {
-                if (decisionTable.getDim() > 0) {
-                    methodType = DTColumnSpreadsheetResultOpenClass.INSTANCE.getArrayType(decisionTable.getDim());
-                } else {
-                    methodType = DTColumnSpreadsheetResultOpenClass.INSTANCE;
-                }
-            }
-        } else {
-            if (isCollectReturnAction()) {
-                methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header.getType(), bindingContext);
-            } else {
-                if (isCollectReturnKeyAction()) {
-                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, bindingContext);
-                }
-            }
-        }
+        IOpenClass methodType = getActionMethodType(decisionTable, header, bindingContext, tableSyntaxNode);
 
         prepare(decisionTable,
                 methodType,
@@ -272,18 +254,7 @@ public class Action extends FunctionalRow implements IAction {
                 .equals(code);
 
         if ((isReturnAction() || isCollectReturnAction()) && decisionTable.isTypeCustomSpreadsheetResult()) {
-            IOpenClass t = method.getBodyType();
-            if (t != null) {
-                while (t.isArray()) {
-                    t = t.getComponentClass();
-                }
-                IOpenClass g = t;
-                decisionTable.getDeferredChanges().add(() -> {
-                    if (g instanceof CustomSpreadsheetResultOpenClass || g instanceof SpreadsheetResultOpenClass) {
-                        decisionTable.getCustomSpreadsheetResultType().updateWithType(g);
-                    }
-                });
-            }
+            deferCustomSpreadsheetResultTypeUpdate(decisionTable, method);
         }
 
         this.returnType = decisionTable.getType();
@@ -300,6 +271,47 @@ public class Action extends FunctionalRow implements IAction {
         while (singleActionReturnType != null && singleActionReturnType.isArray()) {
             singleActionReturnType = singleActionReturnType.getComponentClass();
             singleActionReturnTypeDim++;
+        }
+    }
+
+    private IOpenClass getActionMethodType(DecisionTable decisionTable,
+                                           IOpenMethodHeader header,
+                                           IBindingContext bindingContext,
+                                           TableSyntaxNode tableSyntaxNode) {
+        IOpenClass methodType = JavaOpenClass.VOID;
+        if (isReturnAction()) {
+            methodType = header.getType();
+            if (decisionTable.isTypeCustomSpreadsheetResult()) {
+                if (decisionTable.getDim() > 0) {
+                    methodType = DTColumnSpreadsheetResultOpenClass.INSTANCE.getArrayType(decisionTable.getDim());
+                } else {
+                    methodType = DTColumnSpreadsheetResultOpenClass.INSTANCE;
+                }
+            }
+        } else {
+            if (isCollectReturnAction()) {
+                methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header.getType(), bindingContext);
+            } else {
+                if (isCollectReturnKeyAction()) {
+                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, bindingContext);
+                }
+            }
+        }
+        return methodType;
+    }
+
+    private static void deferCustomSpreadsheetResultTypeUpdate(DecisionTable decisionTable, CompositeMethod method) {
+        IOpenClass t = method.getBodyType();
+        if (t != null) {
+            while (t.isArray()) {
+                t = t.getComponentClass();
+            }
+            IOpenClass g = t;
+            decisionTable.getDeferredChanges().add(() -> {
+                if (g instanceof CustomSpreadsheetResultOpenClass || g instanceof SpreadsheetResultOpenClass) {
+                    decisionTable.getCustomSpreadsheetResultType().updateWithType(g);
+                }
+            });
         }
     }
 

@@ -235,42 +235,10 @@ public class Condition extends FunctionalRow implements ICondition {
                 userDefinedOpenSourceCodeModule = source;
                 prepareParams(declaringClass, signature, methodParamType, source, openl, bindingContext);
                 if (params.length == 1) {
-                    if (params[0].getType()
-                            .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null) {
-                        var inputType = signature.getParameterType(i);
-                        ConditionCasts conditionCasts = ConditionHelper
-                                .findConditionCasts(params[0].getType().getComponentClass(), inputType, bindingContext);
-                        if (conditionCasts.isCastToConditionTypeExists() || (conditionCasts
-                                .isCastToInputTypeExists() && !inputType.isArray())) {
-                            return !hasFormulas() ? source
-                                    : new StringSourceCodeModule(
-                                    getContainsInArrayExpression(tableSyntaxNode,
-                                            source,
-                                            signature.getParameterType(i),
-                                            params[0],
-                                            conditionCasts,
-                                            bindingContext),
-                                    source.getUri()); // build an expression for condition (must be
-                            // the same as indexed variant)
-                        }
-                    }
-
-                    if (isRangeExpression(signature.getParameterType(i), params[0].getType())) {
-                        return !hasFormulas() ? source
-                                : new StringSourceCodeModule(
-                                getRangeExpression(tableSyntaxNode,
-                                        source,
-                                        signature.getParameterType(i),
-                                        params[0],
-                                        bindingContext),
-                                source.getUri()); // build an expression for condition (must be the
-                        // same as indexed variant)
-                    }
-
-                    return !hasFormulas() && !(params[0].getType().isArray() && signature.getParameterType(i)
-                            .isArray()) ? source
-                            : new StringSourceCodeModule(source.getCode() + " == " + params[0].getName(),
-                            source.getUri()); // build an expression if default evaluator is used
+                    return getSingleParamExpressionSource(tableSyntaxNode,
+                            source,
+                            signature.getParameterType(i),
+                            bindingContext);
                 } else if (params.length == 2) {
                     return !hasFormulas() ? source
                             : new StringSourceCodeModule(params[0].getName() + "<=" + source
@@ -281,6 +249,67 @@ public class Condition extends FunctionalRow implements ICondition {
         }
         return source;
 
+    }
+
+    private IOpenSourceCodeModule getSingleParamExpressionSource(TableSyntaxNode tableSyntaxNode,
+                                                                 IOpenSourceCodeModule source,
+                                                                 IOpenClass inputType,
+                                                                 IBindingContext bindingContext) {
+        var containsInArraySource = getContainsInArrayExpressionSource(tableSyntaxNode,
+                source,
+                inputType,
+                bindingContext);
+        if (containsInArraySource != null) {
+            return containsInArraySource;
+        }
+
+        if (isRangeExpression(inputType, params[0].getType())) {
+            return !hasFormulas() ? source
+                    : new StringSourceCodeModule(
+                    getRangeExpression(tableSyntaxNode,
+                            source,
+                            inputType,
+                            params[0],
+                            bindingContext),
+                    source.getUri()); // build an expression for condition (must be the
+            // same as indexed variant)
+        }
+
+        return !hasFormulas() && !(params[0].getType().isArray() && inputType
+                .isArray()) ? source
+                : new StringSourceCodeModule(source.getCode() + " == " + params[0].getName(),
+                source.getUri()); // build an expression if default evaluator is used
+    }
+
+    /**
+     * Builds the expression of a condition that looks up the input value in the array of values of the rule.
+     *
+     * @return the expression, or {@code null} when the condition parameter is not an array of values compatible with
+     * the input
+     */
+    private IOpenSourceCodeModule getContainsInArrayExpressionSource(TableSyntaxNode tableSyntaxNode,
+                                                                     IOpenSourceCodeModule source,
+                                                                     IOpenClass inputType,
+                                                                     IBindingContext bindingContext) {
+        if (params[0].getType()
+                .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null) {
+            ConditionCasts conditionCasts = ConditionHelper
+                    .findConditionCasts(params[0].getType().getComponentClass(), inputType, bindingContext);
+            if (conditionCasts.isCastToConditionTypeExists() || (conditionCasts
+                    .isCastToInputTypeExists() && !inputType.isArray())) {
+                return !hasFormulas() ? source
+                        : new StringSourceCodeModule(
+                        getContainsInArrayExpression(tableSyntaxNode,
+                                source,
+                                inputType,
+                                params[0],
+                                conditionCasts,
+                                bindingContext),
+                        source.getUri()); // build an expression for condition (must be
+                // the same as indexed variant)
+            }
+        }
+        return null;
     }
 
     private String getContainsInArrayExpression(TableSyntaxNode tableSyntaxNode,

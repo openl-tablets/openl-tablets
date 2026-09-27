@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -88,28 +89,14 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
             for (var j = 0; j < length; j++) {
                 Object value = Array.get(valuesArray, j);
-                if (comparatorBasedSet && !(value instanceof Comparable<?>)) {
-                    throw new IllegalArgumentException("Illegal state. Index based on comparable interface.");
-                }
+                requireComparable(comparatorBasedSet, value);
                 if (allValues == null) {
-                    if (NumberUtils.isObjectFloatPointNumber(value)) {
-                        if (value instanceof BigDecimal) {
-                            allValues = new TreeSet<>();
-                        } else {
-                            allValues = new TreeSet<>(FloatTypeComparator.getInstance());
-                            smartFloatComparatorIsUsed = true;
-                        }
-                        comparatorBasedSet = true;
-                    } else {
-                        allValues = new HashSet<>();
-                    }
+                    comparatorBasedSet = NumberUtils.isObjectFloatPointNumber(value);
+                    smartFloatComparatorIsUsed = comparatorBasedSet && !(value instanceof BigDecimal);
+                    allValues = newValueSet(comparatorBasedSet, smartFloatComparatorIsUsed);
                 }
                 if (comparatorBasedSet) {
-                    if (smartFloatComparatorIsUsed) {
-                        values = new TreeSet<>(FloatTypeComparator.getInstance());
-                    } else {
-                        values = new TreeSet<>();
-                    }
+                    values = newValueSet(comparatorBasedSet, smartFloatComparatorIsUsed);
                 }
                 allValues.add(value);
                 values.add(value);
@@ -122,25 +109,54 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         var rules = copyRules.makeRulesAry();
         iterator = new IntArrayIterator(rules);
 
-        Map<Object, DecisionTableRuleNodeBuilder> map;
-        Map<Object, DecisionTableRuleNode> nodeMap;
-
-        if (globalComparatorBasedSet) {
-            if (globalSmartFloatComparatorIsUsed) {
-                map = new TreeMap<>(FloatTypeComparator.getInstance());
-                nodeMap = new TreeMap<>(FloatTypeComparator.getInstance());
-            } else {
-                nodeMap = new TreeMap<>();
-                map = new TreeMap<>();
-            }
-
-        } else {
-            map = new HashMap<>();
-            nodeMap = new HashMap<>();
-        }
+        Map<Object, DecisionTableRuleNodeBuilder> map = newIndexMap(globalComparatorBasedSet,
+                globalSmartFloatComparatorIsUsed);
 
         var emptyBuilder = new DecisionTableRuleNodeBuilder();
 
+        addRules(condition, iterator, valueSets, allValues, map, emptyBuilder);
+
+        var nodeMap = makeNodes(map, globalComparatorBasedSet, globalSmartFloatComparatorIsUsed);
+
+        return new EqualsIndex(emptyBuilder.makeNode(), nodeMap, null);
+    }
+
+    private static void requireComparable(boolean comparatorBasedSet, Object value) {
+        if (comparatorBasedSet && !(value instanceof Comparable<?>)) {
+            throw new IllegalArgumentException("Illegal state. Index based on comparable interface.");
+        }
+    }
+
+    private static Set<Object> newValueSet(boolean comparatorBasedSet, boolean smartFloatComparatorIsUsed) {
+        if (comparatorBasedSet) {
+            if (smartFloatComparatorIsUsed) {
+                return new TreeSet<>(FloatTypeComparator.getInstance());
+            } else {
+                return new TreeSet<>();
+            }
+        } else {
+            return new HashSet<>();
+        }
+    }
+
+    private static <V> Map<Object, V> newIndexMap(boolean comparatorBasedSet, boolean smartFloatComparatorIsUsed) {
+        if (comparatorBasedSet) {
+            if (smartFloatComparatorIsUsed) {
+                return new TreeMap<>(FloatTypeComparator.getInstance());
+            } else {
+                return new TreeMap<>();
+            }
+        } else {
+            return new HashMap<>();
+        }
+    }
+
+    private void addRules(ICondition condition,
+                          IIntIterator iterator,
+                          List<Set<?>> valueSets,
+                          Set<Object> allValues,
+                          Map<Object, DecisionTableRuleNodeBuilder> map,
+                          DecisionTableRuleNodeBuilder emptyBuilder) {
         while (iterator.hasNext()) {
 
             var i = iterator.nextInt();
@@ -154,51 +170,63 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                 continue;
             }
 
-            var isInObject = condition.getParamValue(0, i);
-            var isIn = isInObject == null || adaptor.extractBooleanValue(isInObject);
+            addRule(condition, i, valueSets, allValues, map, emptyBuilder);
+        }
+    }
 
-            var values = valueSets.get(i);
+    private void addRule(ICondition condition,
+                         int i,
+                         List<Set<?>> valueSets,
+                         Set<Object> allValues,
+                         Map<Object, DecisionTableRuleNodeBuilder> map,
+                         DecisionTableRuleNodeBuilder emptyBuilder) {
+        var isInObject = condition.getParamValue(0, i);
+        var isIn = isInObject == null || adaptor.extractBooleanValue(isInObject);
 
-            if (isIn) {
+        var values = valueSets.get(i);
 
-                for (Object value : values) {
+        if (isIn) {
 
-                    var builder = map.get(value);
-
-                    if (builder == null) {
-                        builder = new DecisionTableRuleNodeBuilder(emptyBuilder);
-                        map.put(value, builder);
-                    }
-
-                    builder.addRule(i);
-                }
-            } else {
-
-                for (Object value : allValues) {
-
-                    if (values.contains(value)) {
-                        continue;
-                    }
-
-                    var bilder = map.get(value);
-
-                    if (bilder == null) {
-                        bilder = new DecisionTableRuleNodeBuilder(emptyBuilder);
-                        map.put(value, bilder);
-                    }
-
-                    bilder.addRule(i);
-                }
-
-                emptyBuilder.addRule(i); // !!!!!
+            for (Object value : values) {
+                addRuleForValue(map, value, emptyBuilder, i);
             }
+        } else {
+
+            for (Object value : allValues) {
+
+                if (values.contains(value)) {
+                    continue;
+                }
+
+                addRuleForValue(map, value, emptyBuilder, i);
+            }
+
+            emptyBuilder.addRule(i); // !!!!!
+        }
+    }
+
+    private static void addRuleForValue(Map<Object, DecisionTableRuleNodeBuilder> map,
+                                        Object value,
+                                        DecisionTableRuleNodeBuilder emptyBuilder,
+                                        int i) {
+        var builder = map.get(value);
+
+        if (builder == null) {
+            builder = new DecisionTableRuleNodeBuilder(emptyBuilder);
+            map.put(value, builder);
         }
 
+        builder.addRule(i);
+    }
+
+    private static Map<Object, DecisionTableRuleNode> makeNodes(Map<Object, DecisionTableRuleNodeBuilder> map,
+                                                                boolean comparatorBasedSet,
+                                                                boolean smartFloatComparatorIsUsed) {
+        Map<Object, DecisionTableRuleNode> nodeMap = newIndexMap(comparatorBasedSet, smartFloatComparatorIsUsed);
         for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
             nodeMap.put(element.getKey(), element.getValue().makeNode());
         }
-
-        return new EqualsIndex(emptyBuilder.makeNode(), nodeMap, null);
+        return nodeMap;
     }
 
     @Override

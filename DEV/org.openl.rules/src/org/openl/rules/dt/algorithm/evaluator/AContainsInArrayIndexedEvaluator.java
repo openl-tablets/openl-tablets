@@ -79,20 +79,24 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
                 Object val = Array.get(values, j);
                 val = conditionCasts.castToInputType(val);
                 if (uniqueVals == null) {
-                    if (NumberUtils.isObjectFloatPointNumber(val)) {
-                        if (val instanceof BigDecimal) {
-                            uniqueVals = new HashSet<>();
-                        } else {
-                            uniqueVals = new TreeSet<>(FloatTypeComparator.getInstance());
-                        }
-                    } else {
-                        uniqueVals = new HashSet<>();
-                    }
+                    uniqueVals = newUniqueValuesSet(val);
                 }
                 uniqueVals.add(val);
             }
         }
         uniqueKeysSize = uniqueVals == null ? 0 : uniqueVals.size();
+    }
+
+    private static Set<Object> newUniqueValuesSet(Object val) {
+        if (NumberUtils.isObjectFloatPointNumber(val)) {
+            if (val instanceof BigDecimal) {
+                return new HashSet<>();
+            } else {
+                return new TreeSet<>(FloatTypeComparator.getInstance());
+            }
+        } else {
+            return new HashSet<>();
+        }
     }
 
     @Override

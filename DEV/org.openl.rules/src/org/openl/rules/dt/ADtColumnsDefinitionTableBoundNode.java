@@ -110,58 +110,63 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
         var h = tableBody.getSource().getHeight();
 
-        final var tableBody1 = tableBody;
-        final var tableStructure1 = tableStructure;
-        final var headerIndexes1 = headerIndexes;
-
         while (i < h) {
-            var signatureCode1 = tableBody.getSource()
-                    .getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i)
-                    .getStringValue();
-            var inputsCell = tableBody.getSource().getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i);
-            if (StringUtils.isEmpty(signatureCode1)) {
-                signatureCode1 = StringUtils.EMPTY;
-            }
-            final var signatureCode = signatureCode1;
-            var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.secure().next(16, true, false) + "(";
-            var headerCode = prefix + signatureCode + ")";
-            IOpenMethodHeader header;
-            var inputParametersCompilationFailed = false;
-            try {
-                bindingContext.pushErrors();
-                var headerCodeSourceCodeModule = new StringSourceCodeModule(headerCode, null);
-                header = OpenLManager.makeMethodHeader(getOpenl(), headerCodeSourceCodeModule, bindingContext);
-                if (header == null) {
-                    inputParametersCompilationFailed = true;
-                } else if (!bindingContext.isExecutionMode()) {
-                    addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
-                }
-            } finally {
-                bindingContext.popErrors();
-            }
-
-            if (inputParametersCompilationFailed) {
-                var pCodeTable = tableBody1.getSource()
-                        .getSubtable(tableStructure[headerIndexes[INPUTS_INDEX]], i, 1, 1);
-                var pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable,
-                        bindingContext);
-                BindHelper.processError("Invalid input parameters.", pGridCellSourceCodeModule, bindingContext);
-            }
-
-            var expressionTable = tableBody.getSource()
-                    .getSubtable(tableStructure[headerIndexes[EXPRESSION_INDEX]], i, 1, 1);
-            var expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
-
-            var parameters = readParameters(tableBody1,
-                    tableStructure1,
-                    headerIndexes1,
-                    i,
-                    expressionTable.getCell(0, 0).getHeight());
-            if (parameters != null && header != null) {
-                createAndAddDefinition(header, parameters, expressionTable, expressionCell);
-            }
-            i = i + expressionTable.getCell(0, 0).getHeight();
+            i = i + preBindDefinition(tableBody, tableStructure, headerIndexes, i);
         }
+    }
+
+    /**
+     * Compiles the definition that starts at the given row and adds it when its inputs and parameters are valid.
+     *
+     * @return the number of rows the definition spans
+     */
+    private int preBindDefinition(ILogicalTable tableBody, int[] tableStructure, int[] headerIndexes, int i) {
+        var signatureCode1 = tableBody.getSource()
+                .getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i)
+                .getStringValue();
+        var inputsCell = tableBody.getSource().getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i);
+        if (StringUtils.isEmpty(signatureCode1)) {
+            signatureCode1 = StringUtils.EMPTY;
+        }
+        final var signatureCode = signatureCode1;
+        var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.secure().next(16, true, false) + "(";
+        var headerCode = prefix + signatureCode + ")";
+        IOpenMethodHeader header;
+        var inputParametersCompilationFailed = false;
+        try {
+            bindingContext.pushErrors();
+            var headerCodeSourceCodeModule = new StringSourceCodeModule(headerCode, null);
+            header = OpenLManager.makeMethodHeader(getOpenl(), headerCodeSourceCodeModule, bindingContext);
+            if (header == null) {
+                inputParametersCompilationFailed = true;
+            } else if (!bindingContext.isExecutionMode()) {
+                addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
+            }
+        } finally {
+            bindingContext.popErrors();
+        }
+
+        if (inputParametersCompilationFailed) {
+            var pCodeTable = tableBody.getSource()
+                    .getSubtable(tableStructure[headerIndexes[INPUTS_INDEX]], i, 1, 1);
+            var pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable,
+                    bindingContext);
+            BindHelper.processError("Invalid input parameters.", pGridCellSourceCodeModule, bindingContext);
+        }
+
+        var expressionTable = tableBody.getSource()
+                .getSubtable(tableStructure[headerIndexes[EXPRESSION_INDEX]], i, 1, 1);
+        var expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
+
+        var parameters = readParameters(tableBody,
+                tableStructure,
+                headerIndexes,
+                i,
+                expressionTable.getCell(0, 0).getHeight());
+        if (parameters != null && header != null) {
+            createAndAddDefinition(header, parameters, expressionTable, expressionCell);
+        }
+        return expressionTable.getCell(0, 0).getHeight();
     }
 
     /**

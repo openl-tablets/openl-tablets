@@ -157,38 +157,11 @@ class DependentParametersOptimizedAlgorithm {
         var conditionParamType = params[0].getType();
 
         if (evaluatorFactory instanceof OneParameterContainsInInputArrayFactory factory) {
-            var values = factory instanceof ContainsInInputArrayChainFactory chain ? chain.getValues()
-                    : List.<ConditionParameter>of();
-            var valueType = values.isEmpty() ? conditionParamType
-                    : values.get(0).condition().getParams()[values.get(0).index()].getType();
-            var evaluator = makeContainsInInputArrayEvaluator(expressionType, valueType, values, bindingContext);
-            if (evaluator != null) {
-                evaluator.setOptimizedSourceCode(factory.getExpression());
-            }
-            return evaluator;
+            return makeContainsInInputArrayEvaluator(factory, conditionParamType, expressionType, bindingContext);
         }
 
         if (evaluatorFactory instanceof OneParameterContainsInFactory factory) {
-            var aggregateInfo = conditionParamType.getAggregateInfo();
-            if (aggregateInfo.isAggregate(conditionParamType)) {
-                var componentType = aggregateInfo.getComponentType(conditionParamType);
-                if (Range.class.isAssignableFrom(componentType.getInstanceClass())) {
-                    // indexing of range arrays is not support right now. Default condition evaluator must be used
-                    return null;
-                }
-                ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(componentType, expressionType, bindingContext);
-                if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
-                        .isCastToInputTypeExists() && !expressionType.isArray()) {
-                    return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
-                            ? new OneParameterContainsInArrayIndexedEvaluatorV2(
-                            factory,
-                            aggregateConditionCasts)
-                            : new OneParameterContainsInArrayIndexedEvaluator(
-                            factory,
-                            aggregateConditionCasts);
-                }
-            }
-            return null;
+            return makeContainsInArrayEvaluator(condition, factory, conditionParamType, expressionType, bindingContext);
         }
 
         ConditionCasts conditionCasts = ConditionHelper
@@ -215,23 +188,75 @@ class DependentParametersOptimizedAlgorithm {
                         conditionCasts);
             }
         } else {
-            var adaptor = getRangeAdaptor(evaluatorFactory,
-                    conditionParamType,
-                    expressionType,
-                    conditionCasts);
-
-            if (adaptor == null) {
-                return null;
-            }
-
-            @SuppressWarnings("unchecked")
-            var rix = new SingleRangeIndexEvaluator(
-                    (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
-                    conditionCasts);
-            rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
-            return rix;
+            return makeSingleRangeEvaluator(evaluatorFactory, conditionParamType, expressionType, conditionCasts);
         }
         return null;
+    }
+
+    private static ContainsInInputArrayIndexedEvaluator makeContainsInInputArrayEvaluator(
+            OneParameterContainsInInputArrayFactory factory,
+            IOpenClass conditionParamType,
+            IOpenClass expressionType,
+            IBindingContext bindingContext) {
+        var values = factory instanceof ContainsInInputArrayChainFactory chain ? chain.getValues()
+                : List.<ConditionParameter>of();
+        var valueType = values.isEmpty() ? conditionParamType
+                : values.get(0).condition().getParams()[values.get(0).index()].getType();
+        var evaluator = makeContainsInInputArrayEvaluator(expressionType, valueType, values, bindingContext);
+        if (evaluator != null) {
+            evaluator.setOptimizedSourceCode(factory.getExpression());
+        }
+        return evaluator;
+    }
+
+    private static IConditionEvaluator makeContainsInArrayEvaluator(ICondition condition,
+                                                                    OneParameterContainsInFactory factory,
+                                                                    IOpenClass conditionParamType,
+                                                                    IOpenClass expressionType,
+                                                                    IBindingContext bindingContext) {
+        var aggregateInfo = conditionParamType.getAggregateInfo();
+        if (aggregateInfo.isAggregate(conditionParamType)) {
+            var componentType = aggregateInfo.getComponentType(conditionParamType);
+            if (Range.class.isAssignableFrom(componentType.getInstanceClass())) {
+                // indexing of range arrays is not support right now. Default condition evaluator must be used
+                return null;
+            }
+            ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(componentType,
+                    expressionType,
+                    bindingContext);
+            if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
+                    .isCastToInputTypeExists() && !expressionType.isArray()) {
+                return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
+                        ? new OneParameterContainsInArrayIndexedEvaluatorV2(
+                        factory,
+                        aggregateConditionCasts)
+                        : new OneParameterContainsInArrayIndexedEvaluator(
+                        factory,
+                        aggregateConditionCasts);
+            }
+        }
+        return null;
+    }
+
+    private static IConditionEvaluator makeSingleRangeEvaluator(EvaluatorFactory evaluatorFactory,
+                                                                IOpenClass conditionParamType,
+                                                                IOpenClass expressionType,
+                                                                ConditionCasts conditionCasts) {
+        var adaptor = getRangeAdaptor(evaluatorFactory,
+                conditionParamType,
+                expressionType,
+                conditionCasts);
+
+        if (adaptor == null) {
+            return null;
+        }
+
+        @SuppressWarnings("unchecked")
+        var rix = new SingleRangeIndexEvaluator(
+                (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
+                conditionCasts);
+        rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
+        return rix;
     }
 
     /**
@@ -275,6 +300,34 @@ class DependentParametersOptimizedAlgorithm {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING, conditionCasts);
         }
 
+        var primitiveRangeAdaptor = getPrimitiveRangeAdaptor(evaluatorFactory, typeClass, conditionCasts);
+        if (primitiveRangeAdaptor != null) {
+            return primitiveRangeAdaptor;
+        }
+
+        if (typeClass == BigInteger.class) {
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, conditionCasts);
+        }
+
+        if (typeClass == BigDecimal.class) {
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, conditionCasts);
+        }
+
+        if (typeClass == Date.class) {
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DATE, conditionCasts);
+        }
+
+        return null;
+    }
+
+    /**
+     * Builds a range adaptor for a primitive type or its wrapper.
+     *
+     * @return the adaptor, or {@code null} for other types
+     */
+    private static IRangeAdaptor<?, ? extends Comparable<?>> getPrimitiveRangeAdaptor(EvaluatorFactory evaluatorFactory,
+                                                                                      Class<?> typeClass,
+                                                                                      ConditionCasts conditionCasts) {
         if (typeClass == byte.class || typeClass == Byte.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE, conditionCasts);
         }
@@ -297,18 +350,6 @@ class DependentParametersOptimizedAlgorithm {
 
         if (typeClass == double.class || typeClass == Double.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE, conditionCasts);
-        }
-
-        if (typeClass == BigInteger.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, conditionCasts);
-        }
-
-        if (typeClass == BigDecimal.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, conditionCasts);
-        }
-
-        if (typeClass == Date.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DATE, conditionCasts);
         }
 
         return null;
@@ -421,25 +462,13 @@ class DependentParametersOptimizedAlgorithm {
 
     private static Triple<String, RelationType, String> oneParameterExpressionParse(ICondition condition,
                                                                                     IBindingContext bindingContext) {
-        if (condition.getIndexMethod() != null) {
-            var boundNode = condition.getIndexMethod().getMethodBodyBoundNode();
-            if (boundNode instanceof BlockNode blockNode) {
-                var children = blockNode.getChildren();
-                if (children != null && children.length == 1 && children[0] instanceof BlockNode node) {
-                    blockNode = node;
-                    children = blockNode.getChildren();
-                    if (children.length == 1) {
-                        if (children[0] instanceof BinaryOpNode binaryOpNode) {
-                            return parseBinaryOpExpression(binaryOpNode, bindingContext);
-                        } else if (children[0] instanceof MethodBoundNode methodBoundNode) {
-                            return parseMethodBoundExpression(methodBoundNode, bindingContext);
-                        }
-                    }
-                }
-            }
-            return null;
+        var expression = indexExpressionNode(condition);
+        if (expression instanceof BinaryOpNode binaryOpNode) {
+            return parseBinaryOpExpression(binaryOpNode, bindingContext);
+        } else if (expression instanceof MethodBoundNode methodBoundNode) {
+            return parseMethodBoundExpression(methodBoundNode, bindingContext);
         }
-        throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
+        return null;
     }
 
     /**
@@ -612,27 +641,41 @@ class DependentParametersOptimizedAlgorithm {
                     blockNode = node;
                     children = blockNode.getChildren();
                     if (children.length == 1 && children[0] instanceof BinaryOpNodeAnd binaryOpNode) {
-                        children = binaryOpNode.getChildren();
-                        if (children.length == 2 && children[0] instanceof BinaryOpNode binaryOpNode0 && children[1] instanceof BinaryOpNode binaryOpNode1) {
-                            var parsedExpr1 = parseBinaryOpExpression(binaryOpNode0,
-                                    bindingContext);
-                            var parsedExpr2 = parseBinaryOpExpression(binaryOpNode1,
-                                    bindingContext);
-
-                            if (parsedExpr1 != null && parsedExpr2 != null) {
-                                if (RelationType.EQ.equals(parsedExpr1.getMiddle()) || RelationType.EQ
-                                        .equals(parsedExpr2.getMiddle())) {
-                                    return null;
-                                }
-                                return Pair.of(parsedExpr1, parsedExpr2);
-                            }
-                        }
+                        return parseTwoRelations(binaryOpNode, bindingContext);
                     }
                 }
             }
             return null;
         }
         throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
+    }
+
+    /**
+     * Reads a condition written as two relations joined by {@code and}, such as {@code min <= value and value < max}.
+     *
+     * @return the parsed relations, or {@code null} when the expression has another shape or a relation is an
+     * equality
+     */
+    private static Pair<Triple<String, RelationType, String>, Triple<String, RelationType, String>> parseTwoRelations(
+            BinaryOpNodeAnd binaryOpNode,
+            IBindingContext bindingContext) {
+        var children = binaryOpNode.getChildren();
+        if (children.length == 2 && children[0] instanceof BinaryOpNode binaryOpNode0
+                && children[1] instanceof BinaryOpNode binaryOpNode1) {
+            var parsedExpr1 = parseBinaryOpExpression(binaryOpNode0,
+                    bindingContext);
+            var parsedExpr2 = parseBinaryOpExpression(binaryOpNode1,
+                    bindingContext);
+
+            if (parsedExpr1 != null && parsedExpr2 != null) {
+                if (RelationType.EQ.equals(parsedExpr1.getMiddle()) || RelationType.EQ
+                        .equals(parsedExpr2.getMiddle())) {
+                    return null;
+                }
+                return Pair.of(parsedExpr1, parsedExpr2);
+            }
+        }
+        return null;
     }
 
     private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition,

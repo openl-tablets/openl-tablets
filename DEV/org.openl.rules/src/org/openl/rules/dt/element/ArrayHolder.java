@@ -44,50 +44,51 @@ public class ArrayHolder {
             var res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values2.length);
             for (var i = 0; i < values2.length; i++) {
                 if (values2[i] != null) {
-                    var array = componentType.getAggregateInfo()
-                            .makeIndexedAggregate(componentType.getComponentClass(), values2[i].length);
-                    for (var j = 0; j < values2[i].length; j++) {
-                        if (values2[i][j] instanceof CompositeMethod compositeMethod) {
-                            var result = compositeMethod.invoke(target, dtParams, env);
-                            Array.set(array, j, result);
-                        } else {
-                            Array.set(array,
-                                    j,
-                                    values2[i][j] == null ? componentType.getComponentClass().nullObject() : values2[i][j]);
-                        }
-                    }
+                    var array = invokeValues(values2[i], componentType.getComponentClass(), target, dtParams, env);
                     Array.set(res, i, array);
                 }
             }
             return res;
         } else {
-            var res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values1.length);
-            for (var i = 0; i < values1.length; i++) {
-                if (values1[i] instanceof CompositeMethod compositeMethod) {
-                    var result = compositeMethod.invoke(target, dtParams, env);
-                    Array.set(res, i, result);
-                } else {
-                    Array.set(res, i, values1[i] == null ? componentType.nullObject() : values1[i]);
-                }
-            }
-            return res;
+            return invokeValues(values1, componentType, target, dtParams, env);
         }
+    }
+
+    /**
+     * Builds an array of the given values, where each formula is replaced with its result and each empty value with
+     * the empty value of the type.
+     */
+    private Object invokeValues(Object[] values,
+                                IOpenClass valueType,
+                                Object target,
+                                Object[] dtParams,
+                                IRuntimeEnv env) {
+        var res = componentType.getAggregateInfo().makeIndexedAggregate(valueType, values.length);
+        for (var i = 0; i < values.length; i++) {
+            if (values[i] instanceof CompositeMethod compositeMethod) {
+                var result = compositeMethod.invoke(target, dtParams, env);
+                Array.set(res, i, result);
+            } else {
+                Array.set(res, i, values[i] == null ? valueType.nullObject() : values[i]);
+            }
+        }
+        return res;
     }
 
     public void updateDependency(BindingDependencies dependencies) {
         if (values2 != null) {
             for (Object[] array : values2) {
-                for (Object method : array) {
-                    if (method instanceof CompositeMethod compositeMethod) {
-                        compositeMethod.updateDependency(dependencies);
-                    }
-                }
+                updateValuesDependency(array, dependencies);
             }
         } else {
-            for (Object method : values1) {
-                if (method instanceof CompositeMethod compositeMethod) {
-                    compositeMethod.updateDependency(dependencies);
-                }
+            updateValuesDependency(values1, dependencies);
+        }
+    }
+
+    private static void updateValuesDependency(Object[] array, BindingDependencies dependencies) {
+        for (Object method : array) {
+            if (method instanceof CompositeMethod compositeMethod) {
+                compositeMethod.updateDependency(dependencies);
             }
         }
     }

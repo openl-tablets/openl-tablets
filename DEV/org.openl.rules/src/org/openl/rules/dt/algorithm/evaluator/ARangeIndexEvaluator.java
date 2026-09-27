@@ -58,7 +58,6 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected IDomain<?> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         var min = Long.MAX_VALUE;
         var max = Long.MIN_VALUE;
@@ -72,22 +71,12 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             Comparable<?> vFrom;
             Comparable<?> vTo;
             if (nparams == 2) {
-                if (rangeAdaptor == null) {
-                    vFrom = (Comparable<Object>) condition.getParamValue(0, ruleN);
-                    vTo = (Comparable<Object>) condition.getParamValue(1, ruleN);
-                } else {
-                    vFrom = rangeAdaptor.getMin(condition.getParamValue(0, ruleN));
-                    vTo = rangeAdaptor.getMax(condition.getParamValue(1, ruleN));
-                }
+                vFrom = rangeFrom(condition.getParamValue(0, ruleN));
+                vTo = rangeTo(condition.getParamValue(1, ruleN));
             } else {
-                if (rangeAdaptor == null) {
-                    vFrom = (Comparable<Object>) condition.getParamValue(0, ruleN);
-                    vTo = (Comparable<Object>) condition.getParamValue(0, ruleN);
-                } else {
-                    var range = condition.getParamValue(0, ruleN);
-                    vFrom = rangeAdaptor.getMin(range);
-                    vTo = rangeAdaptor.getMax(range);
-                }
+                var range = condition.getParamValue(0, ruleN);
+                vFrom = rangeFrom(range);
+                vTo = rangeTo(range);
             }
 
             if (!(vFrom instanceof Long)) {
@@ -103,6 +92,14 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         max = max >= Integer.MAX_VALUE ? (Integer.MAX_VALUE - 1) : max;
 
         return new IntRangeDomain((int) min, (int) max);
+    }
+
+    private Comparable<?> rangeFrom(Object value) {
+        return rangeAdaptor == null ? (Comparable<?>) value : rangeAdaptor.getMin(value);
+    }
+
+    private Comparable<?> rangeTo(Object value) {
+        return rangeAdaptor == null ? (Comparable<?>) value : rangeAdaptor.getMax(value);
     }
 
     List<IndexNode> mergeRulesByValue(List<IndexNode> nodes) {

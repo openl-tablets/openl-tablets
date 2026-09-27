@@ -40,18 +40,7 @@ public class DecisionTableUtils {
             final var child = node.getChild(i);
             final var childType = child.getType();
             if ("identifier".equals(childType) || "identifier.sequence".equals(childType)) {
-                IdentifierNode identifierNode;
-                if ("identifier.sequence".equals(childType)) {
-                    identifierNode = IdentifierSequenceBinder.toIdentifierNode(child);
-                } else {
-                    identifierNode = (IdentifierNode) child;
-                }
-                if (!chain.booleanValue()) {
-                    identifierNodes.add(identifierNode);
-                    if (inChain) {
-                        chain.setTrue();
-                    }
-                }
+                collectIdentifierNode(child, childType, chain, inChain, identifierNodes);
             } else if ("chain".equals(childType)) {
                 var f = chain.booleanValue();
                 parseAndCollectIdentifierNodes(child, chain, true, identifierNodes);
@@ -63,6 +52,25 @@ public class DecisionTableUtils {
                 parseAndCollectIdentifierNodes(child, new MutableBoolean(false), false, identifierNodes);
             } else {
                 parseAndCollectIdentifierNodes(node.getChild(i), chain, inChain, identifierNodes);
+            }
+        }
+    }
+
+    private static void collectIdentifierNode(ISyntaxNode child,
+                                              String childType,
+                                              MutableBoolean chain,
+                                              boolean inChain,
+                                              List<IdentifierNode> identifierNodes) {
+        IdentifierNode identifierNode;
+        if ("identifier.sequence".equals(childType)) {
+            identifierNode = IdentifierSequenceBinder.toIdentifierNode(child);
+        } else {
+            identifierNode = (IdentifierNode) child;
+        }
+        if (!chain.booleanValue()) {
+            identifierNodes.add(identifierNode);
+            if (inChain) {
+                chain.setTrue();
             }
         }
     }

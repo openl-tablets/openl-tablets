@@ -58,9 +58,37 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
             uniqueValues[e.getValue()] = e.getKey();
         }
 
+        mapValues(map, uniqueValues, firstFormulaIndex, spaceIndex, elseIndex);
+
+        int mapMaxValue = uniqueValues.length - 1;
+
+        if (mapMaxValue <= Byte.MAX_VALUE) {
+            return new ByteMappedStorage(map, uniqueValues, storage, info);
+        }
+
+        if (mapMaxValue <= Byte.MAX_VALUE - Byte.MIN_VALUE) {
+            return new ByteExtMappedStorage(map, uniqueValues, storage, info);
+        }
+
+        if (mapMaxValue <= Short.MAX_VALUE) {
+            return new ShortMappedStorage(map, uniqueValues, storage, info);
+        }
+
+        if (mapMaxValue <= Short.MAX_VALUE - Short.MIN_VALUE) {
+            return new ShortExtMappedStorage(map, uniqueValues, storage, info);
+        }
+
+        return new IntMappedStorage(map, uniqueValues, storage, info);
+    }
+
+    /**
+     * Fills the map with the positions of the stored values in the array of unique values, and puts the formulas and
+     * the special values into that array.
+     */
+    private void mapValues(int[] map, Object[] uniqueValues, int firstFormulaIndex, int spaceIndex, int elseIndex) {
         int formulaCnt = 0;
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < map.length; i++) {
             if (storage.isElse(i)) {
                 map[i] = elseIndex;
                 if (elseIndex < uniqueValues.length) {
@@ -82,26 +110,6 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
             }
 
         }
-
-        int mapMaxValue = uniqueValues.length - 1;
-
-        if (mapMaxValue <= Byte.MAX_VALUE) {
-            return new ByteMappedStorage(map, uniqueValues, storage, info);
-        }
-
-        if (mapMaxValue <= Byte.MAX_VALUE - Byte.MIN_VALUE) {
-            return new ByteExtMappedStorage(map, uniqueValues, storage, info);
-        }
-
-        if (mapMaxValue <= Short.MAX_VALUE) {
-            return new ShortMappedStorage(map, uniqueValues, storage, info);
-        }
-
-        if (mapMaxValue <= Short.MAX_VALUE - Short.MIN_VALUE) {
-            return new ShortExtMappedStorage(map, uniqueValues, storage, info);
-        }
-
-        return new IntMappedStorage(map, uniqueValues, storage, info);
     }
 
     private boolean shouldUseMappedStorage() {

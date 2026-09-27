@@ -281,7 +281,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return ClassUtils.isAssignable(type.getInstanceClass(), Date.class);
     }
 
-    @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
                                                     IOpenClass conditionMethodType,
                                                     IBindingContext bindingContext) {
@@ -289,70 +288,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (NullParameterDeclaration.isAnyNull(params)) {
             return DefaultConditionEvaluator.INSTANCE; // parameters defined with error cannot build evaluator
         }
+        IConditionEvaluator evaluator = null;
         if (params.length == 1) {
-            var conditionParamType = params[0].getType();
-
-            ConditionCasts conditionCasts = ConditionHelper
-                    .findConditionCasts(conditionParamType, conditionMethodType, bindingContext);
-
-            if (conditionCasts.isCastToInputTypeExists()) {
-                return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(conditionCasts)
-                        : new EqualsIndexedEvaluator(conditionCasts);
-            }
-
-            var aggregateInfo = conditionParamType.getAggregateInfo();
-
-            if (aggregateInfo.isAggregate(conditionParamType)) {
-                ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(aggregateInfo
-                        .getComponentType(conditionParamType), conditionMethodType, bindingContext);
-                if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
-                        .isCastToInputTypeExists() && !conditionMethodType.isArray()) {
-                    return condition.getNumberOfEmptyRules(0) > 1
-                            ? new ContainsInArrayIndexedEvaluatorV2(aggregateConditionCasts)
-                            : new ContainsInArrayIndexedEvaluator(aggregateConditionCasts);
-                }
-            }
-
-            var rangeAdaptor = getRangeAdaptor(conditionMethodType,
-                    conditionParamType);
-
-            if (rangeAdaptor != null) {
-                return new CombinedRangeIndexEvaluator(
-                        (IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
-                        1,
-                        ConditionHelper.getConditionCastsWithNoCasts());
-            }
-
-            if (conditionCasts.isCastToConditionTypeExists()) {
-                return condition.getNumberOfEmptyRules(0) > 1
-                        ? new EqualsIndexedEvaluatorV2(conditionCasts)
-                        : new EqualsIndexedEvaluator(conditionCasts);
-            }
-
+            evaluator = makeOneParameterEvaluator(condition, params, conditionMethodType, bindingContext);
         } else if (params.length == 2) {
-            var conditionParamType0 = params[0].getType();
-            var conditionParamType1 = params[1].getType();
-
-            ConditionCasts conditionCasts = ConditionHelper
-                    .findConditionCasts(conditionParamType0, conditionMethodType, bindingContext);
-
-            if ((conditionCasts.atLeastOneExists()) && Objects.equals(conditionParamType0, conditionParamType1)) {
-                Class<?> clazz = conditionMethodType.getInstanceClass();
-                if (clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class || clazz == float.class || clazz == double.class || ClassUtils
-                        .isAssignable(clazz, Comparable.class)) {
-                    return new CombinedRangeIndexEvaluator(null, 2, conditionCasts);
-                }
-            }
-
-            var aggregateInfo = conditionParamType1.getAggregateInfo();
-            if (aggregateInfo.isAggregate(
-                    conditionParamType1) && aggregateInfo.getComponentType(conditionParamType1) == conditionMethodType) {
-                BooleanTypeAdaptor booleanTypeAdaptor = BooleanAdaptorFactory.getAdaptor(conditionParamType0);
-
-                if (booleanTypeAdaptor != null) {
-                    return new ContainsInOrNotInArrayIndexedEvaluator(booleanTypeAdaptor);
-                }
-            }
+            evaluator = makeTwoParametersEvaluator(params, conditionMethodType, bindingContext);
+        }
+        if (evaluator != null) {
+            return evaluator;
         }
 
         if (JavaOpenClass.BOOLEAN.equals(conditionMethodType) || JavaOpenClass.getOpenClass(Boolean.class)
@@ -373,6 +316,92 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         BindHelper.processError(message, condition.getUserDefinedExpressionSource(), bindingContext);
         return DefaultConditionEvaluator.INSTANCE;
+    }
+
+    /**
+     * Builds an indexed evaluator for a condition with one parameter.
+     *
+     * @return the evaluator, or {@code null} when the condition cannot be indexed
+     */
+    @SuppressWarnings("unchecked")
+    private static IConditionEvaluator makeOneParameterEvaluator(ICondition condition,
+                                                                 IParameterDeclaration[] params,
+                                                                 IOpenClass conditionMethodType,
+                                                                 IBindingContext bindingContext) {
+        var conditionParamType = params[0].getType();
+
+        ConditionCasts conditionCasts = ConditionHelper
+                .findConditionCasts(conditionParamType, conditionMethodType, bindingContext);
+
+        if (conditionCasts.isCastToInputTypeExists()) {
+            return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(conditionCasts)
+                    : new EqualsIndexedEvaluator(conditionCasts);
+        }
+
+        var aggregateInfo = conditionParamType.getAggregateInfo();
+
+        if (aggregateInfo.isAggregate(conditionParamType)) {
+            ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(aggregateInfo
+                    .getComponentType(conditionParamType), conditionMethodType, bindingContext);
+            if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
+                    .isCastToInputTypeExists() && !conditionMethodType.isArray()) {
+                return condition.getNumberOfEmptyRules(0) > 1
+                        ? new ContainsInArrayIndexedEvaluatorV2(aggregateConditionCasts)
+                        : new ContainsInArrayIndexedEvaluator(aggregateConditionCasts);
+            }
+        }
+
+        var rangeAdaptor = getRangeAdaptor(conditionMethodType,
+                conditionParamType);
+
+        if (rangeAdaptor != null) {
+            return new CombinedRangeIndexEvaluator(
+                    (IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
+                    1,
+                    ConditionHelper.getConditionCastsWithNoCasts());
+        }
+
+        if (conditionCasts.isCastToConditionTypeExists()) {
+            return condition.getNumberOfEmptyRules(0) > 1
+                    ? new EqualsIndexedEvaluatorV2(conditionCasts)
+                    : new EqualsIndexedEvaluator(conditionCasts);
+        }
+        return null;
+    }
+
+    /**
+     * Builds an indexed evaluator for a condition with two parameters.
+     *
+     * @return the evaluator, or {@code null} when the condition cannot be indexed
+     */
+    private static IConditionEvaluator makeTwoParametersEvaluator(IParameterDeclaration[] params,
+                                                                  IOpenClass conditionMethodType,
+                                                                  IBindingContext bindingContext) {
+        var conditionParamType0 = params[0].getType();
+        var conditionParamType1 = params[1].getType();
+
+        ConditionCasts conditionCasts = ConditionHelper
+                .findConditionCasts(conditionParamType0, conditionMethodType, bindingContext);
+
+        if ((conditionCasts.atLeastOneExists()) && Objects.equals(conditionParamType0, conditionParamType1)) {
+            Class<?> clazz = conditionMethodType.getInstanceClass();
+            if (clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class
+                    || clazz == float.class || clazz == double.class || ClassUtils
+                    .isAssignable(clazz, Comparable.class)) {
+                return new CombinedRangeIndexEvaluator(null, 2, conditionCasts);
+            }
+        }
+
+        var aggregateInfo = conditionParamType1.getAggregateInfo();
+        if (aggregateInfo.isAggregate(
+                conditionParamType1) && aggregateInfo.getComponentType(conditionParamType1) == conditionMethodType) {
+            BooleanTypeAdaptor booleanTypeAdaptor = BooleanAdaptorFactory.getAdaptor(conditionParamType0);
+
+            if (booleanTypeAdaptor != null) {
+                return new ContainsInOrNotInArrayIndexedEvaluator(booleanTypeAdaptor);
+            }
+        }
+        return null;
     }
 
     private ConditionToEvaluatorHolder[] initEvaluators(IConditionEvaluator[] evaluators,
