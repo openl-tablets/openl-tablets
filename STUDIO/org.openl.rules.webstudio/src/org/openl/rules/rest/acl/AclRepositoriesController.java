@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,10 +61,8 @@ public class AclRepositoriesController {
     }
 
     @Operation(summary = "Get a list of ACL rules for all repositories by criteria")
-    @Parameters({
-            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @GetMapping
     @JsonView(AclView.Repository.class)
     public List<AclRepositoryModel> getAclRepositoryRules(@NotNull @SidExistsConstraint Sid sid) {
@@ -87,10 +84,8 @@ public class AclRepositoriesController {
     }
 
     @Operation(summary = "Update existing ACL rule for a single repository")
-    @Parameters({
-            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @RepositoryManagementPermission
     @PutMapping(value = "/{repo-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
@@ -105,10 +100,8 @@ public class AclRepositoriesController {
     }
 
     @Operation(summary = "Delete an ACL rule for the repository by the requested criteria")
-    @Parameters({
-            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @RepositoryManagementPermission
     @DeleteMapping("/{repo-id}")
     public void deleteAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
@@ -118,10 +111,8 @@ public class AclRepositoriesController {
     }
 
     @Operation(summary = "Get ACL rules for all repository roots")
-    @Parameters({
-            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @AdminPrivilege
     @GetMapping("/roots")
     @JsonView(AclView.Root.class)
@@ -132,10 +123,8 @@ public class AclRepositoriesController {
     }
 
     @Operation(summary = "Update ACL rule for a repository root")
-    @Parameters({
-            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @AdminPrivilege
     @PutMapping(value = "/roots/{root-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
@@ -150,10 +139,8 @@ public class AclRepositoriesController {
     }
 
     @Operation(summary = "Delete an ACL rule for the repository root by the requested criteria")
-    @Parameters({
-            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @AdminPrivilege
     @DeleteMapping("/roots/{root-id}")
     public void deleteAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
