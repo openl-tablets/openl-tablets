@@ -20,7 +20,7 @@ import org.openl.util.fast.FastStringReader;
  * @author snshor
  * @deprecated It will be removed without replacement.
  */
-@Deprecated
+@Deprecated(since = "5.23.10")
 public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
     @Getter

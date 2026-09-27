@@ -68,14 +68,14 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
      *
      * @deprecated Use {@link #OpenLServiceFactoryBean(Class, String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.23.1")
     public OpenLServiceFactoryBean() {
     }
 
     /**
      * @deprecated Use constructor-arg instead
      */
-    @Deprecated
+    @Deprecated(since = "5.23.1")
     public void setProxyInterface(Class<T> proxyInterface) {
         this.proxyInterface = proxyInterface;
     }
@@ -83,7 +83,7 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
     /**
      * @deprecated Use constructor-arg instead
      */
-    @Deprecated
+    @Deprecated(since = "5.23.1")
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }

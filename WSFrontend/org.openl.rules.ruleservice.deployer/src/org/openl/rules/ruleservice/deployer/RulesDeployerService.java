@@ -85,7 +85,7 @@ public class RulesDeployerService implements Closeable {
      * @param properties repository settings
      * @deprecated Use {@link #RulesDeployerService(Function)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.25.14")
     public RulesDeployerService(Properties properties) {
         this(properties::getProperty);
     }

@@ -4120,7 +4120,7 @@ public final class DecisionTableHelper {
     /**
      * @deprecated Use plain grid model aka 2d array instead of building memory expensive Excel files.
      */
-    @Deprecated
+    @Deprecated(since = "5.24.0")
     public static XlsSheetGridModel createVirtualGrid() {
         var workbook = new XSSFWorkbook();
         try {

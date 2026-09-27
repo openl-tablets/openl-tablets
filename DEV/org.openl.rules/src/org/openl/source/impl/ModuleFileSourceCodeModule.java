@@ -9,7 +9,7 @@ import org.openl.types.IModuleInfo;
 /**
  * @deprecated use {@link URLSourceCodeModule}
  */
-@Deprecated
+@Deprecated(since = "5.23.10")
 public class ModuleFileSourceCodeModule extends URLSourceCodeModule implements IModuleInfo {
     @Getter
     private final String moduleName;

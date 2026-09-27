@@ -181,7 +181,7 @@ class StreamWorkbook implements Workbook {
      */
     @Override
     @Removal(version = "6.0.0")
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "5.27.0")
     public int getNumberOfFontsAsInt() {
         return delegator.getNumberOfFontsAsInt();
     }

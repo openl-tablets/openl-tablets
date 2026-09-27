@@ -318,7 +318,7 @@ public class UsersController {
     /**
      * @deprecated Use {@code GET /settings} instead.
      */
-    @Deprecated
+    @Deprecated(since = "6.0.0")
     @Operation(description = "users.options.desc", summary = "users.options.summary")
     @GetMapping("/options")
     public UserOptions options() {

@@ -1248,7 +1248,7 @@ public final class RulesUtils {
      * @return formated date value
      * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.10.0")
     public static String format(Date date) {
         return dateToString(date);
     }
@@ -1261,7 +1261,7 @@ public final class RulesUtils {
      * @return String formated date value
      * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date, String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.10.0")
     public static String format(Date date, String format) {
         return dateToString(date, format);
     }
@@ -1274,7 +1274,7 @@ public final class RulesUtils {
      * @return String formated date value
      * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date, String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.19.8")
     public static String dateToString(Date date, String dateFormat) {
         var stringDate = "Incorrect date format";
         try {
@@ -1293,7 +1293,7 @@ public final class RulesUtils {
      * @see DateTool#dateToString;
      * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.19.8")
     public static String dateToString(Date date) {
         var stringDate = "Incorrect date format";
         try {
@@ -1307,7 +1307,7 @@ public final class RulesUtils {
     /**
      * @deprecated Use {@link org.openl.rules.util.Dates#toDate(String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.19.8")
     public static Date stringToDate(String value) throws ParseException {
         DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 
@@ -1374,7 +1374,7 @@ public final class RulesUtils {
      *
      * @deprecated It will be removed without replacement.
      */
-    @Deprecated
+    @Deprecated(since = "5.8.1")
     public static double parseFormattedDouble(String s) throws ParseException {
         return parseFormattedDouble(s, DEFAULT_DOUBLE_FORMAT);
     }
@@ -1387,7 +1387,7 @@ public final class RulesUtils {
      *
      * @deprecated It will be removed without replacement.
      */
-    @Deprecated
+    @Deprecated(since = "5.8.1")
     public static double parseFormattedDouble(String s, String fmt) throws ParseException {
         var df = new DecimalFormat(fmt);
         return df.parse(s).doubleValue();
@@ -2567,7 +2567,7 @@ public final class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
      * @deprecated It will be removed without replacement.
      */
-    @Deprecated
+    @Deprecated(since = "5.26.1")
     public static <T> T[] addIgnoreNull(T[] array, int index, T element) {
         if (element != null) {
             return ArrayUtils.add(array, index, element);
@@ -2606,7 +2606,7 @@ public final class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
      * @deprecated It will be removed without replacement.
      */
-    @Deprecated
+    @Deprecated(since = "5.26.1")
     public static <T> T[] addIgnoreNull(T[] array, T element) {
         if (element != null) {
             return ArrayUtils.add(array, element);
@@ -2617,7 +2617,7 @@ public final class RulesUtils {
     /**
      * @deprecated Use {@link #addIgnoreNull(Object[], int, Object)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.10.0")
     public static Object[] addArrayElementIgnoreNull(Object[] array, int index, Object element) {
         return addIgnoreNull(array, index, element);
     }
@@ -2625,7 +2625,7 @@ public final class RulesUtils {
     /**
      * @deprecated Use {@link #addIgnoreNull(Object[], Object)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.10.0")
     public static Object[] addArrayElementIgnoreNull(Object[] array, Object element) {
         return addIgnoreNull(array, element);
     }

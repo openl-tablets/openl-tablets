@@ -8,7 +8,7 @@ import org.openl.source.impl.ASourceCodeModule;
 /**
  * @deprecated It will be removed without replacement.
  */
-@Deprecated
+@Deprecated(since = "5.23.10")
 public class VirtualSourceCodeModule extends ASourceCodeModule {
 
     public static final String SOURCE_URI = "<virtual_uri>";

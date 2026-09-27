@@ -21,7 +21,7 @@ import org.openl.source.IOpenSourceCodeModule;
  * @author snshor
  * @deprecated It will be removed without replacement.
  */
-@Deprecated
+@Deprecated(since = "5.23.10")
 @RequiredArgsConstructor
 public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
 

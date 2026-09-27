@@ -43,7 +43,7 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @deprecated This method is used for backward compatibility with old version of deploy configs. Use
      * getProjectByPath() instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.24.0")
     AProject getProject(String repositoryId, String name, CommonVersion version);
 
     AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException;

@@ -67,7 +67,7 @@ class PoiCellStyle implements CellStyle {
     /**
      * @deprecated Use {@link #getFontIndex()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.24.6")
     @Override
     public int getFontIndexAsInt() {
         return format.getFontIndex();
