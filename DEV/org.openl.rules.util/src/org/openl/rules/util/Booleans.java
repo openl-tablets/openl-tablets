@@ -395,64 +395,73 @@ public final class Booleans {
         if (str == null) {
             return null;
         }
-        switch (str.length()) {
-            case 1 -> {
-                return toBoolean(str.charAt(0));
-            }
-            case 2 -> {
-                final char ch0 = str.charAt(0);
-                final char ch1 = str.charAt(1);
-                if ((ch0 == 'o' || ch0 == 'O')
-                        && (ch1 == 'n' || ch1 == 'N')) {
-                    return Boolean.TRUE;
-                }
-                if ((ch0 == 'n' || ch0 == 'N')
-                        && (ch1 == 'o' || ch1 == 'O')) {
-                    return Boolean.FALSE;
-                }
-            }
-            case 3 -> {
-                final char ch0 = str.charAt(0);
-                final char ch1 = str.charAt(1);
-                final char ch2 = str.charAt(2);
-                if ((ch0 == 'y' || ch0 == 'Y')
-                        && (ch1 == 'e' || ch1 == 'E')
-                        && (ch2 == 's' || ch2 == 'S')) {
-                    return Boolean.TRUE;
-                }
-                if ((ch0 == 'o' || ch0 == 'O')
-                        && (ch1 == 'f' || ch1 == 'F')
-                        && (ch2 == 'f' || ch2 == 'F')) {
-                    return Boolean.FALSE;
-                }
-            }
-            case 4 -> {
-                final char ch0 = str.charAt(0);
-                final char ch1 = str.charAt(1);
-                final char ch2 = str.charAt(2);
-                final char ch3 = str.charAt(3);
-                if ((ch0 == 't' || ch0 == 'T')
-                        && (ch1 == 'r' || ch1 == 'R')
-                        && (ch2 == 'u' || ch2 == 'U')
-                        && (ch3 == 'e' || ch3 == 'E')) {
-                    return Boolean.TRUE;
-                }
-            }
-            case 5 -> {
-                final char ch0 = str.charAt(0);
-                final char ch1 = str.charAt(1);
-                final char ch2 = str.charAt(2);
-                final char ch3 = str.charAt(3);
-                final char ch4 = str.charAt(4);
-                if ((ch0 == 'f' || ch0 == 'F')
-                        && (ch1 == 'a' || ch1 == 'A')
-                        && (ch2 == 'l' || ch2 == 'L')
-                        && (ch3 == 's' || ch3 == 'S')
-                        && (ch4 == 'e' || ch4 == 'E')) {
-                    return Boolean.FALSE;
-                }
-            }
-            default -> { /* no match */ }
+        return switch (str.length()) {
+            case 1 -> toBoolean(str.charAt(0));
+            case 2 -> onOrNoToBoolean(str);
+            case 3 -> yesOrOffToBoolean(str);
+            case 4 -> trueToBoolean(str);
+            case 5 -> falseToBoolean(str);
+            default -> null;
+        };
+    }
+
+    private static @Nullable Boolean onOrNoToBoolean(String str) {
+        final char ch0 = str.charAt(0);
+        final char ch1 = str.charAt(1);
+        if ((ch0 == 'o' || ch0 == 'O')
+                && (ch1 == 'n' || ch1 == 'N')) {
+            return Boolean.TRUE;
+        }
+        if ((ch0 == 'n' || ch0 == 'N')
+                && (ch1 == 'o' || ch1 == 'O')) {
+            return Boolean.FALSE;
+        }
+        return null;
+    }
+
+    private static @Nullable Boolean yesOrOffToBoolean(String str) {
+        final char ch0 = str.charAt(0);
+        final char ch1 = str.charAt(1);
+        final char ch2 = str.charAt(2);
+        if ((ch0 == 'y' || ch0 == 'Y')
+                && (ch1 == 'e' || ch1 == 'E')
+                && (ch2 == 's' || ch2 == 'S')) {
+            return Boolean.TRUE;
+        }
+        if ((ch0 == 'o' || ch0 == 'O')
+                && (ch1 == 'f' || ch1 == 'F')
+                && (ch2 == 'f' || ch2 == 'F')) {
+            return Boolean.FALSE;
+        }
+        return null;
+    }
+
+    private static @Nullable Boolean trueToBoolean(String str) {
+        final char ch0 = str.charAt(0);
+        final char ch1 = str.charAt(1);
+        final char ch2 = str.charAt(2);
+        final char ch3 = str.charAt(3);
+        if ((ch0 == 't' || ch0 == 'T')
+                && (ch1 == 'r' || ch1 == 'R')
+                && (ch2 == 'u' || ch2 == 'U')
+                && (ch3 == 'e' || ch3 == 'E')) {
+            return Boolean.TRUE;
+        }
+        return null;
+    }
+
+    private static @Nullable Boolean falseToBoolean(String str) {
+        final char ch0 = str.charAt(0);
+        final char ch1 = str.charAt(1);
+        final char ch2 = str.charAt(2);
+        final char ch3 = str.charAt(3);
+        final char ch4 = str.charAt(4);
+        if ((ch0 == 'f' || ch0 == 'F')
+                && (ch1 == 'a' || ch1 == 'A')
+                && (ch2 == 'l' || ch2 == 'L')
+                && (ch3 == 's' || ch3 == 'S')
+                && (ch4 == 'e' || ch4 == 'E')) {
+            return Boolean.FALSE;
         }
         return null;
     }

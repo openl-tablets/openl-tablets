@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -675,10 +676,7 @@ public final class Strings {
             i++;
             nextCh = i < size ? pattern.charAt(i) : 0;
             switch (ch) {
-                case '?' -> regex.append(inSet ? ch : '.');
-                case '*' -> regex.append(inSet ? String.valueOf(ch) : ".*");
-                case '#' -> regex.append(inSet ? String.valueOf(ch) : "\\d");
-                case '@' -> regex.append(inSet ? String.valueOf(ch) : "\\p{Alpha}");
+                case '?', '*', '#', '@' -> regex.append(inSet ? String.valueOf(ch) : wildcardToRegex(ch));
                 case '!' -> regex.append(inSet && prevCh == '[' && nextCh != ']' ? '^' : ch);
                 case '[' -> {
                     if (inSet) {
@@ -691,30 +689,45 @@ public final class Strings {
                     regex.append(ch);
                     inSet = false;
                 }
-                case ' ' -> {
-                    if (prevCh != ' ') {
-                        regex.append("\\s+");
-                    }
-                }
-                case '+' -> {
-                    if (prevCh != '?' && prevCh != '@' && prevCh != '#' && prevCh != ']') {
-                        regex.append('\\');
-                    }
-                    regex.append(ch);
-                }
-                case '\\' -> regex.append('\\').append(ch);
-                case '{', '}', '(', ')', '.', '$', '|' -> {
-                    if (!inSet) {
-                        regex.append('\\');
-                    }
-                    regex.append(ch);
-                }
-                default -> regex.append(ch);
+                default -> appendLiteral(regex, ch, prevCh, inSet);
             }
             prevCh = ch;
         }
 
         return regex.toString();
+    }
+
+    private static String wildcardToRegex(char ch) {
+        return switch (ch) {
+            case '?' -> ".";
+            case '*' -> ".*";
+            case '#' -> "\\d";
+            default -> "\\p{Alpha}"; // '@'
+        };
+    }
+
+    private static void appendLiteral(StringBuilder regex, char ch, int prevCh, boolean inSet) {
+        switch (ch) {
+            case ' ' -> {
+                if (prevCh != ' ') {
+                    regex.append("\\s+");
+                }
+            }
+            case '+' -> {
+                if (prevCh != '?' && prevCh != '@' && prevCh != '#' && prevCh != ']') {
+                    regex.append('\\');
+                }
+                regex.append(ch);
+            }
+            case '\\' -> regex.append('\\').append(ch);
+            case '{', '}', '(', ')', '.', '$', '|' -> {
+                if (!inSet) {
+                    regex.append('\\');
+                }
+                regex.append(ch);
+            }
+            default -> regex.append(ch);
+        }
     }
 
     /**
@@ -799,16 +812,18 @@ public final class Strings {
                 }
             }
             if (matched) {
-                if (start < end) {
-                    list.add(str.substring(start, end));
-                }
+                addToken(list, str, start, end);
                 start = pos;
             }
         }
-        if (start < len) {
-            list.add(str.substring(start, len));
-        }
+        addToken(list, str, start, len);
         return list.toArray(new String[0]);
+    }
+
+    private static void addToken(List<String> list, String str, int start, int end) {
+        if (start < end) {
+            list.add(str.substring(start, end));
+        }
     }
 
     /**

@@ -5,6 +5,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A set of functions to work with numbers
  */
@@ -29,6 +31,23 @@ public final class Numbers {
         if (number == null) {
             return null;
         }
+        var notFinite = notFiniteToString(number);
+        if (notFinite != null) {
+            return notFinite;
+        }
+        if (number instanceof Double || number instanceof Float) {
+            return toString(new BigDecimal(number.toString())); // number.toString() is more accurate than just number
+        } else if (number instanceof BigDecimal decimal) {
+            return toString(decimal);
+        } else {
+            return number.toString();
+        }
+    }
+
+    /**
+     * Returns the text of an infinite or not-a-number floating-point value, or {@code null} for any other number.
+     */
+    private static @Nullable String notFiniteToString(Number number) {
         if (number instanceof Double doubleNumber) {
             if (doubleNumber.isInfinite()) {
                 return doubleNumber > 0 ? POSITIVE_INFINITY_SIGN : NEGATIVE_INFINITY_SIGN;
@@ -42,13 +61,7 @@ public final class Numbers {
                 return NOT_A_NUMBER;
             }
         }
-        if (number instanceof Double || number instanceof Float) {
-            return toString(new BigDecimal(number.toString())); // number.toString() is more accurate than just number
-        } else if (number instanceof BigDecimal decimal) {
-            return toString(decimal);
-        } else {
-            return number.toString();
-        }
+        return null;
     }
 
     private static String toString(BigDecimal bd) {
