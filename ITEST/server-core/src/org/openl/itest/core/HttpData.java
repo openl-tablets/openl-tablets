@@ -425,43 +425,9 @@ class HttpData {
         String ce = headers.get(CONTENT_ENCODING_HEADER);
 
         if (ct != null && ct.startsWith("multipart/form-data") && ct.contains(BOUNDARY)) {
-            String boundary = ct.substring(ct.indexOf(BOUNDARY) + BOUNDARY.length());
-            String boundaryEnd = "--" + boundary + "--";
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            try (PrintWriter writer = new PrintWriter(os, false, StandardCharsets.UTF_8)) {
-                while (true) {
-                    String line = readLine(input);
-                    if (isFileRef(line)) {
-                        writer.flush();
-                        os.write(readFileRef(resource, line));
-                        os.flush();
-                    } else {
-                        writer.append(line);
-                    }
-                    writer.print("\r\n");
-                    if (boundaryEnd.equals(line)) {
-                        writer.flush();
-                        break;
-                    }
-                }
-                writer.print("\r\n");
-            }
-            body = os.toByteArray();
+            body = readMultipartBody(input, resource, ct);
         } else if (BLOB_TYPES.contains(ct) || ce != null) {
-            String line = readLine(input);
-            if (isFileRef(line)) {
-                body = readFileRef(resource, line);
-                if (input.available() != 0) {
-                    throw new IllegalStateException("Unexpected content");
-                }
-            } else {
-                // Inline text: a *** wildcard or a multi-line zip entry spec.
-                StringBuilder sb = new StringBuilder(line);
-                while (input.available() != 0) {
-                    sb.append('\n').append(readLine(input));
-                }
-                body = sb.toString().getBytes(StandardCharsets.UTF_8);
-            }
+            body = readBlobBody(input, resource);
         } else if (cl != null) {
             body = readBody(input, cl);
         } else if (te != null && te.equalsIgnoreCase("chunked")) {
@@ -475,6 +441,57 @@ class HttpData {
         }
 
         return new HttpData(firstLine, headers, body, resource);
+    }
+
+    /**
+     * Reads the parts of a multipart body up to its closing boundary. A part that refers to a file gets the
+     * content of the file.
+     */
+    private static byte[] readMultipartBody(InputStream input, String resource, String ct) throws IOException {
+        String boundary = ct.substring(ct.indexOf(BOUNDARY) + BOUNDARY.length());
+        String boundaryEnd = "--" + boundary + "--";
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (PrintWriter writer = new PrintWriter(os, false, StandardCharsets.UTF_8)) {
+            while (true) {
+                String line = readLine(input);
+                if (isFileRef(line)) {
+                    writer.flush();
+                    os.write(readFileRef(resource, line));
+                    os.flush();
+                } else {
+                    writer.append(line);
+                }
+                writer.print("\r\n");
+                if (boundaryEnd.equals(line)) {
+                    writer.flush();
+                    break;
+                }
+            }
+            writer.print("\r\n");
+        }
+        return os.toByteArray();
+    }
+
+    /**
+     * Reads a body of a blob content type or with a content encoding: the content of the referred file, which must
+     * end the body, or the inline text.
+     */
+    private static byte[] readBlobBody(InputStream input, String resource) throws IOException {
+        String line = readLine(input);
+        if (isFileRef(line)) {
+            var body = readFileRef(resource, line);
+            if (input.available() != 0) {
+                throw new IllegalStateException("Unexpected content");
+            }
+            return body;
+        } else {
+            // Inline text: a *** wildcard or a multi-line zip entry spec.
+            StringBuilder sb = new StringBuilder(line);
+            while (input.available() != 0) {
+                sb.append('\n').append(readLine(input));
+            }
+            return sb.toString().getBytes(StandardCharsets.UTF_8);
+        }
     }
 
     /**

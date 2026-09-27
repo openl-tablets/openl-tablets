@@ -28,6 +28,7 @@ import org.opentest4j.AssertionFailedError;
 import org.opentest4j.ValueWrapper;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Comparison;
 import org.xmlunit.diff.ComparisonResult;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.Difference;
@@ -92,26 +93,31 @@ final class Comparators {
     }
 
     private static DifferenceEvaluator matchByPattern() {
-        return (comparison, outcome) -> {
-            if (outcome == ComparisonResult.DIFFERENT) {
-                Node control = comparison.getControlDetails().getTarget();
-                Node test = comparison.getTestDetails().getTarget();
-                if (control != null && test != null) {
-                    String controlValue = control.getNodeValue();
-                    String testValue = test.getNodeValue();
-                    if (controlValue != null && testValue != null) {
-                        String regExp = getRegExp(controlValue);
-                        String noSpaces = trimExtraSpaces(testValue);
-                        if (noSpaces.equals(regExp) || Pattern.compile(regExp).matcher(noSpaces).matches()) {
-                            return ComparisonResult.SIMILAR;
-                        }
+        return Comparators::evaluateByPattern;
+    }
+
+    /**
+     * Treats a different node as similar when its value matches the expected value used as a pattern.
+     */
+    private static ComparisonResult evaluateByPattern(Comparison comparison, ComparisonResult outcome) {
+        if (outcome == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            Node test = comparison.getTestDetails().getTarget();
+            if (control != null && test != null) {
+                String controlValue = control.getNodeValue();
+                String testValue = test.getNodeValue();
+                if (controlValue != null && testValue != null) {
+                    String regExp = getRegExp(controlValue);
+                    String noSpaces = trimExtraSpaces(testValue);
+                    if (noSpaces.equals(regExp) || Pattern.compile(regExp).matcher(noSpaces).matches()) {
+                        return ComparisonResult.SIMILAR;
                     }
                 }
-
-                return outcome;
             }
+
             return outcome;
-        };
+        }
+        return outcome;
     }
 
     private static String trimExtraSpaces(String testValue) {
