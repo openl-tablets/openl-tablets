@@ -126,16 +126,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (algorithmsPath.startsWith("/")) {
             throw new OpenAPIProjectException("Path for Rules cannot start with '/'");
         }
-        String normalizedAlgorithmsPath = FileNameFormatter.normalizePath(algorithmsPath);
-        String normalizedModelsPath = FileNameFormatter.normalizePath(modelsPath);
-
-        if (normalizedAlgorithmsPath.endsWith("/")) {
-            normalizedAlgorithmsPath = normalizedAlgorithmsPath.substring(0, normalizedAlgorithmsPath.length() - 1);
-        }
-
-        if (normalizedModelsPath.endsWith("/")) {
-            normalizedModelsPath = normalizedModelsPath.substring(0, normalizedModelsPath.length() - 1);
-        }
+        String normalizedAlgorithmsPath = normalizeModulePath(algorithmsPath);
+        String normalizedModelsPath = normalizeModulePath(modelsPath);
 
         if (!FileTypeHelper.isExcelFile(normalizedAlgorithmsPath)) {
             throw new OpenAPIProjectException("Unsupported file extension for module with Rules.");
@@ -285,6 +277,17 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             case "yaml", "yml" -> OpenAPI.Type.YAML.getDefaultFileName();
             default -> throw new OpenAPIProjectException("Unsupported OpenAPI file extension.");
         };
+    }
+
+    /**
+     * Normalizes the path separators of a module path and strips its trailing separator.
+     */
+    private static String normalizeModulePath(String path) {
+        String normalizedPath = FileNameFormatter.normalizePath(path);
+        if (normalizedPath.endsWith("/")) {
+            normalizedPath = normalizedPath.substring(0, normalizedPath.length() - 1);
+        }
+        return normalizedPath;
     }
 
     private static Module module(String name, String path) {
