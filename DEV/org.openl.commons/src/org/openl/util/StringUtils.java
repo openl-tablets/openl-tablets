@@ -84,17 +84,7 @@ public class StringUtils {
         final var len = str.length();
 
         // count of the result size
-        var count = 0;
-        var match = false;
-        for (var i = 0; i < len; i++) {
-            var ch = str.charAt(i);
-            if (tester.test(ch)) {
-                match = false;
-            } else if (!match && !isSpaceOrControl(ch)) {
-                count++;
-                match = true;
-            }
-        }
+        var count = countTokens(str, tester);
         if (count == 0) {
             return EMPTY_STRING_ARRAY;
         }
@@ -105,7 +95,7 @@ public class StringUtils {
         int i = 0;
         int start = 0;
         int end = 0;
-        match = false;
+        var match = false;
         count = 0;
         while (i < len) {
             var ch = str.charAt(i++);
@@ -129,6 +119,22 @@ public class StringUtils {
             result[count] = str.substring(start, end);
         }
         return result;
+    }
+
+    private static int countTokens(String str, IntPredicate tester) {
+        final var len = str.length();
+        var count = 0;
+        var match = false;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charAt(i);
+            if (tester.test(ch)) {
+                match = false;
+            } else if (!match && !isSpaceOrControl(ch)) {
+                count++;
+                match = true;
+            }
+        }
+        return count;
     }
 
     /**

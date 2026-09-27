@@ -7,6 +7,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A util to manipulate with Java classes.
  *
@@ -225,41 +227,49 @@ public final class ClassUtils {
             return true;
         }
         if (cls.isPrimitive()) {
-            if (!toClass.isPrimitive()) {
-                return false;
-            }
-            if (Integer.TYPE == cls) {
-                return Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
-            }
-            if (Long.TYPE.equals(cls)) {
-                return Float.TYPE == toClass || Double.TYPE == toClass;
-            }
-            if (Boolean.TYPE == cls) {
-                return false;
-            }
-            if (Double.TYPE == cls) {
-                return false;
-            }
-            if (Float.TYPE == cls) {
-                return Double.TYPE == toClass;
-            }
-            if (Character.TYPE == cls || Short.TYPE == cls) {
-                return Integer.TYPE == toClass
-                        || Long.TYPE == toClass
-                        || Float.TYPE == toClass
-                        || Double.TYPE == toClass;
-            }
-            if (Byte.TYPE.equals(cls)) {
-                return Short.TYPE == toClass
-                        || Integer.TYPE == toClass
-                        || Long.TYPE == toClass
-                        || Float.TYPE == toClass
-                        || Double.TYPE == toClass;
-            }
-            // should never get here
-            return false;
+            return isPrimitiveAssignable(cls, toClass);
         }
         return toClass.isAssignableFrom(cls);
+    }
+
+    /**
+     * Checks whether a value of the given primitive type can be assigned to the given type by a widening primitive
+     * conversion.
+     */
+    private static boolean isPrimitiveAssignable(Class<?> cls, Class<?> toClass) {
+        if (!toClass.isPrimitive()) {
+            return false;
+        }
+        if (Integer.TYPE == cls) {
+            return Long.TYPE == toClass || Float.TYPE == toClass || Double.TYPE == toClass;
+        }
+        if (Long.TYPE.equals(cls)) {
+            return Float.TYPE == toClass || Double.TYPE == toClass;
+        }
+        if (Boolean.TYPE == cls) {
+            return false;
+        }
+        if (Double.TYPE == cls) {
+            return false;
+        }
+        if (Float.TYPE == cls) {
+            return Double.TYPE == toClass;
+        }
+        if (Character.TYPE == cls || Short.TYPE == cls) {
+            return Integer.TYPE == toClass
+                    || Long.TYPE == toClass
+                    || Float.TYPE == toClass
+                    || Double.TYPE == toClass;
+        }
+        if (Byte.TYPE.equals(cls)) {
+            return Short.TYPE == toClass
+                    || Integer.TYPE == toClass
+                    || Long.TYPE == toClass
+                    || Float.TYPE == toClass
+                    || Double.TYPE == toClass;
+        }
+        // should never get here
+        return false;
     }
 
     public static Class<?> commonType(Class<?> a, Class<?> b) {
@@ -337,16 +347,7 @@ public final class ClassUtils {
             if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
                 var parameterType = method.getParameterTypes()[0];
                 if (isAssignable(type, parameterType)) {
-                    if (setter != null) {
-                        var setterType = setter.getParameterTypes()[0];
-                        if (isAssignable(parameterType, setterType)) {
-                            setter = method;
-                        } else if (!isAssignable(setterType, parameterType)) {
-                            throw new IllegalArgumentException("Method '" + setterName + "(" + type + ")' is ambiguous in " + clz);
-                        }
-                    } else {
-                        setter = method;
-                    }
+                    setter = moreSpecificSetter(setter, method, type, clz);
                 }
                 setter2 = method;
             }
@@ -368,6 +369,31 @@ public final class ClassUtils {
             }
             throw ex;
         }
+    }
+
+    /**
+     * Returns the setter whose parameter type is narrower: the found one or the candidate. The candidate is returned
+     * when no setter has been found yet.
+     *
+     * @throws IllegalArgumentException if neither parameter type is assignable to the other
+     */
+    private static Method moreSpecificSetter(@Nullable Method setter,
+                                             Method method,
+                                             @Nullable Class<?> type,
+                                             Class<?> clz) {
+        if (setter == null) {
+            return method;
+        }
+        var parameterType = method.getParameterTypes()[0];
+        var setterType = setter.getParameterTypes()[0];
+        if (isAssignable(parameterType, setterType)) {
+            return method;
+        }
+        if (!isAssignable(setterType, parameterType)) {
+            throw new IllegalArgumentException(
+                    "Method '" + method.getName() + "(" + type + ")' is ambiguous in " + clz);
+        }
+        return setter;
     }
 
     public static Object get(Object target, String fieldName) throws Exception {

@@ -103,29 +103,33 @@ abstract class OpenLLogger {
                 }
             }
         } else if (!isSimpleType(value)) {
-            BeanInfo bi;
-            try {
-                bi = Introspector.getBeanInfo(value.getClass());
-            } catch (Exception e) {
-                return;
+            logBeanProperties(value);
+        }
+    }
+
+    private void logBeanProperties(Object value) {
+        BeanInfo bi;
+        try {
+            bi = Introspector.getBeanInfo(value.getClass());
+        } catch (Exception e) {
+            return;
+        }
+        var pds = bi.getPropertyDescriptors();
+        for (PropertyDescriptor pd : pds) {
+            var propName = pd.getName();
+            if ("class".equals(propName)) {
+                continue;
             }
-            var pds = bi.getPropertyDescriptors();
-            for (PropertyDescriptor pd : pds) {
-                var propName = pd.getName();
-                if ("class".equals(propName)) {
-                    continue;
+            try {
+                var readMethod = pd.getReadMethod();
+                if (readMethod != null) {
+                    var propValue = readMethod.invoke(value);
+                    logSimpleObject("    {} = {}", propName, propValue);
+                } else {
+                    log("    {} = <no access>", propName);
                 }
-                try {
-                    var readMethod = pd.getReadMethod();
-                    if (readMethod != null) {
-                        var propValue = readMethod.invoke(value);
-                        logSimpleObject("    {} = {}", propName, propValue);
-                    } else {
-                        log("    {} = <no access>", propName);
-                    }
-                } catch (Exception ex) {
-                    log("    {} = <exception>", propName);
-                }
+            } catch (Exception ex) {
+                log("    {} = <exception>", propName);
             }
         }
     }
