@@ -213,7 +213,7 @@ public final class KafkaService implements Runnable {
                     var countDownLatch = new CountDownLatch(records.count());
                     ZonedDateTime incomingTime = ZonedDateTime.now();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
-                        var ignored = executor.submit(() -> {
+                        executor.submit(() -> {
                             StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
                             String requestIdHeader = null;
                             try {
