@@ -214,6 +214,7 @@ const apiCall = async (
             if (opts.throwError) {
                 throw error
             } else if (error instanceof EmptyError) {
+                // An expired session is answered by the login prompt; a toast would only cover it with a blank one.
             } else if (error instanceof Error) {
                 notification.error({ title: error.toString() })
             }
