@@ -108,33 +108,33 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
             for (var i = 0; i < rules.length; i++) {
                 for (var j = i + 1; j < rules.length; j++) {
-
-                    var pair = new IntPair(rules[i], rules[j]);
-                    if (checkedPairs.contains(pair)) {
-                        continue;
-                    }
-                    checkedPairs.add(pair);
-
-                    int a = _dt.isOverrideAscending() ? i : j;
-                    int b = _dt.isOverrideAscending() ? j : i;
-
-                    if (completelyOverlaps(_dt.getRule(rules[a]), _dt.getRule(rules[b]))) {
-                        this.overlappings
-                                .add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.BLOCK));
-                    } else if (completelyOverlaps(_dt.getRule(rules[b]), _dt.getRule(rules[a]))) {
-                        this.overlappings
-                                .add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.OVERRIDE));
-                    } else {
-                        this.overlappings
-                                .add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.PARTIAL));
-                    }
-                    checkWithRemove(rules[a]);
-                    checkWithRemove(rules[b]);
+                    testPairOverlapping(ovl, rules, i, j);
                 }
             }
 
         }
 
+    }
+
+    private void testPairOverlapping(Overlapping ovl, int[] rules, int i, int j) {
+        var pair = new IntPair(rules[i], rules[j]);
+        if (checkedPairs.contains(pair)) {
+            return;
+        }
+        checkedPairs.add(pair);
+
+        int a = _dt.isOverrideAscending() ? i : j;
+        int b = _dt.isOverrideAscending() ? j : i;
+
+        if (completelyOverlaps(_dt.getRule(rules[a]), _dt.getRule(rules[b]))) {
+            this.overlappings.add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.BLOCK));
+        } else if (completelyOverlaps(_dt.getRule(rules[b]), _dt.getRule(rules[a]))) {
+            this.overlappings.add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.OVERRIDE));
+        } else {
+            this.overlappings.add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.PARTIAL));
+        }
+        checkWithRemove(rules[a]);
+        checkWithRemove(rules[b]);
     }
 
     private void checkWithRemove(int ind) {

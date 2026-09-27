@@ -74,27 +74,31 @@ public final class DomainImplWithHoles extends DomainImpl {
         for (var i = 0; i < _values.size(); i++) {
             var interval = (DomainInterval) _values.elementAt(i);
             if (value >= interval.from && value <= interval.to) {
-                if (interval.from == interval.to) {
-                    if (_values.size() == 1) {
-                        constrainer().fail("remove"); // "Empty domain of
-                        // "+_variable
-                    }
-                    _values.removeElementAt(i);
-                } else if (value == interval.from) {
-                    interval.from++;
-                } else if (value == interval.to) {
-                    interval.to--;
-                } else {
-                    var to1 = value - 1;
-                    var from2 = value + 1;
-                    var to2 = interval.to;
-                    interval.to = to1;
-                    _values.insertElementAt(new DomainInterval(from2, to2), i + 1);
-                }
+                removeFromInterval(i, interval, value);
                 return true;
             }
         }
         return false; // not in domain - impossible
+    }
+
+    private void removeFromInterval(int i, DomainInterval interval, int value) throws Failure {
+        if (interval.from == interval.to) {
+            if (_values.size() == 1) {
+                constrainer().fail("remove"); // "Empty domain of
+                // "+_variable
+            }
+            _values.removeElementAt(i);
+        } else if (value == interval.from) {
+            interval.from++;
+        } else if (value == interval.to) {
+            interval.to--;
+        } else {
+            var to1 = value - 1;
+            var from2 = value + 1;
+            var to2 = interval.to;
+            interval.to = to1;
+            _values.insertElementAt(new DomainInterval(from2, to2), i + 1);
+        }
     }
 
     @Override

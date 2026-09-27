@@ -464,37 +464,12 @@ public final class Constrainer implements Serializable {
 
         while (!_goal_stack.empty()) {
             try {
-                var goal = _goal_stack.popGoal();
-
-                if (_trace_goals) {
-                    _out.println("Execute: " + goal);
-                }
-
-                goal = goal.execute();
-                propagate();
-
-                if (_print_information) {
-                    var occupiedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-                    if (_max_occupied_memory < occupiedMemory) {
-                        _max_occupied_memory = occupiedMemory;
-                    }
-                }
-
-                if (goal != null) {
-                    _goal_stack.pushGoal(goal);
-                }
+                executeNextGoal();
             } catch (Failure f) {
 
-                if (_trace_failure_stack && _failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
-                    f.printStackTrace(_out);
-                }
+                traceFailure(f);
 
-                if (_print_information) {
-                    var occupiedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-                    if (_max_occupied_memory < occupiedMemory) {
-                        _max_occupied_memory = occupiedMemory;
-                    }
-                }
+                updateMaxOccupiedMemory();
 
                 clearPropagationQueue();
 
@@ -525,6 +500,38 @@ public final class Constrainer implements Serializable {
         _goal_stack = oldGoalStack;
 
         return success;
+    }
+
+    private void executeNextGoal() throws Failure {
+        var goal = _goal_stack.popGoal();
+
+        if (_trace_goals) {
+            _out.println("Execute: " + goal);
+        }
+
+        goal = goal.execute();
+        propagate();
+
+        updateMaxOccupiedMemory();
+
+        if (goal != null) {
+            _goal_stack.pushGoal(goal);
+        }
+    }
+
+    private void traceFailure(Failure f) {
+        if (_trace_failure_stack && _failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
+            f.printStackTrace(_out);
+        }
+    }
+
+    private void updateMaxOccupiedMemory() {
+        if (_print_information) {
+            var occupiedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            if (_max_occupied_memory < occupiedMemory) {
+                _max_occupied_memory = occupiedMemory;
+            }
+        }
     }
 
     /*
