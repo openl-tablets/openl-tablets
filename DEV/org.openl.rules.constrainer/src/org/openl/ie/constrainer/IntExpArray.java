@@ -2,6 +2,7 @@ package org.openl.ie.constrainer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -258,17 +259,9 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * @return the merged array
      */
     public IntExpArray merge(IntExpArray array) {
-        int i;
         var newData = new ArrayList<IntExp>(_data.length + array._data.length);
-
-        for (i = 0; i < _data.length; i++) {
-            newData.add(_data[i]);
-        }
-
-        for (i = 0; i < array._data.length; i++) {
-            newData.add(array._data[i]);
-        }
-
+        Collections.addAll(newData, _data);
+        Collections.addAll(newData, array._data);
         return new IntExpArray(constrainer(), newData);
     }
 
