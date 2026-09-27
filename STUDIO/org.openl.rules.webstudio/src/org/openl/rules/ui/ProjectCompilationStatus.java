@@ -3,7 +3,7 @@ package org.openl.rules.ui;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ public final class ProjectCompilationStatus {
     private ProjectCompilationStatus(Builder builder) {
         this.modulesCount = builder.modulesCount;
         this.modulesCompiled = builder.modulesCompiled;
-        var messagesMap = new HashMap<Severity, List<OpenLMessage>>();
+        var messagesMap = new EnumMap<Severity, List<OpenLMessage>>(Severity.class);
         builder.messages.forEach((key, value) -> messagesMap.put(key, Collections.unmodifiableList(value)));
         this.messages = Collections.unmodifiableMap(messagesMap);
     }
@@ -82,7 +82,7 @@ public final class ProjectCompilationStatus {
 
         private int modulesCompiled;
 
-        private final Map<Severity, List<OpenLMessage>> messages = new HashMap<>();
+        private final Map<Severity, List<OpenLMessage>> messages = new EnumMap<>(Severity.class);
 
         private final Set<OpenLMessage> uniqueMessages = new HashSet<>();
 

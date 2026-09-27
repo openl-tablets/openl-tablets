@@ -2,7 +2,7 @@ package org.openl.message;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +60,7 @@ public class OpenLMessagesUtils {
     }
 
     private static Map<Severity, Collection<OpenLMessage>> groupMessagesBySeverity(Collection<OpenLMessage> messages) {
-        var groupedMessagesMap = new HashMap<Severity, Collection<OpenLMessage>>();
+        var groupedMessagesMap = new EnumMap<Severity, Collection<OpenLMessage>>(Severity.class);
 
         for (OpenLMessage message : messages) {
             var severity = message.getSeverity();

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -88,7 +88,7 @@ public class XlsWorkbookMerger implements Closeable {
      * @return difference result
      */
     public WorkbookDiffResult getDiffResult() {
-        var diffResult = new HashMap<DiffStatus, Set<String>>();
+        var diffResult = new EnumMap<DiffStatus, Set<String>>(DiffStatus.class);
         Map<String, XlsMatch> ourToBase = XlsWorkbooksMatcher.match(baseWorkbook, ourWorkbook);
         Map<String, XlsMatch> theirToBase = XlsWorkbooksMatcher.match(baseWorkbook, theirWorkbook);
 
@@ -136,7 +136,7 @@ public class XlsWorkbookMerger implements Closeable {
             return new HSSFPaletteDiffResult(Map.of(), Map.of());
         }
 
-        var diffResult = new HashMap<DiffStatus, Set<Short>>();
+        var diffResult = new EnumMap<DiffStatus, Set<Short>>(DiffStatus.class);
 
         var ourToBase = HSSFPaletteMatcher.matchPalette(toHSSFBook(baseWorkbook), toHSSFBook(ourWorkbook));
         var theirToBase = HSSFPaletteMatcher.matchPalette(toHSSFBook(baseWorkbook), toHSSFBook(theirWorkbook));
