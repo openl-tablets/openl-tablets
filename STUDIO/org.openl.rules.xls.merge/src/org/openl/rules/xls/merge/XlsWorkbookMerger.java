@@ -94,8 +94,9 @@ public class XlsWorkbookMerger implements Closeable {
 
         final Function<DiffStatus, Set<String>> initGroupValue = key -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-        for (String sheetName : ourToBase.keySet()) {
-            var ourMatchRes = ourToBase.get(sheetName);
+        for (var entry : ourToBase.entrySet()) {
+            var sheetName = entry.getKey();
+            var ourMatchRes = entry.getValue();
             var theirMatchRes = theirToBase.get(sheetName);
             DiffStatus diffDecision;
             if (ourMatchRes != null && ourMatchRes == theirMatchRes) {
@@ -141,8 +142,9 @@ public class XlsWorkbookMerger implements Closeable {
         var theirToBase = HSSFPaletteMatcher.matchPalette(toHSSFBook(baseWorkbook), toHSSFBook(theirWorkbook));
         var ourToTheir = HSSFPaletteMatcher.matchPalette(toHSSFBook(ourWorkbook), toHSSFBook(theirWorkbook));
 
-        for (Short cIdx : ourToBase.keySet()) {
-            var ourMatchRes = ourToBase.get(cIdx);
+        for (var entry : ourToBase.entrySet()) {
+            var cIdx = entry.getKey();
+            var ourMatchRes = entry.getValue();
             var theirMatchRes = theirToBase.get(cIdx);
             DiffStatus diffDecision;
             if (ourMatchRes == theirMatchRes) {

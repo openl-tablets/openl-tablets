@@ -334,9 +334,9 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 e -> clsToRootName.put(e.getBeanClass(), getRootName(objectMapper, e.getBeanClass())));
 
         var conflictedRootNames = new HashMap<Class<?>, String>();
-        for (Class<?> cls : clsToRootName.keySet()) {
-            if (clsToRootName.values().stream().filter(e -> Objects.equals(e, clsToRootName.get(cls))).count() > 1) {
-                conflictedRootNames.put(cls, cls.getName());
+        for (var entry : clsToRootName.entrySet()) {
+            if (clsToRootName.values().stream().filter(e -> Objects.equals(e, entry.getValue())).count() > 1) {
+                conflictedRootNames.put(entry.getKey(), entry.getKey().getName());
             }
         }
         forEachType(xlsModuleOpenClass,

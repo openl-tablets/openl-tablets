@@ -41,8 +41,7 @@ public class ActivePropertyValidator extends TablesValidator {
 
         var messages = new LinkedHashSet<OpenLMessage>();
 
-        for (DimensionPropertiesMethodKey key : groupedMethods.keySet()) {
-            List<TableSyntaxNode> methodsGroup = groupedMethods.get(key);
+        for (List<TableSyntaxNode> methodsGroup : groupedMethods.values()) {
             var activeExecutableMethodTable = new ArrayList<TableSyntaxNode>();
             var activeTableFoundCount = 0;
 

@@ -55,9 +55,10 @@ class ParameterExport extends BaseParameterExport {
 
             if (ClassUtils.isAssignable(param.getType().getInstanceClass(), Map.class)) {
                 var map = (Map<?, ?>) param.getValue();
-                for (Object key : map.keySet()) {
+                for (var entry : map.entrySet()) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
-                            param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
+                            param.getName() + "[\"" + entry.getKey() + "\"]:"
+                                    + entry.getValue().getClass().getSimpleName(),
                             styles.header));
                 }
             } else if (fields == null || fields.isEmpty()) {
@@ -96,9 +97,10 @@ class ParameterExport extends BaseParameterExport {
             if (fieldDescriptor.getChildren() == null) {
                 if (ClassUtils.isAssignable(fieldDescriptor.getField().getType().getInstanceClass(), Map.class)) {
                     var map = (Map<?, ?>) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
-                    for (Object key : map.keySet()) {
+                    for (var entry : map.entrySet()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
-                                prefix + fieldName + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
+                                prefix + fieldName + "[\"" + entry.getKey() + "\"]:"
+                                        + entry.getValue().getClass().getSimpleName(),
                                 styles.header));
                     }
                     continue;

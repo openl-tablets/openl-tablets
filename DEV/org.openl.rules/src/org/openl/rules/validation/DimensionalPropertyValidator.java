@@ -48,22 +48,24 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
 
                         var usedKeys = new HashSet<String>(); // Performance
                         // improvement
-                        for (String propKey : propertiesA.keySet()) {
+                        for (var entry : propertiesA.entrySet()) {
                             if (OverlapState.NOT_OVERLAP == overlapState) {
                                 break;
                             }
+                            var propKey = entry.getKey();
                             usedKeys.add(propKey);
-                            var prop = propertiesA.get(propKey);
+                            var prop = entry.getValue();
                             var p = propertiesB.get(propKey);
                             overlapState = loopInternal(overlapState, vResult, propKey, prop, p);
                         }
-                        for (String propKey : propertiesB.keySet()) {
+                        for (var entry : propertiesB.entrySet()) {
                             if (OverlapState.NOT_OVERLAP == overlapState) {
                                 break;
                             }
+                            var propKey = entry.getKey();
                             if (!usedKeys.contains(propKey)) {
                                 var prop = propertiesA.get(propKey);
-                                var p = propertiesB.get(propKey);
+                                var p = entry.getValue();
                                 overlapState = loopInternal(overlapState, vResult, propKey, prop, p);
                             }
                         }

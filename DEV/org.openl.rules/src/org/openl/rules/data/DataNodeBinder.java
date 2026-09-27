@@ -234,11 +234,12 @@ public class DataNodeBinder extends AXlsTableBinder {
                 }
             }
         }
-        for (String prop : duplicatedRuntimeContextProps.keySet()) {
+        for (var entry : duplicatedRuntimeContextProps.entrySet()) {
+            var prop = entry.getKey();
             bindingContext.addMessage(new OpenLWarnMessage(
                     "Multiple fields refer to the same context property '%s'. '%s.%s' will be applied.".formatted(
                             prop,
-                            duplicatedRuntimeContextProps.get(prop),
+                            entry.getValue(),
                             prop),
                     tableToProcess.getTableSyntaxNode()));
         }

@@ -169,8 +169,8 @@ public class XlsDiff2 {
         builder.setProjectionDiffer(new XlsProjectionDiffer());
 
         // 1. Pairs v1:v2
-        for (String guess : diffGuess.keySet()) {
-            for (DiffPair pair : diffGuess.get(guess)) {
+        for (List<DiffPair> pairs : diffGuess.values()) {
+            for (DiffPair pair : pairs) {
                 checkGrid(pair);
                 builder.add(pair);
             }
@@ -254,8 +254,10 @@ public class XlsDiff2 {
                 grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(-1));
             }
         }
-        for (Integer grid1row : grid1RowsState.keySet()) {
-            if (grid1RowsState.get(grid1row).getRowIndex() != -1) {
+        for (var entry : grid1RowsState.entrySet()) {
+            var grid1row = entry.getKey();
+            var rowState = entry.getValue();
+            if (rowState.getRowIndex() != -1) {
                 continue;
             }
             // From and to, the value between which the most suitable string should be found,
@@ -270,7 +272,7 @@ public class XlsDiff2 {
                 }
                 var minDiff = allRowDiffs.stream().min(Comparator.comparingInt(o -> o.getDiff().size()));
                 var rowDiff = minDiff.orElse(new RowDiff());
-                grid1RowsState.get(grid1row).setRowIndex(rowDiff.getRowIndex()).setDiff(rowDiff.getDiff());
+                rowState.setRowIndex(rowDiff.getRowIndex()).setDiff(rowDiff.getDiff());
             } else {
                 // If there are no rows in the range, then we assume that the row was deleted.
                 for (var grid1Col = 0; grid1Col < grid1.getWidth(); grid1Col++) {
