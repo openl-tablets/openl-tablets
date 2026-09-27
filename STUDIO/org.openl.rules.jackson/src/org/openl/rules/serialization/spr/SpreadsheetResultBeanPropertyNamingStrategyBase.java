@@ -12,12 +12,6 @@ import org.openl.util.StringUtils;
 
 abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy implements SpreadsheetResultBeanPropertyNamingStrategy {
 
-    @Override
-    public abstract String transform(String name);
-
-    @Override
-    public abstract String transform(String column, String row);
-
     protected String toUpperCamelCase(String input) {
         input = JavaKeywordUtils.toJavaIdentifier(input);
         if (input == null) {

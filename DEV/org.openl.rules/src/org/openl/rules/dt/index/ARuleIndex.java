@@ -42,9 +42,6 @@ public abstract class ARuleIndex implements IRuleIndex {
     abstract DecisionTableRuleNode findNodeInIndex(Object value);
 
     @Override
-    public abstract Iterable<? extends DecisionTableRuleNode> nodes();
-
-    @Override
     public int[] collectRules() {
         var set = new HashSet<Integer>();
 
