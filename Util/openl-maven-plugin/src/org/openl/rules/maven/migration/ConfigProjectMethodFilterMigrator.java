@@ -16,6 +16,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import org.openl.rules.project.model.ExposedMethods;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -66,9 +67,7 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
             if (mf != null && (CollectionUtils.isNotEmpty(mf.getIncludes())
                     || CollectionUtils.isNotEmpty(mf.getExcludes()))) {
                 anyFilter = true;
-                if (mf.getIncludes() != null) {
-                    mf.getIncludes().stream().filter(StringUtils::isNotBlank).forEach(legacyIncludes::add);
-                }
+                addIncludes(mf, legacyIncludes);
                 anyExcludes |= CollectionUtils.isNotEmpty(mf.getExcludes());
                 module.setMethodFilter(null);
             }
@@ -109,6 +108,12 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
         var em = existing != null ? existing : new ExposedMethods();
         em.setIncludes(includes);
         descriptor.setExposedMethods(em);
+    }
+
+    private static void addIncludes(MethodFilter mf, Set<String> legacyIncludes) {
+        if (mf.getIncludes() != null) {
+            mf.getIncludes().stream().filter(StringUtils::isNotBlank).forEach(legacyIncludes::add);
+        }
     }
 
     /**
@@ -216,17 +221,10 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
                     } else {
                         literal.append(escaped);
                     }
-                } else if (c == '.' && i + 1 < regexp.length()
-                        && (regexp.charAt(i + 1) == '*' || regexp.charAt(i + 1) == '+')) {
+                } else if (isWildcardAt(regexp, i)) {
                     i++;
                     regex.append(".*");
-                    if (!literal.isEmpty()) {
-                        tokens.add(literal.toString());
-                        literal.setLength(0);
-                    }
-                    if (tokens.isEmpty() || tokens.getLast() != null) {
-                        tokens.add(null);
-                    }
+                    addWildcard(tokens, literal);
                 } else {
                     regex.append(c);
                     if (".[]{}()^$?+*|".indexOf(c) >= 0) {
@@ -237,10 +235,36 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
                 }
                 i++;
             }
+            flushLiteral(tokens, literal);
+            return new ParsedPattern(regex.toString(), derivable ? derivePrefix(tokens) : null);
+        }
+
+        /**
+         * Checks whether a {@code .*} or {@code .+} wildcard starts at the given index of the regexp.
+         */
+        private static boolean isWildcardAt(String regexp, int i) {
+            return regexp.charAt(i) == '.' && i + 1 < regexp.length()
+                    && (regexp.charAt(i + 1) == '*' || regexp.charAt(i + 1) == '+');
+        }
+
+        /**
+         * Ends the current literal segment and adds a wildcard token, unless the last token is a wildcard already.
+         */
+        private static void addWildcard(List<String> tokens, StringBuilder literal) {
+            flushLiteral(tokens, literal);
+            if (tokens.isEmpty() || tokens.getLast() != null) {
+                tokens.add(null);
+            }
+        }
+
+        /**
+         * Adds the current literal segment, if any, to the tokens and starts a new one.
+         */
+        private static void flushLiteral(List<String> tokens, StringBuilder literal) {
             if (!literal.isEmpty()) {
                 tokens.add(literal.toString());
+                literal.setLength(0);
             }
-            return new ParsedPattern(regex.toString(), derivable ? derivePrefix(tokens) : null);
         }
 
         /**

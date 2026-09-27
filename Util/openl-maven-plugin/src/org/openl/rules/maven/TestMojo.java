@@ -32,6 +32,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
@@ -312,17 +313,7 @@ public final class TestMojo extends BaseOpenLMojo {
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
 
         if (openLRules.hasErrors()) {
-            error("");
-            error("There are compilation errors. It can affect test execution.");
-            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
-                    .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.ERROR);
-            int i = 0;
-            for (OpenLMessage message : errorMessages) {
-                String location = message.getSourceLocation() == null ? "" : (" at " + message.getSourceLocation());
-                error(i + 1 + ". '", message.getSummary(), "'", location);
-                i++;
-            }
-            error("");
+            reportCompilationErrors(openLRules);
         }
 
         int runTests = 0;
@@ -341,18 +332,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 try {
                     String moduleInfo = moduleName == null ? "" : " from module '%s'".formatted(moduleName);
                     info("Running ", "'%s'".formatted(test.getName()), moduleInfo, "...");
-                    TestUnitsResults result;
-                    ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-                    try {
-                        Thread.currentThread().setContextClassLoader(openLRules.getClassLoader());
-                        if (testSuiteExecutor == null) {
-                            result = new TestSuite(test, runner).invokeSequentially(openClass, 1);
-                        } else {
-                            result = new TestSuite(test, runner).invokeParallel(testSuiteExecutor, openClass, 1);
-                        }
-                    } finally {
-                        Thread.currentThread().setContextClassLoader(oldClassLoader);
-                    }
+                    TestUnitsResults result = runTestSuite(test, runner, openClass, openLRules, testSuiteExecutor);
                     writeReport(result);
 
                     int suitTests = result.getNumberOfTestUnits();
@@ -381,10 +361,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     error(e);
                     errors++;
                     String modulePrefix = moduleName == null ? "" : moduleName + ".";
-                    Throwable cause = ExceptionUtils.getRootCause(e);
-                    if (cause == null) {
-                        cause = e;
-                    }
+                    Throwable cause = rootCauseOf(e);
                     summaryErrors.add(modulePrefix + test.getName() + " " + cause.getClass().getName());
                 }
             }
@@ -395,6 +372,54 @@ public final class TestMojo extends BaseOpenLMojo {
                 testSuiteExecutor.destroy();
             }
         }
+    }
+
+    private void reportCompilationErrors(CompiledOpenClass openLRules) {
+        error("");
+        error("There are compilation errors. It can affect test execution.");
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
+                .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.ERROR);
+        int i = 0;
+        for (OpenLMessage message : errorMessages) {
+            String location = message.getSourceLocation() == null ? "" : (" at " + message.getSourceLocation());
+            error(i + 1 + ". '", message.getSummary(), "'", location);
+            i++;
+        }
+        error("");
+    }
+
+    /**
+     * Runs the test suite with the class loader of the rules as the context class loader of the current thread.
+     */
+    private static TestUnitsResults runTestSuite(TestSuiteMethod test,
+                                                 TestRunner runner,
+                                                 IOpenClass openClass,
+                                                 CompiledOpenClass openLRules,
+                                                 @Nullable TestSuiteExecutor testSuiteExecutor) {
+        TestUnitsResults result;
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(openLRules.getClassLoader());
+            if (testSuiteExecutor == null) {
+                result = new TestSuite(test, runner).invokeSequentially(openClass, 1);
+            } else {
+                result = new TestSuite(test, runner).invokeParallel(testSuiteExecutor, openClass, 1);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+        return result;
+    }
+
+    /**
+     * Returns the root cause of the exception, or the exception itself when it has no cause.
+     */
+    private static Throwable rootCauseOf(Throwable e) {
+        Throwable cause = ExceptionUtils.getRootCause(e);
+        if (cause == null) {
+            cause = e;
+        }
+        return cause;
     }
 
     private TestRunner getTestRunner() {
@@ -447,50 +472,55 @@ public final class TestMojo extends BaseOpenLMojo {
                     StringBuilder summaryBuilder = new StringBuilder(modulePrefix + test.getName() + "#" + num);
 
                     List<ComparedResult> comparisonResults = testUnit.getComparisonResults();
-                    int rowNum = 0;
-                    for (ComparedResult comparisonResult : comparisonResults) {
-                        if (comparisonResult.getStatus() != TR_OK) {
-                            var fieldName = comparisonResult.getFieldName();
-                            var expectedValue = toString(comparisonResult.getExpectedValue());
-                            var actualValue = toString(comparisonResult.getActualValue());
-                            if (fieldName == null || ThisField.THIS.equals(fieldName)) {
-                                info("    Expected: <" + expectedValue + "> but was: <" + actualValue + ">");
-                                summaryBuilder.append(EXPECTED_PREFIX)
-                                        .append(expectedValue)
-                                        .append("> but was <")
-                                        .append(actualValue)
-                                        .append(">");
-                            } else {
-                                if (rowNum > 0) {
-                                    summaryBuilder.append(",");
-                                }
-                                info("    Field " + fieldName + EXPECTED_PREFIX + expectedValue + "> but was: <" + actualValue + ">");
-
-                                summaryBuilder.append(" field ")
-                                        .append(fieldName)
-                                        .append(EXPECTED_PREFIX)
-                                        .append(expectedValue)
-                                        .append("> but was <")
-                                        .append(actualValue)
-                                        .append(">");
-                            }
-                            rowNum++;
-                        }
-                    }
+                    showComparisonResults(comparisonResults, summaryBuilder);
                     summaryFailures.add(summaryBuilder.toString());
                 } else {
                     Throwable error = (Throwable) testUnit.getActualResult();
                     info("  Error: ", error, "\n", ExceptionUtils.getStackTrace(error));
-                    Throwable cause = ExceptionUtils.getRootCause(error);
-                    if (cause == null) {
-                        cause = error;
-                    }
+                    Throwable cause = rootCauseOf(error);
                     summaryErrors.add(modulePrefix + test.getName() + "#" + num + " " + cause.getClass().getName());
                 }
             }
             num++;
         }
         info("");
+    }
+
+    /**
+     * Shows the expected and the actual values of every failed comparison, and appends them to the summary.
+     */
+    private void showComparisonResults(List<ComparedResult> comparisonResults, StringBuilder summaryBuilder) {
+        int rowNum = 0;
+        for (ComparedResult comparisonResult : comparisonResults) {
+            if (comparisonResult.getStatus() != TR_OK) {
+                var fieldName = comparisonResult.getFieldName();
+                var expectedValue = toString(comparisonResult.getExpectedValue());
+                var actualValue = toString(comparisonResult.getActualValue());
+                if (fieldName == null || ThisField.THIS.equals(fieldName)) {
+                    info("    Expected: <" + expectedValue + "> but was: <" + actualValue + ">");
+                    summaryBuilder.append(EXPECTED_PREFIX)
+                            .append(expectedValue)
+                            .append("> but was <")
+                            .append(actualValue)
+                            .append(">");
+                } else {
+                    if (rowNum > 0) {
+                        summaryBuilder.append(",");
+                    }
+                    info("    Field " + fieldName + EXPECTED_PREFIX + expectedValue + "> but was: <" + actualValue
+                            + ">");
+
+                    summaryBuilder.append(" field ")
+                            .append(fieldName)
+                            .append(EXPECTED_PREFIX)
+                            .append(expectedValue)
+                            .append("> but was <")
+                            .append(actualValue)
+                            .append(">");
+                }
+                rowNum++;
+            }
+        }
     }
 
     @Override

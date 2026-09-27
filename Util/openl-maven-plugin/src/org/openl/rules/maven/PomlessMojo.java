@@ -215,12 +215,7 @@ public final class PomlessMojo extends AbstractMojo {
             descriptor.setDependencies(new ArrayList<>());
         }
         var existing = descriptor.getDependencies();
-        var declaredCoords = new HashSet<String>();
-        for (var d : existing) {
-            if (d.getMavenArtifact() != null) {
-                declaredCoords.add(d.getMavenArtifact());
-            }
-        }
+        var declaredCoords = collectMavenArtifacts(existing);
         var merged = 0;
         var appended = 0;
         for (var dep : plan.rulesXmlDeps()) {
@@ -228,22 +223,9 @@ public final class PomlessMojo extends AbstractMojo {
             if (!declaredCoords.add(coords)) {
                 continue; // already declared in the file or earlier in this batch
             }
-            var newDep = new ProjectDependencyDescriptor();
-            newDep.setMavenArtifact(coords);
-            ProjectDependencyDescriptor match = null;
-            if (OpenLPackagings.ZIP_DEPENDENCY_TYPE.equals(dep.getType())) {
-                // OpenL sibling: reuse the existing <name> entry when present, else append a fresh one with the
-                // sibling's logical <name> (falling back to the artifactId when it isn't in the reactor).
-                var name = lookupSiblingName(dep);
-                match = findMatchingNameEntry(existing, name);
-                newDep.setName(name != null ? name : dep.getArtifactId());
-            }
-            // else: bare jar — a name-less <mavenArtifact> is treated as a plain jar on the classpath.
-            if (match != null) {
-                match.setMavenArtifact(coords);
+            if (addDependency(existing, dep, coords)) {
                 merged++;
             } else {
-                existing.add(newDep);
                 appended++;
             }
         }
@@ -255,6 +237,47 @@ public final class PomlessMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to write '" + rulesXml + "'.", e);
         }
+        getLog().info(updateMessage(rulesXml, merged, appended));
+    }
+
+    private static Set<String> collectMavenArtifacts(List<ProjectDependencyDescriptor> dependencies) {
+        var declaredCoords = new HashSet<String>();
+        for (var d : dependencies) {
+            if (d.getMavenArtifact() != null) {
+                declaredCoords.add(d.getMavenArtifact());
+            }
+        }
+        return declaredCoords;
+    }
+
+    /**
+     * Declares the dependency in the entries of {@code rules.xml}.
+     *
+     * @return {@code true} when the existing entry of an OpenL sibling is reused, {@code false} when a new entry
+     *         is appended
+     */
+    private boolean addDependency(List<ProjectDependencyDescriptor> existing, Dependency dep, String coords) {
+        var newDep = new ProjectDependencyDescriptor();
+        newDep.setMavenArtifact(coords);
+        ProjectDependencyDescriptor match = null;
+        if (OpenLPackagings.ZIP_DEPENDENCY_TYPE.equals(dep.getType())) {
+            // OpenL sibling: reuse the existing <name> entry when present, else append a fresh one with the
+            // sibling's logical <name> (falling back to the artifactId when it isn't in the reactor).
+            var name = lookupSiblingName(dep);
+            match = findMatchingNameEntry(existing, name);
+            newDep.setName(name != null ? name : dep.getArtifactId());
+        }
+        // else: bare jar — a name-less <mavenArtifact> is treated as a plain jar on the classpath.
+        if (match != null) {
+            match.setMavenArtifact(coords);
+            return true;
+        } else {
+            existing.add(newDep);
+            return false;
+        }
+    }
+
+    private static String updateMessage(Path rulesXml, int merged, int appended) {
         var msg = new StringBuilder("Updated ").append(rulesXml);
         if (merged > 0) {
             msg.append(" — merged ").append(merged)
@@ -263,7 +286,7 @@ public final class PomlessMojo extends AbstractMojo {
         if (appended > 0) {
             msg.append(merged > 0 ? "," : " —").append(" appended ").append(appended).append(" new entry(ies)");
         }
-        getLog().info(msg.toString());
+        return msg.toString();
     }
 
     /**
@@ -723,28 +746,44 @@ public final class PomlessMojo extends AbstractMojo {
             return false;
         }
         var build = model.getBuild();
-        if (build != null) {
-            if (build.getPlugins() != null && !build.getPlugins().isEmpty()) return false;
-            var pm = build.getPluginManagement();
-            if (pm != null && pm.getPlugins() != null && !pm.getPlugins().isEmpty()) return false;
-            if (build.getFinalName() != null) return false;
-            if (build.getSourceDirectory() != null) return false;
-            if (build.getScriptSourceDirectory() != null) return false;
-            if (build.getTestSourceDirectory() != null) return false;
-            if (build.getResources() != null && !build.getResources().isEmpty()) return false;
-            if (build.getTestResources() != null && !build.getTestResources().isEmpty()) return false;
-            if (build.getExtensions() != null && !build.getExtensions().isEmpty()) return false;
-            if (build.getFilters() != null && !build.getFilters().isEmpty()) return false;
+        if (build != null && declaresBuildContent(build)) {
+            return false;
         }
-        if (model.getProperties() != null && !model.getProperties().isEmpty()) return false;
-        if (model.getProfiles() != null && !model.getProfiles().isEmpty()) return false;
-        if (model.getDependencies() != null && !model.getDependencies().isEmpty()) return false;
+        return !declaresProjectContent(model);
+    }
+
+    /**
+     * Checks whether the build declares plugins, a final name, source directories, resources, extensions or
+     * filters.
+     */
+    private static boolean declaresBuildContent(Build build) {
+        if (build.getPlugins() != null && !build.getPlugins().isEmpty()) return true;
+        var pm = build.getPluginManagement();
+        if (pm != null && pm.getPlugins() != null && !pm.getPlugins().isEmpty()) return true;
+        if (build.getFinalName() != null) return true;
+        if (build.getSourceDirectory() != null) return true;
+        if (build.getScriptSourceDirectory() != null) return true;
+        if (build.getTestSourceDirectory() != null) return true;
+        if (build.getResources() != null && !build.getResources().isEmpty()) return true;
+        if (build.getTestResources() != null && !build.getTestResources().isEmpty()) return true;
+        if (build.getExtensions() != null && !build.getExtensions().isEmpty()) return true;
+        return build.getFilters() != null && !build.getFilters().isEmpty();
+    }
+
+    /**
+     * Checks whether the project declares properties, profiles, dependencies, repositories, reporting or
+     * distribution management.
+     */
+    private static boolean declaresProjectContent(Model model) {
+        if (model.getProperties() != null && !model.getProperties().isEmpty()) return true;
+        if (model.getProfiles() != null && !model.getProfiles().isEmpty()) return true;
+        if (model.getDependencies() != null && !model.getDependencies().isEmpty()) return true;
         var dm = model.getDependencyManagement();
-        if (dm != null && dm.getDependencies() != null && !dm.getDependencies().isEmpty()) return false;
-        if (model.getRepositories() != null && !model.getRepositories().isEmpty()) return false;
-        if (model.getPluginRepositories() != null && !model.getPluginRepositories().isEmpty()) return false;
-        if (model.getReporting() != null) return false;
-        return model.getDistributionManagement() == null;
+        if (dm != null && dm.getDependencies() != null && !dm.getDependencies().isEmpty()) return true;
+        if (model.getRepositories() != null && !model.getRepositories().isEmpty()) return true;
+        if (model.getPluginRepositories() != null && !model.getPluginRepositories().isEmpty()) return true;
+        if (model.getReporting() != null) return true;
+        return model.getDistributionManagement() != null;
     }
 
     /**
@@ -928,17 +967,7 @@ public final class PomlessMojo extends AbstractMojo {
             }
         }
         for (var edit : migrationPlan.anchorEdits()) {
-            getLog().info("");
-            var note = edit.flattenGroupId() ? " (with <flattenGroupId>true</> — pass-throughs collapsed)" : "";
-            getLog().info("Anchor '" + edit.anchor().getArtifactId() + "' (" + edit.anchor().getFile()
-                    + ") — declares openl-maven-plugin <extensions>true</>" + note + ":");
-            if (edit.threshold() != null) {
-                getLog().info("    <dependenciesThreshold>" + edit.threshold() + "</dependenciesThreshold>");
-            }
-            if (!edit.hoist().isEmpty()) {
-                getLog().info("  Non-OpenL dependencies hoisted to its <dependencies>:");
-                getLog().info(renderDependencies(edit.hoist()));
-            }
+            reportAnchorEdit(edit);
         }
         if (!migrationPlan.passThroughDirs().isEmpty()) {
             getLog().info("");
@@ -953,6 +982,20 @@ public final class PomlessMojo extends AbstractMojo {
             for (var plan : blocked) {
                 getLog().info("  - " + plan.artifactId() + ": " + String.join("; ", plan.blockers()));
             }
+        }
+    }
+
+    private void reportAnchorEdit(AnchorEdit edit) {
+        getLog().info("");
+        var note = edit.flattenGroupId() ? " (with <flattenGroupId>true</> — pass-throughs collapsed)" : "";
+        getLog().info("Anchor '" + edit.anchor().getArtifactId() + "' (" + edit.anchor().getFile()
+                + ") — declares openl-maven-plugin <extensions>true</>" + note + ":");
+        if (edit.threshold() != null) {
+            getLog().info("    <dependenciesThreshold>" + edit.threshold() + "</dependenciesThreshold>");
+        }
+        if (!edit.hoist().isEmpty()) {
+            getLog().info("  Non-OpenL dependencies hoisted to its <dependencies>:");
+            getLog().info(renderDependencies(edit.hoist()));
         }
     }
 

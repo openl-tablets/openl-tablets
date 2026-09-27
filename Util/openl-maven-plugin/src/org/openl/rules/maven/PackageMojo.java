@@ -232,18 +232,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
         Set<Artifact> dependencies = getDependencies();
-        var dependenciesSize = dependencies.size();
-        if (dependenciesSize > dependenciesThreshold) {
-            error("The quantity of dependencies (",
-                    dependenciesSize,
-                    ") exceeds the defined threshold in 'dependenciesThreshold=",
-                    dependenciesThreshold,
-                    "' parameter.");
-            for (Artifact artifact : dependencies) {
-                error("    : ", artifact);
-            }
-            throw new MojoFailureException("The quantity of dependencies exceeds the limit");
-        }
+        checkDependenciesThreshold(dependencies);
         final var openLJarPackaging = OpenLPackagings.OPENL_JAR_PACKAGING.equals(packaging);
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
@@ -264,25 +253,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         for (String type : types) {
             var outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
-            final var itselfLink = outputFile.equals(dependencyLib);
-
-            try (var arch = new ZipArchiver(outputFile.toPath())) {
-                writeManifest(arch);
-
-                if (openLJarPackaging && CollectionUtils.isNotEmpty(classesDirectory.list())) {
-                    ProjectPackager.addOpenLProject(classesDirectory, arch);
-                }
-
-                ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
-
-                if (dependencyLib != null && dependencyLib.isFile() && !itselfLink) {
-                    arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
-                }
-                for (Artifact artifact : dependencies) {
-                    var file = artifact.getFile();
-                    arch.addFile(file, classpathFolder + file.getName());
-                }
-            }
+            writeArchive(outputFile, openLSourceDir, includedFiles, dependencyLib, dependencies, openLJarPackaging);
 
             if (mainArtifactExists || StringUtils.isNotBlank(classifier)) {
                 info("Attaching the supplemental artifact '", outputFile, ",");
@@ -303,6 +274,56 @@ public final class PackageMojo extends BaseOpenLMojo {
                     to suppress their publication.""");
         }
 
+        attachDeploymentArtifactForDependents(openLSourceDir);
+    }
+
+    private void checkDependenciesThreshold(Set<Artifact> dependencies) throws MojoFailureException {
+        var dependenciesSize = dependencies.size();
+        if (dependenciesSize > dependenciesThreshold) {
+            error("The quantity of dependencies (",
+                    dependenciesSize,
+                    ") exceeds the defined threshold in 'dependenciesThreshold=",
+                    dependenciesThreshold,
+                    "' parameter.");
+            for (Artifact artifact : dependencies) {
+                error("    : ", artifact);
+            }
+            throw new MojoFailureException("The quantity of dependencies exceeds the limit");
+        }
+    }
+
+    private void writeArchive(File outputFile,
+                              File openLSourceDir,
+                              String[] includedFiles,
+                              @Nullable File dependencyLib,
+                              Set<Artifact> dependencies,
+                              boolean openLJarPackaging) throws IOException {
+        final var itselfLink = outputFile.equals(dependencyLib);
+
+        try (var arch = new ZipArchiver(outputFile.toPath())) {
+            writeManifest(arch);
+
+            if (openLJarPackaging && CollectionUtils.isNotEmpty(classesDirectory.list())) {
+                ProjectPackager.addOpenLProject(classesDirectory, arch);
+            }
+
+            ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
+
+            if (dependencyLib != null && dependencyLib.isFile() && !itselfLink) {
+                arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
+            }
+            for (Artifact artifact : dependencies) {
+                var file = artifact.getFile();
+                arch.addFile(file, classpathFolder + file.getName());
+            }
+        }
+    }
+
+    /**
+     * Attaches the deployment artifact of an OpenL project that other OpenL projects depend on, unless the project
+     * declares empty publishers.
+     */
+    private void attachDeploymentArtifactForDependents(File openLSourceDir) throws IOException {
         Set<Artifact> openLDependencies = getDependentOpenLProjects();
         if (OpenLPackagings.isOpenL(packaging) && !openLDependencies.isEmpty()) {
             if (OpenLPackagings.hasEmptyPublishers(openLSourceDir.toPath())) {

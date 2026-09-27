@@ -123,6 +123,37 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
 
         // Phase 2 — synthesise every staged project against the reactor index, skipping any whose GAV is
         // already in the reactor (a parallel anchor with the same coordinates, or a re-fired lifecycle).
+        var added = buildPomlessProjects(session, stagings, reactorVersions, request);
+        if (added.isEmpty()) {
+            return;
+        }
+
+        var all = new ArrayList<>(session.getAllProjects());
+        all.addAll(added);
+        try {
+            var graph = new DefaultProjectDependencyGraph(all);
+            var sorted = graph.getSortedProjects();
+            session.setAllProjects(sorted);
+            session.setProjects(sorted);
+            session.setProjectDependencyGraph(graph);
+        } catch (CycleDetectedException | DuplicateProjectException e) {
+            throw new MavenExecutionException(
+                    "Failed to resort reactor after adding pom-less OpenL projects.", e);
+        }
+        // Maven 3.9.x ReactorReader snapshots session.getProjects() once and never refreshes — without this
+        // poke a sibling can't resolve the pom-less zip from the reactor. See ReactorReaderInjector.
+        ReactorReaderInjector.inject(session, added);
+    }
+
+    /**
+     * Builds the projects of every staged folder.
+     *
+     * @return the built projects whose coordinates are not in the reactor yet
+     */
+    private List<MavenProject> buildPomlessProjects(MavenSession session,
+                                                    List<AnchorStaging> stagings,
+                                                    Map<String, String> reactorVersions,
+                                                    ProjectBuildingRequest request) throws MavenExecutionException {
         var existing = new HashSet<String>();
         for (var p : session.getAllProjects()) {
             existing.add(gav(p.getGroupId(), p.getArtifactId(), p.getVersion()));
@@ -144,25 +175,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
                 }
             }
         }
-        if (added.isEmpty()) {
-            return;
-        }
-
-        var all = new ArrayList<>(session.getAllProjects());
-        all.addAll(added);
-        try {
-            var graph = new DefaultProjectDependencyGraph(all);
-            var sorted = graph.getSortedProjects();
-            session.setAllProjects(sorted);
-            session.setProjects(sorted);
-            session.setProjectDependencyGraph(graph);
-        } catch (CycleDetectedException | DuplicateProjectException e) {
-            throw new MavenExecutionException(
-                    "Failed to resort reactor after adding pom-less OpenL projects.", e);
-        }
-        // Maven 3.9.x ReactorReader snapshots session.getProjects() once and never refreshes — without this
-        // poke a sibling can't resolve the pom-less zip from the reactor. See ReactorReaderInjector.
-        ReactorReaderInjector.inject(session, added);
+        return added;
     }
 
     /**

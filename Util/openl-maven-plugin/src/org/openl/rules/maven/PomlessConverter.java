@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -54,18 +55,7 @@ final class PomlessConverter {
         var rulesXmlDeps = new ArrayList<Dependency>();
         var hoist = new ArrayList<Dependency>();
 
-        if (model.getProfiles() != null && !model.getProfiles().isEmpty()) {
-            blockers.add("declares <profiles>");
-        }
-        if (model.getProperties() != null && !model.getProperties().isEmpty()) {
-            blockers.add("declares project <properties>");
-        }
-        if (model.getDistributionManagement() != null) {
-            blockers.add("overrides <distributionManagement>");
-        }
-        if (model.getRepositories() != null && !model.getRepositories().isEmpty()) {
-            blockers.add("declares custom <repositories>");
-        }
+        analyzeProjectSections(model, blockers);
 
         var threshold = analyzeBuild(model.getBuild(), blockers);
 
@@ -92,6 +82,24 @@ final class PomlessConverter {
 
         return new Plan(project.getArtifactId(), project.getGroupId(), pomPath(project), blockers.isEmpty(),
                 rulesXmlDeps, hoist, blockers, threshold);
+    }
+
+    /**
+     * Adds a blocker for every project section that a pom-less project cannot declare.
+     */
+    private static void analyzeProjectSections(Model model, List<String> blockers) {
+        if (model.getProfiles() != null && !model.getProfiles().isEmpty()) {
+            blockers.add("declares <profiles>");
+        }
+        if (model.getProperties() != null && !model.getProperties().isEmpty()) {
+            blockers.add("declares project <properties>");
+        }
+        if (model.getDistributionManagement() != null) {
+            blockers.add("overrides <distributionManagement>");
+        }
+        if (model.getRepositories() != null && !model.getRepositories().isEmpty()) {
+            blockers.add("declares custom <repositories>");
+        }
     }
 
     /**
