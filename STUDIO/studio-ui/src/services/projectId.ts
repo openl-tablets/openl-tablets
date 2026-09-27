@@ -19,7 +19,7 @@ export const encodeProjectId = (repositoryId: string, projectName: string): stri
     // btoa() reads a string as Latin-1: it throws above U+00FF and silently mis-encodes the range
     // below it, so the name is turned into UTF-8 bytes first and handed over one byte per char.
     const utf8 = new TextEncoder().encode(`${repositoryId}:${projectName}`)
-    return toUrlSafeId(btoa(String.fromCharCode(...utf8)))
+    return toUrlSafeId(btoa(String.fromCodePoint(...utf8)))
 }
 
 /**
