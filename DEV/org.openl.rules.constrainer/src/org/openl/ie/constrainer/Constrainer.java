@@ -349,7 +349,7 @@ public final class Constrainer implements Serializable {
      */
     public void addUndo(Undo undo_object, Undoable undoable) {
         addUndo(undo_object);
-        // Adds an undoableOnce to the _active_undoable_once.
+        // Adds an undoableOnce to the activeUndoableOnce.
         // Used in UndoableOnceImpl and allowUndos().
         if (undoable instanceof UndoableOnceImpl) {
             _active_undoable_once.push(undoable);
@@ -457,7 +457,7 @@ public final class Constrainer implements Serializable {
 
         var success = true;
 
-        // save current _goal_stack
+        // save current goalStack
         var old_goal_stack = _goal_stack;
 
         _goal_stack = new GoalStack(main_goal, _reversibility_stack);

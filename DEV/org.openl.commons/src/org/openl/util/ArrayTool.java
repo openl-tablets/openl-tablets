@@ -12,18 +12,18 @@ public final class ArrayTool {
     }
 
     private static class ArrayIterator<T> implements Iterator<T> {
-        private int _index;
-        private final int _size;
-        private final T[] _array;
+        private int index;
+        private final int size;
+        private final T[] array;
 
         private ArrayIterator(T[] array) {
-            _size = Array.getLength(array);
-            _array = array;
+            size = Array.getLength(array);
+            this.array = array;
         }
 
         @Override
         public boolean hasNext() {
-            return _index < _size;
+            return index < size;
         }
 
         @Override
@@ -31,7 +31,7 @@ public final class ArrayTool {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            return _array[_index++];
+            return array[index++];
         }
 
         @Override

@@ -313,14 +313,14 @@ class PoiCellStyle implements CellStyle {
         return format.getShrinkToFit();
     }
 
-    private EnumMap<CellPropertyType, Object> _cachedProperties;
+    private EnumMap<CellPropertyType, Object> cachedProperties;
 
     @Override
     public EnumMap<CellPropertyType, Object> getFormatProperties() {
-        EnumMap<CellPropertyType, Object> props = this._cachedProperties;
+        EnumMap<CellPropertyType, Object> props = this.cachedProperties;
         if (props == null) {
             props = CellUtil.getFormatProperties(this);
-            this._cachedProperties = props;
+            this.cachedProperties = props;
         }
 
         return props;
@@ -328,6 +328,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void invalidateCachedProperties() {
-        this._cachedProperties = null;
+        this.cachedProperties = null;
     }
 }

@@ -52,9 +52,9 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     @JsonIgnore
     private final String configName;
 
-    private final String REPOSITORY_FACTORY;
-    private final String REPOSITORY_REF;
-    private final String REPOSITORY_NAME;
+    private final String repositoryFactoryKey;
+    private final String repositoryRefKey;
+    private final String repositoryNameKey;
 
     @Getter
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
@@ -85,9 +85,9 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         this.configName = configName.toLowerCase();
         this.properties = properties;
         nameWithPrefix = Comments.REPOSITORY_PREFIX + configName.toLowerCase();
-        REPOSITORY_FACTORY = nameWithPrefix + REPOSITORY_FACTORY_SUFFIX;
-        REPOSITORY_REF = nameWithPrefix + ".$ref";
-        REPOSITORY_NAME = nameWithPrefix + REPOSITORY_NAME_SUFFIX;
+        repositoryFactoryKey = nameWithPrefix + REPOSITORY_FACTORY_SUFFIX;
+        repositoryRefKey = nameWithPrefix + ".$ref";
+        repositoryNameKey = nameWithPrefix + REPOSITORY_NAME_SUFFIX;
 
         load();
     }
@@ -145,7 +145,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     }
 
     private void load() {
-        var factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
+        var factoryClassName = properties.getProperty(repositoryFactoryKey);
         var declaredRef = RepositoryInstatiator.getRefID(factoryClassName);
         var repositoryType = supportedType(declaredRef);
         repoType = repositoryType.factoryId;
@@ -154,7 +154,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName
                     + ". Was replaced with " + repoType + ".";
         }
-        name = properties.getProperty(REPOSITORY_NAME);
+        name = properties.getProperty(repositoryNameKey);
         oldName = name;
         settings = createSettings(repositoryType, properties, nameWithPrefix, false);
     }
@@ -207,17 +207,17 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
     }
 
     private void store(PropertiesHolder propertiesHolder) {
-        propertiesHolder.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
+        propertiesHolder.setProperty(repositoryNameKey, StringUtils.trimToEmpty(name));
 
         var factoryId = Objects.requireNonNull(RepositoryType.findByFactory(repoType)).factoryId;
-        propertiesHolder.setProperty(REPOSITORY_REF, factoryId);
+        propertiesHolder.setProperty(repositoryRefKey, factoryId);
 
         settings.store(propertiesHolder);
     }
 
     public void revert() {
-        properties.revertProperties(REPOSITORY_NAME,
-                REPOSITORY_REF);
+        properties.revertProperties(repositoryNameKey,
+                repositoryRefKey);
         load();
         settings.revert(properties);
     }
@@ -256,7 +256,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             repoType = newRepoType;
             errorMessage = null;
 
-            properties.setProperty(REPOSITORY_REF, newRepositoryType.factoryId);
+            properties.setProperty(repositoryRefKey, newRepositoryType.factoryId);
             settings = createSettings(newRepositoryType, properties, nameWithPrefix, true);
         }
     }

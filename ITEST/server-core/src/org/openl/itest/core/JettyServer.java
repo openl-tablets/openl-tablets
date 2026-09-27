@@ -27,8 +27,8 @@ public class JettyServer {
 
     private final Server server;
     private final WebAppContext webAppContext;
-    private final Locale DEFAULT_LOCALE = Locale.getDefault();
-    private final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
+    private final Locale defaultLocale = Locale.getDefault();
+    private final TimeZone defaultTimeZone = TimeZone.getDefault();
 
     private JettyServer() {
         var webApp = new WebAppContext();
@@ -133,8 +133,8 @@ public class JettyServer {
             server.stop();
             server.destroy();
         } finally {
-            Locale.setDefault(DEFAULT_LOCALE);
-            TimeZone.setDefault(DEFAULT_TIMEZONE);
+            Locale.setDefault(defaultLocale);
+            TimeZone.setDefault(defaultTimeZone);
         }
     }
 

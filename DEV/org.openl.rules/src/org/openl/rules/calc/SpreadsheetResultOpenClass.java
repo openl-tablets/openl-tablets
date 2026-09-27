@@ -27,7 +27,7 @@ import org.openl.vm.IRuntimeEnv;
 public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private static final String ANY_SPREADSHEET_RESULT = "AnySpreadsheetResult";
 
-    private final IOpenField RESOLVING_IN_PROGRESS = new SpreadsheetResultField(this,
+    private final IOpenField resolvingInProgress = new SpreadsheetResultField(this,
             "IN_PROGRESS",
             JavaOpenClass.OBJECT);
 
@@ -68,13 +68,13 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         if (!strictMatch && noStrictMatchCache.containsKey(fieldName.toLowerCase())) {
             openField = noStrictMatchCache.get(fieldName.toLowerCase());
         }
-        if (openField != null && openField != RESOLVING_IN_PROGRESS) {
+        if (openField != null && openField != resolvingInProgress) {
             return openField;
         }
         if (module != null && module.getRulesModuleBindingContext() == null) {
             return null;
         }
-        if (openField == RESOLVING_IN_PROGRESS) {
+        if (openField == resolvingInProgress) {
             IOpenField f = strictMatch ? strictBlankCache.get(fieldName)
                     : noStrictBlankCache.get(fieldName.toLowerCase());
             if (f == null) {
@@ -90,9 +90,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             return f;
         } else {
             if (strictMatch) {
-                strictMatchCache.put(fieldName, RESOLVING_IN_PROGRESS);
+                strictMatchCache.put(fieldName, resolvingInProgress);
             } else {
-                noStrictMatchCache.put(fieldName.toLowerCase(), RESOLVING_IN_PROGRESS);
+                noStrictMatchCache.put(fieldName.toLowerCase(), resolvingInProgress);
             }
             openField = super.getField(fieldName, strictMatch);
             var g = SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get() == null;
@@ -149,7 +149,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             }
             IOpenField f = strictMatch ? strictMatchCache.get(fieldName)
                     : noStrictMatchCache.get(fieldName.toLowerCase());
-            if (f == null || f == RESOLVING_IN_PROGRESS) {
+            if (f == null || f == resolvingInProgress) {
                 if (strictMatch) {
                     strictMatchCache.put(fieldName, openField);
                 } else {
