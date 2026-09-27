@@ -16,7 +16,7 @@ public class CommonVersionImpl implements CommonVersion {
     @Getter
     private String revision = "0";
 
-    private transient String versionName;
+    private String versionName;
 
     public CommonVersionImpl(CommonVersion version) {
         major = version.getMajor();

@@ -29,7 +29,7 @@ public class ParsedCell implements ICell {
     private Object value = NOT_DEFINED;
     private IGridRegion region;
 
-    private transient TableStyles tableStyles;
+    private TableStyles tableStyles;
 
     @Override
     public int getAbsoluteRow() {

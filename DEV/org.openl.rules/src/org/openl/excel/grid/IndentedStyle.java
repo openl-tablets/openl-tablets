@@ -18,7 +18,7 @@ class IndentedStyle implements ICellStyle {
     private final int row;
     private final int column;
 
-    private transient ICellStyle delegate;
+    private ICellStyle delegate;
 
     @Override
     public short[][] getBorderRGB() {

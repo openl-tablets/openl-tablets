@@ -49,8 +49,8 @@ public class ParsedGrid extends AGrid {
 
     private XlsSheetGridModel writableGrid;
 
-    private transient IGridTable[] tables;
-    private transient TableStyles currentTableStyles;
+    private IGridTable[] tables;
+    private TableStyles currentTableStyles;
 
     ParsedGrid(String workbookPath,
                XlsSheetSourceCodeModule sheetSource,
