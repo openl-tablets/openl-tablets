@@ -39,7 +39,7 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
 
         var privileges = mapPrivileges(user, List.of());
 
-        var simpleUser = SimpleUser.builder()
+        return SimpleUser.builder()
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getSurname())
                 .setUsername(user.getLoginName())
@@ -49,8 +49,6 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
                 .setDisplayName(user.getDisplayName())
                 .setExternalFlags(user.getUserExternalFlags())
                 .build();
-
-        return simpleUser;
     }
 
     protected Collection<GrantedAuthority> mapPrivileges(org.openl.rules.security.standalone.persistence.User user,

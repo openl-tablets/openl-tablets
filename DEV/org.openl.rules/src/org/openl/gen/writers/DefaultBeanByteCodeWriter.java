@@ -52,7 +52,6 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
     @Override
     public String toString() {
         // For debugging purpose
-        String strBuilder = this.getClass().getSimpleName() + " for " + beanNameWithPackage;
-        return strBuilder;
+        return this.getClass().getSimpleName() + " for " + beanNameWithPackage;
     }
 }

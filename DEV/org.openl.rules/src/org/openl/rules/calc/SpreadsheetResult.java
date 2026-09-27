@@ -350,8 +350,7 @@ public class SpreadsheetResult implements Serializable {
             var column = columnNamesForResultModel[p.getColumn()];
             var row = rowNamesForResultModel[p.getRow()];
             if (column != null && row != null) {
-                var result = getValue(p.getRow(), p.getColumn());
-                return result;
+                return getValue(p.getRow(), p.getColumn());
             }
         }
         return null;

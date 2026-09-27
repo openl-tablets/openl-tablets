@@ -146,7 +146,7 @@ public class AlgorithmRow {
     @Override
     public String toString() {
         var delimeter = " | ";
-        var buf = label + delimeter + description + delimeter + operation + delimeter + condition + delimeter + action + delimeter;
-        return buf;
+        return label + delimeter + description + delimeter + operation + delimeter + condition + delimeter + action
+                + delimeter;
     }
 }
