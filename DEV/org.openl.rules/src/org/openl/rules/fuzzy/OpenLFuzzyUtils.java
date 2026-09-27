@@ -221,7 +221,7 @@ public final class OpenLFuzzyUtils {
                     sb.append(s.charAt(i));
                 }
             }
-            if (!sb.toString().isEmpty()) {
+            if (!sb.isEmpty()) {
                 t.add(sb.toString());
             }
         }
