@@ -30,7 +30,7 @@ public class DecisionTableRuleNode implements IDecisionTableRuleNode {
     public int[] getRules() {
         if (rules == null) {
             if (nextIndex == null) {
-                throw new RuntimeException("Internal Error: nextIndex is null when rules is null.");
+                throw new IllegalStateException("Internal Error: nextIndex is null when rules is null.");
             }
             return nextIndex.collectRules();
         }

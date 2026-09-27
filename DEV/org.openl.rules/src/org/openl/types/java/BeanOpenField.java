@@ -118,7 +118,7 @@ public final class BeanOpenField implements IOpenField {
         if (descriptor.getWriteMethod() != null) {
             return JavaOpenClass.getOpenClass(writeMethod.getDeclaringClass());
         }
-        throw new RuntimeException("Something is wrong with this bean");
+        throw new IllegalStateException("Something is wrong with this bean");
     }
 
     @Override

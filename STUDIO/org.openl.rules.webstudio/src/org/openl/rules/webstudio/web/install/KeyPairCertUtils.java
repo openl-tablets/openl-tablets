@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.security.KeyPairGenerator;
 import java.time.Instant;
 import java.time.Period;
@@ -15,6 +17,7 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 /**
@@ -30,7 +33,8 @@ public class KeyPairCertUtils {
         // Utility class
     }
 
-    private static Pair<String, String> generate() throws Exception {
+    private static Pair<String, String> generate()
+            throws GeneralSecurityException, IOException, OperatorCreationException {
 
         // Generate a RSA private key with 4096 bit size
         var kpg = KeyPairGenerator.getInstance("RSA");

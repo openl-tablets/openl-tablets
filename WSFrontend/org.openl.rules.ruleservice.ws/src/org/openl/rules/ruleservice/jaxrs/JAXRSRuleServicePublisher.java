@@ -79,7 +79,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         try {
             if (service.getServiceClass().getMethods().length == 0) {
-                throw new Exception("The service has no public methods.");
+                throw new IllegalArgumentException("The service has no public methods.");
             }
         } catch (Exception e) {
             throw new RuleServiceDeployException(e.getMessage(), e);

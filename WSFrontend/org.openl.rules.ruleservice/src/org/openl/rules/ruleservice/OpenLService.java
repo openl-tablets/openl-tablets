@@ -150,7 +150,7 @@ public class OpenLService {
         private final Object[] args;
         private final ObjectMapper mapper;
 
-        Object invoke() throws Exception {
+        Object invoke() throws IllegalAccessException, InvocationTargetException {
             return caller.invoke(instance, args);
         }
     }

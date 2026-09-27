@@ -205,7 +205,7 @@ public class ComponentOpenClass extends ADynamicClass {
 
         @Override
         public void set(Object target, Object value, IRuntimeEnv env) {
-            throw new RuntimeException("Cannot assign to 'this'");
+            throw new UnsupportedOperationException("Cannot assign to 'this'");
         }
 
     }

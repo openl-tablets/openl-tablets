@@ -128,7 +128,7 @@ public final class Constrainer implements Serializable {
      * @param msg Diagnostic message to print.
      */
     public static void abort(String msg) {
-        throw new RuntimeException(msg);
+        throw new IllegalStateException(msg);
     }
 
     /*

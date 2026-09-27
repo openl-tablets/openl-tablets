@@ -27,7 +27,7 @@ public class UnaryNode extends ASyntaxNode {
         if (i == 0) {
             return left;
         }
-        throw new RuntimeException("UnaryOp has only one child, not " + (i + 1));
+        throw new IndexOutOfBoundsException("UnaryOp has only one child, not " + (i + 1));
     }
 
     @Override

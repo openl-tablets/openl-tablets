@@ -10,6 +10,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
+import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableAnalyzer;
@@ -83,7 +84,7 @@ public class GapOverlapValidator extends TablesValidator {
         return dtValidResult;
     }
 
-    private Map<String, IDomainAdaptor> gatherDomains(IDecisionTable dt) throws Exception {
+    private Map<String, IDomainAdaptor> gatherDomains(IDecisionTable dt) throws DomainCanNotBeDefined {
         var domainsMap = new HashMap<String, IDomainAdaptor>();
         var analyzer = new DecisionTableAnalyzer(dt);
 

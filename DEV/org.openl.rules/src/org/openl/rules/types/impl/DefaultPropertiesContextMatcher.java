@@ -19,7 +19,8 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         MatchingConstraint<?, ?> mc = constraints.get(propName);
 
         if (mc == null) {
-            throw new RuntimeException("Unexpectedly could not find a constraint for the property: " + propName);
+            throw new IllegalArgumentException(
+                    "Unexpectedly could not find a constraint for the property: " + propName);
         }
         return mc.match(props, context);
     }

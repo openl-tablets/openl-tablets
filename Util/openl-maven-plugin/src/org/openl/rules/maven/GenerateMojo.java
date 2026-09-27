@@ -3,6 +3,7 @@ package org.openl.rules.maven;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -189,7 +190,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
     }
 
-    private ClassLoader composeClassLoader() throws Exception {
+    private ClassLoader composeClassLoader() throws MalformedURLException {
         info("Composing the classloader for the following sources:");
         for (String dir : sourceRoots) {
             info("  # source roots > ", dir);

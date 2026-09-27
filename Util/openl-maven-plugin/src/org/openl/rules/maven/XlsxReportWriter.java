@@ -14,7 +14,7 @@ import org.openl.rules.testmethod.export.TestResultExport;
 class XlsxReportWriter {
     private final File dir;
 
-    public void write(TestUnitsResults result) throws Exception {
+    public void write(TestUnitsResults result) throws IOException {
         var testSuite = result.getTestSuite();
         var testName = testSuite.getTestSuiteMethod().getName();
         var moduleName = testSuite.getTestSuiteMethod().getModuleName();

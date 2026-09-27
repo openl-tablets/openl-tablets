@@ -43,7 +43,7 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
         var a = (JavaEnumDomainAdaptor) adaptor;
 
         if (domain.getEnumClass() != a.domain.getEnumClass()) {
-            throw new RuntimeException("Wrong use of JavaEnumDomain for " + domain.getEnumClass().getName());
+            throw new IllegalArgumentException("Wrong use of JavaEnumDomain for " + domain.getEnumClass().getName());
         }
 
         return this;

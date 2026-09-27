@@ -3,6 +3,7 @@ package org.openl.rules.maven;
 import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.text.NumberFormat;
@@ -79,7 +80,7 @@ class JUnitReportWriter {
         xml.writeCharacters(text);
     }
 
-    void write(TestUnitsResults result) throws Exception {
+    void write(TestUnitsResults result) throws IOException, XMLStreamException {
         var testSuite = result.getTestSuite();
         var testName = testSuite.getTestSuiteMethod().getName();
         var moduleName = testSuite.getTestSuiteMethod().getModuleName();

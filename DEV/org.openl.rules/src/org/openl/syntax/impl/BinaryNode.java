@@ -33,7 +33,7 @@ public class BinaryNode extends ASyntaxNode {
         if (i == 1) {
             return right;
         }
-        throw new RuntimeException("BinaryNode has only two children, not " + (i + 1));
+        throw new IndexOutOfBoundsException("BinaryNode has only two children, not " + (i + 1));
     }
 
     @Override

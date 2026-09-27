@@ -135,7 +135,7 @@ public class Version implements Comparable<Version> {
                 return idx;
             }
             if (++loopProtector > 100) {
-                throw new RuntimeException("Check implementation of Your Pattern Finder");
+                throw new IllegalArgumentException("Check implementation of Your Pattern Finder");
             }
         }
     }
@@ -153,7 +153,7 @@ public class Version implements Comparable<Version> {
 
     public static Version parseVersion(String s, int from, String pattern) {
         if (!isVersion(s, from, pattern)) {
-            throw new RuntimeException("This is not a valid version: " + s.substring(from) + " in " + s);
+            throw new IllegalArgumentException("This is not a valid version: " + s.substring(from) + " in " + s);
         }
 
         var v = new Version();

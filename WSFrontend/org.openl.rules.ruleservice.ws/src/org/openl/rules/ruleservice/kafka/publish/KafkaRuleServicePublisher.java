@@ -35,6 +35,7 @@ import org.springframework.core.env.Environment;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
@@ -154,7 +155,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private <T> T getConfiguredValueDeserializer(OpenLService service,
                                                  ObjectMapper objectMapper,
                                                  Method method,
-                                                 String className) throws Exception {
+                                                 String className)
+            throws ReflectiveOperationException, RuleServiceInstantiationException {
         if (className == null) {
             return null;
         }
@@ -170,7 +172,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private <T> T getConfiguredValueSerializer(OpenLService service,
                                                ObjectMapper objectMapper,
-                                               String className) throws Exception {
+                                               String className)
+            throws ReflectiveOperationException, RuleServiceInstantiationException {
         if (className == null) {
             return null;
         }
@@ -185,7 +188,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private <T> T getConfiguredKeySerializerOrDeserializer(OpenLService service,
-                                                           String className) throws Exception {
+                                                           String className)
+            throws ReflectiveOperationException, RuleServiceInstantiationException {
         if (className == null) {
             return null;
         }

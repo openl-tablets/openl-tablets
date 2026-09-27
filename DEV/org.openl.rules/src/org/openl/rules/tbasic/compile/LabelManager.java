@@ -129,7 +129,7 @@ public class LabelManager {
         if (!labelsStack.isEmpty()) {
             stackedLabels = labelsStack.pop();
         } else {
-            throw new RuntimeException("Smth wrong in labels.....");
+            throw new IllegalStateException("Smth wrong in labels.....");
         }
         var label = getExistingLabel(stackedLabels, labelType);
 
@@ -145,7 +145,7 @@ public class LabelManager {
     private LabelType getLabelType(String labelInstruction) {
         if (!isLabelInstruction(labelInstruction)) {
             // FIXME
-            throw new RuntimeException("Smth wrong.........");
+            throw new IllegalArgumentException("Smth wrong.........");
         }
 
         return getLabelTypeByInstruction(labelInstruction);
@@ -165,7 +165,7 @@ public class LabelManager {
         if (instructionParts.length < 1 || instructionParts.length > 2 || instructionParts.length == 2 && !loopKeyword
                 .equals(instructionParts[1])) {
             // FIXME
-            throw new RuntimeException("Bad gen label instruction....");
+            throw new IllegalArgumentException("Bad gen label instruction....");
         }
 
         labelType.setLabelType(instructionParts[0]);

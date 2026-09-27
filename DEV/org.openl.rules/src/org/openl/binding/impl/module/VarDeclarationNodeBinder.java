@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ANodeBinder;
+import org.openl.binding.impl.TypeCastException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
@@ -24,7 +25,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
                                                 String name,
                                                 ISyntaxNode initializationNode,
                                                 IOpenClass varType,
-                                                IBindingContext bindingContext) throws Exception {
+                                                IBindingContext bindingContext) throws TypeCastException {
 
         IBoundNode init = null;
         IOpenCast cast = null;

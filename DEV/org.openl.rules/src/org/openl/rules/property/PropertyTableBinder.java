@@ -4,6 +4,7 @@ import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
 
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
@@ -83,7 +84,7 @@ public class PropertyTableBinder extends DataNodeBinder {
      * @param tsn <code>{@link TableSyntaxNode}</code>
      * @return identifier node with name if exists.
      */
-    private IdentifierNode parseHeader(TableSyntaxNode tsn) throws Exception {
+    private IdentifierNode parseHeader(TableSyntaxNode tsn) throws OpenLCompilationException {
         var src = tsn.getHeader().getModule();
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");

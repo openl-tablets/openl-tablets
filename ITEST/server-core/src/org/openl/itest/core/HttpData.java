@@ -293,7 +293,7 @@ class HttpData {
      * the body. The first mismatch fails with a message naming its subject - {@code Status code},
      * {@code Header <name>} or {@code Body}.
      */
-    void assertTo(HttpData expected) throws Exception, AssertionError {
+    void assertTo(HttpData expected) throws IOException, AssertionError {
         try {
             assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code");
             for (Map.Entry<String, String> r : expected.headers.entrySet()) {

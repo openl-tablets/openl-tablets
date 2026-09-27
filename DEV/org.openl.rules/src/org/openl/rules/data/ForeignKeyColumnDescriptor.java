@@ -451,7 +451,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                                                                 int foreignKeyIndex,
                                                                 boolean isCollection,
                                                                 IOpenClass resType,
-                                                                IRuntimeEnv env) throws Exception {
+                                                                IRuntimeEnv env) throws SyntaxNodeException {
         var context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
         var fieldType = getField().getType();
         for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {

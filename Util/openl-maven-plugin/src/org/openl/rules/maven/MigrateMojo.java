@@ -15,6 +15,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.manager.ScmManager;
 
@@ -251,7 +252,8 @@ public final class MigrateMojo extends BaseOpenLMojo {
         return migrators.stream().map(Migrator::getId).reduce((a, b) -> a + ", " + b).orElse("");
     }
 
-    private void commit(Path sourceFolder, List<Path> changed, Migrator migrator) throws Exception {
+    private void commit(Path sourceFolder, List<Path> changed, Migrator migrator)
+            throws MojoFailureException, ScmException {
         if (scmConnection == null || scmConnection.isBlank()) {
             throw new MojoFailureException(
                     "[" + migrator.getId() + "] SCM commit requested but 'scmConnection' (or "

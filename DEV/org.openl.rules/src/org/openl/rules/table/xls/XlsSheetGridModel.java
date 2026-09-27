@@ -190,7 +190,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 cellTo.setCellValue(cellFrom.getRichStringCellValue());
                 break;
             default:
-                throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
+                throw new IllegalArgumentException("Unknown cell type: " + cellFrom.getCellType());
         }
     }
 

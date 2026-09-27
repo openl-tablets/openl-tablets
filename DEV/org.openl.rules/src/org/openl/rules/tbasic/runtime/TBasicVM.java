@@ -47,7 +47,7 @@ public class TBasicVM {
         } else if (mainContext.isLabelInContext(label)) {
             goToLabelInMainContext(label);
         }
-        throw new RuntimeException(
+        throw new IllegalStateException(
                 "Unexpected error while execution of TBasic component: unknown label '%s'".formatted(label));
     }
 

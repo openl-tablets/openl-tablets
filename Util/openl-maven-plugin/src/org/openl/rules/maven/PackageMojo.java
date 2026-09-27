@@ -474,7 +474,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
     }
 
-    private void buildTestsArtifact(File openLSourceDir, String[] types) throws Exception {
+    private void buildTestsArtifact(File openLSourceDir, String[] types) throws IOException {
         var testsFiles = scanFiles(openLSourceDir, new String[]{"tests/**"}, null);
         if (testsFiles.length == 0) {
             debug("No files found under 'tests/' folder, skipping tests artifact.");

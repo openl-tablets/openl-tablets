@@ -247,7 +247,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return Type.getMethodDescriptor(Type.getReturnType(descriptor), types.toArray(new Type[0]));
         }
 
-        private Class<?> generateWrapperClass(IOpenMember openMember, Method originalMethod, int suffix, io.swagger.v3.oas.models.Operation operation) throws Exception {
+        private Class<?> generateWrapperClass(IOpenMember openMember,
+                                              Method originalMethod,
+                                              int suffix,
+                                              io.swagger.v3.oas.models.Operation operation)
+                throws ClassNotFoundException {
             var parameterNames = resolveParameterNames(openMember, originalMethod);
             var parameterTypes = resolveParameterTypes(openMember, originalMethod);
 

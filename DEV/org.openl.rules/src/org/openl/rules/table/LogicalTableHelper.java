@@ -100,12 +100,12 @@ public class LogicalTableHelper {
     public static ILogicalTable mergeBounds(ILogicalTable leftRows, ILogicalTable topColumns) {
         var leftRowsGrid = leftRows.getSource();
         if (!leftRowsGrid.isNormalOrientation()) {
-            throw new RuntimeException("Left Rows must have Normal Orientation");
+            throw new IllegalArgumentException("Left Rows must have Normal Orientation");
         }
 
         var topColumnsGrid = topColumns.getSource();
         if (!topColumnsGrid.isNormalOrientation()) {
-            throw new RuntimeException("Top Columns must have Normal Orientation");
+            throw new IllegalArgumentException("Top Columns must have Normal Orientation");
         }
 
         var leftRowsRegion = leftRowsGrid.getRegion();
@@ -133,11 +133,11 @@ public class LogicalTableHelper {
         var bottom = leftRowsRegion.getBottom();
 
         if (right < left) {
-            throw new RuntimeException("Invalid horizontal dimension");
+            throw new IllegalArgumentException("Invalid horizontal dimension");
         }
 
         if (bottom < top) {
-            throw new RuntimeException("Invalid vertical dimension");
+            throw new IllegalArgumentException("Invalid vertical dimension");
         }
 
         var gt = new GridTable(top, left, bottom, right, leftRowsGrid.getGrid());

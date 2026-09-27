@@ -219,7 +219,7 @@ public class BindingContext implements IBindingContext {
     @Override
     public void setReturnType(IOpenClass type) {
         if (returnType != NullOpenClass.the) {
-            throw new RuntimeException("Cannot override return type " + returnType.getName());
+            throw new IllegalStateException("Cannot override return type " + returnType.getName());
         }
         returnType = type;
     }

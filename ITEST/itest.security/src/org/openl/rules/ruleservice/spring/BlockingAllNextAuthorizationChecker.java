@@ -14,6 +14,6 @@ import org.openl.rules.ruleservice.api.AuthorizationChecker;
 public class BlockingAllNextAuthorizationChecker implements AuthorizationChecker {
     @Override
     public boolean authorize(HttpServletRequest request) {
-        throw new RuntimeException("ACCESS DENIED");
+        throw new SecurityException("ACCESS DENIED");
     }
 }

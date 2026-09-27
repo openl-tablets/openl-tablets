@@ -25,7 +25,7 @@ public class RegexpValueConstraint extends AbstractConstraint {
         if (m.find()) {
             return m.group(1);
         } else {
-            throw new RuntimeException("Incorrect regular expression.");
+            throw new IllegalArgumentException("Incorrect regular expression.");
         }
     }
 

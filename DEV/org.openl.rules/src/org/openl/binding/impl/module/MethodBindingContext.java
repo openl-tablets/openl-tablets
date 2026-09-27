@@ -126,7 +126,7 @@ public class MethodBindingContext extends BindingContextDelegator {
     @Override
     public void setReturnType(IOpenClass type) {
         if (getReturnType() != NullOpenClass.the) {
-            throw new RuntimeException("Cannot override return type " + getReturnType());
+            throw new IllegalStateException("Cannot override return type " + getReturnType());
         }
         returnType = type;
     }

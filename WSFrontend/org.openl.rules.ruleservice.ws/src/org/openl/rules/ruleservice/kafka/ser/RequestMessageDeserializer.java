@@ -15,6 +15,7 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
@@ -58,7 +59,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         }
     }
 
-    private Entry generateWrapperClass(Method m) throws Exception {
+    private Entry generateWrapperClass(Method m) throws RuleServiceInstantiationException {
         IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, service.getServiceBean());
         String[] parameterNames = MethodUtils.getParameterNames(openMember, m, service.isProvideRuntimeContext());
         return new Entry(m, parameterNames);
