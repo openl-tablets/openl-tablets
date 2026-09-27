@@ -42,7 +42,8 @@ class MergedRegionsTest {
      * do action, number of rows/columns
      */
     private static class TestDesctiption {
-        private static final String TEST_DESCRIPTION_FORMAT = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
+        private static final String TEST_DESCRIPTION_FORMAT =
+                "test=[^&]+&result=[^&]+&original=[^&]+&from=\\d+&count=\\d+";
         private static final Pattern testDescriptionPattern = Pattern.compile(TEST_DESCRIPTION_FORMAT);
 
         @Getter

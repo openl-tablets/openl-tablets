@@ -8,7 +8,7 @@ import org.openl.rules.common.CommonVersion;
 
 public class CommonVersionImpl implements CommonVersion {
     private static final Pattern ONLY_DIGITS = Pattern.compile("\\d+");
-    private static final String VERSION_PATTERN = "\\d+\\.\\d+(\\.\\d+.*)?";
+    private static final String VERSION_PATTERN = "\\d+\\.\\d+(\\.\\d++.*)?";
     @Getter
     private int major = MAX_MM_INT;
     @Getter

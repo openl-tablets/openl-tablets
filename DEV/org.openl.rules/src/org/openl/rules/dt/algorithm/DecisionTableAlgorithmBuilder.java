@@ -54,7 +54,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
      *
      * @see org.openl.types.impl.ArrayFieldIndex
      */
-    private static final Pattern ARRAY_ACCESS_PATTERN = Pattern.compile(".+\\[.+]$");
+    private static final Pattern ARRAY_ACCESS_PATTERN = Pattern.compile(".[^\\[\\n\\r\\u0085\\u2028\\u2029]*+\\[.+]$");
 
     private IndexInfo baseInfo;
     private final DecisionTable table;
