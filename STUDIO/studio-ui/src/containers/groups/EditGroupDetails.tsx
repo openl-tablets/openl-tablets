@@ -55,16 +55,14 @@ export const EditGroupDetails: React.FC = () => {
         <>
             <Divider titlePlacement="start">{t('common:details')}</Divider>
             <Select
-                showSearch
                 defaultActiveFirstOption={false}
-                filterOption={false}
                 label={t('groups:name')}
                 name="name"
                 notFoundContent={null}
                 onBlur={onBlurNameField}
                 onChange={handleChange}
-                onSearch={handleSearch}
                 options={groupOptions}
+                showSearch={{ filterOption: false, onSearch: handleSearch }}
                 style={{ width: '100%' }}
                 suffixIcon={null}
                 rules={[

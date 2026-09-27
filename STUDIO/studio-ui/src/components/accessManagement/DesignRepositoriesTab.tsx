@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Button, Divider, Form, Select as AntdSelect } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
-import { NONE_ROLE_VALUE, roleOptions } from './utils'
+import { NONE_ROLE_VALUE, REPOSITORY_SEARCH, roleOptions } from './utils'
 import { useTranslation } from 'react-i18next'
 import { SelectOption } from '../form/Select'
 import { Repository } from '../../types/repositories'
@@ -55,20 +55,10 @@ export const DesignRepositoriesTab: React.FC<DesignRepositoriesTabProps> = ({ de
                                     style={{ flex: 1, minWidth: 0, marginBottom: 0 }}
                                 >
                                     <AntdSelect
-                                        showSearch
                                         options={repositoryOptions as DefaultOptionType[]}
                                         placeholder={t('common:design_repository')}
+                                        showSearch={REPOSITORY_SEARCH}
                                         style={{ width: '100%' }}
-                                        filterOption={(input: string, option?: DefaultOptionType) => {
-                                            if (!option || !option.label || !(typeof option.label === 'string')) {
-                                                return false
-                                            }
-                                            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                        }}
-                                        filterSort={(optionA?: DefaultOptionType, optionB?: DefaultOptionType) => {
-                                            if (!optionA || !optionB || optionA.disabled === optionB.disabled) return 0
-                                            return optionA.disabled ? 1 : -1
-                                        }}
                                     />
                                 </Form.Item>
                                 <Form.Item

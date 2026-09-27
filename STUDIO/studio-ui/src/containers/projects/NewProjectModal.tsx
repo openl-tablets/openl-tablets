@@ -704,14 +704,16 @@ export const NewProjectModal = ({
             {mode === 'copy' && (
                 <FieldRow required label={t('browser.create.copy_source_label')}>
                     <Select
-                        showSearch
                         data-testid="new-project-copy-source"
-                        filterOption={(input, option) => String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                         onChange={value => setCopySource(value ?? null)}
                         options={copyableProjectSources.map(candidate => ({ label: candidate.name, value: candidate.id }))}
                         placeholder={t('browser.create.copy_source')}
                         style={{ width: '100%' }}
                         value={copySource ?? undefined}
+                        showSearch={{
+                            filterOption: (input, option) =>
+                                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
+                        }}
                     />
                 </FieldRow>
             )}

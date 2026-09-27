@@ -37,7 +37,7 @@ export const Help: React.FC = () => {
             <Row gutter={[24, 24]} style={{ padding: '24px 50px' }}>
                 <Col md={8} sm={12} xs={24}>
                     <Card
-                        bordered
+                        variant="outlined"
                         title={(
                             <>
                                 <FileTextOutlined style={{ marginRight: 10 }} />
@@ -58,7 +58,7 @@ export const Help: React.FC = () => {
                 </Col>
                 <Col md={8} sm={12} xs={24}>
                     <Card
-                        bordered
+                        variant="outlined"
                         title={(
                             <>
                                 <CompressOutlined style={{ marginRight: 10 }} />
@@ -73,7 +73,7 @@ export const Help: React.FC = () => {
                 </Col>
                 <Col md={8} sm={12} xs={24}>
                     <Card
-                        bordered
+                        variant="outlined"
                         title={(
                             <>
                                 <QuestionCircleOutlined style={{ marginRight: 10 }} />
@@ -88,7 +88,7 @@ export const Help: React.FC = () => {
                 </Col>
                 <Col md={8} sm={12} xs={24}>
                     <Card
-                        bordered
+                        variant="outlined"
                         title={(
                             <>
                                 <GlobalOutlined style={{ marginRight: 10 }} />

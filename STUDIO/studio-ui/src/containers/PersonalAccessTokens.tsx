@@ -390,8 +390,8 @@ export const PersonalAccessTokens: React.FC = () => {
                 extra={renderDrawerExtra()}
                 onClose={closeDrawer}
                 open={drawerOpen}
+                size={600}
                 title={drawerTitle}
-                width={600}
             >
                 {drawerMode === 'create' ? renderCreateForm() : renderCreatedToken()}
             </Drawer>

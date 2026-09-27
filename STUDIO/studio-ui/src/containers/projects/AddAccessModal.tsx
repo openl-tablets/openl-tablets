@@ -173,11 +173,11 @@ export const AddAccessModal = ({ open, projectId, projectName, onClose, onGrante
                 <AutoComplete
                     autoFocus
                     data-testid="add-access-sid"
-                    filterOption={false}
                     notFoundContent={searching ? <Spin size="small" /> : null}
                     onChange={value => setSid(value)}
                     options={subjectOptions}
                     placeholder={kind === 'user' ? t('browser.access.subject_user_ph') : t('browser.access.subject_group_ph')}
+                    showSearch={{ filterOption: false }}
                     style={{ width: '100%' }}
                     value={sid}
                     onInputKeyDown={event => {

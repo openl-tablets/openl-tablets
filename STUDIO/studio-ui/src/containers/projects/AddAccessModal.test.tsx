@@ -46,8 +46,8 @@ vi.mock('antd', () => {
     }
     interface AutoOption { value: string, label: string }
     const AutoComplete = ({ onChange, onInputKeyDown, options, value, ...rest }: Record<string, unknown>) => {
-        const { filterOption, notFoundContent, ...dom } = rest
-        void filterOption; void notFoundContent
+        const { showSearch, notFoundContent, ...dom } = rest
+        void showSearch; void notFoundContent
         return (
             <div>
                 <input

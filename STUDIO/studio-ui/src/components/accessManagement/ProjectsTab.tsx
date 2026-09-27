@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useCallback } from 'react'
 import { apiCall } from '../../services'
 import { App, Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import { roleOptions } from './utils'
+import { PROJECT_SEARCH, roleOptions } from './utils'
 import { Project } from '../../types/projects'
 import { SelectOption } from '../form/Select'
 import { useTranslation } from 'react-i18next'
@@ -91,16 +91,10 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
                                 rules={[{ required: true, message: t('common:select_project') }]}
                             >
                                 <Select
-                                    showSearch
                                     options={projectsOptions}
                                     placeholder={t('common:project')}
+                                    showSearch={PROJECT_SEARCH}
                                     style={{ width: 250 }}
-                                    filterOption={(input, option) => {
-                                        if (!option || !option.label || !(typeof option.label === 'string')) {
-                                            return false
-                                        }
-                                        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                    }}
                                 />
                             </Form.Item>
                             <Form.Item

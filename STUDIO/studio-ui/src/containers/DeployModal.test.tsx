@@ -81,41 +81,45 @@ vi.mock('components/form', async () => {
         name,
         onBlur,
         onChange,
-        onSearch,
         options,
         required,
+        showSearch,
     }: {
         disabled?: boolean
         label: string
         name: string
         onBlur?: () => void
         onChange?: (value: string) => void
-        onSearch?: (value: string) => void
         options: Array<{ label: string; value: string }>
         required?: boolean
-    }) => (
-        <>
-            <actual.Form.Item label={label} name={name} rules={required ? [{ required: true }] : []}>
-                <select
-                    aria-label={label}
-                    disabled={disabled}
-                    onBlur={onBlur}
-                    onChange={event => onChange?.(event.target.value)}
-                >
-                    <option value="" />
-                    {options.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                </select>
-            </actual.Form.Item>
-            {onSearch && (
-                <input
-                    aria-label={`${label}-search`}
-                    onChange={event => onSearch(event.target.value)}
-                />
-            )}
-        </>
-    )
+        showSearch?: boolean | { onSearch?: (value: string) => void }
+    }) => {
+        // Ant Design v6 carries the keystroke callback inside `showSearch`.
+        const onSearch = typeof showSearch === 'object' ? showSearch.onSearch : undefined
+        return (
+            <>
+                <actual.Form.Item label={label} name={name} rules={required ? [{ required: true }] : []}>
+                    <select
+                        aria-label={label}
+                        disabled={disabled}
+                        onBlur={onBlur}
+                        onChange={event => onChange?.(event.target.value)}
+                    >
+                        <option value="" />
+                        {options.map(option => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                    </select>
+                </actual.Form.Item>
+                {onSearch && (
+                    <input
+                        aria-label={`${label}-search`}
+                        onChange={event => onSearch(event.target.value)}
+                    />
+                )}
+            </>
+        )
+    }
     const TextArea = ({
         label,
         name,

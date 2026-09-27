@@ -338,18 +338,16 @@ export const DeployModal: React.FC = () => {
                             />
                             <Select
                                 required
-                                showSearch
                                 defaultActiveFirstOption={false}
                                 disabled={!selectedRepository}
-                                filterOption={false}
                                 label={t('deploy:deployment_name.label')}
                                 name="deploymentName"
                                 notFoundContent={null}
                                 onBlur={onBlurDeploymentName}
                                 onChange={handleChangeDeploymentName}
-                                onSearch={handleSearchDeploymentName}
                                 options={deploymentNames.map(dep => ({ value: dep.id, label: dep.name }))}
                                 placeholder={t('deploy:deployment_name.placeholder')}
+                                showSearch={{ filterOption: false, onSearch: handleSearchDeploymentName }}
                                 style={{ width: '100%' }}
                                 suffixIcon={null}
                             />

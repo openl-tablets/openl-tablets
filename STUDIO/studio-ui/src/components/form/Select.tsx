@@ -11,7 +11,7 @@ export interface SelectOption extends DefaultOptionType {
 }
 
 // @ts-ignore
-interface SelectProps extends AntdSelectProps {
+interface SelectProps extends Omit<AntdSelectProps, 'filterOption' | 'onSearch'> {
     name: string | string[]
     label?: string
     options: SelectOption[]
@@ -21,7 +21,6 @@ interface SelectProps extends AntdSelectProps {
     defaultValue?: string
     rules?: FormRule[]
     mode?: 'multiple' | 'tags'
-    showSearch?: boolean
     defaultActiveFirstOption?: boolean
     suffixIcon?: ReactNode
     required?: boolean
@@ -36,13 +35,11 @@ const Select: FC<SelectProps> = ({
     formItemStyle,
     mode,
     onChange,
-    onSearch,
     onBlur,
     showSearch = false,
     notFoundContent,
     defaultActiveFirstOption = true,
     suffixIcon,
-    filterOption = true,
     open,
     tokenSeparators,
     required,
@@ -92,7 +89,6 @@ const Select: FC<SelectProps> = ({
             <AntdSelect
                 defaultActiveFirstOption={defaultActiveFirstOption}
                 disabled={isDisabled}
-                filterOption={filterOption}
                 // @ts-ignore
                 options={predefinedOptions || options}
                 showSearch={showSearch}
@@ -100,7 +96,6 @@ const Select: FC<SelectProps> = ({
                 {...(notFoundContent !== undefined && { notFoundContent })}
                 {...(onBlur !== undefined && { onBlur })}
                 {...(onChange !== undefined && { onChange })}
-                {...(onSearch !== undefined && { onSearch })}
                 {...(open !== undefined && { open })}
                 {...(placeholder !== undefined && { placeholder })}
                 {...(style !== undefined && { style })}

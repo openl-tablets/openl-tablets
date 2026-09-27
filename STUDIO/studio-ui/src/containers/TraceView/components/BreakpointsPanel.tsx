@@ -55,7 +55,6 @@ const BreakpointsPanel: React.FC = () => {
         >
             <Select
                 key={selectKey}
-                showSearch
                 className={styles.addBreakpoint}
                 data-testid="debug-add-breakpoint"
                 onChange={addTableBreakpoint}
@@ -64,8 +63,10 @@ const BreakpointsPanel: React.FC = () => {
                 placeholder={t('debug.addBreakpointPlaceholder')}
                 size="small"
                 virtual={false}
-                filterOption={(input, option) =>
-                    String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                showSearch={{
+                    filterOption: (input, option) =>
+                        String(option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
+                }}
             />
             {breakpoints.length === 0 ? (
                 <div className={styles.hint}>{t('debug.noBreakpoints')}</div>

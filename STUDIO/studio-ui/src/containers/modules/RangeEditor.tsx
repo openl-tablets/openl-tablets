@@ -171,7 +171,7 @@ export const RangeEditor: React.FC<RangeEditorProps> = ({ value, intOnly, onWrit
                         {written}
                     </Typography.Text>
                 )
-                : <Alert showIcon message={t(`browser.module.range_${problem}`)} type="warning" />}
+                : <Alert showIcon title={t(`browser.module.range_${problem}`)} type="warning" />}
             <div className={styles.done}>
                 <Button
                     data-testid="range-write"
