@@ -161,10 +161,10 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 .registerModule(new JavaTimeModule());
 
         mapper.registerModule(new SimpleModule()
-                .addSerializer(Double.class, new DoubleSerializer(Double.class))
-                .addSerializer(Double.TYPE, new DoubleSerializer(Double.TYPE))
-                .addSerializer(Float.class, new FloatSerializer())
-                .addSerializer(Float.TYPE, new FloatSerializer()));
+                .addSerializer(Double.class, new PlainDoubleSerializer(Double.class))
+                .addSerializer(Double.TYPE, new PlainDoubleSerializer(Double.TYPE))
+                .addSerializer(Float.class, new PlainFloatSerializer())
+                .addSerializer(Float.TYPE, new PlainFloatSerializer()));
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
         var secondaryIntrospector = new JakartaXmlBindAnnotationIntrospector(

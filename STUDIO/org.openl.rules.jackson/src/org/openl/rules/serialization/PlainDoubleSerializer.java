@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
  *
  * @author Yury Molchan
  */
-class DoubleSerializer extends NumberSerializers.DoubleSerializer {
-    public DoubleSerializer(Class<?> cls) {
+class PlainDoubleSerializer extends NumberSerializers.DoubleSerializer {
+    public PlainDoubleSerializer(Class<?> cls) {
         super(cls);
     }
 

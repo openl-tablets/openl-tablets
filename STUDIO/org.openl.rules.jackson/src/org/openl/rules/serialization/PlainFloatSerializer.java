@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
  *
  * @author Yury Molchan
  */
-class FloatSerializer extends NumberSerializers.FloatSerializer {
+class PlainFloatSerializer extends NumberSerializers.FloatSerializer {
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         var number = (Float) value;

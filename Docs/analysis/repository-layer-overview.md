@@ -1092,7 +1092,7 @@ enum DefaultTypingMode {
 
 **Float/Double precision**:
 ```java
-// FloatSerializer
+// PlainFloatSerializer
 jackson.floatPrecision = 2
 
 // Output: 123.45 instead of 123.44999694824219
