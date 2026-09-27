@@ -1,6 +1,4 @@
-import apiCall from './apiCall'
-import { ApiHttpError } from './apiCall'
-import type { ApiCallOptions } from './apiCall'
+import apiCall, { ApiHttpError, type ApiCallOptions } from './apiCall'
 import { errorHandler } from 'utils/errorHandling'
 import type {
     BreakpointTableView,

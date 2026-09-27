@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { App, Alert, Badge, Button, Col, Input, Row, Table, Typography, Tooltip, theme } from 'antd'
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, SearchOutlined } from '@ant-design/icons'
+import {
+    DeleteOutlined,
+    EditOutlined,
+    ExclamationCircleOutlined,
+    ExclamationCircleTwoTone,
+    SearchOutlined,
+} from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
@@ -14,7 +20,6 @@ import { formatDateTime } from '../utils/dateFormat'
 import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
-import { ExclamationCircleTwoTone } from '@ant-design/icons'
 
 export const Users: React.FC = () => {
     const { modal } = App.useApp()
