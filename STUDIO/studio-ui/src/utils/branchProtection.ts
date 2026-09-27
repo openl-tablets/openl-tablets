@@ -30,7 +30,7 @@ const translateClass = (glob: string, start: number): [string, number] => {
     const members = negated ? inner.slice(1) : inner
     // Only '!' negates a glob set; a leading '^' is a literal member, so escape it rather than let the
     // regex read it as negation.
-    const escaped = members.startsWith('^') ? `\\^${members.slice(1)}` : members
+    const escaped = members.startsWith('^') ? String.raw`\^${members.slice(1)}` : members
     const body = negated ? `^${escaped}` : escaped
     return [`[${body}]`, end - start + 1]
 }

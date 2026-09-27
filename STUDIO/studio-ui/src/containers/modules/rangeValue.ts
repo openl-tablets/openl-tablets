@@ -17,11 +17,11 @@ export const NO_RANGE: RangeBounds = { from: '', to: '', fromIncluded: true, toI
 const NUMBER = String.raw`[+-]?\d+(?:\.\d+)?`
 
 /** The ways OpenL writes two bounds between brackets, and the ways it writes them without. */
-const BRACKETED = new RegExp(`^([[(])\\s*(${NUMBER})\\s*(?:\\.{2,3}|…|;|-)\\s*(${NUMBER})\\s*([\\])])$`)
-const SEPARATED = new RegExp(`^(${NUMBER})\\s*(\\.{2,3}|…|;|-)\\s*(${NUMBER})$`)
-const AT_LEAST = new RegExp(`^(>=?)\\s*(${NUMBER})$`)
-const AT_MOST = new RegExp(`^(<=?)\\s*(${NUMBER})$`)
-const AND_MORE = new RegExp(`^(${NUMBER})\\s*\\+$`)
+const BRACKETED = new RegExp(String.raw`^([[(])\s*(${NUMBER})\s*(?:\.{2,3}|…|;|-)\s*(${NUMBER})\s*([\])])$`)
+const SEPARATED = new RegExp(String.raw`^(${NUMBER})\s*(\.{2,3}|…|;|-)\s*(${NUMBER})$`)
+const AT_LEAST = new RegExp(String.raw`^(>=?)\s*(${NUMBER})$`)
+const AT_MOST = new RegExp(String.raw`^(<=?)\s*(${NUMBER})$`)
+const AND_MORE = new RegExp(String.raw`^(${NUMBER})\s*\+$`)
 const EXACT = new RegExp(`^(${NUMBER})$`)
 
 /** A separator that leaves both bounds outside the range, as OpenL reads it. */

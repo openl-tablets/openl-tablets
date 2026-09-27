@@ -82,7 +82,7 @@ i18next.addResourceBundle('en', 'project', {
         blocked: {
             module: 'Choose the module the table is written to.',
             table_name: 'Enter a table name: a letter or underscore first, then letters, digits or underscores.',
-            sheet: 'Enter a sheet name Excel accepts: at most 31 characters, without / \\ * ? [ ] : or a leading or trailing apostrophe.',
+            sheet: String.raw`Enter a sheet name Excel accepts: at most 31 characters, without / \ * ? [ ] : or a leading or trailing apostrophe.`,
             result_type: 'Enter the type the table returns.',
             partial_argument: 'Finish the argument: each one needs both a type and a name.',
             argument_names: 'Give every argument a distinct name, starting with a letter or underscore.',
