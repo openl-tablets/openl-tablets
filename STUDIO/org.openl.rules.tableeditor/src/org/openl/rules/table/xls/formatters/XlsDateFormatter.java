@@ -15,7 +15,7 @@ import org.openl.util.formatters.DateFormatter;
  */
 public class XlsDateFormatter extends DateFormatter {
 
-    private static final Pattern LOCALE_PREFIX = Pattern.compile("^\\[\\$\\-.*?\\]");
+    private static final Pattern LOCALE_PREFIX = Pattern.compile("^\\[\\$\\-[^\\]\\n\\r\\u0085\\u2028\\u2029]*+\\]");
 
     /** Rewrites an Excel date format as the pattern {@link DateFormatter} understands. */
     private static String convertToJavaFormat(String xlsFormat) {

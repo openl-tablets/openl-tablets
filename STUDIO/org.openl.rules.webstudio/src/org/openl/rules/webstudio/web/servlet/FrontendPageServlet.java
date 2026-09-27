@@ -97,6 +97,6 @@ abstract class FrontendPageServlet extends HttpServlet {
         // Quoted, because the preamble names $RefreshReg$ and $RefreshSig$, and a bare dollar in a replacement
         // stands for a capturing group.
         return built.replaceAll("(?s)<script type=\"module\".*?</head>", Matcher.quoteReplacement(scripts + "</head>"))
-                .replaceAll("(?s)<link rel=\"modulepreload\".*?>", "");
+                .replaceAll("<link rel=\"modulepreload\"[^>]*+>", "");
     }
 }
