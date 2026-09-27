@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import org.openl.util.StringUtils;
@@ -19,36 +20,38 @@ class EnableCondition implements Condition {
             var env = context.getEnvironment();
             for (var value : attrs.get("value")) {
                 for (var property : (String[]) value) {
-                    if (property.contains("=")) {
-                        // Conditional on equality
-                        var m = EXPRESSION.matcher(property);
-
-                        if (m.matches()) {
-                            var actual = env.getProperty(m.group("prop"));
-                            var expected = m.group("val").trim();
-
-                            var isMatchValid = switch (m.group("cond")) {
-                                case "=" -> expected.equals(actual);
-                                case "!" -> !expected.equals(actual);
-                                default -> throw new IllegalStateException("Unexpected condition: " + m.group("cond"));
-                            };
-
-                            if (!isMatchValid) return false;
-                        } else {
-                            // Let's fail instead of silent ignoring and falling to false
-                            throw new IllegalArgumentException("'%s' is not valid expression".formatted(property));
-                        }
-                    } else {
-                        // Conditional on existence
-                        var propValue = env.getProperty(property);
-                        if ("false".equalsIgnoreCase(propValue) || StringUtils.isBlank(propValue)) {
-                            return false;
-                        }
+                    if (!isEnabled(env, property)) {
+                        return false;
                     }
                 }
             }
         }
         return true;
 
+    }
+
+    private static boolean isEnabled(Environment env, String property) {
+        if (property.contains("=")) {
+            // Conditional on equality
+            var m = EXPRESSION.matcher(property);
+
+            if (m.matches()) {
+                var actual = env.getProperty(m.group("prop"));
+                var expected = m.group("val").trim();
+
+                return switch (m.group("cond")) {
+                    case "=" -> expected.equals(actual);
+                    case "!" -> !expected.equals(actual);
+                    default -> throw new IllegalStateException("Unexpected condition: " + m.group("cond"));
+                };
+            } else {
+                // Let's fail instead of silent ignoring and falling to false
+                throw new IllegalArgumentException("'%s' is not valid expression".formatted(property));
+            }
+        } else {
+            // Conditional on existence
+            var propValue = env.getProperty(property);
+            return !("false".equalsIgnoreCase(propValue) || StringUtils.isBlank(propValue));
+        }
     }
 }

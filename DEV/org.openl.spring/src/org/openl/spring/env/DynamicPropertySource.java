@@ -3,6 +3,7 @@ package org.openl.spring.env;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -144,12 +145,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             } else {
                 if (propertyName.endsWith("password")) {
                     try {
-                        var secretKey = getSecretKey();
-                        var cipher = getCipher();
-                        if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(secretKey) && StringUtils
-                                .isNotBlank(cipher)) {
-                            value = "ENC(" + PassCoder.encode(value, secretKey, cipher) + ")";
-                        }
+                        value = encodePassword(value);
                     } catch (Exception e) {
                         ConfigLog.LOG.error("Error when setting password property: {}", propertyName, e);
                         continue;
@@ -187,13 +183,26 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
         if (!origin.equals(properties)) {
             // Save the difference only
-            var settingsFile = getFile();
-            var parent = settingsFile.getParentFile();
-            if (!parent.mkdirs() && !parent.exists()) {
-                throw new FileNotFoundException("The folder cannot be created. " + parent.getAbsolutePath());
-            }
-            PropertiesUtils.store(settingsFile.toPath(), properties.entrySet());
+            writeSettings(properties);
         }
+    }
+
+    private String encodePassword(String value) throws GeneralSecurityException {
+        var secretKey = getSecretKey();
+        var cipher = getCipher();
+        if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(secretKey) && StringUtils.isNotBlank(cipher)) {
+            return "ENC(" + PassCoder.encode(value, secretKey, cipher) + ")";
+        }
+        return value;
+    }
+
+    private void writeSettings(Map<String, String> properties) throws IOException {
+        var settingsFile = getFile();
+        var parent = settingsFile.getParentFile();
+        if (!parent.mkdirs() && !parent.exists()) {
+            throw new FileNotFoundException("The folder cannot be created. " + parent.getAbsolutePath());
+        }
+        PropertiesUtils.store(settingsFile.toPath(), properties.entrySet());
     }
 
     static String decode(String value) {
