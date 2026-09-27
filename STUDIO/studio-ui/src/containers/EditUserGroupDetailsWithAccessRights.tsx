@@ -99,7 +99,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     const [userGroups, setUserGroups] = React.useState<string[]>([])
 
     const isUser = useMemo(() => {
-        return newUser || (user && user.username)
+        return newUser || user?.username
     }, [user, newUser])
 
     const fetchReposRoles = async () => {
@@ -143,11 +143,11 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     const isNewGroup = useMemo(() => {
-        return !user && !newUser && (!group || !group.id)
+        return !user && !newUser && !group?.id
     }, [group])
 
     const isNewUser = useMemo(() => {
-        return !user || !user.username
+        return !user?.username
     }, [user])
 
     const handleOpenDrawer = () => {
@@ -179,7 +179,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }, [isOpenFromParent, isOpen, designRepositories, loadingDesignRepositories])
 
     useEffect(() => {
-        if ((isOpenFromParent || isOpen) && (((user || newUser) && sid) || (group && group.id))) {
+        if ((isOpenFromParent || isOpen) && (((user || newUser) && sid) || group?.id)) {
             fetchReposRoles()
             fetchProjectRoles()
             fetchRootRepositoryRoles()
@@ -611,7 +611,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
 
     return (
         <>
-            {renderButton && renderButton(handleOpenDrawer)}
+            {renderButton?.(handleOpenDrawer)}
             <Drawer
                 destroyOnHidden
                 onClose={handleCloseDrawer}

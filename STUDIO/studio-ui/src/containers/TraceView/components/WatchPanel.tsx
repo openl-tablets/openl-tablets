@@ -91,7 +91,7 @@ const WatchPanel: React.FC = () => {
                 </div>
             )}
             {watch?.truncated && <div className={styles.truncated}>{t('watch.truncated')}</div>}
-            {watch && watch.series.length === 0 && watches.length > 0 && (
+            {watch?.series.length === 0 && watches.length > 0 && (
                 <div className={styles.hint}>{t('watch.empty')}</div>
             )}
             <div className={styles.seriesList}>

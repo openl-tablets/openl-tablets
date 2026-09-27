@@ -60,7 +60,7 @@ export const WORKSPACE_CHANGED_EVENT = 'openl:workspace-changed'
 /** Whether the response body is JSON, per its Content-Type. */
 const isJsonResponse = (response: Response): boolean => {
     const contentType = response.headers.get('Content-Type')
-    return Boolean(contentType && contentType.includes('application/json'))
+    return Boolean(contentType?.includes('application/json'))
 }
 
 /**

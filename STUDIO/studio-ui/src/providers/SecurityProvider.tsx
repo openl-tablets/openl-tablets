@@ -44,7 +44,7 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     }, [openlInfo])
 
     const hasAdminPermission = useCallback(() => {
-        return !!(userProfile && userProfile.administrator)
+        return !!userProfile?.administrator
     }, [userProfile])
 
     const isExternalAuthSystem = useMemo(() => {

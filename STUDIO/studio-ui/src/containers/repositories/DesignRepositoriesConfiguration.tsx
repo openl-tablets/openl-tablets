@@ -393,7 +393,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     }, [repositoryType, defaultConfiguration, activeRepository])
 
     const tabType = useMemo(() => {
-        if (Array.isArray(initialConfiguration) && configuration && initialConfiguration.length === configuration.length) {
+        if (Array.isArray(initialConfiguration) && initialConfiguration.length === configuration?.length) {
             return 'editable-card'
         }
         return 'card'

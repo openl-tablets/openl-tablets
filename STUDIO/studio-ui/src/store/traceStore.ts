@@ -791,7 +791,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
             const result = await traceService.getParameterValue(projectId, parameterId)
             if (variables) {
                 const patch = (p?: TraceParameterValue | null): TraceParameterValue | null =>
-                    (p && p.parameterId === parameterId ? { ...p, value: result.value } : p) ?? null
+                    (p?.parameterId === parameterId ? { ...p, value: result.value } : p) ?? null
                 set({
                     variables: {
                         ...variables,

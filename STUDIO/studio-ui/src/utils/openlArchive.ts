@@ -62,7 +62,7 @@ const readProjectName = (xml: string): string | null => {
             return null
         }
         const root = doc.documentElement
-        if (!root || root.tagName !== 'project') {
+        if (root?.tagName !== 'project') {
             return null
         }
         const name = root.getElementsByTagName('name')[0]?.textContent?.trim()
