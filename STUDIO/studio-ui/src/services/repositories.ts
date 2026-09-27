@@ -136,7 +136,8 @@ export async function getProject(
     const params = new URLSearchParams()
     appendRepeated(params, 'include', options.includes)
     const query = params.toString()
-    const path = `/projects/${encodeURIComponent(projectId)}${query ? `?${query}` : ''}`
+    const suffix = query ? `?${query}` : ''
+    const path = `/projects/${encodeURIComponent(projectId)}${suffix}`
     return await apiCall(path, undefined, apiOptions)
 }
 

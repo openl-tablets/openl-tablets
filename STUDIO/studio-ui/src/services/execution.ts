@@ -122,7 +122,8 @@ export const getRunResultWorkbook = async (projectId: string, options: RunFileOp
         ...(options.flattenParameters !== undefined && { flattenParameters: String(options.flattenParameters) }),
     })
     const query = params.toString()
-    return await readWorkbook(projectUrl(projectId, `/run/result${query === '' ? '' : `?${query}`}`))
+    const suffix = query === '' ? '' : `?${query}`
+    return await readWorkbook(projectUrl(projectId, `/run/result${suffix}`))
 }
 
 /** Reads the workbook of a run that has just ended, waiting out the moment the run needs to publish it. */

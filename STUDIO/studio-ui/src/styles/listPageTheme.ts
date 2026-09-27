@@ -230,9 +230,11 @@ export const THEME_ORDER: readonly ThemeName[] = ['standard', 'evergreen']
 /** The palette a theme paints with in the given appearance. */
 export const paletteOf = (name: ThemeName, isDarkMode: boolean): Palette => THEMES[name][isDarkMode ? 'dark' : 'light']
 
+/** A capital of a camel-case name as a kebab-case name writes it, e.g. `S` → `-s`. */
+const kebabLetter = (letter: string): string => `-${letter.toLowerCase()}`
+
 /** The custom property a colour is published under, e.g. `textSecondary` → `--openl-text-secondary`. */
-const variableName = (key: keyof Palette): string =>
-    `--openl-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`
+const variableName = (key: keyof Palette): string => `--openl-${key.replace(/[A-Z]/g, kebabLetter)}`
 
 const paletteKeys = Object.keys(LIGHT_PALETTE) as (keyof Palette)[]
 

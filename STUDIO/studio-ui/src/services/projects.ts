@@ -26,8 +26,10 @@ export const getModuleSheets = (projectId: string, moduleName: string): Promise<
  * of the dictionary, deprecated ones aside: whatever a table may carry, written on it, inherited from a Properties
  * table or stamped by OpenL Studio — what a search across tables of every kind narrows by.
  */
-export const getProjectProperties = (projectId: string, tableType?: string): Promise<ProjectProperty[]> =>
-    projectResource(projectId, `properties${tableType ? `?tableType=${encodeURIComponent(tableType)}` : ''}`)
+export const getProjectProperties = (projectId: string, tableType?: string): Promise<ProjectProperty[]> => {
+    const query = tableType ? `?tableType=${encodeURIComponent(tableType)}` : ''
+    return projectResource(projectId, `properties${query}`)
+}
 
 
 /** A file to upload into a project, addressed by its project-relative '/'-separated path. */
