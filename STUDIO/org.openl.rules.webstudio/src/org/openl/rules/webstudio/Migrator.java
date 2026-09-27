@@ -74,19 +74,19 @@ public class Migrator {
 
         // add subsequent migrations in order of priority
         if (stringFromVersion.compareTo("5.24.0") < 0) {
-            migrateTo5_24(settings, props);
+            migrateTo524(settings, props);
         }
         if (stringFromVersion.compareTo("5.26.0") < 0) {
-            migrateTo5_26_0(settings, props);
+            migrateTo5260(settings, props);
         }
         if (stringFromVersion.compareTo("5.26.1") < 0) {
-            migrateTo5_26_1(settings, props);
+            migrateTo5261(settings, props);
         }
         if (stringFromVersion.compareTo("6.0.0") < 0) {
-            migrateTo6_0_0(settings, props);
+            migrateTo600(settings, props);
         }
         if (stringFromVersion.compareTo("6.3.1") < 0) {
-            migrateTo6_4_0(settings, props);
+            migrateTo640(settings, props);
         }
         // A single-user installation upgraded from before EPBDS-16213 keeps its workspace under the former
         // default user name; move it to the resolved name first, so the conversion below records the moved
@@ -302,7 +302,7 @@ public class Migrator {
         }
     }
 
-    private static void migrateTo6_4_0(DynamicPropertySource settings, HashMap<String, String> props) {
+    private static void migrateTo640(DynamicPropertySource settings, HashMap<String, String> props) {
         Arrays.stream(settings.getPropertyNames())
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && (propertyName
                         .endsWith(DEFAULT_COMMENT_ARCHIVE_SUFFIX) || propertyName
@@ -314,7 +314,7 @@ public class Migrator {
                 .forEach(propertyName -> props.put(propertyName, null));
     }
 
-    private static void migrateTo6_0_0(DynamicPropertySource settings, HashMap<String, String> props) {
+    private static void migrateTo600(DynamicPropertySource settings, HashMap<String, String> props) {
         // remove `.folder-structure.flat` property
         Arrays.stream(settings.getPropertyNames())
                 .filter(propertyName -> propertyName.startsWith(REPOSITORY_PREFIX) && propertyName.endsWith(".folder-structure.flat"))
@@ -345,7 +345,7 @@ public class Migrator {
                 });
     }
 
-    private static void migrateTo5_26_1(DynamicPropertySource settings, HashMap<String, String> props) {
+    private static void migrateTo5261(DynamicPropertySource settings, HashMap<String, String> props) {
         migrateRepositoryFactories(settings, props);
         migrateProductionRepository(settings, props);
     }
@@ -423,7 +423,7 @@ public class Migrator {
     }
 
     // 5.26.0
-    private static void migrateTo5_26_0(DynamicPropertySource settings, HashMap<String, String> props) {
+    private static void migrateTo5260(DynamicPropertySource settings, HashMap<String, String> props) {
         //removing unnecessary SAML properties
         props.put("security.saml.app-url", null);
         props.put("security.saml.authentication-contexts", null);
@@ -456,9 +456,9 @@ public class Migrator {
     }
 
     // 5.24
-    private static void migrateTo5_24(DynamicPropertySource settings, HashMap<String, String> props) {
+    private static void migrateTo524(DynamicPropertySource settings, HashMap<String, String> props) {
 
-        migratePropsTo5_24(settings, props);
+        migratePropsTo524(settings, props);
 
         // migrate project paths and properties if repoType is Git
         var designRepo = settings.getProperty(DESIGN_LOCAL_REPOSITORY_PATH);
@@ -492,7 +492,7 @@ public class Migrator {
         return projectPathMap;
     }
 
-    private static void migratePropsTo5_24(DynamicPropertySource settings, HashMap<String, String> props) {
+    private static void migratePropsTo524(DynamicPropertySource settings, HashMap<String, String> props) {
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
         }

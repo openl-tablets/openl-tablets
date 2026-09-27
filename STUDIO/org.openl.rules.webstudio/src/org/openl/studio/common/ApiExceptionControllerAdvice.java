@@ -57,7 +57,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
                 .map(ResponseStatus::code)
                 .orElse(HttpStatus.BAD_REQUEST);
-        return _handleExceptionInternal(e,
+        return buildErrorResponse(e,
                 (ValidationError) exceptionMappingService.processException(e),
                 new HttpHeaders(),
                 code,
@@ -67,7 +67,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ValidationError> handleConstraintViolationException(ConstraintViolationException e, WebRequest request) {
         var code = HttpStatus.BAD_REQUEST;
-        return _handleExceptionInternal(e,
+        return buildErrorResponse(e,
                 (ValidationError) exceptionMappingService.processException(e),
                 new HttpHeaders(),
                 code,
@@ -78,7 +78,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     public ResponseEntity<BaseError> handleAllRestRuntimeExceptions(RestRuntimeException e, WebRequest request) {
         var httpStatus = e.getHttpStatus();
         if (httpStatus != null) {
-            return _handleExceptionInternal(e,
+            return buildErrorResponse(e,
                     exceptionMappingService.processException(e),
                     new HttpHeaders(),
                     httpStatus,
@@ -86,7 +86,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         } else {
             var code = HttpStatus.INTERNAL_SERVER_ERROR;
             log.error(e.getMessage(), e);
-            return _handleExceptionInternal(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
+            return buildErrorResponse(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
         }
     }
 
@@ -231,11 +231,11 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return false;
     }
 
-    private <T extends BaseError> ResponseEntity<T> _handleExceptionInternal(Exception e,
-                                                                             T body,
-                                                                             HttpHeaders headers,
-                                                                             HttpStatusCode status,
-                                                                             WebRequest request) {
+    private <T extends BaseError> ResponseEntity<T> buildErrorResponse(Exception e,
+                                                                       T body,
+                                                                       HttpHeaders headers,
+                                                                       HttpStatusCode status,
+                                                                       WebRequest request) {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, e, RequestAttributes.SCOPE_REQUEST);
         }
