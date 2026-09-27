@@ -308,15 +308,6 @@ public final class MethodSearch {
         return true;
     }
 
-    private static int getTypeDim(IOpenClass openClass) {
-        int dim = 0;
-        while (openClass.isArray()) {
-            openClass = openClass.getComponentClass();
-            dim++;
-        }
-        return dim;
-    }
-
     private static int countMultiCallParams(Match match) {
         if (match == NO_MATCH || match.multiCallParams == null) {
             return Integer.MAX_VALUE;
@@ -544,6 +535,15 @@ public final class MethodSearch {
                 sortedDims = dims;
             }
             return sortedDims;
+        }
+
+        private static int getTypeDim(IOpenClass openClass) {
+            int dim = 0;
+            while (openClass.isArray()) {
+                openClass = openClass.getComponentClass();
+                dim++;
+            }
+            return dim;
         }
     }
 

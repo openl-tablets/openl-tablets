@@ -122,113 +122,6 @@ public class AlgorithmCompiler {
         return thisContext;
     }
 
-    private void declareFunction(List<AlgorithmTreeNode> nodesToCompile,
-                                 ConversionRuleStep convertionStep,
-                                 IBindingContext bindingContext) {
-        var returnValueInstruction = convertionStep.getOperationParam1();
-
-        IOpenClass returnType;
-        if (AlgorithmCompilerTool.isOperationFieldInstruction(returnValueInstruction)) {
-            returnType = getTypeOfField(
-                    AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction, bindingContext),
-                    bindingContext);
-        } else {
-            // TODO add support of specification instruction
-            returnType = discoverFunctionType(nodesToCompile.getFirst().getChildren(), bindingContext);
-        }
-        createAlgorithmInternalMethod(nodesToCompile, returnType, new CompileContext(), bindingContext);
-
-    }
-
-    private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile, IBindingContext bindingContext) {
-        var subroutineContext = new CompileContext();
-        // add all labels from main
-        subroutineContext.registerGroupOfLabels(mainCompileContext.getExistingLables(), bindingContext);
-
-        createAlgorithmInternalMethod(nodesToCompile, JavaOpenClass.VOID, subroutineContext, bindingContext);
-    }
-
-    private void declareVariable(List<AlgorithmTreeNode> nodesToCompile,
-                                 ConversionRuleStep conversionStep,
-                                 IBindingContext bindingContext) {
-        var variableNameParameter = conversionStep.getOperationParam1();
-        var variableAssignmentParameter = conversionStep.getOperationParam2();
-        StringValue variableName = AlgorithmCompilerTool
-                .getCellContent(nodesToCompile, variableNameParameter, bindingContext);
-        var variableType = getTypeOfField(
-                AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext),
-                bindingContext);
-        initNewInternalVariable(variableName.getValue(), variableType);
-    }
-
-    /**
-     * Find out the type of the array element. And define the internal variable
-     */
-    private void declareArrayElement(List<AlgorithmTreeNode> nodesToCompile,
-                                     ConversionRuleStep conversionStep,
-                                     IBindingContext bindingContext) {
-        // Points to the location of the elementName in the TBasic table
-        //
-        var elementNameParameter = conversionStep.getOperationParam1();
-
-        // Points to the location of the iterable array parameter in the Tbasic
-        // table
-        //
-        var iterableArrayParameter = conversionStep.getOperationParam2();
-
-        // Extract the element name
-        //
-        StringValue elementName = AlgorithmCompilerTool
-                .getCellContent(nodesToCompile, elementNameParameter, bindingContext);
-
-        // Extract the type of the iterable array
-        //
-        var iterableArrayType = getTypeOfField(
-                AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
-                bindingContext);
-        if (!iterableArrayType.isArray()) {
-            var errorSource = nodesToCompile.getFirst()
-                    .getAlgorithmRow()
-                    .getAction()
-                    .asSourceCodeModule();
-            BindHelper
-                    .processError("Compilation failure. The cell should be of the array type", errorSource, bindingContext);
-        }
-        var elementType = iterableArrayType.getComponentClass();
-        initNewInternalVariable(elementName.getValue(), elementType);
-    }
-
-    private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, IBindingContext bindingContext) {
-        // find first RETURN operation
-        var returnNodes = findFirstReturn(children);
-
-        if (returnNodes == null || returnNodes.isEmpty()) {
-            var lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
-                    .getAlgorithmRow()
-                    .getAction();
-            return getTypeOfField(lastAction, bindingContext);
-        } else {
-            // get RETURN.condition part of instruction
-            var fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
-            return getTypeOfField(
-                    AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext),
-                    bindingContext);
-        }
-    }
-
-    private static List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
-        // FIXME delete this method at all
-        List<AlgorithmTreeNode> returnNodeSubList = null;
-        for (var i = 0; i < nodes.size() && returnNodeSubList == null; i++) {
-            if (TBasicSpecificationKey.RETURN.toString().equals(nodes.get(i).getSpecificationKeyword())) {
-                returnNodeSubList = nodes.subList(i, i + 1);
-            } else if (nodes.get(i).getChildren() != null) {
-                returnNodeSubList = findFirstReturn(nodes.get(i).getChildren());
-            }
-        }
-        return returnNodeSubList;
-    }
-
     private String generateOpenClassName() {
         return header.getName();
     }
@@ -385,11 +278,11 @@ public class AlgorithmCompiler {
                 updateVariablesVisibitily(variablesStack.pop());
             }
         }
-    }
 
-    private void updateVariablesVisibitily(Collection<IOpenField> fields) {
-        for (IOpenField field : fields) {
-            thisTargetClass.setFieldToInvisibleState(field.getName());
+        private void updateVariablesVisibitily(Collection<IOpenField> fields) {
+            for (IOpenField field : fields) {
+                thisTargetClass.setFieldToInvisibleState(field.getName());
+            }
         }
     }
 
@@ -399,17 +292,56 @@ public class AlgorithmCompiler {
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
                                ConversionRuleStep conversionStep,
                                IBindingContext bindingContext) {
-            declareVariable(nodesToCompile, conversionStep, bindingContext);
+            var variableNameParameter = conversionStep.getOperationParam1();
+            var variableAssignmentParameter = conversionStep.getOperationParam2();
+            StringValue variableName = AlgorithmCompilerTool
+                    .getCellContent(nodesToCompile, variableNameParameter, bindingContext);
+            var variableType = getTypeOfField(
+                    AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext),
+                    bindingContext);
+            initNewInternalVariable(variableName.getValue(), variableType);
         }
     }
 
+    /**
+     * Find out the type of the array element. And define the internal variable
+     */
     private final class DeclareArrayElementPreprocessor implements OperationPreprocessor {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
                                ConversionRuleStep conversionStep,
                                IBindingContext bindingContext) {
-            declareArrayElement(nodesToCompile, conversionStep, bindingContext);
+            // Points to the location of the elementName in the TBasic table
+            //
+            var elementNameParameter = conversionStep.getOperationParam1();
+
+            // Points to the location of the iterable array parameter in the Tbasic
+            // table
+            //
+            var iterableArrayParameter = conversionStep.getOperationParam2();
+
+            // Extract the element name
+            //
+            StringValue elementName = AlgorithmCompilerTool
+                    .getCellContent(nodesToCompile, elementNameParameter, bindingContext);
+
+            // Extract the type of the iterable array
+            //
+            var iterableArrayType = getTypeOfField(
+                    AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
+                    bindingContext);
+            if (!iterableArrayType.isArray()) {
+                var errorSource = nodesToCompile.getFirst()
+                        .getAlgorithmRow()
+                        .getAction()
+                        .asSourceCodeModule();
+                BindHelper.processError("Compilation failure. The cell should be of the array type",
+                        errorSource,
+                        bindingContext);
+            }
+            var elementType = iterableArrayType.getComponentClass();
+            initNewInternalVariable(elementName.getValue(), elementType);
         }
     }
 
@@ -419,7 +351,11 @@ public class AlgorithmCompiler {
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
                                ConversionRuleStep conversionStep,
                                IBindingContext bindingContext) {
-            declareSubroutine(nodesToCompile, bindingContext);
+            var subroutineContext = new CompileContext();
+            // add all labels from main
+            subroutineContext.registerGroupOfLabels(mainCompileContext.getExistingLables(), bindingContext);
+
+            createAlgorithmInternalMethod(nodesToCompile, JavaOpenClass.VOID, subroutineContext, bindingContext);
         }
     }
 
@@ -429,7 +365,49 @@ public class AlgorithmCompiler {
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
                                ConversionRuleStep conversionStep,
                                IBindingContext bindingContext) {
-            declareFunction(nodesToCompile, conversionStep, bindingContext);
+            var returnValueInstruction = conversionStep.getOperationParam1();
+
+            IOpenClass returnType;
+            if (AlgorithmCompilerTool.isOperationFieldInstruction(returnValueInstruction)) {
+                returnType = getTypeOfField(
+                        AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction, bindingContext),
+                        bindingContext);
+            } else {
+                // TODO add support of specification instruction
+                returnType = discoverFunctionType(nodesToCompile.getFirst().getChildren(), bindingContext);
+            }
+            createAlgorithmInternalMethod(nodesToCompile, returnType, new CompileContext(), bindingContext);
+        }
+
+        private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, IBindingContext bindingContext) {
+            // find first RETURN operation
+            var returnNodes = findFirstReturn(children);
+
+            if (returnNodes == null || returnNodes.isEmpty()) {
+                var lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
+                        .getAlgorithmRow()
+                        .getAction();
+                return getTypeOfField(lastAction, bindingContext);
+            } else {
+                // get RETURN.condition part of instruction
+                var fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
+                return getTypeOfField(
+                        AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext),
+                        bindingContext);
+            }
+        }
+
+        private static List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
+            // FIXME delete this method at all
+            List<AlgorithmTreeNode> returnNodeSubList = null;
+            for (var i = 0; i < nodes.size() && returnNodeSubList == null; i++) {
+                if (TBasicSpecificationKey.RETURN.toString().equals(nodes.get(i).getSpecificationKeyword())) {
+                    returnNodeSubList = nodes.subList(i, i + 1);
+                } else if (nodes.get(i).getChildren() != null) {
+                    returnNodeSubList = findFirstReturn(nodes.get(i).getChildren());
+                }
+            }
+            return returnNodeSubList;
         }
     }
 

@@ -74,38 +74,6 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
     }
 
     /**
-     * The rule the message was raised about, with the piece it is about pinned down.
-     *
-     * <p>A location that pins no text marks the whole rule, which is what a message about the rule as a whole
-     * is about.
-     */
-    private static @Nullable Rule ruleOf(OpenLMessage message) {
-        if (message instanceof OpenLErrorMessage errorMessage) {
-            var error = errorMessage.getError();
-            return error == null ? null : rule(error.getSourceCode(), error.getLocation());
-        }
-        if (message instanceof OpenLWarnMessage warnMessage) {
-            var source = warnMessage.getSource();
-            var module = source.getModule();
-            return rule(module == null ? null : module.getCode(), source.getSourceLocation());
-        }
-        return null;
-    }
-
-    private static @Nullable Rule rule(@Nullable String code, @Nullable ILocation where) {
-        if (code == null || code.isBlank()) {
-            return null;
-        }
-        if (where == null || !where.isTextLocation()) {
-            return new Rule(code, 0, code.length());
-        }
-        var text = new TextInfo(code);
-        var from = where.getStart().getAbsolutePosition(text);
-        var to = Math.min(where.getEnd().getAbsolutePosition(text) + 1, code.length());
-        return from < 0 || to <= from ? null : new Rule(code, from, to);
-    }
-
-    /**
      * Resolves message locations against indexes built once per project, so a project raising thousands of
      * messages does not walk its tables again for each of them.
      */
@@ -178,6 +146,38 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             var reference = new CellReference(address);
             var cell = node.getGridTable().getGrid().getCell(reference.getCol(), reference.getRow());
             return cell == null ? null : cell.getStringValue();
+        }
+
+        /**
+         * The rule the message was raised about, with the piece it is about pinned down.
+         *
+         * <p>A location that pins no text marks the whole rule, which is what a message about the rule as a whole
+         * is about.
+         */
+        private static @Nullable Rule ruleOf(OpenLMessage message) {
+            if (message instanceof OpenLErrorMessage errorMessage) {
+                var error = errorMessage.getError();
+                return error == null ? null : rule(error.getSourceCode(), error.getLocation());
+            }
+            if (message instanceof OpenLWarnMessage warnMessage) {
+                var source = warnMessage.getSource();
+                var module = source.getModule();
+                return rule(module == null ? null : module.getCode(), source.getSourceLocation());
+            }
+            return null;
+        }
+
+        private static @Nullable Rule rule(@Nullable String code, @Nullable ILocation where) {
+            if (code == null || code.isBlank()) {
+                return null;
+            }
+            if (where == null || !where.isTextLocation()) {
+                return new Rule(code, 0, code.length());
+            }
+            var text = new TextInfo(code);
+            var from = where.getStart().getAbsolutePosition(text);
+            var to = Math.min(where.getEnd().getAbsolutePosition(text) + 1, code.length());
+            return from < 0 || to <= from ? null : new Rule(code, from, to);
         }
 
     }
