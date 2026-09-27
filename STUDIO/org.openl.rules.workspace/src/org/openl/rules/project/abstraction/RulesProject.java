@@ -195,30 +195,7 @@ public class RulesProject extends UserWorkspaceProject {
     private void deleteFromLocalRepository() throws ProjectException {
         try {
             for (FileData fileData : localRepository.list(localFolderName)) {
-                IOException deleteCause = null;
-                boolean deleted;
-                try {
-                    deleted = localRepository.delete(fileData);
-                } catch (IOException e) {
-                    deleted = false;
-                    deleteCause = e;
-                }
-
-                if (!deleted) {
-                    try {
-                        if (localRepository.check(fileData.getName()) != null) {
-                            var message = "Cannot close project because resource '%s' is used".formatted(
-                                    fileData.getName());
-                            if (deleteCause == null) {
-                                throw new ProjectException(message);
-                            } else {
-                                throw new ProjectException(message, deleteCause);
-                            }
-                        }
-                    } catch (IOException e) {
-                        throw new ProjectException("Not possible to read the directory", e);
-                    }
-                }
+                deleteLocalFile(fileData);
             }
 
             // Delete empty folders. They won't be deleted in the code above.
@@ -227,6 +204,33 @@ public class RulesProject extends UserWorkspaceProject {
             localRepository.delete(folderData);
         } catch (IOException e) {
             throw new ProjectException("Not possible to read the directory", e);
+        }
+    }
+
+    private void deleteLocalFile(FileData fileData) throws ProjectException {
+        IOException deleteCause = null;
+        boolean deleted;
+        try {
+            deleted = localRepository.delete(fileData);
+        } catch (IOException e) {
+            deleted = false;
+            deleteCause = e;
+        }
+
+        if (!deleted) {
+            try {
+                if (localRepository.check(fileData.getName()) != null) {
+                    var message = "Cannot close project because resource '%s' is used".formatted(
+                            fileData.getName());
+                    if (deleteCause == null) {
+                        throw new ProjectException(message);
+                    } else {
+                        throw new ProjectException(message, deleteCause);
+                    }
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Not possible to read the directory", e);
+            }
         }
     }
 

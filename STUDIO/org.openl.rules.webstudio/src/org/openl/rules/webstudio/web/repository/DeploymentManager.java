@@ -15,6 +15,7 @@ import java.util.jar.Manifest;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.PropertyResolver;
 
@@ -240,36 +241,9 @@ public class DeploymentManager implements InitializingBean {
     private String getApiVersion(String deploymentName, Collection<ProjectDescriptor> projectDescriptors) {
         for (var pd : projectDescriptors) {
             try {
-                try {
-                    var repositoryId = pd.repositoryId();
-                    if (repositoryId == null) {
-                        repositoryId = designRepository.getRepositories().getFirst().getId();
-                    }
-                    var branch = pd.branch();
-                    var projectPath = pd.path();
-                    AProject project;
-                    if (projectPath != null) {
-                        project = designRepository.getProjectByPath(repositoryId,
-                                branch,
-                                projectPath,
-                                pd.projectVersion().getVersionName());
-                    } else {
-                        project = designRepository
-                                .getProject(repositoryId, pd.projectName(), pd.projectVersion());
-                    }
-
-                    var artifact = project.getArtefact(RulesDeploy.FILE_NAME);
-                    if (artifact instanceof AProjectResource resource) {
-                        try (var content = resource.getContent()) {
-                            RulesDeploy rulesDeploy = RulesDeploy.read(content);
-                            var apiVersion = rulesDeploy.getVersion();
-                            if (StringUtils.isNotBlank(apiVersion)) {
-                                return apiVersion;
-                            }
-                        }
-                    }
-                } catch (ProjectException ignored) {
-                    // a project without a rules deploy file gives no API version
+                var apiVersion = readApiVersion(pd);
+                if (apiVersion != null) {
+                    return apiVersion;
                 }
             } catch (Exception e) {
                 log.error(
@@ -282,6 +256,41 @@ public class DeploymentManager implements InitializingBean {
             }
         }
 
+        return null;
+    }
+
+    private @Nullable String readApiVersion(ProjectDescriptor pd) throws IOException {
+        try {
+            var repositoryId = pd.repositoryId();
+            if (repositoryId == null) {
+                repositoryId = designRepository.getRepositories().getFirst().getId();
+            }
+            var branch = pd.branch();
+            var projectPath = pd.path();
+            AProject project;
+            if (projectPath != null) {
+                project = designRepository.getProjectByPath(repositoryId,
+                        branch,
+                        projectPath,
+                        pd.projectVersion().getVersionName());
+            } else {
+                project = designRepository
+                        .getProject(repositoryId, pd.projectName(), pd.projectVersion());
+            }
+
+            var artifact = project.getArtefact(RulesDeploy.FILE_NAME);
+            if (artifact instanceof AProjectResource resource) {
+                try (var content = resource.getContent()) {
+                    RulesDeploy rulesDeploy = RulesDeploy.read(content);
+                    var apiVersion = rulesDeploy.getVersion();
+                    if (StringUtils.isNotBlank(apiVersion)) {
+                        return apiVersion;
+                    }
+                }
+            }
+        } catch (ProjectException ignored) {
+            // a project without a rules deploy file gives no API version
+        }
         return null;
     }
 

@@ -54,13 +54,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
             getResources(PROJECT_DESCRIPTOR_FILE).forEach(collector);
             getResources(DEPLOYMENT_DESCRIPTOR_XML_FILE).forEach(collector);
             getResources(DEPLOYMENT_DESCRIPTOR_YAML_FILE).forEach(collector);
-            Stream<Resource> archives;
-            try {
-                archives = Stream.of(resourceResolver.getResources("/openl/*.zip"));
-            } catch (FileNotFoundException ignored) {
-                archives = Stream.empty();// OK
-            }
-            archives.forEach(collector);
+            getArchives().forEach(collector);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to initialize a repository.", e);
         }
@@ -72,6 +66,14 @@ public class JarLocalRepository extends AbstractArchiveRepository {
 
         setStorage(localStorage);
         setRoot(root);
+    }
+
+    private Stream<Resource> getArchives() throws IOException {
+        try {
+            return Stream.of(resourceResolver.getResources("/openl/*.zip"));
+        } catch (FileNotFoundException ignored) {
+            return Stream.empty();// OK
+        }
     }
 
     private Stream<Resource> getResources(String fileName) throws IOException {
@@ -90,11 +92,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
                 var uriToZip = new URI(path);
                 if (uriToZip.getSchemeSpecificPart().contains("%")) {
                     //FIXME workaround to fix double URI encoding for URIs from ZipPath
-                    try {
-                        uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
-                    } catch (URISyntaxException ignored) {
-                        //it's ok
-                    }
+                    uriToZip = decodeOnce(uriToZip);
                 }
                 return Path.of(uriToZip);
             } catch (URISyntaxException e) {
@@ -104,6 +102,15 @@ public class JarLocalRepository extends AbstractArchiveRepository {
             return Path.of(uri);
         }
         throw new IllegalArgumentException("Invalid URI scheme.");
+    }
+
+    private static URI decodeOnce(URI uriToZip) {
+        try {
+            return new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+        } catch (URISyntaxException ignored) {
+            //it's ok
+            return uriToZip;
+        }
     }
 
 }

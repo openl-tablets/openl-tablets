@@ -406,14 +406,21 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         }
         try {
             var acl = (MutableAcl) aclService.readAclById(objectIdentity);
-            try {
-                return acl.isGranted(permissions, sids, false);
-            } catch (NotFoundException nfe) {
-                return false;
-            }
+            return isGrantedByAcl(acl, sids, permissions);
         } catch (NotFoundException nfe) {
             missingAclCache.put(objectIdentity, Boolean.TRUE);
             return isGrantedByParent(objectIdentity, sids, permissions);
+        }
+    }
+
+    /**
+     * Answers from the ACL of an identity. An ACL that holds no entry for the given identities grants nothing.
+     */
+    private static boolean isGrantedByAcl(MutableAcl acl, List<Sid> sids, List<Permission> permissions) {
+        try {
+            return acl.isGranted(permissions, sids, false);
+        } catch (NotFoundException nfe) {
+            return false;
         }
     }
 

@@ -320,16 +320,7 @@ public final class KafkaService implements Runnable {
                         currentOffsets.put(new TopicPartition(consumerRecord.topic(), consumerRecord.partition()),
                                 new OffsetAndMetadata(consumerRecord.offset() + 1));
                     }
-                    try {
-                        consumer.commitSync(currentOffsets);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Current offsets have been committed: {}", currentOffsets);
-                        }
-                    } catch (Exception e) {
-                        if (log.isErrorEnabled()) {
-                            log.error("Failed to commit current offsets: {}", currentOffsets);
-                        }
-                    }
+                    commitCurrentOffsets();
                 }
             } catch (Exception e) {
                 log.error("Something wrong.", e);
@@ -340,6 +331,19 @@ public final class KafkaService implements Runnable {
                     Thread.currentThread().interrupt();
                     return;
                 }
+            }
+        }
+    }
+
+    private void commitCurrentOffsets() {
+        try {
+            consumer.commitSync(currentOffsets);
+            if (log.isDebugEnabled()) {
+                log.debug("Current offsets have been committed: {}", currentOffsets);
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error("Failed to commit current offsets: {}", currentOffsets);
             }
         }
     }

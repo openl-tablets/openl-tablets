@@ -5,6 +5,7 @@ import java.time.Instant;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -86,21 +87,8 @@ public class PatValidationServiceImpl implements PatValidationService {
         try {
             var stored = tokenDao.getByPublicId(pat.publicId());
 
-            // Password encoder may throw exceptions (invalid hash format, etc.)
-            // We catch these to prevent information leakage
-            boolean secretMatches;
-            try {
-                // Always perform password check to prevent timing attacks
-                // Use the pre-generated dummy hash if token doesn't exist to maintain consistent timing
-                String hashToCheck = stored != null ? stored.getSecretHash() : dummyHash;
-                secretMatches = passwordEncoder.matches(pat.secret(), hashToCheck);
-            } catch (Exception e) {
-                // Invalid hash format or other encoder error - treat as invalid
-                return PatValidationResult.invalid();
-            }
-
             // If secret doesn't match, return immediately without revealing token existence/expiration status
-            if (!secretMatches) {
+            if (!secretMatches(pat, stored)) {
                 return PatValidationResult.invalid();
             }
 
@@ -118,6 +106,25 @@ public class PatValidationServiceImpl implements PatValidationService {
         } catch (Exception ignored) {
             // Catch any unexpected exceptions to prevent information disclosure
             return PatValidationResult.invalid();
+        }
+    }
+
+    /**
+     * Checks the secret of the token against the stored hash.
+     * <p>
+     * An error of the password encoder counts as a mismatch.
+     */
+    private boolean secretMatches(PatToken pat, @Nullable PersonalAccessToken stored) {
+        // Password encoder may throw exceptions (invalid hash format, etc.)
+        // We catch these to prevent information leakage
+        try {
+            // Always perform password check to prevent timing attacks
+            // Use the pre-generated dummy hash if token doesn't exist to maintain consistent timing
+            String hashToCheck = stored != null ? stored.getSecretHash() : dummyHash;
+            return passwordEncoder.matches(pat.secret(), hashToCheck);
+        } catch (Exception e) {
+            // Invalid hash format or other encoder error - treat as invalid
+            return false;
         }
     }
 

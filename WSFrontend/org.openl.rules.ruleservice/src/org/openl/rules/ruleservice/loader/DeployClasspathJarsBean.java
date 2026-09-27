@@ -10,6 +10,7 @@ import jakarta.annotation.PreDestroy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -51,18 +52,22 @@ public class DeployClasspathJarsBean {
     private void processResources(ArrayDeque<Path> filesToDeploy, String location) {
         try {
             for (var rulesXmlResource : resourceResolver.getResources(location)) {
-                try {
-                    var resourceURL = rulesXmlResource.getURL();
-                    if ("jar".equals(resourceURL.getProtocol())) {
-                        resourceURL = ResourceUtils.extractJarFileURL(resourceURL);
-                    }
-                    filesToDeploy.add(ResourceUtils.getFile(resourceURL).toPath());
-                } catch (Exception e) {
-                    log.warn("Failed to load a resource.", e);
-                }
+                addResourceFile(filesToDeploy, rulesXmlResource);
             }
         } catch (Exception e) {
             log.warn("Failed to search resources.", e);
+        }
+    }
+
+    private static void addResourceFile(ArrayDeque<Path> filesToDeploy, Resource rulesXmlResource) {
+        try {
+            var resourceURL = rulesXmlResource.getURL();
+            if ("jar".equals(resourceURL.getProtocol())) {
+                resourceURL = ResourceUtils.extractJarFileURL(resourceURL);
+            }
+            filesToDeploy.add(ResourceUtils.getFile(resourceURL).toPath());
+        } catch (Exception e) {
+            log.warn("Failed to load a resource.", e);
         }
     }
 
@@ -90,23 +95,34 @@ public class DeployClasspathJarsBean {
                     ready = true;
                 }
 
-                try {
-                    // Deploy a file from the queue
-                    var file = filesToDeploy.peek();
-                    rulesDeployerService.deploy(file, isOverwrite());
-                    // File was deployed successfully. Remove it from the queue.
-                    filesToDeploy.remove();
-                    log.info("File '{}' was deployed successfully.", file);
-                } catch (Exception e) {
-                    ready = false;
-                    log.warn(e.getMessage(), e);
-                    TimeUnit.SECONDS.sleep(retryPeriod);
-                }
+                ready = deployFirst(filesToDeploy);
             }
             log.info("All jars were deployed successfully.");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.info("Deploy jars task is interrupted.");
+        }
+    }
+
+    /**
+     * Deploys the first file of the queue and removes it from the queue. When the deployment fails, waits for the retry
+     * period and leaves the file in the queue.
+     *
+     * @return {@code false} when the deployment failed
+     */
+    private boolean deployFirst(ArrayDeque<Path> filesToDeploy) throws InterruptedException {
+        try {
+            // Deploy a file from the queue
+            var file = filesToDeploy.peek();
+            rulesDeployerService.deploy(file, isOverwrite());
+            // File was deployed successfully. Remove it from the queue.
+            filesToDeploy.remove();
+            log.info("File '{}' was deployed successfully.", file);
+            return true;
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+            TimeUnit.SECONDS.sleep(retryPeriod);
+            return false;
         }
     }
 

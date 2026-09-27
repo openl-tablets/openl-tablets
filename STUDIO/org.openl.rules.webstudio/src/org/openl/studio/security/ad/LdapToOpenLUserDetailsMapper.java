@@ -177,28 +177,34 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                     searchControls);
 
             // Fill authorities using search result
-            var authorities = new ArrayList<GrantedAuthority>();
-            try {
-                while (groupsSearch.hasMore()) {
-                    var searchResult = groupsSearch.next();
-                    var dn = new DistinguishedName(new CompositeName(searchResult.getName()));
-
-                    if (!searchRoot.isEmpty()) {
-                        dn.prepend(searchBaseDn);
-                    }
-
-                    authorities.add(new SimpleGrantedAuthority(dn.removeLast().getValue()));
-                }
-            } catch (PartialResultException e) {
-                groupsSearch.close();
-                log.info("Ignoring PartialResultException with message: {}", e.getMessage(), e);
-            }
-
-            return authorities;
+            return collectAuthorities(groupsSearch, searchRoot, searchBaseDn);
         } catch (NamingException e) {
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    private static Collection<GrantedAuthority> collectAuthorities(NamingEnumeration<SearchResult> groupsSearch,
+                                                                   String searchRoot,
+                                                                   DistinguishedName searchBaseDn)
+            throws NamingException {
+        var authorities = new ArrayList<GrantedAuthority>();
+        try {
+            while (groupsSearch.hasMore()) {
+                var searchResult = groupsSearch.next();
+                var dn = new DistinguishedName(new CompositeName(searchResult.getName()));
+
+                if (!searchRoot.isEmpty()) {
+                    dn.prepend(searchBaseDn);
+                }
+
+                authorities.add(new SimpleGrantedAuthority(dn.removeLast().getValue()));
+            }
+        } catch (PartialResultException e) {
+            groupsSearch.close();
+            log.info("Ignoring PartialResultException with message: {}", e.getMessage(), e);
+        }
+        return authorities;
     }
 
     private DirContext bindAsUser(String bindPrincipal, String password) throws NamingException {

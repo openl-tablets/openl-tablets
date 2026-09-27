@@ -98,14 +98,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                     throw new MethodInvocationException("Method '%s(%s)' is not found in service '%s'."
                             .formatted(ruleName, sb, serviceName));
                 }
-                try {
-                    return serviceMethod.invoke(service.getServiceBean(), params);
-                } catch (IllegalAccessException e) {
-                    throw new InternalError(e.toString());
-                } catch (InvocationTargetException e) {
-                    var t = e.getCause();
-                    throw new MethodInvocationException(t.toString(), t);
-                }
+                return invoke(serviceMethod, service.getServiceBean(), params);
             } else {
                 throw new MethodInvocationException(
                         "Service initialization '%s' has been failed.".formatted(serviceName), service.getException());
@@ -114,6 +107,19 @@ public class RulesFrontendImpl implements RulesFrontend {
             throw new MethodInvocationException(
                     "Service initialization '%s' has been failed.".formatted(serviceName),
                     e);
+        }
+    }
+
+    private static Object invoke(Method serviceMethod,
+                                 Object serviceBean,
+                                 Object[] params) throws MethodInvocationException {
+        try {
+            return serviceMethod.invoke(serviceBean, params);
+        } catch (IllegalAccessException e) {
+            throw new InternalError(e.toString());
+        } catch (InvocationTargetException e) {
+            var t = e.getCause();
+            throw new MethodInvocationException(t.toString(), t);
         }
     }
 

@@ -85,17 +85,21 @@ public class OpenLService {
     public static String tryJSON(String serviceName, String ruleName, String json) {
         try {
             Invoker invoker = getInvoker(serviceName, ruleName, json);
-            try {
-                var result = invoker.invoke();
-                var x = invoker.mapper.createObjectNode();
-                x.putPOJO("result", result);
-                x.putNull("error");
-                return invoker.mapper.writeValueAsString(x);
-            } catch (Exception ex) {
-                return errorJSON(invoker.mapper, ex);
-            }
+            return resultJSON(invoker);
         } catch (Exception ex) {
             return errorJSON(null, ex);
+        }
+    }
+
+    private static String resultJSON(Invoker invoker) {
+        try {
+            var result = invoker.invoke();
+            var x = invoker.mapper.createObjectNode();
+            x.putPOJO("result", result);
+            x.putNull("error");
+            return invoker.mapper.writeValueAsString(x);
+        } catch (Exception ex) {
+            return errorJSON(invoker.mapper, ex);
         }
     }
 

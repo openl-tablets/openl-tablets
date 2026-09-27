@@ -104,35 +104,47 @@ public class S3Repository implements Repository, Closeable {
         s3 = builder.build();
 
         try {
-            try {
-                s3.headBucket(it -> it.bucket(bucketName));
-            } catch (NoSuchBucketException e) {
-                log.debug(e.getMessage(), e);
-                // If the bucket does not exist, create it
-                s3.createBucket(it -> it.bucket(bucketName));
-            }
-            try {
-                var verResp = s3.getBucketVersioning(it -> it.bucket(bucketName));
-                if (BucketVersioningStatus.ENABLED != verResp.status()) {
-                    try {
-                        s3.putBucketVersioning(it -> it.bucket(bucketName)
-                                .versioningConfiguration(s -> s.status(BucketVersioningStatus.ENABLED)));
-                    } catch (S3Exception | SdkClientException e) {
-                        // Possibly don't have permission
-                        log.warn("Bucket versioning status: {}. Cannot enable versioning. Error message: {}",
-                                verResp.status(),
-                                e.getMessage(), e);
-                    }
-                }
-            } catch (S3Exception | SdkClientException e) {
-                // Possibly don't have permission
-                log.warn("Cannot detect bucket versioning configuration: {}.", e.getMessage(), e);
-            }
+            createBucketIfAbsent();
+            enableVersioning();
         } catch (SdkClientException e) {
             log.warn("Failed to initialize a repository", e);
         }
 
         monitor = new ChangesMonitor(new S3RevisionGetter(), listenerTimerPeriod);
+    }
+
+    private void createBucketIfAbsent() {
+        try {
+            s3.headBucket(it -> it.bucket(bucketName));
+        } catch (NoSuchBucketException e) {
+            log.debug(e.getMessage(), e);
+            // If the bucket does not exist, create it
+            s3.createBucket(it -> it.bucket(bucketName));
+        }
+    }
+
+    private void enableVersioning() {
+        try {
+            var verResp = s3.getBucketVersioning(it -> it.bucket(bucketName));
+            if (BucketVersioningStatus.ENABLED != verResp.status()) {
+                putVersioningEnabled(verResp.status());
+            }
+        } catch (S3Exception | SdkClientException e) {
+            // Possibly don't have permission
+            log.warn("Cannot detect bucket versioning configuration: {}.", e.getMessage(), e);
+        }
+    }
+
+    private void putVersioningEnabled(BucketVersioningStatus status) {
+        try {
+            s3.putBucketVersioning(it -> it.bucket(bucketName)
+                    .versioningConfiguration(s -> s.status(BucketVersioningStatus.ENABLED)));
+        } catch (S3Exception | SdkClientException e) {
+            // Possibly don't have permission
+            log.warn("Bucket versioning status: {}. Cannot enable versioning. Error message: {}",
+                    status,
+                    e.getMessage(), e);
+        }
     }
 
     @Override

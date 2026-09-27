@@ -41,39 +41,7 @@ public final class BeanOpenField implements IOpenField {
                     continue;
                 }
 
-                var fieldName = pd.getName();
-                try {
-                    c.getDeclaredField(fieldName);
-                } catch (NoSuchFieldException ex) {
-                    // Catch it
-                    // if there is no such field => it was
-                    // named with the first letter as upper case
-                    //
-                    try {
-                        String fname = ClassUtils.capitalize(fieldName);
-                        var field = c.getDeclaredField(fname);
-                        // Reset the name
-                        fieldName = field.getName();
-                        pd.setName(fieldName);
-                        log.debug("Error occurred: ", ex);
-                    } catch (NoSuchFieldException e1) {
-                        try {
-                            // Special case for backward compatibility
-                            // when getAB() was generated for 'aB' field name.
-                            // In this case Introspector returns 'AB' field name.
-                            String fname = StringUtils.uncapitalize(fieldName);
-                            var field = c.getDeclaredField(fname);
-                            // Reset the name
-                            fieldName = field.getName();
-                            pd.setName(fieldName);
-                            log.debug("Error occurred: ", e1);
-                        } catch (NoSuchFieldException e) {
-                            log.debug("Ignored error: ", e);
-                            // It is possible that there is no such field at all
-                        }
-                    }
-
-                }
+                var fieldName = resolveFieldName(c, pd);
 
                 var bf = new BeanOpenField(pd);
 
@@ -84,6 +52,46 @@ public final class BeanOpenField implements IOpenField {
         } catch (Exception | LinkageError t) {
             throw RuntimeExceptionWrapper.wrap(t);
         }
+    }
+
+    /**
+     * Returns the name of the field declared for the property, renaming the property after it when their cases differ.
+     */
+    private static String resolveFieldName(Class<?> c, PropertyDescriptor pd) {
+        var fieldName = pd.getName();
+        try {
+            c.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException ex) {
+            // Catch it
+            // if there is no such field => it was
+            // named with the first letter as upper case
+            //
+            try {
+                String fname = ClassUtils.capitalize(fieldName);
+                var field = c.getDeclaredField(fname);
+                // Reset the name
+                fieldName = field.getName();
+                pd.setName(fieldName);
+                log.debug("Error occurred: ", ex);
+            } catch (NoSuchFieldException e1) {
+                try {
+                    // Special case for backward compatibility
+                    // when getAB() was generated for 'aB' field name.
+                    // In this case Introspector returns 'AB' field name.
+                    String fname = StringUtils.uncapitalize(fieldName);
+                    var field = c.getDeclaredField(fname);
+                    // Reset the name
+                    fieldName = field.getName();
+                    pd.setName(fieldName);
+                    log.debug("Error occurred: ", e1);
+                } catch (NoSuchFieldException e) {
+                    log.debug("Ignored error: ", e);
+                    // It is possible that there is no such field at all
+                }
+            }
+
+        }
+        return fieldName;
     }
 
     private BeanOpenField(PropertyDescriptor descriptor) {

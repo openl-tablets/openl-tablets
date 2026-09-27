@@ -376,13 +376,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                                     rulesDeploy.getServiceName(),
                                     PropertyNamingStrategy.class.getTypeName()));
                         }
-                        try {
-                            return (PropertyNamingStrategy) propertyNamingStrategyClass.getDeclaredConstructor().newInstance();
-                        } catch (ReflectiveOperationException e) {
-                            throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s' for service '%s'.".formatted(
-                                    JACKSON_PROPERTY_NAMING_STRATEGY,
-                                    rulesDeploy.getServiceName()), e);
-                        }
+                        return instantiatePropertyNamingStrategy(propertyNamingStrategyClass, rulesDeploy);
                     } catch (ClassNotFoundException e) {
                         throw new ObjectMapperConfigurationParsingException(
                                 "Failed to load property naming strategy class '%s' for service '%s'.".formatted(
@@ -399,6 +393,17 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             }
         }
         return DEFAULT_STRATEGY;
+    }
+
+    private static PropertyNamingStrategy instantiatePropertyNamingStrategy(Class<?> propertyNamingStrategyClass,
+                                                                            RulesDeploy rulesDeploy) {
+        try {
+            return (PropertyNamingStrategy) propertyNamingStrategyClass.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s' for service '%s'.".formatted(
+                    JACKSON_PROPERTY_NAMING_STRATEGY,
+                    rulesDeploy.getServiceName()), e);
+        }
     }
 
     private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,

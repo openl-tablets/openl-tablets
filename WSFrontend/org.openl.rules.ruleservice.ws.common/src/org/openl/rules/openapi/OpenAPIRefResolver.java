@@ -9,6 +9,7 @@ import java.util.function.Function;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.util.ClassUtils;
 
@@ -50,15 +51,7 @@ public class OpenAPIRefResolver {
                     .map(e -> e.substring(1))
                     .toList()) {
                 if (resolvedByRef != null) {
-                    try {
-                        resolvedByRef = ClassUtils.get(resolvedByRef, expressionPart);
-                    } catch (Exception e) {
-                        if (Map.class.isAssignableFrom(resolvedByRef.getClass())) {
-                            resolvedByRef = ((Map<?, ?>) resolvedByRef).get(expressionPart);
-                        } else {
-                            resolvedByRef = null;
-                        }
-                    }
+                    resolvedByRef = resolvePart(resolvedByRef, expressionPart);
                 }
             }
         } catch (Exception e) {
@@ -71,6 +64,18 @@ public class OpenAPIRefResolver {
             resolvedByRefCache.put(ref, null);
             retNotFoundFunc.run();
             return null;
+        }
+    }
+
+    private static @Nullable Object resolvePart(Object resolvedByRef, String expressionPart) {
+        try {
+            return ClassUtils.get(resolvedByRef, expressionPart);
+        } catch (Exception e) {
+            if (Map.class.isAssignableFrom(resolvedByRef.getClass())) {
+                return ((Map<?, ?>) resolvedByRef).get(expressionPart);
+            } else {
+                return null;
+            }
         }
     }
 

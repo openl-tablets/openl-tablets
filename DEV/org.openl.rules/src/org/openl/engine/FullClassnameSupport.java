@@ -62,25 +62,14 @@ class FullClassnameSupport {
                 var variableType = localVariables.get(variableName);
                 var varTypeLength = 0;
                 if (variableType != null) {
-                    try {
-                        var type = bindingContext.findType(variableType);
-                        varTypeLength = calcLength(identifierChain, type);
-                        if (varTypeLength == identifierChain.size()) {
-                            return;
-                        }
-                    } catch (AmbiguousTypeException e) {
-                        varTypeLength = 0;
-                    }
-                }
-                int varNameLength;
-                try {
-                    var field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, variableName, true);
-                    varNameLength = calcLength(identifierChain, field != null ? field.getType() : null);
-                    if (varNameLength == identifierChain.size()) {
+                    varTypeLength = calcTypeLength(identifierChain, bindingContext, variableType);
+                    if (varTypeLength == identifierChain.size()) {
                         return;
                     }
-                } catch (AmbiguousFieldException e) {
-                    varNameLength = 0;
+                }
+                var varNameLength = calcVarLength(identifierChain, bindingContext, variableName);
+                if (varNameLength == identifierChain.size()) {
+                    return;
                 }
                 var fullClassName = new StringBuilder();
                 String[] fullClassNames = new String[identifierChain.size()];
@@ -122,6 +111,36 @@ class FullClassnameSupport {
             for (var i = 0; i < n; i++) {
                 rec(syntaxNode.getChild(i), bindingContext, localVariables);
             }
+        }
+    }
+
+    /**
+     * Counts the leading chain elements that resolve through a local variable of the given type. An ambiguous type
+     * resolves none.
+     */
+    private static int calcTypeLength(List<ISyntaxNode> identifierChain,
+                                      IBindingContext bindingContext,
+                                      String variableType) {
+        try {
+            var type = bindingContext.findType(variableType);
+            return calcLength(identifierChain, type);
+        } catch (AmbiguousTypeException e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Counts the leading chain elements that resolve through the variable of the given name. An ambiguous variable
+     * resolves none.
+     */
+    private static int calcVarLength(List<ISyntaxNode> identifierChain,
+                                     IBindingContext bindingContext,
+                                     String variableName) {
+        try {
+            var field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, variableName, true);
+            return calcLength(identifierChain, field != null ? field.getType() : null);
+        } catch (AmbiguousFieldException e) {
+            return 0;
         }
     }
 

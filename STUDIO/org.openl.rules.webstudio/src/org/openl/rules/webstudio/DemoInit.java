@@ -133,10 +133,7 @@ public class DemoInit {
                 Map.of(),
                 templateFiles);
         try {
-            try {
-                projectCreator.createRulesProject();
-            } catch (ProjectException e) {
-                log.error("Project: {}. Message: {}", projectName, e.getMessage(), e);
+            if (!createRulesProject(projectCreator, projectName)) {
                 return;
             }
             // A design write becomes resolvable by name only once the project index publishes it, so the demo
@@ -180,6 +177,21 @@ public class DemoInit {
             log.error("Project: {}", projectName, ex);
         } finally {
             projectCreator.destroy();
+        }
+    }
+
+    /**
+     * Creates the rules project, logging the reason when it cannot be created.
+     *
+     * @return {@code true} when the project is created
+     */
+    private static boolean createRulesProject(ExcelFilesProjectCreator projectCreator, String projectName) {
+        try {
+            projectCreator.createRulesProject();
+            return true;
+        } catch (ProjectException e) {
+            log.error("Project: {}. Message: {}", projectName, e.getMessage(), e);
+            return false;
         }
     }
 }

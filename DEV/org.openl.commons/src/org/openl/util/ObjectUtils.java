@@ -45,27 +45,32 @@ public class ObjectUtils {
                 type = ClassUtils.primitiveToWrapper(type);
             }
             try {
-                try {
-                    var method = type.getDeclaredMethod("valueOf", String.class);
-                    return method.invoke(null, value);
-                } catch (NoSuchMethodException e) {
-                    try {
-                        var method = type.getDeclaredMethod("parse", CharSequence.class);
-                        return method.invoke(null, value);
-                    } catch (NoSuchMethodException e1) {
-                        try {
-                            var constructor = type.getDeclaredConstructor(String.class);
-                            return constructor.newInstance(value);
-                        } catch (NoSuchMethodException e2) {
-                            throw new IllegalArgumentException("Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.".formatted(
-                                    type.getTypeName()), e2);
-                        }
-                    }
-                }
+                return parse(value, type);
             } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                 throw new IllegalArgumentException(
                         "Cannot convert '%s' string to '%s' type".formatted(value, type.getTypeName()),
                         e);
+            }
+        }
+    }
+
+    private static Object parse(String value, Class<?> type)
+            throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        try {
+            var method = type.getDeclaredMethod("valueOf", String.class);
+            return method.invoke(null, value);
+        } catch (NoSuchMethodException e) {
+            try {
+                var method = type.getDeclaredMethod("parse", CharSequence.class);
+                return method.invoke(null, value);
+            } catch (NoSuchMethodException e1) {
+                try {
+                    var constructor = type.getDeclaredConstructor(String.class);
+                    return constructor.newInstance(value);
+                } catch (NoSuchMethodException e2) {
+                    throw new IllegalArgumentException("Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.".formatted(
+                            type.getTypeName()), e2);
+                }
             }
         }
     }

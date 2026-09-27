@@ -327,9 +327,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             var kafkaDeploy = YAML.readValue(resource.getResourceAsStream(), KafkaDeploy.class);
 
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs();
-            var kafkaServices = new HashSet<KafkaService>();
-            var kafkaProducers = new HashSet<KafkaProducer<?, ?>>();
-            var kafkaConsumers = new HashSet<KafkaConsumer<?, ?>>();
             if (kafkaDeploy.getServiceConfig() != null) {
                 validate(kafkaDeploy.getServiceConfig());
             }
@@ -348,40 +345,15 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 methodsMap.put(kmc, method);
             }
 
-            try {
-                var sharedProducersContext = new ServiceDeployContext();
-                if (kafkaDeploy.getServiceConfig() != null) {
-                    var kafkaServiceConfig = makeMergedKafkaConfig(serviceEnv, kafkaDeploy.getServiceConfig());
-                    createKafkaService(service,
-                            kafkaServices,
-                            kafkaConsumers,
-                            kafkaProducers,
-                            sharedProducersContext,
-                            kafkaServiceConfig,
-                            kafkaDeploy.getServiceConfig(),
-                            null,
-                            serviceDescription.getRulesDeploy());
-                }
-                for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
-                    final var method = methodsMap.get(kmc);
-                    final var kafkaMethodConfig = kafkaMethodConfigsMap.get(kmc);
-                    createKafkaService(service,
-                            kafkaServices,
-                            kafkaConsumers,
-                            kafkaProducers,
-                            sharedProducersContext,
-                            kafkaMethodConfig,
-                            kmc,
-                            method,
-                            serviceDescription.getRulesDeploy());
-                }
-            } catch (Exception e) {
-                stopAndClose(Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
-                throw e;
-            }
+            var kafkaResources = createKafkaServices(service,
+                    kafkaDeploy,
+                    serviceEnv,
+                    serviceDescription.getRulesDeploy(),
+                    kafkaMethodConfigsMap,
+                    methodsMap);
 
-            if (!kafkaServices.isEmpty()) {
-                runningServices.put(service, Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
+            if (!kafkaResources.getLeft().isEmpty()) {
+                runningServices.put(service, kafkaResources);
                 log.info("Service '{}' has been successfully deployed.", service.getDeployPath());
             } else {
                 throw new KafkaServiceConfigurationException("Failed to deploy service '%s'. Kafka method configs are not found in the configuration.".formatted(
@@ -394,6 +366,54 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    /**
+     * Creates the Kafka services, producers and consumers of the service. When one of them cannot be created, stops
+     * and closes the ones created before.
+     */
+    private Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>
+            createKafkaServices(OpenLService service,
+                                KafkaDeploy kafkaDeploy,
+                                Environment serviceEnv,
+                                RulesDeploy rulesDeploy,
+                                Map<KafkaMethodConfig, KafkaServiceConfig> kafkaMethodConfigsMap,
+                                Map<KafkaMethodConfig, Method> methodsMap) throws IOException, KafkaServiceException {
+        var kafkaServices = new HashSet<KafkaService>();
+        var kafkaProducers = new HashSet<KafkaProducer<?, ?>>();
+        var kafkaConsumers = new HashSet<KafkaConsumer<?, ?>>();
+        try {
+            var sharedProducersContext = new ServiceDeployContext();
+            if (kafkaDeploy.getServiceConfig() != null) {
+                var kafkaServiceConfig = makeMergedKafkaConfig(serviceEnv, kafkaDeploy.getServiceConfig());
+                createKafkaService(service,
+                        kafkaServices,
+                        kafkaConsumers,
+                        kafkaProducers,
+                        sharedProducersContext,
+                        kafkaServiceConfig,
+                        kafkaDeploy.getServiceConfig(),
+                        null,
+                        rulesDeploy);
+            }
+            for (KafkaMethodConfig kmc : kafkaDeploy.getMethodConfigs()) {
+                final var method = methodsMap.get(kmc);
+                final var kafkaMethodConfig = kafkaMethodConfigsMap.get(kmc);
+                createKafkaService(service,
+                        kafkaServices,
+                        kafkaConsumers,
+                        kafkaProducers,
+                        sharedProducersContext,
+                        kafkaMethodConfig,
+                        kmc,
+                        method,
+                        rulesDeploy);
+            }
+        } catch (Exception e) {
+            stopAndClose(Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
+            throw e;
+        }
+        return Triple.of(kafkaServices, kafkaProducers, kafkaConsumers);
     }
 
     private boolean stopAndClose(

@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
@@ -148,11 +150,7 @@ class LazyFileData extends FileData {
 
         try (var git = gitRepo.getClosableGit()) {
             if (fileCommit == null) {
-                try {
-                    fileCommit = GitRepository.findFirstCommit(git, fromCommit, fullPath);
-                } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
-                    log.error(e.getMessage(), e);
-                }
+                fileCommit = findFileCommit(git);
                 if (fileCommit == null) {
                     throw new IllegalStateException("Cannot find revision for the file " + fullPath);
                 }
@@ -168,14 +166,7 @@ class LazyFileData extends FileData {
             super.setAuthor(new UserInfo(null, committerIdent.getEmailAddress(), userDisplayName));
             super.setModifiedAt(committerIdent.getWhen());
 
-            String version;
-            try {
-                version = GitRepository.getVersionName(git.getRepository(), git.tagList().call(), fileCommit.getId());
-            } catch (GitAPIException e) {
-                throw new IllegalStateException("Cannot get tags list: " + e.getMessage(), e);
-            } catch (IOException e) {
-                throw new IllegalStateException("Cannot get version name: " + e.getMessage(), e);
-            }
+            var version = resolveVersionName(git);
             super.setVersion(version);
 
             if (isTechnicalRevision()) {
@@ -189,6 +180,25 @@ class LazyFileData extends FileData {
             fileCommit = null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    private @Nullable RevCommit findFileCommit(Git git) throws IOException {
+        try {
+            return GitRepository.findFirstCommit(git, fromCommit, fullPath);
+        } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private String resolveVersionName(Git git) {
+        try {
+            return GitRepository.getVersionName(git.getRepository(), git.tagList().call(), fileCommit.getId());
+        } catch (GitAPIException e) {
+            throw new IllegalStateException("Cannot get tags list: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot get version name: " + e.getMessage(), e);
         }
     }
 

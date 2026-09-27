@@ -322,12 +322,7 @@ public class HttpClient implements AutoCloseable {
 //                    response.writeBodyTo(responseFile);
 //                }
 
-                try {
-                    response.assertTo(assertResponse);
-                    error = null;
-                } catch (AssertionError e) {
-                    error = e;
-                }
+                error = mismatch(response, assertResponse);
             } while (error != null && System.currentTimeMillis() < timeout);
 
             if (error != null) {
@@ -343,6 +338,16 @@ public class HttpClient implements AutoCloseable {
             throw new IllegalStateException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /** Returns the first check the response fails against the expected one, or {@code null} when it passes all. */
+    private static @Nullable AssertionError mismatch(HttpData response, HttpData expected) throws IOException {
+        try {
+            response.assertTo(expected);
+            return null;
+        } catch (AssertionError e) {
+            return e;
         }
     }
 
@@ -397,18 +402,23 @@ public class HttpClient implements AutoCloseable {
         var req = requestBuilder(url, null).GET().build();
         try {
             for (int i = 0; i < 100; i++) {
-                try {
-                    var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-                    if (resp.statusCode() == 200) {
-                        break;
-                    }
-                } catch (IOException ignore) {
-                    // Ignore and retry
+                if (respondsOK(req)) {
+                    break;
                 }
                 Thread.sleep(10);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private boolean respondsOK(HttpRequest req) throws InterruptedException {
+        try {
+            var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            return resp.statusCode() == 200;
+        } catch (IOException ignore) {
+            // Ignore and retry
+            return false;
         }
     }
 

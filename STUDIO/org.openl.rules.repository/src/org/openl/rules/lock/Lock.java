@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -173,14 +174,7 @@ public class Lock {
             PropertiesUtils.load(lock, properties::put);
             var userName = properties.get(USER_NAME);
             var stringDate = properties.get(DATE);
-            Instant date;
-            try {
-                date = Instant.parse(stringDate);
-            } catch (Exception e) {
-                date = Instant.ofEpochMilli(0);
-                log.warn("Failed to parse date '{}'.", stringDate, e);
-            }
-            return new LockInfo(date, userName);
+            return new LockInfo(parseDate(stringDate), userName);
         } catch (NoSuchFileException e) {
             // Lock can be deleted in another thread
             return LockInfo.NO_LOCK;
@@ -188,6 +182,15 @@ public class Lock {
             log.info("Impossible to read the lock file.", e);
             // Lock file exists but failed to retrieve lock info.
             return new LockInfo(Instant.now(), null);
+        }
+    }
+
+    private static Instant parseDate(@Nullable String stringDate) {
+        try {
+            return Instant.parse(stringDate);
+        } catch (Exception e) {
+            log.warn("Failed to parse date '{}'.", stringDate, e);
+            return Instant.ofEpochMilli(0);
         }
     }
 
@@ -202,23 +205,27 @@ public class Lock {
                 return null;
             }
             var lock = lockPath.resolve(userNameHash + ".lock");
-            try (Writer os = Files.newBufferedWriter(lock, StandardOpenOption.CREATE_NEW)) {
-                os.write("#Lock info\n");
-                os.append("user=").append(userName).write('\n');
-                os.append("date=").append(Instant.now().toString()).write('\n');
-            } catch (FileAlreadyExistsException | AccessDeniedException | NoSuchFileException e) {
-                // Cannot create lock file
-                return null;
-            } catch (Exception e) {
-                // Lock file is created but with error. So delete it.
-                log.info("Lock file '{}' is created with errors. Lock file is deleted.", lock);
-                deleteLockAndFolders(lock);
-                return null;
-            }
-            return lock;
+            return writeLockFile(lock, userName);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private @Nullable Path writeLockFile(Path lock, String userName) {
+        try (Writer os = Files.newBufferedWriter(lock, StandardOpenOption.CREATE_NEW)) {
+            os.write("#Lock info\n");
+            os.append("user=").append(userName).write('\n');
+            os.append("date=").append(Instant.now().toString()).write('\n');
+        } catch (FileAlreadyExistsException | AccessDeniedException | NoSuchFileException e) {
+            // Cannot create lock file
+            return null;
+        } catch (Exception e) {
+            // Lock file is created but with error. So delete it.
+            log.info("Lock file '{}' is created with errors. Lock file is deleted.", lock);
+            deleteLockAndFolders(lock);
+            return null;
+        }
+        return lock;
     }
 
     boolean finishLockCreating(Path lock) throws IOException {

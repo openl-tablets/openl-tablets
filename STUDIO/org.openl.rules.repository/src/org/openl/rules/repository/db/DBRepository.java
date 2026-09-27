@@ -173,12 +173,8 @@ abstract class DBRepository implements Repository, Closeable {
             for (FileData f : data) {
                 var lastVersion = getLatestVersionFileData(connection, f.getName());
                 if (lastVersion != null) {
-                    try (var statement = createInsertFileStatement(connection, lastVersion, null)) {
-                        statement.executeUpdate();
-                        deleted = true;
-                    } catch (SQLException e) {
-                        throw new IOException(e);
-                    }
+                    insertDeletion(connection, lastVersion);
+                    deleted = true;
                 }
             }
             connection.commit();
@@ -189,6 +185,14 @@ abstract class DBRepository implements Repository, Closeable {
             invokeListener();
         }
         return deleted;
+    }
+
+    private void insertDeletion(Connection connection, FileData lastVersion) throws IOException {
+        try (var statement = createInsertFileStatement(connection, lastVersion, null)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
     }
 
     private FileData copy(String srcName, FileData destData) throws IOException {

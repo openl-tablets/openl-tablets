@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,50 +86,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                     serviceDescriptionBuilder.setProjectDescriptor(pd);
                     var resourceLoader = new ResourceLoaderImpl(project);
                     serviceDescriptionBuilder.setResourceLoader(resourceLoader);
-                    RulesDeploy rulesDeploy = null;
-                    try {
-                        var artifact = project.getArtefact(RulesDeploy.FILE_NAME);
-                        if (artifact instanceof IProjectResource resource) {
-                            try (var content = resource.getContent()) {
-                                rulesDeploy = RulesDeploy.read(content);
-                                serviceDescriptionBuilder.setRulesDeploy(rulesDeploy);
-                                if (rulesDeploy
-                                        .getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
-                                    serviceDescriptionBuilder
-                                            .setServiceClassName(rulesDeploy.getServiceClass().trim());
-                                }
-                                if (rulesDeploy.isProvideRuntimeContext() != null) {
-                                    serviceDescriptionBuilder
-                                            .setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
-                                }
-                                if (rulesDeploy.getPublishers() != null) {
-                                    var publishers = Arrays.stream(rulesDeploy.getPublishers())
-                                            .map(Enum::toString)
-                                            .collect(Collectors.toSet());
-                                    serviceDescriptionBuilder.setPublishers(publishers);
-                                }
-                                if (rulesDeploy.getConfiguration() != null) {
-                                    serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
-                                }
-                                if (rulesDeploy.getInterceptingTemplateClassName() != null && !rulesDeploy
-                                        .getInterceptingTemplateClassName()
-                                        .trim()
-                                        .isEmpty()) {
-                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(
-                                            rulesDeploy.getInterceptingTemplateClassName().trim());
-                                }
-                                if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy
-                                        .getAnnotationTemplateClassName()
-                                        .trim()
-                                        .isEmpty()) {
-                                    serviceDescriptionBuilder.setAnnotationTemplateClassName(
-                                            rulesDeploy.getAnnotationTemplateClassName().trim());
-                                }
-                            }
-                        }
-                    } catch (ProjectException ignored) {
-                        // rules-deploy.xml is optional; proceed with defaults
-                    }
+                    var rulesDeploy = applyRulesDeploy(project, serviceDescriptionBuilder);
                     serviceDescriptionBuilder.setManifest(readManifestFile(project));
                     serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
                     serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
@@ -155,6 +113,61 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
         }
 
         return serviceDescriptions;
+    }
+
+    /**
+     * Applies the optional rules deploy file of the project to the service description.
+     *
+     * @return the rules deploy of the project, or {@code null} when the project has none
+     */
+    private static @Nullable RulesDeploy applyRulesDeploy(
+            IProject project,
+            ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder) throws IOException {
+        RulesDeploy rulesDeploy = null;
+        try {
+            var artifact = project.getArtefact(RulesDeploy.FILE_NAME);
+            if (artifact instanceof IProjectResource resource) {
+                try (var content = resource.getContent()) {
+                    rulesDeploy = RulesDeploy.read(content);
+                    serviceDescriptionBuilder.setRulesDeploy(rulesDeploy);
+                    if (rulesDeploy
+                            .getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
+                        serviceDescriptionBuilder
+                                .setServiceClassName(rulesDeploy.getServiceClass().trim());
+                    }
+                    if (rulesDeploy.isProvideRuntimeContext() != null) {
+                        serviceDescriptionBuilder
+                                .setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
+                    }
+                    if (rulesDeploy.getPublishers() != null) {
+                        var publishers = Arrays.stream(rulesDeploy.getPublishers())
+                                .map(Enum::toString)
+                                .collect(Collectors.toSet());
+                        serviceDescriptionBuilder.setPublishers(publishers);
+                    }
+                    if (rulesDeploy.getConfiguration() != null) {
+                        serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
+                    }
+                    if (rulesDeploy.getInterceptingTemplateClassName() != null && !rulesDeploy
+                            .getInterceptingTemplateClassName()
+                            .trim()
+                            .isEmpty()) {
+                        serviceDescriptionBuilder.setAnnotationTemplateClassName(
+                                rulesDeploy.getInterceptingTemplateClassName().trim());
+                    }
+                    if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy
+                            .getAnnotationTemplateClassName()
+                            .trim()
+                            .isEmpty()) {
+                        serviceDescriptionBuilder.setAnnotationTemplateClassName(
+                                rulesDeploy.getAnnotationTemplateClassName().trim());
+                    }
+                }
+            }
+        } catch (ProjectException ignored) {
+            // rules-deploy.xml is optional; proceed with defaults
+        }
+        return rulesDeploy;
     }
 
     private Manifest readManifestFile(IProject project) {

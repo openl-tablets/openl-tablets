@@ -30,6 +30,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -625,6 +626,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         BindHelper.processError(errorMessage, exampleValueCellSource, bindingContext);
     }
 
+    private static void setExampleValue(FieldDescriptionBuilder fieldDescriptionBuilder,
+                                        Object exampleValue,
+                                        String example,
+                                        IOpenClass fieldType,
+                                        @Nullable GridCellSourceCodeModule errorSource,
+                                        IBindingContext bindingContext) {
+        try {
+            RuleRowHelper.validateValue(exampleValue, fieldType);
+            fieldDescriptionBuilder.setExampleValue(example);
+        } catch (Exception e) {
+            BindHelper.processError(e, errorSource, bindingContext);
+        }
+    }
+
     private void handleDefaultValueError(String fieldName, IOpenClass fieldType, GridCellSourceCodeModule defaultValueCellSource, IBindingContext bindingContext) {
         var errorMessage = "The provided default value '%s' is not supported for the field '%s' of type '%s'. Please provide an default value that matches the field type.".formatted(defaultValueCellSource.getCode().trim(), fieldName, fieldType.getName());
         BindHelper.processError(errorMessage, defaultValueCellSource, bindingContext);
@@ -777,12 +792,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if (fieldType.getInstanceClass() != null) {
                     try {
                         Object exampleValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), examplesValueCellSourceValue.trim(), bindingContext);
-                        try {
-                            RuleRowHelper.validateValue(exampleValue, fieldType);
-                            fieldDescriptionBuilder.setExampleValue(examplesValueCellSourceValue.trim());
-                        } catch (Exception e) {
-                            BindHelper.processError(e, defaultValueCellSource, bindingContext);
-                        }
+                        setExampleValue(fieldDescriptionBuilder,
+                                exampleValue,
+                                examplesValueCellSourceValue.trim(),
+                                fieldType,
+                                defaultValueCellSource,
+                                bindingContext);
                     } catch (Exception e) {
                         handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
                     }

@@ -41,20 +41,24 @@ class BeanCloner<T> implements ICloner<T> {
                     this.fields.put(prop.getName(), new PropertyGetSetter(prop.getReadMethod(), prop.getWriteMethod()));
                 } else if ("class".equals(prop.getName())) {
                     // The special case when a 'class' property is defined in the OpenL Datatype
-                    try {
-                        var getter = clazz.getMethod("getClass");
-                        var returnType = getter.getReturnType();
-                        if (!Class.class.equals(returnType)) {
-                            var setter = clazz.getMethod("setClass", returnType);
-                            this.fields.put(prop.getName(), new PropertyGetSetter(getter, setter));
-                        }
-                    } catch (NoSuchMethodException ignore) {
-                        continue;
-                    }
+                    putClassProperty(clazz, prop.getName());
                 }
             }
         } catch (IntrospectionException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    private void putClassProperty(Class<T> clazz, String name) {
+        try {
+            var getter = clazz.getMethod("getClass");
+            var returnType = getter.getReturnType();
+            if (!Class.class.equals(returnType)) {
+                var setter = clazz.getMethod("setClass", returnType);
+                this.fields.put(name, new PropertyGetSetter(getter, setter));
+            }
+        } catch (NoSuchMethodException ignore) {
+            // a 'class' property without an accessor pair is not cloned
         }
     }
 

@@ -155,13 +155,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                     projectBuilder.addFolder(item.getName());
                 } else {
                     requireSizeWithinLimit(item);
-                    InputStream zipInputStream;
-                    try {
-                        var fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
-                        zipInputStream = changeFileIfNeeded(fileName, zipFile.getInputStream(item));
-                    } catch (IOException e) {
-                        throw new ProjectException("Error extracting zip archive", e);
-                    }
+                    var zipInputStream = openEntry(projectBuilder, item);
                     projectBuilder.addFile(item.getName(), zipInputStream);
                 }
             } catch (Exception e) {
@@ -175,6 +169,15 @@ public class ZipFileProjectCreator extends AProjectCreator {
             }
         }
         return projectBuilder;
+    }
+
+    private InputStream openEntry(ZipRulesProjectBuilder projectBuilder, ZipEntry item) throws ProjectException {
+        try {
+            var fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
+            return changeFileIfNeeded(fileName, zipFile.getInputStream(item));
+        } catch (IOException e) {
+            throw new ProjectException("Error extracting zip archive", e);
+        }
     }
 
     @Override

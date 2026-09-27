@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -99,10 +100,10 @@ public class RulesEngineFactory<T> {
             String className = openClass.getName();
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
-                try {
-                    interfaceClass = (Class<T>) classLoader.loadClass(className);
-                    log.warn("Previously generated interface '{}' has been used as a service class.", className);
-                } catch (ClassNotFoundException e) {
+                Class<?> previouslyGenerated = loadPreviouslyGenerated(classLoader, className);
+                if (previouslyGenerated != null) {
+                    interfaceClass = (Class<T>) previouslyGenerated;
+                } else {
                     interfaceClass = (Class<T>) interfaceClassGenerator.generateInterface(className, openClass, classLoader);
                 }
             } catch (Exception | LinkageError e) {
@@ -110,6 +111,16 @@ public class RulesEngineFactory<T> {
             }
         }
         return interfaceClass;
+    }
+
+    private static @Nullable Class<?> loadPreviouslyGenerated(ClassLoader classLoader, String className) {
+        try {
+            var previouslyGenerated = classLoader.loadClass(className);
+            log.warn("Previously generated interface '{}' has been used as a service class.", className);
+            return previouslyGenerated;
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 
     private CompiledOpenClass initializeOpenClass() {
