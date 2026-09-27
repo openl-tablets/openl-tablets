@@ -33,9 +33,9 @@ public final class DomainBits extends DomainImpl {
     private boolean[] _bits;
     private int _size;
 
-    public DomainBits(IntVar var, int min, int max) // throws Failure
+    public DomainBits(IntVar intVar, int min, int max) // throws Failure
     {
-        super(var, min, max);
+        super(intVar, min, max);
         _bits = new boolean[max - min + 1];
         Arrays.fill(_bits, true);
         _size = _max - _min + 1;

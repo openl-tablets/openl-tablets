@@ -99,15 +99,15 @@ class RulesProjectLifecycleTest {
     void editingIsTrackedWithoutTouchingTheRecord() throws Exception {
         var project = createProject();
         project.open();
-        var record = userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
-        var recordBytes = Files.readAllBytes(record);
+        var recordFile = userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
+        var recordBytes = Files.readAllBytes(recordFile);
 
         var change = new FileData();
         change.setName(PROJECT + "/rules/Main.xlsx");
         localRepository.save(change, stream("edited content!"));
 
         assertTrue(project.isModified(), "A file save must mark the project as locally changed.");
-        assertArrayEqualsOnDisk(recordBytes, record);
+        assertArrayEqualsOnDisk(recordBytes, recordFile);
 
         var reloaded = MetainfoRegistry.open(userDir);
         assertTrue(reloaded.isDirty(PROJECT),

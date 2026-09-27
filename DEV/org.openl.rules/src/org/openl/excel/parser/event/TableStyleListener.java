@@ -133,18 +133,18 @@ public class TableStyleListener implements HSSFListener {
     }
 
     @Override
-    public void processRecord(Record record) {
-        processFormula(record);
+    public void processRecord(Record rec) {
+        processFormula(rec);
 
-        switch (record.getSid()) {
+        switch (rec.getSid()) {
             case BoundSheetRecord.sid:
-                var bsr = (BoundSheetRecord) record;
+                var bsr = (BoundSheetRecord) rec;
                 if (bsr.getSheetname().equals(sheet.getName())) {
                     sheets.add(new EventSheetDescriptor(bsr.getSheetname(), sheets.size(), bsr.getPositionOfBof()));
                 }
                 break;
             case BOFRecord.sid:
-                var bof = (BOFRecord) record;
+                var bof = (BOFRecord) rec;
                 if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
                     if (!sheetsSorted) {
                         sheets.sort(Comparator.comparingInt(EventSheetDescriptor::getOffset));
@@ -155,16 +155,16 @@ public class TableStyleListener implements HSSFListener {
                 }
                 break;
             case PaletteRecord.sid:
-                palette = (PaletteRecord) record;
+                palette = (PaletteRecord) rec;
                 break;
             case FormulaRecord.sid: // Cell value from a formula
                 if (isNeededSheet()) {
-                    var r = (FormulaRecord) record;
+                    var r = (FormulaRecord) rec;
                     var row = r.getRow();
                     short column = r.getColumn();
 
                     if (IGridRegion.Tool.contains(tableRegion, column, row)) {
-                        currentFormula = (FormulaRecord) record;
+                        currentFormula = (FormulaRecord) rec;
                         // Don't forget to save style index
                         saveStyleIndex(r, row, column);
                     }
@@ -178,7 +178,7 @@ public class TableStyleListener implements HSSFListener {
             case RKRecord.sid: // Excel internal number record
             case BlankRecord.sid:
                 if (isNeededSheet()) {
-                    var r = (CellValueRecordInterface) record;
+                    var r = (CellValueRecordInterface) rec;
                     var row = r.getRow();
                     short column = r.getColumn();
 
@@ -194,7 +194,7 @@ public class TableStyleListener implements HSSFListener {
             case TextObjectRecord.sid:
             case DrawingRecord.sid:
                 if (isNeededSheet()) {
-                    shapeRecords.add(record);
+                    shapeRecords.add(rec);
                 }
                 break;
             default:
@@ -203,13 +203,13 @@ public class TableStyleListener implements HSSFListener {
         }
     }
 
-    private void processFormula(Record record) {
+    private void processFormula(Record rec) {
         if (currentFormula != null) {
             var row = currentFormula.getRow();
             short column = currentFormula.getColumn();
             try {
                 StringRecord cachedText = null;
-                if (record instanceof StringRecord stringRecord) {
+                if (rec instanceof StringRecord stringRecord) {
                     cachedText = stringRecord;
                 } else {
                     currentFormula.setCachedResultBoolean(false);
@@ -276,7 +276,7 @@ public class TableStyleListener implements HSSFListener {
         var size = shapeRecords.size();
         for (var i = 0; i < size; i++) {
             var rb = shapeRecords.get(i);
-            if (rb instanceof Record record && record.getSid() == DrawingRecord.sid) {
+            if (rb instanceof Record rec && rec.getSid() == DrawingRecord.sid) {
                 return i;
             }
         }

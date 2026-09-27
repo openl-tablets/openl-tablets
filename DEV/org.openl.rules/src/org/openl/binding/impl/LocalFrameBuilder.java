@@ -168,14 +168,14 @@ public class LocalFrameBuilder {
      * @see org.openl.binding.IBindingContext#addVar(java.lang.String, java.lang.String)
      */
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
-        var var = findLocalVar(namespace, name, true);
-        if (var != null) {
+        var localVar = findLocalVar(namespace, name, true);
+        if (localVar != null) {
             throw new DuplicatedVarException(null, name);
         }
 
-        var = new LocalVar(namespace, name, currentFrameSize(), type);
-        localFrames.peek().add(var);
-        return var;
+        localVar = new LocalVar(namespace, name, currentFrameSize(), type);
+        localFrames.peek().add(localVar);
+        return localVar;
     }
 
     public int currentFrameSize() {
@@ -188,11 +188,11 @@ public class LocalFrameBuilder {
 
     public ILocalVar findLocalVar(String namespace, String varname, boolean strictMatch) {
         for (LocalVarFrameElement frame : localFrames) {
-            for (ILocalVar var : frame) {
-                var s1 = var.getNamespace();
-                if ((strictMatch && var.getName().equals(varname) || !strictMatch && var.getName()
+            for (ILocalVar localVar : frame) {
+                var s1 = localVar.getNamespace();
+                if ((strictMatch && localVar.getName().equals(varname) || !strictMatch && localVar.getName()
                         .equalsIgnoreCase(varname)) && (Objects.equals(s1, namespace))) {
-                    return var;
+                    return localVar;
                 }
             }
         }

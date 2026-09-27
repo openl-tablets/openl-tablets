@@ -33,12 +33,12 @@ public class BooleanPrimitiveMatch implements IMatcherBuilder, IMatcher {
     }
 
     @Override
-    public boolean match(Object var, Object checkValue) {
+    public boolean match(Object actualValue, Object checkValue) {
         if (checkValue == null) {
             return false;
         }
 
-        return checkValue.equals(var);
+        return checkValue.equals(actualValue);
     }
 
 }

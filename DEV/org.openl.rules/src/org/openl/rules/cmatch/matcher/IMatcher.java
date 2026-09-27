@@ -14,9 +14,9 @@ public interface IMatcher {
     /**
      * Check whether actual value and check value are match or satisfy matching operation.
      *
-     * @param var        actual value
-     * @param checkValue check value
+     * @param actualValue actual value
+     * @param checkValue  check value
      * @return true if it matches
      */
-    boolean match(Object var, Object checkValue);
+    boolean match(Object actualValue, Object checkValue);
 }

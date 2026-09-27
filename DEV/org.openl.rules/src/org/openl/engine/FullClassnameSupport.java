@@ -74,8 +74,8 @@ class FullClassnameSupport {
                 }
                 int varNameLength;
                 try {
-                    var var = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, variableName, true);
-                    varNameLength = calcLength(identifierChain, var != null ? var.getType() : null);
+                    var field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, variableName, true);
+                    varNameLength = calcLength(identifierChain, field != null ? field.getType() : null);
                     if (varNameLength == identifierChain.size()) {
                         return;
                     }

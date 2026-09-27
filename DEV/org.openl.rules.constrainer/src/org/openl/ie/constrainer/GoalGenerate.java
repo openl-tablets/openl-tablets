@@ -75,9 +75,9 @@ public class GoalGenerate extends GoalImpl {
         var size = _intvars.size();
         _goals = new FastVector(size);
         for (var i = 0; i < size; i++) {
-            var var = (IntVar) _intvars.elementAt(i);
+            var intVar = (IntVar) _intvars.elementAt(i);
             Goal goal;
-            goal = new GoalInstantiate(var);
+            goal = new GoalInstantiate(intVar);
             _goals.addElement(goal);
         }
     }

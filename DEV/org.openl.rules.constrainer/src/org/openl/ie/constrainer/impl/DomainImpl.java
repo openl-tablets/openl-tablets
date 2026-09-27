@@ -22,9 +22,9 @@ public class DomainImpl implements Domain {
     protected int _min;
     protected int _max;
 
-    public DomainImpl(IntVar var, int min, int max)// throws Failure
+    public DomainImpl(IntVar intVar, int min, int max)// throws Failure
     {
-        _variable = var;
+        _variable = intVar;
         _initial_min = min;
         _initial_max = max;
         _min = min;
@@ -174,8 +174,8 @@ public class DomainImpl implements Domain {
     }
 
     @Override
-    public void variable(IntVar var) {
-        _variable = var;
+    public void variable(IntVar intVar) {
+        _variable = intVar;
     }
 
 } // ~DomainImpl

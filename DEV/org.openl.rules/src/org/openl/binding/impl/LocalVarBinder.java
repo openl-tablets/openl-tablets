@@ -35,9 +35,9 @@ public class LocalVarBinder extends ANodeBinder {
             }
         }
 
-        var var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, name, varType);
+        var localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, name, varType);
 
-        return new LocalVarDeclarationNode(node, init, var);
+        return new LocalVarDeclarationNode(node, init, localVar);
     }
 
     @Override

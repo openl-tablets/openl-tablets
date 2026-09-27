@@ -28,10 +28,10 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 List<MatchNode> children = line.getChildren();
                 for (MatchNode node : children) {
                     Argument arg = node.getArgument();
-                    Object var = arg.extractValue(target, params, env);
+                    Object actualValue = arg.extractValue(target, params, env);
                     IMatcher matcher = node.getMatcher();
                     Object checkValue = node.getCheckValues()[resultIndex];
-                    if (!matcher.match(var, checkValue)) {
+                    if (!matcher.match(actualValue, checkValue)) {
                         success = false;
                         break;
                     }

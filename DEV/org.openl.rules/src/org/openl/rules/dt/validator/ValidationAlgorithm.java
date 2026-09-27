@@ -260,10 +260,10 @@ public class ValidationAlgorithm {
             var varName = paramDescriptor.getParameterDeclaration().getName();
             var varType = paramDescriptor.getParameterDeclaration().getType();
 
-            var var = decisionTableToValidate.getTransformer().makeSignatureVar(varName, varType, constrainer);
+            var signatureVar = decisionTableToValidate.getTransformer().makeSignatureVar(varName, varType, constrainer);
 
-            if (var != null) {
-                signatureVars.add(var);
+            if (signatureVar != null) {
+                signatureVars.add(signatureVar);
             } else {
                 throw new OpenLRuntimeException("Could not create domain for %s".formatted(varName));
             }

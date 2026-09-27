@@ -25,33 +25,33 @@ public class SharedValueListener implements HSSFListener {
     private FormulaRecord currentFormula;
 
     @Override
-    public void processRecord(Record record) {
-        switch (record.getSid()) {
+    public void processRecord(Record rec) {
+        switch (rec.getSid()) {
             case BOFRecord.sid:
-                var bof = (BOFRecord) record;
+                var bof = (BOFRecord) rec;
                 if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
                     sheetIndex++;
                 }
                 break;
             case FormulaRecord.sid:
                 if (isNeededSheet()) {
-                    currentFormula = (FormulaRecord) record;
+                    currentFormula = (FormulaRecord) rec;
                 }
                 break;
             case SharedFormulaRecord.sid:
                 if (isNeededSheet()) {
-                    sharedFormulaRecords.add((SharedFormulaRecord) record);
+                    sharedFormulaRecords.add((SharedFormulaRecord) rec);
                     firstCellRefs.add(new CellReference(currentFormula.getRow(), currentFormula.getColumn()));
                 }
                 break;
             case ArrayRecord.sid:
                 if (isNeededSheet()) {
-                    arrayRecords.add((ArrayRecord) record);
+                    arrayRecords.add((ArrayRecord) rec);
                 }
                 break;
             case TableRecord.sid:
                 if (isNeededSheet()) {
-                    tableRecords.add((TableRecord) record);
+                    tableRecords.add((TableRecord) rec);
                 }
                 break;
             default:

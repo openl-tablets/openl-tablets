@@ -776,33 +776,33 @@ public final class DecisionTableHelper {
         var variablesInChain = new HashSet<String>();
         variablesInChain.add(currentVariable);
         for (var j = 0; j < fieldsChain.length; j++) {
-            String var;
+            String varName;
             type = fieldsChain[j].getType();
             if (j < fieldsChain.length - 1) {
                 Map<IOpenField, String> vm = variables.get(currentVariable);
                 if (vm == null || vm.get(fieldsChain[j]) == null) {
-                    var = RandomStringUtils.secure().next(8, true, false);
-                    while (generatedNames.contains(var)) { // Prevent
+                    varName = RandomStringUtils.secure().next(8, true, false);
+                    while (generatedNames.contains(varName)) { // Prevent
                         // variable
                         // duplication
-                        var = RandomStringUtils.secure().next(8, true, false);
+                        varName = RandomStringUtils.secure().next(8, true, false);
                     }
-                    generatedNames.add(var);
+                    generatedNames.add(varName);
                     sb.append(getTypeNameForCode(type, module, cache))
                             .append(" ")
-                            .append(var)
+                            .append(varName)
                             .append("=new ")
                             .append(getTypeNameForCode(type, module, cache))
                             .append("();");
-                    sb.append("int ").append(var).append("_").append("=0;");
+                    sb.append("int ").append(varName).append("_").append("=0;");
                     vm = variables.computeIfAbsent(currentVariable, e -> new HashMap<>());
-                    vm.put(fieldsChain[j], var);
-                    variableAssignments
-                            .add(currentVariable + "." + fieldsChain[j].getName() + "=" + var + "_>0?" + var + ":null;");
+                    vm.put(fieldsChain[j], varName);
+                    variableAssignments.add(currentVariable + "." + fieldsChain[j].getName() + "=" + varName
+                            + "_>0?" + varName + ":null;");
                 } else {
-                    var = vm.get(fieldsChain[j]);
+                    varName = vm.get(fieldsChain[j]);
                 }
-                currentVariable = var;
+                currentVariable = varName;
                 variablesInChain.add(currentVariable);
             } else {
                 final var localVar = currentVariable + "." + fieldsChain[j].getName();

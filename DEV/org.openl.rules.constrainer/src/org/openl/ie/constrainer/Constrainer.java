@@ -212,13 +212,13 @@ public final class Constrainer implements Serializable {
     /**
      * Adds a constrained boolean variable to the Constrainer.
      *
-     * @param var Variable to add.
+     * @param boolVar Variable to add.
      * @return Added variable.
      */
-    IntBoolVar addIntBoolVar(IntBoolVar var) {
-        _intvars.add(var);
+    IntBoolVar addIntBoolVar(IntBoolVar boolVar) {
+        _intvars.add(boolVar);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        return var;
+        return boolVar;
     }
 
     /**
@@ -228,8 +228,8 @@ public final class Constrainer implements Serializable {
      * @return The added variable.
      */
     public IntBoolVar addIntBoolVar(String name) {
-        var var = new IntBoolVarImpl(this, name);
-        return addIntBoolVar(var);
+        var boolVar = new IntBoolVarImpl(this, name);
+        return addIntBoolVar(boolVar);
     }
 
     /**
@@ -277,29 +277,29 @@ public final class Constrainer implements Serializable {
      * @return The added variable.
      */
     public IntVar addIntVar(int min, int max, String name, int type) {
-        var var = new IntVarImpl(this, min, max, name, type);
-        return addIntVar(var);
+        var intVar = new IntVarImpl(this, min, max, name, type);
+        return addIntVar(intVar);
     }
 
     /**
      * Adds a constrained integer variable to the Constrainer.
      *
-     * @param var Variable to add.
+     * @param intVar Variable to add.
      * @return Passed variable.
      */
-    IntVar addIntVar(IntVar var) {
-        _intvars.addElement(var);
+    IntVar addIntVar(IntVar intVar) {
+        _intvars.addElement(intVar);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        return var;
+        return intVar;
     }
 
     /**
      * Adds an internal constrained integer variable to the Constrainer.
      */
-    IntVar addIntVarInternal(IntVar var) {
-        _intvars.addElement(var);
+    IntVar addIntVarInternal(IntVar intVar) {
+        _intvars.addElement(intVar);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        return var;
+        return intVar;
     }
 
     /**
@@ -308,8 +308,8 @@ public final class Constrainer implements Serializable {
      * <b>Note:</b>Constrainer's users should not use this method.
      */
     public IntVar addIntVarTraceInternal(int min, int max, String name, int type) {
-        var var = new IntVarImpl(this, min, max, name, type);
-        return addIntVarInternal(var);
+        var intVar = new IntVarImpl(this, min, max, name, type);
+        return addIntVarInternal(intVar);
     }
 
     /*
@@ -409,8 +409,8 @@ public final class Constrainer implements Serializable {
      */
     void clearPropagationQueue() {
         while (!_propagation_queue.isEmpty()) {
-            var var = (Subject) _propagation_queue.remove();
-            var.inProcess(false);
+            var subject = (Subject) _propagation_queue.remove();
+            subject.inProcess(false);
         }
     }
 
@@ -586,9 +586,9 @@ public final class Constrainer implements Serializable {
      */
     public void propagate() throws Failure {
         while (!_propagation_queue.isEmpty()) {
-            var var = (Subject) _propagation_queue.remove();
-            var.inProcess(false);
-            var.propagate(); // may fail
+            var subject = (Subject) _propagation_queue.remove();
+            subject.inProcess(false);
+            subject.propagate(); // may fail
         }
     }
 

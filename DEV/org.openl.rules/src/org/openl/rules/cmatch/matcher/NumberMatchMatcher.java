@@ -38,15 +38,15 @@ public class NumberMatchMatcher implements IMatcher {
     }
 
     @Override
-    public boolean match(Object var, Object checkValue) {
+    public boolean match(Object actualValue, Object checkValue) {
         if (checkValue == null) {
             return false;
         }
 
         if (checkValue instanceof INumberRange range) {
-            return range.contains((Number) var);
+            return range.contains((Number) actualValue);
         } else {
-            return checkValue.equals(var);
+            return checkValue.equals(actualValue);
         }
     }
 

@@ -228,18 +228,18 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
 
         @Override
         public void undo() {
-            var var = (IntBoolVar) undoable();
-            var.forceMin(_min);
-            var.forceMax(_max);
+            var boolVar = (IntBoolVar) undoable();
+            boolVar.forceMin(_min);
+            boolVar.forceMax(_max);
             super.undo();
         }
 
         @Override
         public void undoable(Undoable u) {
             super.undoable(u);
-            var var = (IntBoolVarImpl) u;
-            _min = var.min();
-            _max = var.max();
+            var boolVar = (IntBoolVarImpl) u;
+            _min = boolVar.min();
+            _max = boolVar.max();
 
         }
     } // ~UndoIntBoolVar
@@ -276,9 +276,9 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
          */
         @Override
         public void undo() {
-            var var = (IntBoolVar) undoable();
-            var.forceMin(0);
-            var.forceMax(1);
+            var boolVar = (IntBoolVar) undoable();
+            boolVar.forceMin(0);
+            boolVar.forceMax(1);
             super.undo();
         }
     } // ~UndoIntBoolVarValue

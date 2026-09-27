@@ -63,9 +63,9 @@ public final class DomainBits2 extends DomainImpl {
     private int _size;
     final BitArray _bits;
 
-    public DomainBits2(IntVar var, int min, int max) // throws Failure
+    public DomainBits2(IntVar intVar, int min, int max) // throws Failure
     {
-        super(var, min, max);
+        super(intVar, min, max);
         _size = _max - _min + 1;
         _bits = new BitArray(_size);
     }

@@ -20,13 +20,13 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
 
             var arg = node.getArgument();
-            var var = arg.extractValue(target, params, env);
+            var actualValue = arg.extractValue(target, params, env);
             var matcher = node.getMatcher();
 
             // find all matching scores from left to right
             for (var resultIndex = 0; resultIndex < scores.length; resultIndex++) {
                 var checkValue = node.getCheckValues()[resultIndex];
-                if (matcher.match(var, checkValue)) {
+                if (matcher.match(actualValue, checkValue)) {
                     var score = scores[resultIndex] * node.getWeight();
                     sumScore += score;
                     env.getTracer().put(this, "match", target, node, resultIndex, score);

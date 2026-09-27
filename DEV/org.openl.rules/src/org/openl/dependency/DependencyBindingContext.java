@@ -112,9 +112,9 @@ public class DependencyBindingContext extends BindingContextDelegator {
 
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        var var = super.findVar(namespace, name, strictMatch);
-        if (var != null) {
-            return var;
+        var field = super.findVar(namespace, name, strictMatch);
+        if (field != null) {
+            return field;
         }
         var resolvedDependency = resolveDependency(name);
         if (resolvedDependency == null) {

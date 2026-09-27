@@ -299,8 +299,8 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
             }
 
             @Override
-            public void update(Subject var, EventOfInterest interest) throws Failure {
-                System.out.println("Trace " + interest + ": " + var);
+            public void update(Subject subject, EventOfInterest interest) throws Failure {
+                System.out.println("Trace " + interest + ": " + subject);
             }
 
         } // ~ ObserverTraceAll
@@ -325,8 +325,8 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
             }
 
             @Override
-            public void update(Subject var, EventOfInterest interest) throws Failure {
-                System.out.println("Trace " + interest + ": " + var);
+            public void update(Subject subject, EventOfInterest interest) throws Failure {
+                System.out.println("Trace " + interest + ": " + subject);
             }
 
         } // ~ ObserverTrace

@@ -18,10 +18,10 @@ public final class DomainImplWithHoles extends DomainImpl {
     private FastVector _values; // vector of DomainUnterval(s), for example
     // domain {0,1,2,5,6,9} contains 3 intervals [(0;2), (5;6), (9;9)]
 
-    public DomainImplWithHoles(IntVar var, int min, int max) // throws
+    public DomainImplWithHoles(IntVar intVar, int min, int max) // throws
     // Failure
     {
-        super(var, min, max);
+        super(intVar, min, max);
         _values = new FastVector();
         _values.addElement(new DomainInterval(min, max));
     }

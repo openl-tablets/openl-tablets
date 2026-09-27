@@ -133,10 +133,10 @@ class LocalRepositoryTest {
     }
 
     private LinkedHashMap<String, String> readRecord() throws IOException {
-        var record = root.toPath().resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
-        assertTrue(Files.exists(record));
+        var recordFile = root.toPath().resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
+        assertTrue(Files.exists(recordFile));
         var properties = new LinkedHashMap<String, String>();
-        PropertiesUtils.load(record, properties::put);
+        PropertiesUtils.load(recordFile, properties::put);
         return properties;
     }
 }

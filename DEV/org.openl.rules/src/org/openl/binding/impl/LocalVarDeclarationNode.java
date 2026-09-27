@@ -10,21 +10,21 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class LocalVarDeclarationNode extends ABoundNode {
 
-    private final ILocalVar var;
+    private final ILocalVar localVar;
     private final IBoundNode initNode;
 
-    LocalVarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode initNode, ILocalVar var) {
+    LocalVarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode initNode, ILocalVar localVar) {
         super(syntaxNode, initNode);
 
         this.initNode = initNode;
-        this.var = var;
+        this.localVar = localVar;
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         Object initObj = initNode == null ? null : initNode.evaluate(env);
 
-        env.getLocalFrame()[var.getIndexInLocalFrame()] = initObj;
+        env.getLocalFrame()[localVar.getIndexInLocalFrame()] = initObj;
         return null;
     }
 
@@ -40,7 +40,7 @@ public final class LocalVarDeclarationNode extends ABoundNode {
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addFieldDependency(var, this);
+        dependencies.addFieldDependency(localVar, this);
     }
 
 }

@@ -115,6 +115,6 @@ public interface Domain extends Serializable {
     /**
      * Sets the variable associated with this domain.
      */
-    void variable(IntVar var);
+    void variable(IntVar intVar);
 
 } // ~Domain

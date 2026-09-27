@@ -143,8 +143,8 @@ public final class IntDomainHistory implements Serializable {
     int _min;
     int _max;
 
-    public IntDomainHistory(IntVar var) {
-        _var = var;
+    public IntDomainHistory(IntVar variable) {
+        _var = variable;
 
         var maxSize = Math.min(_var.size(), 30);
         _history = new FastVectorInt(2 * maxSize);

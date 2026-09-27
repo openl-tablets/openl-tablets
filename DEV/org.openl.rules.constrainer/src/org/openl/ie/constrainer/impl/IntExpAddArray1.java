@@ -112,8 +112,8 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
         var vars = _vars.data();
 
-        for (IntExp var : vars) {
-            maxSum += var.max();
+        for (IntExp term : vars) {
+            maxSum += term.max();
         }
         return maxSum;
     }
@@ -123,8 +123,8 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
         var vars = _vars.data();
 
-        for (IntExp var : vars) {
-            minSum += var.min();
+        for (IntExp term : vars) {
+            minSum += term.min();
         }
         return minSum;
     }

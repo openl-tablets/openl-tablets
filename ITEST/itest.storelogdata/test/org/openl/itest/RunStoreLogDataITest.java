@@ -103,9 +103,9 @@ class RunStoreLogDataITest {
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
         try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers())) {
-            ProducerRecord<String, String> record = new ProducerRecord<>("hello-in-topic-5", null, REQUEST);
-            record.headers().add(KafkaHeaders.METHOD_NAME, "Hello".getBytes(StandardCharsets.UTF_8));
-            producer.send(record);
+            ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-5", null, REQUEST);
+            producerRecord.headers().add(KafkaHeaders.METHOD_NAME, "Hello".getBytes(StandardCharsets.UTF_8));
+            producer.send(producerRecord);
         }
 
         validateDatabases(REQUEST, null, true, "Hello", "simple5", KAFKA_PUBLISHER_TYPE);

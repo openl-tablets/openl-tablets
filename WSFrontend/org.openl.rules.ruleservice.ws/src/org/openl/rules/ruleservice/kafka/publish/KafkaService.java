@@ -147,20 +147,20 @@ public final class KafkaService implements Runnable {
         return storageEnabled;
     }
 
-    public String getOutTopic(ConsumerRecord<?, ?> record) {
-        var header = record.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
+    public String getOutTopic(ConsumerRecord<?, ?> consumerRecord) {
+        var header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
         if (header != null && header.value() != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
         return outTopic;
     }
 
-    public String getDltTopic(ConsumerRecord<?, ?> record) {
-        var header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_TOPIC);
+    public String getDltTopic(ConsumerRecord<?, ?> consumerRecord) {
+        var header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_DLT_TOPIC);
         if (header != null && header.value() != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
-        header = record.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
+        header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
         if (header != null && header.value() != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
@@ -316,9 +316,9 @@ public final class KafkaService implements Runnable {
                         });
                     }
                     countDownLatch.await();
-                    for (ConsumerRecord<String, RequestMessage> record : records) {
-                        currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
-                                new OffsetAndMetadata(record.offset() + 1));
+                    for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
+                        currentOffsets.put(new TopicPartition(consumerRecord.topic(), consumerRecord.partition()),
+                                new OffsetAndMetadata(consumerRecord.offset() + 1));
                     }
                     try {
                         consumer.commitSync(currentOffsets);
@@ -351,38 +351,40 @@ public final class KafkaService implements Runnable {
         sendErrorToDlt(consumerRecord, e, storeLogData, requestIdHeader);
     }
 
-    private void forwardHeadersToDlt(ConsumerRecord<?, ?> originalRecord, ProducerRecord<?, ?> record) {
+    private void forwardHeadersToDlt(ConsumerRecord<?, ?> originalRecord, ProducerRecord<?, ?> dltRecord) {
         for (Header header : originalRecord.headers()) {
-            record.headers().add(header);
+            dltRecord.headers().add(header);
         }
     }
 
-    private void forwardHeadersToOutput(ConsumerRecord<?, ?> originalRecord, ProducerRecord<?, ?> record) {
+    private void forwardHeadersToOutput(ConsumerRecord<?, ?> originalRecord, ProducerRecord<?, ?> outputRecord) {
         for (Header header : originalRecord.headers().headers(KafkaHeaders.CORRELATION_ID)) {
-            record.headers().add(header);
+            outputRecord.headers().add(header);
         }
     }
 
-    private void setDltHeaders(ConsumerRecord<String, RequestMessage> record,
+    private void setDltHeaders(ConsumerRecord<String, RequestMessage> consumerRecord,
                                Exception e,
                                ProducerRecord<?, ?> dltRecord) {
         dltRecord.headers()
                 .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY,
-                        record.key() == null ? null : record.key().getBytes(StandardCharsets.UTF_8));
+                        consumerRecord.key() == null ? null : consumerRecord.key().getBytes(StandardCharsets.UTF_8));
         dltRecord.headers()
                 .add(KafkaHeaders.DLT_ORIGINAL_PARTITION,
-                        String.valueOf(record.partition()).getBytes(StandardCharsets.UTF_8));
+                        String.valueOf(consumerRecord.partition()).getBytes(StandardCharsets.UTF_8));
         dltRecord.headers()
-                .add(KafkaHeaders.DLT_ORIGINAL_OFFSET, String.valueOf(record.offset()).getBytes(StandardCharsets.UTF_8));
-        dltRecord.headers().add(KafkaHeaders.DLT_ORIGINAL_TOPIC, record.topic().getBytes(StandardCharsets.UTF_8));
+                .add(KafkaHeaders.DLT_ORIGINAL_OFFSET,
+                        String.valueOf(consumerRecord.offset()).getBytes(StandardCharsets.UTF_8));
+        dltRecord.headers()
+                .add(KafkaHeaders.DLT_ORIGINAL_TOPIC, consumerRecord.topic().getBytes(StandardCharsets.UTF_8));
 
-        setDltHeadersForException(dltRecord, record.value().getException());
+        setDltHeadersForException(dltRecord, consumerRecord.value().getException());
 
         setDltHeadersForException(dltRecord, e);
 
-        if (record.key() != null) {
+        if (consumerRecord.key() != null) {
             dltRecord.headers()
-                    .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY, record.key().getBytes(StandardCharsets.UTF_8));
+                    .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY, consumerRecord.key().getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -402,25 +404,33 @@ public final class KafkaService implements Runnable {
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
-    private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData, String requestIdHeader) {
-        final var recordDltTopic = getDltTopic(record);
+    private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> consumerRecord,
+                                Exception e,
+                                StoreLogData storeLogData,
+                                String requestIdHeader) {
+        final var recordDltTopic = getDltTopic(consumerRecord);
         if (StringUtils.isEmpty(recordDltTopic)) {
             return;
         }
         try {
             if (requestIdHeader != null) {
-                record.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
+                consumerRecord.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
             }
             ProducerRecord<String, byte[]> dltRecord;
-            var header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
+            var header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
             if (header == null) {
-                dltRecord = new ProducerRecord<>(recordDltTopic, record.key(), record.value().getRawData());
+                dltRecord = new ProducerRecord<>(recordDltTopic,
+                        consumerRecord.key(),
+                        consumerRecord.value().getRawData());
             } else {
                 Integer partition = Integer.parseInt(new String(header.value(), StandardCharsets.UTF_8));
-                dltRecord = new ProducerRecord<>(recordDltTopic, partition, record.key(), record.value().getRawData());
+                dltRecord = new ProducerRecord<>(recordDltTopic,
+                        partition,
+                        consumerRecord.key(),
+                        consumerRecord.value().getRawData());
             }
-            forwardHeadersToDlt(record, dltRecord);
-            setDltHeaders(record, e, dltRecord);
+            forwardHeadersToDlt(consumerRecord, dltRecord);
+            setDltHeaders(consumerRecord, e, dltRecord);
             if (storeLogData != null) {
                 storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
             }
@@ -433,7 +443,7 @@ public final class KafkaService implements Runnable {
                     log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
                             recordDltTopic,
                             System.lineSeparator(),
-                            record.value().asText(), exception);
+                            consumerRecord.value().asText(), exception);
                 } else if (storeLogData != null) {
                     try {
                         getStoreLogDataManager().store(storeLogData);
@@ -447,7 +457,7 @@ public final class KafkaService implements Runnable {
                 log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
                         recordDltTopic,
                         System.lineSeparator(),
-                        record.value().asText(), e1);
+                        consumerRecord.value().asText(), e1);
             }
         }
     }
