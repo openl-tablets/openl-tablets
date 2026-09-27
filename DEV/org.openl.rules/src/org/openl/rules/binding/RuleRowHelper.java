@@ -348,7 +348,8 @@ public final class RuleRowHelper {
         // class does not know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
-        if (source != null && !(source = source.trim()).isEmpty()) {
+        source = StringUtils.trimToNull(source);
+        if (source != null) {
             var bindingContext = openlAdaptor.getBindingContext();
             if (openlAdaptor.getHeader() != null) {
                 var oldHeader = openlAdaptor.getHeader();

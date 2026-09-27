@@ -271,7 +271,8 @@ public class SpreadsheetStructureBuilder {
             var f = stack == null;
             try {
                 if (f) {
-                    preventCellsLoopingOnThis.set(stack = new Stack<>());
+                    stack = new Stack<>();
+                    preventCellsLoopingOnThis.set(stack);
                 }
                 Set<SpreadsheetCell> cellInProgressSet;
                 if (stack.isEmpty()) {
