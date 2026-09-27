@@ -98,8 +98,8 @@ export const isFormValuesEqual = (
         // This check must come before object/array checks to handle boolean values correctly
         if (typeof cur === 'boolean' || typeof sav === 'boolean') {
             // Normalize: undefined/null becomes false, true stays true, false stays false
-            const curBool = cur === true ? true : false
-            const savBool = sav === true ? true : false
+            const curBool = cur === true
+            const savBool = sav === true
             if (curBool !== savBool) {
                 return false
             }
