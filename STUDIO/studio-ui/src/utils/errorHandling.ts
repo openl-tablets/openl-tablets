@@ -60,7 +60,8 @@ export const setupGlobalErrorHandling = (): void => {
     window.onerror = (message, source, lineno, colno, error) => {
         if (error) {
             errorHandler.logError(error, {
-                message: `Global Error: ${message}`,
+                // An error event hands over its message; any other event is named by its type.
+                message: `Global Error: ${typeof message === 'string' ? message : message.type}`,
                 url: source,
             })
         }

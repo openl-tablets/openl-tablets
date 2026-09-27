@@ -195,7 +195,7 @@ const apiCall = async (
                 const payload = await tryParseJsonBody(response)
                 if (payload && typeof payload === 'object' && 'fields' in payload && Array.isArray((payload as { fields: unknown[] }).fields)) {
                     const errors = (payload as { fields: Array<{ message: unknown }> }).fields
-                        .map(({ message }) => (typeof message === 'string' ? message.trim() : String(message ?? '').trim()))
+                        .map(({ message }) => (typeof message === 'string' ? message.trim() : ''))
                         .filter(Boolean)
                     const errorMessage = errors.length > 0
                         ? errors.join('\n')

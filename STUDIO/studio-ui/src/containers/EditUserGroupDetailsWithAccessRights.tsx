@@ -66,6 +66,20 @@ enum TabKeys {
 
 type RootRoleFormValue = Role | typeof NONE_ROLE_VALUE
 
+/**
+ * The text a failure is reported with: the message of an error, or its name when it has none, and the text of
+ * a string, a number or a boolean. Anything else says nothing readable and is reported as unknown.
+ */
+const failureText = (error: unknown): string => {
+    if (error instanceof Error) {
+        return error.message || String(error)
+    }
+    if (typeof error === 'string' || typeof error === 'number' || typeof error === 'boolean') {
+        return String(error)
+    }
+    return 'Unknown error'
+}
+
 export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetailsWithAccessRightsProps> = ({
     sid,
     isPrincipal,
@@ -495,12 +509,9 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             // case where onFinish is interrupted by an error that reached here
             // without a prior notification — surface whatever we have so the user
             // isn't left staring at a silent drawer.
-            const description = error instanceof Error && error.message
-                ? error.message
-                : String(error ?? 'Unknown error')
             notification.error({
                 title: t('common:error'),
-                description,
+                description: failureText(error),
             })
         }
     }

@@ -196,7 +196,8 @@ const tagsOf = (field: AnyField): string[] => {
 
 const managedTags = (fields: AnyFields): Set<string> => new Set(Object.values(fields).flatMap(tagsOf))
 
-const textOf = (value: unknown): string => (value == null ? '' : String(value).trim())
+/** The trimmed text of a value kept as text; a value that is absent or no string is blank. */
+const textOf = (value: unknown): string => (typeof value === 'string' ? value.trim() : '')
 
 const textsOf = (value: unknown): string[] =>
     (Array.isArray(value) ? value : []).map(textOf).filter(Boolean)
