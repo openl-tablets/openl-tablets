@@ -1,6 +1,7 @@
 package org.openl.rules.cloner;
 
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * A cloner for filling of the unmodifiable wrappers via the modifiable target instance.
@@ -28,7 +29,7 @@ final class UnmodifiableCloner<T> implements ICloner<T> {
     }
 
     @Override
-    public void clone(T source, Function<Object, Object> cloner, T target) {
+    public void clone(T source, UnaryOperator<Object> cloner, T target) {
         this.cloner.clone(source, cloner, target);
     }
 }

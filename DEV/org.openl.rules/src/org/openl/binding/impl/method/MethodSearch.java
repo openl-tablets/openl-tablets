@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -814,13 +814,13 @@ public final class MethodSearch {
 
     private static class LazyVarargTypeCalculator {
         private final IOpenClass[] callParams;
-        private final BiFunction<IOpenClass, IOpenClass, IOpenClass> func;
+        private final BinaryOperator<IOpenClass> func;
         private final IOpenClass[] varArgElementTypes;
         private int lastCalculated;
         private IOpenClass lastVarArgElementType;
         private final IOpenClass[][] varargMethodCallParamsCache;
 
-        public LazyVarargTypeCalculator(IOpenClass[] callParams, BiFunction<IOpenClass, IOpenClass, IOpenClass> func) {
+        public LazyVarargTypeCalculator(IOpenClass[] callParams, BinaryOperator<IOpenClass> func) {
             this.callParams = callParams;
             this.varArgElementTypes = new IOpenClass[callParams.length + 1];
             this.varArgElementTypes[varArgElementTypes.length - 1] = NullOpenClass.the;

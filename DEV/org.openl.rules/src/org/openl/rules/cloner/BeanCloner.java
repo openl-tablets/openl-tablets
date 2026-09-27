@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -73,7 +73,7 @@ class BeanCloner<T> implements ICloner<T> {
     }
 
     @Override
-    public void clone(T source, Function<Object, Object> cloner, T target) {
+    public void clone(T source, UnaryOperator<Object> cloner, T target) {
         for (var field : fields.values()) {
             try {
                 var fieldObject = field.get(source);

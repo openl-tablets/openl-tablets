@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 
@@ -760,7 +760,7 @@ public class SpreadsheetResult implements Serializable {
         return v;
     }
 
-    private static Object convertMap(Map<?, ?> v, Function<Object, Object> function) {
+    private static Object convertMap(Map<?, ?> v, UnaryOperator<Object> function) {
         Map<Object, Object> newMap;
         try {
             newMap = v.getClass().getDeclaredConstructor().newInstance();
@@ -773,7 +773,7 @@ public class SpreadsheetResult implements Serializable {
         return newMap;
     }
 
-    private static Object convertCollection(Collection<?> v, Function<Object, Object> function) {
+    private static Object convertCollection(Collection<?> v, UnaryOperator<Object> function) {
         Collection<Object> newCollection;
         try {
             newCollection = v.getClass().getDeclaredConstructor().newInstance();

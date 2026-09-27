@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
@@ -390,7 +391,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected void moveInternal(String repositoryId, ObjectIdentity oldParentOid, String newPath) {
         var newParentOid = oidProvider.getRepositoryOid(repositoryId, newPath);
-        Function<ObjectIdentity, ObjectIdentity> mapFunction = childOid -> oidProvider.moveToNewParent(childOid, oldParentOid, newParentOid);
+        UnaryOperator<ObjectIdentity> mapFunction = childOid -> oidProvider.moveToNewParent(childOid, oldParentOid, newParentOid);
         movePermissions(oldParentOid, mapFunction, true);
     }
 
