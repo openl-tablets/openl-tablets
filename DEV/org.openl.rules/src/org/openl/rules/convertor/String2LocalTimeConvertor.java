@@ -15,7 +15,7 @@ public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTim
 
     @Override
     public LocalTime parse(String data, String format) {
-        // format - ignore this parameter. TODO remove from method
+        // format - ignore this parameter
         if (data == null) {
             return null;
         }

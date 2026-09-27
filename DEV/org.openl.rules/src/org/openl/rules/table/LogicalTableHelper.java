@@ -146,7 +146,6 @@ public class LogicalTableHelper {
         var nColumns = topColumns.getWidth() - startColumn;
 
         if (gt.getHeight() == nRows && gt.getWidth() == nColumns) {
-            // TODO Light delegator
             return new SimpleLogicalTable(gt);
         }
 

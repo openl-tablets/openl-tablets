@@ -22,9 +22,6 @@ public class TagTypeService {
     private final TagTypeDao tagTypeDao;
     private final TagDao tagDao;
 
-    /**
-     * TODO: Should we replace TagType with non-hibernate-dependent class?
-     */
     public List<TagType> getAllTagTypes() {
         return tagTypeDao.getAll();
     }

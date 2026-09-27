@@ -557,11 +557,6 @@ public final class RuleRowHelper {
         // If data table contains one cell and parameter type is not array type
         // then load parameter value from single cell of table
         //
-        // TODO: Is 'RuleRowHelper.isCommaSeparatedArray(dataTable)' check
-        // required here? Can we make decision how to load data table using
-        // value
-        // of 'paramType' variable?
-        //
         if (oneCellTable && !paramType.isArray()) {
             // attempt to load as a single paramType(will work in case of
             // expressions)

@@ -36,7 +36,7 @@ public class TextInfo {
         }
 
         // Zero based lineIdx == InsertionPoint - 1
-        return -idx - 1 - 1; // TODO SAM: No test case yet.
+        return -idx - 1 - 1;
     }
 
     public int getPosition(int line) {
@@ -75,8 +75,7 @@ public class TextInfo {
             }
         }
 
-        // TODO SAM: No test case yet.
-        // To have: lineIdx(text.length()) == totalLines()
+        // So that getLineIdx(text.length()) points to the empty line after the last line break
         if (isLF || isCR) {
             table.add(text.length());
         }

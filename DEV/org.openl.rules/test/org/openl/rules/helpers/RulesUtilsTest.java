@@ -4093,7 +4093,6 @@ class RulesUtilsTest {
         assertEquals(Double.valueOf(5), instance.testMedianByteType(new byte[]{11, 9, 3, 5, 5}));
         assertEquals(Double.valueOf(3.5), instance.testMedianByteType(new byte[]{2, 1, 5, 7}));
         assertNull(instance.testMedianByteType(null));
-        // TODO: Is it correct? The result is different when used boxed array
         assertEquals(null, instance.testMedianByteType(new byte[]{}));
     }
 

@@ -13,8 +13,6 @@ import java.io.Serial;
  */
 
 public class OpenLConfigurationException extends RuntimeException {
-    // TODO add parameters, message etc.
-
     @Serial
     private static final long serialVersionUID = 3292629986027365336L;
 

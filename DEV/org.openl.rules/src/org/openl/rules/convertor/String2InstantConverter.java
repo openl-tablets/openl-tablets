@@ -14,7 +14,7 @@ public class String2InstantConverter implements IString2DataConvertor<Instant> {
 
     @Override
     public Instant parse(String data, String format) {
-        // format - ignore this parameter. TODO remove from method
+        // format - ignore this parameter
         if (data == null) {
             return null;
         }

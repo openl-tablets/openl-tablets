@@ -135,7 +135,6 @@ public class AlgoritmNodesCompiler {
     private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile,
                                                               String fieldName,
                                                               IBindingContext bindingContext) {
-        // TODO: strange method, refactore
         var param = nodesToCompile.getFirst()
                 .getAlgorithmRow()
                 .getOperation() + AlgorithmCompilerTool.FIELD_SEPARATOR + fieldName;

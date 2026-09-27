@@ -14,7 +14,7 @@ class String2LocalDateConvertor implements IString2DataConvertor<LocalDate> {
 
     @Override
     public LocalDate parse(String data, String format) {
-        // format - ignore this parameter. TODO remove from method
+        // format - ignore this parameter
         if (data == null) {
             return null;
         }

@@ -281,7 +281,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return ClassUtils.isAssignable(type.getInstanceClass(), Date.class);
     }
 
-    // TODO to do - fix _NO_PARAM_ issue
     @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
                                                     IOpenClass conditionMethodType,

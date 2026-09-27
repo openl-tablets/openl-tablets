@@ -180,7 +180,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         }
         try {
             server.destroy();
-            //TODO
             runningServices.remove(service);
             log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
         } catch (Exception t) {

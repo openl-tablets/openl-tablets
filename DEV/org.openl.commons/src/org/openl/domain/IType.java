@@ -35,7 +35,4 @@ public interface IType extends INamedThing {
      * Please note how it is similar to selector or domain methods
      */
     boolean isInstance(Object obj);
-
-    // TODO static public class JavaType implements IType
-
 }

@@ -91,7 +91,6 @@ public class LabelManager {
         var namePrefix = labelType.getName();
         var label = namePrefix + "Label" + nextLabelNumber++;
 
-        // TODO register label in cash, code mess
         currentLabels.put(labelType, label);
 
         return label;
@@ -151,7 +150,6 @@ public class LabelManager {
         return getLabelTypeByInstruction(labelInstruction);
     }
 
-    // TODO
     private LabelType getLabelTypeByInstruction(String labelInstruction) {
         var instruction = labelInstruction.substring(LABEL_INSTRUCTION_PREFIX.length());
 

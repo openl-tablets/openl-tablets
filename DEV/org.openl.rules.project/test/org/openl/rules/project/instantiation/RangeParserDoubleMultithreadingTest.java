@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 class RangeParserDoubleMultithreadingTest {
 
     // EPBDS-8021. Just for mvn multithreading simulation, for example 7 threads
-    // TODO should consider migration to the JUnit5 or TestNG for concurrency running
     private static final int THREADS = 7;
 
     private static final int RUNS = 50;

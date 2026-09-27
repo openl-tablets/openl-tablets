@@ -100,8 +100,6 @@ public abstract class JavaCC30Grammar implements IGrammar {
 
     @Override
     public ISyntaxNode getTopNode() {
-
-        // TODO exception?
         switch (stack.size()) {
             case 0:
                 return null;

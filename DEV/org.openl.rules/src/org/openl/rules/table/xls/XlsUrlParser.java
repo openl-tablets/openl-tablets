@@ -66,7 +66,6 @@ public class XlsUrlParser {
         var cellRef = map.get("cell");
 
         if (rangeRef == null) {
-            // TODO line, col
             rangeRef = cellRef;
         }
 

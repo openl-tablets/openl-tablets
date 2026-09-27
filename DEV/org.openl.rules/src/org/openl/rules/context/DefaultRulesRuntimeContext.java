@@ -38,7 +38,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public static class IRulesRuntimeContextAdapter extends XmlAdapter<DefaultRulesRuntimeContext, IRulesRuntimeContext> {
         @Override
         public DefaultRulesRuntimeContext marshal(IRulesRuntimeContext v) {
-            // *TODO
             return (DefaultRulesRuntimeContext) v;
         }
 

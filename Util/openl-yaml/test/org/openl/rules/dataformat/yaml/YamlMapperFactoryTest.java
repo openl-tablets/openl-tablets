@@ -20,7 +20,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * TODO description
+ * Checks that the mapper of {@link YamlMapperFactory} reads a bean from YAML and writes it back without its
+ * transient fields.
  *
  * @author Vladyslav Pikus
  * @since

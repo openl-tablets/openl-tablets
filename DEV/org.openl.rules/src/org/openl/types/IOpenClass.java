@@ -19,8 +19,8 @@ import org.openl.vm.IRuntimeEnv;
  * <p>
  * OpenClass represents a generalized abstraction of a "class". Because we want openL to be used in a many
  * different incarnations we have made a decision to keep an OpenClass as general as possible. It should be
- * close in spirit to the RDF:Class and OWL:Class.
- * @TODO put some href here
+ * close in spirit to the <a href="https://www.w3.org/TR/rdf-schema/#ch_class">RDF:Class</a> and
+ * <a href="https://www.w3.org/TR/owl2-syntax/#Classes">OWL:Class</a>.
  */
 
 public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {

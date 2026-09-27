@@ -54,7 +54,7 @@ public class ObjectStorage implements IStorage<Object> {
 
     @Override
     public void setSpace(int index) {
-        values[index] = null; // TODO SPACE?
+        values[index] = null;
     }
 
     @Override

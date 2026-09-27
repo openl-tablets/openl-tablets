@@ -200,7 +200,6 @@ public class TableSyntaxNodeDispatcherBuilder {
     }
 
     private void clearCompositeMethods(DecisionTable decisionTable) {
-        // TODO consider more understandable implementation
         for (IBaseCondition condition : decisionTable.getConditionRows()) {
             condition.removeDebugInformation();
         }

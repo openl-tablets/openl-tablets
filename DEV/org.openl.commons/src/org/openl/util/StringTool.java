@@ -14,7 +14,6 @@ public class StringTool {
     public static final String NEW_LINE = "\n";
     private static final Pattern PLUS = Pattern.compile("\\+");
 
-    // TODO Move to URLUtils class
     public static String encodeURL(String url) {
         if (StringUtils.isBlank(url)) {
             return url;
@@ -24,7 +23,6 @@ public class StringTool {
         return encodedUrl;
     }
 
-    // TODO Move to URLUtils class
     public static String decodeURL(String url) {
         if (StringUtils.isBlank(url)) {
             return url;
