@@ -11,13 +11,15 @@ import org.openl.util.ArrayTool;
  */
 public class MathUtils {
 
+    private static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
+
     private MathUtils() {
         // Utility class
     }
 
     private static <T extends Number> double[] numberArrayToDoubleArray(T[] values) {
         if (values == null) {
-            return null;
+            return EMPTY_DOUBLE_ARRAY;
         }
         double[] doubleArray = new double[values.length];
         for (var i = 0; i < values.length; i++) {
@@ -30,7 +32,7 @@ public class MathUtils {
 
     private static double[] byteArrayToDoubleArray(byte[] values) {
         if (values == null) {
-            return null;
+            return EMPTY_DOUBLE_ARRAY;
         }
         double[] doubleArray = new double[values.length];
         for (var i = 0; i < values.length; i++) {
@@ -41,7 +43,7 @@ public class MathUtils {
 
     private static double[] shortArrayToDoubleArray(short[] values) {
         if (values == null) {
-            return null;
+            return EMPTY_DOUBLE_ARRAY;
         }
         double[] doubleArray = new double[values.length];
         for (var i = 0; i < values.length; i++) {
@@ -52,7 +54,7 @@ public class MathUtils {
 
     private static double[] intArrayToDoubleArray(int[] values) {
         if (values == null) {
-            return null;
+            return EMPTY_DOUBLE_ARRAY;
         }
         double[] doubleArray = new double[values.length];
         for (var i = 0; i < values.length; i++) {
@@ -63,7 +65,7 @@ public class MathUtils {
 
     private static double[] longArrayToDoubleArray(long[] values) {
         if (values == null) {
-            return null;
+            return EMPTY_DOUBLE_ARRAY;
         }
         double[] doubleArray = new double[values.length];
         for (var i = 0; i < values.length; i++) {
@@ -74,7 +76,7 @@ public class MathUtils {
 
     private static double[] floatArrayToDoubleArray(float[] values) {
         if (values == null) {
-            return null;
+            return EMPTY_DOUBLE_ARRAY;
         }
         double[] doubleArray = new double[values.length];
         for (var i = 0; i < values.length; i++) {

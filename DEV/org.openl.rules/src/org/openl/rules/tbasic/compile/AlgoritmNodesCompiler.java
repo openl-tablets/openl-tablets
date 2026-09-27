@@ -180,12 +180,7 @@ public class AlgoritmNodesCompiler {
         var emittedOperations = new ArrayList<RuntimeOperation>();
         for (OperationAnalyzer analyzer : operationAnalyzers) {
             if (analyzer.suits(operationType)) {
-                var operations = analyzer
-                        .getOperations(nodesToCompile, conversionStep, bindingContext);
-                if (operations != null) {
-                    emittedOperations.addAll(operations);
-                }
-
+                emittedOperations.addAll(analyzer.getOperations(nodesToCompile, conversionStep, bindingContext));
             }
         }
 
@@ -265,7 +260,7 @@ public class AlgoritmNodesCompiler {
                 var errorMessage = "Such label is not available from this place: '%s'.".formatted(labelName);
                 BindHelper.processError(errorMessage, errorSource, bindingContext);
             }
-            return null;
+            return List.of();
         }
     }
 

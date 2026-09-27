@@ -490,24 +490,24 @@ class DependentParametersOptimizedAlgorithm {
      * Reads a condition written as several {@code contains} calls joined by {@code or}, such as
      * {@code contains(codes, code) or contains(codes, linkedCode)}.
      *
-     * <p>Returns the parsed calls, or {@code null} when the expression is not such a chain.
+     * <p>Returns the parsed calls, or an empty list when the expression is not such a chain.
      */
     private static List<Triple<String, RelationType, String>> containsChainParse(ICondition condition,
                                                                                  IBindingContext bindingContext) {
         var expression = indexExpressionNode(condition);
         if (!(expression instanceof BinaryOpNodeOr)) {
-            return null;
+            return List.of();
         }
         var operands = new ArrayList<IBoundNode>();
         flattenOr(expression, operands);
         var result = new ArrayList<Triple<String, RelationType, String>>(operands.size());
         for (IBoundNode operand : operands) {
             if (!(operand instanceof MethodBoundNode methodBoundNode)) {
-                return null;
+                return List.of();
             }
             var parsed = parseMethodBoundExpression(methodBoundNode, bindingContext);
             if (parsed == null || parsed.getMiddle() != RelationType.IN) {
-                return null;
+                return List.of();
             }
             result.add(parsed);
         }
@@ -653,7 +653,7 @@ class DependentParametersOptimizedAlgorithm {
                     return makeOneParameterContainsFactory(emptyOrContains, condition, signature, conditions);
                 }
                 var containsChain = containsChainParse(condition, bindingContext);
-                if (containsChain != null) {
+                if (!containsChain.isEmpty()) {
                     return makeContainsInInputArrayChainFactory(containsChain, signature, conditions);
                 }
                 var parsedExpression = oneParameterExpressionParse(condition,

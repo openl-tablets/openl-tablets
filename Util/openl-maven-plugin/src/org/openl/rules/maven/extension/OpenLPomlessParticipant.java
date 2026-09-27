@@ -420,12 +420,12 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
 
     /**
      * Indexes the anchor's effective {@code <dependencyManagement>} by {@code groupId:artifactId} so the
-     * synthesiser can override translated dependency versions. Returns {@code null} when none is declared.
+     * synthesiser can override translated dependency versions. Returns an empty map when none is declared.
      */
     private static Map<String, Dependency> collectDependencyManagement(Model anchor) {
         var dm = anchor.getDependencyManagement();
         if (dm == null || dm.getDependencies() == null || dm.getDependencies().isEmpty()) {
-            return null;
+            return Map.of();
         }
         var map = HashMap.<String, Dependency>newHashMap(dm.getDependencies().size());
         for (var d : dm.getDependencies()) {

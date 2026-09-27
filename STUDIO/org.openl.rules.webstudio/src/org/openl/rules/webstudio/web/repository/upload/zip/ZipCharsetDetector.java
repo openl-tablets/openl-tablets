@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -89,10 +90,7 @@ public class ZipCharsetDetector {
                     defaultCharset,
                     new RootFolderExtractor(new HashSet<>(defaultEntryNames), zipFilter));
 
-            var filesToCompare = new HashSet<String>();
-            if (projectDescriptorFiles != null) {
-                filesToCompare.addAll(projectDescriptorFiles);
-            }
+            var filesToCompare = new HashSet<>(projectDescriptorFiles);
             if (existingFiles != null) {
                 filesToCompare.addAll(existingFiles);
             }
@@ -166,7 +164,7 @@ public class ZipCharsetDetector {
             return files;
         }
 
-        return null;
+        return Set.of();
     }
 
     private ProjectDescriptor getProjectDescriptor(ZipSource source, Charset charset, RootFolderExtractor extractor) {
