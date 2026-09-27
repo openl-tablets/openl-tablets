@@ -146,7 +146,7 @@ class RunFileRepoRestRulesDeploymentTest {
         client.send("admin_services_no_services.json.get");
     }
 
-    @Disabled
+    @Disabled("EPBDS-14534 The test cannot be migrated to Jetty 12")
     @Test
     void EPBDS_11144() {
         client.send("admin_services_no_services.json.get");
