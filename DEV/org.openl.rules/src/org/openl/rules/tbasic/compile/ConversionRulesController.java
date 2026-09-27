@@ -2,6 +2,7 @@ package org.openl.rules.tbasic.compile;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
@@ -297,7 +298,9 @@ public final class ConversionRulesController {
 
     public static ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile,
                                                        IBindingContext bindingContext) {
-        assert !nodesToCompile.isEmpty();
+        if (nodesToCompile.isEmpty()) {
+            throw new NoSuchElementException("nodesToCompile cannot be empty");
+        }
 
         var groupedOperationNames = LinkedHashSet.<String>newLinkedHashSet(nodesToCompile.size());
 

@@ -3,6 +3,8 @@
  */
 package org.openl.rules.tbasic.runtime.operations;
 
+import java.util.Objects;
+
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.ReturnType;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -37,8 +39,7 @@ public class ConditionalGotoOperation extends GotoOperation {
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        assert param != null;
-        assert param instanceof Boolean;
+        Objects.requireNonNull(param, "param cannot be null");
 
         var condition = (Boolean) param;
         Result result;
