@@ -180,16 +180,7 @@ class RunStoreLogDataITest {
         final String RESPONSE = "Good Morning";
 
         final String h2HelloEntity1TableName = getDBTableName(org.openl.itest.db.HelloEntity1.class);
-        final String h2HelloEntity2TableName = getDBTableName(org.openl.itest.db.HelloEntity2.class);
-        final String h2HelloEntity3TableName = getDBTableName(org.openl.itest.db.HelloEntity3.class);
-        final String h2HelloEntity4TableName = getDBTableName(org.openl.itest.db.HelloEntity4.class);
-        final String h2HelloEntity8TableName = getDBTableName(org.openl.itest.db.HelloEntity8.class);
-
         truncateH2TableIfExists(h2HelloEntity1TableName);
-        truncateH2TableIfExists(h2HelloEntity2TableName);
-        truncateH2TableIfExists(h2HelloEntity3TableName);
-        truncateH2TableIfExists(h2HelloEntity4TableName);
-        truncateH2TableIfExists(h2HelloEntity8TableName);
 
         client.send("simple4_Hello");
 
@@ -219,7 +210,20 @@ class RunStoreLogDataITest {
             }
             assertEquals(1, count);
         }
-        query = "SELECT * FROM " + h2HelloEntity2TableName;
+    }
+
+    @Test
+    void testStoreLogDataAnnotationsToHelloEntity2() throws Exception {
+        final String REQUEST = "{\r\n  \"hour\": 5\r\n}\r\n";
+        final String RESPONSE = "Good Morning";
+
+        final String h2HelloEntity2TableName = getDBTableName(org.openl.itest.db.HelloEntity2.class);
+        truncateH2TableIfExists(h2HelloEntity2TableName);
+
+        client.send("simple4_Hello");
+
+        // H2
+        String query = "SELECT * FROM " + h2HelloEntity2TableName;
         try (Statement stmt = h2Connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             int count = 0;
@@ -242,7 +246,17 @@ class RunStoreLogDataITest {
             }
             assertEquals(1, count);
         }
-        query = "SELECT * FROM " + h2HelloEntity3TableName;
+    }
+
+    @Test
+    void testStoreLogDataAnnotationsToHelloEntity3() throws Exception {
+        final String h2HelloEntity3TableName = getDBTableName(org.openl.itest.db.HelloEntity3.class);
+        truncateH2TableIfExists(h2HelloEntity3TableName);
+
+        client.send("simple4_Hello");
+
+        // H2
+        String query = "SELECT * FROM " + h2HelloEntity3TableName;
         try (Statement stmt = h2Connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             int count = 0;
@@ -264,6 +278,16 @@ class RunStoreLogDataITest {
             }
             assertEquals(1, count);
         }
+    }
+
+    @Test
+    void testStoreLogDataAnnotationsSkipsHelloEntity4AndHelloEntity8() throws Exception {
+        final String h2HelloEntity4TableName = getDBTableName(org.openl.itest.db.HelloEntity4.class);
+        final String h2HelloEntity8TableName = getDBTableName(org.openl.itest.db.HelloEntity8.class);
+        truncateH2TableIfExists(h2HelloEntity4TableName);
+        truncateH2TableIfExists(h2HelloEntity8TableName);
+
+        client.send("simple4_Hello");
 
         ResultSet rs = h2Connection.getMetaData().getTables(null, null, h2HelloEntity4TableName, null);
         if (rs.next()) {

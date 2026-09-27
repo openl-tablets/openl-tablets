@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import static org.openl.rules.util.Strings.concatenate;
 import static org.openl.rules.util.Strings.contains;
@@ -33,8 +34,12 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class StringsTest {
 
@@ -83,7 +88,10 @@ class StringsTest {
         assertFalse(containsAny("asd", "qwe"));
         assertTrue(containsAny("Testing string value", "string"));
         assertTrue(containsAny("Testing string value", "strong"));
+    }
 
+    @Test
+    void testContainsAnyChars() {
         // char
         assertFalse(containsAny(null));
         assertFalse(containsAny(null, (char[]) null));
@@ -197,74 +205,80 @@ class StringsTest {
         assertEquals("", substring("asd", 4));
     }
 
-    @Test
-    void testSubstringWithEnd() {
-        assertNull(substring(null, -1, 0));
-        assertNull(substring(null, 0, 1));
-        assertNull(substring(null, 1, -1));
-        assertEquals("", substring("", -1, 0));
-        assertEquals("", substring("", 0, 1));
-        assertEquals("", substring("", 1, -1));
-        assertEquals("", substring("asd", -5, 0));
-        assertEquals("", substring("asd", 0, -5));
-        assertEquals("", substring("asd", 5, 0));
-        assertEquals("asd", substring("asd", 0, 5));
+    static Stream<Arguments> testSubstringWithEnd() {
+        return Stream.of(
+                arguments(null, -1, 0, null),
+                arguments(null, 0, 1, null),
+                arguments(null, 1, -1, null),
+                arguments("", -1, 0, ""),
+                arguments("", 0, 1, ""),
+                arguments("", 1, -1, ""),
+                arguments("asd", -5, 0, ""),
+                arguments("asd", 0, -5, ""),
+                arguments("asd", 5, 0, ""),
+                arguments("asd", 0, 5, "asd"),
 
-        assertEquals("", substring("asd", -3, -3));
-        assertEquals("a", substring("asd", -3, -2));
-        assertEquals("as", substring("asd", -3, -1));
-        assertEquals("", substring("asd", -3, 0));
-        assertEquals("a", substring("asd", -3, 1));
-        assertEquals("as", substring("asd", -3, 2));
-        assertEquals("asd", substring("asd", -3, 3));
+                arguments("asd", -3, -3, ""),
+                arguments("asd", -3, -2, "a"),
+                arguments("asd", -3, -1, "as"),
+                arguments("asd", -3, 0, ""),
+                arguments("asd", -3, 1, "a"),
+                arguments("asd", -3, 2, "as"),
+                arguments("asd", -3, 3, "asd"),
 
-        assertEquals("", substring("asd", -2, -3));
-        assertEquals("", substring("asd", -2, -2));
-        assertEquals("s", substring("asd", -2, -1));
-        assertEquals("", substring("asd", -2, 0));
-        assertEquals("", substring("asd", -2, 1));
-        assertEquals("s", substring("asd", -2, 2));
-        assertEquals("sd", substring("asd", -2, 3));
+                arguments("asd", -2, -3, ""),
+                arguments("asd", -2, -2, ""),
+                arguments("asd", -2, -1, "s"),
+                arguments("asd", -2, 0, ""),
+                arguments("asd", -2, 1, ""),
+                arguments("asd", -2, 2, "s"),
+                arguments("asd", -2, 3, "sd"),
 
-        assertEquals("", substring("asd", -1, -3));
-        assertEquals("", substring("asd", -1, -2));
-        assertEquals("", substring("asd", -1, -1));
-        assertEquals("", substring("asd", -1, 0));
-        assertEquals("", substring("asd", -1, 1));
-        assertEquals("", substring("asd", -1, 2));
-        assertEquals("d", substring("asd", -1, 3));
+                arguments("asd", -1, -3, ""),
+                arguments("asd", -1, -2, ""),
+                arguments("asd", -1, -1, ""),
+                arguments("asd", -1, 0, ""),
+                arguments("asd", -1, 1, ""),
+                arguments("asd", -1, 2, ""),
+                arguments("asd", -1, 3, "d"),
 
-        assertEquals("", substring("asd", 0, -3));
-        assertEquals("a", substring("asd", 0, -2));
-        assertEquals("as", substring("asd", 0, -1));
-        assertEquals("", substring("asd", 0, 0));
-        assertEquals("a", substring("asd", 0, 1));
-        assertEquals("as", substring("asd", 0, 2));
-        assertEquals("asd", substring("asd", 0, 3));
+                arguments("asd", 0, -3, ""),
+                arguments("asd", 0, -2, "a"),
+                arguments("asd", 0, -1, "as"),
+                arguments("asd", 0, 0, ""),
+                arguments("asd", 0, 1, "a"),
+                arguments("asd", 0, 2, "as"),
+                arguments("asd", 0, 3, "asd"),
 
-        assertEquals("", substring("asd", 1, -3));
-        assertEquals("", substring("asd", 1, -2));
-        assertEquals("s", substring("asd", 1, -1));
-        assertEquals("", substring("asd", 1, 0));
-        assertEquals("", substring("asd", 1, 1));
-        assertEquals("s", substring("asd", 1, 2));
-        assertEquals("sd", substring("asd", 1, 3));
+                arguments("asd", 1, -3, ""),
+                arguments("asd", 1, -2, ""),
+                arguments("asd", 1, -1, "s"),
+                arguments("asd", 1, 0, ""),
+                arguments("asd", 1, 1, ""),
+                arguments("asd", 1, 2, "s"),
+                arguments("asd", 1, 3, "sd"),
 
-        assertEquals("", substring("asd", 2, -3));
-        assertEquals("", substring("asd", 2, -2));
-        assertEquals("", substring("asd", 2, -1));
-        assertEquals("", substring("asd", 2, 0));
-        assertEquals("", substring("asd", 2, 1));
-        assertEquals("", substring("asd", 2, 2));
-        assertEquals("d", substring("asd", 2, 3));
+                arguments("asd", 2, -3, ""),
+                arguments("asd", 2, -2, ""),
+                arguments("asd", 2, -1, ""),
+                arguments("asd", 2, 0, ""),
+                arguments("asd", 2, 1, ""),
+                arguments("asd", 2, 2, ""),
+                arguments("asd", 2, 3, "d"),
 
-        assertEquals("", substring("asd", 3, -3));
-        assertEquals("", substring("asd", 3, -2));
-        assertEquals("", substring("asd", 3, -1));
-        assertEquals("", substring("asd", 3, 0));
-        assertEquals("", substring("asd", 3, 1));
-        assertEquals("", substring("asd", 3, 2));
-        assertEquals("", substring("asd", 3, 3));
+                arguments("asd", 3, -3, ""),
+                arguments("asd", 3, -2, ""),
+                arguments("asd", 3, -1, ""),
+                arguments("asd", 3, 0, ""),
+                arguments("asd", 3, 1, ""),
+                arguments("asd", 3, 2, ""),
+                arguments("asd", 3, 3, ""));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testSubstringWithEnd(String str, int beginIndex, int endIndex, String expected) {
+        assertEquals(expected, substring(str, beginIndex, endIndex));
     }
 
     @Test
@@ -498,117 +512,123 @@ class StringsTest {
         assertEquals("true12.03.0%SEN", concatenate(true, 1, 2.0, 3f, '%', "SEN"));
     }
 
-    @Test
-    void testLike() {
-        assertTrue(like("#", "[#]"));
-        assertTrue(like("*", "[*]"));
-        assertTrue(like("?", "[?]"));
-        assertTrue(like("@", "[@]"));
-        assertTrue(like("+", "[+]"));
-        assertTrue(like("-", "[-]"));
-        assertTrue(like("!", "[!]"));
-        assertTrue(like("[", "[[]"));
+    static Stream<Arguments> testLike() {
+        return Stream.of(
+                arguments("#", "[#]", true),
+                arguments("*", "[*]", true),
+                arguments("?", "[?]", true),
+                arguments("@", "[@]", true),
+                arguments("+", "[+]", true),
+                arguments("-", "[-]", true),
+                arguments("!", "[!]", true),
+                arguments("[", "[[]", true),
 
-        assertFalse(like("#", "[!#]"));
-        assertFalse(like("*", "[!*]"));
-        assertFalse(like("?", "[!?]"));
-        assertFalse(like("@", "[!@]"));
-        assertFalse(like("+", "[!+]"));
-        assertFalse(like("-", "[!-]"));
-        assertFalse(like("!", "[!!]"));
-        assertFalse(like("[", "[![]"));
+                arguments("#", "[!#]", false),
+                arguments("*", "[!*]", false),
+                arguments("?", "[!?]", false),
+                arguments("@", "[!@]", false),
+                arguments("+", "[!+]", false),
+                arguments("-", "[!-]", false),
+                arguments("!", "[!!]", false),
+                arguments("[", "[![]", false),
 
-        assertTrue(like("0", "[!#]"));
-        assertTrue(like("0", "[!*]"));
-        assertTrue(like("0", "[!?]"));
-        assertTrue(like("0", "[!@]"));
-        assertTrue(like("0", "[!+]"));
-        assertTrue(like("0", "[!-]"));
-        assertTrue(like("0", "[!!]"));
-        assertTrue(like("0", "[![]"));
+                arguments("0", "[!#]", true),
+                arguments("0", "[!*]", true),
+                arguments("0", "[!?]", true),
+                arguments("0", "[!@]", true),
+                arguments("0", "[!+]", true),
+                arguments("0", "[!-]", true),
+                arguments("0", "[!!]", true),
+                arguments("0", "[![]", true),
 
-        assertTrue(like("#", "[#*?@+![-]"));
-        assertTrue(like("*", "[#*?@+![-]"));
-        assertTrue(like("?", "[#*?@+![-]"));
-        assertTrue(like("@", "[#*?@+![-]"));
-        assertTrue(like("+", "[#*?@+![-]"));
-        assertTrue(like("-", "[#*?@+![-]"));
-        assertTrue(like("!", "[#*?@+![-]"));
-        assertTrue(like("[", "[#*?@+![-]"));
+                arguments("#", "[#*?@+![-]", true),
+                arguments("*", "[#*?@+![-]", true),
+                arguments("?", "[#*?@+![-]", true),
+                arguments("@", "[#*?@+![-]", true),
+                arguments("+", "[#*?@+![-]", true),
+                arguments("-", "[#*?@+![-]", true),
+                arguments("!", "[#*?@+![-]", true),
+                arguments("[", "[#*?@+![-]", true),
 
-        assertFalse(like("#", "[!#*?@+![-]"));
-        assertFalse(like("*", "[!#*?@+![-]"));
-        assertFalse(like("?", "[!#*?@+![-]"));
-        assertFalse(like("@", "[!#*?@+![-]"));
-        assertFalse(like("+", "[!#*?@+![-]"));
-        assertFalse(like("-", "[!#*?@+![-]"));
-        assertFalse(like("!", "[!#*?@+![-]"));
-        assertFalse(like("[", "[!#*?@+![-]"));
+                arguments("#", "[!#*?@+![-]", false),
+                arguments("*", "[!#*?@+![-]", false),
+                arguments("?", "[!#*?@+![-]", false),
+                arguments("@", "[!#*?@+![-]", false),
+                arguments("+", "[!#*?@+![-]", false),
+                arguments("-", "[!#*?@+![-]", false),
+                arguments("!", "[!#*?@+![-]", false),
+                arguments("[", "[!#*?@+![-]", false),
 
-        assertTrue(like("-", "[-1-3]"));
-        assertFalse(like("0", "[-1-3]"));
-        assertTrue(like("1", "[-1-3]"));
-        assertTrue(like("2", "[-1-3]"));
-        assertTrue(like("3", "[-1-3]"));
-        assertFalse(like("4", "[-1-3]"));
+                arguments("-", "[-1-3]", true),
+                arguments("0", "[-1-3]", false),
+                arguments("1", "[-1-3]", true),
+                arguments("2", "[-1-3]", true),
+                arguments("3", "[-1-3]", true),
+                arguments("4", "[-1-3]", false),
 
-        assertTrue(like("[123]", "[[]123]"));
-        assertTrue(like("[123]", "[[][1-3]+]"));
-        assertFalse(like("[123]", "[123]"));
-        assertTrue(like("1", "[123]"));
+                arguments("[123]", "[[]123]", true),
+                arguments("[123]", "[[][1-3]+]", true),
+                arguments("[123]", "[123]", false),
+                arguments("1", "[123]", true),
 
-        assertTrue(like("", ""));
-        assertTrue(like("", null));
-        assertTrue(like(null, ""));
-        assertTrue(like(null, null));
+                arguments("", "", true),
+                arguments("", null, true),
+                arguments(null, "", true),
+                arguments(null, null, true),
 
-        assertFalse(like("", "F"));
-        assertFalse(like("F", ""));
-        assertFalse(like("F", null));
-        assertFalse(like(null, "F"));
+                arguments("", "F", false),
+                arguments("F", "", false),
+                arguments("F", null, false),
+                arguments(null, "F", false),
 
-        assertTrue(like(" ", " "));
-        assertFalse(like(" ", ""));
-        assertFalse(like("", " "));
+                arguments(" ", " ", true),
+                arguments(" ", "", false),
+                arguments("", " ", false),
 
-        assertTrue(like("F", "F"));
-        assertFalse(like("F", "f"));
-        assertFalse(like("F", "FFF"));
-        assertTrue(like("aBBBa", "a*a"));
-        assertTrue(like("F", "[A-Z]"));
-        assertTrue(like("BAR+", "[A-Z]++"));
-        assertFalse(like("F", "[!A-Z]"));
-        assertTrue(like("a2a", "a#a"));
-        assertFalse(like("aTa", "a#a"));
-        assertTrue(like("aTa", "a@a"));
-        assertFalse(like("a2a", "a@a"));
-        assertTrue(like("aM5b", "a[L-P]#[!c-e]"));
-        assertTrue(like("BAT123khg", "B?T*"));
-        assertFalse(like("CAT123khg", "B?T*"));
-        assertTrue(like("AE1234AE", "@@####@@"));
-        assertFalse(like("1E1234AE", "@@####@@"));
-        assertTrue(like("123-45AE", "###-##@@"));
-        assertFalse(like("123-45A7", "###-##@@"));
-        assertFalse(like("A23-45AE", "###-##@@"));
-        assertTrue(like("123-45AE", "###-##??+"));
-        assertTrue(like("123-45AE123", "###-##??+"));
-        assertTrue(like("123-45-AE", "#+-#+-@+"));
-        assertTrue(like("foo.bar@gmail.com", "*[@]*.*"));
-        assertTrue(like("foo@bar.com", "?+[@]?+.?+"));
-        assertFalse(like("foo.bar@gmail.", "?+[@]?+.?+"));
-        assertFalse(like("foo.bar@gmailcom", "?+[@]?+.?+"));
-        assertTrue(like("+38(099) 123-12-12", "+##(###) ###-##-##"));
-        assertFalse(like("+38(099)123-12-12", "+7#(###)###-##-##"));
-        assertTrue(like("#123", "[#]###"));
-        assertFalse(like("#1234", "[#]###"));
-        assertFalse(like("0123", "[#]###"));
-        assertFalse(like("# 123", "[#]###"));
-        assertTrue(like("# 123", "[#] ###"));
-        assertTrue(like("# \t123", "[#] ###"));
-        assertTrue(like("0123", "####"));
-        assertFalse(like("012", "####"));
-        assertFalse(like("01234", "####"));
-        assertTrue(like("0123", "#+"));
+                arguments("F", "F", true),
+                arguments("F", "f", false),
+                arguments("F", "FFF", false),
+                arguments("aBBBa", "a*a", true),
+                arguments("F", "[A-Z]", true),
+                arguments("BAR+", "[A-Z]++", true),
+                arguments("F", "[!A-Z]", false),
+                arguments("a2a", "a#a", true),
+                arguments("aTa", "a#a", false),
+                arguments("aTa", "a@a", true),
+                arguments("a2a", "a@a", false),
+                arguments("aM5b", "a[L-P]#[!c-e]", true),
+                arguments("BAT123khg", "B?T*", true),
+                arguments("CAT123khg", "B?T*", false),
+                arguments("AE1234AE", "@@####@@", true),
+                arguments("1E1234AE", "@@####@@", false),
+                arguments("123-45AE", "###-##@@", true),
+                arguments("123-45A7", "###-##@@", false),
+                arguments("A23-45AE", "###-##@@", false),
+                arguments("123-45AE", "###-##??+", true),
+                arguments("123-45AE123", "###-##??+", true),
+                arguments("123-45-AE", "#+-#+-@+", true),
+                arguments("foo.bar@gmail.com", "*[@]*.*", true),
+                arguments("foo@bar.com", "?+[@]?+.?+", true),
+                arguments("foo.bar@gmail.", "?+[@]?+.?+", false),
+                arguments("foo.bar@gmailcom", "?+[@]?+.?+", false),
+                arguments("+38(099) 123-12-12", "+##(###) ###-##-##", true),
+                arguments("+38(099)123-12-12", "+7#(###)###-##-##", false),
+                arguments("#123", "[#]###", true),
+                arguments("#1234", "[#]###", false),
+                arguments("0123", "[#]###", false),
+                arguments("# 123", "[#]###", false),
+                arguments("# 123", "[#] ###", true),
+                arguments("# \t123", "[#] ###", true),
+                arguments("0123", "####", true),
+                arguments("012", "####", false),
+                arguments("01234", "####", false),
+                arguments("0123", "#+", true));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testLike(String str, String pattern, boolean expected) {
+        assertEquals(expected, like(str, pattern));
     }
 
     @Test

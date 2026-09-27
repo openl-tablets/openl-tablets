@@ -164,6 +164,18 @@ class OpenLServiceTest {
         assertTrue(OpenLService.tryJSON("RulesFrontendTest_multimodule", "toString", null)
                 .startsWith("{\"result\":\"org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
+        // Free resources
+        OpenLService.reset();
+        assertNull(OpenLService.rulesFrontend.get());
+    }
+
+    @Test
+    @SetSystemProperty(key = "production-repository.uri", value = "test-resources/RulesFrontendTest")
+    @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
+    @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
+    void tryJsonServiceErrors() {
+        assertNull(OpenLService.rulesFrontend.get());
+
         assertEquals("{\"result\":null,\"error\":{\"message\":\"CA is not allowed\",\"type\":\"USER_ERROR\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "CA"));
         assertEquals("{\"result\":\"OK\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "NY"));
         assertEquals("{\"result\":null,\"error\":{\"message\":\"Failure\",\"code\":\"CD1\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "MI"));
@@ -200,7 +212,45 @@ class OpenLServiceTest {
         assertEquals("{\"name\":\"Nick\",\"age\":25}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "oneArg", "{}"));
         assertEquals("{\"name\":\"Mike\",\"age\":80}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "oneArg", "{\"name\":\"Mike\",\"age\":80}"));
 
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+        assertEquals("i: null s: null", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", null, null));
+        assertEquals("i: null s: Mike", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", null, "Mike"));
+        assertEquals("i: 80 s: Mike", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "80", "Mike"));
+        assertEquals("i: 80 s: null", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "80", null));
+
+        assertNull(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", (String) null));
+        assertEquals("", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", ""));
+        assertEquals("\"acd\"", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "\"acd\""));
+        assertEquals("'\"\"'", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "'\"\"'"));
+        assertEquals("{\"data\":\"text\"}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
+        assertEquals("{\"s\":\"Mike\",\"i\":80}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
+
+        assertTrue(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString", (String[]) null)
+                .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
+        assertTrue(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString")
+                .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
+
+        assertNotNull(OpenLService.rulesFrontend.get());
+        OpenLService.reset();
+        System.setProperty("production-repository.uri", "no repo");
+
+        var ex = assertThrows(IllegalArgumentException.class, () -> {
+            OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "worldHello", "10");
+        });
+        assertEquals("Service 'RulesFrontendTest_multimodule' is not found.", ex.getMessage());
+
+        // Free resources
+        OpenLService.reset();
+        assertNull(OpenLService.rulesFrontend.get());
+    }
+
+    @Test
+    @SetSystemProperty(key = "production-repository.uri", value = "test-resources/RulesFrontendTest")
+    @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
+    @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
+    void callJsonArrayServiceWithWrongArguments() {
+        assertNull(OpenLService.rulesFrontend.get());
+
+        var ex = assertThrows(IllegalArgumentException.class, () -> {
             OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs");
         });
         assertEquals("Method 'twoArgs' with 0 input arguments is not found in service 'RulesFrontendTest_multimodule'.", ex.getMessage());
@@ -220,36 +270,9 @@ class OpenLServiceTest {
         });
         assertEquals("Method 'twoArgs' with 3 input arguments is not found in service 'RulesFrontendTest_multimodule'.", ex.getMessage());
 
-
-        assertEquals("i: null s: null", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", null, null));
-        assertEquals("i: null s: Mike", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", null, "Mike"));
-        assertEquals("i: 80 s: Mike", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "80", "Mike"));
-        assertEquals("i: 80 s: null", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "80", null));
-
         assertThrows(Exception.class, () -> {
             OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "Mike", "80");
         });
-
-        assertNull(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", (String) null));
-        assertEquals("", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", ""));
-        assertEquals("\"acd\"", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "\"acd\""));
-        assertEquals("'\"\"'", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "'\"\"'"));
-        assertEquals("{\"data\":\"text\"}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
-        assertEquals("{\"s\":\"Mike\",\"i\":80}", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
-
-        assertTrue(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString", (String[]) null)
-                .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
-        assertTrue(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString")
-                .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
-
-        assertNotNull(OpenLService.rulesFrontend.get());
-        OpenLService.reset();
-        System.setProperty("production-repository.uri", "no repo");
-
-        ex = assertThrows(IllegalArgumentException.class, () -> {
-            OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "worldHello", "10");
-        });
-        assertEquals("Service 'RulesFrontendTest_multimodule' is not found.", ex.getMessage());
 
         // Free resources
         OpenLService.reset();

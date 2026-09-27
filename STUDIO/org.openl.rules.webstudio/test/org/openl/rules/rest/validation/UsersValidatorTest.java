@@ -10,6 +10,8 @@ import java.util.HashSet;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -236,92 +238,6 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
                 "aa.",
                 bindingResult.getFieldError("username"));
 
-        userCreateModel.setUsername(" aa");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, " aa", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("aa ");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "aa ", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a/");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a/", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a\\");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\\", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a:");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a:", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a*");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a*", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a?");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a?", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a\"");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\"", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a<");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a<", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a|");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a|", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a{");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a{", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a~");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a~", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a^");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a^", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a%");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a%", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a;");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a;", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a\u2028");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username",
-                MUST_NOT_CONTAIN_FOLLOWING_CHARS,
-                "a\u2028",
-                bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a\u2029");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username",
-                MUST_NOT_CONTAIN_FOLLOWING_CHARS,
-                "a\u2029",
-                bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a\t");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\t", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a\r");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\r", bindingResult.getFieldError("username"));
-
-        userCreateModel.setUsername("a\n");
-        bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\n", bindingResult.getFieldError("username"));
-
         userCreateModel.setUsername("jsmith");
         when(userManagementService.existsByName(anyString())).thenReturn(Boolean.TRUE);
         bindingResult = validateAndGetResult(userCreateModel);
@@ -330,6 +246,19 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
                 "jsmith",
                 bindingResult.getFieldError("username"));
 
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            " aa", "aa ", "a/", "a\\", "a:", "a*", "a?", "a\"", "a<", "a|", "a{", "a~", "a^", "a%", "a;", "a\u2028",
+            "a\u2029", "a\t", "a\r", "a\n"})
+    void testCreateUser_username_forbiddenCharacters(String username) {
+        when(userManagementService.getUser(anyString())).thenReturn(null);
+        var userCreateModel = getValidUserCreateModel();
+        userCreateModel.setUsername(username);
+        var bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, username,
+                bindingResult.getFieldError("username"));
     }
 
     @Test

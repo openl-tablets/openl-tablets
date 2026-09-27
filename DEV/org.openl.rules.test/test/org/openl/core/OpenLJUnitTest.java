@@ -56,15 +56,11 @@ class OpenLJUnitTest {
 
     @Test
     void EPBDS_12729() {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(
-                "./test-resources/junit/EPBDS-12729_error_code_message.xlsx");
-        engineFactory.setExecutionMode(false);
-        IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
-
-        TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
+        var compiled = compileEpbds12729();
+        var tests = compiled.tests();
         assertEquals(16, tests.length);
 
-        Object target = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
+        var target = compiled.target();
         for (var testSuit : tests) {
             var result = (TestUnitsResults) testSuit.invoke(target, new Object[0], new SimpleRulesVM().getRuntimeEnv());
             var testCases = result.getTestUnits();
@@ -84,110 +80,127 @@ class OpenLJUnitTest {
             }
 
         }
+    }
 
-        {
-            TestUnitsResults res1 = getRestUnitResult(target, tests, "error1_test1");
-            assertEquals(3, res1.getNumberOfFailures());
-            assertEquals(4, res1.getTestUnits().size());
+    @Test
+    void EPBDS_12729_error1_test1() {
+        var compiled = compileEpbds12729();
+        TestUnitsResults res1 = getRestUnitResult(compiled.target(), compiled.tests(), "error1_test1");
+        assertEquals(3, res1.getNumberOfFailures());
+        assertEquals(4, res1.getTestUnits().size());
 
-            ITestUnit testUnit1 = res1.getTestUnits().getFirst();
-            assertEquals(TestStatus.TR_NEQ, testUnit1.getResultStatus());
-            assertEquals(1, testUnit1.getComparisonResults().size());
-            assertComparedResult(new ComparedResult(null, "Foo bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
-                    testUnit1.getComparisonResults().getFirst());
+        ITestUnit testUnit1 = res1.getTestUnits().getFirst();
+        assertEquals(TestStatus.TR_NEQ, testUnit1.getResultStatus());
+        assertEquals(1, testUnit1.getComparisonResults().size());
+        assertComparedResult(new ComparedResult(null, "Foo bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
+                testUnit1.getComparisonResults().getFirst());
 
-            ITestUnit testUnit2 = res1.getTestUnits().get(1);
-            assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
-            assertEquals(1, testUnit2.getComparisonResults().size());
-            assertComparedResult(new ComparedResult(null, "foo.bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
-                    testUnit2.getComparisonResults().getFirst());
+        ITestUnit testUnit2 = res1.getTestUnits().get(1);
+        assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
+        assertEquals(1, testUnit2.getComparisonResults().size());
+        assertComparedResult(new ComparedResult(null, "foo.bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
+                testUnit2.getComparisonResults().getFirst());
 
-            ITestUnit testUnit3 = res1.getTestUnits().get(2);
-            assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
-            assertEquals(1, testUnit3.getComparisonResults().size());
-            assertComparedResult(new ComparedResult(null, null, "foo.bar: Foo bar", TestStatus.TR_NEQ),
-                    testUnit3.getComparisonResults().getFirst());
+        ITestUnit testUnit3 = res1.getTestUnits().get(2);
+        assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
+        assertEquals(1, testUnit3.getComparisonResults().size());
+        assertComparedResult(new ComparedResult(null, null, "foo.bar: Foo bar", TestStatus.TR_NEQ),
+                testUnit3.getComparisonResults().getFirst());
 
-            ITestUnit testUnit4 = res1.getTestUnits().get(3);
-            assertEquals(TestStatus.TR_OK, testUnit4.getResultStatus());
-        }
+        ITestUnit testUnit4 = res1.getTestUnits().get(3);
+        assertEquals(TestStatus.TR_OK, testUnit4.getResultStatus());
+    }
 
-        {
-            TestUnitsResults res1 = getRestUnitResult(target, tests, "error3_test2");
-            assertEquals(3, res1.getNumberOfFailures());
-            assertEquals(4, res1.getTestUnits().size());
+    @Test
+    void EPBDS_12729_error3_test2() {
+        var compiled = compileEpbds12729();
+        TestUnitsResults res1 = getRestUnitResult(compiled.target(), compiled.tests(), "error3_test2");
+        assertEquals(3, res1.getNumberOfFailures());
+        assertEquals(4, res1.getTestUnits().size());
 
-            ITestUnit testUnit1 = res1.getTestUnits().getFirst();
-            assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
+        ITestUnit testUnit1 = res1.getTestUnits().getFirst();
+        assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
 
-            ITestUnit testUnit2 = res1.getTestUnits().get(1);
-            assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
-            assertEquals(1, testUnit2.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", "foo.bar", "Foo bar", TestStatus.TR_NEQ),
-                    testUnit2.getComparisonResults().getFirst());
+        ITestUnit testUnit2 = res1.getTestUnits().get(1);
+        assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
+        assertEquals(1, testUnit2.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("message", "foo.bar", "Foo bar", TestStatus.TR_NEQ),
+                testUnit2.getComparisonResults().getFirst());
 
-            ITestUnit testUnit3 = res1.getTestUnits().get(2);
-            assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
-            assertEquals(1, testUnit3.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
-                    testUnit3.getComparisonResults().getFirst());
+        ITestUnit testUnit3 = res1.getTestUnits().get(2);
+        assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
+        assertEquals(1, testUnit3.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
+                testUnit3.getComparisonResults().getFirst());
 
-            ITestUnit testUnit4 = res1.getTestUnits().get(3);
-            assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
-            assertEquals(1, testUnit4.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", "null: Foo bar", "Foo bar", TestStatus.TR_NEQ),
-                    testUnit4.getComparisonResults().getFirst());
-        }
+        ITestUnit testUnit4 = res1.getTestUnits().get(3);
+        assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
+        assertEquals(1, testUnit4.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("message", "null: Foo bar", "Foo bar", TestStatus.TR_NEQ),
+                testUnit4.getComparisonResults().getFirst());
+    }
 
-        {
-            TestUnitsResults res1 = getRestUnitResult(target, tests, "error1_test4");
-            assertEquals(5, res1.getNumberOfFailures());
-            assertEquals(6, res1.getTestUnits().size());
+    @Test
+    void EPBDS_12729_error1_test4() {
+        var compiled = compileEpbds12729();
+        TestUnitsResults res1 = getRestUnitResult(compiled.target(), compiled.tests(), "error1_test4");
+        assertEquals(5, res1.getNumberOfFailures());
+        assertEquals(6, res1.getTestUnits().size());
 
-            ITestUnit testUnit1 = res1.getTestUnits().getFirst();
-            assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
+        ITestUnit testUnit1 = res1.getTestUnits().getFirst();
+        assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
 
-            ITestUnit testUnit2 = res1.getTestUnits().get(1);
-            assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
-            assertEquals(2, testUnit2.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
-                    testUnit2.getComparisonResults().getFirst());
-            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
-                    testUnit2.getComparisonResults().get(1));
+        ITestUnit testUnit2 = res1.getTestUnits().get(1);
+        assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
+        assertEquals(2, testUnit2.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
+                testUnit2.getComparisonResults().getFirst());
+        assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
+                testUnit2.getComparisonResults().get(1));
 
-            ITestUnit testUnit3 = res1.getTestUnits().get(2);
-            assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
-            assertEquals(2, testUnit3.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
-                    testUnit3.getComparisonResults().getFirst());
-            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
-                    testUnit3.getComparisonResults().get(1));
+        ITestUnit testUnit3 = res1.getTestUnits().get(2);
+        assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
+        assertEquals(2, testUnit3.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
+                testUnit3.getComparisonResults().getFirst());
+        assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
+                testUnit3.getComparisonResults().get(1));
 
-            ITestUnit testUnit4 = res1.getTestUnits().get(3);
-            assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
-            assertEquals(2, testUnit4.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
-                    testUnit4.getComparisonResults().getFirst());
-            assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
-                    testUnit4.getComparisonResults().get(1));
+        ITestUnit testUnit4 = res1.getTestUnits().get(3);
+        assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
+        assertEquals(2, testUnit4.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
+                testUnit4.getComparisonResults().getFirst());
+        assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
+                testUnit4.getComparisonResults().get(1));
 
-            ITestUnit testUnit5 = res1.getTestUnits().get(4);
-            assertEquals(TestStatus.TR_NEQ, testUnit5.getResultStatus());
-            assertEquals(2, testUnit5.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
-                    testUnit5.getComparisonResults().getFirst());
-            assertComparedResult(new ComparedResult("message", "baza", "Foo bar", TestStatus.TR_NEQ),
-                    testUnit5.getComparisonResults().get(1));
+        ITestUnit testUnit5 = res1.getTestUnits().get(4);
+        assertEquals(TestStatus.TR_NEQ, testUnit5.getResultStatus());
+        assertEquals(2, testUnit5.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
+                testUnit5.getComparisonResults().getFirst());
+        assertComparedResult(new ComparedResult("message", "baza", "Foo bar", TestStatus.TR_NEQ),
+                testUnit5.getComparisonResults().get(1));
 
-            ITestUnit testUnit6 = res1.getTestUnits().get(5);
-            assertEquals(TestStatus.TR_NEQ, testUnit6.getResultStatus());
-            assertEquals(2, testUnit6.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("code", "baza", "foo.bar", TestStatus.TR_NEQ),
-                    testUnit6.getComparisonResults().getFirst());
-            assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
-                    testUnit6.getComparisonResults().get(1));
-        }
+        ITestUnit testUnit6 = res1.getTestUnits().get(5);
+        assertEquals(TestStatus.TR_NEQ, testUnit6.getResultStatus());
+        assertEquals(2, testUnit6.getComparisonResults().size());
+        assertComparedResult(new ComparedResult("code", "baza", "foo.bar", TestStatus.TR_NEQ),
+                testUnit6.getComparisonResults().getFirst());
+        assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
+                testUnit6.getComparisonResults().get(1));
+    }
 
+    private record CompiledTests(Object target, TestSuiteMethod[] tests) {
+    }
+
+    private static CompiledTests compileEpbds12729() {
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(
+                "./test-resources/junit/EPBDS-12729_error_code_message.xlsx");
+        engineFactory.setExecutionMode(false);
+        IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
+        return new CompiledTests(openClass.newInstance(new SimpleRulesVM().getRuntimeEnv()),
+                ProjectHelper.allTesters(openClass));
     }
 
     private static void assertComparedResult(ComparedResult expected, ComparedResult actural) {

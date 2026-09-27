@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -47,45 +48,55 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ClonerTest {
 
-    @Test
-    void testCloneImmutableObjects() {
-        assertNotCloned("immutable string");
-        assertNotCloned(1);
-        assertNotCloned(2L);
-        assertNotCloned(3.0);
-        assertNotCloned(4.0f);
-        assertNotCloned(false);
-        assertNotCloned(null);
-        assertNotCloned(new BigDecimal("123.45"));
-        assertNotCloned(new BigInteger("12345"));
-        assertNotCloned(LocalDate.now());
-        assertNotCloned(LocalDateTime.now());
-        assertNotCloned(LocalTime.now());
-        assertNotCloned(ZonedDateTime.now());
-        assertNotCloned(OffsetDateTime.now());
-        assertNotCloned(OffsetTime.now());
-        assertNotCloned(Instant.now());
-        assertNotCloned(Duration.ofDays(2));
-        assertNotCloned(Period.ofDays(3));
-        assertNotCloned(UUID.randomUUID());
-        assertNotCloned(Year.now());
-        assertNotCloned(Month.of(7));
-        assertNotCloned(YearMonth.now());
-        assertNotCloned(MonthDay.now());
-        assertNotCloned(DayOfWeek.of(4));
-        assertNotCloned(Pattern.compile(".+"));
-        assertNotCloned(File.class);
-        assertNotCloned(new Object());
+    static Stream<Arguments> testCloneImmutableObjects() {
+        return Stream.of(
+                arguments("immutable string"),
+                arguments(1),
+                arguments(2L),
+                arguments(3.0),
+                arguments(4.0f),
+                arguments(false),
+                arguments((Object) null),
+                arguments(new BigDecimal("123.45")),
+                arguments(new BigInteger("12345")),
+                arguments(LocalDate.now()),
+                arguments(LocalDateTime.now()),
+                arguments(LocalTime.now()),
+                arguments(ZonedDateTime.now()),
+                arguments(OffsetDateTime.now()),
+                arguments(OffsetTime.now()),
+                arguments(Instant.now()),
+                arguments(Duration.ofDays(2)),
+                arguments(Period.ofDays(3)),
+                arguments(UUID.randomUUID()),
+                arguments(Year.now()),
+                arguments(Month.of(7)),
+                arguments(YearMonth.now()),
+                arguments(MonthDay.now()),
+                arguments(DayOfWeek.of(4)),
+                arguments(Pattern.compile(".+")),
+                arguments(File.class),
+                arguments(new Object()),
 
-        assertNotCloned(Path.of("/some/path"));
-        assertNotCloned(RoundingMode.FLOOR);
+                arguments(Path.of("/some/path")),
+                arguments(RoundingMode.FLOOR));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testCloneImmutableObjects(Object value) {
+        assertNotCloned(value);
     }
 
     @Test
@@ -212,13 +223,16 @@ class ClonerTest {
     }
 
     @Test
-    void testCloneArrays() {
+    void testCloneIntArrays() {
         assertNotCloned(new int[0]);
         assertCloned(new int[]{1});
         assertCloned(new int[]{1, 2});
         assertCloned(new int[]{1, 2, 3});
         assertCloned(new int[]{1, 2, 3, 4});
+    }
 
+    @Test
+    void testCloneIntegerArrays() {
         assertNotCloned(new Integer[0]);
         assertCloned(new Integer[]{1});
         assertCloned(new Integer[]{1, 2});
@@ -230,13 +244,19 @@ class ClonerTest {
         assertCloned(new Integer[]{null, null});
         assertCloned(new Integer[]{null, null, null});
         assertCloned(new Integer[]{null, 2, null, 4});
+    }
 
+    @Test
+    void testCloneDateArrays() {
         assertNotCloned(new Date[]{});
         assertCloned(new Date[]{new Date(12)});
         assertCloned(new Date[]{new Date(23), new Date(44)});
         assertCloned(new Date[]{new Date(23), null, new Date(44)});
         assertCloned(new Date[]{null});
+    }
 
+    @Test
+    void testCloneObjectArrays() {
         assertNotCloned(new Object[0]);
         assertCloned(new Object[]{1});
         assertCloned(new Object[]{1, 2});
@@ -250,7 +270,10 @@ class ClonerTest {
 
         assertNotCloned(new Beans[0]);
         assertCloned(new Beans[1]);
+    }
 
+    @Test
+    void testCloneArrayElements() {
         // Case 1
         Object[] arr1 = new Object[]{new Beans()};
         Object[] cloned1 = Cloner.clone(arr1);
@@ -264,7 +287,6 @@ class ClonerTest {
         assertNotSame(arr2, cloned2);
         assertEquals(arr2.length, cloned2.length);
         assertSame(arr2[0], cloned2[0]); // Immutable
-
     }
 
     @Test

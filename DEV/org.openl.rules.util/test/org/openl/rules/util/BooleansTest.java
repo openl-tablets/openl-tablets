@@ -4,10 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.math.BigInteger;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class BooleansTest {
 
@@ -38,61 +43,67 @@ class BooleansTest {
         assertFalse(Booleans.and(new boolean[]{true, true, false}));
     }
 
-    @Test
-    void testAnd2() {
-        // Empty
-        assertNull(Booleans.and(new Boolean[]{}));
-        assertNull(Booleans.and((Boolean[]) null));
-        assertNull(Booleans.and(new Boolean[]{null}));
-        assertNull(Booleans.and(new Boolean[]{null, null}));
+    static Stream<Arguments> testAnd2() {
+        return Stream.of(
+                // Empty
+                arguments(new Boolean[]{}, null),
+                arguments((Boolean[]) null, null),
+                arguments(new Boolean[]{null}, null),
+                arguments(new Boolean[]{null, null}, null),
 
-        // True
-        assertTrue(Booleans.and(new Boolean[]{true}));
-        assertTrue(Booleans.and(new Boolean[]{true, true}));
-        assertTrue(Booleans.and(new Boolean[]{true, true, true}));
+                // True
+                arguments(new Boolean[]{true}, true),
+                arguments(new Boolean[]{true, true}, true),
+                arguments(new Boolean[]{true, true, true}, true),
 
-        // False
-        assertFalse(Booleans.and(new Boolean[]{false}));
-        assertFalse(Booleans.and(new Boolean[]{false, false}));
-        assertFalse(Booleans.and(new Boolean[]{false, false, false}));
+                // False
+                arguments(new Boolean[]{false}, false),
+                arguments(new Boolean[]{false, false}, false),
+                arguments(new Boolean[]{false, false, false}, false),
 
-        // True and False
-        assertFalse(Booleans.and(new Boolean[]{false, true}));
-        assertFalse(Booleans.and(new Boolean[]{true, false}));
-        assertFalse(Booleans.and(new Boolean[]{false, false, true}));
-        assertFalse(Booleans.and(new Boolean[]{false, true, false}));
-        assertFalse(Booleans.and(new Boolean[]{false, true, true}));
-        assertFalse(Booleans.and(new Boolean[]{true, false, false}));
-        assertFalse(Booleans.and(new Boolean[]{true, false, true}));
-        assertFalse(Booleans.and(new Boolean[]{true, true, false}));
+                // True and False
+                arguments(new Boolean[]{false, true}, false),
+                arguments(new Boolean[]{true, false}, false),
+                arguments(new Boolean[]{false, false, true}, false),
+                arguments(new Boolean[]{false, true, false}, false),
+                arguments(new Boolean[]{false, true, true}, false),
+                arguments(new Boolean[]{true, false, false}, false),
+                arguments(new Boolean[]{true, false, true}, false),
+                arguments(new Boolean[]{true, true, false}, false),
 
-        // Null and True
-        assertNull(Booleans.and(new Boolean[]{null, true}));
-        assertNull(Booleans.and(new Boolean[]{true, null}));
-        assertNull(Booleans.and(new Boolean[]{null, null, true}));
-        assertNull(Booleans.and(new Boolean[]{null, true, null}));
-        assertNull(Booleans.and(new Boolean[]{null, true, true}));
-        assertNull(Booleans.and(new Boolean[]{true, null, null}));
-        assertNull(Booleans.and(new Boolean[]{true, null, true}));
-        assertNull(Booleans.and(new Boolean[]{true, true, null}));
+                // Null and True
+                arguments(new Boolean[]{null, true}, null),
+                arguments(new Boolean[]{true, null}, null),
+                arguments(new Boolean[]{null, null, true}, null),
+                arguments(new Boolean[]{null, true, null}, null),
+                arguments(new Boolean[]{null, true, true}, null),
+                arguments(new Boolean[]{true, null, null}, null),
+                arguments(new Boolean[]{true, null, true}, null),
+                arguments(new Boolean[]{true, true, null}, null),
 
-        // Null and False
-        assertFalse(Booleans.and(new Boolean[]{null, false}));
-        assertFalse(Booleans.and(new Boolean[]{false, null}));
-        assertFalse(Booleans.and(new Boolean[]{null, null, false}));
-        assertFalse(Booleans.and(new Boolean[]{null, false, null}));
-        assertFalse(Booleans.and(new Boolean[]{null, false, false}));
-        assertFalse(Booleans.and(new Boolean[]{false, null, null}));
-        assertFalse(Booleans.and(new Boolean[]{false, null, false}));
-        assertFalse(Booleans.and(new Boolean[]{false, false, null}));
+                // Null and False
+                arguments(new Boolean[]{null, false}, false),
+                arguments(new Boolean[]{false, null}, false),
+                arguments(new Boolean[]{null, null, false}, false),
+                arguments(new Boolean[]{null, false, null}, false),
+                arguments(new Boolean[]{null, false, false}, false),
+                arguments(new Boolean[]{false, null, null}, false),
+                arguments(new Boolean[]{false, null, false}, false),
+                arguments(new Boolean[]{false, false, null}, false),
 
-        // Null and True and False
-        assertFalse(Booleans.and(new Boolean[]{null, true, false}));
-        assertFalse(Booleans.and(new Boolean[]{null, false, true}));
-        assertFalse(Booleans.and(new Boolean[]{true, null, false}));
-        assertFalse(Booleans.and(new Boolean[]{true, false, null}));
-        assertFalse(Booleans.and(new Boolean[]{false, null, true}));
-        assertFalse(Booleans.and(new Boolean[]{false, true, null}));
+                // Null and True and False
+                arguments(new Boolean[]{null, true, false}, false),
+                arguments(new Boolean[]{null, false, true}, false),
+                arguments(new Boolean[]{true, null, false}, false),
+                arguments(new Boolean[]{true, false, null}, false),
+                arguments(new Boolean[]{false, null, true}, false),
+                arguments(new Boolean[]{false, true, null}, false));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testAnd2(Boolean[] values, Boolean expected) {
+        assertEquals(expected, Booleans.and(values));
     }
 
     @Test
@@ -122,61 +133,67 @@ class BooleansTest {
         assertTrue(Booleans.or(new boolean[]{true, true, false}));
     }
 
-    @Test
-    void testOr2() {
-        // Empty
-        assertNull(Booleans.or(new Boolean[]{}));
-        assertNull(Booleans.or((Boolean[]) null));
-        assertNull(Booleans.or(new Boolean[]{null}));
-        assertNull(Booleans.or(new Boolean[]{null, null}));
+    static Stream<Arguments> testOr2() {
+        return Stream.of(
+                // Empty
+                arguments(new Boolean[]{}, null),
+                arguments((Boolean[]) null, null),
+                arguments(new Boolean[]{null}, null),
+                arguments(new Boolean[]{null, null}, null),
 
-        // True
-        assertTrue(Booleans.or(new Boolean[]{true}));
-        assertTrue(Booleans.or(new Boolean[]{true, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, true, true}));
+                // True
+                arguments(new Boolean[]{true}, true),
+                arguments(new Boolean[]{true, true}, true),
+                arguments(new Boolean[]{true, true, true}, true),
 
-        // False
-        assertFalse(Booleans.or(new Boolean[]{false}));
-        assertFalse(Booleans.or(new Boolean[]{false, false}));
-        assertFalse(Booleans.or(new Boolean[]{false, false, false}));
+                // False
+                arguments(new Boolean[]{false}, false),
+                arguments(new Boolean[]{false, false}, false),
+                arguments(new Boolean[]{false, false, false}, false),
 
-        // True and False
-        assertTrue(Booleans.or(new Boolean[]{false, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, false}));
-        assertTrue(Booleans.or(new Boolean[]{false, false, true}));
-        assertTrue(Booleans.or(new Boolean[]{false, true, false}));
-        assertTrue(Booleans.or(new Boolean[]{false, true, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, false, false}));
-        assertTrue(Booleans.or(new Boolean[]{true, false, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, true, false}));
+                // True and False
+                arguments(new Boolean[]{false, true}, true),
+                arguments(new Boolean[]{true, false}, true),
+                arguments(new Boolean[]{false, false, true}, true),
+                arguments(new Boolean[]{false, true, false}, true),
+                arguments(new Boolean[]{false, true, true}, true),
+                arguments(new Boolean[]{true, false, false}, true),
+                arguments(new Boolean[]{true, false, true}, true),
+                arguments(new Boolean[]{true, true, false}, true),
 
-        // Null and True
-        assertTrue(Booleans.or(new Boolean[]{null, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, null}));
-        assertTrue(Booleans.or(new Boolean[]{null, null, true}));
-        assertTrue(Booleans.or(new Boolean[]{null, true, null}));
-        assertTrue(Booleans.or(new Boolean[]{null, true, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, null, null}));
-        assertTrue(Booleans.or(new Boolean[]{true, null, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, true, null}));
+                // Null and True
+                arguments(new Boolean[]{null, true}, true),
+                arguments(new Boolean[]{true, null}, true),
+                arguments(new Boolean[]{null, null, true}, true),
+                arguments(new Boolean[]{null, true, null}, true),
+                arguments(new Boolean[]{null, true, true}, true),
+                arguments(new Boolean[]{true, null, null}, true),
+                arguments(new Boolean[]{true, null, true}, true),
+                arguments(new Boolean[]{true, true, null}, true),
 
-        // Null and False
-        assertNull(Booleans.or(new Boolean[]{null, false}));
-        assertNull(Booleans.or(new Boolean[]{false, null}));
-        assertNull(Booleans.or(new Boolean[]{null, null, false}));
-        assertNull(Booleans.or(new Boolean[]{null, false, null}));
-        assertNull(Booleans.or(new Boolean[]{null, false, false}));
-        assertNull(Booleans.or(new Boolean[]{false, null, null}));
-        assertNull(Booleans.or(new Boolean[]{false, null, false}));
-        assertNull(Booleans.or(new Boolean[]{false, false, null}));
+                // Null and False
+                arguments(new Boolean[]{null, false}, null),
+                arguments(new Boolean[]{false, null}, null),
+                arguments(new Boolean[]{null, null, false}, null),
+                arguments(new Boolean[]{null, false, null}, null),
+                arguments(new Boolean[]{null, false, false}, null),
+                arguments(new Boolean[]{false, null, null}, null),
+                arguments(new Boolean[]{false, null, false}, null),
+                arguments(new Boolean[]{false, false, null}, null),
 
-        // Null and True and False
-        assertTrue(Booleans.or(new Boolean[]{null, true, false}));
-        assertTrue(Booleans.or(new Boolean[]{null, false, true}));
-        assertTrue(Booleans.or(new Boolean[]{true, null, false}));
-        assertTrue(Booleans.or(new Boolean[]{true, false, null}));
-        assertTrue(Booleans.or(new Boolean[]{false, null, true}));
-        assertTrue(Booleans.or(new Boolean[]{false, true, null}));
+                // Null and True and False
+                arguments(new Boolean[]{null, true, false}, true),
+                arguments(new Boolean[]{null, false, true}, true),
+                arguments(new Boolean[]{true, null, false}, true),
+                arguments(new Boolean[]{true, false, null}, true),
+                arguments(new Boolean[]{false, null, true}, true),
+                arguments(new Boolean[]{false, true, null}, true));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testOr2(Boolean[] values, Boolean expected) {
+        assertEquals(expected, Booleans.or(values));
     }
 
     @Test
@@ -312,8 +329,7 @@ class BooleansTest {
     }
 
     @Test
-    void toBooleanTest() {
-        //null
+    void toBooleanOfNull() {
         assertNull(Booleans.toBoolean((Byte) null));
         assertNull(Booleans.toBoolean((Short) null));
         assertNull(Booleans.toBoolean((Integer) null));
@@ -321,6 +337,10 @@ class BooleansTest {
         assertNull(Booleans.toBoolean((Character) null));
         assertNull(Booleans.toBoolean((String) null));
         assertNull(Booleans.toBoolean((BigInteger) null));
+    }
+
+    @Test
+    void toBooleanOfUnknownValue() {
         assertNull(Booleans.toBoolean(""));
         assertNull(Booleans.toBoolean("foo"));
         assertNull(Booleans.toBoolean("y "));
@@ -345,8 +365,10 @@ class BooleansTest {
         assertNull(Booleans.toBoolean((Integer) (-10)));
         assertNull(Booleans.toBoolean((Long) (-10L)));
         assertNull(Booleans.toBoolean(new BigInteger("-10")));
+    }
 
-        //TRUE
+    @Test
+    void toBooleanOfTrueString() {
         assertEquals(Boolean.TRUE, Booleans.toBoolean("y"));
         assertEquals(Boolean.TRUE, Booleans.toBoolean("Y"));
         assertEquals(Boolean.TRUE, Booleans.toBoolean("1"));
@@ -359,6 +381,10 @@ class BooleansTest {
         assertEquals(Boolean.TRUE, Booleans.toBoolean("on"));
         assertEquals(Boolean.TRUE, Booleans.toBoolean("ON"));
         assertEquals(Boolean.TRUE, Booleans.toBoolean("On"));
+    }
+
+    @Test
+    void toBooleanOfTrueNumberOrCharacter() {
         assertEquals(Boolean.TRUE, Booleans.toBoolean((byte) 1));
         assertEquals(Boolean.TRUE, Booleans.toBoolean((short) 1));
         assertEquals(Boolean.TRUE, Booleans.toBoolean(1));
@@ -375,8 +401,10 @@ class BooleansTest {
         assertEquals(Boolean.TRUE, Booleans.toBoolean((Character) '1'));
         assertEquals(Boolean.TRUE, Booleans.toBoolean((Character) 'y'));
         assertEquals(Boolean.TRUE, Booleans.toBoolean((Character) 'Y'));
+    }
 
-        //FALSE
+    @Test
+    void toBooleanOfFalseString() {
         assertEquals(Boolean.FALSE, Booleans.toBoolean("n"));
         assertEquals(Boolean.FALSE, Booleans.toBoolean("N"));
         assertEquals(Boolean.FALSE, Booleans.toBoolean("0"));
@@ -389,6 +417,10 @@ class BooleansTest {
         assertEquals(Boolean.FALSE, Booleans.toBoolean("off"));
         assertEquals(Boolean.FALSE, Booleans.toBoolean("OFF"));
         assertEquals(Boolean.FALSE, Booleans.toBoolean("oFf"));
+    }
+
+    @Test
+    void toBooleanOfFalseNumberOrCharacter() {
         assertEquals(Boolean.FALSE, Booleans.toBoolean((byte) 0));
         assertEquals(Boolean.FALSE, Booleans.toBoolean((short) 0));
         assertEquals(Boolean.FALSE, Booleans.toBoolean(0));

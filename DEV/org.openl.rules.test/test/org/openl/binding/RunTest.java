@@ -3,14 +3,19 @@ package org.openl.binding;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
@@ -95,107 +100,112 @@ class RunTest {
 
     }
 
-    @Test
-    void testRun() {
+    static Stream<Arguments> testRun() {
+        return Stream.of(
+                arguments("String $x$y=null; $x$y == null || $x$y.length() < 10", true),
 
-        assertToExpected("String $x$y=null; $x$y == null || $x$y.length() < 10", true);
+                arguments("String x=null; x == null || x.length() < 10", true),
+                arguments("String x=null; x != null && x.length() < 10", false),
 
-        assertToExpected("String x=null; x == null || x.length() < 10", true);
-        assertToExpected("String x=null; x != null && x.length() < 10", false);
+                arguments("String x=null; Boolean b = true; b || x.length() < 10", true),
+                arguments("String x=null; Boolean b = false; b && x.length() < 10", false),
 
-        assertToExpected("String x=null; Boolean b = true; b || x.length() < 10", true);
-        assertToExpected("String x=null; Boolean b = false; b && x.length() < 10", false);
+                arguments("String x=\"abc\"; x == null || x.length() < 10", true),
+                arguments("String x=\"abc\"; x != null && x.length() < 10", true),
 
-        assertToExpected("String x=\"abc\"; x == null || x.length() < 10", true);
-        assertToExpected("String x=\"abc\"; x != null && x.length() < 10", true);
+                arguments("int x = 5; x += 4", 9),
+                arguments("DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1",
+                        9.0),
+                arguments("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", 45),
 
-        assertToExpected("int x = 5; x += 4", 9);
-        assertToExpected("DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1", 9.0);
-        assertToExpected("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", 45);
+                // Testing new implementation of s1 == s2 for Strings. To achieve old
+                // identity test Strings must be upcasted to Object
+                arguments("String a=\"a\"; String b = \"b\"; a + b == a + 'b'", Boolean.TRUE),
+                arguments("String a=\"a\"; String b = \"b\"; a + b == a + 'c'", Boolean.FALSE),
+                arguments("String a=\"a\"; String b = \"b\"; a + b != a + 'b'", Boolean.FALSE),
+                arguments("String a=\"a\"; String b = \"b\"; a + b != a + 'c'", Boolean.TRUE),
+                arguments("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", Boolean.TRUE),
+                arguments("String a=\"a\"; String b = \"b\"; (Object)(a + b) ==== (Object)(a + 'b')", Boolean.FALSE),
 
-        // Testing new implementation of s1 == s2 for Strings. To achieve old
-        // identity test Strings must be upcasted to Object
-        assertToExpected("String a=\"a\"; String b = \"b\"; a + b == a + 'b'", Boolean.TRUE);
-        assertToExpected("String a=\"a\"; String b = \"b\"; a + b == a + 'c'", Boolean.FALSE);
-        assertToExpected("String a=\"a\"; String b = \"b\"; a + b != a + 'b'", Boolean.FALSE);
-        assertToExpected("String a=\"a\"; String b = \"b\"; a + b != a + 'c'", Boolean.TRUE);
-        assertToExpected("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", Boolean.TRUE);
-        assertToExpected("String a=\"a\"; String b = \"b\"; (Object)(a + b) ==== (Object)(a + 'b')", Boolean.FALSE);
+                arguments("boolean a=true; boolean b = false; a == !b", Boolean.TRUE),
+                arguments("boolean a=true; boolean b = false; a != b", Boolean.TRUE),
 
-        assertToExpected("boolean a=true; boolean b = false; a == !b", Boolean.TRUE);
-        assertToExpected("boolean a=true; boolean b = false; a != b", Boolean.TRUE);
+                arguments("Integer x = 1; \"aaa\".substring(x)", "aaa".substring(1)),
 
-        assertToExpected("Integer x = 1; \"aaa\".substring(x)", "aaa".substring(1));
+                arguments("int x=5, y=7; x < y ? 'a'+1 : 'b'+1", 'a' + 1),
+                arguments("int x=5, y=7; x < y ? 0.7 : 3", 0.7),
+                arguments("int x=5, y=7; x >= y ? 3 : 0.7", 0.7),
+                arguments("int x=5, y=7; x >= y ? null : 0.7", 0.7),
+                arguments("int x=5, y=7; x < y ? 0.7 : null", 0.7),
+                arguments("int x=5, y=7; x < y ? 3 : (int)0.7", 3),
+                arguments("Number x=new Integer(5);Integer y = 7; 5 < 4 ? x : y", 7),
 
-        assertToExpected("int x=5, y=7; x < y ? 'a'+1 : 'b'+1", 'a' + 1);
-        assertToExpected("int x=5, y=7; x < y ? 0.7 : 3", 0.7);
-        assertToExpected("int x=5, y=7; x >= y ? 3 : 0.7", 0.7);
-        assertToExpected("int x=5, y=7; x >= y ? null : 0.7", 0.7);
-        assertToExpected("int x=5, y=7; x < y ? 0.7 : null", 0.7);
-        assertToExpected("int x=5, y=7; x < y ? 3 : (int)0.7", 3);
-        assertToExpected("Number x=new Integer(5);Integer y = 7; 5 < 4 ? x : y", 7);
+                arguments("true ? 10 : 20", 10),
+                arguments("true ? 10 : 20", 10),
+                arguments("false ? 10 : 20", 20),
 
-        assertToExpected("true ? 10 : 20", 10);
-        assertToExpected("true ? 10 : 20", 10);
-        assertToExpected("false ? 10 : 20", 20);
+                arguments("10%", 0.1),
+                arguments("10% of \n the  50", 5.0),
+                arguments("10% of    the  50", 5.0),
 
-        assertToExpected("10%", 0.1);
-        assertToExpected("10% of \n the  50", 5.0);
-        assertToExpected("10% of    the  50", 5.0);
+                arguments("5.0 ** 7.0 ", Math.pow(5, 7)),
+                arguments("DoubleValue x = 5.0; x ** 7 ", Math.pow(5, 7)),
+                arguments("BigDecimal x = 5.0; x ** 7 ", new BigDecimal("78125.0000000")),
 
-        assertToExpected("5.0 ** 7.0 ", Math.pow(5, 7));
-        assertToExpected("DoubleValue x = 5.0; x ** 7 ", Math.pow(5, 7));
-        assertToExpected("BigDecimal x = 5.0; x ** 7 ", new BigDecimal("78125.0000000"));
+                arguments("1 == 1", true),
+                arguments("1 is same as 1", true),
+                arguments("1 is same \n as 1", true),
+                arguments("1   is   same   as   1", true),
+                arguments("1 is the same as 1", true),
+                arguments("1 is the \n same as 1", true),
+                arguments("1   is   the   same   as   1", true),
+                arguments("1 equals to 1", true),
+                arguments("1 equals \n to 1", true),
+                arguments("1  equals  to  1", true),
 
-        assertToExpected("1 == 1", true);
-        assertToExpected("1 is same as 1", true);
-        assertToExpected("1 is same \n as 1", true);
-        assertToExpected("1   is   same   as   1", true);
-        assertToExpected("1 is the same as 1", true);
-        assertToExpected("1 is the \n same as 1", true);
-        assertToExpected("1   is   the   same   as   1", true);
-        assertToExpected("1 equals to 1", true);
-        assertToExpected("1 equals \n to 1", true);
-        assertToExpected("1  equals  to  1", true);
+                arguments("not false", true),
 
-        assertToExpected("not false", true);
+                arguments("true and true", true),
+                arguments("(true)and(true)", true),
+                arguments("true and false", false),
+                arguments("(true)and(false)", false),
+                arguments("true or false", true),
+                arguments("(true)or(false)", true),
+                arguments("(false)or(false)", false),
+                arguments("false or false", false),
 
-        assertToExpected("true and true", true);
-        assertToExpected("(true)and(true)", true);
-        assertToExpected("true and false", false);
-        assertToExpected("(true)and(false)", false);
-        assertToExpected("true or false", true);
-        assertToExpected("(true)or(false)", true);
-        assertToExpected("(false)or(false)", false);
-        assertToExpected("false or false", false);
+                arguments("1 does not equal to 2", true),
+                arguments("2 does not \n     equal to 2", false),
 
-        assertToExpected("1 does not equal to 2", true);
-        assertToExpected("2 does not \n     equal to 2", false);
+                arguments("1 is different from 2", true),
+                arguments("2 is different \n  from 2", false),
 
-        assertToExpected("1 is different from 2", true);
-        assertToExpected("2 is different \n  from 2", false);
+                arguments("1 is less than 2", true),
+                arguments("2 is \n less    than 2", false),
 
-        assertToExpected("1 is less than 2", true);
-        assertToExpected("2 is \n less    than 2", false);
+                arguments("2 is more than 1", true),
+                arguments("2 is \n more    than 2", false),
 
-        assertToExpected("2 is more than 1", true);
-        assertToExpected("2 is \n more    than 2", false);
+                arguments("1 is less or equal 1", true),
+                arguments("2 is \n less or   equal 1", false),
 
-        assertToExpected("1 is less or equal 1", true);
-        assertToExpected("2 is \n less or   equal 1", false);
+                arguments("1 is no more than 1", true),
+                arguments("2 is \n no more   than 1", false),
 
-        assertToExpected("1 is no more than 1", true);
-        assertToExpected("2 is \n no more   than 1", false);
+                arguments("1 is in 1", true),
+                arguments("1 is \n     in 1", true),
 
-        assertToExpected("1 is in 1", true);
-        assertToExpected("1 is \n     in 1", true);
+                arguments("1 is more or equal 1", true),
+                arguments("1 is \n more or   equal 2", false),
 
-        assertToExpected("1 is more or equal 1", true);
-        assertToExpected("1 is \n more or   equal 2", false);
+                arguments("1 is no less than 1", true),
+                arguments("1 is \n no less     than 2", false));
+    }
 
-        assertToExpected("1 is no less than 1", true);
-        assertToExpected("1 is \n no less     than 2", false);
-
+    @ParameterizedTest
+    @MethodSource
+    void testRun(String expression, Object expected) {
+        assertToExpected(expression, expected);
     }
 
     @Test
@@ -208,7 +218,6 @@ class RunTest {
 
     @Test
     void testAggregate() {
-
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[2]", "aaa");
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[!@ startsWith(\"b\")]", "bb");
 
@@ -229,7 +238,10 @@ class RunTest {
 
         assertToExpected("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*@ substring(0,1)].length", 4);
         assertToExpected("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*!@ substring(0,1)].length", 2);
+    }
 
+    @Test
+    void testAggregateNamedElements() {
         // test named element
 
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; int x = 3; ary[(String s) @ length() == x][0]", "ddd");
@@ -256,7 +268,10 @@ class RunTest {
                 "Cannot cast 'java.lang.String' to 'java.util.Date'.");
 
         assertToExpected("String[] ary = {\"a\", \"b\",\"c\" ,\"a\",\"d\",\"b\",}; ary[(x)~@ x][(str)*@str[0]].length", 4);
+    }
 
+    @Test
+    void testAggregateLists() {
         // test lists
 
         assertToExpected(
@@ -297,7 +312,10 @@ class RunTest {
         assertToExpected(
                 "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *!@ substring(0,1).toLowerCase()].length",
                 2);
+    }
 
+    @Test
+    void testAggregateSpaces() {
         // Test spaces
         assertToExpected("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order by toString() ][0]", "aaba");
         assertToExpected("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      by toString() ][0]",

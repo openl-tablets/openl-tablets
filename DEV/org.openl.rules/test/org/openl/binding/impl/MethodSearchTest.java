@@ -1,9 +1,15 @@
 package org.openl.binding.impl;
 
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.binding.exception.AmbiguousMethodException;
 
@@ -79,39 +85,46 @@ class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M12", ForthClassWithMethods.class, "method3", null, null, null);
     }
 
-    @Test
-    void testMethodChoosingWithNullsVarArgs() throws AmbiguousMethodException {
-        assertInvoke("M12", ForthClassWithMethods.class, "method3");
-        assertInvoke("M13", ForthClassWithMethods.class, "method4", Integer.class);
-        assertNotFound(ForthClassWithMethods.class, "method5");
-        assertInvoke("M15-null", ForthClassWithMethods.class, "method6");
-        assertInvoke("M15-null", ForthClassWithMethods.class, "method6", new Class<?>[]{null});
-        assertInvoke("M15-2", ForthClassWithMethods.class, "method6", new Class<?>[]{null, null});
-        assertInvoke("M15-1", ForthClassWithMethods.class, "method6", String.class);
-        assertInvoke("M15-2", ForthClassWithMethods.class, "method6", String.class, String.class);
-        assertInvoke("M16", ForthClassWithMethods.class, "method7", Integer.class);
-        assertInvoke("M17-null", ForthClassWithMethods.class, "method8");
-        assertInvoke("M17-null", ForthClassWithMethods.class, "method8", new Class<?>[]{null});
-        assertInvoke("M17-2", ForthClassWithMethods.class, "method8", new Class<?>[]{null, null});
-        assertInvoke("M17-1", ForthClassWithMethods.class, "method8", String.class);
-        assertInvoke("M17-2", ForthClassWithMethods.class, "method8", String.class, String.class);
+    static Stream<Arguments> testMethodChoosingWithNullsVarArgs() {
+        return Stream.of(
+                arguments("M12", "method3", new Class<?>[]{}),
+                arguments("M13", "method4", new Class<?>[]{Integer.class}),
+                arguments(NF, "method5", new Class<?>[]{}),
+                arguments("M15-null", "method6", new Class<?>[]{}),
+                arguments("M15-null", "method6", new Class<?>[]{null}),
+                arguments("M15-2", "method6", new Class<?>[]{null, null}),
+                arguments("M15-1", "method6", new Class<?>[]{String.class}),
+                arguments("M15-2", "method6", new Class<?>[]{String.class, String.class}),
+                arguments("M16", "method7", new Class<?>[]{Integer.class}),
+                arguments("M17-null", "method8", new Class<?>[]{}),
+                arguments("M17-null", "method8", new Class<?>[]{null}),
+                arguments("M17-2", "method8", new Class<?>[]{null, null}),
+                arguments("M17-1", "method8", new Class<?>[]{String.class}),
+                arguments("M17-2", "method8", new Class<?>[]{String.class, String.class}),
 
-        assertInvoke("M21", ForthClassWithMethods.class, "method7");
-        assertInvoke("M19", ForthClassWithMethods.class, "method7", String.class);
+                arguments("M21", "method7", new Class<?>[]{}),
+                arguments("M19", "method7", new Class<?>[]{String.class}),
 
-        assertInvoke("M20", ForthClassWithMethods.class, "method7", String.class, String.class);
-        assertAmbiguous(ForthClassWithMethods.class, "method7", null, null);
-        assertInvoke("M19", ForthClassWithMethods.class, "method7", String.class, String.class, String.class);
+                arguments("M20", "method7", new Class<?>[]{String.class, String.class}),
+                arguments(AMB, "method7", new Class<?>[]{null, null}),
+                arguments("M19", "method7", new Class<?>[]{String.class, String.class, String.class}),
 
-        assertInvoke("M16", ForthClassWithMethods.class, "method7", Integer.class);
-        assertInvoke("M16", ForthClassWithMethods.class, "method7", Integer.class, String.class);
-        assertInvoke("M16", ForthClassWithMethods.class, "method7", Integer.class, String.class, String.class);
-        assertInvoke("M23", ForthClassWithMethods.class, "method9", String[].class, null);
-        assertInvoke("M25", ForthClassWithMethods.class, "method10", Double.class);
-        assertInvoke("M26", ForthClassWithMethods.class, "method11", new Class<?>[]{null, null});
-        assertInvoke("M27", ForthClassWithMethods.class, "method12", Integer[].class, Integer[].class);
-        assertInvoke("M28", ForthClassWithMethods.class, "method12", Integer[].class, String[].class);
-        assertNotFound(ForthClassWithMethods.class, "method6", Object.class);
+                arguments("M16", "method7", new Class<?>[]{Integer.class}),
+                arguments("M16", "method7", new Class<?>[]{Integer.class, String.class}),
+                arguments("M16", "method7", new Class<?>[]{Integer.class, String.class, String.class}),
+                arguments("M23", "method9", new Class<?>[]{String[].class, null}),
+                arguments("M25", "method10", new Class<?>[]{Double.class}),
+                arguments("M26", "method11", new Class<?>[]{null, null}),
+                arguments("M27", "method12", new Class<?>[]{Integer[].class, Integer[].class}),
+                arguments("M28", "method12", new Class<?>[]{Integer[].class, String[].class}),
+                arguments(NF, "method6", new Class<?>[]{Object.class}));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testMethodChoosingWithNullsVarArgs(Object expected, String methodName, Class<?>[] argTypes)
+            throws AmbiguousMethodException {
+        assertMethod(expected, ForthClassWithMethods.class, methodName, argTypes);
     }
 
     public static class ClassWithMethods {

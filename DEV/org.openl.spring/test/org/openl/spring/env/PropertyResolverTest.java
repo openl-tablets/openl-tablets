@@ -40,7 +40,10 @@ class PropertyResolverTest {
         assertEquals("v1", propertyResolver.getProperty("index"));
         assertEquals("Indexed", propertyResolver.getProperty("prop4"));
         assertNull(propertyResolver.getProperty("loop.v1.val"));
+    }
 
+    @Test
+    void testDependsOnSystemProperty() {
         assertEquals("NoDriver", propertyResolver.getProperty("database.driver"));
         System.setProperty("driver.type", "mssql");
         assertEquals("mssql.Driver", propertyResolver.getProperty("database.driver"));

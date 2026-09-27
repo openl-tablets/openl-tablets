@@ -3,152 +3,132 @@ package org.openl.binding.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class NumericComparableStringTest {
 
-    @Test
-    void testIncrementAndGet() {
-        var actual = increment("06400");
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("06401")));
-        assertEquals("06401", actual.toString());
-        assertEquals("06401", actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("06400")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("06402")));
-
-        actual = increment("A00000");
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("A00001")));
-        assertEquals("A00001", actual.toString());
-        assertEquals("A00001", actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A00000")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("A00002")));
-
-        actual = increment("A00000A");
-        var expectedStringValue = "A00000A" + Character.MIN_VALUE;
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf(expectedStringValue)));
-        assertEquals(expectedStringValue, actual.toString());
-        assertEquals(expectedStringValue, actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A00000A")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("A00000B")));
-
-        actual = increment("1111");
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("1112")));
-        assertEquals("1112", actual.toString());
-        assertEquals("1112", actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("1111")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("1113")));
-
-        actual = increment("000.000");
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("000.001")));
-        assertEquals("000.001", actual.toString());
-        assertEquals("000.001", actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("000.000")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("000.002")));
-
-        actual = increment("000.009");
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("000.010")));
-        assertEquals("000.010", actual.toString());
-        assertEquals("000.010", actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("000.009")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("000.011")));
-
-        actual = increment("000.099");
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("000.100")));
-        assertEquals("000.100", actual.toString());
-        assertEquals("000.100", actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("000.099")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("000.101")));
-
-        actual = increment("000.999");
-        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("000.1000")));
-        assertEquals("000.1000", actual.toString());
-        assertEquals("000.1000", actual.getValue());
-        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("000.999")));
-        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("000.1001")));
-
-
-        assertEquals(NumericComparableString.valueOf("abc9"), increment("abc8"));
-        assertEquals(NumericComparableString.valueOf("abc09"), increment("abc08"));
-        assertEquals(NumericComparableString.valueOf("abc10"), increment("abc9"));
-        assertEquals(NumericComparableString.valueOf("abc\u0000"), increment("abc"));
-        assertEquals(NumericComparableString.valueOf("\u0000"), increment(""));
-        assertEquals(NumericComparableString.valueOf("9"), increment("8"));
-        assertEquals(NumericComparableString.valueOf("10"), increment("9"));
-        assertEquals(NumericComparableString.valueOf("10"), increment("09"));
-        assertEquals(NumericComparableString.valueOf("010"), increment("009"));
-        assertEquals(NumericComparableString.valueOf("100"), increment("99"));
-        assertEquals(NumericComparableString.valueOf("99A\u0000"), increment("99A"));
-        assertEquals(NumericComparableString.valueOf("99 \u0000"), increment("99 "));
-        assertEquals(NumericComparableString.valueOf("991"), increment("990"));
-        assertEquals(NumericComparableString.valueOf("1"), increment("0"));
-        assertEquals(NumericComparableString.valueOf("001"), increment("000"));
-
+    static Stream<Arguments> testIncrementAndGet() {
+        return Stream.of(
+                arguments("06400", "06401", "06402"),
+                arguments("A00000", "A00001", "A00002"),
+                arguments("A00000A", "A00000A" + Character.MIN_VALUE, "A00000B"),
+                arguments("1111", "1112", "1113"),
+                arguments("000.000", "000.001", "000.002"),
+                arguments("000.009", "000.010", "000.011"),
+                arguments("000.099", "000.100", "000.101"),
+                arguments("000.999", "000.1000", "000.1001"));
     }
 
-    @Test
-    void testCompare() {
+    @ParameterizedTest
+    @MethodSource
+    void testIncrementAndGet(String value, String expected, String greater) {
+        var actual = increment(value);
+        assertEquals(0, actual.compareTo(NumericComparableString.valueOf(expected)));
+        assertEquals(expected, actual.toString());
+        assertEquals(expected, actual.getValue());
+        assertEquals(1, actual.compareTo(NumericComparableString.valueOf(value)));
+        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf(greater)));
+    }
 
-        assertTrue(compare("A07B", "A7A") > 0);
-        assertTrue(compare("A07B", "A07A") > 0);
+    static Stream<Arguments> testIncrement() {
+        return Stream.of(
+                arguments("abc8", "abc9"),
+                arguments("abc08", "abc09"),
+                arguments("abc9", "abc10"),
+                arguments("abc", "abc\u0000"),
+                arguments("", "\u0000"),
+                arguments("8", "9"),
+                arguments("9", "10"),
+                arguments("09", "10"),
+                arguments("009", "010"),
+                arguments("99", "100"),
+                arguments("99A", "99A\u0000"),
+                arguments("99 ", "99 \u0000"),
+                arguments("990", "991"),
+                arguments("0", "1"),
+                arguments("000", "001"));
+    }
 
-        assertTrue(compare("A07B", "A06") > 0);
-        assertTrue(compare("A07B", "A6") > 0);
+    @ParameterizedTest
+    @MethodSource
+    void testIncrement(String value, String expected) {
+        assertEquals(NumericComparableString.valueOf(expected), increment(value));
+    }
 
-        assertTrue(compare("A07B", "A07") > 0);
-        assertTrue(compare("A07B", "A7") > 0);
+    static Stream<Arguments> testCompare() {
+        return Stream.of(
+                arguments("A07B", "A7A", 1),
+                arguments("A07B", "A07A", 1),
 
-        assertEquals(0, compare("A07B", "A7B"));
-        assertEquals(0, compare("A07B", "A07B"));
+                arguments("A07B", "A06", 1),
+                arguments("A07B", "A6", 1),
 
-        assertTrue(compare("A07B", "A08") < 0);
-        assertTrue(compare("A07B", "A8") < 0);
+                arguments("A07B", "A07", 1),
+                arguments("A07B", "A7", 1),
 
-        assertTrue(compare("A07B", "A7C") < 0);
-        assertTrue(compare("A07B", "A07C") < 0);
+                arguments("A07B", "A7B", 0),
+                arguments("A07B", "A07B", 0),
 
-        assertEquals(0, compare("", ""));
-        assertTrue(compare(" ", "") > 0);
-        assertTrue(compare("", " ") < 0);
+                arguments("A07B", "A08", -1),
+                arguments("A07B", "A8", -1),
 
-        assertEquals(0, compare(" ", " "));
-        assertTrue(compare(" ", "  ") < 0);
-        assertTrue(compare("  ", " ") > 0);
+                arguments("A07B", "A7C", -1),
+                arguments("A07B", "A07C", -1),
 
-        assertEquals(0, compare("0", "0"));
-        assertEquals(0, compare("0", "00"));
-        assertEquals(0, compare("00", "0"));
+                arguments("", "", 0),
+                arguments(" ", "", 1),
+                arguments("", " ", -1),
 
-        assertTrue(compare("A", "0") > 0);
-        assertTrue(compare("0", "A") < 0);
-        assertTrue(compare("AA", "A") > 0);
-        assertTrue(compare("A", "AA") < 0);
-        assertEquals(0, compare("A", "A"));
+                arguments(" ", " ", 0),
+                arguments(" ", "  ", -1),
+                arguments("  ", " ", 1),
 
-        assertEquals(0, compare("0A", "00A"));
-        assertTrue(compare("0A", "A") < 0);
-        assertTrue(compare("1A", "0A") > 0);
-        assertTrue(compare("A", "0") > 0);
-        assertEquals(0, compare("A0", "A00"));
-        assertEquals(0, compare("A1", "A01"));
-        assertTrue(compare("A1", "A10") < 0);
-        assertTrue(compare("A2", "A10") < 0);
-        assertTrue(compare("A2A", "A10") < 0);
-        assertTrue(compare("A2A", "A1B") > 0);
-        assertTrue(compare("2A2", "2A3") < 0);
-        assertTrue(compare("2A20", "2A3") > 0);
-        assertTrue(compare("20A4", "3A50") > 0);
-        assertTrue(compare("005A4", "4B0") > 0);
-        assertTrue(compare("0.0", "0.01") < 0);
-        assertTrue(compare("0.10", "0.01") > 0);
-        assertTrue(compare("01.2", "1.01") > 0);
-        assertTrue(compare("01.02", "1.01") > 0);
-        assertTrue(compare("01.002", "1.01") > 0);
-        assertTrue(compare("01.002", ".01") > 0);
-        assertTrue(compare("01A002", "A01") < 0);
-        assertEquals(0, compare("0.1", "0.01"));
+                arguments("0", "0", 0),
+                arguments("0", "00", 0),
+                arguments("00", "0", 0),
 
-        assertTrue(compare("0", "0 - 24") < 0);
+                arguments("A", "0", 1),
+                arguments("0", "A", -1),
+                arguments("AA", "A", 1),
+                arguments("A", "AA", -1),
+                arguments("A", "A", 0),
+
+                arguments("0A", "00A", 0),
+                arguments("0A", "A", -1),
+                arguments("1A", "0A", 1),
+                arguments("A", "0", 1),
+                arguments("A0", "A00", 0),
+                arguments("A1", "A01", 0),
+                arguments("A1", "A10", -1),
+                arguments("A2", "A10", -1),
+                arguments("A2A", "A10", -1),
+                arguments("A2A", "A1B", 1),
+                arguments("2A2", "2A3", -1),
+                arguments("2A20", "2A3", 1),
+                arguments("20A4", "3A50", 1),
+                arguments("005A4", "4B0", 1),
+                arguments("0.0", "0.01", -1),
+                arguments("0.10", "0.01", 1),
+                arguments("01.2", "1.01", 1),
+                arguments("01.02", "1.01", 1),
+                arguments("01.002", "1.01", 1),
+                arguments("01.002", ".01", 1),
+                arguments("01A002", "A01", -1),
+                arguments("0.1", "0.01", 0),
+
+                arguments("0", "0 - 24", -1));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testCompare(String left, String right, int expectedSign) {
+        assertEquals(expectedSign, Integer.signum(compare(left, right)));
     }
 
     private NumericComparableString increment(String value) {

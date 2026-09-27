@@ -55,8 +55,11 @@ class FieldDescriptorTest {
         assertNull(descriptors.getFirst().getChildren());
         assertEquals("values", descriptors.get(1).getField().getName());
         assertNull(descriptors.get(1).getChildren());
+    }
 
-        descriptors = FieldDescriptor.nonEmptyFields(bType, asList(null, B2, B1), true);
+    @Test
+    void nestedFields() {
+        var descriptors = FieldDescriptor.nonEmptyFields(bType, asList(null, B2, B1), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
         assertEquals("id", descriptors.getFirst().getField().getName());
@@ -69,12 +72,15 @@ class FieldDescriptorTest {
         assertNull(children.getFirst().getChildren());
         assertEquals("values", children.get(1).getField().getName());
         assertNull(children.get(1).getChildren());
+    }
 
-        descriptors = FieldDescriptor.nonEmptyFields(cType, List.of(C1), true);
+    @Test
+    void nestedFieldsOfSameType() {
+        var descriptors = FieldDescriptor.nonEmptyFields(cType, List.of(C1), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
         assertEquals("filed1", descriptors.getFirst().getField().getName());
-        children = descriptors.getFirst().getChildren();
+        var children = descriptors.getFirst().getChildren();
         assertNotNull(children);
         assertEquals(1, children.size());
         assertEquals("name", children.getFirst().getField().getName());

@@ -1,5 +1,6 @@
 package org.openl.rules.operator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class ComparisonTest {
 
@@ -587,56 +590,45 @@ class ComparisonTest {
         assertFalse(Comparison.eq(nil, pos));
     }
 
-    @Test
-    void testBigDecimalEqUlp() {
-        final BigDecimal zero = BigDecimal.ZERO;
-        final BigDecimal a = new BigDecimal("0.00000050");
-        final BigDecimal b = new BigDecimal("0.0000005");
-        final BigDecimal c = new BigDecimal("0.00000049");
-        final BigDecimal ma = a.negate();
-        final BigDecimal mb = b.negate();
-        final BigDecimal mc = c.negate();
-        final BigDecimal b2 = new BigDecimal("0.000005");
-        final BigDecimal c2 = new BigDecimal("0.0000049");
+    @ParameterizedTest(name = "eq({0}, {1}) = {2}")
+    @CsvSource({
+            "0.00000050, 0.0000005, true",
+            "0.0000005, 0.00000050, true",
+            "-0.00000050, -0.0000005, true",
+            "-0.0000005, -0.00000050, true",
 
-        final BigDecimal b3 = new BigDecimal("0.00005");
-        final BigDecimal c3 = new BigDecimal("0.000049");
+            "0.0000005, 0.00000049, true",
+            "0.00000049, 0.0000005, true",
+            "-0.0000005, -0.00000049, true",
+            "-0.00000049, -0.0000005, true",
 
-        assertTrue(Comparison.eq(a, b));
-        assertTrue(Comparison.eq(b, a));
-        assertTrue(Comparison.eq(ma, mb));
-        assertTrue(Comparison.eq(mb, ma));
+            "0.00000050, 0.00000049, false",
+            "0.00000049, 0.00000050, false",
+            "-0.00000050, -0.00000049, false",
+            "-0.00000049, -0.00000050, false",
 
-        assertTrue(Comparison.eq(b, c));
-        assertTrue(Comparison.eq(c, b));
-        assertTrue(Comparison.eq(mb, mc));
-        assertTrue(Comparison.eq(mc, mb));
+            "0.00000050, 0, false",
+            "0, 0.00000050, false",
+            "-0.00000050, 0, false",
+            "0, -0.00000050, false",
 
-        assertFalse(Comparison.eq(a, c));
-        assertFalse(Comparison.eq(c, a));
-        assertFalse(Comparison.eq(ma, mc));
-        assertFalse(Comparison.eq(mc, ma));
+            "0.0000005, 0, false",
+            "0, 0.0000005, false",
+            "-0.0000005, 0, false",
+            "0, -0.0000005, false",
 
-        assertFalse(Comparison.eq(a, zero));
-        assertFalse(Comparison.eq(zero, a));
-        assertFalse(Comparison.eq(ma, zero));
-        assertFalse(Comparison.eq(zero, ma));
+            "0.00000049, 0, true",
+            "0, 0.00000049, true",
+            "-0.00000049, 0, true",
+            "0, -0.00000049, true",
 
-        assertFalse(Comparison.eq(b, zero));
-        assertFalse(Comparison.eq(zero, b));
-        assertFalse(Comparison.eq(mb, zero));
-        assertFalse(Comparison.eq(zero, mb));
+            "0.000005, 0.0000049, true",
+            "0.0000049, 0.000005, true",
 
-        assertTrue(Comparison.eq(c, zero));
-        assertTrue(Comparison.eq(zero, c));
-        assertTrue(Comparison.eq(mc, zero));
-        assertTrue(Comparison.eq(zero, mc));
-
-        assertTrue(Comparison.eq(b2, c2));
-        assertTrue(Comparison.eq(c2, b2));
-
-        assertFalse(Comparison.eq(b3, c3));
-        assertFalse(Comparison.eq(c3, b3));
+            "0.00005, 0.000049, false",
+            "0.000049, 0.00005, false"})
+    void testBigDecimalEqUlp(BigDecimal x, BigDecimal y, boolean expected) {
+        assertEquals(expected, Comparison.eq(x, y));
     }
 
     @Test

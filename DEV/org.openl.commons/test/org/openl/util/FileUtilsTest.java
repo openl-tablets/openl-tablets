@@ -15,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
  * Created by ymolchan on 12.10.2015.
@@ -153,150 +155,130 @@ class FileUtilsTest {
     }
 
     @Test
-    void testPathMatches() {
-        // Test null parameters
+    void testPathMatchesNullArguments() {
         assertThrows(NullPointerException.class, () -> FileUtils.pathMatches(null, "test"));
         assertThrows(NullPointerException.class, () -> FileUtils.pathMatches("test", null));
         assertThrows(NullPointerException.class, () -> FileUtils.pathMatches(null, null));
+    }
 
-        // Test single character wildcard (?)
-        assertTrue(FileUtils.pathMatches("com/t?st.jsp", "com/test.jsp"));
-        assertTrue(FileUtils.pathMatches("com/t?st.jsp", "com/tast.jsp"));
-        assertFalse(FileUtils.pathMatches("com/t?st.jsp", "com/toast.jsp"));
-        assertFalse(FileUtils.pathMatches("com/t?st.jsp", "com/test.jspx"));
-
-        // Test single asterisk wildcard (*)
-        assertTrue(FileUtils.pathMatches("com/*.jsp", "com/index.jsp"));
-        assertTrue(FileUtils.pathMatches("com/*.jsp", "com/test.jsp"));
-        assertFalse(FileUtils.pathMatches("com/*.jsp", "com/project/index.jsp"));
-        assertFalse(FileUtils.pathMatches("com/*.jsp", "com/index.html"));
-
-        // Test double asterisk wildcard (**)
-        assertFalse(FileUtils.pathMatches("com/**/storage", "com/index.jsp"));
-        assertTrue(FileUtils.pathMatches("com/**/storage", "com/project/internal/storage"));
-        assertTrue(FileUtils.pathMatches("com/**/storage", "com/project/storage"));
-        assertTrue(FileUtils.pathMatches("com/**/storage", "com/storage"));
-        assertFalse(FileUtils.pathMatches("com/**/storage", "com/storage/file.txt"));
-
-        // Test mixed patterns
-        assertTrue(FileUtils.pathMatches("src/**/*.java", "src/main/java/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/**/*.java", "src/test/java/MyTest.java"));
-        assertTrue(FileUtils.pathMatches("src/**/*.java", "src/MyTest.java"));
-        assertFalse(FileUtils.pathMatches("src/**/*.java", "test/MyTest.java"));
-        assertFalse(FileUtils.pathMatches("src/**/*.java", "src/MyTest.java/META-INF"));
-
-        // Test specific file patterns
-        assertTrue(FileUtils.pathMatches("**/*Test.java", "src/test/java/MyTest.java"));
-        assertTrue(FileUtils.pathMatches("**/*Test.java", "test/MyTest.java"));
-        assertFalse(FileUtils.pathMatches("**/*Test.java", "test/MyTest.java/META-INF"));
-        assertFalse(FileUtils.pathMatches("**/*Test.java", "src/main/java/MyClass.java"));
-
-        // Test directory-specific patterns
-        assertTrue(FileUtils.pathMatches("**/config/*.yml", "src/main/resources/config/application.yml"));
-        assertTrue(FileUtils.pathMatches("**/config/*.yml", "config/database.yml"));
-        assertFalse(FileUtils.pathMatches("**/config/*.yml", "src/main/resources/application.yml"));
-        assertFalse(FileUtils.pathMatches("**/config/*.yml", "src/config/resources/application.yml"));
-
-        // Test single character wildcard in specific positions
-        assertTrue(FileUtils.pathMatches("src/main/java/com/example/MyClass?.java", "src/main/java/com/example/MyClass1.java"));
-        assertTrue(FileUtils.pathMatches("src/main/java/com/example/MyClass?.java", "src/main/java/com/example/MyClassA.java"));
-        assertFalse(FileUtils.pathMatches("src/main/java/com/example/MyClass?.java", "src/main/java/com/example/MyClass.java"));
-
-        // Test path separator normalization
-        assertTrue(FileUtils.pathMatches("src\\**\\*.java", "src/main/java/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/**/*.java", "src\\main\\java\\com\\example\\MyClass.java"));
-
-        // Test edge cases
-        assertTrue(FileUtils.pathMatches("*.java", "MyClass.java"));
-        assertFalse(FileUtils.pathMatches("*.java", "MyClass.class"));
-        assertTrue(FileUtils.pathMatches("**/*", "any/path/file.txt"));
-        assertTrue(FileUtils.pathMatches("**/*", "file.txt"));
-        assertTrue(FileUtils.pathMatches("**/*", "a/b/c/d/e/f.txt"));
-
-        // Test exact matches
-        assertTrue(FileUtils.pathMatches("exact/path/file.txt", "exact/path/file.txt"));
-        assertFalse(FileUtils.pathMatches("exact/path/file.txt", "exact/path/file.txtx"));
-
-        // Test patterns with dots (should be escaped)
-        assertTrue(FileUtils.pathMatches("src/**/*.properties", "src/main/resources/application.properties"));
-        assertFalse(FileUtils.pathMatches("src/**/*.properties", "src/main/resources/application_properties"));
-
-        // Test patterns with regex special characters
-        assertTrue(FileUtils.pathMatches("src/**/test[1].java", "src/test/java/test[1].java"));
-        assertTrue(FileUtils.pathMatches("src/**/test(1).java", "src/test/java/test(1).java"));
-        assertTrue(FileUtils.pathMatches("src/**/test{1}.java", "src/test/java/test{1}.java"));
-
-        // Test complex nested patterns
-        assertTrue(FileUtils.pathMatches("src/**/util/**/*.java", "src/main/java/com/example/util/helper/Helper.java"));
-        assertTrue(FileUtils.pathMatches("src/**/util/**/*.java", "src/main/java/util/Utils.java"));
-        assertTrue(FileUtils.pathMatches("src/**/util/**/*.java", "src/util/java/example/Utils.java"));
-        assertFalse(FileUtils.pathMatches("src/**/util/**/*.java", "src/main/java/com/example/helper/Helper.java"));
-
-        // Test patterns with multiple wildcards
-        assertTrue(FileUtils.pathMatches("src/**/test/**/*Test.java", "src/test/java/com/example/MyTest.java"));
-        assertTrue(FileUtils.pathMatches("src/**/test/**/*Test.java", "src/test/java/MyTest.java"));
-        assertFalse(FileUtils.pathMatches("src/**/test/**/*Test.java", "src/main/java/MyClass.java"));
-
-        // Test single asterisk in folder paths
-        assertTrue(FileUtils.pathMatches("src/*/java/*.java", "src/main/java/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/*/java/*.java", "src/test/java/MyTest.java"));
-        assertFalse(FileUtils.pathMatches("src/*/java/*.java", "src/main/java/com/example/MyClass.java"));
-        assertFalse(FileUtils.pathMatches("src/*/java/*.java", "src/main/resources/application.properties"));
-
-        // Test single asterisk in multiple folder levels
-        assertTrue(FileUtils.pathMatches("src/*/java/*/example/*.java", "src/main/java/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/*/java/*/example/*.java", "src/test/java/org/example/MyTest.java"));
-        assertFalse(FileUtils.pathMatches("src/*/java/*/example/*.java", "src/main/java/com/example/util/Helper.java"));
-
-        // Test single asterisk with specific folder names
-        assertTrue(FileUtils.pathMatches("src/*/java/com/*.java", "src/main/java/com/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/*/java/com/*.java", "src/test/java/com/MyTest.java"));
-        assertFalse(FileUtils.pathMatches("src/*/java/com/*.java", "src/main/java/org/MyClass.java"));
-
-        // Test ** preceded by specific symbols/characters
-        assertTrue(FileUtils.pathMatches("src/main/**/*.java", "src/main/java/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/main/**/*.java", "src/main/resources/config/MyClass.java"));
-        assertFalse(FileUtils.pathMatches("src/main/**/*.java", "src/test/java/MyTest.java"));
-
-        // Test ** preceded by folder name with special characters
-        assertTrue(FileUtils.pathMatches("src/main-java/**/*.java", "src/main-java/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/main-java/**/*.java", "src/main-java/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/main-java/**/*.java", "src/main/java/MyClass.java"));
-
-        // Test ** preceded by underscore
-        assertTrue(FileUtils.pathMatches("src/main_java/**/*.java", "src/main_java/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/main_java/**/*.java", "src/main_java/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/main_java/**/*.java", "src/main/java/MyClass.java"));
-
-        // Test ** preceded by numbers
-        assertTrue(FileUtils.pathMatches("src/1.0/**/*.java", "src/1.0/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/1.0/**/*.java", "src/1.0/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/1.0/**/*.java", "src/2.0/com/example/MyClass.java"));
-
-        // Test ** preceded by dot
-        assertTrue(FileUtils.pathMatches("src/.hidden/**/*.java", "src/.hidden/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/.hidden/**/*.java", "src/.hidden/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/.hidden/**/*.java", "src/visible/com/example/MyClass.java"));
-
-        // Test ** preceded by multiple characters
-        assertTrue(FileUtils.pathMatches("src/main-java-1.0/**/*.java", "src/main-java-1.0/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/main-java-1.0/**/*.java", "src/main-java-1.0/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/main-java-1.0/**/*.java", "src/main-java-2.0/com/example/MyClass.java"));
-
-        // Test ** preceded by regex special characters (should be escaped)
-        assertTrue(FileUtils.pathMatches("src/test[1]/**/*.java", "src/test[1]/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/test[1]/**/*.java", "src/test[1]/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/test[1]/**/*.java", "src/test[2]/com/example/MyClass.java"));
-
-        // Test ** preceded by parentheses
-        assertTrue(FileUtils.pathMatches("src/(main)/**/*.java", "src/(main)/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/(main)/**/*.java", "src/(main)/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/(main)/**/*.java", "src/main/com/example/MyClass.java"));
-
-        // Test ** preceded by curly braces
-        assertTrue(FileUtils.pathMatches("src/{main}/**/*.java", "src/{main}/com/example/MyClass.java"));
-        assertTrue(FileUtils.pathMatches("src/{main}/**/*.java", "src/{main}/util/Helper.java"));
-        assertFalse(FileUtils.pathMatches("src/{main}/**/*.java", "src/main/com/example/MyClass.java"));
+    @ParameterizedTest(name = "pathMatches({0}, {1}) = {2}")
+    @CsvSource(delimiter = '|', textBlock = """
+            # Test single character wildcard (?)
+            com/t?st.jsp                            | com/test.jsp                                      | true
+            com/t?st.jsp                            | com/tast.jsp                                      | true
+            com/t?st.jsp                            | com/toast.jsp                                     | false
+            com/t?st.jsp                            | com/test.jspx                                     | false
+            # Test single asterisk wildcard (*)
+            com/*.jsp                               | com/index.jsp                                     | true
+            com/*.jsp                               | com/test.jsp                                      | true
+            com/*.jsp                               | com/project/index.jsp                             | false
+            com/*.jsp                               | com/index.html                                    | false
+            # Test double asterisk wildcard (**)
+            com/**/storage                          | com/index.jsp                                     | false
+            com/**/storage                          | com/project/internal/storage                      | true
+            com/**/storage                          | com/project/storage                               | true
+            com/**/storage                          | com/storage                                       | true
+            com/**/storage                          | com/storage/file.txt                              | false
+            # Test mixed patterns
+            src/**/*.java                           | src/main/java/com/example/MyClass.java            | true
+            src/**/*.java                           | src/test/java/MyTest.java                         | true
+            src/**/*.java                           | src/MyTest.java                                   | true
+            src/**/*.java                           | test/MyTest.java                                  | false
+            src/**/*.java                           | src/MyTest.java/META-INF                          | false
+            # Test specific file patterns
+            **/*Test.java                           | src/test/java/MyTest.java                         | true
+            **/*Test.java                           | test/MyTest.java                                  | true
+            **/*Test.java                           | test/MyTest.java/META-INF                         | false
+            **/*Test.java                           | src/main/java/MyClass.java                        | false
+            # Test directory-specific patterns
+            **/config/*.yml                         | src/main/resources/config/application.yml         | true
+            **/config/*.yml                         | config/database.yml                               | true
+            **/config/*.yml                         | src/main/resources/application.yml                | false
+            **/config/*.yml                         | src/config/resources/application.yml              | false
+            # Test single character wildcard in specific positions
+            src/main/java/com/example/MyClass?.java | src/main/java/com/example/MyClass1.java           | true
+            src/main/java/com/example/MyClass?.java | src/main/java/com/example/MyClassA.java           | true
+            src/main/java/com/example/MyClass?.java | src/main/java/com/example/MyClass.java            | false
+            # Test path separator normalization
+            src\\**\\*.java                         | src/main/java/com/example/MyClass.java            | true
+            src/**/*.java                           | src\\main\\java\\com\\example\\MyClass.java       | true
+            # Test edge cases
+            *.java                                  | MyClass.java                                      | true
+            *.java                                  | MyClass.class                                     | false
+            **/*                                    | any/path/file.txt                                 | true
+            **/*                                    | file.txt                                          | true
+            **/*                                    | a/b/c/d/e/f.txt                                   | true
+            # Test exact matches
+            exact/path/file.txt                     | exact/path/file.txt                               | true
+            exact/path/file.txt                     | exact/path/file.txtx                              | false
+            # Test patterns with dots (should be escaped)
+            src/**/*.properties                     | src/main/resources/application.properties         | true
+            src/**/*.properties                     | src/main/resources/application_properties         | false
+            # Test patterns with regex special characters
+            src/**/test[1].java                     | src/test/java/test[1].java                        | true
+            src/**/test(1).java                     | src/test/java/test(1).java                        | true
+            src/**/test{1}.java                     | src/test/java/test{1}.java                        | true
+            # Test complex nested patterns
+            src/**/util/**/*.java                   | src/main/java/com/example/util/helper/Helper.java | true
+            src/**/util/**/*.java                   | src/main/java/util/Utils.java                     | true
+            src/**/util/**/*.java                   | src/util/java/example/Utils.java                  | true
+            src/**/util/**/*.java                   | src/main/java/com/example/helper/Helper.java      | false
+            # Test patterns with multiple wildcards
+            src/**/test/**/*Test.java               | src/test/java/com/example/MyTest.java             | true
+            src/**/test/**/*Test.java               | src/test/java/MyTest.java                         | true
+            src/**/test/**/*Test.java               | src/main/java/MyClass.java                        | false
+            # Test single asterisk in folder paths
+            src/*/java/*.java                       | src/main/java/MyClass.java                        | true
+            src/*/java/*.java                       | src/test/java/MyTest.java                         | true
+            src/*/java/*.java                       | src/main/java/com/example/MyClass.java            | false
+            src/*/java/*.java                       | src/main/resources/application.properties         | false
+            # Test single asterisk in multiple folder levels
+            src/*/java/*/example/*.java             | src/main/java/com/example/MyClass.java            | true
+            src/*/java/*/example/*.java             | src/test/java/org/example/MyTest.java             | true
+            src/*/java/*/example/*.java             | src/main/java/com/example/util/Helper.java        | false
+            # Test single asterisk with specific folder names
+            src/*/java/com/*.java                   | src/main/java/com/MyClass.java                    | true
+            src/*/java/com/*.java                   | src/test/java/com/MyTest.java                     | true
+            src/*/java/com/*.java                   | src/main/java/org/MyClass.java                    | false
+            # Test ** preceded by specific symbols/characters
+            src/main/**/*.java                      | src/main/java/com/example/MyClass.java            | true
+            src/main/**/*.java                      | src/main/resources/config/MyClass.java            | true
+            src/main/**/*.java                      | src/test/java/MyTest.java                         | false
+            # Test ** preceded by folder name with special characters
+            src/main-java/**/*.java                 | src/main-java/com/example/MyClass.java            | true
+            src/main-java/**/*.java                 | src/main-java/util/Helper.java                    | true
+            src/main-java/**/*.java                 | src/main/java/MyClass.java                        | false
+            # Test ** preceded by underscore
+            src/main_java/**/*.java                 | src/main_java/com/example/MyClass.java            | true
+            src/main_java/**/*.java                 | src/main_java/util/Helper.java                    | true
+            src/main_java/**/*.java                 | src/main/java/MyClass.java                        | false
+            # Test ** preceded by numbers
+            src/1.0/**/*.java                       | src/1.0/com/example/MyClass.java                  | true
+            src/1.0/**/*.java                       | src/1.0/util/Helper.java                          | true
+            src/1.0/**/*.java                       | src/2.0/com/example/MyClass.java                  | false
+            # Test ** preceded by dot
+            src/.hidden/**/*.java                   | src/.hidden/com/example/MyClass.java              | true
+            src/.hidden/**/*.java                   | src/.hidden/util/Helper.java                      | true
+            src/.hidden/**/*.java                   | src/visible/com/example/MyClass.java              | false
+            # Test ** preceded by multiple characters
+            src/main-java-1.0/**/*.java             | src/main-java-1.0/com/example/MyClass.java        | true
+            src/main-java-1.0/**/*.java             | src/main-java-1.0/util/Helper.java                | true
+            src/main-java-1.0/**/*.java             | src/main-java-2.0/com/example/MyClass.java        | false
+            # Test ** preceded by regex special characters (should be escaped)
+            src/test[1]/**/*.java                   | src/test[1]/com/example/MyClass.java              | true
+            src/test[1]/**/*.java                   | src/test[1]/util/Helper.java                      | true
+            src/test[1]/**/*.java                   | src/test[2]/com/example/MyClass.java              | false
+            # Test ** preceded by parentheses
+            src/(main)/**/*.java                    | src/(main)/com/example/MyClass.java               | true
+            src/(main)/**/*.java                    | src/(main)/util/Helper.java                       | true
+            src/(main)/**/*.java                    | src/main/com/example/MyClass.java                 | false
+            # Test ** preceded by curly braces
+            src/{main}/**/*.java                    | src/{main}/com/example/MyClass.java               | true
+            src/{main}/**/*.java                    | src/{main}/util/Helper.java                       | true
+            src/{main}/**/*.java                    | src/main/com/example/MyClass.java                 | false
+            """)
+    void testPathMatches(String pattern, String path, boolean matches) {
+        assertEquals(matches, FileUtils.pathMatches(pattern, path));
     }
 
     @Test

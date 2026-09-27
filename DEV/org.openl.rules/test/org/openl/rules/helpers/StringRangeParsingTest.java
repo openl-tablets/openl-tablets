@@ -5,184 +5,201 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.rules.range.Range;
 
 class StringRangeParsingTest {
 
-    @Test
-    void testToString() {
-        assertEquals("B", new StringRange("B").toString());
+    static Stream<Arguments> testToString() {
+        return Stream.of(
+                arguments("B", "B"),
 
-        assertEquals("[AA..ZZ]", new StringRange("AA-ZZ").toString());
-        assertEquals("[AA..ZZ]", new StringRange("AA..ZZ").toString());
-        assertEquals("(AA..ZZ)", new StringRange("AA … ZZ").toString());
-        assertEquals("(AA..ZZ)", new StringRange("AA ... ZZ").toString());
+                arguments("AA-ZZ", "[AA..ZZ]"),
+                arguments("AA..ZZ", "[AA..ZZ]"),
+                arguments("AA … ZZ", "(AA..ZZ)"),
+                arguments("AA ... ZZ", "(AA..ZZ)"),
 
-        assertEquals("[AA..ZZ]", new StringRange("[AA; ZZ]").toString());
-        assertEquals("(AA..ZZ]", new StringRange("(AA;ZZ]").toString());
-        assertEquals("[AA..ZZ)", new StringRange("[AA; ZZ)").toString());
-        assertEquals("(AA..ZZ)", new StringRange("(AA; ZZ)").toString());
+                arguments("[AA; ZZ]", "[AA..ZZ]"),
+                arguments("(AA;ZZ]", "(AA..ZZ]"),
+                arguments("[AA; ZZ)", "[AA..ZZ)"),
+                arguments("(AA; ZZ)", "(AA..ZZ)"),
 
-        assertEquals("(AA..ZZ)", new StringRange("(AA .. ZZ)").toString());
-        assertEquals("[AA..ZZ]", new StringRange("[AA .. ZZ]").toString());
-        assertEquals("(AA..ZZ]", new StringRange("(AA .. ZZ]").toString());
-        assertEquals("[AA..ZZ)", new StringRange("[AA .. ZZ)").toString());
+                arguments("(AA .. ZZ)", "(AA..ZZ)"),
+                arguments("[AA .. ZZ]", "[AA..ZZ]"),
+                arguments("(AA .. ZZ]", "(AA..ZZ]"),
+                arguments("[AA .. ZZ)", "[AA..ZZ)"),
 
-        assertEquals(">= AA", new StringRange("AA and more").toString());
-        assertEquals("<= AA", new StringRange("AA or less").toString());
+                arguments("AA and more", ">= AA"),
+                arguments("AA or less", "<= AA"),
 
-        assertEquals("> AA", new StringRange("more than AA").toString());
-        assertEquals("< ZZ", new StringRange("less than ZZ").toString());
+                arguments("more than AA", "> AA"),
+                arguments("less than ZZ", "< ZZ"),
 
-        assertEquals(">= AA", new StringRange(">= AA").toString());
-        assertEquals("<= AA", new StringRange("<= AA").toString());
+                arguments(">= AA", ">= AA"),
+                arguments("<= AA", "<= AA"),
 
-        assertEquals("> AA", new StringRange("> AA").toString());
-        assertEquals("< ZZ", new StringRange("< ZZ").toString());
-        assertEquals(">= AA", new StringRange("AA+").toString());
+                arguments("> AA", "> AA"),
+                arguments("< ZZ", "< ZZ"),
+                arguments("AA+", ">= AA"),
 
-        assertEquals("[AA..ZZ]", new StringRange(">=AA <=ZZ").toString());
-        assertEquals("[AA..ZZ]", new StringRange("<=ZZ >=AA").toString());
+                arguments(">=AA <=ZZ", "[AA..ZZ]"),
+                arguments("<=ZZ >=AA", "[AA..ZZ]"),
 
-        assertEquals("[AA..ZZ)", new StringRange(">=AA <ZZ").toString());
-        assertEquals("[AA..ZZ)", new StringRange("<ZZ >=AA").toString());
+                arguments(">=AA <ZZ", "[AA..ZZ)"),
+                arguments("<ZZ >=AA", "[AA..ZZ)"),
 
-        assertEquals("(AA..ZZ]", new StringRange(">AA <=ZZ").toString());
-        assertEquals("(AA..ZZ]", new StringRange("<=ZZ >AA").toString());
+                arguments(">AA <=ZZ", "(AA..ZZ]"),
+                arguments("<=ZZ >AA", "(AA..ZZ]"),
 
-        assertEquals("(AA..ZZ)", new StringRange(">AA <ZZ").toString());
-        assertEquals("(AA..ZZ)", new StringRange("<ZZ >AA").toString());
+                arguments(">AA <ZZ", "(AA..ZZ)"),
+                arguments("<ZZ >AA", "(AA..ZZ)"));
     }
 
-    @Test
-    void testToStringWhitespaces() {
-        // Part 1
-        assertEquals("[A  A..Z  Z]", new StringRange("A  A-Z  Z").toString());
-        assertEquals("[A  A..Z  Z]", new StringRange("A  A..Z  Z").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("A  A … Z  Z").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("A  A ... Z  Z").toString());
+    @ParameterizedTest
+    @MethodSource
+    void testToString(String range, String expected) {
+        assertEquals(expected, new StringRange(range).toString());
+    }
 
-        assertEquals("[A  A..Z  Z]", new StringRange("[A  A; Z  Z]").toString());
-        assertEquals("(A  A..Z  Z]", new StringRange("(A  A;Z  Z]").toString());
-        assertEquals("[A  A..Z  Z)", new StringRange("[A  A; Z  Z)").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("(A  A; Z  Z)").toString());
+    static Stream<Arguments> testToStringWhitespaces() {
+        return Stream.of(
+                // Part 1
+                arguments("A  A-Z  Z", "[A  A..Z  Z]"),
+                arguments("A  A..Z  Z", "[A  A..Z  Z]"),
+                arguments("A  A … Z  Z", "(A  A..Z  Z)"),
+                arguments("A  A ... Z  Z", "(A  A..Z  Z)"),
 
-        assertEquals("(A  A..Z  Z)", new StringRange("(A  A .. Z  Z)").toString());
-        assertEquals("[A  A..Z  Z]", new StringRange("[A  A .. Z  Z]").toString());
-        assertEquals("(A  A..Z  Z]", new StringRange("(A  A .. Z  Z]").toString());
-        assertEquals("[A  A..Z  Z)", new StringRange("[A  A .. Z  Z)").toString());
+                arguments("[A  A; Z  Z]", "[A  A..Z  Z]"),
+                arguments("(A  A;Z  Z]", "(A  A..Z  Z]"),
+                arguments("[A  A; Z  Z)", "[A  A..Z  Z)"),
+                arguments("(A  A; Z  Z)", "(A  A..Z  Z)"),
 
-        assertEquals(">= A  A", new StringRange("A  A and more").toString());
-        assertEquals("<= A  A", new StringRange("A  A or less").toString());
+                arguments("(A  A .. Z  Z)", "(A  A..Z  Z)"),
+                arguments("[A  A .. Z  Z]", "[A  A..Z  Z]"),
+                arguments("(A  A .. Z  Z]", "(A  A..Z  Z]"),
+                arguments("[A  A .. Z  Z)", "[A  A..Z  Z)"),
 
-        assertEquals("> A  A", new StringRange("more than A  A").toString());
-        assertEquals("< Z  Z", new StringRange("less than Z  Z").toString());
+                arguments("A  A and more", ">= A  A"),
+                arguments("A  A or less", "<= A  A"),
 
-        assertEquals(">= A  A", new StringRange(">= A  A").toString());
-        assertEquals("<= A  A", new StringRange("<= A  A").toString());
+                arguments("more than A  A", "> A  A"),
+                arguments("less than Z  Z", "< Z  Z"),
 
-        assertEquals("> A  A", new StringRange("> A  A").toString());
-        assertEquals("< Z  Z", new StringRange("< Z  Z").toString());
-        assertEquals(">= A  A", new StringRange("A  A+").toString());
+                arguments(">= A  A", ">= A  A"),
+                arguments("<= A  A", "<= A  A"),
 
-        assertEquals("[A  A..Z  Z]", new StringRange(">=A  A <=Z  Z").toString());
-        assertEquals("[A  A..Z  Z]", new StringRange("<=Z  Z >=A  A").toString());
+                arguments("> A  A", "> A  A"),
+                arguments("< Z  Z", "< Z  Z"),
+                arguments("A  A+", ">= A  A"),
 
-        assertEquals("[A  A..Z  Z)", new StringRange(">=A  A <Z  Z").toString());
-        assertEquals("[A  A..Z  Z)", new StringRange("<Z  Z >=A  A").toString());
+                arguments(">=A  A <=Z  Z", "[A  A..Z  Z]"),
+                arguments("<=Z  Z >=A  A", "[A  A..Z  Z]"),
 
-        assertEquals("(A  A..Z  Z]", new StringRange(">A  A <=Z  Z").toString());
-        assertEquals("(A  A..Z  Z]", new StringRange("<=Z  Z >A  A").toString());
+                arguments(">=A  A <Z  Z", "[A  A..Z  Z)"),
+                arguments("<Z  Z >=A  A", "[A  A..Z  Z)"),
 
-        assertEquals("(A  A..Z  Z)", new StringRange(">A  A <Z  Z").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("<Z  Z >A  A").toString());
+                arguments(">A  A <=Z  Z", "(A  A..Z  Z]"),
+                arguments("<=Z  Z >A  A", "(A  A..Z  Z]"),
 
-        // Part 2
-        assertEquals("B", new StringRange("  B  ").toString());
-        assertEquals("[AA..ZZ]", new StringRange("  AA  -  ZZ  ").toString());
-        assertEquals("[AA..ZZ]", new StringRange("  AA  ..  ZZ  ").toString());
-        assertEquals("(AA..ZZ)", new StringRange("  AA   …   ZZ  ").toString());
-        assertEquals("(AA..ZZ)", new StringRange("  AA   ...   ZZ  ").toString());
+                arguments(">A  A <Z  Z", "(A  A..Z  Z)"),
+                arguments("<Z  Z >A  A", "(A  A..Z  Z)"),
 
-        assertEquals("[AA..ZZ]", new StringRange("  [AA  ;   ZZ  ]  ").toString());
-        assertEquals("(AA..ZZ]", new StringRange("  (AA  ;   ZZ  ]  ").toString());
-        assertEquals("[AA..ZZ)", new StringRange("  [AA  ;   ZZ  )  ").toString());
-        assertEquals("(AA..ZZ)", new StringRange("  (AA  ;   ZZ  )  ").toString());
+                // Part 2
+                arguments("  B  ", "B"),
+                arguments("  AA  -  ZZ  ", "[AA..ZZ]"),
+                arguments("  AA  ..  ZZ  ", "[AA..ZZ]"),
+                arguments("  AA   …   ZZ  ", "(AA..ZZ)"),
+                arguments("  AA   ...   ZZ  ", "(AA..ZZ)"),
 
-        assertEquals("(AA..ZZ)", new StringRange("  (  AA   ..   ZZ  )  ").toString());
-        assertEquals("[AA..ZZ]", new StringRange("  [  AA   ..   ZZ  ]  ").toString());
-        assertEquals("(AA..ZZ]", new StringRange("  (  AA   ..   ZZ  ]  ").toString());
-        assertEquals("[AA..ZZ)", new StringRange("  [  AA   ..   ZZ  )  ").toString());
+                arguments("  [AA  ;   ZZ  ]  ", "[AA..ZZ]"),
+                arguments("  (AA  ;   ZZ  ]  ", "(AA..ZZ]"),
+                arguments("  [AA  ;   ZZ  )  ", "[AA..ZZ)"),
+                arguments("  (AA  ;   ZZ  )  ", "(AA..ZZ)"),
 
-        assertEquals(">= AA", new StringRange("  AA   and   more  ").toString());
-        assertEquals("<= AA", new StringRange("  AA   or   less  ").toString());
+                arguments("  (  AA   ..   ZZ  )  ", "(AA..ZZ)"),
+                arguments("  [  AA   ..   ZZ  ]  ", "[AA..ZZ]"),
+                arguments("  (  AA   ..   ZZ  ]  ", "(AA..ZZ]"),
+                arguments("  [  AA   ..   ZZ  )  ", "[AA..ZZ)"),
 
-        assertEquals("> AA", new StringRange("  more   than   AA  ").toString());
-        assertEquals("< ZZ", new StringRange("  less   than   ZZ  ").toString());
+                arguments("  AA   and   more  ", ">= AA"),
+                arguments("  AA   or   less  ", "<= AA"),
 
-        assertEquals(">= AA", new StringRange("  >=   AA  ").toString());
-        assertEquals("<= AA", new StringRange("  <=   AA  ").toString());
+                arguments("  more   than   AA  ", "> AA"),
+                arguments("  less   than   ZZ  ", "< ZZ"),
 
-        assertEquals("> AA", new StringRange("  >   AA  ").toString());
-        assertEquals("< ZZ", new StringRange("  <   ZZ  ").toString());
-        assertEquals(">= AA", new StringRange("  AA+  ").toString());
+                arguments("  >=   AA  ", ">= AA"),
+                arguments("  <=   AA  ", "<= AA"),
 
-        assertEquals("[AA..ZZ]", new StringRange("  >=  AA   <=  ZZ  ").toString());
-        assertEquals("[AA..ZZ]", new StringRange("  <=  ZZ   >=  AA  ").toString());
+                arguments("  >   AA  ", "> AA"),
+                arguments("  <   ZZ  ", "< ZZ"),
+                arguments("  AA+  ", ">= AA"),
 
-        assertEquals("[AA..ZZ)", new StringRange("  >=  AA   <  ZZ  ").toString());
-        assertEquals("[AA..ZZ)", new StringRange("  <  ZZ   >=  AA  ").toString());
+                arguments("  >=  AA   <=  ZZ  ", "[AA..ZZ]"),
+                arguments("  <=  ZZ   >=  AA  ", "[AA..ZZ]"),
 
-        assertEquals("(AA..ZZ]", new StringRange("  >  AA   <=  ZZ  ").toString());
-        assertEquals("(AA..ZZ]", new StringRange("  <=  ZZ   >  AA  ").toString());
+                arguments("  >=  AA   <  ZZ  ", "[AA..ZZ)"),
+                arguments("  <  ZZ   >=  AA  ", "[AA..ZZ)"),
 
-        assertEquals("(AA..ZZ)", new StringRange("  >  AA   <  ZZ  ").toString());
-        assertEquals("(AA..ZZ)", new StringRange("  <  ZZ   >  AA  ").toString());
+                arguments("  >  AA   <=  ZZ  ", "(AA..ZZ]"),
+                arguments("  <=  ZZ   >  AA  ", "(AA..ZZ]"),
 
-        //Part 3
-        assertEquals("[A  A..Z  Z]", new StringRange("  A  A  -  Z  Z  ").toString());
-        assertEquals("[A  A..Z  Z]", new StringRange("  A  A  ..  Z  Z  ").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("  A  A   …   Z  Z  ").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("  A  A   ...   Z  Z  ").toString());
+                arguments("  >  AA   <  ZZ  ", "(AA..ZZ)"),
+                arguments("  <  ZZ   >  AA  ", "(AA..ZZ)"),
 
-        assertEquals("[A  A..Z  Z]", new StringRange("  [A  A  ;   Z  Z  ]  ").toString());
-        assertEquals("(A  A..Z  Z]", new StringRange("  (A  A  ;   Z  Z  ]  ").toString());
-        assertEquals("[A  A..Z  Z)", new StringRange("  [A  A  ;   Z  Z  )  ").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("  (A  A  ;   Z  Z  )  ").toString());
+                //Part 3
+                arguments("  A  A  -  Z  Z  ", "[A  A..Z  Z]"),
+                arguments("  A  A  ..  Z  Z  ", "[A  A..Z  Z]"),
+                arguments("  A  A   …   Z  Z  ", "(A  A..Z  Z)"),
+                arguments("  A  A   ...   Z  Z  ", "(A  A..Z  Z)"),
 
-        assertEquals("(A  A..Z  Z)", new StringRange("  (  A  A   ..   Z  Z  )  ").toString());
-        assertEquals("[A  A..Z  Z]", new StringRange("  [  A  A   ..   Z  Z  ]  ").toString());
-        assertEquals("(A  A..Z  Z]", new StringRange("  (  A  A   ..   Z  Z  ]  ").toString());
-        assertEquals("[A  A..Z  Z)", new StringRange("  [  A  A   ..   Z  Z  )  ").toString());
+                arguments("  [A  A  ;   Z  Z  ]  ", "[A  A..Z  Z]"),
+                arguments("  (A  A  ;   Z  Z  ]  ", "(A  A..Z  Z]"),
+                arguments("  [A  A  ;   Z  Z  )  ", "[A  A..Z  Z)"),
+                arguments("  (A  A  ;   Z  Z  )  ", "(A  A..Z  Z)"),
 
-        assertEquals(">= A  A", new StringRange("  A  A   and   more  ").toString());
-        assertEquals("<= A  A", new StringRange("  A  A   or   less  ").toString());
+                arguments("  (  A  A   ..   Z  Z  )  ", "(A  A..Z  Z)"),
+                arguments("  [  A  A   ..   Z  Z  ]  ", "[A  A..Z  Z]"),
+                arguments("  (  A  A   ..   Z  Z  ]  ", "(A  A..Z  Z]"),
+                arguments("  [  A  A   ..   Z  Z  )  ", "[A  A..Z  Z)"),
 
-        assertEquals("> A  A", new StringRange("  more   than   A  A  ").toString());
-        assertEquals("< Z  Z", new StringRange("  less   than   Z  Z  ").toString());
+                arguments("  A  A   and   more  ", ">= A  A"),
+                arguments("  A  A   or   less  ", "<= A  A"),
 
-        assertEquals(">= A  A", new StringRange("  >=   A  A  ").toString());
-        assertEquals("<= A  A", new StringRange("  <=   A  A  ").toString());
+                arguments("  more   than   A  A  ", "> A  A"),
+                arguments("  less   than   Z  Z  ", "< Z  Z"),
 
-        assertEquals("> A  A", new StringRange("  >   A  A  ").toString());
-        assertEquals("< Z  Z", new StringRange("  <   Z  Z  ").toString());
-        assertEquals(">= A  A", new StringRange("  A  A+  ").toString());
+                arguments("  >=   A  A  ", ">= A  A"),
+                arguments("  <=   A  A  ", "<= A  A"),
 
-        assertEquals("[A  A..Z  Z]", new StringRange("  >=  A  A   <=  Z  Z  ").toString());
-        assertEquals("[A  A..Z  Z]", new StringRange("  <=  Z  Z   >=  A  A  ").toString());
+                arguments("  >   A  A  ", "> A  A"),
+                arguments("  <   Z  Z  ", "< Z  Z"),
+                arguments("  A  A+  ", ">= A  A"),
 
-        assertEquals("[A  A..Z  Z)", new StringRange("  >=  A  A   <  Z  Z  ").toString());
-        assertEquals("[A  A..Z  Z)", new StringRange("  <  Z  Z   >=  A  A  ").toString());
+                arguments("  >=  A  A   <=  Z  Z  ", "[A  A..Z  Z]"),
+                arguments("  <=  Z  Z   >=  A  A  ", "[A  A..Z  Z]"),
 
-        assertEquals("(A  A..Z  Z]", new StringRange("  >  A  A   <=  Z  Z  ").toString());
-        assertEquals("(A  A..Z  Z]", new StringRange("  <=  Z  Z   >  A  A  ").toString());
+                arguments("  >=  A  A   <  Z  Z  ", "[A  A..Z  Z)"),
+                arguments("  <  Z  Z   >=  A  A  ", "[A  A..Z  Z)"),
 
-        assertEquals("(A  A..Z  Z)", new StringRange("  >  A  A   <  Z  Z  ").toString());
-        assertEquals("(A  A..Z  Z)", new StringRange("  <  Z  Z   >  A  A  ").toString());
+                arguments("  >  A  A   <=  Z  Z  ", "(A  A..Z  Z]"),
+                arguments("  <=  Z  Z   >  A  A  ", "(A  A..Z  Z]"),
 
+                arguments("  >  A  A   <  Z  Z  ", "(A  A..Z  Z)"),
+                arguments("  <  Z  Z   >  A  A  ", "(A  A..Z  Z)"));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testToStringWhitespaces(String range, String expected) {
+        assertEquals(expected, new StringRange(range).toString());
     }
 
     @Test

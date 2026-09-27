@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * @author PUdalau
@@ -30,63 +32,65 @@ class DoubleRangeParsingTest {
         assertThrows(Exception.class, () -> new DoubleRange(x));
     }
 
-    @Test
-    void testFails() {
-        checkWrong(",");
-        checkWrong(",1");
-        checkWrong("1,");
-        checkWrong("1.");
-        checkWrong("..1");
-        checkWrong("1,1,");
-        checkWrong(",1,1");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            ",",
+            ",1",
+            "1,",
+            "1.",
+            "..1",
+            "1,1,",
+            ",1,1",
 
-        checkWrong("[,1,1 .. 1]");
-        checkWrong("[1,1 .. 1,]");
-        checkWrong("[1,1 .. ,1]");
-        checkWrong("[,1 .. 1]");
-        checkWrong("[1, .. 1]");
-        checkWrong("[1. .. 1]");
-        checkWrong("[..1. .. 1]");
+            "[,1,1 .. 1]",
+            "[1,1 .. 1,]",
+            "[1,1 .. ,1]",
+            "[,1 .. 1]",
+            "[1, .. 1]",
+            "[1. .. 1]",
+            "[..1. .. 1]",
 
-        checkWrong(">,1");
-        checkWrong("<1,");
-        checkWrong("<1.");
-        checkWrong("<..1");
-        checkWrong("<,1,1,");
-        checkWrong("<1,1,");
-        checkWrong("<,1,1");
+            ">,1",
+            "<1,",
+            "<1.",
+            "<..1",
+            "<,1,1,",
+            "<1,1,",
+            "<,1,1",
 
-        checkWrong(",1,1 .. 1");
-        checkWrong("1,1 .. 1,");
-        checkWrong("1,1 .. ,1");
-        checkWrong(",1 .. 1");
-        checkWrong("1, .. 1");
-        checkWrong("1. .. 1");
-        checkWrong("..1 .. 1");
+            ",1,1 .. 1",
+            "1,1 .. 1,",
+            "1,1 .. ,1",
+            ",1 .. 1",
+            "1, .. 1",
+            "1. .. 1",
+            "..1 .. 1",
 
-        checkWrong("1.0.0");
-        checkWrong(",1.0");
-        checkWrong("1.0,");
-        checkWrong("1,1.0,");
-        checkWrong(",1.0,1.0");
+            "1.0.0",
+            ",1.0",
+            "1.0,",
+            "1,1.0,",
+            ",1.0,1.0",
 
-        checkWrong("[,1.0,1.0 .. 1]");
-        checkWrong("[1,1.0 .. 1.0,]");
-        checkWrong("[1,1.0 .. ,1]");
-        checkWrong("[,1.0 .. 1]");
-        checkWrong("[1, .. 1.0]");
+            "[,1.0,1.0 .. 1]",
+            "[1,1.0 .. 1.0,]",
+            "[1,1.0 .. ,1]",
+            "[,1.0 .. 1]",
+            "[1, .. 1.0]",
 
-        checkWrong(">,1.0");
-        checkWrong("<1,");
-        checkWrong("<,1.0,1,");
-        checkWrong("<1,1.0,");
-        checkWrong("<,1,1.0");
+            ">,1.0",
+            "<1,",
+            "<,1.0,1,",
+            "<1,1.0,",
+            "<,1,1.0",
 
-        checkWrong(",1,1.0 .. 1.0");
-        checkWrong("1,1.0 .. 1.0,");
-        checkWrong("1,1.0 .. ,1");
-        checkWrong(",1.0 .. 1");
-        checkWrong("1, .. 1.0");
+            ",1,1.0 .. 1.0",
+            "1,1.0 .. 1.0,",
+            "1,1.0 .. ,1",
+            ",1.0 .. 1",
+            "1, .. 1.0"})
+    void testFails(String range) {
+        checkWrong(range);
     }
 
     @Test

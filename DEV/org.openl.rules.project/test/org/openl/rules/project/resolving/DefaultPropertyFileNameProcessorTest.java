@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
@@ -226,174 +228,100 @@ class DefaultPropertyFileNameProcessorTest {
         assertEquals(date, properties.getEffectiveDate());
     }
 
-    @Test
-    void testFolder() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
-        var processor1 = new DefaultPropertiesFileNameProcessor(
-                "%lob%-%state%-%startRequestDate%");
-        assertMatch(processor1, "AUTO-NY-20200712");
-        assertMatch(processor1, "AUTO-NY-20200712.xlsx");
-        assertMatch(processor1, "rules/AUTO-NY-20200712");
-        assertMatch(processor1, "rules/AUTO-NY-20200712.ext");
-        assertMatch(processor1, "rules/AUTO/AUTO-NY-20200712");
-        assertMatch(processor1, "rules/AUTO/AUTO-NY-20200712.txt");
-
-        var processor2 = new DefaultPropertiesFileNameProcessor(
-                "%lob%/%state%/*%startRequestDate%");
-        assertMatch(processor2, "AUTO/NY/UP.20200712");
-        assertMatch(processor2, "AUTO/NY/UP-20200712");
-        assertMatch(processor2, "AUTO/NY/UP.20200712.ext");
-        assertMatch(processor2, "AUTO/NY/UP-20200712.ext");
-        assertMatch(processor2, "rules/AUTO/NY/UP.20200712");
-        assertMatch(processor2, "rules/AUTO/NY/UP-20200712");
-        assertMatch(processor2, "rules/AUTO/NY/UP.20200712.ext");
-        assertMatch(processor2, "rules/AUTO/NY/UP-20200712.ext");
-
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/*%startRequestDate%"),
-                "AUTO/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/*%startRequestDate%"),
-                "AUTO/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/??.%startRequestDate%"),
-                "AUTO/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/??.%startRequestDate%"),
-                "AUTO/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/*/%state%/*%startRequestDate%"),
-                "AUTO/AL/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"),
-                "AUTO/AL/AL/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"),
-                "AUTO/AL/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"),
-                "AUTO/NY/UP.20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/UP/**/%state%/*%startRequestDate%"),
-                "AUTO/UP/NY/20200712.xlsx");
-
-        assertMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"),
-                "AUTO/UP/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"),
-                "AUTO/UP/DOWN/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"),
-                "AUTO/UP/DOWN/Any/AUTO-NY/20200712.xlsx");
-
-        assertMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"),
-                "UP/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"),
-                "DOWN/UP/DOWN/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"),
-                "Any/DOWN/UP/Any2/DOWN/AUTO-NY/20200712.xlsx");
-
-        assertMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"),
-                "A/UP/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"),
-                "Я/UP/DOWN/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"),
-                "$/UP/Any/DOWN/AUTO-NY/20200712.xlsx");
-
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP$/**/%lob%-%state%/%startRequestDate%"),
-                "./UP$/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP+/**/%lob%-%state%/%startRequestDate%"),
-                "./UP+/DOWN/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP-/**/%lob%-%state%/%startRequestDate%"),
-                "./UP-/Any/DOWN/AUTO-NY/20200712.xlsx");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP^/**/%lob%-%state%/%startRequestDate%"),
-                "./UP^/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP(/**/%lob%-%state%/%startRequestDate%"),
-                "./UP(/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP)/**/%lob%-%state%/%startRequestDate%"),
-                "./UP)/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./(UP)/**/%lob%-%state%/%startRequestDate%"),
-                "./(UP)/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./[UP]+/**/%lob%-%state%/%startRequestDate%"),
-                "./[UP]+/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./U()P/**/%lob%-%state%/%startRequestDate%"),
-                "./U()P/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./U(%lob%)P/**/*-%state%/%startRequestDate%"),
-                "./U(AUTO)P/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./(U/tur/P)/**/%lob%-%state%/%startRequestDate%"),
-                "./(U/tur/P)/Any/DOWN/AUTO-NY/20200712");
-        assertMatch(new DefaultPropertiesFileNameProcessor("/./(U/**/P)/**/%lob%-%state%/%startRequestDate%"),
-                "./(U/t/u/r/P)/Any/DOWN/AUTO-NY/20200712");
-
+    @ParameterizedTest(name = "{0} matches {1}")
+    @CsvSource(delimiter = '|', textBlock = """
+            %lob%-%state%-%startRequestDate%                 | AUTO-NY-20200712
+            %lob%-%state%-%startRequestDate%                 | AUTO-NY-20200712.xlsx
+            %lob%-%state%-%startRequestDate%                 | rules/AUTO-NY-20200712
+            %lob%-%state%-%startRequestDate%                 | rules/AUTO-NY-20200712.ext
+            %lob%-%state%-%startRequestDate%                 | rules/AUTO/AUTO-NY-20200712
+            %lob%-%state%-%startRequestDate%                 | rules/AUTO/AUTO-NY-20200712.txt
+            %lob%/%state%/*%startRequestDate%                | AUTO/NY/UP.20200712
+            %lob%/%state%/*%startRequestDate%                | AUTO/NY/UP-20200712
+            %lob%/%state%/*%startRequestDate%                | AUTO/NY/UP.20200712.ext
+            %lob%/%state%/*%startRequestDate%                | AUTO/NY/UP-20200712.ext
+            %lob%/%state%/*%startRequestDate%                | rules/AUTO/NY/UP.20200712
+            %lob%/%state%/*%startRequestDate%                | rules/AUTO/NY/UP-20200712
+            %lob%/%state%/*%startRequestDate%                | rules/AUTO/NY/UP.20200712.ext
+            %lob%/%state%/*%startRequestDate%                | rules/AUTO/NY/UP-20200712.ext
+            /%lob%/%state%/*%startRequestDate%               | AUTO/NY/UP.20200712
+            /%lob%/%state%/**/*%startRequestDate%            | AUTO/NY/UP.20200712
+            /%lob%/%state%/??.%startRequestDate%             | AUTO/NY/UP.20200712
+            /%lob%/%state%/**/??.%startRequestDate%          | AUTO/NY/UP.20200712
+            /%lob%/*/%state%/*%startRequestDate%             | AUTO/AL/NY/UP.20200712
+            /%lob%/**/%state%/*%startRequestDate%            | AUTO/AL/AL/NY/UP.20200712
+            /%lob%/**/%state%/*%startRequestDate%            | AUTO/AL/NY/UP.20200712
+            /%lob%/**/%state%/*%startRequestDate%            | AUTO/NY/UP.20200712
+            /%lob%/UP/**/%state%/*%startRequestDate%         | AUTO/UP/NY/20200712.xlsx
+            /*/UP/**/%lob%-%state%/%startRequestDate%        | AUTO/UP/AUTO-NY/20200712.xlsx
+            /*/UP/**/%lob%-%state%/%startRequestDate%        | AUTO/UP/DOWN/AUTO-NY/20200712.xlsx
+            /*/UP/**/%lob%-%state%/%startRequestDate%        | AUTO/UP/DOWN/Any/AUTO-NY/20200712.xlsx
+            /**/UP/**/%lob%-%state%/%startRequestDate%       | UP/AUTO-NY/20200712.xlsx
+            /**/UP/**/%lob%-%state%/%startRequestDate%       | DOWN/UP/DOWN/AUTO-NY/20200712.xlsx
+            /**/UP/**/%lob%-%state%/%startRequestDate%       | Any/DOWN/UP/Any2/DOWN/AUTO-NY/20200712.xlsx
+            /?/UP/**/%lob%-%state%/%startRequestDate%        | A/UP/AUTO-NY/20200712.xlsx
+            /?/UP/**/%lob%-%state%/%startRequestDate%        | Я/UP/DOWN/AUTO-NY/20200712.xlsx
+            /?/UP/**/%lob%-%state%/%startRequestDate%        | $/UP/Any/DOWN/AUTO-NY/20200712.xlsx
+            /./UP$/**/%lob%-%state%/%startRequestDate%       | ./UP$/AUTO-NY/20200712.xlsx
+            /./UP+/**/%lob%-%state%/%startRequestDate%       | ./UP+/DOWN/AUTO-NY/20200712.xlsx
+            /./UP-/**/%lob%-%state%/%startRequestDate%       | ./UP-/Any/DOWN/AUTO-NY/20200712.xlsx
+            /./UP^/**/%lob%-%state%/%startRequestDate%       | ./UP^/Any/DOWN/AUTO-NY/20200712
+            /./UP(/**/%lob%-%state%/%startRequestDate%       | ./UP(/Any/DOWN/AUTO-NY/20200712
+            /./UP)/**/%lob%-%state%/%startRequestDate%       | ./UP)/Any/DOWN/AUTO-NY/20200712
+            /./(UP)/**/%lob%-%state%/%startRequestDate%      | ./(UP)/Any/DOWN/AUTO-NY/20200712
+            /./[UP]+/**/%lob%-%state%/%startRequestDate%     | ./[UP]+/Any/DOWN/AUTO-NY/20200712
+            /./U()P/**/%lob%-%state%/%startRequestDate%      | ./U()P/Any/DOWN/AUTO-NY/20200712
+            /./U(%lob%)P/**/*-%state%/%startRequestDate%     | ./U(AUTO)P/Any/DOWN/AUTO-NY/20200712
+            /./(U/tur/P)/**/%lob%-%state%/%startRequestDate% | ./(U/tur/P)/Any/DOWN/AUTO-NY/20200712
+            /./(U/**/P)/**/%lob%-%state%/%startRequestDate%  | ./(U/t/u/r/P)/Any/DOWN/AUTO-NY/20200712
+            """)
+    void testFolder(String pattern, String fileName)
+            throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+        assertMatch(new DefaultPropertiesFileNameProcessor(pattern), fileName);
     }
 
-    @Test
-    void testFolderNoMatch() throws InvalidFileNamePatternException {
-        var processor1 = new DefaultPropertiesFileNameProcessor(
-                "%lob%-%state%-%startRequestDate%");
-        assertNotMatch(processor1, "AUTO--20200712");
-        assertNotMatch(processor1, "AUTO-NY-20200712/test");
-        assertNotMatch(processor1, "AUTO-NY-20200712/test.xlsx");
-        assertNotMatch(processor1, "AUTO/-NY-20200712");
-        assertNotMatch(processor1, "AUTO-/NY-20200712");
-
-        var processor2 = new DefaultPropertiesFileNameProcessor(
-                "%lob%/%state%/*%startRequestDate%");
-        assertNotMatch(processor2, "AUTO/NY-20200712");
-        assertNotMatch(processor2, "AUTO/ALNY/20200712");
-        assertNotMatch(processor2, "AUTO/NY/UP/20200712.ext");
-        assertNotMatch(processor2, "AUTO/NY/UP-/20200712.ext");
-
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/*%startRequestDate%"),
-                "rules/AUTO/NY/UP.20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/*/*%startRequestDate%"),
-                "rules/AUTO/NY/UP.20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("test/%lob%/%state%/*%startRequestDate%"),
-                "rules/AUTO/NY/UP.20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("les/%lob%/%state%/*%startRequestDate%"),
-                "rules/AUTO/NY/UP.20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("rules/%lob%/%state%/*%startRequestDate%"),
-                "les/AUTO/NY/UP.20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/*%startRequestDate%"),
-                "rules/AUTO/NY/UP.20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/...%startRequestDate%"),
-                "AUTO/NY/UP.20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/?.%startRequestDate%"),
-                "AUTO/NY/UP.20200712");
-
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"),
-                "AUTO/UPS/UP/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"),
-                "AUTO/UPS/UP/DOWN/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"),
-                "AUTO/UPS/UP/DOWN/Any/AUTO-NY/20200712.xlsx");
-
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"),
-                "UPS/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"),
-                "DOWN/UPS/DOWN/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"),
-                "Any/DOWN/UPS/Any2/DOWN/AUTO-NY/20200712.xlsx");
-
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"),
-                "UP/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"),
-                "UP/DOWN/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"),
-                "UP/Any/DOWN/AUTO-NY/20200712.xlsx");
-
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"),
-                "A/UP/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"),
-                "Я/UP/DOWN/AUTO-NY/20200712.xlsx");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"),
-                "$/UP/Any/DOWN/AUTO-NY/20200712.xlsx");
-
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP(/**/%lob%-%state%/%startRequestDate%"),
-                "./UP((/Any/DOWN/AUTO-NY/20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP)/**/%lob%-%state%/%startRequestDate%"),
-                "./UP))/Any/DOWN/AUTO-NY/20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./(UP)/**/%lob%-%state%/%startRequestDate%"),
-                "./((UP))/Any/DOWN/AUTO-NY/20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./[UP]+/**/%lob%-%state%/%startRequestDate%"),
-                "./UP/Any/DOWN/AUTO-NY/20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./U()P/**/%lob%-%state%/%startRequestDate%"),
-                "./UP/Any/DOWN/AUTO-NY/20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./U(%lob%)P/**/*-%state%/%startRequestDate%"),
-                "./UAUTOP/Any/DOWN/AUTO-NY/20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./(U/tur/P)/**/%lob%-%state%/%startRequestDate%"),
-                "./U/tur/P/Any/DOWN/AUTO-NY/20200712");
-        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./(U/**/P)/**/%lob%-%state%/%startRequestDate%"),
-                "./U/t/u/r/P/Any/DOWN/AUTO-NY/20200712");
-
+    @ParameterizedTest(name = "{0} does not match {1}")
+    @CsvSource(delimiter = '|', textBlock = """
+            %lob%-%state%-%startRequestDate%                 | AUTO--20200712
+            %lob%-%state%-%startRequestDate%                 | AUTO-NY-20200712/test
+            %lob%-%state%-%startRequestDate%                 | AUTO-NY-20200712/test.xlsx
+            %lob%-%state%-%startRequestDate%                 | AUTO/-NY-20200712
+            %lob%-%state%-%startRequestDate%                 | AUTO-/NY-20200712
+            %lob%/%state%/*%startRequestDate%                | AUTO/NY-20200712
+            %lob%/%state%/*%startRequestDate%                | AUTO/ALNY/20200712
+            %lob%/%state%/*%startRequestDate%                | AUTO/NY/UP/20200712.ext
+            %lob%/%state%/*%startRequestDate%                | AUTO/NY/UP-/20200712.ext
+            /%lob%/%state%/*%startRequestDate%               | rules/AUTO/NY/UP.20200712
+            /%lob%/%state%/*/*%startRequestDate%             | rules/AUTO/NY/UP.20200712
+            test/%lob%/%state%/*%startRequestDate%           | rules/AUTO/NY/UP.20200712
+            les/%lob%/%state%/*%startRequestDate%            | rules/AUTO/NY/UP.20200712
+            rules/%lob%/%state%/*%startRequestDate%          | les/AUTO/NY/UP.20200712
+            /%lob%/%state%/**/*%startRequestDate%            | rules/AUTO/NY/UP.20200712
+            /%lob%/%state%/**/...%startRequestDate%          | AUTO/NY/UP.20200712
+            /%lob%/%state%/?.%startRequestDate%              | AUTO/NY/UP.20200712
+            /*/UP/**/%lob%-%state%/%startRequestDate%        | AUTO/UPS/UP/AUTO-NY/20200712.xlsx
+            /*/UP/**/%lob%-%state%/%startRequestDate%        | AUTO/UPS/UP/DOWN/AUTO-NY/20200712.xlsx
+            /*/UP/**/%lob%-%state%/%startRequestDate%        | AUTO/UPS/UP/DOWN/Any/AUTO-NY/20200712.xlsx
+            /**/UP/**/%lob%-%state%/%startRequestDate%       | UPS/AUTO-NY/20200712.xlsx
+            /**/UP/**/%lob%-%state%/%startRequestDate%       | DOWN/UPS/DOWN/AUTO-NY/20200712.xlsx
+            /**/UP/**/%lob%-%state%/%startRequestDate%       | Any/DOWN/UPS/Any2/DOWN/AUTO-NY/20200712.xlsx
+            /?/UP/**/%lob%-%state%/%startRequestDate%        | UP/AUTO-NY/20200712.xlsx
+            /?/UP/**/%lob%-%state%/%startRequestDate%        | UP/DOWN/AUTO-NY/20200712.xlsx
+            /?/UP/**/%lob%-%state%/%startRequestDate%        | UP/Any/DOWN/AUTO-NY/20200712.xlsx
+            /./UP/**/%lob%-%state%/%startRequestDate%        | A/UP/AUTO-NY/20200712.xlsx
+            /./UP/**/%lob%-%state%/%startRequestDate%        | Я/UP/DOWN/AUTO-NY/20200712.xlsx
+            /./UP/**/%lob%-%state%/%startRequestDate%        | $/UP/Any/DOWN/AUTO-NY/20200712.xlsx
+            /./UP(/**/%lob%-%state%/%startRequestDate%       | ./UP((/Any/DOWN/AUTO-NY/20200712
+            /./UP)/**/%lob%-%state%/%startRequestDate%       | ./UP))/Any/DOWN/AUTO-NY/20200712
+            /./(UP)/**/%lob%-%state%/%startRequestDate%      | ./((UP))/Any/DOWN/AUTO-NY/20200712
+            /./[UP]+/**/%lob%-%state%/%startRequestDate%     | ./UP/Any/DOWN/AUTO-NY/20200712
+            /./U()P/**/%lob%-%state%/%startRequestDate%      | ./UP/Any/DOWN/AUTO-NY/20200712
+            /./U(%lob%)P/**/*-%state%/%startRequestDate%     | ./UAUTOP/Any/DOWN/AUTO-NY/20200712
+            /./(U/tur/P)/**/%lob%-%state%/%startRequestDate% | ./U/tur/P/Any/DOWN/AUTO-NY/20200712
+            /./(U/**/P)/**/%lob%-%state%/%startRequestDate%  | ./U/t/u/r/P/Any/DOWN/AUTO-NY/20200712
+            """)
+    void testFolderNoMatch(String pattern, String fileName) throws InvalidFileNamePatternException {
+        assertNotMatch(new DefaultPropertiesFileNameProcessor(pattern), fileName);
     }
 
     @Test

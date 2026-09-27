@@ -1,51 +1,64 @@
 package org.openl.rules.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import static org.openl.util.StringUtils.matches;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class DataTableBindHelperTest {
 
-    @Test
-    void collectionAccessByIndexPatternTest() {
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "  a[0]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:b  "));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:  b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]  :b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0  ]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[  0]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a  [0]:b"));
+    static Stream<Arguments> collectionAccessByIndexPatternTest() {
+        return Stream.of(
+                arguments("a[0]:b", true),
+                arguments("  a[0]:b", true),
+                arguments("a[0]:b  ", true),
+                arguments("a[0]:  b", true),
+                arguments("a[0]  :b", true),
+                arguments("a[0  ]:b", true),
+                arguments("a[  0]:b", true),
+                arguments("a  [0]:b", true),
 
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "  a[0]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]  "));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0  ]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[  0]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a  [0]"));
+                arguments("a[0]", true),
+                arguments("  a[0]", true),
+                arguments("a[0]  ", true),
+                arguments("a[0  ]", true),
+                arguments("a[  0]", true),
+                arguments("a  [0]", true),
 
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[\"b\"]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[  \"b\"]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[\"b\"  ]"));
+                arguments("a[\"b\"]", false),
+                arguments("a[  \"b\"]", false),
+                arguments("a[\"b\"  ]", false),
 
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[\"b]\"]]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[\"b\"a  ]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[\"b\" a]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[\"b\" 0]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[\"b\"0 ]"));
+                arguments("a[\"b]\"]]", false),
+                arguments("a[\"b\"a  ]", false),
+                arguments("a[\"b\" a]", false),
+                arguments("a[\"b\" 0]", false),
+                arguments("a[\"b\"0 ]", false),
 
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[b]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:b c"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a:b[0]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a b[0]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[b[0]]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:c:"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, "a[0]:c:d"));
+                arguments("a", false),
+                arguments("a[b]", false),
+                arguments("a[0]:", false),
+                arguments("a[0]:b c", false),
+                arguments("a:b[0]", false),
+                arguments("a b[0]", false),
+                arguments("a[b[0]]", false),
+                arguments("a[0]:c:", false),
+                arguments("a[0]:c:d", false));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void collectionAccessByIndexPatternTest(String text, boolean expected) {
+        assertEquals(expected, matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, text));
     }
 
     @Test
@@ -86,115 +99,127 @@ class DataTableBindHelperTest {
         assertFalse(matches(DataTableBindHelper.THIS_LIST_ACCESS_PATTERN, "[0]a"));
     }
 
-    @Test
-    void thisMapAccessByIndexPatternTest() {
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "  [\"k\"]:b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:b  "));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:  b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]  :b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"  ]:b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[  \"k\"]:b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "  [\"k\"]:b"));
+    static Stream<Arguments> thisMapAccessByIndexPatternTest() {
+        return Stream.of(
+                arguments("[\"k\"]:b", true),
+                arguments("  [\"k\"]:b", true),
+                arguments("[\"k\"]:b  ", true),
+                arguments("[\"k\"]:  b", true),
+                arguments("[\"k\"]  :b", true),
+                arguments("[\"k\"  ]:b", true),
+                arguments("[  \"k\"]:b", true),
+                arguments("  [\"k\"]:b", true),
 
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0]:b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "  [0]:b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0]:b  "));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0]:  b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0]  :b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0  ]:b"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[  0]:b"));
+                arguments("[0]:b", true),
+                arguments("  [0]:b", true),
+                arguments("[0]:b  ", true),
+                arguments("[0]:  b", true),
+                arguments("[0]  :b", true),
+                arguments("[0  ]:b", true),
+                arguments("[  0]:b", true),
 
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "  [0]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0]  "));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[0  ]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[  0]"));
+                arguments("[0]", true),
+                arguments("  [0]", true),
+                arguments("[0]  ", true),
+                arguments("[0  ]", true),
+                arguments("[  0]", true),
 
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "  [\"k\"]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]  "));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"  ]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[  \"k\"]"));
+                arguments("[\"k\"]", true),
+                arguments("  [\"k\"]", true),
+                arguments("[\"k\"]  ", true),
+                arguments("[\"k\"  ]", true),
+                arguments("[  \"k\"]", true),
 
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k:\"]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[  \"k\"]"));
-        assertTrue(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"  ]"));
+                arguments("[\"k\"]", true),
+                arguments("[\"k:\"]", true),
+                arguments("[  \"k\"]", true),
+                arguments("[\"k\"  ]", true),
 
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k]\"]]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"a  ]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\" a]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\" 0]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"0 ]"));
+                arguments("[\"k]\"]]", false),
+                arguments("[\"k\"a  ]", false),
+                arguments("[\"k\" a]", false),
+                arguments("[\"k\" 0]", false),
+                arguments("[\"k\"0 ]", false),
 
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, ""));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[b]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:b c"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, ":b[\"k\"]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, " b[\"k\"]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[b[0]]"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:c:"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:c:d"));
-        assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\":]:c:d"));
+                arguments("", false),
+                arguments("[b]", false),
+                arguments("[\"k\"]:", false),
+                arguments("[\"k\"]:b c", false),
+                arguments(":b[\"k\"]", false),
+                arguments(" b[\"k\"]", false),
+                arguments("[b[0]]", false),
+                arguments("[\"k\"]:c:", false),
+                arguments("[\"k\"]:c:d", false),
+                arguments("[\"k\":]:c:d", false));
     }
 
-    @Test
-    void collectionAccessByKeyPatternTest() {
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "  a[\"k\"]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:b  "));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:  b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]  :b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"  ]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[  \"k\"]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a  [\"k\"]:b"));
+    @ParameterizedTest
+    @MethodSource
+    void thisMapAccessByIndexPatternTest(String text, boolean expected) {
+        assertEquals(expected, matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, text));
+    }
 
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "  a[0]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0]:b  "));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0]:  b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0]  :b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0  ]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[  0]:b"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a  [0]:b"));
+    static Stream<Arguments> collectionAccessByKeyPatternTest() {
+        return Stream.of(
+                arguments("a[\"k\"]:b", true),
+                arguments("  a[\"k\"]:b", true),
+                arguments("a[\"k\"]:b  ", true),
+                arguments("a[\"k\"]:  b", true),
+                arguments("a[\"k\"]  :b", true),
+                arguments("a[\"k\"  ]:b", true),
+                arguments("a[  \"k\"]:b", true),
+                arguments("a  [\"k\"]:b", true),
 
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "  a[0]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0]  "));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[0  ]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[  0]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a  [0]"));
+                arguments("a[0]:b", true),
+                arguments("  a[0]:b", true),
+                arguments("a[0]:b  ", true),
+                arguments("a[0]:  b", true),
+                arguments("a[0]  :b", true),
+                arguments("a[0  ]:b", true),
+                arguments("a[  0]:b", true),
+                arguments("a  [0]:b", true),
 
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "  a[\"k\"]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]  "));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"  ]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[  \"k\"]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a  [\"k\"]"));
+                arguments("a[0]", true),
+                arguments("  a[0]", true),
+                arguments("a[0]  ", true),
+                arguments("a[0  ]", true),
+                arguments("a[  0]", true),
+                arguments("a  [0]", true),
 
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k:\"]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[  \"k\"]"));
-        assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"  ]"));
+                arguments("a[\"k\"]", true),
+                arguments("  a[\"k\"]", true),
+                arguments("a[\"k\"]  ", true),
+                arguments("a[\"k\"  ]", true),
+                arguments("a[  \"k\"]", true),
+                arguments("a  [\"k\"]", true),
 
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k]\"]]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"a  ]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\" a]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\" 0]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"0 ]"));
+                arguments("a[\"k\"]", true),
+                arguments("a[\"k:\"]", true),
+                arguments("a[  \"k\"]", true),
+                arguments("a[\"k\"  ]", true),
 
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[b]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:b c"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a:b[\"k\"]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a b[\"k\"]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[b[0]]"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:c:"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:c:d"));
-        assertFalse(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\":]:c:d"));
+                arguments("a[\"k]\"]]", false),
+                arguments("a[\"k\"a  ]", false),
+                arguments("a[\"k\" a]", false),
+                arguments("a[\"k\" 0]", false),
+                arguments("a[\"k\"0 ]", false),
+
+                arguments("a", false),
+                arguments("a[b]", false),
+                arguments("a[\"k\"]:", false),
+                arguments("a[\"k\"]:b c", false),
+                arguments("a:b[\"k\"]", false),
+                arguments("a b[\"k\"]", false),
+                arguments("a[b[0]]", false),
+                arguments("a[\"k\"]:c:", false),
+                arguments("a[\"k\"]:c:d", false),
+                arguments("a[\"k\":]:c:d", false));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void collectionAccessByKeyPatternTest(String text, boolean expected) {
+        assertEquals(expected, matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, text));
     }
 
 }

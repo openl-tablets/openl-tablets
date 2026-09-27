@@ -77,6 +77,11 @@ class DatesTest {
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980"));
         assertEquals(new Date(80, 6, 12), Dates.toDate("1980-07-12"));
 
+        assertNull(Dates.toDate("13/13/2013"));
+    }
+
+    @Test
+    void testToDateWithFormat() {
         assertNull(Dates.toDate(null, null));
         assertNull(Dates.toDate("", ""));
         assertNull(Dates.toDate(" ", " "));
@@ -95,7 +100,6 @@ class DatesTest {
         assertEquals(new Date(80, 0, 1), Dates.toDate("Date: 1980 year", "'Date: 'yyyy 'year'"));
         assertEquals(new Date(70, 0, 19), Dates.toDate("Date: 19 days from the 1th January 1970", "'Date: 'd 'days'"));
 
-        assertNull(Dates.toDate("13/13/2013"));
         assertNull(Dates.toDate("12/12/2013", "a"));
     }
 

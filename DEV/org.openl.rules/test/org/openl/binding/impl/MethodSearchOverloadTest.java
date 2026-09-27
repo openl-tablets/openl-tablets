@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
@@ -10,8 +12,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.binding.exception.AmbiguousMethodException;
 
@@ -146,75 +152,60 @@ class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod(target, "_char", nonNumbers, NF, "char", NF, "char");
     }
 
-    @Test
-    void testExpandBoxed() throws AmbiguousMethodException {
-        assertMethod(target, "_Byte", primitives, "Byte", NF, NF, NF, NF, NF);
-        assertMethod(target, "_Byte", boxed, "Byte", NF, NF, NF, NF, NF, NF, NF);
-        assertMethod(target, "_Byte", nonNumbers, NF, NF, NF, NF);
+    static Stream<Arguments> testExpandBoxed() {
+        return Stream.of(
+                arguments("_Byte", primitives, new Object[]{"Byte", NF, NF, NF, NF, NF}),
+                arguments("_Byte", boxed, new Object[]{"Byte", NF, NF, NF, NF, NF, NF, NF}),
+                arguments("_Byte", nonNumbers, new Object[]{NF, NF, NF, NF}),
 
-        assertMethod(target, "_Short", primitives, "Short", "Short", NF, NF, NF, NF);
-        assertMethod(target, "_Short", boxed, "Short", "Short", NF, NF, NF, NF, NF, NF);
-        assertMethod(target, "_Short", nonNumbers, NF, NF, NF, NF);
+                arguments("_Short", primitives, new Object[]{"Short", "Short", NF, NF, NF, NF}),
+                arguments("_Short", boxed, new Object[]{"Short", "Short", NF, NF, NF, NF, NF, NF}),
+                arguments("_Short", nonNumbers, new Object[]{NF, NF, NF, NF}),
 
-        assertMethod(target, "_Integer", primitives, "Integer", "Integer", "Integer", NF, NF, NF);
-        assertMethod(target, "_Integer", boxed, "Integer", "Integer", "Integer", NF, NF, NF, NF, NF);
-        assertMethod(target, "_Integer", nonNumbers, NF, "Integer", NF, "Integer");
+                arguments("_Integer", primitives, new Object[]{"Integer", "Integer", "Integer", NF, NF, NF}),
+                arguments("_Integer", boxed, new Object[]{"Integer", "Integer", "Integer", NF, NF, NF, NF, NF}),
+                arguments("_Integer", nonNumbers, new Object[]{NF, "Integer", NF, "Integer"}),
 
-        assertMethod(target, "_Long", primitives, "Long", "Long", "Long", "Long", NF, NF);
-        assertMethod(target, "_Long", boxed, "Long", "Long", "Long", "Long", NF, NF, NF, NF);
-        assertMethod(target, "_Long", nonNumbers, NF, "Long", NF, "Long");
+                arguments("_Long", primitives, new Object[]{"Long", "Long", "Long", "Long", NF, NF}),
+                arguments("_Long", boxed, new Object[]{"Long", "Long", "Long", "Long", NF, NF, NF, NF}),
+                arguments("_Long", nonNumbers, new Object[]{NF, "Long", NF, "Long"}),
 
-        assertMethod(target, "_Float", primitives, "Float", "Float", "Float", "Float", "Float", NF);
-        assertMethod(target, "_Float", boxed, "Float", "Float", "Float", "Float", "Float", NF, NF, NF);
-        assertMethod(target, "_Float", nonNumbers, NF, "Float", NF, "Float");
+                arguments("_Float", primitives, new Object[]{"Float", "Float", "Float", "Float", "Float", NF}),
+                arguments("_Float", boxed, new Object[]{"Float", "Float", "Float", "Float", "Float", NF, NF, NF}),
+                arguments("_Float", nonNumbers, new Object[]{NF, "Float", NF, "Float"}),
 
-        assertMethod(target, "_Double", primitives, "Double", "Double", "Double", "Double", "Double", "Double");
-        assertMethod(target, "_Double", boxed, "Double", "Double", "Double", "Double", "Double", "Double", NF, NF);
-        assertMethod(target, "_Double", nonNumbers, NF, "Double", NF, "Double");
+                arguments("_Double", primitives,
+                        new Object[]{"Double", "Double", "Double", "Double", "Double", "Double"}),
+                arguments("_Double", boxed,
+                        new Object[]{"Double", "Double", "Double", "Double", "Double", "Double", NF, NF}),
+                arguments("_Double", nonNumbers, new Object[]{NF, "Double", NF, "Double"}),
 
-        assertMethod(target, "_Boolean", primitives, NF, NF, NF, NF, NF, NF);
-        assertMethod(target, "_Boolean", boxed, NF, NF, NF, NF, NF, NF, NF, NF);
-        assertMethod(target, "_Boolean", nonNumbers, "Boolean", NF, "Boolean", NF);
+                arguments("_Boolean", primitives, new Object[]{NF, NF, NF, NF, NF, NF}),
+                arguments("_Boolean", boxed, new Object[]{NF, NF, NF, NF, NF, NF, NF, NF}),
+                arguments("_Boolean", nonNumbers, new Object[]{"Boolean", NF, "Boolean", NF}),
 
-        assertMethod(target, "_Character", primitives, NF, NF, NF, NF, NF, NF);
-        assertMethod(target, "_Character", boxed, NF, NF, NF, NF, NF, NF, NF, NF);
-        assertMethod(target, "_Character", nonNumbers, NF, "Character", NF, "Character");
+                arguments("_Character", primitives, new Object[]{NF, NF, NF, NF, NF, NF}),
+                arguments("_Character", boxed, new Object[]{NF, NF, NF, NF, NF, NF, NF, NF}),
+                arguments("_Character", nonNumbers, new Object[]{NF, "Character", NF, "Character"}),
 
-        assertMethod(target, "_BigInteger", primitives, "BigInteger", "BigInteger", "BigInteger", "BigInteger", NF, NF);
-        assertMethod(target,
-                "_BigInteger",
-                boxed,
-                "BigInteger",
-                "BigInteger",
-                "BigInteger",
-                "BigInteger",
-                NF,
-                NF,
-                "BigInteger",
-                NF);
-        assertMethod(target, "_BigInteger", nonNumbers, NF, "BigInteger", NF, "BigInteger");
+                arguments("_BigInteger", primitives,
+                        new Object[]{"BigInteger", "BigInteger", "BigInteger", "BigInteger", NF, NF}),
+                arguments("_BigInteger", boxed,
+                        new Object[]{"BigInteger", "BigInteger", "BigInteger", "BigInteger", NF, NF, "BigInteger", NF}),
+                arguments("_BigInteger", nonNumbers, new Object[]{NF, "BigInteger", NF, "BigInteger"}),
 
-        assertMethod(target,
-                "_BigDecimal",
-                primitives,
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal");
-        assertMethod(target,
-                "_BigDecimal",
-                boxed,
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal",
-                "BigDecimal");
-        assertMethod(target, "_BigDecimal", nonNumbers, NF, "BigDecimal", NF, "BigDecimal");
+                arguments("_BigDecimal", primitives, new Object[]{"BigDecimal", "BigDecimal", "BigDecimal",
+                        "BigDecimal", "BigDecimal", "BigDecimal"}),
+                arguments("_BigDecimal", boxed, new Object[]{"BigDecimal", "BigDecimal", "BigDecimal", "BigDecimal",
+                        "BigDecimal", "BigDecimal", "BigDecimal", "BigDecimal"}),
+                arguments("_BigDecimal", nonNumbers, new Object[]{NF, "BigDecimal", NF, "BigDecimal"}));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testExpandBoxed(String methodName, Class<?>[] argTypes, Object[] expected)
+            throws AmbiguousMethodException {
+        assertMethod(target, methodName, argTypes, expected);
     }
 
     @Test
@@ -353,68 +344,75 @@ class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod(target, "m2", double.class, nonNumbers, "GenericDouble", "double", "GenericDouble", "Double");
     }
 
-    @Test
-    void testVarArguments() throws AmbiguousMethodException {
-        assertMethod("Integer", target, "vararg", Integer.class);
-        assertMethod("Integer", target, "vararg", int.class);
-        assertMethod("Integer", target, "vararg", Short.class);
-        assertMethod("Object[]", target, "vararg", Short.class, Short.class);
-        assertMethod("Object[]", target, "vararg", Short.class, Double.class);
-        assertMethod("Object[]", target, "vararg", Double.class);
-        assertMethod("Object[]", target, "vararg", String.class, Integer.class);
-        assertMethod("Object[]", target, "vararg", int.class, int.class);
-        assertMethod("Object[]", target, "vararg", Integer.class, double.class);
-        assertMethod("Object[]", target, "vararg", Integer.class, int.class);
+    static Stream<Arguments> testVarArguments() {
+        return Stream.of(
+                arguments("Integer", "vararg", new Class<?>[]{Integer.class}),
+                arguments("Integer", "vararg", new Class<?>[]{int.class}),
+                arguments("Integer", "vararg", new Class<?>[]{Short.class}),
+                arguments("Object[]", "vararg", new Class<?>[]{Short.class, Short.class}),
+                arguments("Object[]", "vararg", new Class<?>[]{Short.class, Double.class}),
+                arguments("Object[]", "vararg", new Class<?>[]{Double.class}),
+                arguments("Object[]", "vararg", new Class<?>[]{String.class, Integer.class}),
+                arguments("Object[]", "vararg", new Class<?>[]{int.class, int.class}),
+                arguments("Object[]", "vararg", new Class<?>[]{Integer.class, double.class}),
+                arguments("Object[]", "vararg", new Class<?>[]{Integer.class, int.class}),
 
-        assertMethod("Object[]", target, "vararg1", Integer.class);
-        assertMethod("Object[]", target, "vararg1", String.class, Integer.class);
-        assertMethod("Object[]", target, "vararg1", String.class, int.class);
+                arguments("Object[]", "vararg1", new Class<?>[]{Integer.class}),
+                arguments("Object[]", "vararg1", new Class<?>[]{String.class, Integer.class}),
+                arguments("Object[]", "vararg1", new Class<?>[]{String.class, int.class}),
 
-        assertMethod("Number...Number[]", target, "vararg2", Integer.class);
-        assertMethod("Number...Number[]", target, "vararg2", Double.class, Integer.class);
-        assertMethod("Generic...Object[]", target, "vararg2", String.class, Integer.class);
-        assertMethod("Generic...Object[]", target, "vararg2", String.class, int.class);
-        assertMethod("Generic...Integer[]", target, "vararg2", Integer.class, int.class);
+                arguments("Number...Number[]", "vararg2", new Class<?>[]{Integer.class}),
+                arguments("Number...Number[]", "vararg2", new Class<?>[]{Double.class, Integer.class}),
+                arguments("Generic...Object[]", "vararg2", new Class<?>[]{String.class, Integer.class}),
+                arguments("Generic...Object[]", "vararg2", new Class<?>[]{String.class, int.class}),
+                arguments("Generic...Integer[]", "vararg2", new Class<?>[]{Integer.class, int.class}),
 
-        assertMethod("Integer", target, "vararg3", Integer.class);
-        assertMethod("Integer", target, "vararg3", int.class);
-        assertMethod("Object", target, "vararg3", Short.class);
-        assertMethod("Number[]", target, "vararg3", Short.class, Short.class);
-        assertMethod("Number[]", target, "vararg3", Short.class, Double.class);
-        assertMethod("Object", target, "vararg3", Double.class);
-        assertNotFound(target, "vararg3", String.class, Integer.class);
-        assertMethod("Number[]", target, "vararg3", Integer.class, int.class);
+                arguments("Integer", "vararg3", new Class<?>[]{Integer.class}),
+                arguments("Integer", "vararg3", new Class<?>[]{int.class}),
+                arguments("Object", "vararg3", new Class<?>[]{Short.class}),
+                arguments("Number[]", "vararg3", new Class<?>[]{Short.class, Short.class}),
+                arguments("Number[]", "vararg3", new Class<?>[]{Short.class, Double.class}),
+                arguments("Object", "vararg3", new Class<?>[]{Double.class}),
+                arguments(NF, "vararg3", new Class<?>[]{String.class, Integer.class}),
+                arguments("Number[]", "vararg3", new Class<?>[]{Integer.class, int.class}),
 
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class);
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int.class);
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int.class, int.class);
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class, int.class);
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer[].class);
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int[].class);
+                arguments("Generic_Comparable...Integer[]", "vararg4", new Class<?>[]{Integer.class}),
+                arguments("Generic_Comparable...Integer[]", "vararg4", new Class<?>[]{int.class}),
+                arguments("Generic_Comparable...Integer[]", "vararg4", new Class<?>[]{int.class, int.class}),
+                arguments("Generic_Comparable...Integer[]", "vararg4", new Class<?>[]{Integer.class, int.class}),
+                arguments("Generic_Comparable...Integer[]", "vararg4", new Class<?>[]{Integer[].class}),
+                arguments("Generic_Comparable...Integer[]", "vararg4", new Class<?>[]{int[].class}),
 
-        assertMethod("Long...Long[]", target, "vararg4", Long.class);
-        assertMethod("Long...Long[]", target, "vararg4", long.class);
-        assertMethod("Long...Long[]", target, "vararg4", Long.class, long.class);
-        assertMethod("Long...Long[]", target, "vararg4", long.class, long.class);
-        assertMethod("Long...Long[]", target, "vararg4", Long[].class);
-        assertMethod("Long...Long[]", target, "vararg4", long[].class);
+                arguments("Long...Long[]", "vararg4", new Class<?>[]{Long.class}),
+                arguments("Long...Long[]", "vararg4", new Class<?>[]{long.class}),
+                arguments("Long...Long[]", "vararg4", new Class<?>[]{Long.class, long.class}),
+                arguments("Long...Long[]", "vararg4", new Class<?>[]{long.class, long.class}),
+                arguments("Long...Long[]", "vararg4", new Class<?>[]{Long[].class}),
+                arguments("Long...Long[]", "vararg4", new Class<?>[]{long[].class}),
 
-        assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double.class);
-        assertMethod("Generic_Comparable...Double[]", target, "vararg4", double.class);
-        assertMethod("Generic_Comparable...Double[]", target, "vararg4", double.class, double.class);
-        assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double.class, double.class);
-        assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double[].class);
-        assertMethod("Generic_Comparable...Double[]", target, "vararg4", double[].class);
+                arguments("Generic_Comparable...Double[]", "vararg4", new Class<?>[]{Double.class}),
+                arguments("Generic_Comparable...Double[]", "vararg4", new Class<?>[]{double.class}),
+                arguments("Generic_Comparable...Double[]", "vararg4", new Class<?>[]{double.class, double.class}),
+                arguments("Generic_Comparable...Double[]", "vararg4", new Class<?>[]{Double.class, double.class}),
+                arguments("Generic_Comparable...Double[]", "vararg4", new Class<?>[]{Double[].class}),
+                arguments("Generic_Comparable...Double[]", "vararg4", new Class<?>[]{double[].class}),
 
-        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class);
-        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class, String.class);
-        assertMethod("Generic_Comparable...String[]", target, "vararg4", String[].class);
-        assertMethod("Generic...List[]", target, "vararg4", List.class);
-        assertMethod("Generic...List[]", target, "vararg4", List.class, List.class);
-        assertMethod("Generic...List[]", target, "vararg4", List[].class);
+                arguments("Generic_Comparable...String[]", "vararg4", new Class<?>[]{String.class}),
+                arguments("Generic_Comparable...String[]", "vararg4", new Class<?>[]{String.class, String.class}),
+                arguments("Generic_Comparable...String[]", "vararg4", new Class<?>[]{String[].class}),
+                arguments("Generic...List[]", "vararg4", new Class<?>[]{List.class}),
+                arguments("Generic...List[]", "vararg4", new Class<?>[]{List.class, List.class}),
+                arguments("Generic...List[]", "vararg4", new Class<?>[]{List[].class}),
 
-        assertMethod("Generic...Object[]", target, "vararg4", String.class, Integer.class);
-        assertMethod("BigDecimal...BigDecimal[]", target, "vararg4", Integer.class, double.class);
+                arguments("Generic...Object[]", "vararg4", new Class<?>[]{String.class, Integer.class}),
+                arguments("BigDecimal...BigDecimal[]", "vararg4", new Class<?>[]{Integer.class, double.class}));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testVarArguments(Object expected, String methodName, Class<?>[] argTypes)
+            throws AmbiguousMethodException {
+        assertMethod(expected, target, methodName, argTypes);
     }
 
     @Test

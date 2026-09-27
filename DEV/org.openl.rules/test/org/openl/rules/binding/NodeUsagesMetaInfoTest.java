@@ -685,31 +685,36 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    void testDTArrays() {
-        // Tab
+    void testDTArraysTab() {
         var usedNodes = assertMetaInfo(tabs, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs, 1, 3, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         assertMetaInfo(tabs, 2, 2, 0);
         assertMetaInfo(tabs, 2, 3, 0);
+    }
 
-        // Tab1
-        usedNodes = assertMetaInfo(tabs1, 1, 2, 1);
+    @Test
+    void testDTArraysTab1() {
+        var usedNodes = assertMetaInfo(tabs1, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs1, 2, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         assertMetaInfo(tabs1, 3, 2, 0);
+    }
 
-        // Tab1t
-        usedNodes = assertMetaInfo(tabs1t, 1, 2, 1);
+    @Test
+    void testDTArraysTab1t() {
+        var usedNodes = assertMetaInfo(tabs1t, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs1t, 1, 3, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         assertMetaInfo(tabs1t, 1, 4, 0);
+    }
 
-        // Tab2
-        usedNodes = assertMetaInfo(tabs2, 1, 2, 1);
+    @Test
+    void testDTArraysTab2() {
+        var usedNodes = assertMetaInfo(tabs2, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs2, 1, 3, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
@@ -719,17 +724,21 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         assertMetaInfo(tabs2, 3, 2, 0);
         assertMetaInfo(tabs2, 3, 3, 0);
+    }
 
-        // Tab2t
-        usedNodes = assertMetaInfo(tabs2t, 1, 2, 1);
+    @Test
+    void testDTArraysTab2t() {
+        var usedNodes = assertMetaInfo(tabs2t, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs2t, 1, 3, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         assertMetaInfo(tabs2t, 1, 4, 0);
         assertMetaInfo(tabs2t, 1, 5, 0);
+    }
 
-        // Tab4
-        usedNodes = assertMetaInfo(tabs4, 1, 2, 1);
+    @Test
+    void testDTArraysTab4() {
+        var usedNodes = assertMetaInfo(tabs4, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs4, 2, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
@@ -738,9 +747,11 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = assertMetaInfo(tabs4, 4, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         assertMetaInfo(tabs4, 5, 2, 0);
+    }
 
-        // Tab4t
-        usedNodes = assertMetaInfo(tabs4t, 1, 2, 1);
+    @Test
+    void testDTArraysTab4t() {
+        var usedNodes = assertMetaInfo(tabs4t, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs4t, 1, 3, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
@@ -749,7 +760,6 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = assertMetaInfo(tabs4t, 1, 5, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         assertMetaInfo(tabs4t, 1, 6, 0);
-
     }
 
     @Test

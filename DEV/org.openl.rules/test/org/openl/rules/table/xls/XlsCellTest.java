@@ -69,7 +69,11 @@ class XlsCellTest {
 
         assertEquals(2, cell.getWidth());
         assertEquals(2, cell.getHeight());
+    }
 
+    @Test
+    void testStringMergedCellData() {
+        var cell = xsGrid.getCell(1, 3);
         // test data.
         assertNull(cell.getFormula());
 

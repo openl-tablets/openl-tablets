@@ -106,7 +106,12 @@ class JavaOpenClassTest {
         assertNotEquals(myTypeMethod1, extended1);
         assertSame(myTypeMethod2, extended2);
         assertSame(myTypeMethod3, extended3);
+    }
 
+    @Test
+    void testGetMethodRequiresExactSignature() {
+        IOpenClass myType = JavaOpenClass.getOpenClass(MyType.class);
+        IOpenClass extended = JavaOpenClass.getOpenClass(Extended.class);
         assertNull(myType.getMethod("method1",
                 new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.DOUBLE}));
         assertNull(myType.getMethod("method1",

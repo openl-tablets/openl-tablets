@@ -128,15 +128,21 @@ class GroupManagementTest {
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
         assertEquals(1, queryCount.getTotal());
+    }
+
+    @Test
+    void testDeleteUserWithExternalGroups() {
+        initOneUser();
+        externalGroupService.mergeAllForUser("jdoe", generatePrivilege(51, "Analysts", "Deployers"));
 
         QueryCountHolder.clear();
         userService.deleteUser("jdoe");
-        queryCount = QueryCountHolder.getGrandTotal();
+        var queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getDelete());
         assertEquals(2, queryCount.getTotal());
 
         QueryCountHolder.clear();
-        extGroups = externalGroupService.findAllForUser("jdoe");
+        var extGroups = externalGroupService.findAllForUser("jdoe");
         assertTrue(extGroups.isEmpty());
 
         queryCount = QueryCountHolder.getGrandTotal();
