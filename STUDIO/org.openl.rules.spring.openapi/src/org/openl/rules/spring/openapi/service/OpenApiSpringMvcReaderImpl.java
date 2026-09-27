@@ -209,82 +209,13 @@ public class OpenApiSpringMvcReaderImpl {
         // parse OpenAPI Operation annotation
         parseOperation(apiContext, methodInfo.getOperationAnnotation(), operation);
 
-        // fill responses from Controller Advices
-        for (var controllerAdviceInfo : controllerAdviceInfos) {
-            if (controllerAdviceInfo.getApiResponses().isEmpty()) {
-                continue;
-            }
-            if (operation.getResponses() == null) {
-                operation.setResponses(new ApiResponses());
-            }
-            controllerAdviceInfo.getApiResponses().forEach(operation.getResponses()::addApiResponse);
-        }
-
-        // parse response body
-        var generatedResponses = apiResponseService.generateResponses(apiContext, methodInfo);
-        if (generatedResponses != null) {
-            if (operation.getResponses() == null) {
-                operation.setResponses(generatedResponses);
-            } else {
-                generatedResponses.forEach(operation.getResponses()::addApiResponse);
-            }
-        }
-
-        if (operation.getResponses() != null && operation.getResponses().size() > 1 && operation.getResponses()
-                .get(ApiResponses.DEFAULT) != null && operation.getResponses().get("200") == null) {
-            var defaultResponse = operation.getResponses().remove(ApiResponses.DEFAULT);
-            operation.getResponses().put("200", defaultResponse);
-        }
+        parseResponses(apiContext, methodInfo, controllerAdviceInfos, operation);
 
         // split parameters
         var parameters = new ArrayList<ParameterInfo>();
         var formParameters = new ArrayList<ParameterInfo>();
         var requestBodyParams = new HashSet<Parameter>();
-        var allParamAnnos = new ArrayList<Parameter>();
-        Optional.ofNullable(methodInfo.getOperationAnnotation())
-                .map(io.swagger.v3.oas.annotations.Operation::parameters)
-                .ifPresent(params -> allParamAnnos.addAll(Arrays.asList(params)));
-        Optional.ofNullable(ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(), Parameter.class))
-                .ifPresent(allParamAnnos::addAll);
-
-        ParameterInfo requestBodyParam = null;
-        var methodParameters = methodInfo.getHandler().getMethodParameters();
-        var idx = 0;
-        var formRequest = methodInfo.isFormRequest();
-        for (MethodParameter methodParameter : methodParameters) {
-            var parameterInfo = new ParameterInfo(methodInfo, methodParameter, idx++);
-            if (parameterInfo.getParameter() != null && parameterInfo.getParameter().hidden()
-                    || OpenApiUtils.isIgnorableType(parameterInfo.getType())) {
-                continue;
-            }
-            var reqPart = parameterInfo.getParameterAnnotation(RequestPart.class);
-            var reqParam = parameterInfo.getParameterAnnotation(RequestParam.class);
-            var modelAttribute = apiRequestService.isModelAttribute(parameterInfo);
-            if (modelAttribute || reqPart != null || (reqParam != null && (OpenApiUtils.isFile(parameterInfo
-                    .getType()) || (formRequest && parameterInfo.getParameter() != null && parameterInfo.getParameter()
-                    .in() == ParameterIn.DEFAULT)))) {
-                formParameters.add(parameterInfo);
-                // Skip parameter name resolution for @ModelAttribute - it will be expanded into fields
-                if (!modelAttribute && parameterInfo.getParameter() == null) {
-                    // Try to find Parameter annotation in other places
-                    var paramName = Optional.ofNullable(reqPart)
-                            .map(RequestPart::name)
-                            .or(() -> Optional.of(reqParam).map(RequestParam::name))
-                            .get();
-                    allParamAnnos.stream()
-                            .filter(p -> ParameterIn.DEFAULT == p.in() && paramName.equals(p.name()))
-                            .findFirst()
-                            .ifPresent(p -> {
-                                requestBodyParams.add(p);
-                                parameterInfo.setParameter(p);
-                            });
-                }
-            } else if (apiRequestService.isRequestBody(parameterInfo)) {
-                requestBodyParam = parameterInfo;
-            } else {
-                parameters.add(parameterInfo);
-            }
-        }
+        var requestBodyParam = splitParameters(methodInfo, parameters, formParameters, requestBodyParams);
         // parse parameters; when several handler methods map to the same path and HTTP method (e.g. the
         // multipart, raw and archive variants of one endpoint) OpenAPI collapses them into a single operation,
         // so add each parameter only once to avoid duplicating the shared path and query parameters.
@@ -316,6 +247,110 @@ public class OpenApiSpringMvcReaderImpl {
             apiContext.getPaths().addPathItem(methodInfo.getPathPattern(), pathItem);
         }
         pathItem.operation(PathItem.HttpMethod.valueOf(methodInfo.getRequestMethod().name()), operation);
+    }
+
+    private void parseResponses(OpenApiContext apiContext,
+                                MethodInfo methodInfo,
+                                List<ControllerAdviceInfo> controllerAdviceInfos,
+                                Operation operation) {
+        // fill responses from Controller Advices
+        for (var controllerAdviceInfo : controllerAdviceInfos) {
+            if (controllerAdviceInfo.getApiResponses().isEmpty()) {
+                continue;
+            }
+            if (operation.getResponses() == null) {
+                operation.setResponses(new ApiResponses());
+            }
+            controllerAdviceInfo.getApiResponses().forEach(operation.getResponses()::addApiResponse);
+        }
+
+        // parse response body
+        var generatedResponses = apiResponseService.generateResponses(apiContext, methodInfo);
+        if (generatedResponses != null) {
+            if (operation.getResponses() == null) {
+                operation.setResponses(generatedResponses);
+            } else {
+                generatedResponses.forEach(operation.getResponses()::addApiResponse);
+            }
+        }
+
+        if (operation.getResponses() != null && operation.getResponses().size() > 1 && operation.getResponses()
+                .get(ApiResponses.DEFAULT) != null && operation.getResponses().get("200") == null) {
+            var defaultResponse = operation.getResponses().remove(ApiResponses.DEFAULT);
+            operation.getResponses().put("200", defaultResponse);
+        }
+    }
+
+    /**
+     * Sorts the handler method parameters into plain parameters, form parameters and the request body parameter.
+     * <p>
+     * A form parameter without a swagger {@code @Parameter} annotation takes the matching one declared on the method.
+     * Such annotations are collected into {@code requestBodyParams}.
+     *
+     * @return the request body parameter, or {@code null} when the method has none
+     */
+    private ParameterInfo splitParameters(MethodInfo methodInfo,
+                                          List<ParameterInfo> parameters,
+                                          List<ParameterInfo> formParameters,
+                                          Set<Parameter> requestBodyParams) {
+        var allParamAnnos = new ArrayList<Parameter>();
+        Optional.ofNullable(methodInfo.getOperationAnnotation())
+                .map(io.swagger.v3.oas.annotations.Operation::parameters)
+                .ifPresent(params -> allParamAnnos.addAll(Arrays.asList(params)));
+        Optional.ofNullable(ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(), Parameter.class))
+                .ifPresent(allParamAnnos::addAll);
+
+        ParameterInfo requestBodyParam = null;
+        var methodParameters = methodInfo.getHandler().getMethodParameters();
+        var idx = 0;
+        var formRequest = methodInfo.isFormRequest();
+        for (MethodParameter methodParameter : methodParameters) {
+            var parameterInfo = new ParameterInfo(methodInfo, methodParameter, idx++);
+            if (isIgnoredParameter(parameterInfo)) {
+                continue;
+            }
+            var reqPart = parameterInfo.getParameterAnnotation(RequestPart.class);
+            var reqParam = parameterInfo.getParameterAnnotation(RequestParam.class);
+            var modelAttribute = apiRequestService.isModelAttribute(parameterInfo);
+            if (modelAttribute || reqPart != null
+                    || (reqParam != null && isFormRequestParam(parameterInfo, formRequest))) {
+                formParameters.add(parameterInfo);
+                // Skip parameter name resolution for @ModelAttribute - it will be expanded into fields
+                if (!modelAttribute && parameterInfo.getParameter() == null) {
+                    // Try to find Parameter annotation in other places
+                    var paramName = Optional.ofNullable(reqPart)
+                            .map(RequestPart::name)
+                            .or(() -> Optional.of(reqParam).map(RequestParam::name))
+                            .get();
+                    allParamAnnos.stream()
+                            .filter(p -> ParameterIn.DEFAULT == p.in() && paramName.equals(p.name()))
+                            .findFirst()
+                            .ifPresent(p -> {
+                                requestBodyParams.add(p);
+                                parameterInfo.setParameter(p);
+                            });
+                }
+            } else if (apiRequestService.isRequestBody(parameterInfo)) {
+                requestBodyParam = parameterInfo;
+            } else {
+                parameters.add(parameterInfo);
+            }
+        }
+        return requestBodyParam;
+    }
+
+    private static boolean isIgnoredParameter(ParameterInfo parameterInfo) {
+        return parameterInfo.getParameter() != null && parameterInfo.getParameter().hidden()
+                || OpenApiUtils.isIgnorableType(parameterInfo.getType());
+    }
+
+    /**
+     * Checks whether a {@link RequestParam} parameter is sent in the form body: a file, or a parameter of a form
+     * request whose swagger {@code @Parameter} annotation keeps the default location.
+     */
+    private static boolean isFormRequestParam(ParameterInfo parameterInfo, boolean formRequest) {
+        return OpenApiUtils.isFile(parameterInfo.getType()) || (formRequest && parameterInfo.getParameter() != null
+                && parameterInfo.getParameter().in() == ParameterIn.DEFAULT);
     }
 
     /**

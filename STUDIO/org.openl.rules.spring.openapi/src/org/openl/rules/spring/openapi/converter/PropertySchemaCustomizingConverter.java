@@ -64,59 +64,7 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             removeInferredObjectTypeFromUnion(resolvedSchema);
             removeInferredObjectTypeFromUnion(resolvedSchema.getItems());
             if (resolvedSchema.get$ref() != null || (resolvedSchema.getName() != null && OBJECT_TYPE.equals(resolvedSchema.getType()))) {
-                JavaType javaType;
-                if (type.getType() instanceof JavaType jacksonType) {
-                    javaType = jacksonType;
-                } else {
-                    javaType = objectMapper.constructType(type.getType());
-                }
-                var definition = objectMapper.getSerializationConfig().introspect(javaType);
-                BeanDescription deserializationBeanDesc = null;
-                Schema definedSchema;
-                if (resolvedSchema.get$ref() != null ) {
-                    definedSchema = context.getDefinedModels().get(resolvedSchema.get$ref().substring(21));
-                } else {
-                    definedSchema = resolvedSchema;
-                }
-                for (final var originalProperty : definition.findProperties()) {
-                    var propSchema = findProperty(definedSchema, originalProperty);
-                    if (propSchema == null) {
-                        continue;
-                    }
-                    var property = originalProperty;
-                    if (originalProperty.getPrimaryMember() == null) {
-                        if (deserializationBeanDesc == null) {
-                            deserializationBeanDesc = objectMapper.getDeserializationConfig().introspect(javaType);
-                        }
-                        property = deserializationBeanDesc.findProperties().stream()
-                                .filter(p -> p.getName().equals(originalProperty.getName()))
-                                .findFirst()
-                                .orElse(originalProperty);
-                    }
-                    var deprecated = findAnnotation(property, Deprecated.class);
-                    if (deprecated != null) {
-                        propSchema.setDeprecated(Boolean.TRUE);
-                    }
-                    var paramApi = findAnnotation(property, Parameter.class);
-                    if (paramApi != null) {
-                        if (StringUtils.isNotBlank(paramApi.description())) {
-                            propSchema.setDescription(apiPropertyResolver.resolve(paramApi.description()));
-                        }
-                        if (StringUtils.isNotBlank(paramApi.example())) {
-                            propSchema.setExample(paramApi.example());
-                        }
-                        var schemaApi = paramApi.schema();
-                        if (schemaApi != null && schemaApi.allowableValues().length > 0) {
-                            propSchema.setEnum(Arrays.asList(schemaApi.allowableValues()));
-                        }
-                        if (paramApi.required()
-                                && !CollectionUtils.containsInstance(definedSchema.getRequired(), property.getName())) {
-                            definedSchema.addRequiredItem(property.getName());
-                        }
-                    }
-                    expandEnumKeyedMap(property, propSchema);
-                }
-                applyDiscriminatorMapping(javaType, definedSchema, context);
+                customizeProperties(type, context, resolvedSchema);
             }
             if (StringUtils.isNotBlank(resolvedSchema.getDescription())) {
                 resolvedSchema.setDescription(apiPropertyResolver.resolve(resolvedSchema.getDescription()));
@@ -124,6 +72,68 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             return resolvedSchema;
         }
         return null;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void customizeProperties(AnnotatedType type, ModelConverterContext context, Schema resolvedSchema) {
+        JavaType javaType;
+        if (type.getType() instanceof JavaType jacksonType) {
+            javaType = jacksonType;
+        } else {
+            javaType = objectMapper.constructType(type.getType());
+        }
+        var definition = objectMapper.getSerializationConfig().introspect(javaType);
+        BeanDescription deserializationBeanDesc = null;
+        Schema definedSchema;
+        if (resolvedSchema.get$ref() != null ) {
+            definedSchema = context.getDefinedModels().get(resolvedSchema.get$ref().substring(21));
+        } else {
+            definedSchema = resolvedSchema;
+        }
+        for (final var originalProperty : definition.findProperties()) {
+            var propSchema = findProperty(definedSchema, originalProperty);
+            if (propSchema == null) {
+                continue;
+            }
+            var property = originalProperty;
+            if (originalProperty.getPrimaryMember() == null) {
+                if (deserializationBeanDesc == null) {
+                    deserializationBeanDesc = objectMapper.getDeserializationConfig().introspect(javaType);
+                }
+                property = deserializationBeanDesc.findProperties().stream()
+                        .filter(p -> p.getName().equals(originalProperty.getName()))
+                        .findFirst()
+                        .orElse(originalProperty);
+            }
+            customizeProperty(property, propSchema, definedSchema);
+        }
+        applyDiscriminatorMapping(javaType, definedSchema, context);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void customizeProperty(BeanPropertyDefinition property, Schema propSchema, Schema definedSchema) {
+        var deprecated = findAnnotation(property, Deprecated.class);
+        if (deprecated != null) {
+            propSchema.setDeprecated(Boolean.TRUE);
+        }
+        var paramApi = findAnnotation(property, Parameter.class);
+        if (paramApi != null) {
+            if (StringUtils.isNotBlank(paramApi.description())) {
+                propSchema.setDescription(apiPropertyResolver.resolve(paramApi.description()));
+            }
+            if (StringUtils.isNotBlank(paramApi.example())) {
+                propSchema.setExample(paramApi.example());
+            }
+            var schemaApi = paramApi.schema();
+            if (schemaApi != null && schemaApi.allowableValues().length > 0) {
+                propSchema.setEnum(Arrays.asList(schemaApi.allowableValues()));
+            }
+            if (paramApi.required()
+                    && !CollectionUtils.containsInstance(definedSchema.getRequired(), property.getName())) {
+                definedSchema.addRequiredItem(property.getName());
+            }
+        }
+        expandEnumKeyedMap(property, propSchema);
     }
 
     private static void removeInferredObjectTypeFromUnion(Schema<?> schema) {
@@ -168,13 +178,9 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
         if (typeInfo == null || subTypes == null || typeInfo.use() != JsonTypeInfo.Id.NAME) {
             return;
         }
-        var discriminator = definedSchema.getDiscriminator();
-        if (discriminator == null) {
-            discriminator = new Discriminator().propertyName(typeInfo.property());
-            definedSchema.setDiscriminator(discriminator);
-        }
-        var needsMapping = discriminator.getMapping() == null || discriminator.getMapping().isEmpty();
-        var needsOneOf = definedSchema.getOneOf() == null || definedSchema.getOneOf().isEmpty();
+        var discriminator = getOrCreateDiscriminator(definedSchema, typeInfo);
+        var needsMapping = CollectionUtils.isEmpty(discriminator.getMapping());
+        var needsOneOf = CollectionUtils.isEmpty(definedSchema.getOneOf());
         if (!needsMapping && !needsOneOf) {
             return;
         }
@@ -194,6 +200,16 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
         if (mapping != null) {
             discriminator.setMapping(mapping);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static Discriminator getOrCreateDiscriminator(Schema definedSchema, JsonTypeInfo typeInfo) {
+        var discriminator = definedSchema.getDiscriminator();
+        if (discriminator == null) {
+            discriminator = new Discriminator().propertyName(typeInfo.property());
+            definedSchema.setDiscriminator(discriminator);
+        }
+        return discriminator;
     }
 
     private String resolveSubTypeRef(JsonSubTypes.Type subType, ModelConverterContext context) {

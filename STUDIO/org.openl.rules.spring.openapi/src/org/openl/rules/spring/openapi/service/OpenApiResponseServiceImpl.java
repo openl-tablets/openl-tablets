@@ -3,6 +3,7 @@ package org.openl.rules.spring.openapi.service;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -15,11 +16,13 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -103,7 +106,6 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void decorateExceptionHandler(ExceptionHandlerInfo exHandlerInfo,
                                           ApiResponses classApiResponses,
                                           ApiResponses methodApiResponses,
@@ -112,33 +114,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
         if (exHandlerInfo.getStatusCode() != null) {
             statusCodes.add(exHandlerInfo.getStatusCode());
         } else {
-            var scanner = new ClassPathScanningCandidateComponentProvider(false);
-            for (var baseException : exHandlerInfo.getHandledExceptions()) {
-                scanner.addIncludeFilter(new AssignableTypeFilter(baseException));
-            }
-            for (var basePackage : ALLOWED_EXCEPTIONS_PACKAGES) {
-                var candidates = scanner.findCandidateComponents(basePackage);
-                for (var candidate : candidates) {
-                    try {
-                        var cl = (Class<? extends Throwable>) Class.forName(candidate.getBeanClassName());
-                        if (OpenApiUtils.isHidden(cl)) {
-                            continue;
-                        }
-                        var bestMatchingMethod = exHandlerAdviceCache
-                                .get(exHandlerInfo.getControllerAdviceBeanType())
-                                .resolveMethodByExceptionType(cl);
-                        if (exHandlerInfo.getMethod().equals(bestMatchingMethod)) {
-                            var responseStatus = AnnotationUtils
-                                    .findAnnotation(Class.forName(candidate.getBeanClassName()), ResponseStatus.class);
-                            if (responseStatus != null) {
-                                statusCodes.add(String.valueOf(responseStatus.code().value()));
-                            }
-                        }
-                    } catch (ClassNotFoundException ignored) {
-                        // bean class not resolvable at this point; skip this candidate
-                    }
-                }
-            }
+            collectHandledStatusCodes(exHandlerInfo, statusCodes);
         }
         var schema = apiParameterService.resolveSchema(exHandlerInfo.getReturnType(), components, null);
         if (schema != null) {
@@ -149,18 +125,68 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
                 }
             } else {
                 for (var statusCode : statusCodes) {
-                    var apiResponse = Optional.ofNullable(methodApiResponses.get(statusCode))
-                            .or(() -> Optional.ofNullable(classApiResponses.get(statusCode)))
-                            .orElse(null);
-                    var httpStatus = Objects.requireNonNull(HttpStatus.resolve(Integer.parseInt(statusCode)));
-                    if (apiResponse == null) {
-                        methodApiResponses.addApiResponse(statusCode,
-                                new ApiResponse().description(httpStatus.getReasonPhrase()).content(content));
-                    } else {
-                        extendApiResponse(apiResponse, content, schema);
-                    }
+                    addStatusCodeResponse(statusCode, classApiResponses, methodApiResponses, content, schema);
                 }
             }
+        }
+    }
+
+    /**
+     * Collects the {@link ResponseStatus} codes of the visible exceptions from the allowed packages that resolve to
+     * the given exception handler method.
+     */
+    private void collectHandledStatusCodes(ExceptionHandlerInfo exHandlerInfo, Set<String> statusCodes) {
+        var scanner = new ClassPathScanningCandidateComponentProvider(false);
+        for (var baseException : exHandlerInfo.getHandledExceptions()) {
+            scanner.addIncludeFilter(new AssignableTypeFilter(baseException));
+        }
+        for (var basePackage : ALLOWED_EXCEPTIONS_PACKAGES) {
+            var candidates = scanner.findCandidateComponents(basePackage);
+            for (var candidate : candidates) {
+                collectHandledStatusCode(exHandlerInfo, candidate, statusCodes);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void collectHandledStatusCode(ExceptionHandlerInfo exHandlerInfo,
+                                          BeanDefinition candidate,
+                                          Set<String> statusCodes) {
+        try {
+            var cl = (Class<? extends Throwable>) Class.forName(candidate.getBeanClassName());
+            if (OpenApiUtils.isHidden(cl)) {
+                return;
+            }
+            var bestMatchingMethod = exHandlerAdviceCache
+                    .get(exHandlerInfo.getControllerAdviceBeanType())
+                    .resolveMethodByExceptionType(cl);
+            if (exHandlerInfo.getMethod().equals(bestMatchingMethod)) {
+                var responseStatus = AnnotationUtils
+                        .findAnnotation(Class.forName(candidate.getBeanClassName()), ResponseStatus.class);
+                if (responseStatus != null) {
+                    statusCodes.add(String.valueOf(responseStatus.code().value()));
+                }
+            }
+        } catch (ClassNotFoundException ignored) {
+            // bean class not resolvable at this point; skip this candidate
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static void addStatusCodeResponse(String statusCode,
+                                              ApiResponses classApiResponses,
+                                              ApiResponses methodApiResponses,
+                                              Content content,
+                                              Schema schema) {
+        var apiResponse = Optional.ofNullable(methodApiResponses.get(statusCode))
+                .or(() -> Optional.ofNullable(classApiResponses.get(statusCode)))
+                .orElse(null);
+        var httpStatus = Objects.requireNonNull(HttpStatus.resolve(Integer.parseInt(statusCode)));
+        if (apiResponse == null) {
+            methodApiResponses.addApiResponse(statusCode,
+                    new ApiResponse().description(httpStatus.getReasonPhrase()).content(content));
+        } else {
+            extendApiResponse(apiResponse, content, schema);
         }
     }
 
@@ -228,7 +254,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
         var response = new ApiResponse();
         if (StringUtils.isNotBlank(apiResponse.ref())) {
             response.set$ref(apiResponse.ref());
-            responses.addApiResponse(StringUtils.isNotBlank(apiResponse.responseCode()) ? apiResponse.responseCode() : ApiResponses.DEFAULT, response);
+            responses.addApiResponse(responseCode(apiResponse), response);
         } else {
             if (StringUtils.isNotBlank(apiResponse.description())) {
                 response.setDescription(apiPropertyResolver.resolve(apiResponse.description()));
@@ -240,11 +266,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
             AnnotationsUtils.getContent(apiResponse.content(), new String[0], produces, null, components, jsonView)
                     .ifPresent(response::content);
             AnnotationsUtils.getHeaders(apiResponse.headers(), jsonView).ifPresent(headers -> {
-                for (var header : headers.values()) {
-                    if (StringUtils.isNotBlank(header.getDescription())) {
-                        header.description(apiPropertyResolver.resolve(header.getDescription()));
-                    }
-                }
+                resolveHeaderDescriptions(headers);
                 response.setHeaders(headers);
             });
             if (StringUtils.isNotBlank(response.getDescription()) || response.getContent() != null || response
@@ -253,10 +275,22 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
                 if (!links.isEmpty()) {
                     response.setLinks(links);
                 }
-                responses.addApiResponse(StringUtils.isNotBlank(apiResponse.responseCode()) ? apiResponse.responseCode() : ApiResponses.DEFAULT, response);
+                responses.addApiResponse(responseCode(apiResponse), response);
             }
         }
         fillHeaderScheme(response);
+    }
+
+    private static String responseCode(io.swagger.v3.oas.annotations.responses.ApiResponse apiResponse) {
+        return StringUtils.isNotBlank(apiResponse.responseCode()) ? apiResponse.responseCode() : ApiResponses.DEFAULT;
+    }
+
+    private void resolveHeaderDescriptions(Map<String, Header> headers) {
+        for (var header : headers.values()) {
+            if (StringUtils.isNotBlank(header.getDescription())) {
+                header.description(apiPropertyResolver.resolve(header.getDescription()));
+            }
+        }
     }
 
     private void fillHeaderScheme(ApiResponse apiResponse) {
@@ -280,51 +314,73 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
             }
         }
         if (OpenApiUtils.isVoid(returnType)) {
-            if (genericResponseCode) {
-                if (responses.isEmpty()) {
-                    responses.addApiResponse(ApiResponses.DEFAULT, createDefaultApiResponse());
-                }
-            } else {
-                var responseCode = Optional.ofNullable(methodInfo.getHttpStatus())
+            decorateVoidResponse(methodInfo, responses, genericResponseCode);
+        } else {
+            decorateContentResponse(methodInfo, responses, components, returnType, genericResponseCode);
+        }
+    }
+
+    private static void decorateVoidResponse(MethodInfo methodInfo,
+                                             ApiResponses responses,
+                                             boolean genericResponseCode) {
+        if (genericResponseCode) {
+            if (responses.isEmpty()) {
+                responses.addApiResponse(ApiResponses.DEFAULT, createDefaultApiResponse());
+            }
+        } else {
+            var responseCode = Optional.ofNullable(methodInfo.getHttpStatus())
+                    .map(HttpStatus::value)
+                    .map(String::valueOf)
+                    .orElse("204");
+            if (responses.isEmpty() || responses.get(responseCode) == null) {
+                responses.addApiResponse(responseCode, createDefaultApiResponse());
+            }
+        }
+    }
+
+    private void decorateContentResponse(MethodInfo methodInfo,
+                                         ApiResponses responses,
+                                         Components components,
+                                         Type returnType,
+                                         boolean genericResponseCode) {
+        var schema = apiParameterService.resolveSchema(returnType, components, methodInfo.getJsonView());
+        if (schema != null) {
+            var content = createContent(schema, methodInfo.getProduces());
+            if (responses.isEmpty()) {
+                var responseCode = genericResponseCode ? ApiResponses.DEFAULT
+                        : Optional.ofNullable(methodInfo.getHttpStatus())
                         .map(HttpStatus::value)
                         .map(String::valueOf)
-                        .orElse("204");
-                if (responses.isEmpty() || responses.get(responseCode) == null) {
-                    responses.addApiResponse(responseCode, createDefaultApiResponse());
+                        .orElse("200");
+                responses.addApiResponse(responseCode, createDefaultApiResponse().content(content));
+            } else {
+                extendDeclaredResponses(methodInfo, responses, content, schema);
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static void extendDeclaredResponses(MethodInfo methodInfo,
+                                                ApiResponses responses,
+                                                Content content,
+                                                Schema schema) {
+        if (methodInfo.getHttpStatus() == null) {
+            var defaultResponse = responses.get(ApiResponses.DEFAULT);
+            if (defaultResponse != null) {
+                extendApiResponse(defaultResponse, content, schema);
+            } else {
+                var apiResponse = responses.get("200");
+                if (apiResponse != null) {
+                    extendApiResponse(apiResponse, content, schema);
                 }
             }
         } else {
-            var schema = apiParameterService.resolveSchema(returnType, components, methodInfo.getJsonView());
-            if (schema != null) {
-                var content = createContent(schema, methodInfo.getProduces());
-                if (responses.isEmpty()) {
-                    var responseCode = genericResponseCode ? ApiResponses.DEFAULT
-                            : Optional.ofNullable(methodInfo.getHttpStatus())
-                            .map(HttpStatus::value)
-                            .map(String::valueOf)
-                            .orElse("200");
-                    responses.addApiResponse(responseCode, createDefaultApiResponse().content(content));
-                } else {
-                    if (methodInfo.getHttpStatus() == null) {
-                        var defaultResponse = responses.get(ApiResponses.DEFAULT);
-                        if (defaultResponse != null) {
-                            extendApiResponse(defaultResponse, content, schema);
-                        } else {
-                            var apiResponse = responses.get("200");
-                            if (apiResponse != null) {
-                                extendApiResponse(apiResponse, content, schema);
-                            }
-                        }
-                    } else {
-                        var statusCode = String.valueOf(methodInfo.getHttpStatus().value());
-                        var apiResponse = responses.get(statusCode);
-                        if (apiResponse != null) {
-                            extendApiResponse(apiResponse, content, schema);
-                        } else {
-                            responses.addApiResponse(statusCode, createDefaultApiResponse().content(content));
-                        }
-                    }
-                }
+            var statusCode = String.valueOf(methodInfo.getHttpStatus().value());
+            var apiResponse = responses.get(statusCode);
+            if (apiResponse != null) {
+                extendApiResponse(apiResponse, content, schema);
+            } else {
+                responses.addApiResponse(statusCode, createDefaultApiResponse().content(content));
             }
         }
     }

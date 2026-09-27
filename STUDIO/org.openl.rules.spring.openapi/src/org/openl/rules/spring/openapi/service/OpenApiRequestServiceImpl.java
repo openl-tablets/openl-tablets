@@ -114,78 +114,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 expandModelAttributeFields(paramInfo, objectSchema, components);
                 continue;
             }
-
-            var requestParam = paramInfo.getParameterAnnotation(RequestParam.class);
-            var requestPart = paramInfo.getParameterAnnotation(RequestPart.class);
-            var nameRef = new Object() {
-                String name;
-            };
-            boolean required;
-            if (requestParam != null) {
-                if (StringUtils.isNotBlank(requestParam.name())) {
-                    nameRef.name = requestParam.name();
-                }
-                required = requestParam.required();
-            } else {
-                if (StringUtils.isNotBlank(requestPart.name())) {
-                    nameRef.name = requestPart.name();
-                }
-                required = requestPart.required();
-            }
-            var apiParameter = paramInfo.getParameter();
-            if (apiParameter != null) {
-                if (StringUtils.isNotBlank(apiParameter.name())) {
-                    nameRef.name = apiParameter.name();
-                }
-                required = apiParameter.required();
-            }
-            if (nameRef.name == null) {
-                nameRef.name = "arg" + paramInfo.getIndex();
-            }
-            if (required) {
-                addRequiredItemIfAbsent(objectSchema, nameRef.name);
-            }
-
-            var parameterType = ParameterProcessor.getParameterType(paramInfo.getParameter(), true);
-            if (parameterType == null) {
-                parameterType = paramInfo.getType();
-            }
-            var schema = apiParameterService.resolveSchema(parameterType, components, paramInfo.getJsonView());
-            if (apiParameter != null) {
-                if (StringUtils.isNotBlank(apiParameter.description())) {
-                    schema.setDescription(propertyResolver.resolve(apiParameter.description()));
-                }
-                applyParameterSchema(schema, apiParameter.schema());
-                for (var content : apiParameter.content()) {
-                    Stream.of(content.encoding()).map(apiEncoding -> {
-                        var encoding = new Encoding();
-                        if (StringUtils.isNotBlank(apiEncoding.contentType())) {
-                            encoding.contentType(apiEncoding.contentType());
-                        }
-                        if (StringUtils.isNotBlank(apiEncoding.style())) {
-                            encoding.style(Encoding.StyleEnum.valueOf(apiEncoding.style()));
-                        }
-                        if (apiEncoding.explode()) {
-                            encoding.setExplode(Boolean.TRUE);
-                        }
-                        if (apiEncoding.allowReserved()) {
-                            encoding.setAllowReserved(Boolean.TRUE);
-                        }
-                        AnnotationsUtils.getHeaders(apiEncoding.headers(), null).ifPresent(encoding::setHeaders);
-                        encoding.setExtensions(AnnotationsUtils.getExtensions(apiEncoding.extensions()));
-                        return encoding;
-                    }).forEach(encoding -> encodingMap.put(nameRef.name, encoding));
-                }
-            }
-            // The binding default (a @RequestParam defaultValue) applies unless the @Parameter/@Schema
-            // already set one — form-data properties otherwise dropped it, unlike query parameters.
-            if (schema.getDefault() == null && requestParam != null
-                    && StringUtils.isNotBlank(requestParam.defaultValue())
-                    && !ValueConstants.DEFAULT_NONE.equals(requestParam.defaultValue())) {
-                schema.setDefault(requestParam.defaultValue());
-            }
-            apiParameterService.applyValidationAnnotations(paramInfo, schema);
-            objectSchema.addProperty(nameRef.name, schema);
+            addFormParameter(paramInfo, objectSchema, encodingMap, components);
         }
 
         RequestBody requestBody = null;
@@ -203,6 +132,97 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         return requestBody;
     }
 
+    private void addFormParameter(ParameterInfo paramInfo,
+                                  ObjectSchema objectSchema,
+                                  Map<String, Encoding> encodingMap,
+                                  Components components) {
+        var requestParam = paramInfo.getParameterAnnotation(RequestParam.class);
+        var requestPart = paramInfo.getParameterAnnotation(RequestPart.class);
+        String name = null;
+        boolean required;
+        if (requestParam != null) {
+            if (StringUtils.isNotBlank(requestParam.name())) {
+                name = requestParam.name();
+            }
+            required = requestParam.required();
+        } else {
+            if (StringUtils.isNotBlank(requestPart.name())) {
+                name = requestPart.name();
+            }
+            required = requestPart.required();
+        }
+        var apiParameter = paramInfo.getParameter();
+        if (apiParameter != null) {
+            if (StringUtils.isNotBlank(apiParameter.name())) {
+                name = apiParameter.name();
+            }
+            required = apiParameter.required();
+        }
+        if (name == null) {
+            name = "arg" + paramInfo.getIndex();
+        }
+        if (required) {
+            addRequiredItemIfAbsent(objectSchema, name);
+        }
+
+        var parameterType = ParameterProcessor.getParameterType(paramInfo.getParameter(), true);
+        if (parameterType == null) {
+            parameterType = paramInfo.getType();
+        }
+        var schema = apiParameterService.resolveSchema(parameterType, components, paramInfo.getJsonView());
+        if (apiParameter != null) {
+            applyFormParameterAnnotation(schema, apiParameter, name, encodingMap);
+        }
+        // The binding default (a @RequestParam defaultValue) applies unless the @Parameter/@Schema
+        // already set one — form-data properties otherwise dropped it, unlike query parameters.
+        applyBindingDefault(schema, requestParam);
+        apiParameterService.applyValidationAnnotations(paramInfo, schema);
+        objectSchema.addProperty(name, schema);
+    }
+
+    private void applyFormParameterAnnotation(io.swagger.v3.oas.models.media.Schema<?> schema,
+                                              Parameter apiParameter,
+                                              String name,
+                                              Map<String, Encoding> encodingMap) {
+        if (StringUtils.isNotBlank(apiParameter.description())) {
+            schema.setDescription(propertyResolver.resolve(apiParameter.description()));
+        }
+        applyParameterSchema(schema, apiParameter.schema());
+        for (var content : apiParameter.content()) {
+            Stream.of(content.encoding())
+                    .map(OpenApiRequestServiceImpl::toEncoding)
+                    .forEach(encoding -> encodingMap.put(name, encoding));
+        }
+    }
+
+    private static Encoding toEncoding(io.swagger.v3.oas.annotations.media.Encoding apiEncoding) {
+        var encoding = new Encoding();
+        if (StringUtils.isNotBlank(apiEncoding.contentType())) {
+            encoding.contentType(apiEncoding.contentType());
+        }
+        if (StringUtils.isNotBlank(apiEncoding.style())) {
+            encoding.style(Encoding.StyleEnum.valueOf(apiEncoding.style()));
+        }
+        if (apiEncoding.explode()) {
+            encoding.setExplode(Boolean.TRUE);
+        }
+        if (apiEncoding.allowReserved()) {
+            encoding.setAllowReserved(Boolean.TRUE);
+        }
+        AnnotationsUtils.getHeaders(apiEncoding.headers(), null).ifPresent(encoding::setHeaders);
+        encoding.setExtensions(AnnotationsUtils.getExtensions(apiEncoding.extensions()));
+        return encoding;
+    }
+
+    private static void applyBindingDefault(io.swagger.v3.oas.models.media.Schema<?> schema,
+                                            RequestParam requestParam) {
+        if (schema.getDefault() == null && requestParam != null
+                && StringUtils.isNotBlank(requestParam.defaultValue())
+                && !ValueConstants.DEFAULT_NONE.equals(requestParam.defaultValue())) {
+            schema.setDefault(requestParam.defaultValue());
+        }
+    }
+
     private RequestBody parseSpringRequestBody(ParameterInfo requestBodyParam, Components components) {
         var methodInfo = requestBodyParam.getMethodInfo();
         var requestBodyAnno = requestBodyParam
@@ -213,18 +233,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             requestBody.setRequired(Boolean.TRUE);
         }
         if (apiParameter != null) {
-            if (StringUtils.isNotBlank(apiParameter.ref())) {
-                requestBody.set$ref(apiParameter.ref());
-            }
-            if (StringUtils.isNotBlank(apiParameter.description())) {
-                requestBody.setDescription(propertyResolver.resolve(apiParameter.description()));
-            }
-            if (apiParameter.required()) {
-                requestBody.setRequired(Boolean.TRUE);
-            }
-            if (apiParameter.extensions().length > 0) {
-                AnnotationsUtils.getExtensions(apiParameter.extensions()).forEach(requestBody::addExtension);
-            }
+            applyRequestBodyParameter(requestBody, apiParameter);
         }
         var parameterType = ParameterProcessor.getParameterType(requestBodyParam.getParameter(), true);
         if (parameterType == null) {
@@ -255,6 +264,21 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             requestBody.setContent(content);
         }
         return requestBody;
+    }
+
+    private void applyRequestBodyParameter(RequestBody requestBody, Parameter apiParameter) {
+        if (StringUtils.isNotBlank(apiParameter.ref())) {
+            requestBody.set$ref(apiParameter.ref());
+        }
+        if (StringUtils.isNotBlank(apiParameter.description())) {
+            requestBody.setDescription(propertyResolver.resolve(apiParameter.description()));
+        }
+        if (apiParameter.required()) {
+            requestBody.setRequired(Boolean.TRUE);
+        }
+        if (apiParameter.extensions().length > 0) {
+            AnnotationsUtils.getExtensions(apiParameter.extensions()).forEach(requestBody::addExtension);
+        }
     }
 
     private String[] resolveConsumes(MethodInfo methodInfo, Class<?> cl) {
@@ -402,26 +426,11 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
 
             // Apply @Parameter annotation if present (takes precedence)
             if (parameterAnnotation != null) {
-                if (StringUtils.isNotBlank(parameterAnnotation.description())) {
-                    schema.setDescription(propertyResolver.resolve(parameterAnnotation.description()));
-                }
-                if (parameterAnnotation.required()) {
-                    addRequiredItemIfAbsent(objectSchema, fieldName);
-                }
-                // Apply parameter schema properties
-                applyParameterSchema(schema, parameterAnnotation.schema());
+                applyFieldParameterAnnotation(schema, parameterAnnotation, objectSchema, fieldName);
             }
             // Apply @Schema annotation properties if present (if @Parameter wasn't used)
             else if (schemaAnnotation != null) {
-                if (StringUtils.isNotBlank(schemaAnnotation.description())) {
-                    schema.setDescription(propertyResolver.resolve(schemaAnnotation.description()));
-                }
-                applyParameterSchema(schema, schemaAnnotation);
-
-                // Handle required mode
-                if (schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED) {
-                    addRequiredItemIfAbsent(objectSchema, fieldName);
-                }
+                applyFieldSchemaAnnotation(schema, schemaAnnotation, objectSchema, fieldName);
             }
 
             // Apply validation annotations from field
@@ -429,6 +438,35 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
 
             // Add the field as a property
             objectSchema.addProperty(fieldName, schema);
+        }
+    }
+
+    private void applyFieldParameterAnnotation(io.swagger.v3.oas.models.media.Schema<?> schema,
+                                               Parameter parameterAnnotation,
+                                               ObjectSchema objectSchema,
+                                               String fieldName) {
+        if (StringUtils.isNotBlank(parameterAnnotation.description())) {
+            schema.setDescription(propertyResolver.resolve(parameterAnnotation.description()));
+        }
+        if (parameterAnnotation.required()) {
+            addRequiredItemIfAbsent(objectSchema, fieldName);
+        }
+        // Apply parameter schema properties
+        applyParameterSchema(schema, parameterAnnotation.schema());
+    }
+
+    private void applyFieldSchemaAnnotation(io.swagger.v3.oas.models.media.Schema<?> schema,
+                                            Schema schemaAnnotation,
+                                            ObjectSchema objectSchema,
+                                            String fieldName) {
+        if (StringUtils.isNotBlank(schemaAnnotation.description())) {
+            schema.setDescription(propertyResolver.resolve(schemaAnnotation.description()));
+        }
+        applyParameterSchema(schema, schemaAnnotation);
+
+        // Handle required mode
+        if (schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED) {
+            addRequiredItemIfAbsent(objectSchema, fieldName);
         }
     }
 

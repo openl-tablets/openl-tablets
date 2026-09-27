@@ -3,11 +3,13 @@ package org.openl.rules.spring.openapi.service;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -119,26 +121,18 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
 
         // process Parameters from Open API Operation annotation
         if (methodInfo.getOperationAnnotation() != null) {
-            for (var apiParameter : methodInfo.getOperationAnnotation().parameters()) {
-                if (ignore.contains(apiParameter)) {
-                    continue;
-                }
-                var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
-                parameters.putIfAbsent(PKey.of(parameter), parameter);
-            }
+            putApiParameters(parameters,
+                    Arrays.asList(methodInfo.getOperationAnnotation().parameters()),
+                    ignore,
+                    apiContext,
+                    methodInfo);
         }
 
         // process API Parameters from method
         var apiParameters = ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(),
                 io.swagger.v3.oas.annotations.Parameter.class);
         if (apiParameters != null) {
-            for (var apiParameter : apiParameters) {
-                if (ignore.contains(apiParameter)) {
-                    continue;
-                }
-                var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
-                parameters.putIfAbsent(PKey.of(parameter), parameter);
-            }
+            putApiParameters(parameters, apiParameters, ignore, apiContext, methodInfo);
         }
 
         // process method parameters
@@ -157,13 +151,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
                 var parametersAnno = AnnotatedElementUtils.findMergedAnnotation(paramInfo.getMethodParameter().getParameter(),
                         io.swagger.v3.oas.annotations.Parameters.class);
                 if (parametersAnno != null) {
-                    for (var apiParameter : parametersAnno.value()) {
-                        if (ignore.contains(apiParameter)) {
-                            continue;
-                        }
-                        var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
-                        parameters.putIfAbsent(PKey.of(parameter), parameter);
-                    }
+                    putApiParameters(parameters, Arrays.asList(parametersAnno.value()), ignore, apiContext, methodInfo);
                 }
             }
         }
@@ -172,6 +160,24 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
         return parameters.values().stream()
                 .filter(parameter -> !isReservedHeader(parameter))
                 .toList();
+    }
+
+    /**
+     * Parses the swagger {@code @Parameter} annotations that are not ignored and adds each one unless a parameter with
+     * the same name and location is already present.
+     */
+    private void putApiParameters(Map<PKey, Parameter> parameters,
+                                  Iterable<io.swagger.v3.oas.annotations.Parameter> apiParameters,
+                                  Set<io.swagger.v3.oas.annotations.Parameter> ignore,
+                                  OpenApiContext apiContext,
+                                  MethodInfo methodInfo) {
+        for (var apiParameter : apiParameters) {
+            if (ignore.contains(apiParameter)) {
+                continue;
+            }
+            var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
+            parameters.putIfAbsent(PKey.of(parameter), parameter);
+        }
     }
 
     private void mergeParameters(Parameter firstParam, Parameter secondParam) {
@@ -229,36 +235,24 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
         var empty = true;
         String defaultValue = null;
         if (pathVar != null) {
-            var optional = false;
-            if (paramInfo.getType() instanceof ParameterizedType parameterizedType) {
-                optional = parameterizedType.getRawType() == Optional.class;
-            }
-            if ((optional || !pathVar.required()) && !methodInfo.getPathPattern().contains("{" + pathVar.value() + "}")) {
+            if (isMissingPathVariable(paramInfo, methodInfo, pathVar)) {
                 return Optional.empty();
             }
-            if (StringUtils.isNotBlank(pathVar.value())) {
-                parameter.setName(pathVar.value());
-            }
+            setNameIfNotBlank(parameter, pathVar.value());
             parameter.in(ParameterIn.PATH.toString()).required(true);
             empty = false;
         } else if (requestHeader != null) {
-            if (StringUtils.isNotBlank(requestHeader.value())) {
-                parameter.setName(requestHeader.value());
-            }
+            setNameIfNotBlank(parameter, requestHeader.value());
             defaultValue = requestHeader.defaultValue();
             parameter.in(ParameterIn.HEADER.toString()).required(requestHeader.required());
             empty = false;
         } else if (cookieValue != null) {
-            if (StringUtils.isNotBlank(cookieValue.value())) {
-                parameter.setName(cookieValue.value());
-            }
+            setNameIfNotBlank(parameter, cookieValue.value());
             defaultValue = cookieValue.defaultValue();
             parameter.in(ParameterIn.COOKIE.toString()).required(cookieValue.required());
             empty = false;
         } else if (requestParam != null) {
-            if (StringUtils.isNotBlank(requestParam.value())) {
-                parameter.setName(requestParam.value());
-            }
+            setNameIfNotBlank(parameter, requestParam.value());
             defaultValue = requestParam.defaultValue();
             parameter.in(ParameterIn.QUERY.toString()).required(requestParam.required());
             empty = false;
@@ -267,14 +261,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
             return Optional.empty();
         }
         if (StringUtils.isBlank(parameter.getName())) {
-            // Try to get actual parameter name from method signature (requires -parameters compiler flag)
-            var reflectParam = paramInfo.getMethodParameter().getParameter();
-            if (reflectParam.isNamePresent()) {
-                parameter.setName(reflectParam.getName());
-            } else {
-                // Fallback to arg0, arg1, etc. if parameter name is not available
-                parameter.setName("arg" + paramInfo.getIndex());
-            }
+            parameter.setName(methodParameterName(paramInfo));
         }
 
         if (Boolean.FALSE.equals(parameter.getRequired())) {
@@ -297,6 +284,42 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
             parameter.description(apiPropertyResolver.resolve(parameter.getDescription()));
         }
 
+        applySchemaConstraints(paramInfo, parameter, defaultValue);
+
+        return Optional.of(parameter);
+    }
+
+    /**
+     * Checks whether an optional path variable is absent from the path pattern of the method.
+     */
+    private static boolean isMissingPathVariable(ParameterInfo paramInfo, MethodInfo methodInfo, PathVariable pathVar) {
+        var optional = false;
+        if (paramInfo.getType() instanceof ParameterizedType parameterizedType) {
+            optional = parameterizedType.getRawType() == Optional.class;
+        }
+        return (optional || !pathVar.required()) && !methodInfo.getPathPattern().contains("{" + pathVar.value() + "}");
+    }
+
+    private static void setNameIfNotBlank(Parameter parameter, String name) {
+        if (StringUtils.isNotBlank(name)) {
+            parameter.setName(name);
+        }
+    }
+
+    private static String methodParameterName(ParameterInfo paramInfo) {
+        // Try to get actual parameter name from method signature (requires -parameters compiler flag)
+        var reflectParam = paramInfo.getMethodParameter().getParameter();
+        if (reflectParam.isNamePresent()) {
+            return reflectParam.getName();
+        }
+        // Fallback to arg0, arg1, etc. if parameter name is not available
+        return "arg" + paramInfo.getIndex();
+    }
+
+    /**
+     * Applies the binding default and the validation annotations to the schema of the parameter, if it has one.
+     */
+    private void applySchemaConstraints(ParameterInfo paramInfo, Parameter parameter, String defaultValue) {
         if (parameter.getSchema() != null) {
             if (StringUtils.isNotBlank(defaultValue) && !ValueConstants.DEFAULT_NONE.equals(defaultValue)) {
                 parameter.getSchema().setDefault(defaultValue);
@@ -305,8 +328,6 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
             }
             applyValidationAnnotations(paramInfo, parameter.getSchema());
         }
-
-        return Optional.of(parameter);
     }
 
     private static boolean isReservedHeader(Parameter parameter) {
