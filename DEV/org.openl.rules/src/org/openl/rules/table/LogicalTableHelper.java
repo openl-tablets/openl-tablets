@@ -16,15 +16,15 @@ public class LogicalTableHelper {
      * @return number of logical columns in the first table row.
      */
     static int calcLogicalColumns(IGridTable table) {
-        var W = table.getWidth();
-        if (W == 1) {
+        var width = table.getWidth();
+        if (width == 1) {
             return 1;
         }
 
         var columns = 0;
 
         int cellWidth;
-        for (var w = 0; w < W; w += cellWidth, columns++) {
+        for (var w = 0; w < width; w += cellWidth, columns++) {
             cellWidth = table.getCell(w, 0).getWidth();
         }
         return columns;
@@ -38,13 +38,13 @@ public class LogicalTableHelper {
      * @return number of logical rows in the first table column.
      */
     static int calcLogicalRows(IGridTable table) {
-        var H = table.getHeight();
-        if (H == 1) {
+        var height = table.getHeight();
+        if (height == 1) {
             return 1;
         }
         var rows = 0;
         int cellHeight;
-        for (var h = 0; h < H; h += cellHeight, rows++) {
+        for (var h = 0; h < height; h += cellHeight, rows++) {
             cellHeight = table.getCell(0, h).getHeight();
         }
         return rows;

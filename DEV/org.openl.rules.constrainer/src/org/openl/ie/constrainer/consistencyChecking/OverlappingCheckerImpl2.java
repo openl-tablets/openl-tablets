@@ -66,10 +66,10 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         }
     }
 
-    public OverlappingCheckerImpl2(CDecisionTable _dt) {
-        this._dt = _dt;
-        removed = new boolean[_dt.getRules().length];
-        hadBeenRemoved = new boolean[_dt.getRules().length];
+    public OverlappingCheckerImpl2(CDecisionTable dt) {
+        _dt = dt;
+        removed = new boolean[dt.getRules().length];
+        hadBeenRemoved = new boolean[dt.getRules().length];
     }
 
     public void checkInternal() {
@@ -81,21 +81,21 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         var overlappingRules = new ArrayList<Overlapping>();
         var rules = _dt.getRules();
-        var C = rules[0].constrainer();
-        var stackSize = C.getStackSize();
+        var c = rules[0].constrainer();
+        var stackSize = c.getStackSize();
 
-        var ruleArray = new IntExpArray(C, rules.length - nRemoved);
+        var ruleArray = new IntExpArray(c, rules.length - nRemoved);
         for (int i = 0, r = 0; i < rules.length; i++) {
             if (!removed[i]) {
                 ruleArray.set(rules[i], r++);
             }
         }
         var overlapping = ruleArray.sum().gt(1).asConstraint();
-        var save = new GoalSaveSolutions(C, overlappingRules);
+        var save = new GoalSaveSolutions(c, overlappingRules);
         var generate = new GoalGenerate(_dt.getVars());
         var target = new GoalAnd(new GoalAnd(overlapping, generate), save);
-        C.execute(target, true);
-        C.backtrackStack(stackSize);
+        c.execute(target, true);
+        c.backtrackStack(stackSize);
 
         testPairOverlappings(overlappingRules);
     }
@@ -114,21 +114,21 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                     }
                     checkedPairs.add(pair);
 
-                    int A = _dt.isOverrideAscending() ? i : j;
-                    int B = _dt.isOverrideAscending() ? j : i;
+                    int a = _dt.isOverrideAscending() ? i : j;
+                    int b = _dt.isOverrideAscending() ? j : i;
 
-                    if (completelyOverlaps(_dt.getRule(rules[A]), _dt.getRule(rules[B]))) {
+                    if (completelyOverlaps(_dt.getRule(rules[a]), _dt.getRule(rules[b]))) {
                         this.overlappings
-                                .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.BLOCK));
-                    } else if (completelyOverlaps(_dt.getRule(rules[B]), _dt.getRule(rules[A]))) {
+                                .add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.BLOCK));
+                    } else if (completelyOverlaps(_dt.getRule(rules[b]), _dt.getRule(rules[a]))) {
                         this.overlappings
-                                .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.OVERRIDE));
+                                .add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.OVERRIDE));
                     } else {
                         this.overlappings
-                                .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.PARTIAL));
+                                .add(new Overlapping(ovl, rules[a], rules[b], Overlapping.OverlappingStatus.PARTIAL));
                     }
-                    checkWithRemove(rules[A]);
-                    checkWithRemove(rules[B]);
+                    checkWithRemove(rules[a]);
+                    checkWithRemove(rules[b]);
                 }
             }
 
@@ -148,13 +148,13 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     }
 
     private boolean completelyOverlaps(IntExp exp1, IntExp exp2) {
-        var C = exp1.constrainer();
-        var stackSize = C.getStackSize();
+        var c = exp1.constrainer();
+        var stackSize = c.getStackSize();
         var overlaps = exp1.lt(exp2).asConstraint();
         var generate = new GoalGenerate(_dt.getVars());
         var target = new GoalAnd(overlaps, generate);
-        var flag = C.execute(target, true);
-        C.backtrackStack(stackSize);
+        var flag = c.execute(target, true);
+        c.backtrackStack(stackSize);
         return !flag;
     }
 

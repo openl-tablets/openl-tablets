@@ -98,12 +98,12 @@ public final class DomainImplWithHoles extends DomainImpl {
     }
 
     @Override
-    public boolean setMax(int M) throws Failure {
-        if (M >= _max) {
+    public boolean setMax(int max) throws Failure {
+        if (max >= _max) {
             return false;
         }
 
-        if (M < _min) {
+        if (max < _min) {
             constrainer().fail("Max < Min for " + _variable);
         }
 
@@ -112,17 +112,17 @@ public final class DomainImplWithHoles extends DomainImpl {
         // remove a hole
         while (!_values.isEmpty()) {
             var interval = (DomainInterval) _values.lastElement();
-            if (M < interval.from) {
+            if (max < interval.from) {
                 _values.removeLast();
                 continue;
             }
 
-            if (M >= interval.to) {
+            if (max >= interval.to) {
                 break;
             }
 
-            // (M >= interval.from && M < interval.to)
-            interval.to = M;
+            // (max >= interval.from && max < interval.to)
+            interval.to = max;
             break;
         }
 

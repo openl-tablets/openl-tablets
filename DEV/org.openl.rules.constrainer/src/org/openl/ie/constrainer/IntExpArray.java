@@ -34,13 +34,13 @@ public final class IntExpArray extends ConstrainerObjectImpl {
         _data = new IntExp[size];
     }
 
-    public IntExpArray(Constrainer c, int size, int min, int max, String array_name) {
+    public IntExpArray(Constrainer c, int size, int min, int max, String arrayName) {
         this(c, size);
 
-        name(array_name);
+        name(arrayName);
 
         for (var i = 0; i < _data.length; ++i) {
-            _data[i] = c.addIntVar(min, max, array_name + "(" + i + ")");
+            _data[i] = c.addIntVar(min, max, arrayName + "(" + i + ")");
         }
     }
 
@@ -51,13 +51,13 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * @param min  minimal value of each constrained variable
      * @param max  maximal value of each constrained variable
      */
-    public IntExpArray(Constrainer c, int size, int min, int max, String array_name, int int_domain) {
+    public IntExpArray(Constrainer c, int size, int min, int max, String arrayName, int intDomain) {
         this(c, size);
 
-        name(array_name);
+        name(arrayName);
 
         for (var i = 0; i < _data.length; ++i) {
-            _data[i] = c.addIntVar(min, max, array_name + "(" + i + ")", int_domain);
+            _data[i] = c.addIntVar(min, max, arrayName + "(" + i + ")", intDomain);
         }
     }
 
@@ -259,17 +259,17 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public IntExpArray merge(IntExpArray array) {
         int i;
-        var new_data = new ArrayList<IntExp>(_data.length + array._data.length);
+        var newData = new ArrayList<IntExp>(_data.length + array._data.length);
 
         for (i = 0; i < _data.length; i++) {
-            new_data.add(_data[i]);
+            newData.add(_data[i]);
         }
 
         for (i = 0; i < array._data.length; i++) {
-            new_data.add(array._data[i]);
+            newData.add(array._data[i]);
         }
 
-        return new IntExpArray(constrainer(), new_data);
+        return new IntExpArray(constrainer(), newData);
     }
 
     /**

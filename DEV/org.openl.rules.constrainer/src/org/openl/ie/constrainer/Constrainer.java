@@ -333,22 +333,22 @@ public final class Constrainer implements Serializable {
     /**
      * Adds an undo-object to the reversibility stack.
      *
-     * @param undo_object Undo object to add.
+     * @param undoObject Undo object to add.
      */
-    public void addUndo(Undo undo_object) {
+    public void addUndo(Undo undoObject) {
         _number_of_undos++;
-        _reversibility_stack.pushUndo(undo_object);
+        _reversibility_stack.pushUndo(undoObject);
     }
 
     /**
      * Adds an undo-object to the reversibility stack for a given undoable object. Some undo-objects can be generated
      * one time between choice points. Constrainer notifies such objects when backtrack or choice point occures.
      *
-     * @param undo_object Undo object to add.
-     * @param undoable    Undoable object to add for notification.
+     * @param undoObject Undo object to add.
+     * @param undoable   Undoable object to add for notification.
      */
-    public void addUndo(Undo undo_object, Undoable undoable) {
-        addUndo(undo_object);
+    public void addUndo(Undo undoObject, Undoable undoable) {
+        addUndo(undoObject);
         // Adds an undoableOnce to the activeUndoableOnce.
         // Used in UndoableOnceImpl and allowUndos().
         if (undoable instanceof UndoableOnceImpl) {
@@ -446,21 +446,21 @@ public final class Constrainer implements Serializable {
      * Executes the search goal provided by the first parameter. In most cases, the goal is expected to find a solution:
      * to instantiate all constrained objects and satisfied all constraints. Return true if the solution is found.
      * Returns false otherwise. The second parameter allows a user to restore the state of the constrainer after the
-     * succesful execution of the main_goal.
+     * succesful execution of the mainGoal.
      *
-     * @param main_goal    org.openl.ie.constrainer.Goal
-     * @param restore_flag boolean
+     * @param mainGoal    org.openl.ie.constrainer.Goal
+     * @param restoreFlag boolean
      * @return true if success
      */
-    public synchronized boolean execute(Goal main_goal, boolean restore_flag) {
-        var execution_start = System.currentTimeMillis();
+    public synchronized boolean execute(Goal mainGoal, boolean restoreFlag) {
+        var executionStart = System.currentTimeMillis();
 
         var success = true;
 
         // save current goalStack
-        var old_goal_stack = _goal_stack;
+        var oldGoalStack = _goal_stack;
 
-        _goal_stack = new GoalStack(main_goal, _reversibility_stack);
+        _goal_stack = new GoalStack(mainGoal, _reversibility_stack);
 
         allowUndos();
 
@@ -476,9 +476,9 @@ public final class Constrainer implements Serializable {
                 propagate();
 
                 if (_print_information) {
-                    var occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-                    if (_max_occupied_memory < occupied_memory) {
-                        _max_occupied_memory = occupied_memory;
+                    var occupiedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                    if (_max_occupied_memory < occupiedMemory) {
+                        _max_occupied_memory = occupiedMemory;
                     }
                 }
 
@@ -492,9 +492,9 @@ public final class Constrainer implements Serializable {
                 }
 
                 if (_print_information) {
-                    var occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-                    if (_max_occupied_memory < occupied_memory) {
-                        _max_occupied_memory = occupied_memory;
+                    var occupiedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                    if (_max_occupied_memory < occupiedMemory) {
+                        _max_occupied_memory = occupiedMemory;
                     }
                 }
 
@@ -513,18 +513,18 @@ public final class Constrainer implements Serializable {
 
         } // ~while
 
-        var restoreAnyway = restore_flag || !success;
+        var restoreAnyway = restoreFlag || !success;
         if (restoreAnyway) {
             backtrackStack(_goal_stack.undoStackSize());
         }
 
-        _execution_time += System.currentTimeMillis() - execution_start;
+        _execution_time += System.currentTimeMillis() - executionStart;
 
-        if (_print_information && !(main_goal instanceof Constraint)) {
+        if (_print_information && !(mainGoal instanceof Constraint)) {
             doPrintInformation();
         }
 
-        _goal_stack = old_goal_stack;
+        _goal_stack = oldGoalStack;
 
         return success;
     }

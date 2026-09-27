@@ -31,8 +31,8 @@ public final class UndoStack implements Serializable {
 
         var nUndos = size - newSize;
         while (nUndos-- > 0) {
-            var undo_object = popUndo();
-            undo_object.undo();
+            var undoObject = popUndo();
+            undoObject.undo();
         }
     }
 

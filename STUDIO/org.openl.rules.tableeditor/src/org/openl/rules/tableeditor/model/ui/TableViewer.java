@@ -227,13 +227,13 @@ class TableViewer {
             BorderStyle tStyle = ts != null ? getBorderStyle(ts, ICellStyle.BOTTOM) : null;
             BorderStyle bStyle = bs != null ? getBorderStyle(bs, ICellStyle.TOP) : null;
 
-            var W = width(tStyle, bStyle);
+            var borderWidth = width(tStyle, bStyle);
             var style = style(tStyle, bStyle);
             var rgb = rgb(tStyle, bStyle);
 
-            var bstyle = new BorderStyle(W, style, rgb);
+            var bstyle = new BorderStyle(borderWidth, style, rgb);
 
-            switch (W) {
+            switch (borderWidth) {
                 case 0 -> { /* No border */ }
                 case 1 -> {
                     if (cmTop == null) {
@@ -278,13 +278,13 @@ class TableViewer {
             BorderStyle lStyle = ls != null ? getBorderStyle(ls, ICellStyle.RIGHT) : null;
             BorderStyle rStyle = rs != null ? getBorderStyle(rs, ICellStyle.LEFT) : null;
 
-            var W = width(lStyle, rStyle);
+            var borderWidth = width(lStyle, rStyle);
             var style = style(lStyle, rStyle);
             var rgb = rgb(lStyle, rStyle);
 
-            var bstyle = new BorderStyle(W, style, rgb);
+            var bstyle = new BorderStyle(borderWidth, style, rgb);
 
-            switch (W) {
+            switch (borderWidth) {
                 case 0 -> { /* No border */ }
                 case 1 -> {
                     if (cmLeft == null) {

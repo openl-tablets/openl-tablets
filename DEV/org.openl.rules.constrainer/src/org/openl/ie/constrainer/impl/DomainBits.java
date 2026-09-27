@@ -122,16 +122,16 @@ public final class DomainBits extends DomainImpl {
         } else if (max >= _max && min <= _max) {
             return setMax(min - 1);
         }
-        var is_removed = false;
+        var isRemoved = false;
         for (var i = min; i <= max; i++) {
             if (contains(i)) {
                 _variable.addUndo();
                 _bits[i - _initial_min] = false;
                 --_size;
-                is_removed = true;
+                isRemoved = true;
             }
         }
-        return is_removed;
+        return isRemoved;
     }
 
     @Override
@@ -157,18 +157,18 @@ public final class DomainBits extends DomainImpl {
     }
 
     @Override
-    public boolean setMax(int M) throws Failure {
-        if (M >= _max) {
+    public boolean setMax(int max) throws Failure {
+        if (max >= _max) {
             return false;
         }
 
-        if (M < _min) {
+        if (max < _min) {
             constrainer().fail("Max < Min ");
         }
 
         _variable.addUndo();
 
-        while (_max > M) {
+        while (_max > max) {
             if (_bits[_max-- - _initial_min]) {
                 --_size;
             }

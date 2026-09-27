@@ -63,9 +63,9 @@ public class GoalGenerate extends GoalImpl {
             return null; // all vars are instantiated
         }
 
-        var search_goal = (Goal) _goals.elementAt(index);
+        var searchGoal = (Goal) _goals.elementAt(index);
 
-        return new GoalAnd(search_goal, this);
+        return new GoalAnd(searchGoal, this);
     }
 
     /**

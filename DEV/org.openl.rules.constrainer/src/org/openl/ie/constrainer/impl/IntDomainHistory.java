@@ -146,9 +146,9 @@ public final class IntDomainHistory implements Serializable {
     public IntDomainHistory(IntVar var) {
         _var = var;
 
-        var max_size = Math.min(_var.size(), 30);
-        _history = new FastVectorInt(2 * max_size);
-        _remove_history = new FastVectorInt(max_size);
+        var maxSize = Math.min(_var.size(), 30);
+        _history = new FastVectorInt(2 * maxSize);
+        _remove_history = new FastVectorInt(maxSize);
         save();
     }
 
@@ -203,11 +203,11 @@ public final class IntDomainHistory implements Serializable {
      * <p>
      * added by SV 20.01.03 to support removeRangeInternal in IntVarImpl
      */
-    void remove(int range_min, int range_max) {
-        var t_min = Math.max(_min, range_min);
-        var t_max = Math.min(_max, range_max);
+    void remove(int rangeMin, int rangeMax) {
+        var tMin = Math.max(_min, rangeMin);
+        var tMax = Math.min(_max, rangeMax);
 
-        for (var i = t_min; i <= t_max; i++) {
+        for (var i = tMin; i <= tMax; i++) {
             _remove_history.add(i);
         }
         _mask |= EventOfInterest.REMOVE;

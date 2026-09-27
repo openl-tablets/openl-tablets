@@ -41,15 +41,15 @@ class VersionTest {
 
     @Test
     void testParseVersion() throws Exception {
-        Version v9_1_44 = Version.parseVersion("x_9.1.44", 2, "..");
+        Version version = Version.parseVersion("x_9.1.44", 2, "..");
 
-        assertEquals("9.1.44", v9_1_44.toString());
+        assertEquals("9.1.44", version.toString());
 
-        assertTrue(new Version(11, 1, 1, -1, null).compareTo(v9_1_44) > 0);
+        assertTrue(new Version(11, 1, 1, -1, null).compareTo(version) > 0);
 
-        assertEquals(0, new Version(9, 1, 44, -1, null).compareTo(v9_1_44));
+        assertEquals(0, new Version(9, 1, 44, -1, null).compareTo(version));
 
-        assertTrue(new Version(9, 1, 43, -1, null).compareTo(v9_1_44) < 0);
+        assertTrue(new Version(9, 1, 43, -1, null).compareTo(version) < 0);
 
         var vx = "c:/exlipse/plugins/org.openl.eclipse.j_1.3.4/lib/apache/xyz_7.3.5.jar";
 

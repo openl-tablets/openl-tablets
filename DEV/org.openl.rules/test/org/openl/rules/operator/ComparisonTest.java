@@ -564,8 +564,8 @@ class ComparisonTest {
 
     @Test
     void testBigDecimalEq() {
-        final BigDecimal inf_pos = BigDecimal.valueOf(Long.MAX_VALUE);
-        final BigDecimal inf_neg = BigDecimal.valueOf(Long.MIN_VALUE);
+        final BigDecimal infPos = BigDecimal.valueOf(Long.MAX_VALUE);
+        final BigDecimal infNeg = BigDecimal.valueOf(Long.MIN_VALUE);
         final BigDecimal nil = null;
         final BigDecimal pos = BigDecimal.ONE;
         final BigDecimal neg = pos.negate();
@@ -574,14 +574,14 @@ class ComparisonTest {
         assertFalse(Comparison.eq(pos, neg));
         assertFalse(Comparison.eq(neg, pos));
         assertTrue(Comparison.eq(neg, neg));
-        assertTrue(Comparison.eq(inf_pos, inf_pos));
-        assertTrue(Comparison.eq(inf_neg, inf_neg));
-        assertFalse(Comparison.eq(inf_pos, inf_neg));
-        assertFalse(Comparison.eq(inf_neg, inf_pos));
-        assertFalse(Comparison.eq(pos, inf_pos));
-        assertFalse(Comparison.eq(inf_pos, pos));
-        assertFalse(Comparison.eq(pos, inf_neg));
-        assertFalse(Comparison.eq(inf_neg, pos));
+        assertTrue(Comparison.eq(infPos, infPos));
+        assertTrue(Comparison.eq(infNeg, infNeg));
+        assertFalse(Comparison.eq(infPos, infNeg));
+        assertFalse(Comparison.eq(infNeg, infPos));
+        assertFalse(Comparison.eq(pos, infPos));
+        assertFalse(Comparison.eq(infPos, pos));
+        assertFalse(Comparison.eq(pos, infNeg));
+        assertFalse(Comparison.eq(infNeg, pos));
         assertTrue(Comparison.eq(nil, nil));
         assertFalse(Comparison.eq(pos, nil));
         assertFalse(Comparison.eq(nil, pos));

@@ -254,10 +254,10 @@ class ModuleTest {
 
         var start = System.currentTimeMillis();
 
-        var N = 1000;
+        var iterations = 1000;
 
         Object res = null;
-        for (var i = 0; i < N; ++i) {
+        for (var i = 0; i < iterations; ++i) {
             var env = op.getVm().getRuntimeEnv();
             var instance = module.newInstance(env);
 
@@ -268,7 +268,7 @@ class ModuleTest {
 
         var end = System.currentTimeMillis();
 
-        var run = (double) (end - start) / N;
+        var run = (double) (end - start) / iterations;
 
         log.info("TestModule: Result: {}. Elapsed time = {}.", res, run);
         assertEquals(Boolean.TRUE, res);

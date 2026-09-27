@@ -40,7 +40,7 @@ public abstract class ExpressionObserver extends Observer {
         /**
          * Transform publisher mask to subscriber mask.
          */
-        int publishToSubscribe(int publish_mask);
+        int publishToSubscribe(int publishMask);
 
     }
 
@@ -52,14 +52,14 @@ public abstract class ExpressionObserver extends Observer {
         private final int[] _masks;
 
         @Override
-        public int publishToSubscribe(int publish_mask) {
-            var result_mask = 0;
+        public int publishToSubscribe(int publishMask) {
+            var resultMask = 0;
             for (var i = 0; i < _masks.length; i += 2) {
-                if ((_masks[i + 1] & publish_mask) != 0) {
-                    result_mask |= _masks[i];
+                if ((_masks[i + 1] & publishMask) != 0) {
+                    resultMask |= _masks[i];
                 }
             }
-            return result_mask;
+            return resultMask;
         }
 
     } // ~ EventMapImpl

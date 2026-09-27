@@ -86,7 +86,7 @@ public interface Domain extends Serializable {
      *
      * @throws Failure if domain becomes empty.
      */
-    boolean setMax(int M) throws Failure;
+    boolean setMax(int max) throws Failure;
 
     /**
      * Sets the minimum value for this domain.

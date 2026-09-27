@@ -30,9 +30,9 @@ public abstract class UndoableImpl extends ConstrainerObjectImpl implements Undo
 
     @Override
     public void addUndo() {
-        var undo_object = createUndo();
-        undo_object.undoable(this);
-        constrainer().addUndo(undo_object);
+        var undoObject = createUndo();
+        undoObject.undoable(this);
+        constrainer().addUndo(undoObject);
     }
 
 } // ~UndoableImpl

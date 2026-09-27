@@ -442,9 +442,9 @@ class RunStoreLogDataITest {
         h2Server.stop();
     }
 
-    private static void validateDatabases(String REQUEST, String RESPONSE, boolean isResponseProvided, String methodName, String serviceName, String publisherType) {
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-                RESPONSE,
+    private static void validateDatabases(String request, String response, boolean isResponseProvided, String methodName, String serviceName, String publisherType) {
+        ExpectedLogValues values = new ExpectedLogValues(request,
+                response,
                 methodName,
                 serviceName,
                 publisherType);
@@ -457,8 +457,8 @@ class RunStoreLogDataITest {
                 .until(validateH2(values), equalTo(true));
     }
 
-    private static void validateDatabases(String REQUEST, String RESPONSE, String methodName, String serviceName, String publisherType) {
-        validateDatabases(REQUEST, RESPONSE, RESPONSE != null, methodName, serviceName, publisherType);
+    private static void validateDatabases(String request, String response, String methodName, String serviceName, String publisherType) {
+        validateDatabases(request, response, response != null, methodName, serviceName, publisherType);
     }
 
     private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {

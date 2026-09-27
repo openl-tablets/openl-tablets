@@ -78,7 +78,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
             datum.attachObserver(_observer);
         }
 
-        var sum_name = "";
+        var sumName = "";
 
         if (constrainer().showInternalNames()) {
             var s = new StringBuilder();
@@ -92,12 +92,12 @@ public final class IntExpAddArray1 extends IntExpImpl {
             s.append(")");
             _name = s.toString();
 
-            sum_name = "sum(" + _vars.name() + ")";
+            sumName = "sum(" + _vars.name() + ")";
         }
 
         var min = calc_min();
         var max = calc_max();
-        _domainC = constrainer().addIntVarTraceInternal(min, max, sum_name, IntVar.DOMAIN_PLAIN);
+        _domainC = constrainer().addIntVarTraceInternal(min, max, sumName, IntVar.DOMAIN_PLAIN);
         _domainE = new DomainVar(constrainer(), min, max);
     }
 
@@ -108,25 +108,25 @@ public final class IntExpAddArray1 extends IntExpImpl {
     }
 
     int calc_max() {
-        var max_sum = 0;
+        var maxSum = 0;
 
         var vars = _vars.data();
 
         for (IntExp var : vars) {
-            max_sum += var.max();
+            maxSum += var.max();
         }
-        return max_sum;
+        return maxSum;
     }
 
     int calc_min() {
-        var min_sum = 0;
+        var minSum = 0;
 
         var vars = _vars.data();
 
         for (IntExp var : vars) {
-            min_sum += var.min();
+            minSum += var.min();
         }
-        return min_sum;
+        return minSum;
     }
 
     @Override
@@ -151,14 +151,14 @@ public final class IntExpAddArray1 extends IntExpImpl {
             var mini = vari.min();
             var maxi = vari.max();
 
-            var new_min = minC - (maxE - maxi);
-            if (new_min > mini) {
-                vari.setMin(new_min);
+            var newMin = minC - (maxE - maxi);
+            if (newMin > mini) {
+                vari.setMin(newMin);
             }
 
-            var new_max = maxC - (minE - mini);
-            if (new_max < maxi) {
-                vari.setMax(new_max);
+            var newMax = maxC - (minE - mini);
+            if (newMax < maxi) {
+                vari.setMax(newMax);
             }
         }
     }
@@ -202,21 +202,21 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
     @Override
     public void removeValue(int value) throws Failure {
-        var Max = _domainC.max();
-        if (value > Max) {
+        var max = _domainC.max();
+        if (value > max) {
             return;
         }
-        var Min = _domainC.min();
-        if (value < Min) {
+        var min = _domainC.min();
+        if (value < min) {
             return;
         }
-        if (Min == Max) {
+        if (min == max) {
             constrainer().fail("remove for IntExpAddVector");
         }
-        if (value == Max) {
+        if (value == max) {
             setMax(value - 1);
         }
-        if (value == Min) {
+        if (value == min) {
             setMin(value + 1);
         }
     }
@@ -230,12 +230,12 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
         _domainC.setMax(max);
 
-        var min_sum = _domainE.min();
+        var minSum = _domainE.min();
 
         var vars = _vars.data();
 
         for (IntExp vari : vars) {
-            var maxi = max - (min_sum - vari.min());
+            var maxi = max - (minSum - vari.min());
             if (maxi < vari.max()) {
                 vari.setMax(maxi);
             }
@@ -251,12 +251,12 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
         _domainC.setMin(min);
 
-        var max_sum = _domainE.max();
+        var maxSum = _domainE.max();
 
         var vars = _vars.data();
 
         for (IntExp vari : vars) {
-            var mini = min - (max_sum - vari.max());
+            var mini = min - (maxSum - vari.max());
             if (mini > vari.min()) {
                 vari.setMin(mini);
             }
@@ -271,8 +271,8 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
         _domainC.setValue(value);
 
-        var sum_min = _domainE.min();
-        var sum_max = _domainE.max();
+        var sumMin = _domainE.min();
+        var sumMax = _domainE.max();
 
         var vars = _vars.data();
 
@@ -280,14 +280,14 @@ public final class IntExpAddArray1 extends IntExpImpl {
             var mini = vari.min();
             var maxi = vari.max();
 
-            var new_min = value - (sum_max - maxi);
-            if (new_min > mini) {
-                vari.setMin(new_min);
+            var newMin = value - (sumMax - maxi);
+            if (newMin > mini) {
+                vari.setMin(newMin);
             }
 
-            var new_max = value - (sum_min - mini);
-            if (new_max < maxi) {
-                vari.setMax(new_max);
+            var newMax = value - (sumMin - mini);
+            if (newMax < maxi) {
+                vari.setMax(newMax);
             }
         }
     }

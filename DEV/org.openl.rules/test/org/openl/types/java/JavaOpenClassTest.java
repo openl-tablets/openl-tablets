@@ -250,8 +250,8 @@ class JavaOpenClassTest {
             return this.BB;
         }
 
-        public void setBB(int BB) {
-            this.BB = BB;
+        public void setBB(int bb) {
+            this.BB = bb;
         }
 
         public int getCc() {
@@ -289,7 +289,7 @@ class JavaOpenClassTest {
 
         int getBB();
 
-        void setBB(int BB);
+        void setBB(int bb);
     }
 
     public interface BeanXInterface extends BeanAInterface {

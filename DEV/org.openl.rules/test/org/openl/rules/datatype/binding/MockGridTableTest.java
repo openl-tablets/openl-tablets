@@ -88,12 +88,12 @@ class MockGridTableTest {
         assertEquals(2, t.getHeight());
         assertEquals(3, t.getWidth());
 
-        var row_0 = t.getRow(0);
-        assertEquals(1, row_0.getHeight());
-        assertEquals(3, row_0.getWidth());
-        assertEquals(CELL1, row_0.getCell(0, 0).getStringValue());
-        assertEquals(CELL2, row_0.getCell(1, 0).getStringValue());
-        assertEquals(CELL3, row_0.getCell(2, 0).getStringValue());
+        var firstRow = t.getRow(0);
+        assertEquals(1, firstRow.getHeight());
+        assertEquals(3, firstRow.getWidth());
+        assertEquals(CELL1, firstRow.getCell(0, 0).getStringValue());
+        assertEquals(CELL2, firstRow.getCell(1, 0).getStringValue());
+        assertEquals(CELL3, firstRow.getCell(2, 0).getStringValue());
     }
 
     @Test

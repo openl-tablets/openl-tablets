@@ -309,7 +309,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     }
 
     @Override
-    public void trace(int event_type) {
+    public void trace(int eventType) {
         @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
         class ObserverTrace extends Observer {
             private final int _event_type;
@@ -331,7 +331,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
         } // ~ ObserverTrace
 
-        attachObserver(new ObserverTrace(event_type));
+        attachObserver(new ObserverTrace(eventType));
     }
 
 } // ~SubjectImpl

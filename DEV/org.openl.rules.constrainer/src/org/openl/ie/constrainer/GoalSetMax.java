@@ -45,8 +45,8 @@ public class GoalSetMax extends GoalImpl {
     /**
      * Adjust the value to become the upper limit of a domain of goal's variable.
      */
-    public void max(int M) {
-        _max = M;
+    public void max(int max) {
+        _max = max;
     }
 
     @Override

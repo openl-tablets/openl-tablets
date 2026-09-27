@@ -42,8 +42,8 @@ public final class FastVectorInt implements Serializable {
         m_size = 0;
     }
 
-    public void cutSize(int new_size) {
-        m_size = new_size;
+    public void cutSize(int newSize) {
+        m_size = newSize;
     }
 
     public int elementAt(int i) {

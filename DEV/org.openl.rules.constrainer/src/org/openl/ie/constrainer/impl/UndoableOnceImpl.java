@@ -42,9 +42,9 @@ public abstract class UndoableOnceImpl extends ConstrainerObjectImpl implements 
     public void addUndo() {
         if (!_undone) {
             _undone = true;
-            var undo_object = createUndo();
-            undo_object.undoable(this);
-            constrainer().addUndo(undo_object, this);
+            var undoObject = createUndo();
+            undoObject.undoable(this);
+            constrainer().addUndo(undoObject, this);
         }
     }
 

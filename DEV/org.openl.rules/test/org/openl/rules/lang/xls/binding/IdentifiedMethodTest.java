@@ -44,8 +44,8 @@ class IdentifiedMethodTest {
         calendar.set(2003, 5, 15);
 
         context.setCurrentDate(calendar.getTime());
-        var res2_2 = instance.driverRiskEarlier(context, "High Risk Driver");
-        assertEquals(120.0, res2_2, 1e-8);
+        var resEarlier = instance.driverRiskEarlier(context, "High Risk Driver");
+        assertEquals(120.0, resEarlier, 1e-8);
     }
 
     @Test

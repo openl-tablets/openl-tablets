@@ -90,10 +90,10 @@ public interface Subject extends Undoable {
     void trace();
 
     /**
-     * Will trace this subject every time when the event of the "event_type" happens.
+     * Will trace this subject every time when the event of the "eventType" happens.
      *
-     * @param event_type EventOfInterest.MAX or EventOfInterest.MIN or EventOfInterest.VALUE.
+     * @param eventType EventOfInterest.MAX or EventOfInterest.MIN or EventOfInterest.VALUE.
      */
-    void trace(int event_type);
+    void trace(int eventType);
 
 } // ~Subject

@@ -87,7 +87,7 @@ public class DomainImpl implements Domain {
      */
     @Override
     public boolean removeRange(int min, int max) throws Failure {
-        var is_removed = false;
+        var isRemoved = false;
         if (min <= _min && max >= _max) {
             constrainer().fail("Empty domain");
         }
@@ -97,7 +97,7 @@ public class DomainImpl implements Domain {
         if (max >= _max && min <= _max) {
             return setMax(min - 1);
         }
-        return is_removed;
+        return isRemoved;
     }
 
     // Prohibited in this implementation!
@@ -112,15 +112,15 @@ public class DomainImpl implements Domain {
     }
 
     @Override
-    public boolean setMax(int M) throws Failure {
-        if (M >= _max) {
+    public boolean setMax(int max) throws Failure {
+        if (max >= _max) {
             return false;
         }
-        if (M < _min) {
+        if (max < _min) {
             constrainer().fail("DomainImpl setMax");
         }
         _variable.addUndo();
-        _max = M;
+        _max = max;
         return true;
     }
 

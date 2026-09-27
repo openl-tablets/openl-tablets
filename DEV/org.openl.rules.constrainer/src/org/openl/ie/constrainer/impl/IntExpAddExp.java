@@ -114,21 +114,21 @@ public final class IntExpAddExp extends IntExpImpl {
 
     @Override
     public void removeValue(int value) throws Failure {
-        var Max = max();
-        if (value > Max) {
+        var max = max();
+        if (value > max) {
             return;
         }
-        var Min = min();
-        if (value < Min) {
+        var min = min();
+        if (value < min) {
             return;
         }
-        if (Min == Max) {
+        if (min == max) {
             constrainer().fail("remove for IntExpAddExp");
         }
-        if (value == Max) {
+        if (value == max) {
             setMax(value - 1);
         }
-        if (value == Min) {
+        if (value == min) {
             setMin(value + 1);
         }
     }

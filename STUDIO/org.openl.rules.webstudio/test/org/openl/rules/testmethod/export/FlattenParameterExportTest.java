@@ -101,16 +101,16 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void complexObjects() throws IOException {
-        var A1 = new A("name1", 1);
-        var A2 = new A("name2", 2);
+        var a1 = new A("name1", 1);
+        var a2 = new A("name2", 2);
 
-        var B11 = new B("id11", new A("n1", 111, 2, 3), new A("n2", 112));
-        var B12 = new B("id12", new A("n3", 121), new A("n4", 122), new A("n5", 123));
+        var b11 = new B("id11", new A("n1", 111, 2, 3), new A("n2", 112));
+        var b12 = new B("id12", new A("n3", 121), new A("n4", 122), new A("n5", 123));
 
-        var B1 = new B("id1", A1, A2);
-        B1.setChildBValues(B11, B12);
+        var b1 = new B("id1", a1, a2);
+        b1.setChildBValues(b11, b12);
 
-        export.write(sheet, mockResults(params(B1)), true);
+        export.write(sheet, mockResults(params(b1)), true);
 
         var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW + 21, sheetToCheck.getLastRowNum());
@@ -181,9 +181,9 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void nestedComplexFieldsWithTheSameDataAndType() throws IOException {
-        var B1 = new B(null, new A("name1", 1),  new A(null, 2),  new A("name3", 3));
+        var b1 = new B(null, new A("name1", 1),  new A(null, 2),  new A("name3", 3));
 
-        export.write(sheet, mockResults(params(B1)), true);
+        export.write(sheet, mockResults(params(b1)), true);
 
         var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW + 7, sheetToCheck.getLastRowNum());
@@ -212,9 +212,9 @@ class FlattenParameterExportTest extends AbstractParameterExportTest {
 
     @Test
     void nestedArrayWithComplex_Case1() throws IOException {
-        var C1 = new C(new A("name1"), new A("name1"));
+        var c1 = new C(new A("name1"), new A("name1"));
 
-        export.write(sheet, mockResults(params(C1)), true);
+        export.write(sheet, mockResults(params(c1)), true);
 
         var sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW + 4, sheetToCheck.getLastRowNum());

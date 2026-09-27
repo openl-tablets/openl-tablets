@@ -32,9 +32,9 @@ public class GoalInstantiate extends GoalImpl {
      */
     interface Impl extends Serializable {
         /**
-         * Instantiate variable with a chosen_value.
+         * Instantiate variable with a chosenValue.
          */
-        Goal instantiate(int chosen_value) throws Failure;
+        Goal instantiate(int chosenValue) throws Failure;
     }
 
     /**
@@ -58,24 +58,24 @@ public class GoalInstantiate extends GoalImpl {
         }
 
         @Override
-        public Goal instantiate(int chosen_value) throws Failure {
-            _goal_value.value(chosen_value);
+        public Goal instantiate(int chosenValue) throws Failure {
+            _goal_value.value(chosenValue);
 
-            Goal goal_limit;
+            Goal goalLimit;
             if (_intvar.domainType() != IntVar.DOMAIN_PLAIN) {
-                _goal_remove.value(chosen_value);
-                goal_limit = _goal_remove;
+                _goal_remove.value(chosenValue);
+                goalLimit = _goal_remove;
             } else {
-                if (chosen_value == _intvar.min()) {
-                    _goal_min.min(chosen_value + 1);
-                    goal_limit = _goal_min;
+                if (chosenValue == _intvar.min()) {
+                    _goal_min.min(chosenValue + 1);
+                    goalLimit = _goal_min;
                 } else {
-                    _goal_max.max(chosen_value - 1);
-                    goal_limit = _goal_max;
+                    _goal_max.max(chosenValue - 1);
+                    goalLimit = _goal_max;
                 }
             }
 
-            return new GoalOr(_goal_value, new GoalAnd(goal_limit, GoalInstantiate.this));
+            return new GoalOr(_goal_value, new GoalAnd(goalLimit, GoalInstantiate.this));
         }
 
     } // ~RecursiveImpl
@@ -103,9 +103,9 @@ public class GoalInstantiate extends GoalImpl {
             return null;
         }
 
-        var chosen_value = _intvar.min();
+        var chosenValue = _intvar.min();
 
-        return _impl.instantiate(chosen_value);
+        return _impl.instantiate(chosenValue);
     }
 
     /**

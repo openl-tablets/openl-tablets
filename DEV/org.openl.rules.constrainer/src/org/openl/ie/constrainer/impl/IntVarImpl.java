@@ -68,12 +68,12 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
 
     private final IntDomainHistory _history;
 
-    public IntVarImpl(Constrainer constrainer, int min, int max, String name, int domain_type) {
+    public IntVarImpl(Constrainer constrainer, int min, int max, String name, int domainType) {
         super(constrainer, name);
 
         var size = max - min + 1;
 
-        switch (domain_type) {
+        switch (domainType) {
             case DOMAIN_PLAIN -> _domain = new DomainImpl(this, min, max);
             case DOMAIN_BIT_FAST -> _domain = new DomainBits(this, min, max);
             case DOMAIN_BIT_SMALL -> _domain = new DomainBits2(this, min, max);
@@ -86,7 +86,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
                     _domain = new DomainImpl(this, min, max);
                 }
             }
-            default -> throw new IllegalArgumentException("Unknown domain type: " + domain_type);
+            default -> throw new IllegalArgumentException("Unknown domain type: " + domainType);
         }
 
         _history = new IntDomainHistory(this);
