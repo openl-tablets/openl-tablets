@@ -18,6 +18,7 @@ import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.ClassMatcher;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 public class AppServer {
 
@@ -36,7 +37,8 @@ public class AppServer {
      */
     public static void check(String pathDeployment, Collection<File> jars, String workDir) throws Exception {
         var webAppContext = new WebAppContext();
-        var libs = jars.stream().map(File::toURI).map(webAppContext::newResource).toList();
+        var resourceFactory = ResourceFactory.of(webAppContext);
+        var libs = jars.stream().map(File::toURI).map(resourceFactory::newResource).toList();
         var warFolder = Files.createTempDirectory("openl-maven-plugin", ownerOnly());
         webAppContext.setWar(warFolder.toString()); // No resources
         webAppContext.addProtectedClassMatcher(new ClassMatcher("org.slf4j.")); // For logging via Maven SLF4J

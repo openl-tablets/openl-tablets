@@ -16,6 +16,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.ClassMatcher;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 /**
  * Simple wrapper for Jetty Server
@@ -52,14 +53,15 @@ public class JettyServer {
     }
 
     private ArrayList<Resource> getExtraClasspath(WebAppContext context) {
+        var resourceFactory = ResourceFactory.of(context);
         var classPath = new ArrayList<Resource>();
         var classes = Path.of("target/classes");
         if (Files.exists(classes)) {
-            classPath.add(context.newResource(classes.toUri()));
+            classPath.add(resourceFactory.newResource(classes.toUri()));
         }
         try (Stream<Path> stream = Files.walk(Path.of("libs"))) {
 
-            classPath.addAll(stream.map(Path::toUri).map(context::newResource).toList());
+            classPath.addAll(stream.map(Path::toUri).map(resourceFactory::newResource).toList());
         } catch (IOException ignored) {
             // ignore
         }
