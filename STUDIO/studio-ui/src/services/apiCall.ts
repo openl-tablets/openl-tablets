@@ -112,6 +112,81 @@ const getErrorMessage = (payload: unknown, fallbackMessage: string): string => {
 const isApiHttpError = (error: unknown): error is ApiHttpError =>
     error instanceof ApiHttpError
 
+/** Reads a successful response as the caller asked for, or as what its body holds. */
+const readResponse = async (response: Response, opts: ApiCallOptions) => {
+    if (opts.responseType === 'response') {
+        return response
+    }
+    if (opts.responseType === 'blob') {
+        return response.blob()
+    }
+    if (isJsonResponse(response)) {
+        return response.json()
+    }
+    // For 204 No Content or responses without body
+    if (response.status === 204) {
+        return true
+    }
+    const text = await response.text()
+    return text || true
+}
+
+/** The error of a failed response whose status has no error page: a rejected form names its invalid fields. */
+const responseError = (status: number, payload: unknown): Error => {
+    if (payload && typeof payload === 'object' && 'fields' in payload && Array.isArray((payload as { fields: unknown[] }).fields)) {
+        const errors = (payload as { fields: Array<{ message: unknown }> }).fields
+            .map(({ message }) => (typeof message === 'string' ? message.trim() : ''))
+            .filter(Boolean)
+        const errorMessage = errors.length > 0
+            ? errors.join('\n')
+            : getErrorMessage(payload, 'Something went wrong on API server!')
+        return new Error(errorMessage)
+    }
+    return new ApiHttpError(
+        status,
+        getErrorMessage(payload, 'Something went wrong on API server!'),
+        payload
+    )
+}
+
+/** Raises the error a failed response stands for, after asking for the error page its status calls for. */
+const throwResponseError = async (response: Response, opts: ApiCallOptions): Promise<never> => {
+    const { status } = response
+    if (status === 401) {
+        // A 401 means the session is gone (expired or invalidated): the whole app is unusable, so
+        // always redirect to login. suppressErrorPages only governs the expected 403/404/500 content
+        // pages a caller handles locally — it must never swallow an authentication failure.
+        appStore.setShowLogin(true)
+        throw new EmptyError()
+    } else if (status === 403) {
+        if (!opts.suppressErrorPages) {
+            appStore.setShowForbidden(true)
+        }
+        // Try to extract error message from response body
+        const errorMessage = await extractErrorMessage(response, 'Forbidden! You do not have permission to access this resource.')
+        throw new ForbiddenError(errorMessage)
+    } else if (status === 404) {
+        if (!opts.suppressErrorPages) {
+            appStore.setShowNotFound(true)
+        }
+        // Try to extract error message from response body
+        const errorMessage = await extractErrorMessage(response, 'Not found')
+        throw new NotFoundError(errorMessage)
+    } else if (status === 500) {
+        if (!opts.suppressErrorPages) {
+            appStore.setShowServerError(true)
+        }
+        const payload = await tryParseJsonBody(response)
+        throw new ApiHttpError(
+            status,
+            getErrorMessage(payload, 'Internal server error! Please try again later.'),
+            payload
+        )
+    } else {
+        throw responseError(status, await tryParseJsonBody(response))
+    }
+}
+
 const apiCall = async (
     url: string,
     params?: RequestInit,
@@ -139,76 +214,15 @@ const apiCall = async (
     }
 
     return fetch(`${CONFIG.API_ROOT}${url}`, responseParams)
-        .then(async response => {
+        .then(response => {
             const { status } = response
             if (status >= 200 && status < 300) {
                 if (changing) {
                     window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
                 }
-                if (opts.responseType === 'response') {
-                    return response
-                }
-                if (opts.responseType === 'blob') {
-                    return response.blob()
-                }
-                if (isJsonResponse(response)) {
-                    return response.json()
-                }
-                // For 204 No Content or responses without body
-                if (status === 204) {
-                    return true
-                }
-                const text = await response.text()
-                return text || true
+                return readResponse(response, opts)
             }
-            else if (status === 401) {
-                // A 401 means the session is gone (expired or invalidated): the whole app is unusable, so
-                // always redirect to login. suppressErrorPages only governs the expected 403/404/500 content
-                // pages a caller handles locally — it must never swallow an authentication failure.
-                appStore.setShowLogin(true)
-                throw new EmptyError()
-            } else if (status === 403) {
-                if (!opts.suppressErrorPages) {
-                    appStore.setShowForbidden(true)
-                }
-                // Try to extract error message from response body
-                const errorMessage = await extractErrorMessage(response, 'Forbidden! You do not have permission to access this resource.')
-                throw new ForbiddenError(errorMessage)
-            } else if (status === 404) {
-                if (!opts.suppressErrorPages) {
-                    appStore.setShowNotFound(true)
-                }
-                // Try to extract error message from response body
-                const errorMessage = await extractErrorMessage(response, 'Not found')
-                throw new NotFoundError(errorMessage)
-            } else if (status === 500) {
-                if (!opts.suppressErrorPages) {
-                    appStore.setShowServerError(true)
-                }
-                const payload = await tryParseJsonBody(response)
-                throw new ApiHttpError(
-                    status,
-                    getErrorMessage(payload, 'Internal server error! Please try again later.'),
-                    payload
-                )
-            } else {
-                const payload = await tryParseJsonBody(response)
-                if (payload && typeof payload === 'object' && 'fields' in payload && Array.isArray((payload as { fields: unknown[] }).fields)) {
-                    const errors = (payload as { fields: Array<{ message: unknown }> }).fields
-                        .map(({ message }) => (typeof message === 'string' ? message.trim() : ''))
-                        .filter(Boolean)
-                    const errorMessage = errors.length > 0
-                        ? errors.join('\n')
-                        : getErrorMessage(payload, 'Something went wrong on API server!')
-                    throw new Error(errorMessage)
-                } else {
-                    throw new ApiHttpError(
-                        status,
-                        getErrorMessage(payload, 'Something went wrong on API server!'),
-                        payload
-                    )
-                }
-            }
+            return throwResponseError(response, opts)
         })
         .catch(error => {
             if (opts.throwError) {

@@ -403,6 +403,41 @@ export const cellHoldsCondition = (
     }
 }
 
+/** The type a value cell of a rules table accepts: its argument's in a condition column, the result's elsewhere. */
+const rulesCellType = (
+    preset: TablePreset,
+    context: TableBuildContext,
+    row: number,
+    column: number
+): string | undefined => {
+    const argumentsValue = completeArguments(context.arguments)
+    if (cellHoldsCondition(preset, context, row, column)) {
+        return argumentsValue[column]?.type
+    }
+    const resultColumn = column - argumentsValue.length
+    return context.resultFields.length
+        ? context.resultFields[resultColumn]?.type
+        : context.resultType
+}
+
+/**
+ * The type a value cell of a lookup accepts: a band row's horizontal argument, a leading column's vertical one,
+ * and the result type in the matrix.
+ */
+const lookupCellType = (
+    preset: TablePreset,
+    context: TableBuildContext,
+    row: number,
+    column: number
+): string | undefined => {
+    const argumentsValue = completeArguments(context.arguments)
+    const { rows: bandRows, keys } = headerBand(preset, context)
+    if (!cellHoldsCondition(preset, context, row, column)) {
+        return row < bandRows ? undefined : context.resultType
+    }
+    return row < bandRows ? argumentsValue[keys + row]?.type : argumentsValue[column]?.type
+}
+
 /**
  * The OpenL type a value cell must accept.
  *
@@ -426,25 +461,11 @@ export const cellValueType = (
         case 'constants':
             return column === 2 ? String(rows[row]?.[0] ?? '') : undefined
         case 'smartRules':
-        case 'simpleRules': {
-            const argumentsValue = completeArguments(context.arguments)
-            if (cellHoldsCondition(preset, context, row, column)) {
-                return argumentsValue[column]?.type
-            }
-            const resultColumn = column - argumentsValue.length
-            return context.resultFields.length
-                ? context.resultFields[resultColumn]?.type
-                : context.resultType
-        }
+        case 'simpleRules':
+            return rulesCellType(preset, context, row, column)
         case 'smartLookup':
-        case 'simpleLookup': {
-            const argumentsValue = completeArguments(context.arguments)
-            const { rows: bandRows, keys } = headerBand(preset, context)
-            if (!cellHoldsCondition(preset, context, row, column)) {
-                return row < bandRows ? undefined : context.resultType
-            }
-            return row < bandRows ? argumentsValue[keys + row]?.type : argumentsValue[column]?.type
-        }
+        case 'simpleLookup':
+            return lookupCellType(preset, context, row, column)
         case 'rules':
             return column === 0 ? 'Boolean' : context.resultType
         case 'test':

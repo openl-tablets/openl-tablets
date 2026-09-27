@@ -11,7 +11,7 @@ import {
 import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
 import { BranchSelect } from './BranchSelect'
-import { branchMarksFromConfig } from './configBranchMarks'
+import { branchMarksFromConfig, withConfiguredBranch } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
 import { useProjectRevisions } from './revisions'
 import type { Project } from '../../types/projects'
@@ -90,9 +90,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         branches: targetBranchOptions,
         loading: targetBranchesLoading,
     } = useDesignRepositoryBranches(targetBranchRepositoryId)
-    const availableTargetBranches = targetConfig?.branch && !targetBranchOptions.includes(targetConfig.branch)
-        ? [targetConfig.branch, ...targetBranchOptions]
-        : targetBranchOptions
+    const availableTargetBranches = withConfiguredBranch(targetConfig, targetBranchOptions)
     const targetBranchKnown = availableTargetBranches.includes(targetBranch.trim())
     const targetBranchError = !targetSupportsBranches || targetBranchKnown
         ? null
@@ -249,6 +247,101 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         return true
     }
 
+    const renderBranchField = () => (
+        <FieldRow required label={t('browser.copy_dialog.new_branch')} labelWidth={LABEL_WIDTH}>
+            <Input
+                data-testid="copy-project-branch"
+                status={branch.trim() && branchError ? 'error' : ''}
+                value={branch}
+                onChange={event => {
+                    setTouched(true)
+                    setBranch(event.target.value)
+                }}
+            />
+            <FieldError message={branch.trim() ? branchError : null} testId="copy-project-branch-error" />
+        </FieldRow>
+    )
+
+    const renderNewProjectFields = () => (
+        <>
+            <FieldRow required label={t('browser.copy_dialog.new_name')} labelWidth={LABEL_WIDTH}>
+                <Input data-testid="copy-project-name" onChange={event => setName(event.target.value)} value={name} />
+            </FieldRow>
+            <FieldRow required label={t('browser.copy_dialog.target_repository')} labelWidth={LABEL_WIDTH}>
+                <Select
+                    data-testid="copy-project-repository"
+                    onChange={value => setTargetRepositoryId(value as string)}
+                    options={repositories.map(repo => ({ value: repo.id, label: repo.name }))}
+                    style={{ width: '100%' }}
+                    value={targetRepositoryId}
+                />
+            </FieldRow>
+            {targetSupportsBranches && (
+                <FieldRow required label={t('browser.create.branch')} labelWidth={LABEL_WIDTH}>
+                    <BranchSelect
+                        allowNew
+                        branchNames={availableTargetBranches}
+                        data-testid="copy-project-target-branch"
+                        loading={targetBranchesLoading}
+                        marksOf={branchMarksFromConfig(targetConfig)}
+                        placeholder={t('browser.create.branch')}
+                        value={targetBranch}
+                        onChange={value => {
+                            setTargetBranchTouched(true)
+                            setTargetBranch(value)
+                        }}
+                    />
+                    <FieldError
+                        message={targetBranchTouched ? targetBranchError : null}
+                        testId="copy-project-target-branch-error"
+                    />
+                </FieldRow>
+            )}
+            {targetSupportsFolders && (
+                <FieldRow label={t('browser.copy_dialog.path')} labelWidth={LABEL_WIDTH}>
+                    <RepoFolderInput
+                        data-testid="copy-project-path"
+                        onChange={setPath}
+                        placeholder={t('browser.copy_dialog.path_placeholder')}
+                        repositoryId={targetRepositoryId}
+                        value={path}
+                    />
+                </FieldRow>
+            )}
+            <CommentField
+                config={writeConfig}
+                labelWidth={LABEL_WIDTH}
+                testId="copy-project-comment"
+                value={comment}
+                onChange={value => {
+                    setTouched(true)
+                    setComment(value)
+                }}
+            />
+            <FieldRow label={t('browser.copy_dialog.old_revision')} labelWidth={LABEL_WIDTH}>
+                <Checkbox
+                    checked={fromOldRevision}
+                    data-testid="copy-project-old-revision"
+                    onChange={event => setFromOldRevision(event.target.checked)}
+                />
+            </FieldRow>
+            {fromOldRevision && (
+                <FieldRow required label={t('browser.copy_dialog.revision')} labelWidth={LABEL_WIDTH}>
+                    <Select
+                        data-testid="copy-project-revision"
+                        loading={revisions === null}
+                        onChange={value => setChosen(value as string)}
+                        options={revisionOptions}
+                        // A revision reads whole in the list: the field is narrower than the label it holds.
+                        popupMatchSelectWidth={false}
+                        style={{ width: '100%' }}
+                        value={revision}
+                    />
+                </FieldRow>
+            )}
+        </>
+    )
+
     return (
         <>
             <Modal
@@ -294,98 +387,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                         <span data-testid="copy-project-current-branch">{project.branch}</span>
                     </FieldRow>
                 )}
-                {!newProjectMode ? (
-                    <FieldRow required label={t('browser.copy_dialog.new_branch')} labelWidth={LABEL_WIDTH}>
-                        <Input
-                            data-testid="copy-project-branch"
-                            status={branch.trim() && branchError ? 'error' : ''}
-                            value={branch}
-                            onChange={event => {
-                                setTouched(true)
-                                setBranch(event.target.value)
-                            }}
-                        />
-                        <FieldError message={branch.trim() ? branchError : null} testId="copy-project-branch-error" />
-                    </FieldRow>
-                ) : (
-                    <>
-                        <FieldRow required label={t('browser.copy_dialog.new_name')} labelWidth={LABEL_WIDTH}>
-                            <Input data-testid="copy-project-name" onChange={event => setName(event.target.value)} value={name} />
-                        </FieldRow>
-                        <FieldRow required label={t('browser.copy_dialog.target_repository')} labelWidth={LABEL_WIDTH}>
-                            <Select
-                                data-testid="copy-project-repository"
-                                onChange={value => setTargetRepositoryId(value as string)}
-                                options={repositories.map(repo => ({ value: repo.id, label: repo.name }))}
-                                style={{ width: '100%' }}
-                                value={targetRepositoryId}
-                            />
-                        </FieldRow>
-                        {targetSupportsBranches && (
-                            <FieldRow required label={t('browser.create.branch')} labelWidth={LABEL_WIDTH}>
-                                <BranchSelect
-                                    allowNew
-                                    branchNames={availableTargetBranches}
-                                    data-testid="copy-project-target-branch"
-                                    loading={targetBranchesLoading}
-                                    marksOf={branchMarksFromConfig(targetConfig)}
-                                    placeholder={t('browser.create.branch')}
-                                    value={targetBranch}
-                                    onChange={value => {
-                                        setTargetBranchTouched(true)
-                                        setTargetBranch(value)
-                                    }}
-                                />
-                                <FieldError
-                                    message={targetBranchTouched ? targetBranchError : null}
-                                    testId="copy-project-target-branch-error"
-                                />
-                            </FieldRow>
-                        )}
-                        {targetSupportsFolders && (
-                            <FieldRow label={t('browser.copy_dialog.path')} labelWidth={LABEL_WIDTH}>
-                                <RepoFolderInput
-                                    data-testid="copy-project-path"
-                                    onChange={setPath}
-                                    placeholder={t('browser.copy_dialog.path_placeholder')}
-                                    repositoryId={targetRepositoryId}
-                                    value={path}
-                                />
-                            </FieldRow>
-                        )}
-                        <CommentField
-                            config={writeConfig}
-                            labelWidth={LABEL_WIDTH}
-                            testId="copy-project-comment"
-                            value={comment}
-                            onChange={value => {
-                                setTouched(true)
-                                setComment(value)
-                            }}
-                        />
-                        <FieldRow label={t('browser.copy_dialog.old_revision')} labelWidth={LABEL_WIDTH}>
-                            <Checkbox
-                                checked={fromOldRevision}
-                                data-testid="copy-project-old-revision"
-                                onChange={event => setFromOldRevision(event.target.checked)}
-                            />
-                        </FieldRow>
-                        {fromOldRevision && (
-                            <FieldRow required label={t('browser.copy_dialog.revision')} labelWidth={LABEL_WIDTH}>
-                                <Select
-                                    data-testid="copy-project-revision"
-                                    loading={revisions === null}
-                                    onChange={value => setChosen(value as string)}
-                                    options={revisionOptions}
-                                    // A revision reads whole in the list: the field is narrower than the label it holds.
-                                    popupMatchSelectWidth={false}
-                                    style={{ width: '100%' }}
-                                    value={revision}
-                                />
-                            </FieldRow>
-                        )}
-                    </>
-                )}
+                {!newProjectMode ? renderBranchField() : renderNewProjectFields()}
             </Modal>
             <DiscardChangesModal
                 cancelButtonTestId="copy-project-discard-cancel"

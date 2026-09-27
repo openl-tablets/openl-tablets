@@ -19,6 +19,17 @@ export class DiffInputTooLargeError extends Error {
     }
 }
 
+/** The lengths of the longest common subsequences: `lcs[i][j]` is the one of `a[i:]` and `b[j:]`. */
+const lcsTable = (a: string[], b: string[]): number[][] => {
+    const lcs: number[][] = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0))
+    for (let i = a.length - 1; i >= 0; i--) {
+        for (let j = b.length - 1; j >= 0; j--) {
+            lcs[i]![j] = a[i] === b[j] ? lcs[i + 1]![j + 1]! + 1 : Math.max(lcs[i + 1]![j]!, lcs[i]![j + 1]!)
+        }
+    }
+    return lcs
+}
+
 /**
  * Compute a line-level diff between two texts using a longest-common-subsequence backtrace.
  *
@@ -34,14 +45,7 @@ export function diffLines(oldText: string, newText: string): DiffLine[] {
         throw new DiffInputTooLargeError()
     }
 
-    // lcs[i][j] = length of the LCS of a[i:] and b[j:]
-    const lcs: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0))
-    for (let i = n - 1; i >= 0; i--) {
-        for (let j = m - 1; j >= 0; j--) {
-            lcs[i]![j] = a[i] === b[j] ? lcs[i + 1]![j + 1]! + 1 : Math.max(lcs[i + 1]![j]!, lcs[i]![j + 1]!)
-        }
-    }
-
+    const lcs = lcsTable(a, b)
     const result: DiffLine[] = []
     let i = 0
     let j = 0

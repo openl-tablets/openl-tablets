@@ -153,6 +153,56 @@ const isCompleteArgument = (argument: TableArgument): boolean => Boolean(argumen
 const normalizeArguments = (argumentsValue: TableArgument[]): TableArgument[] =>
     withTrailingBlank(argumentsValue, isCompleteArgument, blankArgument)
 
+/** Whether every argument is named as an identifier, and no two of them share a name. */
+const argumentNamesAreValid = (declaredArguments: TableArgument[]): boolean =>
+    declaredArguments.every(argument => IDENTIFIER.test(argument.name.trim()))
+        && new Set(declaredArguments.map(argument => argument.name.trim())).size === declaredArguments.length
+
+/** The table as the author has written it so far, as far as what may keep it from being written. */
+interface TableDraft {
+    preset: TablePreset
+    moduleName: string
+    tableNameValid: boolean
+    sheetName: string
+    resultType: string
+    partialArgument: boolean
+    argumentNamesValid: boolean
+    declaredArguments: TableArgument[]
+    vocabularyType: string
+    datatypeName: string
+    dataFields: DatatypeField[]
+    target: TargetStructure | null
+    bodyValid: boolean
+    submittedName: string
+    typedValuesValid: boolean
+}
+
+/**
+ * Why the table cannot be written yet, or `undefined` when it can.
+ *
+ * <p>The one list the dialog gates on: `valid` is read off it, so a rule can never disable Create without
+ * naming itself, or name itself while Create stays enabled. Ordered the way the fields are laid out, so the
+ * first thing the author reads is the first thing to fix.
+ */
+const blockingOf = (draft: TableDraft) => ([
+    [!draft.moduleName, 'module'],
+    [!draft.tableNameValid, 'table_name'],
+    [!isValidSheetName(draft.sheetName), 'sheet'],
+    [SIGNATURE_PRESETS.has(draft.preset) && !draft.resultType.trim(), 'result_type'],
+    [draft.partialArgument, 'partial_argument'],
+    [!draft.argumentNamesValid, 'argument_names'],
+    // A lookup looks a value up by its arguments, so it takes at least one. One is enough: OpenL then reads
+    // the table as rules, which is what the geometry above builds — see EPBDS-16417.
+    [isLookup(draft.preset) && !draft.declaredArguments.length, 'lookup_arguments'],
+    [draft.preset === 'vocabulary' && !draft.vocabularyType, 'vocabulary_type'],
+    [draft.preset === 'data' && !(draft.datatypeName && draft.dataFields.length), 'datatype'],
+    [isTargeted(draft.preset) && !draft.target?.columns.length, 'target'],
+    [!draft.bodyValid, 'body'],
+    // A Free Form table is named after its first cell, so an empty grid leaves it nameless.
+    [!draft.submittedName, 'body'],
+    [!draft.typedValuesValid, 'values'],
+] as const).find(([blocked]) => blocked)?.[1]
+
 const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail }) => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
@@ -588,8 +638,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     const declaredArguments = argumentsValue.filter(isCompleteArgument)
     // Every argument becomes a parameter of the compiled method: its name has to be an identifier, and no two of
     // them may share one. Either way OpenL cannot bind the signature the header declares.
-    const argumentNamesValid = declaredArguments.every(argument => IDENTIFIER.test(argument.name.trim()))
-        && new Set(declaredArguments.map(argument => argument.name.trim())).size === declaredArguments.length
+    const argumentNamesValid = argumentNamesAreValid(declaredArguments)
     // A compiled table's name becomes an OpenL identifier; a type that carries no name imposes nothing.
     const tableNameValid = !hasTableName(preset) || IDENTIFIER.test(tableName.trim())
     // Blank rows are stripped before the table is written, so a preset that needs a body needs a filled row.
@@ -619,31 +668,23 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         hasTableHeader(preset) ? generatedHeader : String(submittedBody[0]?.[0] ?? ''))
 
 
-    /**
-     * Why the table cannot be written yet, or `null` when it can.
-     *
-     * <p>The one list the dialog gates on: `valid` is read off it, so a rule can never disable Create without
-     * naming itself, or name itself while Create stays enabled. Ordered the way the fields are laid out, so the
-     * first thing the author reads is the first thing to fix.
-     */
-    const blocking = ([
-        [!moduleName, 'module'],
-        [!tableNameValid, 'table_name'],
-        [!isValidSheetName(sheetName), 'sheet'],
-        [SIGNATURE_PRESETS.has(preset) && !resultType.trim(), 'result_type'],
-        [partialArgument, 'partial_argument'],
-        [!argumentNamesValid, 'argument_names'],
-        // A lookup looks a value up by its arguments, so it takes at least one. One is enough: OpenL then reads
-        // the table as rules, which is what the geometry above builds — see EPBDS-16417.
-        [isLookup(preset) && !declaredArguments.length, 'lookup_arguments'],
-        [preset === 'vocabulary' && !vocabularyType, 'vocabulary_type'],
-        [preset === 'data' && !(datatypeName && context.dataFields.length), 'datatype'],
-        [isTargeted(preset) && !target?.columns.length, 'target'],
-        [!bodyValid, 'body'],
-        // A Free Form table is named after its first cell, so an empty grid leaves it nameless.
-        [!submittedName, 'body'],
-        [!typedValuesValid, 'values'],
-    ] as const).find(([blocked]) => blocked)?.[1]
+    const blocking = blockingOf({
+        preset,
+        moduleName,
+        tableNameValid,
+        sheetName,
+        resultType,
+        partialArgument,
+        argumentNamesValid,
+        declaredArguments,
+        vocabularyType,
+        datatypeName,
+        dataFields: context.dataFields,
+        target,
+        bodyValid,
+        submittedName,
+        typedValuesValid,
+    })
     const valid = !blocking
     const blockingReason = blocking && t(`project:create_table_modal.blocked.${blocking}`)
 

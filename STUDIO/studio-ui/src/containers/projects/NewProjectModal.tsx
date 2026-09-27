@@ -28,7 +28,7 @@ import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
 import { WORKBOOK_ACCEPT } from '../../utils/workbooks'
 import { BranchSelect } from './BranchSelect'
-import { branchMarksFromConfig } from './configBranchMarks'
+import { branchMarksFromConfig, withConfiguredBranch } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
 import { useSharedStyles } from './sharedStyles'
 import { creatableRepositories, supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
@@ -213,6 +213,9 @@ interface NewProjectModalProps {
     onCreated: (created: { repositoryId: string, name: string, branch?: string }) => void
 }
 
+/** The file an upload field shows as picked: the one chosen, or none. */
+const pickedFile = (file: File | null): UploadFile[] => (file ? [{ uid: '1', name: file.name }] : [])
+
 /**
  * Two-step "create project" wizard. Step one picks the creation method; a single click on a method opens
  * step two, which collects the method's inputs together with the target design repository and, where
@@ -331,9 +334,7 @@ export const NewProjectModal = ({
     // The repository the branches are read from; the form asks for none until it has one to write to.
     const branchRepositoryId = open && repositorySupportsBranches && repoId ? repoId : null
     const { branches: branchOptions, loading: branchesLoading } = useDesignRepositoryBranches(branchRepositoryId)
-    const availableBranches = config?.branch && !branchOptions.includes(config.branch)
-        ? [config.branch, ...branchOptions]
-        : branchOptions
+    const availableBranches = withConfiguredBranch(config, branchOptions)
     const branchKnown = availableBranches.includes(branch.trim())
     const branchError = !repositorySupportsBranches || branchKnown
         ? null
@@ -489,38 +490,73 @@ export const NewProjectModal = ({
         return folder ? `${folder}/${name.trim()}` : undefined
     }
 
+    /** What the chosen source of the project still lacks, or null when it has all it needs. */
+    const sourceProblem = (): string | null => {
+        if (mode === 'archive' && !archive) {
+            return t('browser.create.file_required')
+        }
+        if (mode === 'archive' && archiveError) {
+            return archiveError
+        }
+        if (mode === 'excel' && excelFiles.length === 0) {
+            return t('browser.create.excel_required')
+        }
+        if (mode === 'template' && !template) {
+            return t('browser.create.template_required')
+        }
+        if (mode === 'openapi' && !openApiFile) {
+            return t('browser.create.openapi_required')
+        }
+        if (mode === 'openapi' && [openApi.modelsModuleName, openApi.modelsPath, openApi.algorithmsModuleName, openApi.algorithmsPath].some(field => !field.trim())) {
+            return t('browser.create.openapi_modules_required')
+        }
+        if (mode === 'copy' && !copyableProjectSources.some(candidate => candidate.id === copySource)) {
+            return t('browser.create.copy_source_required')
+        }
+        return null
+    }
+
+    /** Creates the project from the chosen source: a copy of another project, a template, or what was uploaded. */
+    const createFromSource = async (repository: Repository, trimmedName: string) => {
+        if (mode === 'copy') {
+            const source = copyableProjectSources.find(candidate => candidate.id === copySource)!
+            await copyProject(source.repository, source.id, repository.id, trimmedName, {
+                comment: comment.trim() || undefined,
+                path: repositoryPath(),
+                branch: repositorySupportsBranches ? branch.trim() : undefined,
+            })
+        } else if (mode === 'template') {
+            const [type, category, name_] = JSON.parse(template!) as [string, string, string]
+            await createProject(repository.id, trimmedName, {
+                template: { type, category, name: name_ },
+                path: repositoryPath(),
+                comment: comment.trim() || undefined,
+                status: 'OPENED',
+                ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
+            })
+        } else {
+            await createProject(repository.id, trimmedName, {
+                files: contentFiles(),
+                ...(mode === 'openapi' ? { openApi } : {}),
+                path: mode === 'archive' ? archivePath() : repositoryPath(),
+                comment: comment.trim() || undefined,
+                // Every source opens the new project, so an uploaded archive is no longer the odd
+                // one out that lands closed.
+                status: 'OPENED',
+                ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
+            })
+        }
+    }
+
     const submit = async () => {
         const trimmedName = name.trim()
         if (!trimmedName) {
             setError(t('browser.create.name_required'))
             return
         }
-        if (mode === 'archive' && !archive) {
-            setError(t('browser.create.file_required'))
-            return
-        }
-        if (mode === 'archive' && archiveError) {
-            setError(archiveError)
-            return
-        }
-        if (mode === 'excel' && excelFiles.length === 0) {
-            setError(t('browser.create.excel_required'))
-            return
-        }
-        if (mode === 'template' && !template) {
-            setError(t('browser.create.template_required'))
-            return
-        }
-        if (mode === 'openapi' && !openApiFile) {
-            setError(t('browser.create.openapi_required'))
-            return
-        }
-        if (mode === 'openapi' && [openApi.modelsModuleName, openApi.modelsPath, openApi.algorithmsModuleName, openApi.algorithmsPath].some(field => !field.trim())) {
-            setError(t('browser.create.openapi_modules_required'))
-            return
-        }
-        if (mode === 'copy' && !copyableProjectSources.some(candidate => candidate.id === copySource)) {
-            setError(t('browser.create.copy_source_required'))
+        const sourceError = sourceProblem()
+        if (sourceError) {
+            setError(sourceError)
             return
         }
         if (commentError) {
@@ -538,34 +574,7 @@ export const NewProjectModal = ({
             setSubmitting(true)
             setError(null)
             try {
-                if (mode === 'copy') {
-                    const source = copyableProjectSources.find(candidate => candidate.id === copySource)!
-                    await copyProject(source.repository, source.id, repository.id, trimmedName, {
-                        comment: comment.trim() || undefined,
-                        path: repositoryPath(),
-                        branch: repositorySupportsBranches ? branch.trim() : undefined,
-                    })
-                } else if (mode === 'template') {
-                    const [type, category, name_] = JSON.parse(template!) as [string, string, string]
-                    await createProject(repository.id, trimmedName, {
-                        template: { type, category, name: name_ },
-                        path: repositoryPath(),
-                        comment: comment.trim() || undefined,
-                        status: 'OPENED',
-                        ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
-                    })
-                } else {
-                    await createProject(repository.id, trimmedName, {
-                        files: contentFiles(),
-                        ...(mode === 'openapi' ? { openApi } : {}),
-                        path: mode === 'archive' ? archivePath() : repositoryPath(),
-                        comment: comment.trim() || undefined,
-                        // Every source opens the new project, so an uploaded archive is no longer the odd
-                        // one out that lands closed.
-                        status: 'OPENED',
-                        ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
-                    })
-                }
+                await createFromSource(repository, trimmedName)
                 // The dialog closes onto the new project's page, so the confirmation is the one thing that says
                 // the action went through — the way a copy or a deletion is confirmed.
                 const confirmation = mode === 'copy' ? 'browser.copy_dialog.success' : 'browser.create.success'
@@ -584,7 +593,7 @@ export const NewProjectModal = ({
         })
     }
 
-    const fileList: UploadFile[] = archive ? [{ uid: '1', name: archive.name }] : []
+    const fileList = pickedFile(archive)
     const activeMethod = METHODS.find(method => method.id === mode)!
 
     const repoSelectInput = (
@@ -799,7 +808,7 @@ export const NewProjectModal = ({
                             accept=".json,.yaml,.yml"
                             beforeUpload={file => { setOpenApiFile(file); setError(null); return false }}
                             data-testid="new-project-openapi-upload"
-                            fileList={openApiFile ? [{ uid: '1', name: openApiFile.name }] : []}
+                            fileList={pickedFile(openApiFile)}
                             maxCount={1}
                             onRemove={() => setOpenApiFile(null)}
                         >

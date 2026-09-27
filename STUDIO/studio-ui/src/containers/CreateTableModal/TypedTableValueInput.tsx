@@ -90,6 +90,15 @@ export const tableValueIsValid = (
     return true
 }
 
+/** The bounds and the precision a number editor holds a value of the declared type within. */
+const numberLimits = (declared: string) => {
+    const range = INTEGER_RANGES[declared]
+    return {
+        ...(range ? { max: range[1].toString(), min: range[0].toString() } : {}),
+        ...(INTEGER_TYPES.has(declared) ? { precision: 0 } : {}),
+    }
+}
+
 /**
  * A cell editor constrained by the OpenL type declared for that cell.
  *
@@ -131,15 +140,13 @@ export const TypedTableValueInput: React.FC<TypedTableValueInputProps> = ({
         )
     }
     if (INTEGER_TYPES.has(declared) || DECIMAL_TYPES.has(declared)) {
-        const range = INTEGER_RANGES[declared]
         return (
             <InputNumber
                 {...common}
                 controls={false}
-                {...(range ? { max: range[1].toString(), min: range[0].toString() } : {})}
-                onChange={next => onChange(next === null ? '' : String(next))}
-                {...(INTEGER_TYPES.has(declared) ? { precision: 0 } : {})}
+                {...numberLimits(declared)}
                 stringMode
+                onChange={next => onChange(next === null ? '' : String(next))}
                 value={value === '' ? null : String(value)}
             />
         )

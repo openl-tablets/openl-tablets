@@ -27,6 +27,16 @@ interface ProjectDeployedDetail {
     projectId?: string
 }
 
+interface DeployFormValues {
+    repository: string
+    deploymentName: string
+    comment: string
+}
+
+/** Whether the error is Ant Design's validation result (ValidateErrorEntity), which the form shows inline. */
+const isValidationError = (error: unknown): boolean =>
+    !!error && typeof error === 'object' && Array.isArray((error as { errorFields?: unknown }).errorFields)
+
 /**
  * DeployModal component
  * @example to call this modal, dispatch a custom event 'openDeployModal' with details:
@@ -114,34 +124,44 @@ export const DeployModal: React.FC = () => {
         window.dispatchEvent(new CustomEvent('openDeployModal', { detail: null }))
     }
 
-    const doDeploy = async (values: { repository: string; deploymentName: string; comment: string }) => {
-        if (mainBranchOnlyBlocked) {
-            notification.warning({
-                title: t('deploy:notifications.deploy_failed'),
-                description: t('deploy:notifications.main_branch_only', { branch: detail?.branch }),
+    /** Sends the deployment the form describes, and tells whether it was sent. */
+    const sendDeployment = async (
+        { repository, deploymentName, comment }: DeployFormValues,
+        projectId: string | undefined
+    ): Promise<boolean> => {
+        const deployOptions = { throwError: true, suppressErrorPages: true }
+        let didDeploy = false
+        if (isNewDeployment) {
+            // Create new deployment
+            await apiCall('/deployments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    comment,
+                    deploymentName,
+                    productionRepositoryId: repository,
+                    projectId,
+                }),
+            }, deployOptions)
+            notification.success({
+                title: t('deploy:notifications.deploy_configuration_added'),
+                description: t('deploy:notifications.deploy_configuration_added_description'),
                 placement: 'topRight',
             })
-            return
-        }
-        try {
-            const { repository, deploymentName, comment } = values
-            const projectId = detail?.id
-
-            setIsDeploying(true)
-
-            const deployOptions = { throwError: true, suppressErrorPages: true }
-            let didDeploy = false
-            if (isNewDeployment) {
-                // Create new deployment
-                await apiCall('/deployments', {
+            didDeploy = true
+        } else {
+            // Deploy to existing deployment
+            const selectedDeployment = deploymentNames.find(dep => dep.name === deploymentName)
+            if (selectedDeployment) {
+                await apiCall(`/deployments/${selectedDeployment.id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         comment,
-                        deploymentName,
-                        productionRepositoryId: repository,
                         projectId,
                     }),
                 }, deployOptions)
@@ -152,34 +172,57 @@ export const DeployModal: React.FC = () => {
                 })
                 didDeploy = true
             } else {
-                // Deploy to existing deployment
-                const selectedDeployment = deploymentNames.find(dep => dep.name === deploymentName)
-                if (selectedDeployment) {
-                    await apiCall(`/deployments/${selectedDeployment.id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            comment,
-                            projectId,
-                        }),
-                    }, deployOptions)
-                    notification.success({
-                        title: t('deploy:notifications.deploy_configuration_added'),
-                        description: t('deploy:notifications.deploy_configuration_added_description'),
-                        placement: 'topRight',
-                    })
-                    didDeploy = true
-                } else {
-                    notification.error({
-                        title: t('deploy:notifications.deploy_failed'),
-                        description: t('deploy:notifications.deploy_failed_description'),
-                        placement: 'topRight',
-                    })
-                }
+                notification.error({
+                    title: t('deploy:notifications.deploy_failed'),
+                    description: t('deploy:notifications.deploy_failed_description'),
+                    placement: 'topRight',
+                })
             }
+        }
+        return didDeploy
+    }
 
+    /** Tells why a deployment failed: on the repository field when it is not granted, in a toast otherwise. */
+    const reportDeployFailure = (error: unknown) => {
+        errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
+        if (error instanceof ForbiddenError) {
+            form.setFields([{
+                name: 'repository',
+                errors: [t('deploy:notifications.no_deploy_rights_short')],
+            }])
+            notification.warning({
+                title: t('deploy:notifications.deploy_failed'),
+                description: t('deploy:notifications.no_deploy_rights'),
+                placement: 'topRight',
+            })
+        } else {
+            notification.error({
+                title: t('deploy:notifications.deploy_failed'),
+                // The server explains what it refused; only a failure without an explanation of its
+                // own falls back to the generic sentence.
+                description: isApiHttpError(error) && error.message
+                    ? error.message
+                    : t('deploy:notifications.deploy_failed_description'),
+                placement: 'topRight',
+            })
+        }
+    }
+
+    const doDeploy = async (values: DeployFormValues) => {
+        if (mainBranchOnlyBlocked) {
+            notification.warning({
+                title: t('deploy:notifications.deploy_failed'),
+                description: t('deploy:notifications.main_branch_only', { branch: detail?.branch }),
+                placement: 'topRight',
+            })
+            return
+        }
+        try {
+            const projectId = detail?.id
+
+            setIsDeploying(true)
+
+            const didDeploy = await sendDeployment(values, projectId)
             if (didDeploy) {
                 if (projectId) {
                     window.dispatchEvent(new CustomEvent<ProjectDeployedDetail>('projectDeployed', {
@@ -190,31 +233,10 @@ export const DeployModal: React.FC = () => {
             }
         } catch (error) {
             // Ant Design validation (ValidateErrorEntity) — form shows errors inline, no toast
-            if (error && typeof error === 'object' && Array.isArray((error as { errorFields?: unknown }).errorFields)) {
+            if (isValidationError(error)) {
                 return
             }
-            errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
-            if (error instanceof ForbiddenError) {
-                form.setFields([{
-                    name: 'repository',
-                    errors: [t('deploy:notifications.no_deploy_rights_short')],
-                }])
-                notification.warning({
-                    title: t('deploy:notifications.deploy_failed'),
-                    description: t('deploy:notifications.no_deploy_rights'),
-                    placement: 'topRight',
-                })
-            } else {
-                notification.error({
-                    title: t('deploy:notifications.deploy_failed'),
-                    // The server explains what it refused; only a failure without an explanation of its
-                    // own falls back to the generic sentence.
-                    description: isApiHttpError(error) && error.message
-                        ? error.message
-                        : t('deploy:notifications.deploy_failed_description'),
-                    placement: 'topRight',
-                })
-            }
+            reportDeployFailure(error)
         } finally {
             setIsDeploying(false)
         }
@@ -226,7 +248,7 @@ export const DeployModal: React.FC = () => {
             await runWithCommitInfo(() => doDeploy(values))
         } catch (error) {
             // Ant Design validation (ValidateErrorEntity) — form shows errors inline, no toast
-            if (error && typeof error === 'object' && Array.isArray((error as { errorFields?: unknown }).errorFields)) {
+            if (isValidationError(error)) {
                 return
             }
             errorHandler.logError(error instanceof Error ? error : new Error(String(error)))

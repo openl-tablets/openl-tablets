@@ -111,6 +111,12 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
+/** The project read for the address, or null while what was read belongs to another one. */
+const projectReadFor = (
+    read: { address: string, project: Project } | null,
+    address: string | undefined
+): Project | null => (read !== null && read.address === address ? read.project : null)
+
 /**
  * One module of a project, opened for reading.
  *
@@ -135,7 +141,7 @@ export const ModuleWorkspace = () => {
     // The project as read for an address. The screen stays mounted when it moves on to another project, and what it
     // read for the previous address is none of the new one's: nothing is shown, compiled or read of it there.
     const [projectRead, setProjectRead] = useState<{ address: string, project: Project } | null>(null)
-    const project = projectRead !== null && projectRead.address === projectId ? projectRead.project : null
+    const project = projectReadFor(projectRead, projectId)
     const [statusReadAt, setStatusReadAt] = useState(0)
     const [loadError, setLoadError] = useState<string | null>(null)
     // Why the link leads to no project, or to several: shown in place of the module.
@@ -747,7 +753,8 @@ export const ModuleWorkspace = () => {
         </>
     )
 
-    const canvas = () => {
+    /** What stands in for the module while it cannot be read: its project closed, or not compiled through. */
+    const compilationCanvas = () => {
         if (closed) {
             return (
                 <div className={styles.centered} data-testid="module-project-closed">
@@ -809,6 +816,11 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
+        return null
+    }
+
+    /** The table picked in the module, or why there is none to show. */
+    const tableCanvas = () => {
         if (tableUnlisted) {
             return (
                 <div className={styles.centered}>
@@ -916,6 +928,8 @@ export const ModuleWorkspace = () => {
             </>
         )
     }
+
+    const canvas = () => compilationCanvas() ?? tableCanvas()
 
     return (
         <div className={shared.workspacePage} data-testid="module-workspace">

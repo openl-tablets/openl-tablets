@@ -310,6 +310,20 @@ const focusedFrame = (status: DebugStatus, topIndex: number | null): number | nu
     return status === 'completed' ? 0 : topIndex
 }
 
+/**
+ * Whether the top frame is paused exactly at an inspected target, so that one step finishes it: a call at its
+ * fresh entry, or the owning frame already on the line of the clicked step.
+ */
+const pausedAtTarget = (
+    top: DebugFrameView | undefined,
+    frameUri: string,
+    frameInstance: number,
+    stepType: SimpleInspectTarget['stepType'],
+    focus: SimpleStepFocus | undefined
+): boolean =>
+    top?.uri === frameUri && top?.instance === frameInstance && !top?.completed
+        && (stepType === 'over' ? top?.location?.ref === focus?.ref : !top?.location)
+
 /** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
 const TREE_PAGE_SIZE = 100
 
@@ -899,9 +913,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // A quiet restart leaves the previous table on the panel, so read the fresh root from the
                 // returned stack rather than the (still previous) displayed frames.
                 const top = (freshStack?.frames ?? get().frames).at(-1)
-                const atTarget = top?.uri === frameUri && top?.instance === frameInstance && !top?.completed
-                    && (stepType === 'over' ? top?.location?.ref === focus?.ref : !top?.location)
-                if (atTarget) {
+                if (pausedAtTarget(top, frameUri, frameInstance, stepType, focus)) {
                     await (stepType === 'over' ? get().stepOver() : get().stepOut())
                 } else {
                     // An inclusive one-shot breakpoint: the engine runs the target and suspends right after

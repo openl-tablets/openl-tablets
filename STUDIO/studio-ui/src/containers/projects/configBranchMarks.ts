@@ -11,3 +11,10 @@ export const branchMarksFromConfig = (config: RepositoryConfig | null | undefine
     isDefault: name === config?.branch,
     isProtected: isProtectedBranch(name, config?.protectedBranches),
 })
+
+/**
+ * The branches a create or copy form offers to write to: those the repository has, headed by the branch its
+ * configuration names when the repository does not have that one yet.
+ */
+export const withConfiguredBranch = (config: RepositoryConfig | null | undefined, branches: string[]): string[] =>
+    config?.branch && !branches.includes(config.branch) ? [config.branch, ...branches] : branches

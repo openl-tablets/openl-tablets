@@ -36,6 +36,28 @@ const translateClass = (glob: string, start: number): [string, number] => {
 }
 
 /**
+ * Translates the token at `index` other than the delimiters of a choice, returning the regex chunk and how many
+ * characters it consumed.
+ */
+const translateToken = (glob: string, index: number): [string, number] => {
+    const char = glob[index] ?? ''
+    const nextChar = glob[index + 1]
+    if (char === '\\') {
+        return nextChar ? [escapeRegExpChar(nextChar), 2] : ['\\\\', 1]
+    }
+    if (char === '*') {
+        return nextChar === '*' ? ['.*', 2] : ['[^/]*', 1]
+    }
+    if (char === '?') {
+        return ['[^/]', 1]
+    }
+    if (char === '[') {
+        return translateClass(glob, index)
+    }
+    return [escapeRegExpChar(char), 1]
+}
+
+/**
  * Converts one branch glob pattern to a regular expression, matching the way the server does: `*` stops at a
  * path separator, `**` crosses it, `?` is a single non-separator character, `{a,b}` is a choice, and `[...]`
  * is a character set. The whole name must match.
@@ -45,21 +67,8 @@ const globToRegExp = (glob: string): RegExp => {
     let index = 0
     let inChoice = false
     while (index < glob.length) {
-        const char = glob[index] ?? ''
-        const nextChar = glob[index + 1]
-        if (char === '\\') {
-            source += nextChar ? escapeRegExpChar(nextChar) : '\\\\'
-            index += nextChar ? 2 : 1
-        } else if (char === '*' && nextChar === '*') {
-            source += '.*'
-            index += 2
-        } else if (char === '*') {
-            source += '[^/]*'
-            index += 1
-        } else if (char === '?') {
-            source += '[^/]'
-            index += 1
-        } else if (char === '{') {
+        const char = glob[index]
+        if (char === '{') {
             source += '(?:'
             inChoice = true
             index += 1
@@ -70,13 +79,10 @@ const globToRegExp = (glob: string): RegExp => {
         } else if (char === ',' && inChoice) {
             source += '|'
             index += 1
-        } else if (char === '[') {
-            const [chunk, consumed] = translateClass(glob, index)
+        } else {
+            const [chunk, consumed] = translateToken(glob, index)
             source += chunk
             index += consumed
-        } else {
-            source += escapeRegExpChar(char)
-            index += 1
         }
     }
     return new RegExp(`^${source}$`)

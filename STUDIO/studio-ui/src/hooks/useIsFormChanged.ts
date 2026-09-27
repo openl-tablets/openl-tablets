@@ -15,6 +15,35 @@ const hasValue = (value: any): boolean => {
     return true
 }
 
+/** Compares two arrays element by element. */
+const areArraysEqual = (value1: any[], value2: any[]): boolean => {
+    if (value1.length !== value2.length) return false
+    for (let i = 0; i < value1.length; i++) {
+        if (!isEqual(value1[i], value2[i])) {
+            return false
+        }
+    }
+    return true
+}
+
+/** Compares two objects key by key, over the keys of both. */
+const areObjectsEqual = (value1: any, value2: any): boolean => {
+    const keys1 = Object.keys(value1)
+    const keys2 = Object.keys(value2)
+
+    // Get all unique keys from both objects
+    const allKeys = new Set([...keys1, ...keys2])
+
+    // Compare each key
+    for (const key of allKeys) {
+        if (!isEqual(value1[key], value2[key])) {
+            return false
+        }
+    }
+
+    return true
+}
+
 /**
  * Deep comparison function that handles arrays, objects, and primitives recursively.
  * Exported for use in form comparison logic.
@@ -27,31 +56,12 @@ const isEqual = (value1: any, value2: any): boolean => {
 
     // Handle arrays
     if (Array.isArray(value1) && Array.isArray(value2)) {
-        if (value1.length !== value2.length) return false
-        for (let i = 0; i < value1.length; i++) {
-            if (!isEqual(value1[i], value2[i])) {
-                return false
-            }
-        }
-        return true
+        return areArraysEqual(value1, value2)
     }
 
     // Handle objects (non-arrays)
     if (typeof value1 === 'object' && typeof value2 === 'object') {
-        const keys1 = Object.keys(value1)
-        const keys2 = Object.keys(value2)
-
-        // Get all unique keys from both objects
-        const allKeys = new Set([...keys1, ...keys2])
-
-        // Compare each key
-        for (const key of allKeys) {
-            if (!isEqual(value1[key], value2[key])) {
-                return false
-            }
-        }
-
-        return true
+        return areObjectsEqual(value1, value2)
     }
 
     return false
