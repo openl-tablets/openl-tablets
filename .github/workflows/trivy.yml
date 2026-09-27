@@ -46,7 +46,8 @@ jobs:
 
     name: ${{ matrix.image }}
 
-    container: ghcr.io/aquasecurity/trivy
+    # Pinned on purpose; Dependabot does not bump workflow container images, so update it by hand
+    container: ghcr.io/aquasecurity/trivy:0.74.0
 
     steps:
       - name: Run Trivy vulnerability scanner for ${{ env.IMAGE_REF }}
