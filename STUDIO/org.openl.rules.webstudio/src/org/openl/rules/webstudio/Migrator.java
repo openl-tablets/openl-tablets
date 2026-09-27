@@ -543,7 +543,7 @@ public class Migrator {
                                String oldKey,
                                String newKey) {
         if (settings.containsProperty(oldKey)) {
-            var value = (String) settings.getProperty(oldKey);
+            var value = settings.getProperty(oldKey);
             props.put(oldKey, null);
             props.put(newKey, value);
         }

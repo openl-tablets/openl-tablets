@@ -96,7 +96,7 @@ public class ApiConfig implements WebMvcConfigurer {
     public static MethodValidationPostProcessor getMethodValidationPostProcessor(ApplicationContext context) {
         MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
         ObjectProvider validatorBeanProvider = context.getBeanProvider(LocalValidatorFactoryBean.class);
-        processor.setValidatorProvider((ObjectProvider<jakarta.validation.Validator>) validatorBeanProvider);
+        processor.setValidatorProvider(validatorBeanProvider);
         return processor;
     }
 

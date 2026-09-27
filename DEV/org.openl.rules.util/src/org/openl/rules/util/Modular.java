@@ -45,7 +45,7 @@ public final class Modular {
         if (divisor == 0) {
             return dividend;
         }
-        return (byte) Math.floorMod((int) dividend, (int) divisor);
+        return (byte) Math.floorMod(dividend, divisor);
     }
 
     public static Short mod(Short dividend, Short divisor) {
@@ -55,7 +55,7 @@ public final class Modular {
         if (divisor == 0) {
             return dividend;
         }
-        return (short) Math.floorMod((int) dividend, (int) divisor);
+        return (short) Math.floorMod(dividend, divisor);
     }
 
     public static Integer mod(Integer dividend, Integer divisor) {

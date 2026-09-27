@@ -763,7 +763,7 @@ public class SpreadsheetResult implements Serializable {
     private static Object convertMap(Map<?, ?> v, Function<Object, Object> function) {
         Map<Object, Object> newMap;
         try {
-            newMap = (Map<Object, Object>) v.getClass().getDeclaredConstructor().newInstance();
+            newMap = v.getClass().getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             return v;
         }
@@ -776,7 +776,7 @@ public class SpreadsheetResult implements Serializable {
     private static Object convertCollection(Collection<?> v, Function<Object, Object> function) {
         Collection<Object> newCollection;
         try {
-            newCollection = (Collection<Object>) v.getClass().getDeclaredConstructor().newInstance();
+            newCollection = v.getClass().getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             return v;
         }

@@ -176,8 +176,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 return getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             }
         } else if (type instanceof ModuleSpecificType specificType
-                && isDependencyModule((XlsModuleOpenClass) specificType.getModule(),
-                new IdentityHashMap<>())) {
+                && isDependencyModule(specificType.getModule(), new IdentityHashMap<>())) {
             if (type instanceof CombinedSpreadsheetResultOpenClass class1) {
                 return class1.convertToModuleType(this, false);
             }

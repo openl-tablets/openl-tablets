@@ -97,7 +97,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
         IOpenClass tableType = OpenLManager
-                .makeType(((IBindingContext) bindingContext).getOpenL(), typeName, source, bindingContext);
+                .makeType(bindingContext.getOpenL(), typeName, source, bindingContext);
 
         // Check that table type loaded properly.
         //

@@ -40,7 +40,6 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -180,7 +179,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, bindingContext);
 
                 IParameterDeclaration parameterDeclaration = null;
-                var code = ((IOpenSourceCodeModule) pGridCellSourceCodeModule).getCode();
+                var code = pGridCellSourceCodeModule.getCode();
                 if (StringUtils.isNotBlank(code)) {
                     parameterDeclaration = OpenLManager
                             .makeParameterDeclaration(openl, pGridCellSourceCodeModule, bindingContext);

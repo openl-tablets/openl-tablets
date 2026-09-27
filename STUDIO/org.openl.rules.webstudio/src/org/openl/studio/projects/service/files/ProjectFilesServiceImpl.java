@@ -746,7 +746,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 }
                 continue;
             }
-            var childChildren = builtChildren.getOrDefault((AProjectFolder) artefact, List.of());
+            var childChildren = builtChildren.getOrDefault(artefact, List.of());
             if (!filter.test(artefact) && childChildren.isEmpty()) {
                 continue;
             }

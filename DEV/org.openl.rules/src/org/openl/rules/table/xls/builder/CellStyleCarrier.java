@@ -61,7 +61,7 @@ final class CellStyleCarrier {
         carried.setVerticalAlignment(style.getVerticalAlignment());
         carried.setWrapText(style.getWrapText());
         carried.setShrinkToFit(style.getShrinkToFit());
-        carried.setIndention((short) style.getIndention());
+        carried.setIndention(style.getIndention());
         carried.setRotation(style.getRotation());
         carried.setHidden(style.getHidden());
         carried.setLocked(style.getLocked());
