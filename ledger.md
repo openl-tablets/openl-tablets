@@ -2,12 +2,12 @@
 
 ## Resume point
 
-- No PR is open: #2166 merged. Cut a fresh `dead-code/*` branch from a freshly fetched `origin/main`.
-- All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect zero), spend
-  the rest on a NEW vein. The paying veins are documentation, build config and framework-generated members: a
-  no-op annotation or a generated member no caller names is the one CODE shape still paying.
-- Start the reactor build detached in the FIRST minute and mine read-only veins beside it; before every push, list
-  open `dead-code/*` PRs and re-fetch main, since parallel runs of this routine share the branch.
+- PR #2184 is open (2 commits, studio-ui). Maintain it to green, then sweep on that same branch.
+- All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect near zero),
+  spend the rest on a NEW vein. Paying veins: documentation, build config, and now i18n keys and dead TS imports —
+  a UI rewrite orphans message keys that only a full-dotted-path search sees.
+- Start the reactor build detached in the FIRST minute (~27 min cold) and mine read-only veins beside it; before
+  every push, list open `dead-code/*` PRs and re-fetch main — parallel runs share the branch.
 
 ## Change-type queue
 
@@ -22,22 +22,24 @@
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1,583 keys, 113 flagged, all template-resolved |
-| 11 | TypeScript exports, types, components, imports | done; 1,151 exports, 0 dead |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | PAID; 1,648 keys, 151 flagged, 6 dead in #2184 |
+| 11 | TypeScript exports, types, components, imports | PAID; 0 dead exports, 1 dead React import in #2184 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
 | 14 | Documentation of settings and classes the code no longer has | done; 1 removal, merged in #2145 |
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2184 `dead-code/studio-ui-leftovers`, head 9c4d111c28. Opened ready for review; no review yet.
+- `Drop the repository bundle keys no screen asks for any more` — 6 keys under `browser` in repository.en.ts.
+- `Drop the React import the automatic JSX transform leaves unread` — ResultOptions.test.tsx.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, passivation), #2145 (-2), #2152 (-4),
-  #2166 (-8, Lombok no-ops). #2166 merged ~4 h after opening, no review comment, on evidence alone.
-- A removal proven by unreachable behaviour, not by non-reference, is accepted on that evidence alone.
-- The maintainer does not merge a sweep PR red: they rebase it onto new main, wait for green, then rebase-merge.
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8). Each merged the day it
+  opened, with no review comment, on the PR body's evidence alone.
+- A removal proven by unreachable behaviour, not by non-reference, is accepted. The maintainer never merges a sweep
+  PR red: they rebase onto new main, wait for green, then rebase-merge.
 
 ## Module coverage
 
@@ -46,26 +48,24 @@
 ## Deferred findings
 
 - ~599 public members and ~35 public types across the DEV, STUDIO and WSFrontend jars are unreferenced in bytecode,
-  write-only Lombok setters among them; all published API, kept under rail 8.2, and the ASM scan below re-derives
-  the list on demand. Examples: `XlsProjectionType` (4 of 12 constants built, under its own TODO),
-  `EventOfInterestConstants.MINMAX`, `MergeResult.status`.
+  write-only Lombok setters among them; all published API, kept under rail 8.2, and the ASM scan re-derives the list
+  on demand. Examples: `XlsProjectionType` (4 of 12 constants built), `EventOfInterestConstants.MINMAX`,
+  `MergeResult.status`.
 - `org.eclipse.jetty:jetty-home` is in no dependency tree and declared by no pom (DEMO fetches Jetty by
-  `jetty.version`); confirm nothing resolves it before dropping it.
-- `.gitattributes` keeps `**/openl-repository/workspace/**/*.xml text eol=lf` with no such path; a repoint onto the
-  ITEST `openl-repository` XML that exists needs a human.
+  `jetty.version`); confirm nothing resolves it first. `.gitattributes` keeps
+  `**/openl-repository/workspace/**/*.xml text eol=lf` with no such path; repointing it needs a human.
 
 ## False-positive shapes
 
 - A detector that picks text files by an extension allowlist silently drops whole formats: `.webmanifest` was
-  missing and reported 18 live resources dead. Select text by "no NUL byte in the first 8 KB" instead — that
-  doubled the corpus to ~14,000 files and took the 18 findings to zero.
+  missing and reported 18 live resources dead. Select text by "no NUL byte in the first 8 KB" — ~14,000 files.
 - javac inlines `static final` primitive and String constants, so a bytecode scan never sees a read and reports
   every such field dead: 1,097 of 1,515 raw hits. Judge constants by source text, never by bytecode.
 - Lombok generates accessors that exist in bytecode but not in source, so a field whose name occurs only at its own
   declaration may still be read: search `get`/`set`/`is` + the capitalised name before calling it dead.
-- i18next resolves `t(key, {count})` to `key_one`/`key_other`, which no literal names: a plural suffix pair whose
-  base is used is alive. Keys built by interpolation are alive too — `status_${s}`, `role.${r}` and some 20 more.
-  Read the union type feeding the template; search the `no_`/prefix form or a tail search misses `tests.no_${k}`.
+- i18next resolves `t(key, {count})` to `key_one`/`key_other`, which no literal names: a plural pair whose base is
+  used is alive. Interpolated keys are alive too — 39 such templates exist, 7 of them under `browser.`. Harvest
+  them all before judging; a leaf search misses `tests.no_${k}` and calls a live key dead.
 - An exported TS type or const used only inside its own file looks unimported; that makes the `export` redundant,
   not the type dead. Removing `export` is a rename, not a deletion.
 - A leading positional callback parameter reported by `tsc --noUnusedParameters` or PMD `UnusedFormalParameter` is
@@ -73,22 +73,25 @@
 - A pom `<properties>` entry with no `${...}` dereference may still be read by a plugin by name:
   `lombok.delombok.skip`, `archetype.test.skip`, `invoker.skip`. Check the plugin before calling it dead.
 - A private or package member named in any string literal is reflective (`@MethodSource`, JAXB, OpenL datatype
-  binding): filter bytecode hits on Java string literals, non-Java text and workbook strings. Search an accessor
-  by its property name too — Jackson DTOs and OpenL beans bind `basePath`, not `setBasePath`. Also alive: JAXB
-  private `beforeMarshal`/`afterUnmarshal`, Spring MVC handlers (no Java caller), record component accessors and
-  generic bridge overrides (`InputStats.getAvgX` erasing to Number).
-- A top-level type whose simple name occurs only in its own file is still alive when a framework names it: JUnit
-  by file pattern, Spring by classpath scan, `@Mojo` by the plugin descriptor.
+  binding): filter bytecode hits on Java string literals, non-Java text and workbook strings. Search an accessor by
+  its property name too — Jackson DTOs and OpenL beans bind `basePath`, not `setBasePath`. Also alive: JAXB private
+  `beforeMarshal`/`afterUnmarshal`, Spring MVC handlers, record accessors, generic bridge overrides.
+- A top-level type whose simple name occurs only in its own file is still alive when a framework names it: JUnit by
+  file pattern, Spring by classpath scan, `@Mojo` by the plugin descriptor. 73 production types read this way.
 - A generated member can be reached where the generator is not: `@SuperBuilder` on an abstract parent serves its
   subclasses' `builder()`, a Spring `@Bean` is collected by its framework interface (ViewResolver), and a
   package-visible `LOG` is read as `Owner.LOG.x`, so a same-file search sees neither.
 - An indent-anchored regex reads a nested class's members as the outer class's: it then calls a class-level
   `@Getter` or `@RequiredArgsConstructor` fieldless. Anchor on the declaration, and read `final @Nullable T x`.
+  `@Builder.Default` likewise matches `@Builder`, and a scan that then takes the NEXT declaration invents a no-op
+  builder on an innocent nested record: require no dot after the annotation, and assert the text before editing.
+- A `@Builder`/`@SuperBuilder` with no `Type.builder(` anywhere is still alive two ways: on an abstract parent it
+  serves the subclasses' builders (FsNode), and a type may call its own `builder()` bare (RevisionDetails).
 - PMD blind spots, all recurring. UnusedAssignment: constructor early return (CellStyle), read back through a
   callback (DynamicPropertySource.settings), read by a getter (AProjectCreator), `key = null` before `System.gc()`,
   publish-before-block (DebugChannel, DebugHookImpl), re-entrancy (ServiceManagerImpl.deploy), empty catch
-  (GitRepository). UnusedLocalVariable: try-with-resources lifecycle locals, a counting for-each, a cast before
-  `fail()`.
+  (GitRepository). UnusedLocalVariable: try-with-resources locals, a counting for-each, a cast before `fail()`.
+  Generated sources under `target/generated-sources/javacc/**` supply 21 of the 38 hits and are off-limits.
 - A `@SuppressWarnings` javac stays silent about is still alive when the element holds a raw cast, a raw
   `instanceof` or a raw type argument. Keys javac does not know (`unused`, `resource`, `squid:*`, Error Prone
   names) are IDE or Sonar keys, judged by that tool.
@@ -108,12 +111,12 @@
 - A managed entry no pom declares is a transitive version pin: judge it by `dependency:tree -Dverbose -Pitest`
   over all modules, not by declaration. An `exclusion` is judged by resolving its parent alone in a scratch pom.
 - A class named by string composition has no textual reference at all: `OperationFactory` builds the 13 TBasic
-  operations as package + `conversionStep.getOperationType()` + `Operation`. Search a name MINUS a common suffix.
+  operations as package + `getOperationType()` + `Operation`. Search a name MINUS a common suffix.
 - An enum whose `values()` is iterated keeps every constant alive. To prove one dead, show it is never stored and
   never returned, then that the `values()` loop is a no-op for it.
 - An npm dependency is invoked from `package.json` `scripts` or read implicitly by tsc (`@types/*`); exclude the
   lockfile from the search, never package.json itself.
-- An identifier index keyed on `[A-Za-z_$][\w$]*` misses a file stem starting with a digit: confirm with `git grep -lF`.
+- An identifier index keyed on `[A-Za-z_$][\w$]*` misses a stem starting with a digit: confirm with `git grep -lF`.
 - A dotted-name detector over Markdown catches heading anchor slugs and wrapped table cells, not settings: require
   dot separators only, drop hyphenated slugs, and rejoin a name split across a line wrap.
 - Jekyll lists pages by `nav: "auto"` and `migration-notes.md`, so a link-graph orphan check calls 265 live pages
@@ -144,25 +147,29 @@
   reachable. A `<listener>` serves only the interfaces the container sorts it into, so a registered-but-unbound one
   never fires — verify from the container jar with `javap -c`, never from the spec.
 - Both Docs cross-checks are SPENT for deletions: every `org.openl.*` token in a guide resolves at HEAD or sits in
-  Human follow-ups, and no guide names a property a release note marks **Removed**. Re-run them only over new Docs
-  commits; what is left needs a rename this routine may not make.
+  Human follow-ups. Re-run only over changed Docs pages; what is left needs a rename this routine may not make.
 - Cross-check Docs against what the build produces, not only types: every `<artifactId>` and `org.openl.rules:<id>`
   token in a guide against the reactor artifactIds finds a stale coordinate in one pass.
-- Public API deferred under rail 8.2 is worth naming explicitly in the PR body: the maintainer approved removing
-  UserWorkspace.passivate() straight off that 'Deliberately kept' line. Deferring is not dropping.
+- Name public API deferred under rail 8.2 in the PR body: the maintainer approved removing UserWorkspace
+  .passivate() straight off that 'Deliberately kept' line. Deferring is not dropping.
 - Prove non-reference with `grep -rIwF <name>` over tracked files, `grep -raF` for binaries and `unzip -p` for
   workbooks (a `.xls` as latin-1 and UTF-16; documentation case-insensitively). Drive it from `git ls-files`, or
   untracked `STUDIO/studio-ui/dist/` answers every query.
-- A docs tree reached only through a directory link (`README.MD` → `examples/` → `index.md`) is alive: count a link
-  to the PARENT directory before calling a Docs page unreferenced.
+- A docs tree reached only through a directory link (`README.MD` → `examples/` → `index.md`) is alive: count a
+  link to the PARENT directory first.
 - Removing members is a fixpoint: re-check the fields, helpers, parameters and imports it orphaned. SonarCloud's
-  "new issues" lists exactly those, no auth, after every push, and must read ZERO before the PR is done:
-  `sonarcloud.io/api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`.
+  "new issues" lists exactly those, no auth, and must read ZERO before the PR is done: `sonarcloud.io/api/issues/
+  search?componentKeys=org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`.
 - Stage every commit by explicit path (`git add -- <files>`) or a `git rm` staged earlier rides into it.
 - Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters`, `npx vitest run <area>`. Both need
   `node_modules`, which the reactor build populates; run them after it, never beside it.
-- CodeRabbit's `Docstring Coverage` scores only functions inside touched hunks: it PASSES a diff touching none,
-  fails when removed hunks hold functions. Decline that case by comment citing `git diff -U0`.
+- i18n keys: parse each `addResourceBundle` literal into dotted paths and judge a key by its FULL path — the same
+  leaf sits at several depths, so a leaf search calls every orphan alive. Clear the misses against the COMPLETE
+  inventory of t(backtick) literals plus plural suffixes; what survives that is dead.
+- PMD's report namespace is `report/2.0.0`, NOT the ruleset's `report_2_0_0`: the wrong one parses 0 violations out
+  of a full report. Assert a non-zero total before believing a clean scan.
+- CodeRabbit's `Docstring Coverage` scores only functions inside touched hunks: it PASSES a diff touching none.
+  Decline the other case by comment citing `git diff -U0`.
 - Verify `git log -1 --pretty='%an <%ae> | %cn <%ce>'` BEFORE pushing; rail 8.4 bars force-pushing
   `dead-code/ledger`, so a wrong identity there cannot be repaired.
 
@@ -177,44 +184,43 @@
   archetype `archetype-metadata.xml`, `compose.override.example.yaml`.
 - Config defaults in `openl-default.properties` are documented in Docs guides and composed at runtime; all alive.
 - `DEMO/webstudio.properties` and `DEMO/webservice.properties` are named nowhere: ApplicationPropertySource reads
-  `file:{appName}.properties` from the working directory, and DEMO deploys those two context names.
+  `file:{appName}.properties` from the cwd, and DEMO deploys those two context names.
 - Demo workbooks under `org.openl.rules.demo/src/**` and `webstudio/test/rules/decisionTableIndexes/` load by folder.
 - `.gitignore` and `.gitattributes` entries for a file TYPE stay even when no such file is tracked — they are
   prophylactic. Only a PATH-specific rule naming a directory that does not exist is a candidate.
 - Root exclusions on httpclient, azure-storage-blob, hibernate-validator, swagger-parser and poi-ooxml-lite each
-  still remove a transitive artifact (scratch-pom resolution).
-- A parked call that carries its own rationale comment is a documented decision, not dead code:
-  `ResultExport.validateMergedRegions` (EPBDS-7848), `trackAllColumnsForAutoSizing`, the `intern()` TODO in
-  RuleRowHelper, the bulk OpenAPI rewrite block in ITEST `HttpClient`.
+  still remove a transitive artifact.
+- A parked call carrying its own rationale comment is a documented decision, not dead code:
+  `ResultExport.validateMergedRegions`, `trackAllColumnsForAutoSizing`, RuleRowHelper's `intern()` TODO, the bulk
+  OpenAPI rewrite block in ITEST `HttpClient`.
 - webstudio `SessionListener` is alive: it implements HttpSessionListener and HttpSessionIdListener, which the
   container dispatches, and drives the session cache, security events and `WebStudio.destroy()`.
-- The Hibernate `Tag`, `TagType` and `TagTemplate` entities and their DAOs stay: the tag catalogue, templates and
-  the Studio tag admin still read them. Only the `OpenLProject` entity went with the JDBC tag migration.
+- The Hibernate `Tag`, `TagType` and `TagTemplate` entities and their DAOs stay; only `OpenLProject` went.
 
 ## CI flakes
 
-- IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516` while
-  the other vendors pass. Oracle Free container limit, not the diff; one rerun clears it.
-- IT (services-data), HIGH RATE: `apache/kafka-native:latest` exits code 1 in its own `setup`, GraalVM segfault at
+- IT (studio-acl): `OracleRdbmsTest.upgrade` fails "expected 0 but was N" with `ORA-12516` while other vendors
+  pass. Oracle Free container limit, not the diff; one rerun clears it.
+- IT (services-data), HIGH RATE: `apache/kafka-native:latest` exits 1 in its own `setup`, GraalVM segfault at
   `Pwd.getpwuid`; Testcontainers then times out on "RECOVERY to RUNNING". The victim ROTATES between suites — a
-  rotating victim proves the flake, a regression kills the same suite every time. Budget two reruns per SHA.
+  rotating victim proves the flake, a regression kills the same suite every run. Two reruns per SHA.
 - Before calling a failure a tag regression, check whether another PR ran the same job in the same window; the
   base `Build` workflow is a multi-JDK matrix red since August.
 - Tests (without ITEST), studio-ui: `ModuleWorkspace.test.tsx` times out in `waitFor` only on a loaded runner. The
-  tell is a DOM dump still showing `browser.compile.compiling` and a vitest wall time near 860 s against the 20 s
-  per-test CI ceiling, plus a failing set that SHRINKS between attempts. Never push a vitest change to chase it;
-  a new SHA is the cheapest cure.
+  tell is a DOM dump still at `browser.compile.compiling`, a vitest wall time near 860 s against the 20 s per-test
+  CI ceiling, and a failing set that SHRINKS between attempts. Never chase it with a vitest change; a new SHA cures.
 - `Sonar analysis` is skipped when any job fails and lands ~10 min after the last, so the issues API answers 0 for
   "never analysed": confirm the analysed SHA at `project_pull_requests/list` before trusting a 0.
 - `rerun_failed_jobs` returns 403 while any job is in flight and re-reads the same jacoco artifacts, so it cannot
-  cure `Sonar analysis` dying in `report-aggregate` with "Unknown block type N" — which needs no crashed attempt and
-  has hit an otherwise-green run. Cure that with `rerun_workflow_run`, confirmed to turn such a run's gate clean.
+  cure `Sonar analysis` dying in `report-aggregate` with "Unknown block type N", which has hit an otherwise-green
+  run. Cure that with `rerun_workflow_run`, confirmed to turn such a run's gate clean.
 - Fetch a job log with `get_job_logs` (tail 8000); find failures with `... - FAIL`, the cause with `ORA-|expected: <`.
 
 ## Container facts
 
-- No `gh` CLI: GitHub MCP tools only (pull_request_read, update_pull_request, add_issue_comment, actions_list
-  list_workflow_jobs, actions_run_trigger rerun_failed_jobs with the workflow run id from a check's html_url).
+- No `gh` CLI: GitHub MCP tools only (create_pull_request then subscribe_pr_activity; pull_request_read,
+  update_pull_request, add_issue_comment, actions_list list_workflow_jobs, actions_run_trigger rerun_failed_jobs
+  with the workflow run id from a check's html_url).
 - Container presets `gpg.format=ssh` and `commit.gpgsign=true` globally (unset both) but no `GIT_AUTHOR_*`
   variables; a plain `git config --global user.*` holds, and passing the identity inline as well costs nothing.
 - Error Prone's Unused checks are not enabled in the build, so PMD and the bytecode scan are the Java detectors;
@@ -223,6 +229,7 @@
 - `.toDelete/` is gitignored: keep the PMD ruleset, scratch poms and detector scripts there. `~/.m2` and
   `STUDIO/studio-ui/node_modules` start COLD in a fresh container — check before budgeting.
 - Edit the ledger through `git worktree add` on `origin/dead-code/ledger`, never by switching the sweep branch.
+- The clone holds ~50 commits, under one day's delta: `git fetch --deepen=120 origin main` reaches the boundary.
 
 ## Exhausted veins
 
@@ -232,11 +239,12 @@
   dependency:analyze-only, pom properties, managed entries, exclusions, managed plugins, `@SuppressWarnings`,
   constant guards, `.editorconfig`, `.gitignore`, the Docs page graph and DEMO css.
 - Closed at zero: duplicate sibling entries in 662 non-pom XML and 238 JSON files, duplicate keys across 119
-  properties and ignore files, per-package logger categories (the three log4j2 configs declare none), image
-  references (608 tracked, every basename present in text), and path-bearing elements over 209 poms. The
-  duplicate-entry scan paid once, on three identical `**/*.sql` Spotless includes in the root pom.
-- Lombok no-ops: @Slf4j, @Builder/@SuperBuilder and @RequiredArgsConstructor are swept clean repo-wide (4 paid in
-  #2166); @Getter/@Setter and the behavioural annotations are NOT sweepable, their members bind reflectively.
+  properties and ignore files, per-package logger categories, image references (608 tracked) and path-bearing
+  elements over 209 poms. The duplicate-entry scan paid once, on three `**/*.sql` Spotless includes in the root pom.
+- Lombok no-ops: @Slf4j, @Builder/@SuperBuilder, @RequiredArgsConstructor, @Jacksonized and @Builder.Default are
+  swept clean repo-wide (4 paid in #2166); @Getter/@Setter and the behavioural ones are NOT sweepable.
+- studio-ui locales are NOT exhausted: a UI rewrite orphans keys, and 6 fell in #2184. Re-run the i18n pass over
+  every delta touching studio-ui.
 - Veins probed and closed at zero: Maven profiles (11), npm dependencies (45), orphaned `package-info.java`, empty
   tracked files, production types referenced only from tests (62), container registrations (web.xml and all 8
   `@WebFilter`/`@WebServlet`), JSF-era orphans (no `.xhtml` or faces dependency anywhere), pom file-path references
@@ -244,38 +252,31 @@
   duplicate dependency/plugin/module/property declarations across 209 poms, dependencies a parent declares,
   servlet init-params, exact-duplicate tracked files (377 groups, each a test project's own fixture),
   `@Deprecated` members unreferenced outside their file (8, published API or Spring handlers), studio-ui npm
-  scripts and config files, poms no parent declares as a module (27, invoker `it/`, archetype resources, Docs
-  examples), test-bearing classes surefire would not select, exception types never instantiated, `@Bean` methods
-  nothing names, listPageTheme palette tokens, Docker/compose environment variables, dependabot entries, and the
-  Jekyll navigation and plugin list. The `.aj`/`.apt`/`.scss` Spotless includes for types the repo has no file of
-  are prophylactic and KEPT — settled. Only the enum-constant, documentation, build-config and no-op-annotation
-  veins have ever paid.
+  scripts and config files, poms no parent declares as a module (27), test-bearing classes surefire would not
+  select, exception types never instantiated, `@Bean` methods nothing names, listPageTheme palette tokens,
+  Docker/compose environment variables, dependabot entries, and the Jekyll navigation and plugin list. The
+  `.aj`/`.apt`/`.scss` Spotless includes are prophylactic and KEPT — settled. Only the enum-constant,
+  documentation, build-config, no-op-annotation and i18n veins have ever paid.
 
 ## Human follow-ups
 
-- Guides naming a class absent at HEAD; each needs a rename this routine may not make: `MixInClassFor` (real
-  `MixInClass`) and `kafka.ser.MessageDeserializer` (real `RequestMessageDeserializer`) in
-  rule-services/configuration.md, `SkipFaultStoreLogData` (real `SkipFault`) in advanced-configuration.md, and
-  `org.openl.rules.table.TableNotFoundException` in onboarding/troubleshooting.md, which never existed.
-- `Docs/developer-guide/index.md` builds its Debugging section on `mvn jetty:run` (no jetty-maven-plugin) and names
-  `src/main/resources/log4j2.xml` against the real `resources/log4j2.properties`; onboarding/development-setup.md
-  and onboarding/codebase-tour.md repeat `jetty:run`, and one documents `mvn rewrite:run` with no plugin.
-- `Docs/user-guides/rule-services/configuration.md` line 811 fetches `org.openl.rules.ruleservice.ws.full:war`,
-  which no module builds; the real one is `...ws.all` (final name `webservice-all`). A rename, so not this routine.
-- `ruleservice.store.logs.enabled` is documented as the global switch for external-storage logging and NO code reads
-  it; only `...db.enabled` gates the surviving backend. Stale guide, or a gate lost with the cassandra and
-  elasticsearch backends — a maintainer decides.
-- `Docs/DEPLOYMENT.md` (22 of 81 properties), `API_GUIDE.md` (6 of 10) and `TROUBLESHOOTING.md` (3 of 28) document
-  settings no code reads; API_GUIDE and `api/public-api-reference.md` map `/admin/*` and `/api/projects/*/git/*`
-  to no controller. Generated-looking pages; editorial, not a sweep.
-- `Docs/developer-guides/externalized-config.md` illustrates `-D` with
-  `ruleservice.datasource.filesystem.supportDeployments`, removed in 5.24.0; pick a live property.
-- 51 relative links in `Docs/` resolve to nothing: `/DEV/CLAUDE.md` and friends from `README.MD`, plus lowercase
-  `/docs/...` paths that 404 on a case-sensitive server.
+- Docs renames this routine may not make: `MixInClassFor`→`MixInClass`, `kafka.ser.MessageDeserializer`→
+  `RequestMessageDeserializer` and `...ruleservice.ws.full:war`→`...ws.all` (rule-services/configuration.md),
+  `SkipFaultStoreLogData`→`SkipFault` (advanced-configuration.md), and `org.openl.rules.table`
+  `.TableNotFoundException` (onboarding/troubleshooting.md), which never existed.
+- Docs commands naming no plugin: `mvn jetty:run` (developer-guide/index.md, onboarding/development-setup.md,
+  onboarding/codebase-tour.md) and `mvn rewrite:run`; plus `src/main/resources/log4j2.xml` against the real
+  `resources/log4j2.properties`.
+- Docs settings no code reads, all editorial: DEPLOYMENT.md (22 of 81), API_GUIDE.md (6 of 10), TROUBLESHOOTING.md
+  (3 of 28), externalized-config.md's `...filesystem.supportDeployments` (gone in 5.24.0), and
+  `ruleservice.store.logs.enabled`, documented as the global external-storage switch while only `...db.enabled`
+  gates the surviving backend. API_GUIDE and api/public-api-reference.md map `/admin/*` and
+  `/api/projects/*/git/*` to no controller.
+- 51 relative links in `Docs/` resolve to nothing: `/DEV/CLAUDE.md` and friends from `README.MD` (every CLAUDE.md
+  is now deleted), plus lowercase `/docs/...` paths that 404 on a case-sensitive server.
 - `OpenAPIConverterTest` (640 lines) and `RulesDeployerServiceTest` (354 lines) carry a bare class-level `@Disabled`
   over live code. Restore or delete is a maintainer's call.
-- `CorsFilter` is registered twice (`@WebFilter("/*")` and web.xml) and doubles each `Access-Control-*` header;
-  latent while `cors.allowed.origins` is unset.
+- `CorsFilter` is registered twice (`@WebFilter("/*")` and web.xml), doubling each `Access-Control-*` header.
 - `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` of the 17 flyway/common scripts and nothing sets
   `sqlMigrationPrefix`, so Flyway's default `V` skips it: the ExternalGroups index is never created. A rename.
 - Flake fixes a human could make: pin ITEST's `apache/kafka-native:latest` (3 suites) or move to
@@ -291,10 +292,9 @@
 
 ## Run log
 
-- 2026-09-22: swept the 209-file EPBDS-16692/16660/16661/16662 delta at zero; 4 new veins closed, build config
-  paid 1 removal (PR #2152) and the Docs-artifact cross-check paid 1 follow-up.
 - 2026-09-23: rebased #2152 onto main past Groovy 6 and JGit 7.8; swept the 183-file EPBDS-16664..16667 delta at
-  zero (PMD 40, all generated or known FPs). Duplicate-config and doc-path veins paid 2 removals and 3 follow-ups;
-  #2152 MERGED (-4) the same day and its branch deleted.
+  zero; #2152 MERGED (-4) the same day.
 - 2026-09-24: swept the 140-file EPBDS-16668..16702 delta at zero; 9 new veins closed. The Lombok no-op vein paid
   4 removals; #2166 MERGED (-8) the same day and its branch deleted. The two DEMO `.properties` are keep-listed.
+- 2026-09-27: swept the 819-file EPBDS-16704..16762 delta (the Studio table-editor rewrite, Java 27). Reactor build
+  and PMD green, both at zero; the i18n and dead-TS-import veins paid 7 removals in the new PR #2184.
