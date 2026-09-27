@@ -2767,7 +2767,7 @@ public final class DecisionTableHelper {
         }
         var columnToIndex = new HashMap<Integer, List<Integer>>();
         for (var i = 0; i < dtHeaders.size(); i++) {
-            List<Integer> indexes = columnToIndex.computeIfAbsent(dtHeaders.get(i).getColumn(), ArrayList::new);
+            List<Integer> indexes = columnToIndex.computeIfAbsent(dtHeaders.get(i).getColumn(), e -> new ArrayList<>());
             indexes.add(i);
             for (var j = i; j < dtHeaders.size(); j++) {
                 if (i == j || !isCompatibleHeaders(dtHeaders.get(i), dtHeaders.get(j))) {
