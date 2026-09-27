@@ -55,12 +55,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             for (Map.Entry<String, FieldDescription> fieldEntry : parentFields.entrySet()) {
                 FieldDescription field = fieldEntry.getValue();
                 methodVisitor.visitVarInsn(getConstantForVarInsn(field), i);
-                if (long.class.getName().equals(field.getTypeName()) || double.class.getName()
-                        .equals(field.getTypeName())) {
-                    i += 2;
-                } else {
-                    i++;
-                }
+                i += getSlotSize(field);
             }
 
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
@@ -83,16 +78,22 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                         getBeanNameWithPackage(),
                         fieldName,
                         fieldType.getTypeDescriptor());
-                if (long.class.getName().equals(fieldType.getTypeName()) || double.class.getName()
-                        .equals(fieldType.getTypeName())) {
-                    i += 2;
-                } else {
-                    i++;
-                }
+                i += getSlotSize(fieldType);
             }
         }
         methodVisitor.visitInsn(Opcodes.RETURN);
         methodVisitor.visitMaxs(0, 0);
+    }
+
+    /**
+     * Returns the number of local variable slots a parameter of the field type takes: two for long and double.
+     */
+    private static int getSlotSize(FieldDescription field) {
+        if (long.class.getName().equals(field.getTypeName()) || double.class.getName()
+                .equals(field.getTypeName())) {
+            return 2;
+        }
+        return 1;
     }
 
     private static String getMethodSignatureForByteCode(Map<String, FieldDescription> params) {

@@ -86,25 +86,30 @@ public final class OpenClassUtils {
                 validationMessage = validateDomain(element, domain, paramType);
             }
         } else {
-            // block is surrounded by try block, as EnumDomain
-            // implementation throws a
-            // RuntimeException when value doesn`t belong to domain.
-            //
-            boolean contains;
-            if (domain instanceof EnumDomain<?> enumDomain) {
-                contains = belongsToEnum(enumDomain.getAllObjects(), value.toString());
-            } else {
-                contains = domain.selectObject(value);
-            }
-
-            if (!contains) {
-                validationMessage = "The value '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
-                        value,
-                        paramType.getName(),
-                        DomainUtils.toString(domain));
-            }
+            validationMessage = validateDomainValue(value, domain, paramType);
         }
         return validationMessage;
+    }
+
+    private static String validateDomainValue(Object value, IDomain<Object> domain, IOpenClass paramType) {
+        // block is surrounded by try block, as EnumDomain
+        // implementation throws a
+        // RuntimeException when value doesn`t belong to domain.
+        //
+        boolean contains;
+        if (domain instanceof EnumDomain<?> enumDomain) {
+            contains = belongsToEnum(enumDomain.getAllObjects(), value.toString());
+        } else {
+            contains = domain.selectObject(value);
+        }
+
+        if (!contains) {
+            return "The value '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
+                    value,
+                    paramType.getName(),
+                    DomainUtils.toString(domain));
+        }
+        return null;
     }
 
 

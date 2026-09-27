@@ -96,47 +96,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 value = null;
             }
 
-            if (DefaultValue.DEFAULT.equals(value)) {
-                objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
-            } else if (RuleRowHelper.isFormula(value)) {
-                var source = new SubTextSourceCodeModule(defaultValueSrc, 1);
-                var methodHeader = new OpenMethodHeader(constantName,
-                        constantType,
-                        new MethodSignature(),
-                        null);
-                try {
-                    boolean noErrors;
-                    CompositeMethod compositeMethod;
-                    cxt.pushErrors();
-                    try {
-                        compositeMethod = OpenLManager.makeMethod(openl, source, methodHeader, cxt);
-                    } finally {
-
-                        List<SyntaxNodeException> syntaxNodeExceptions = cxt.popErrors();
-                        noErrors = syntaxNodeExceptions.isEmpty();
-                        syntaxNodeExceptions.forEach(cxt::addError);
-                    }
-                    if (noErrors) {
-                        objectValue = compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
-                    }
-                } catch (Exception ex) {
-                    BindHelper.processError(ex, defaultValueSrc, cxt);
-                }
-            } else if (String.class == constantType.getInstanceClass() || value == null) {
-                objectValue = value;
-            } else if (constantType.getName().startsWith("[[")) {
-                BindHelper.processError("Multi-dimensional arrays are not supported.", defaultValueSrc, cxt);
-            } else {
-                try {
-                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
-                    if (objectValue == null) {
-                        objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
-                    }
-                } catch (RuntimeException e) {
-                    var message = "Cannot parse cell value '%s'.".formatted(value);
-                    BindHelper.processError(message, e, defaultValueSrc, cxt);
-                }
-            }
+            objectValue = parseValue(row, cxt, constantType, constantName, value, defaultValueSrc);
         }
 
         try {
@@ -158,6 +118,75 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         } catch (Exception t) {
             BindHelper.processError(t, rowSrc, cxt);
         }
+    }
+
+    /**
+     * Parses the value of the constant: a default instance, the result of a formula or the cell value.
+     *
+     * @return the value, or {@code null} for an empty cell and for a value that cannot be parsed
+     */
+    private Object parseValue(ILogicalTable row,
+                              IBindingContext cxt,
+                              IOpenClass constantType,
+                              String constantName,
+                              String value,
+                              GridCellSourceCodeModule defaultValueSrc) {
+        Object objectValue = null;
+        if (DefaultValue.DEFAULT.equals(value)) {
+            objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
+        } else if (RuleRowHelper.isFormula(value)) {
+            objectValue = evaluateFormula(cxt, constantType, constantName, defaultValueSrc);
+        } else if (String.class == constantType.getInstanceClass() || value == null) {
+            objectValue = value;
+        } else if (constantType.getName().startsWith("[[")) {
+            BindHelper.processError("Multi-dimensional arrays are not supported.", defaultValueSrc, cxt);
+        } else {
+            try {
+                objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
+                if (objectValue == null) {
+                    objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
+                }
+            } catch (RuntimeException e) {
+                var message = "Cannot parse cell value '%s'.".formatted(value);
+                BindHelper.processError(message, e, defaultValueSrc, cxt);
+            }
+        }
+        return objectValue;
+    }
+
+    /**
+     * Compiles the formula of the cell and returns its result.
+     *
+     * @return the result, or {@code null} when the formula has errors
+     */
+    private Object evaluateFormula(IBindingContext cxt,
+                                   IOpenClass constantType,
+                                   String constantName,
+                                   GridCellSourceCodeModule defaultValueSrc) {
+        var source = new SubTextSourceCodeModule(defaultValueSrc, 1);
+        var methodHeader = new OpenMethodHeader(constantName,
+                constantType,
+                new MethodSignature(),
+                null);
+        try {
+            boolean noErrors;
+            CompositeMethod compositeMethod;
+            cxt.pushErrors();
+            try {
+                compositeMethod = OpenLManager.makeMethod(openl, source, methodHeader, cxt);
+            } finally {
+
+                List<SyntaxNodeException> syntaxNodeExceptions = cxt.popErrors();
+                noErrors = syntaxNodeExceptions.isEmpty();
+                syntaxNodeExceptions.forEach(cxt::addError);
+            }
+            if (noErrors) {
+                return compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
+            }
+        } catch (Exception ex) {
+            BindHelper.processError(ex, defaultValueSrc, cxt);
+        }
+        return null;
     }
 
     private void addConstants(final IBindingContext bindingContext) {

@@ -7,11 +7,15 @@
 package org.openl.syntax.impl;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.RequiredArgsConstructor;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
@@ -78,36 +82,22 @@ public final class Tokenizer {
         try {
             var reader = source.getCharacterStream();
 
-            var startToken = 0;
             var position = -1;
             int character;
-            StringBuilder buffer = null;
-            var escaped = false;
+            var token = new TokenReader(source);
             do {
                 var f = true;
                 character = reader.read();
                 position++;
-                if (!escaped && isEscapeBegin(character)) {
-                    escaped = true;
-                } else if (escaped && isEscapeEnd(character)) {
-                    escaped = false;
-                } else if ((character == EOF || !escaped && isDelimiter(character)) && buffer != null) {
+                if (token.isEnd(character) && token.isStarted()) {
                     f = false;
-                    var value = buffer.toString().trim();
-                    if (value.isEmpty()) {
-                        buffer = null;
-                    } else {
-                        TextInterval location = LocationUtils.createTextInterval(startToken, position);
-                        return new IdentifierNode(TOKEN_TYPE, location, value, source);
+                    var node = token.take(position);
+                    if (node != null) {
+                        return node;
                     }
                 }
                 if (f) {
-                    if (buffer == null) {
-                        buffer = new StringBuilder();
-                        startToken = position;
-                    }
-
-                    buffer.append((char) character);
+                    token.append(character, position);
                 }
             } while (character != EOF);
 
@@ -132,44 +122,22 @@ public final class Tokenizer {
                 startToken = textLocation.getStart().getAbsolutePosition(null);
                 position = textLocation.getStart().getAbsolutePosition(null) - 1;
 
-                for (var i = 0; i < startToken; i++) {
-                    if (reader.read() < 0) {
-                        break;
-                    }
-                }
+                skip(reader, startToken);
             }
 
             int character;
-            StringBuilder buffer = null;
+            var token = new TokenReader(source);
             boolean continueLooping;
-            var escaped = false;
             do {
                 var f = true;
                 character = reader.read();
                 position++;
-                if (!escaped && isEscapeBegin(character)) {
-                    escaped = true;
-                } else if (escaped && isEscapeEnd(character)) {
-                    escaped = false;
-                } else if (character == EOF || !escaped && isDelimiter(character)) {
+                if (token.isEnd(character)) {
                     f = false;
-                    if (buffer != null) {
-                        var value = buffer.toString().trim();
-                        if (!value.isEmpty()) {
-                            TextInterval location = LocationUtils.createTextInterval(startToken, position);
-                            var node = new IdentifierNode(TOKEN_TYPE, location, value, source);
-                            nodes.add(node);
-                        }
-                        buffer = null;
-                    }
+                    token.addTo(nodes, position);
                 }
                 if (f) {
-                    if (buffer == null) {
-                        buffer = new StringBuilder();
-                        startToken = position;
-                    }
-
-                    buffer.append((char) character);
+                    token.append(character, position);
                 }
 
                 if (textLocation != null) {
@@ -177,15 +145,7 @@ public final class Tokenizer {
                         continueLooping = character != EOF;
                     } else {
                         /* if end of token then save last token */
-                        if (buffer != null) {
-                            var value = buffer.toString().trim();
-                            if (!value.isEmpty()) {
-                                TextInterval location = LocationUtils.createTextInterval(startToken, position);
-                                var node = new IdentifierNode(TOKEN_TYPE, location, value, source);
-                                nodes.add(node);
-                            }
-                            buffer = null;
-                        }
+                        token.addTo(nodes, position);
 
                         continueLooping = false;
                     }
@@ -199,6 +159,17 @@ public final class Tokenizer {
         }
 
         return nodes.toArray(new IdentifierNode[0]);
+    }
+
+    /**
+     * Skips the given number of characters; stops at the end of the stream.
+     */
+    private static void skip(Reader reader, int count) throws IOException {
+        for (var i = 0; i < count; i++) {
+            if (reader.read() < 0) {
+                break;
+            }
+        }
     }
 
     public static IdentifierNode firstToken(IOpenSourceCodeModule source,
@@ -221,4 +192,71 @@ public final class Tokenizer {
         return getTokenizer(delimiter).parse(source, location);
     }
 
+    /**
+     * The token being read from a source: its characters, the position of the first one, and whether an escaped part
+     * of it is open.
+     */
+    @RequiredArgsConstructor
+    private final class TokenReader {
+        private final IOpenSourceCodeModule source;
+        private StringBuilder buffer;
+        private int startToken;
+        private boolean escaped;
+
+        /**
+         * Tells whether the character ends the token: the end of the source or a delimiter outside an escaped part.
+         * An escape character opens or closes an escaped part instead.
+         */
+        private boolean isEnd(int character) {
+            if (!escaped && isEscapeBegin(character)) {
+                escaped = true;
+                return false;
+            }
+            if (escaped && isEscapeEnd(character)) {
+                escaped = false;
+                return false;
+            }
+            return character == EOF || !escaped && isDelimiter(character);
+        }
+
+        private boolean isStarted() {
+            return buffer != null;
+        }
+
+        private void append(int character, int position) {
+            if (buffer == null) {
+                buffer = new StringBuilder();
+                startToken = position;
+            }
+
+            buffer.append((char) character);
+        }
+
+        /**
+         * Takes the token read so far, so that the next character starts a new one.
+         *
+         * @return the token, or {@code null} when it is blank
+         */
+        private IdentifierNode take(int position) {
+            var value = buffer.toString().trim();
+            buffer = null;
+            if (value.isEmpty()) {
+                return null;
+            }
+            TextInterval location = LocationUtils.createTextInterval(startToken, position);
+            return new IdentifierNode(TOKEN_TYPE, location, value, source);
+        }
+
+        /**
+         * Adds the token read so far unless it is blank.
+         */
+        private void addTo(List<IdentifierNode> nodes, int position) {
+            if (buffer != null) {
+                var node = take(position);
+                if (node != null) {
+                    nodes.add(node);
+                }
+            }
+        }
+    }
 }

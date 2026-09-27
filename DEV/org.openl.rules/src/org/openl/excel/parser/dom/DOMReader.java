@@ -11,6 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -120,50 +121,58 @@ public class DOMReader implements ExcelReader {
             log.debug("Array size: {}:{}", rows, cols);
             Object[][] cells = new Object[rows][cols];
 
-            for (var i = firstRow; i <= lastRow; i++) {
-                var row = sh.getRow(i);
-                if (row == null) {
-                    continue;
-                }
-                var firstCellNum = row.getFirstCellNum();
-                short lastCellNum = row.getLastCellNum();
-
-                for (var j = firstCellNum; j < lastCellNum; j++) {
-                    var cell = row.getCell(j);
-                    Object value = extractCellValue(cell);
-                    if (cell != null) {
-                        short indention = cell.getCellStyle().getIndention();
-                        if (indention > 0) {
-                            value = new AlignedValue(value, indention);
-                        }
-                    }
-                    cells[i - firstRow][j - firstColumn] = value;
-                }
-            }
+            fillValues(sh, cells, firstRow, lastRow, firstColumn);
 
             // Fill merged regions
-            for (CellRangeAddress rangeAddress : sh.getMergedRegions()) {
-                var firstMergeRow = rangeAddress.getFirstRow();
-                var firstMergeCol = rangeAddress.getFirstColumn();
-                var lastMergeRow = rangeAddress.getLastRow();
-                var lastMergeCol = rangeAddress.getLastColumn();
-
-                // Mark cells merged with Left. Don't include first column.
-                for (var row = firstMergeRow; row <= lastMergeRow; row++) {
-                    for (var col = firstMergeCol + 1; col <= lastMergeCol; col++) {
-                        cells[row - firstRow][col - firstColumn] = MergedCell.MERGE_WITH_LEFT;
-                    }
-                }
-
-                // Mark cells merged with Up. Only first column starting from second row.
-                for (var row = firstMergeRow + 1; row <= lastMergeRow; row++) {
-                    cells[row - firstRow][firstMergeCol - firstColumn] = MergedCell.MERGE_WITH_UP;
-                }
-            }
+            fillMergedRegions(sh, cells, firstRow, firstColumn);
 
             return cells;
         } catch (IOException e) {
             throw new ExcelParseException(e);
+        }
+    }
+
+    private static void fillValues(Sheet sh, Object[][] cells, int firstRow, int lastRow, int firstColumn) {
+        for (var i = firstRow; i <= lastRow; i++) {
+            var row = sh.getRow(i);
+            if (row == null) {
+                continue;
+            }
+            var firstCellNum = row.getFirstCellNum();
+            short lastCellNum = row.getLastCellNum();
+
+            for (var j = firstCellNum; j < lastCellNum; j++) {
+                var cell = row.getCell(j);
+                Object value = extractCellValue(cell);
+                if (cell != null) {
+                    short indention = cell.getCellStyle().getIndention();
+                    if (indention > 0) {
+                        value = new AlignedValue(value, indention);
+                    }
+                }
+                cells[i - firstRow][j - firstColumn] = value;
+            }
+        }
+    }
+
+    private static void fillMergedRegions(Sheet sh, Object[][] cells, int firstRow, int firstColumn) {
+        for (CellRangeAddress rangeAddress : sh.getMergedRegions()) {
+            var firstMergeRow = rangeAddress.getFirstRow();
+            var firstMergeCol = rangeAddress.getFirstColumn();
+            var lastMergeRow = rangeAddress.getLastRow();
+            var lastMergeCol = rangeAddress.getLastColumn();
+
+            // Mark cells merged with Left. Don't include first column.
+            for (var row = firstMergeRow; row <= lastMergeRow; row++) {
+                for (var col = firstMergeCol + 1; col <= lastMergeCol; col++) {
+                    cells[row - firstRow][col - firstColumn] = MergedCell.MERGE_WITH_LEFT;
+                }
+            }
+
+            // Mark cells merged with Up. Only first column starting from second row.
+            for (var row = firstMergeRow + 1; row <= lastMergeRow; row++) {
+                cells[row - firstRow][firstMergeCol - firstColumn] = MergedCell.MERGE_WITH_UP;
+            }
         }
     }
 

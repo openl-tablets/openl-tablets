@@ -87,24 +87,32 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
             if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
                 List<IOpenMethod> candidates = openMethodDispatcher.getCandidates();
                 var parameterCount = candidates.getFirst().getSignature().getNumberOfParameters();
-                Set<ParameterNameKey>[] parameterKeysByName = new HashSet[parameterCount];
-                for (var i = 0; i < parameterCount; i++) {
-                    parameterKeysByName[i] = new HashSet<>();
-                }
-                for (IOpenMethod candidate : candidates) {
-                    var signature = candidate.getSignature();
-                    for (var j = 0; j < parameterCount; j++) {
-                        if (signature.getParameterName(j) != null) {
-                            parameterKeysByName[j].add(new ParameterNameKey(signature.getParameterName(j), candidate));
-                        }
-                    }
-                }
+                var parameterKeysByName = getParameterKeysByName(candidates, parameterCount);
                 for (MethodPairKey methodPair : buildMethodPairs(parameterKeysByName, parameterCount)) {
                     addWarnForMethods(methodPair.methodA, methodPair.methodB, messages, MSG_FOR_NAMES);
                 }
             }
         }
         return ValidationUtils.withMessages(messages);
+    }
+
+    /**
+     * Collects the parameter names of the candidates for each parameter position.
+     */
+    private static Set<ParameterNameKey>[] getParameterKeysByName(List<IOpenMethod> candidates, int parameterCount) {
+        Set<ParameterNameKey>[] parameterKeysByName = new HashSet[parameterCount];
+        for (var i = 0; i < parameterCount; i++) {
+            parameterKeysByName[i] = new HashSet<>();
+        }
+        for (IOpenMethod candidate : candidates) {
+            var signature = candidate.getSignature();
+            for (var j = 0; j < parameterCount; j++) {
+                if (signature.getParameterName(j) != null) {
+                    parameterKeysByName[j].add(new ParameterNameKey(signature.getParameterName(j), candidate));
+                }
+            }
+        }
+        return parameterKeysByName;
     }
 
     private Set<MethodPairKey> buildMethodPairs(Set<? extends ParameterKey>[] parameterKeys, int parameterCount) {

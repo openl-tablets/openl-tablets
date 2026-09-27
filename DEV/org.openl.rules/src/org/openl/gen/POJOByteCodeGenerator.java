@@ -169,6 +169,20 @@ public class POJOByteCodeGenerator {
             }
             av.visit("defaultValue", defaultFieldValue);
         }
+        visitXmlElementType(av, javaType);
+        av.visitEnd();
+
+        if (field.isTransient()) {
+            fieldVisitor.visitAnnotation("Ljakarta/xml/bind/annotation/XmlTransient;", true).visitEnd();
+        }
+    }
+
+    /**
+     * Sets the type of an element declared as an interface other than a map or a collection: the value type of its
+     * {@code XmlJavaTypeAdapter}, or {@code Object} when it has none. An array of such elements gets an object array
+     * of the same dimensions.
+     */
+    private static void visitXmlElementType(AnnotationVisitor av, String javaType) {
         try {
             String componentJavaType = javaType.replace("[", "");
             String clsName = Type.getType(componentJavaType).getClassName();
@@ -184,11 +198,6 @@ public class POJOByteCodeGenerator {
             }
         } catch (Exception ignored) {
             // a primitive or a class that cannot be loaded yet is no interface, so no type is set
-        }
-        av.visitEnd();
-
-        if (field.isTransient()) {
-            fieldVisitor.visitAnnotation("Ljakarta/xml/bind/annotation/XmlTransient;", true).visitEnd();
         }
     }
 

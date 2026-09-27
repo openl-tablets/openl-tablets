@@ -77,6 +77,14 @@ public class DatatypeHelper {
             return dataPart.transpose();
         }
 
+        return orientByTitlesOrTypes(dataPart, cxt);
+    }
+
+    /**
+     * Keeps or transposes the data part, whichever has more field titles. When the titles do not decide, the one that
+     * has more field types is chosen; the data part is kept on a tie.
+     */
+    private static ILogicalTable orientByTitlesOrTypes(ILogicalTable dataPart, IBindingContext cxt) {
         var verticalTitles = 0;
         var horizontalTitles = 0;
         if (dataPart.getWidth() > MAXIMUM_COLUMNS_COUNT_NO_TITLES) {

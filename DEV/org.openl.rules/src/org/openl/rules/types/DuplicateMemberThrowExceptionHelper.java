@@ -2,6 +2,7 @@ package org.openl.rules.types;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
@@ -66,32 +67,44 @@ public final class DuplicateMemberThrowExceptionHelper {
             }
         } else {
             // Case when the module names where set to the methods
-            if (modules.size() > 1) {
-                var moduleNames = modules.stream().sorted().toArray(String[]::new);
-                if (canBeDispatched) {
-                    message = "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.".formatted(
-                            MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                            moduleNames[0],
-                            moduleNames[1]);
-                } else {
-                    message = "Method '%s' is already used in modules '%s' and '%s'.".formatted(
-                            existedOpenMethod.getName(),
-                            moduleNames[0],
-                            moduleNames[1]);
-                }
-            } else {
-                if (canBeDispatched) {
-                    message = "Method '%s' is already used in module '%s' with the same version, active status, properties set.".formatted(
-                            MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                            modules.iterator().next());
-                } else {
-                    message = "Method '%s' is already used in module '%s'.".formatted(
-                            MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                            modules.iterator().next());
-                }
-            }
+            message = getModulesMessage(existedOpenMethod, modules, canBeDispatched);
         }
         throw new DuplicatedMethodException(message, existedOpenMethod, newOpenMethod);
+    }
+
+    /**
+     * Builds the message for methods whose modules are known, naming the module or the first two in alphabetical
+     * order.
+     */
+    private static String getModulesMessage(IOpenMethod existedOpenMethod,
+                                            Set<String> modules,
+                                            boolean canBeDispatched) {
+        String message;
+        if (modules.size() > 1) {
+            var moduleNames = modules.stream().sorted().toArray(String[]::new);
+            if (canBeDispatched) {
+                message = "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.".formatted(
+                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
+                        moduleNames[0],
+                        moduleNames[1]);
+            } else {
+                message = "Method '%s' is already used in modules '%s' and '%s'.".formatted(
+                        existedOpenMethod.getName(),
+                        moduleNames[0],
+                        moduleNames[1]);
+            }
+        } else {
+            if (canBeDispatched) {
+                message = "Method '%s' is already used in module '%s' with the same version, active status, properties set.".formatted(
+                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
+                        modules.iterator().next());
+            } else {
+                message = "Method '%s' is already used in module '%s'.".formatted(
+                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
+                        modules.iterator().next());
+            }
+        }
+        return message;
     }
 
     private static String extractModuleName(IOpenMethod openMethod) {

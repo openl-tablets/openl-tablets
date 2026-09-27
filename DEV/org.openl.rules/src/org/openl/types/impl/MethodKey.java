@@ -80,25 +80,32 @@ public final class MethodKey {
         }
 
         for (var i = firstParamToConvert; i < originalParams.length; i++) {
-            var param = originalParams[i];
-            var normParam = param;
-
-            if (!(param instanceof JavaOpenClass) && param.getInstanceClass() != null) {
-                normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
-            } else {
-                if (param instanceof JavaOpenClass) {
-                    var customJavaOpenClass = originalParams[i].getInstanceClass()
-                            .getAnnotation(CustomJavaOpenClass.class);
-                    if (customJavaOpenClass != null && customJavaOpenClass.normalize()) {
-                        normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
-                    }
-                }
-            }
-
-            normalizedParams[i] = normParam;
+            normalizedParams[i] = normalize(originalParams[i]);
         }
 
         return normalizedParams;
+    }
+
+    /**
+     * Returns the Java open class of the parameter type for a type that is not one but has an instance class, and for
+     * a type whose custom open class asks for the normalization. Other types are returned as they are.
+     */
+    private static IOpenClass normalize(IOpenClass param) {
+        var normParam = param;
+
+        if (!(param instanceof JavaOpenClass) && param.getInstanceClass() != null) {
+            normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
+        } else {
+            if (param instanceof JavaOpenClass) {
+                var customJavaOpenClass = param.getInstanceClass()
+                        .getAnnotation(CustomJavaOpenClass.class);
+                if (customJavaOpenClass != null && customJavaOpenClass.normalize()) {
+                    normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
+                }
+            }
+        }
+
+        return normParam;
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.vm.IRuntimeEnv;
 
 @RequiredArgsConstructor
 public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpenMember> {
@@ -33,46 +34,11 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
 
         var member = methodMap.get(method);
         var env = runtimeEnvBuilder.buildRuntimeEnv();
-        if (args.length > 0) {
-            var v = args[0];
-            if (v instanceof IRulesRuntimeContext || v == null &&
-                    (member instanceof IOpenMethod m && m.getSignature().getParameterTypes().length < args.length
-                            || member instanceof IOpenField && args.length == 1
-                    )
-            ) {
-                args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : NO_PARAMS;
-                if (v != null) {
-                    env.setContext((IRulesRuntimeContext) v);
-                }
-            }
-        }
+        args = takeRuntimeContext(args, member, env);
 
         StringBuilder output = null;
         if (LoggingHandler.isEnabled()) {
-            output = new StringBuilder();
-            var sourceClass = member.getDeclaringClass();
-            if (sourceClass instanceof XlsModuleOpenClass class1) {
-                output.append("\tModule Name: ").append(class1.getModuleName())
-                        .append('\n');
-            }
-            output.append("\tMethod: ").append(member.getDisplayName(0));
-            output.append("\n\tRuntime Context: ").append(LoggingHandler.convert(env.getContext()));
-            if (args.length == 1) {
-                output.append("\nArgs: ").append(LoggingHandler.convert(args[0]));
-            } else if (args.length > 1) {
-                output.append("\n\tArgs: {");
-                for (var i = 0; i < args.length; i++) {
-                    output.append('"')
-                            .append(((IOpenMethod) member).getSignature().getParameterName(i))
-                            .append("\":");
-                    output.append(LoggingHandler.convert(args[i]));
-                    if (i < (args.length - 1)) {
-                        output.append(',');
-                    }
-                }
-                output.append('}');
-            }
-
+            output = describeCall(member, env, args);
         }
         Object result = null;
         Exception exception = null;
@@ -103,6 +69,56 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
             throw exception;
         }
         return result;
+    }
+
+    /**
+     * Takes the runtime context off the arguments and sets it to the environment. A {@code null} first argument is
+     * the missing context when the member takes fewer arguments than given.
+     *
+     * @return the arguments without the runtime context
+     */
+    private static Object[] takeRuntimeContext(Object[] args, IOpenMember member, IRuntimeEnv env) {
+        if (args.length > 0) {
+            var v = args[0];
+            if (v instanceof IRulesRuntimeContext || v == null &&
+                    (member instanceof IOpenMethod m && m.getSignature().getParameterTypes().length < args.length
+                            || member instanceof IOpenField && args.length == 1
+                    )
+            ) {
+                args = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : NO_PARAMS;
+                if (v != null) {
+                    env.setContext((IRulesRuntimeContext) v);
+                }
+            }
+        }
+        return args;
+    }
+
+    private static StringBuilder describeCall(IOpenMember member, IRuntimeEnv env, Object[] args) {
+        var output = new StringBuilder();
+        var sourceClass = member.getDeclaringClass();
+        if (sourceClass instanceof XlsModuleOpenClass class1) {
+            output.append("\tModule Name: ").append(class1.getModuleName())
+                    .append('\n');
+        }
+        output.append("\tMethod: ").append(member.getDisplayName(0));
+        output.append("\n\tRuntime Context: ").append(LoggingHandler.convert(env.getContext()));
+        if (args.length == 1) {
+            output.append("\nArgs: ").append(LoggingHandler.convert(args[0]));
+        } else if (args.length > 1) {
+            output.append("\n\tArgs: {");
+            for (var i = 0; i < args.length; i++) {
+                output.append('"')
+                        .append(((IOpenMethod) member).getSignature().getParameterName(i))
+                        .append("\":");
+                output.append(LoggingHandler.convert(args[i]));
+                if (i < (args.length - 1)) {
+                    output.append(',');
+                }
+            }
+            output.append('}');
+        }
+        return output;
     }
 
     @Override

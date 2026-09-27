@@ -154,27 +154,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             var notNullPropertyNames = getNotNullPropertyNames(context);
             // Find the most high priority method
             var mostPriority = new ArrayList<IOpenMethod>();
-            ITableProperties mostPriorityProperties = null;
-
-            for (IOpenMethod candidate : selected) {
-                if (mostPriority.isEmpty()) {
-                    mostPriority.add(candidate);
-                    mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
-                } else {
-                    ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                    var cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
-                    if (cmp < 0) {
-                        notPriorMethods.addAll(mostPriority);
-                        mostPriority.clear();
-                        mostPriority.add(candidate);
-                        mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
-                    } else if (cmp == 0) {
-                        mostPriority.add(candidate);
-                    } else {
-                        notPriorMethods.add(candidate);
-                    }
-                }
-            }
+            selectMaxMinPriority(selected, mostPriority, notPriorMethods);
             notPriorMethods.forEach(selected::remove);
             if (selected.size() > 1) {
                 notPriorMethods.clear();
@@ -183,33 +163,73 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     if (mostPriority.isEmpty() || notNullPropertyNames.isEmpty()) {
                         mostPriority.add(candidate);
                     } else {
-                        ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                        var higherCount = 0;
-                        var lowerCount = 0;
-                        for (IOpenMethod m : mostPriority) {
-                            ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
-                            var priority = compareMethodProperties(candidateProperties,
-                                    mProperties,
-                                    notNullPropertyNames);
-                            if (priority == MethodDispatchingPriority.HIGHER) {
-                                higherCount++;
-                            } else if (priority == MethodDispatchingPriority.LOWER) {
-                                lowerCount++;
-                            }
-                        }
-                        if (higherCount == mostPriority.size()) {
-                            notPriorMethods.addAll(mostPriority);
-                            mostPriority.clear();
-                            mostPriority.add(candidate);
-                        } else if (lowerCount == mostPriority.size()) {
-                            notPriorMethods.add(candidate);
-                        } else {
-                            mostPriority.add(candidate);
-                        }
+                        selectByProperties(candidate, mostPriority, notPriorMethods, notNullPropertyNames);
                     }
                 }
             }
             notPriorMethods.forEach(selected::remove);
+        }
+    }
+
+    /**
+     * Splits the candidates into the methods of the highest max/min priority and the others.
+     */
+    private void selectMaxMinPriority(Set<IOpenMethod> selected,
+                                      List<IOpenMethod> mostPriority,
+                                      List<IOpenMethod> notPriorMethods) {
+        ITableProperties mostPriorityProperties = null;
+
+        for (IOpenMethod candidate : selected) {
+            if (mostPriority.isEmpty()) {
+                mostPriority.add(candidate);
+                mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
+            } else {
+                ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
+                var cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
+                if (cmp < 0) {
+                    notPriorMethods.addAll(mostPriority);
+                    mostPriority.clear();
+                    mostPriority.add(candidate);
+                    mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
+                } else if (cmp == 0) {
+                    mostPriority.add(candidate);
+                } else {
+                    notPriorMethods.add(candidate);
+                }
+            }
+        }
+    }
+
+    /**
+     * Compares the properties of the candidate with the ones of the most priority methods: a candidate higher than
+     * all of them replaces them, a candidate lower than all of them is not prior, any other candidate joins them.
+     */
+    private void selectByProperties(IOpenMethod candidate,
+                                    List<IOpenMethod> mostPriority,
+                                    List<IOpenMethod> notPriorMethods,
+                                    List<String> notNullPropertyNames) {
+        ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
+        var higherCount = 0;
+        var lowerCount = 0;
+        for (IOpenMethod m : mostPriority) {
+            ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
+            var priority = compareMethodProperties(candidateProperties,
+                    mProperties,
+                    notNullPropertyNames);
+            if (priority == MethodDispatchingPriority.HIGHER) {
+                higherCount++;
+            } else if (priority == MethodDispatchingPriority.LOWER) {
+                lowerCount++;
+            }
+        }
+        if (higherCount == mostPriority.size()) {
+            notPriorMethods.addAll(mostPriority);
+            mostPriority.clear();
+            mostPriority.add(candidate);
+        } else if (lowerCount == mostPriority.size()) {
+            notPriorMethods.add(candidate);
+        } else {
+            mostPriority.add(candidate);
         }
     }
 

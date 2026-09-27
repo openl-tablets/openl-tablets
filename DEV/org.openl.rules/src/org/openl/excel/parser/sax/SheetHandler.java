@@ -91,61 +91,69 @@ public class SheetHandler extends DefaultHandler {
             isInlineStringOpen = true;
         } else if ("c".equals(localName)) {
             // c => cell
-            // Set up defaults.
-            this.nextDataType = XmlCellType.NUMBER;
-            this.formatIndex = -1;
-            this.formatString = null;
+            startCell(attributes);
+        } else if ("mergeCell".equals(localName)) {
+            addMergedCell(attributes);
+        }
+    }
 
-            var cellRef = attributes.getValue("r");
-            current = new CellAddress(cellRef);
+    private void startCell(Attributes attributes) {
+        // Set up defaults.
+        this.nextDataType = XmlCellType.NUMBER;
+        this.formatIndex = -1;
+        this.formatString = null;
 
-            var cellStyleStr = attributes.getValue("s");
-            int styleIndex = cellStyleStr != null ? Integer.parseInt(cellStyleStr) : 0;
-            indent = stylesTable == null ? null : stylesTable.getIndent(styleIndex);
+        var cellRef = attributes.getValue("r");
+        current = new CellAddress(cellRef);
 
-            var cellType = attributes.getValue("t");
-            if ("b".equals(cellType)) {
-                nextDataType = XmlCellType.BOOLEAN;
-            } else if ("e".equals(cellType)) {
-                nextDataType = XmlCellType.ERROR;
-            } else if ("inlineStr".equals(cellType)) {
-                nextDataType = XmlCellType.INLINE_STRING;
-            } else if ("s".equals(cellType)) {
-                nextDataType = XmlCellType.SHARED_STRING_TABLE_STRING;
-            } else if ("str".equals(cellType)) {
-                nextDataType = XmlCellType.FORMULA;
-            } else if (stylesTable != null) {
-                // Number. We must get retrieve format to determine if it's a date.
-                var numberFormat = stylesTable.getFormat(styleIndex);
-                if (numberFormat != null) {
-                    formatIndex = numberFormat.getFormatIndex();
-                    formatString = numberFormat.getFormatString();
+        var cellStyleStr = attributes.getValue("s");
+        int styleIndex = cellStyleStr != null ? Integer.parseInt(cellStyleStr) : 0;
+        indent = stylesTable == null ? null : stylesTable.getIndent(styleIndex);
+
+        var cellType = attributes.getValue("t");
+        if ("b".equals(cellType)) {
+            nextDataType = XmlCellType.BOOLEAN;
+        } else if ("e".equals(cellType)) {
+            nextDataType = XmlCellType.ERROR;
+        } else if ("inlineStr".equals(cellType)) {
+            nextDataType = XmlCellType.INLINE_STRING;
+        } else if ("s".equals(cellType)) {
+            nextDataType = XmlCellType.SHARED_STRING_TABLE_STRING;
+        } else if ("str".equals(cellType)) {
+            nextDataType = XmlCellType.FORMULA;
+        } else if (stylesTable != null) {
+            // Number. We must get retrieve format to determine if it's a date.
+            var numberFormat = stylesTable.getFormat(styleIndex);
+            if (numberFormat != null) {
+                formatIndex = numberFormat.getFormatIndex();
+                formatString = numberFormat.getFormatString();
+            }
+        }
+    }
+
+    private void addMergedCell(Attributes attributes) {
+        var ref = attributes.getValue("ref");
+        var cellsRefs = ref.split(":");
+        // No need to mark the cell as merged if it's merged with itself.
+        if (cellsRefs.length > 1) {
+            mergedCells.add(CellRangeAddress.valueOf(ref));
+            var from = new CellAddress(cellsRefs[0]);
+            var to = new CellAddress(cellsRefs[1]);
+
+            var firstMergeRow = from.getRow();
+            var firstMergeCol = from.getColumn();
+            var lastMergeRow = to.getRow();
+            var lastMergeCol = to.getColumn();
+            // Mark cells merged with Left. Don't include first column.
+            for (var row = firstMergeRow; row <= lastMergeRow; row++) {
+                for (var col = firstMergeCol + 1; col <= lastMergeCol; col++) {
+                    setCell(row - start.getRow(), col - start.getColumn(), MergedCell.MERGE_WITH_LEFT);
                 }
             }
-        } else if ("mergeCell".equals(localName)) {
-            var ref = attributes.getValue("ref");
-            var cellsRefs = ref.split(":");
-            // No need to mark the cell as merged if it's merged with itself.
-            if (cellsRefs.length > 1) {
-                mergedCells.add(CellRangeAddress.valueOf(ref));
-                var from = new CellAddress(cellsRefs[0]);
-                var to = new CellAddress(cellsRefs[1]);
 
-                var firstMergeRow = from.getRow();
-                var firstMergeCol = from.getColumn();
-                var lastMergeRow = to.getRow();
-                var lastMergeCol = to.getColumn();
-                // Mark cells merged with Left. Don't include first column.
-                for (var row = firstMergeRow; row <= lastMergeRow; row++) {
-                    for (var col = firstMergeCol + 1; col <= lastMergeCol; col++) {
-                        setCell(row - start.getRow(), col - start.getColumn(), MergedCell.MERGE_WITH_LEFT);
-                    }
-                }
-
-                // Mark cells merged with Up. Only first column starting from second row.
-                for (var row = firstMergeRow + 1; row <= lastMergeRow; row++) {
-                    setCell(row - start.getRow(), firstMergeCol - start.getColumn(), MergedCell.MERGE_WITH_UP);
-                }
+            // Mark cells merged with Up. Only first column starting from second row.
+            for (var row = firstMergeRow + 1; row <= lastMergeRow; row++) {
+                setCell(row - start.getRow(), firstMergeCol - start.getColumn(), MergedCell.MERGE_WITH_UP);
             }
         }
     }
@@ -173,36 +181,10 @@ public class SheetHandler extends DefaultHandler {
                     parsedValue = StringUtils.trimToNull(value.toString());
                     break;
                 case SHARED_STRING_TABLE_STRING:
-                    var sstIndex = value.toString();
-                    try {
-                        var idx = Integer.parseInt(sstIndex);
-                        var strValue = lruCache.get(idx);
-                        if (strValue == null && !lruCache.containsKey(idx)) {
-                            strValue = sharedStringsTable.getItemAt(idx).toString();
-                            lruCache.put(idx, strValue);
-                        }
-                        parsedValue = StringUtils.trimToNull(strValue);
-                    } catch (NumberFormatException ex) {
-                        throw new ExcelParseException("Failed to parse SST index '" + sstIndex, ex);
-                    }
+                    parsedValue = parseSharedString();
                     break;
                 case NUMBER:
-                    var n = value.toString();
-                    try {
-                        if (n.isEmpty()) {
-                            parsedValue = null;
-                        } else {
-                            var d = Double.parseDouble(n);
-                            if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
-                                    formatString)) {
-                                parsedValue = DateUtil.getJavaDate(d, use1904Windowing);
-                            } else {
-                                parsedValue = NumberUtils.intOrDouble(d);
-                            }
-                        }
-                    } catch (NumberFormatException e) {
-                        throw new ExcelParseException("Cannot get a number from string " + n, e);
-                    }
+                    parsedValue = parseNumber();
                     break;
                 default:
                     // Skip
@@ -219,6 +201,40 @@ public class SheetHandler extends DefaultHandler {
             setCell(row, col, parsedValue);
         } else if ("is".equals(localName)) {
             isInlineStringOpen = false;
+        }
+    }
+
+    private String parseSharedString() {
+        var sstIndex = value.toString();
+        try {
+            var idx = Integer.parseInt(sstIndex);
+            var strValue = lruCache.get(idx);
+            if (strValue == null && !lruCache.containsKey(idx)) {
+                strValue = sharedStringsTable.getItemAt(idx).toString();
+                lruCache.put(idx, strValue);
+            }
+            return StringUtils.trimToNull(strValue);
+        } catch (NumberFormatException ex) {
+            throw new ExcelParseException("Failed to parse SST index '" + sstIndex, ex);
+        }
+    }
+
+    private Object parseNumber() {
+        var n = value.toString();
+        try {
+            if (n.isEmpty()) {
+                return null;
+            } else {
+                var d = Double.parseDouble(n);
+                if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
+                        formatString)) {
+                    return DateUtil.getJavaDate(d, use1904Windowing);
+                } else {
+                    return NumberUtils.intOrDouble(d);
+                }
+            }
+        } catch (NumberFormatException e) {
+            throw new ExcelParseException("Cannot get a number from string " + n, e);
         }
     }
 
@@ -267,20 +283,24 @@ public class SheetHandler extends DefaultHandler {
             var curRow = row + start.getRow();
             var curCol = col + start.getColumn();
 
-            if (effectiveStart == null) {
-                effectiveStart = new CellAddress(curRow, curCol);
-                effectiveEnd = effectiveStart;
-            } else {
-                if (curRow < effectiveStart.getRow() || curCol < effectiveStart.getColumn()) {
-                    var minRow = Math.min(curRow, effectiveStart.getRow());
-                    var minCol = Math.min(curCol, effectiveStart.getColumn());
-                    effectiveStart = new CellAddress(minRow, minCol);
-                }
-                if (curRow > effectiveEnd.getRow() || curCol > effectiveEnd.getColumn()) {
-                    var maxRow = Math.max(curRow, effectiveEnd.getRow());
-                    var maxCol = Math.max(curCol, effectiveEnd.getColumn());
-                    effectiveEnd = new CellAddress(maxRow, maxCol);
-                }
+            expandEffectiveArea(curRow, curCol);
+        }
+    }
+
+    private void expandEffectiveArea(int curRow, int curCol) {
+        if (effectiveStart == null) {
+            effectiveStart = new CellAddress(curRow, curCol);
+            effectiveEnd = effectiveStart;
+        } else {
+            if (curRow < effectiveStart.getRow() || curCol < effectiveStart.getColumn()) {
+                var minRow = Math.min(curRow, effectiveStart.getRow());
+                var minCol = Math.min(curCol, effectiveStart.getColumn());
+                effectiveStart = new CellAddress(minRow, minCol);
+            }
+            if (curRow > effectiveEnd.getRow() || curCol > effectiveEnd.getColumn()) {
+                var maxRow = Math.max(curRow, effectiveEnd.getRow());
+                var maxCol = Math.max(curCol, effectiveEnd.getColumn());
+                effectiveEnd = new CellAddress(maxRow, maxCol);
             }
         }
     }

@@ -1,18 +1,18 @@
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-public $tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($tablePropertyDefinition.Name)() {
-return properties.get$tool.formatAccessorName($tablePropertyDefinition.Name)();
-}
+#set( $accessorName = $tool.formatAccessorName($tablePropertyDefinition.Name) )
+    public $tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get${accessorName}() {
+        return properties.get${accessorName}();
+    }
 
 #end
-@Override
-public String toString() {
-StringBuilder sb = new StringBuilder();
-sb.append("{\r\n");
+    @Override
+    public String toString() {
+        var sb = new StringBuilder();
+        sb.append("{\r\n");
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-if (properties.get$tool.formatAccessorName($tablePropertyDefinition.Name)() != null) {
-sb.append("$tool.formatAccessorName($tablePropertyDefinition.Name)").append(" = ").append(toString(properties.get$tool.formatAccessorName($tablePropertyDefinition.Name)())).append("\r\n");
-}
+#set( $accessorName = $tool.formatAccessorName($tablePropertyDefinition.Name) )
+        appendProperty(sb, "$accessorName", properties.get${accessorName}());
 #end
-sb.append("}\r\n");
-return sb.toString();
-}
+        sb.append("}\r\n");
+        return sb.toString();
+    }

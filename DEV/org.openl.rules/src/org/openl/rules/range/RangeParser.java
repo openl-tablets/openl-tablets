@@ -84,116 +84,12 @@ public class RangeParser {
 
         // bracket form: [x; y]
         if (ch == '[' || ch == '(') {
-            if (ch2 != ']' && ch2 != ')') {
-                throw new ParseException("An illegal opening bracket without closing", first);
-            }
-
-            //trim from the first
-            first++;
-            first = nextNonSpace(text, first, last);
-
-            //trim from the last
-            last--;
-            last = prevNonSpace(text, first, last);
-
-            RangeParser result = parseRangeBySeparator(text, first, last);
-            if (result == null) {
-                throw new ParseException("No required bounds separator is found inside the range", first);
-            }
-            if (ch == '(') {
-                if (ch2 == ')') {
-                    result.type = Range.Type.OPEN;
-                } else {
-                    result.type = Range.Type.OPEN_CLOSED;
-                }
-            } else {
-                if (ch2 == ')') {
-                    result.type = Range.Type.CLOSED_OPEN;
-                } else {
-                    result.type = Range.Type.CLOSED;
-                }
-            }
-
-            return result;
+            return parseBrackets(text, first, last, ch, ch2);
         }
 
         // comparable form: >=x < y
         if (ch == '>' || ch == '<') {
-            first++;
-            if (first > last) {
-                throw new ParseException("No comparable value", last);
-            }
-            ch2 = text.charAt(first);
-            Range.Type type;
-            if (ch2 == '=') {
-                if (ch == '>') {
-                    type = Range.Type.LEFT_CLOSED;
-                } else {
-                    type = Range.Type.RIGHT_CLOSED;
-                }
-                first++;
-            } else {
-                if (ch == '>') {
-                    type = Range.Type.LEFT_OPEN;
-                } else {
-                    type = Range.Type.RIGHT_OPEN;
-                }
-
-            }
-            first = nextNonSpace(text, first, last);
-            int first2;
-            var last2 = last;
-            for (var i = first; i <= last; i++) {
-                ch2 = text.charAt(i);
-                if (ch2 == '>' || ch2 == '<') {
-                    if (ch == ch2) {
-                        throw new ParseException("Duplicated comparison sign is found in the range", i);
-                    }
-                    last = prevNonSpace(text, first, i - 1);
-                    first2 = i;
-                    first2++;
-
-                    if (first2 > last2) {
-                        throw new ParseException("No comparable value for the second comparison sign", last2);
-                    }
-                    ch = text.charAt(first2);
-                    if (ch == '=') {
-                        first2++;
-                    }
-                    first2 = nextNonSpace(text, first2, last2);
-
-                    if (ch2 == '>') {
-                        // swap the order
-                        var swap = first;
-                        first = first2;
-                        first2 = swap;
-
-                        swap = last;
-                        last = last2;
-                        last2 = swap;
-                    }
-
-                    switch (type) {
-                        case LEFT_CLOSED:
-                            type = ch == '=' ? Range.Type.CLOSED : Range.Type.CLOSED_OPEN;
-                            break;
-                        case RIGHT_CLOSED:
-                            type = ch == '=' ? Range.Type.CLOSED : Range.Type.OPEN_CLOSED;
-                            break;
-                        case LEFT_OPEN:
-                            type = ch == '=' ? Range.Type.OPEN_CLOSED : Range.Type.OPEN;
-                            break;
-                        case RIGHT_OPEN:
-                            type = ch == '=' ? Range.Type.CLOSED_OPEN : Range.Type.OPEN;
-                            break;
-                        default:
-                            throw new IllegalStateException(type.name());
-                    }
-                    return new RangeParser(type, text.substring(first, last + 1), text.substring(first2, last2 + 1));
-                }
-
-            }
-            return new RangeParser(type, text.substring(first, last + 1));
+            return parseComparison(text, first, last, ch);
         }
 
 
@@ -233,6 +129,136 @@ public class RangeParser {
         return parseRangeBySeparator(text, first, last);
     }
 
+    private static RangeParser parseBrackets(String text, int first, int last, char ch, char ch2)
+            throws ParseException {
+        if (ch2 != ']' && ch2 != ')') {
+            throw new ParseException("An illegal opening bracket without closing", first);
+        }
+
+        //trim from the first
+        first++;
+        first = nextNonSpace(text, first, last);
+
+        //trim from the last
+        last--;
+        last = prevNonSpace(text, first, last);
+
+        RangeParser result = parseRangeBySeparator(text, first, last);
+        if (result == null) {
+            throw new ParseException("No required bounds separator is found inside the range", first);
+        }
+        if (ch == '(') {
+            if (ch2 == ')') {
+                result.type = Range.Type.OPEN;
+            } else {
+                result.type = Range.Type.OPEN_CLOSED;
+            }
+        } else {
+            if (ch2 == ')') {
+                result.type = Range.Type.CLOSED_OPEN;
+            } else {
+                result.type = Range.Type.CLOSED;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Parses the comparable form that starts with the comparison sign at the first position: {@code >= x} or
+     * {@code >= x < y}.
+     */
+    private static RangeParser parseComparison(String text, int first, int last, char ch) throws ParseException {
+        first++;
+        if (first > last) {
+            throw new ParseException("No comparable value", last);
+        }
+        var ch2 = text.charAt(first);
+        Range.Type type;
+        if (ch2 == '=') {
+            if (ch == '>') {
+                type = Range.Type.LEFT_CLOSED;
+            } else {
+                type = Range.Type.RIGHT_CLOSED;
+            }
+            first++;
+        } else {
+            if (ch == '>') {
+                type = Range.Type.LEFT_OPEN;
+            } else {
+                type = Range.Type.RIGHT_OPEN;
+            }
+
+        }
+        first = nextNonSpace(text, first, last);
+        for (var i = first; i <= last; i++) {
+            ch2 = text.charAt(i);
+            if (ch2 == '>' || ch2 == '<') {
+                return parseDoubleComparison(text, first, last, i, ch, type);
+            }
+
+        }
+        return new RangeParser(type, text.substring(first, last + 1));
+    }
+
+    /**
+     * Parses the comparable form with the second comparison sign at the given position: {@code >= x < y}.
+     */
+    private static RangeParser parseDoubleComparison(String text,
+                                                     int first,
+                                                     int last,
+                                                     int i,
+                                                     char ch,
+                                                     Range.Type type) throws ParseException {
+        var ch2 = text.charAt(i);
+        if (ch == ch2) {
+            throw new ParseException("Duplicated comparison sign is found in the range", i);
+        }
+        int first2;
+        var last2 = last;
+        last = prevNonSpace(text, first, i - 1);
+        first2 = i;
+        first2++;
+
+        if (first2 > last2) {
+            throw new ParseException("No comparable value for the second comparison sign", last2);
+        }
+        ch = text.charAt(first2);
+        if (ch == '=') {
+            first2++;
+        }
+        first2 = nextNonSpace(text, first2, last2);
+
+        if (ch2 == '>') {
+            // swap the order
+            var swap = first;
+            first = first2;
+            first2 = swap;
+
+            swap = last;
+            last = last2;
+            last2 = swap;
+        }
+
+        switch (type) {
+            case LEFT_CLOSED:
+                type = ch == '=' ? Range.Type.CLOSED : Range.Type.CLOSED_OPEN;
+                break;
+            case RIGHT_CLOSED:
+                type = ch == '=' ? Range.Type.CLOSED : Range.Type.OPEN_CLOSED;
+                break;
+            case LEFT_OPEN:
+                type = ch == '=' ? Range.Type.OPEN_CLOSED : Range.Type.OPEN;
+                break;
+            case RIGHT_OPEN:
+                type = ch == '=' ? Range.Type.CLOSED_OPEN : Range.Type.OPEN;
+                break;
+            default:
+                throw new IllegalStateException(type.name());
+        }
+        return new RangeParser(type, text.substring(first, last + 1), text.substring(first2, last2 + 1));
+    }
+
     private static RangeParser parseRangeBySeparator(String text, int first, int last) throws ParseException {
         var index = findSep(text, first, last);
         if (index < 0) {
@@ -250,26 +276,37 @@ public class RangeParser {
 
         if (!Character.isWhitespace(text.charAt(sepLeft + 1)) || !Character.isWhitespace(text.charAt(index))) {
             // try to find more suitable separator surrounded with spaces
-            index = sepRight - 1;
-            // a negative index means that no more separators are found
-            while (index >= 0 && index < last) {
-                index = findSep(text, index, last);
-                // only a separator with a prefixed whitespace
-                if (index >= 0 && Character.isWhitespace(text.charAt(index - 1))) {
-                    var prev = index;
-                    Separator sep2 = Separator.recognize(text, index);
-                    index += sep2.length();
-                    if (index < last && Character.isWhitespace(text.charAt(index))) {
-                        // found
-                        sep = sep2;
-                        sepLeft = prevNonSpace(text, first, prev - 1);
-                        sepRight = nextNonSpace(text, index, last);
-                        break;
-                    }
-                }
+            var spacedIndex = findSpacedSep(text, sepRight - 1, last);
+            if (spacedIndex >= 0) {
+                // found
+                sep = Separator.recognize(text, spacedIndex);
+                sepLeft = prevNonSpace(text, first, spacedIndex - 1);
+                sepRight = nextNonSpace(text, spacedIndex + sep.length(), last);
             }
         }
         return new RangeParser(sep.getType(), text.substring(first, sepLeft + 1), text.substring(sepRight, last + 1));
+    }
+
+    /**
+     * Finds the next separator surrounded with spaces.
+     *
+     * @return the position of the separator, or a negative value when there is none
+     */
+    private static int findSpacedSep(String text, int index, int last) {
+        // a negative index means that no more separators are found
+        while (index >= 0 && index < last) {
+            index = findSep(text, index, last);
+            // only a separator with a prefixed whitespace
+            if (index >= 0 && Character.isWhitespace(text.charAt(index - 1))) {
+                var prev = index;
+                Separator sep2 = Separator.recognize(text, index);
+                index += sep2.length();
+                if (index < last && Character.isWhitespace(text.charAt(index))) {
+                    return prev;
+                }
+            }
+        }
+        return -1;
     }
 
     private static int nextNonSpace(CharSequence text, int start, int end) throws ParseException {

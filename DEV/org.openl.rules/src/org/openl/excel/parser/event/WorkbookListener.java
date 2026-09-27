@@ -69,7 +69,6 @@ public class WorkbookListener implements HSSFListener {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void processRecord(Record rec) {
         int row;
@@ -86,15 +85,7 @@ public class WorkbookListener implements HSSFListener {
                 sheets.add(new EventSheetDescriptor(bsr.getSheetname(), sheets.size(), bsr.getPositionOfBof()));
                 break;
             case BOFRecord.sid:
-                var bof = (BOFRecord) rec;
-                if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
-                    sheetIndex++;
-
-                    if (!sheetsSorted) {
-                        sheets.sort(Comparator.comparingInt(EventSheetDescriptor::getOffset));
-                        sheetsSorted = true;
-                    }
-                }
+                processBof((BOFRecord) rec);
                 break;
             case DimensionsRecord.sid:
                 var dr = (DimensionsRecord) rec;
@@ -111,65 +102,15 @@ public class WorkbookListener implements HSSFListener {
                 sstRecord = (SSTRecord) rec;
                 break;
             case BoolErrRecord.sid:
-                var berec = (BoolErrRecord) rec;
-
-                if (berec.isBoolean()) {
-
-                    value = berec.getBooleanValue();
-                    indent = formatListener.getIndent(berec);
-                    if (indent > 0) {
-                        value = new AlignedValue(value, indent);
-                    }
-
-                    setValue(berec.getRow(), berec.getColumn(), value);
-                }
+                processBoolErr((BoolErrRecord) rec);
                 break;
             case FormulaRecord.sid: // Cell value from a formula
-                var frec = (FormulaRecord) rec;
-
-                row = frec.getRow();
-                column = frec.getColumn();
-
-                CellType cellType = CellType.forInt(frec.getCachedResultType());
-                switch (cellType) {
-                    case NUMERIC:
-                        value = getDateOrIntOrDouble(frec, frec.getValue());
-                        if (indent > 0) {
-                            value = new AlignedValue(value, indent);
-                        }
-                        setValue(row, column, value);
-                        break;
-                    case BOOLEAN:
-                        setValue(row, column, frec.getCachedBooleanValue());
-                        break;
-                    case STRING:
-                        // Formula result is a string
-                        // This is stored in the next record
-                        outputNextStringRecord = true;
-                        nextRow = frec.getRow();
-                        nextColumn = frec.getColumn();
-                        break;
-                    default:
-                        // an error result is not a cell value
-                        break;
-                }
-                indent = formatListener.getIndent(frec);
-
+                processFormula((FormulaRecord) rec);
                 break;
             case StringRecord.sid:
                 if (outputNextStringRecord) {
                     // String for formula
-                    var srec = (StringRecord) rec;
-                    value = StringUtils.trimToNull(srec.getString());
-                    row = nextRow;
-                    column = nextColumn;
-                    outputNextStringRecord = false;
-
-                    if (value != null && indent > 0) {
-                        value = new AlignedValue(value, indent);
-                        indent = 0;
-                    }
-                    setValue(row, column, value);
+                    processFormulaString((StringRecord) rec);
                 }
                 break;
             case LabelRecord.sid: // Strings stored directly in the cell
@@ -185,20 +126,7 @@ public class WorkbookListener implements HSSFListener {
                 setValue(row, column, value);
                 break;
             case LabelSSTRecord.sid: // String in the shared string table
-                var lsrec = (LabelSSTRecord) rec;
-
-                row = lsrec.getRow();
-                column = lsrec.getColumn();
-                if (sstRecord == null) {
-                    throw new IllegalStateException("No SST Record, cannot identify string");
-                } else {
-                    value = StringUtils.trimToNull(sstRecord.getString(lsrec.getSSTIndex()).toString());
-                    indent = formatListener.getIndent(lsrec);
-                    if (value != null && indent > 0) {
-                        value = new AlignedValue(value, indent);
-                    }
-                    setValue(row, column, value);
-                }
+                processLabelSST((LabelSSTRecord) rec);
                 break;
             case NumberRecord.sid: // Numeric cell value
                 var numrec = (NumberRecord) rec;
@@ -226,32 +154,117 @@ public class WorkbookListener implements HSSFListener {
                 setValue(row, column, value);
                 break;
             case MergeCellsRecord.sid:
-                var mergeRec = (MergeCellsRecord) rec;
-
-                short numAreas = mergeRec.getNumAreas();
-                for (var i = 0; i < numAreas; i++) {
-                    var rangeAddress = mergeRec.getAreaAt(i);
-                    var firstMergeRow = rangeAddress.getFirstRow();
-                    var firstMergeCol = rangeAddress.getFirstColumn();
-                    var lastMergeRow = rangeAddress.getLastRow();
-                    var lastMergeCol = rangeAddress.getLastColumn();
-
-                    // Mark cells merged with Left. Don't include first column.
-                    for (var r = firstMergeRow; r <= lastMergeRow; r++) {
-                        for (var c = firstMergeCol + 1; c <= lastMergeCol; c++) {
-                            setValue(r, c, MergedCell.MERGE_WITH_LEFT);
-                        }
-                    }
-
-                    // Mark cells merged with Up. Only first column starting
-                    // from second row.
-                    for (var r = firstMergeRow + 1; r <= lastMergeRow; r++) {
-                        setValue(r, firstMergeCol, MergedCell.MERGE_WITH_UP);
-                    }
-                }
+                markMergedCells((MergeCellsRecord) rec);
                 break;
             default:
                 break;
+        }
+    }
+
+    private void processBof(BOFRecord bof) {
+        if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
+            sheetIndex++;
+
+            if (!sheetsSorted) {
+                sheets.sort(Comparator.comparingInt(EventSheetDescriptor::getOffset));
+                sheetsSorted = true;
+            }
+        }
+    }
+
+    private void processBoolErr(BoolErrRecord berec) {
+        if (berec.isBoolean()) {
+
+            Object value = berec.getBooleanValue();
+            indent = formatListener.getIndent(berec);
+            if (indent > 0) {
+                value = new AlignedValue(value, indent);
+            }
+
+            setValue(berec.getRow(), berec.getColumn(), value);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void processFormula(FormulaRecord frec) {
+        int row = frec.getRow();
+        int column = frec.getColumn();
+
+        CellType cellType = CellType.forInt(frec.getCachedResultType());
+        switch (cellType) {
+            case NUMERIC:
+                Object value = getDateOrIntOrDouble(frec, frec.getValue());
+                if (indent > 0) {
+                    value = new AlignedValue(value, indent);
+                }
+                setValue(row, column, value);
+                break;
+            case BOOLEAN:
+                setValue(row, column, frec.getCachedBooleanValue());
+                break;
+            case STRING:
+                // Formula result is a string
+                // This is stored in the next record
+                outputNextStringRecord = true;
+                nextRow = frec.getRow();
+                nextColumn = frec.getColumn();
+                break;
+            default:
+                // an error result is not a cell value
+                break;
+        }
+        indent = formatListener.getIndent(frec);
+    }
+
+    private void processFormulaString(StringRecord srec) {
+        Object value = StringUtils.trimToNull(srec.getString());
+        int row = nextRow;
+        int column = nextColumn;
+        outputNextStringRecord = false;
+
+        if (value != null && indent > 0) {
+            value = new AlignedValue(value, indent);
+            indent = 0;
+        }
+        setValue(row, column, value);
+    }
+
+    private void processLabelSST(LabelSSTRecord lsrec) {
+        int row = lsrec.getRow();
+        int column = lsrec.getColumn();
+        if (sstRecord == null) {
+            throw new IllegalStateException("No SST Record, cannot identify string");
+        } else {
+            Object value = StringUtils.trimToNull(sstRecord.getString(lsrec.getSSTIndex()).toString());
+            indent = formatListener.getIndent(lsrec);
+            if (value != null && indent > 0) {
+                value = new AlignedValue(value, indent);
+            }
+            setValue(row, column, value);
+        }
+    }
+
+    private void markMergedCells(MergeCellsRecord mergeRec) {
+        short numAreas = mergeRec.getNumAreas();
+        for (var i = 0; i < numAreas; i++) {
+            var rangeAddress = mergeRec.getAreaAt(i);
+            var firstMergeRow = rangeAddress.getFirstRow();
+            var firstMergeCol = rangeAddress.getFirstColumn();
+            var lastMergeRow = rangeAddress.getLastRow();
+            var lastMergeCol = rangeAddress.getLastColumn();
+
+            // Mark cells merged with Left. Don't include first column.
+            for (var r = firstMergeRow; r <= lastMergeRow; r++) {
+                for (var c = firstMergeCol + 1; c <= lastMergeCol; c++) {
+                    setValue(r, c, MergedCell.MERGE_WITH_LEFT);
+                }
+            }
+
+            // Mark cells merged with Up. Only first column starting
+            // from second row.
+            for (var r = firstMergeRow + 1; r <= lastMergeRow; r++) {
+                setValue(r, firstMergeCol, MergedCell.MERGE_WITH_UP);
+            }
         }
     }
 

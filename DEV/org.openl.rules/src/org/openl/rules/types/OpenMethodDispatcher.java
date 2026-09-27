@@ -290,21 +290,28 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 signatures.set(i, method.getSignature());
                 types.set(i, method.getType());
 
-                var t = types.getFirst();
-                for (var j = 1; j < types.size(); j++) {
-                    t = getDeclaringClass().getRulesModuleBindingContext().findClosestClass(t, types.get(j));
-                }
-                type = t;
-                var s = signatures.getFirst();
-                for (var j = 1; j < types.size(); j++) {
-                    s = mergeMethodSignature(s, signatures.get(j));
-                }
-                signature = s;
+                mergeTypesAndSignatures();
             }
         } else {
             throw new IllegalStateException("Unexpected signature '%s' is found.".formatted(
                     MethodUtil.printSignature(this, INamedThing.REGULAR)));
         }
+    }
+
+    /**
+     * Recalculates the type and the signature of the dispatcher from the ones of all candidates.
+     */
+    private void mergeTypesAndSignatures() {
+        var t = types.getFirst();
+        for (var j = 1; j < types.size(); j++) {
+            t = getDeclaringClass().getRulesModuleBindingContext().findClosestClass(t, types.get(j));
+        }
+        type = t;
+        var s = signatures.getFirst();
+        for (var j = 1; j < types.size(); j++) {
+            s = mergeMethodSignature(s, signatures.get(j));
+        }
+        signature = s;
     }
 
     private IMethodSignature mergeMethodSignature(IMethodSignature signature1, IMethodSignature signature2) {

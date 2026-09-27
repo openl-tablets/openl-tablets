@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -42,36 +43,44 @@ public class ActivePropertyValidator extends TablesValidator {
         var messages = new LinkedHashSet<OpenLMessage>();
 
         for (List<TableSyntaxNode> methodsGroup : groupedMethods.values()) {
-            var activeExecutableMethodTable = new ArrayList<TableSyntaxNode>();
-            var activeTableFoundCount = 0;
-
-            for (TableSyntaxNode executableMethodTable : methodsGroup) {
-                if (executableMethodTable.getMember() instanceof TestSuiteMethod) {
-                    activeTableFoundCount++;
-                    break;
-                }
-                if (executableMethodTable.getTableProperties() != null && isActive(executableMethodTable)) {
-                    activeExecutableMethodTable.add(executableMethodTable);
-                    activeTableFoundCount++;
-                }
-            }
-
-            if (activeTableFoundCount > 1) {
-                for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
-                            executableMethodTable);
-                    messages.add(OpenLMessagesUtils.newErrorMessage(error));
-                }
-            }
-
-            if (activeTableFoundCount == 0) {
-                for (TableSyntaxNode tsn : methodsGroup) {
-                    messages.add(OpenLMessagesUtils.newWarnMessage(NO_ACTIVE_TABLE_MESSAGE, tsn));
-                }
-            }
+            validateGroup(methodsGroup, messages);
         }
 
         return ValidationUtils.withMessages(messages);
+    }
+
+    /**
+     * Reports more than one active table of a group of overloaded tables, and warns about a group without an active
+     * table. A group with a test table is always fine.
+     */
+    private static void validateGroup(List<TableSyntaxNode> methodsGroup, Set<OpenLMessage> messages) {
+        var activeExecutableMethodTable = new ArrayList<TableSyntaxNode>();
+        var activeTableFoundCount = 0;
+
+        for (TableSyntaxNode executableMethodTable : methodsGroup) {
+            if (executableMethodTable.getMember() instanceof TestSuiteMethod) {
+                activeTableFoundCount++;
+                break;
+            }
+            if (executableMethodTable.getTableProperties() != null && isActive(executableMethodTable)) {
+                activeExecutableMethodTable.add(executableMethodTable);
+                activeTableFoundCount++;
+            }
+        }
+
+        if (activeTableFoundCount > 1) {
+            for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
+                        executableMethodTable);
+                messages.add(OpenLMessagesUtils.newErrorMessage(error));
+            }
+        }
+
+        if (activeTableFoundCount == 0) {
+            for (TableSyntaxNode tsn : methodsGroup) {
+                messages.add(OpenLMessagesUtils.newWarnMessage(NO_ACTIVE_TABLE_MESSAGE, tsn));
+            }
+        }
     }
 
     private static boolean isActive(TableSyntaxNode executableMethodTable) {

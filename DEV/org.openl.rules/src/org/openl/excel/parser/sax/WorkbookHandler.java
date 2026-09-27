@@ -19,15 +19,7 @@ public class WorkbookHandler extends DefaultHandler {
         if ("sheet".equals(localName)) {
             var name = attributes.getValue("name");
 
-            var rIdQName = "r:id";
-            if (attributes.getIndex(rIdQName) < 0) {
-                for (var i = 0; i < attributes.getLength(); i++) {
-                    if ("id".equals(attributes.getLocalName(i))) {
-                        rIdQName = attributes.getQName(i);
-                        break;
-                    }
-                }
-            }
+            var rIdQName = getRelationshipIdQName(attributes);
 
             var referenceId = attributes.getValue(rIdQName);
             sheetDescriptors.add(new SAXSheetDescriptor(name, sheetDescriptors.size(), referenceId));
@@ -42,6 +34,23 @@ public class WorkbookHandler extends DefaultHandler {
                 }
             }
         }
+    }
+
+    /**
+     * Returns the qualified name of the attribute that refers to the sheet part: {@code r:id}, or the attribute with
+     * the local name {@code id} when the relationships namespace has another prefix.
+     */
+    private static String getRelationshipIdQName(Attributes attributes) {
+        var rIdQName = "r:id";
+        if (attributes.getIndex(rIdQName) < 0) {
+            for (var i = 0; i < attributes.getLength(); i++) {
+                if ("id".equals(attributes.getLocalName(i))) {
+                    rIdQName = attributes.getQName(i);
+                    break;
+                }
+            }
+        }
+        return rIdQName;
     }
 
     private boolean isTrue(String boolVariable) {

@@ -112,19 +112,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
             if (childValue instanceof Map<?, ?> map1 && !lineage.contains(childValue)) {
                 verbosePrint(out, childKey == null ? "null" : childKey, map1, lineage);
             } else {
-                printIndent(out, lineage.size());
-                out.print(childKey);
-                out.print(" = ");
-
-                if (!lineage.contains(childValue)) {
-                    out.print(childValue);
-                } else if (lineage.getFirst().equals(childValue)) {
-                    out.print("(this Map)");
-                } else {
-                    out.print("(ancestor[?] Map)");
-                }
-
-                out.print("\r\n");
+                printEntry(out, childKey, childValue, lineage);
             }
         }
 
@@ -132,6 +120,29 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
         printIndent(out, lineage.size());
         out.print("}\r\n");
+    }
+
+    /**
+     * Prints the key and the value of an entry. A value that is the map being printed or one of its ancestors is
+     * printed as a reference to that map.
+     */
+    private static void printEntry(final PrintStream out,
+                                   final Object childKey,
+                                   final Object childValue,
+                                   final ArrayDeque<Map<?, ?>> lineage) {
+        printIndent(out, lineage.size());
+        out.print(childKey);
+        out.print(" = ");
+
+        if (!lineage.contains(childValue)) {
+            out.print(childValue);
+        } else if (lineage.getFirst().equals(childValue)) {
+            out.print("(this Map)");
+        } else {
+            out.print("(ancestor[?] Map)");
+        }
+
+        out.print("\r\n");
     }
 
     /**

@@ -43,29 +43,7 @@ public class AnnotationTransformationHelper {
                 annotationText.append(GroovyMethodWriter.TAB).append(GroovyMethodWriter.TAB);
             }
             annotationText.append(property.getName()).append(" ").append("=").append(" ");
-            final Object value = property.getValue();
-
-            String readableValue = convertValue(value, imports);
-            if (property.isType()) {
-                annotationText.append(Type.getType((String) value).getClassName()).append(".class");
-            } else if (property.isArray()) {
-                if (value.getClass().isArray()) {
-                    annotationText.append("[");
-                    int length = Array.getLength(value);
-                    for (int i = 0; i < length; i++) {
-                        final Object elemValue = Array.get(value, i);
-                        annotationText.append(convertValue(elemValue, imports));
-                        if (i < length - 1) {
-                            annotationText.append(",");
-                        }
-                    }
-                    annotationText.append("]");
-                } else {
-                    annotationText.append("[").append(readableValue).append("]");
-                }
-            } else {
-                annotationText.append(readableValue);
-            }
+            appendValue(annotationText, property, imports);
             if (j != propertiesCount - 1) {
                 annotationText.append(", ");
             } else {
@@ -77,6 +55,34 @@ public class AnnotationTransformationHelper {
             }
         }
         return annotationText.toString();
+    }
+
+    private static void appendValue(StringBuilder annotationText,
+                                    AnnotationDescription.AnnotationProperty property,
+                                    Set<String> imports) {
+        final Object value = property.getValue();
+
+        String readableValue = convertValue(value, imports);
+        if (property.isType()) {
+            annotationText.append(Type.getType((String) value).getClassName()).append(".class");
+        } else if (property.isArray()) {
+            if (value.getClass().isArray()) {
+                annotationText.append("[");
+                int length = Array.getLength(value);
+                for (int i = 0; i < length; i++) {
+                    final Object elemValue = Array.get(value, i);
+                    annotationText.append(convertValue(elemValue, imports));
+                    if (i < length - 1) {
+                        annotationText.append(",");
+                    }
+                }
+                annotationText.append("]");
+            } else {
+                annotationText.append("[").append(readableValue).append("]");
+            }
+        } else {
+            annotationText.append(readableValue);
+        }
     }
 
     private static String convertValue(final Object value, final Set<String> imports) {

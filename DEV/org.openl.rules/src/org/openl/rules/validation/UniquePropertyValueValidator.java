@@ -42,34 +42,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
         for (ExecutableRulesMethod method : executableActiveMethods) {
             if (!method.isAlias()) {
-
-                var methodProperties = method.getMethodProperties();
-
-                if (methodProperties == null) {
-
-                    // Skip current method validation.
-                    //
-                    continue;
-                }
-
-                // Get property value.
-                //
-                var value = methodProperties.getPropertyValue(propertyName);
-
-                if (value != null) {
-                    // Check that method with same property value does not exist. If
-                    // method with the same property value exists then create/add
-                    // validation error message else add current property value to list
-                    // of processed values.
-                    //
-                    if (values.containsKey(value)) {
-                        values.get(value).add(method);
-                    } else {
-                        var setOfExecutableRulesMethods = new HashSet<ExecutableRulesMethod>();
-                        setOfExecutableRulesMethods.add(method);
-                        values.put(value, setOfExecutableRulesMethods);
-                    }
-                }
+                addPropertyValue(values, method);
             }
         }
 
@@ -91,6 +64,36 @@ public class UniquePropertyValueValidator extends TablesValidator {
             }
         }
         return ValidationUtils.withMessages(messages);
+    }
+
+    private void addPropertyValue(Map<Object, Set<ExecutableRulesMethod>> values, ExecutableRulesMethod method) {
+        var methodProperties = method.getMethodProperties();
+
+        if (methodProperties == null) {
+
+            // Skip current method validation.
+            //
+            return;
+        }
+
+        // Get property value.
+        //
+        var value = methodProperties.getPropertyValue(propertyName);
+
+        if (value != null) {
+            // Check that method with same property value does not exist. If
+            // method with the same property value exists then create/add
+            // validation error message else add current property value to list
+            // of processed values.
+            //
+            if (values.containsKey(value)) {
+                values.get(value).add(method);
+            } else {
+                var setOfExecutableRulesMethods = new HashSet<ExecutableRulesMethod>();
+                setOfExecutableRulesMethods.add(method);
+                values.put(value, setOfExecutableRulesMethods);
+            }
+        }
     }
 
     private OpenLMessage getMessage(String message, Severity severity, TableSyntaxNode syntaxNode) {

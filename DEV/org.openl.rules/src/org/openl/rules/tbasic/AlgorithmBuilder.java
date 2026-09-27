@@ -20,6 +20,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.AlgorithmMetaInfoReader;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
@@ -340,17 +341,7 @@ public class AlgorithmBuilder {
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
-                    var cellStyle = grid.getCell(c, r)
-                    .getStyle();
-                    int i = cellStyle == null ? 0 : cellStyle.getIndent();
-                    aRow.setOperationLevel(i);
-
-                    if (!bindingContext.isExecutionMode() && tsn
-                            .getMetaInfoReader() instanceof AlgorithmMetaInfoReader algorithmMetaInfoReader) {
-                        var operationColumn = grid.getCell(c, r)
-                    .getAbsoluteColumn();
-                        algorithmMetaInfoReader.setOperationColumn(operationColumn);
-                    }
+                    readOperationCell(aRow, grid, c, r);
                 }
             }
 
@@ -358,6 +349,21 @@ public class AlgorithmBuilder {
         }
 
         return result;
+    }
+
+    /**
+     * Takes the level of the operation from the indent of its cell and gives the operation column to the meta info.
+     */
+    private void readOperationCell(AlgorithmRow aRow, IGridTable grid, int c, int r) {
+        var cellStyle = grid.getCell(c, r).getStyle();
+        int i = cellStyle == null ? 0 : cellStyle.getIndent();
+        aRow.setOperationLevel(i);
+
+        if (!bindingContext.isExecutionMode() && tsn
+                .getMetaInfoReader() instanceof AlgorithmMetaInfoReader algorithmMetaInfoReader) {
+            var operationColumn = grid.getCell(c, r).getAbsoluteColumn();
+            algorithmMetaInfoReader.setOperationColumn(operationColumn);
+        }
     }
 
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {

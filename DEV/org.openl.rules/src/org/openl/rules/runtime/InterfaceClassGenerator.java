@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -69,51 +70,63 @@ public class InterfaceClassGenerator {
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {
             if (!isIgnoredMember(method, validationMap)) {
-                var signature = method.getSignature();
-                var name = method.getName();
-                Class<?> returnType = method.getType().getInstanceClass();
-                var isMember = isMember(name, returnType, signature.getParameterTypes());
-                if (isMember) {
-                    var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
-                    if (provideRuntimeContext) {
-                        methodBuilder.addParameterName("runtimeContext");
-                        methodBuilder.addParameter(new TypeDescription(IRulesRuntimeContext.class.getName()));
-                    }
-                    var pNum = signature.getNumberOfParameters();
-                    for (var i = 0; i < pNum; i++) {
-                        var paramName = signature.getParameterName(i);
-                        var paramType = signature.getParameterType(i).getInstanceClass().getName();
-                        methodBuilder.addParameterName(paramName);
-                        methodBuilder.addParameter(new TypeDescription(paramType));
-                    }
-                    classBuilder.addAbstractMethod(methodBuilder.build());
-                    methodsInClass.add(new MethodKey(method));
-                }
+                addMethod(classBuilder, method, methodsInClass);
             }
         }
 
         for (IOpenField field : openClass.getFields()) {
             if (!isIgnoredMember(field, validationMap) && field.isReadable()) {
-                String name = ClassUtils.getter(field.getName());
-                Class<?> returnType = field.getType().getInstanceClass();
-                var isMember = isMember(name, returnType, IOpenClass.EMPTY);
-                if (isMember) {
-                    var key = new MethodKey(name, IOpenClass.EMPTY);
-                    // Skip getter for field if method is defined with the same signature.
-                    if (!methodsInClass.contains(key)) {
-                        var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
-                        if (provideRuntimeContext) {
-                            methodBuilder.addParameterName("runtimeContext");
-                            methodBuilder.addParameter(new TypeDescription(IRulesRuntimeContext.class.getName()));
-                        }
-                        classBuilder.addAbstractMethod(methodBuilder.build());
-                        methodsInClass.add(key);
-                    }
-                }
+                addFieldGetter(classBuilder, field, methodsInClass);
             }
         }
 
         return generateAndLoad(className, classLoader, classBuilder);
+    }
+
+    private void addMethod(InterfaceByteCodeBuilder classBuilder,
+                           IOpenMethod method,
+                           Set<MethodKey> methodsInClass) {
+        var signature = method.getSignature();
+        var name = method.getName();
+        Class<?> returnType = method.getType().getInstanceClass();
+        var isMember = isMember(name, returnType, signature.getParameterTypes());
+        if (isMember) {
+            var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
+            if (provideRuntimeContext) {
+                methodBuilder.addParameterName("runtimeContext");
+                methodBuilder.addParameter(new TypeDescription(IRulesRuntimeContext.class.getName()));
+            }
+            var pNum = signature.getNumberOfParameters();
+            for (var i = 0; i < pNum; i++) {
+                var paramName = signature.getParameterName(i);
+                var paramType = signature.getParameterType(i).getInstanceClass().getName();
+                methodBuilder.addParameterName(paramName);
+                methodBuilder.addParameter(new TypeDescription(paramType));
+            }
+            classBuilder.addAbstractMethod(methodBuilder.build());
+            methodsInClass.add(new MethodKey(method));
+        }
+    }
+
+    private void addFieldGetter(InterfaceByteCodeBuilder classBuilder,
+                                IOpenField field,
+                                Set<MethodKey> methodsInClass) {
+        String name = ClassUtils.getter(field.getName());
+        Class<?> returnType = field.getType().getInstanceClass();
+        var isMember = isMember(name, returnType, IOpenClass.EMPTY);
+        if (isMember) {
+            var key = new MethodKey(name, IOpenClass.EMPTY);
+            // Skip getter for field if method is defined with the same signature.
+            if (!methodsInClass.contains(key)) {
+                var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
+                if (provideRuntimeContext) {
+                    methodBuilder.addParameterName("runtimeContext");
+                    methodBuilder.addParameter(new TypeDescription(IRulesRuntimeContext.class.getName()));
+                }
+                classBuilder.addAbstractMethod(methodBuilder.build());
+                methodsInClass.add(key);
+            }
+        }
     }
 
     private static Class<?> generateAndLoad(String className, ClassLoader classLoader, InterfaceByteCodeBuilder builder) throws ClassNotFoundException {
@@ -187,20 +200,7 @@ public class InterfaceClassGenerator {
         }
 
         // Then check module-level signature-based filter (regex on full method signature)
-        var sb = new StringBuilder();
-        sb.append(returnType.getCanonicalName());
-        sb.append(" ").append(name).append("(");
-        var first = true;
-        for (IOpenClass paramType : parameterTypes) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append(", ");
-            }
-            sb.append(paramType.getInstanceClass().getCanonicalName());
-        }
-        sb.append(")");
-        var methodSignature = sb.toString();
+        var methodSignature = getMethodSignature(name, returnType, parameterTypes);
 
         var isMember = true;
         if (includes != null && includes.length > 0) {
@@ -219,6 +219,23 @@ public class InterfaceClassGenerator {
             }
         }
         return isMember;
+    }
+
+    private static String getMethodSignature(String name, Class<?> returnType, IOpenClass[] parameterTypes) {
+        var sb = new StringBuilder();
+        sb.append(returnType.getCanonicalName());
+        sb.append(" ").append(name).append("(");
+        var first = true;
+        for (IOpenClass paramType : parameterTypes) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(", ");
+            }
+            sb.append(paramType.getInstanceClass().getCanonicalName());
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     private boolean isNameIncluded(String name) {

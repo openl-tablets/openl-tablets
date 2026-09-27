@@ -55,6 +55,7 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -215,31 +216,39 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             errors.forEach(bindingContext::addError);
         }
         if (errors.isEmpty() && beanClassCanBeGenerated(bindingContext)) {
-            var datatypeClassName = dataType.getJavaName();
-            var classLoader = (OpenLClassLoader) Thread.currentThread().getContextClassLoader();
+            loadOrGenerateBeanClass(bindingContext);
+        }
+    }
+
+    /**
+     * Takes the bean class of the datatype from the class loader and validates it, or generates the class when the
+     * class loader has none.
+     */
+    private void loadOrGenerateBeanClass(IBindingContext bindingContext) {
+        var datatypeClassName = dataType.getJavaName();
+        var classLoader = (OpenLClassLoader) Thread.currentThread().getContextClassLoader();
+        try {
+            var beanClass = classLoader.loadClass(datatypeClassName);
+            byteCodeReadyToLoad = true;
+            validateDatatypeClass(beanClass, fields, bindingContext);
+            log.debug("Class '{}' is loaded from classloader.", datatypeClassName);
+        } catch (ClassNotFoundException e) {
             try {
-                var beanClass = classLoader.loadClass(datatypeClassName);
+                final var byteCode = buildByteCodeForDatatype(fields);
+                classLoader.addGeneratedClass(datatypeClassName, byteCode);
+                dataType.setBytecode(byteCode);
                 byteCodeReadyToLoad = true;
-                validateDatatypeClass(beanClass, fields, bindingContext);
-                log.debug("Class '{}' is loaded from classloader.", datatypeClassName);
-            } catch (ClassNotFoundException e) {
-                try {
-                    final var byteCode = buildByteCodeForDatatype(fields);
-                    classLoader.addGeneratedClass(datatypeClassName, byteCode);
-                    dataType.setBytecode(byteCode);
-                    byteCodeReadyToLoad = true;
-                    log.debug("Class '{}' is generated and loaded to classloader.", datatypeClassName);
-                } catch (ByteCodeGenerationException e1) {
-                    log.debug(ERROR_OCCURRED, e1);
-                    var errorMessage = "Failed to generate a class for datatype '%s'. %s"
-                            .formatted(datatypeClassName, e1.getMessage());
-                    BindHelper.processError(errorMessage, e1, tableSyntaxNode, bindingContext);
-                } catch (Exception e2) {
-                    log.debug(ERROR_OCCURRED, e2);
-                    var errorMessage = "Failed to generate a class for datatype '%s'.".formatted(
-                            datatypeClassName);
-                    BindHelper.processError(errorMessage, e2, tableSyntaxNode, bindingContext);
-                }
+                log.debug("Class '{}' is generated and loaded to classloader.", datatypeClassName);
+            } catch (ByteCodeGenerationException e1) {
+                log.debug(ERROR_OCCURRED, e1);
+                var errorMessage = "Failed to generate a class for datatype '%s'. %s"
+                        .formatted(datatypeClassName, e1.getMessage());
+                BindHelper.processError(errorMessage, e1, tableSyntaxNode, bindingContext);
+            } catch (Exception e2) {
+                log.debug(ERROR_OCCURRED, e2);
+                var errorMessage = "Failed to generate a class for datatype '%s'.".formatted(
+                        datatypeClassName);
+                BindHelper.processError(errorMessage, e2, tableSyntaxNode, bindingContext);
             }
         }
     }
@@ -384,195 +393,248 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
 
         for (Entry<String, FieldDescription> fieldEntry : fields.entrySet()) {
-            var fieldName = fieldEntry.getKey();
-            var fieldDescription = fieldEntry.getValue();
+            validateField(datatypeClass, datatypeClassName, fieldEntry, instance, cxt);
+        }
+        if (parentDatatypeTableBoundNode != null) {
+            validateParentClass(datatypeClass, datatypeClassName, cxt);
+        }
+    }
+
+    /**
+     * Validates that the class declares the field with its getter and setter the way the datatype does.
+     */
+    private void validateField(Class<?> datatypeClass,
+                               String datatypeClassName,
+                               Entry<String, FieldDescription> fieldEntry,
+                               Object instance,
+                               IBindingContext cxt) {
+        var fieldName = fieldEntry.getKey();
+        var fieldDescription = fieldEntry.getValue();
+        validateDeclaredField(datatypeClass, datatypeClassName, fieldName, fieldDescription, cxt);
+
+        String name = ClassUtils.capitalize(fieldName); // According to JavaBeans v1.01
+        Method getterMethod = null;
+        try {
+            getterMethod = datatypeClass.getMethod("get" + name);
+            if ((fieldDescription.isTransient() && !getterMethod
+                    .isAnnotationPresent(XmlTransient.class)) || (!fieldDescription.isTransient() && getterMethod
+                    .isAnnotationPresent(XmlTransient.class))) {
+                String errorMessage = ("The '%s' field is " + (fieldDescription
+                        .isTransient() ? "not "
+                        : "") + "transient in the '%s' class. " + "Update the class so that it is compatible with the datatype.").formatted(
+                        fieldName,
+                        datatypeClassName);
+                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+            }
+        } catch (NoSuchMethodException e) {
+            var errorMessage = "The 'get%s' method is not found in the '%s' class. Update the class so that it is compatible with the datatype.".formatted(
+                    name,
+                    datatypeClassName);
+            name = StringUtils.capitalize(fieldName); // Try old solution (before 5.21.7)
             try {
-                var field = datatypeClass.getDeclaredField(fieldName);
-                if (fieldDescription.isTransient() != Modifier.isTransient(field.getModifiers()) || (fieldDescription
-                        .isTransient() && !field.isAnnotationPresent(XmlTransient.class)) || (!fieldDescription
-                        .isTransient() && field.isAnnotationPresent(XmlTransient.class))) {
-                    String errorMessage = ("The '%s' field is " + (fieldDescription
-                            .isTransient() ? "not "
-                            : "") + "transient in the '%s' class. "
-                            + "Update the class so that it is compatible with the datatype.").formatted(
-                            fieldName,
-                            datatypeClassName);
+                getterMethod = datatypeClass.getMethod("get" + name);
+            } catch (NoSuchMethodException e1) {
+                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+            }
+        }
+        if (getterMethod != null) {
+            validateGetter(getterMethod, datatypeClassName, fieldEntry, instance, cxt);
+        }
+
+        var setterMethodName = "set" + name;
+        if (!hasSetter(datatypeClass, setterMethodName, fieldDescription)) {
+            String errorMessage = """
+                    The '%s(%s)' method is not found in the '%s' class. \
+                    Update the class so that it is compatible with the datatype.""".formatted(
+                    setterMethodName,
+                    fieldDescription.getTypeName(),
+                    datatypeClassName);
+            BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+
+        }
+    }
+
+    private void validateDeclaredField(Class<?> datatypeClass,
+                                       String datatypeClassName,
+                                       String fieldName,
+                                       FieldDescription fieldDescription,
+                                       IBindingContext cxt) {
+        try {
+            var field = datatypeClass.getDeclaredField(fieldName);
+            if (fieldDescription.isTransient() != Modifier.isTransient(field.getModifiers()) || (fieldDescription
+                    .isTransient() && !field.isAnnotationPresent(XmlTransient.class)) || (!fieldDescription
+                    .isTransient() && field.isAnnotationPresent(XmlTransient.class))) {
+                String errorMessage = ("The '%s' field is " + (fieldDescription
+                        .isTransient() ? "not "
+                        : "") + "transient in the '%s' class. "
+                        + "Update the class so that it is compatible with the datatype.").formatted(
+                        fieldName,
+                        datatypeClassName);
+                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+            }
+        } catch (NoSuchFieldException e) {
+            log.debug(ERROR_OCCURRED, e);
+            String errorMessage = """
+                    The '%s' %s is not found in the '%s' class. \
+                    Update the class so that it is compatible with the datatype.""".formatted(
+                    fieldName,
+                    dataType.isStatic() ? "static field" : "field",
+                    datatypeClassName);
+            BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+        }
+    }
+
+    /**
+     * Validates the return type and the access of the getter, and the default value it returns for a new instance.
+     */
+    private void validateGetter(Method getterMethod,
+                                String datatypeClassName,
+                                Entry<String, FieldDescription> fieldEntry,
+                                Object instance,
+                                IBindingContext cxt) {
+        var fieldDescription = fieldEntry.getValue();
+        if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
+            String errorMessage = """
+                    Unexpected return type for method '%s' in class '%s'. \
+                    Please, update the class to be compatible with the datatype.""".formatted(
+                    getterMethod.getName(),
+                    datatypeClassName);
+            BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+        } else if (!Modifier.isPublic(getterMethod.getModifiers())) {
+            String errorMessage = """
+                    Unexpected access modifier on method '%s' in class '%s'. \
+                    Please, update the class to be compatible with the datatype.""".formatted(
+                    getterMethod.getName(),
+                    datatypeClassName);
+            BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+        } else if (instance != null && fieldEntry.getValue().getDefaultValue() != null) {
+            if (isDefaultValueMismatch(getterMethod, fieldEntry.getValue(), instance)) {
+                String errorMessage = """
+                        The default value for the '%s' field in the '%s' class \
+                        mismatches the default value used in the '%s' datatype. \
+                        Update the class so that it is compatible with the datatype.""".formatted(
+                        fieldEntry.getKey(),
+                        datatypeClassName,
+                        dataType.getName());
+                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+            }
+        }
+    }
+
+    /**
+     * Whether the getter returns a value for the instance other than the default value of the field; for a field
+     * whose default is a new instance, whether it returns {@code null}. A getter that cannot be invoked mismatches
+     * nothing.
+     */
+    private static boolean isDefaultValueMismatch(Method getterMethod,
+                                                  FieldDescription fieldDescription,
+                                                  Object instance) {
+        try {
+            if (fieldDescription.hasDefaultKeyWord()) {
+                var defaultValue = getterMethod.invoke(instance);
+                return defaultValue == null;
+            } else if (fieldDescription.hasDefaultValue()) {
+                var defaultValue = getterMethod.invoke(instance);
+                if (getterMethod.getReturnType().isArray() && defaultValue.getClass().isArray()) {
+                    return !ArrayUtils.deepEquals(fieldDescription.getDefaultValue(), defaultValue);
+                }
+                return !Objects.equals(fieldDescription.getDefaultValue(), defaultValue);
+            }
+        } catch (ReflectiveOperationException | LinkageError e) {
+            log.debug("Ignored error: ", e);
+        }
+        return false;
+    }
+
+    private static boolean hasSetter(Class<?> datatypeClass,
+                                     String setterMethodName,
+                                     FieldDescription fieldDescription) {
+        var methods = datatypeClass.getMethods();
+        for (Method method : methods) {
+            if (method.getName()
+                    .equals(setterMethodName) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0]
+                    .getName()
+                    .equals(fieldDescription.getTypeName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates that the class extends the class of the parent datatype, can use the fields of the parent class and
+     * has a parent constructor that takes them.
+     */
+    private void validateParentClass(Class<?> datatypeClass, String datatypeClassName, IBindingContext cxt) {
+        if (datatypeClass.getSuperclass() == null || !Objects.equals(
+                parentDatatypeTableBoundNode.getDataType().getJavaName(),
+                datatypeClass.getSuperclass().getName())) {
+            String errorMessage = """
+                    Invalid parent class '%s' is found in class '%s'. \
+                    Please, update the class to be compatible with the datatype.""".formatted(
+                    datatypeClass.getSuperclass() != null ? (" " + datatypeClass.getSuperclass().getTypeName()) : "",
+                    datatypeClassName);
+            BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+        }
+        for (Entry<String, FieldDescription> fieldEntry : parentDatatypeTableBoundNode.getFields().entrySet()) {
+            try {
+                var f = datatypeClass.getSuperclass().getDeclaredField(fieldEntry.getKey());
+                if (!Modifier.isPublic(f.getModifiers()) && !Modifier.isProtected(f.getModifiers())) {
+                    String errorMessage = """
+                            An invalid access modifier is found for the '%s' field in the '%s' class. \
+                            Update the class so that it is compatible with the datatype.""".formatted(
+                            fieldEntry.getKey(),
+                            datatypeClass.getSuperclass().getTypeName());
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                 }
             } catch (NoSuchFieldException e) {
-                log.debug(ERROR_OCCURRED, e);
-                String errorMessage = """
-                        The '%s' %s is not found in the '%s' class. \
-                        Update the class so that it is compatible with the datatype.""".formatted(
-                        fieldName,
-                        dataType.isStatic() ? "static field" : "field",
-                        datatypeClassName);
-                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-            }
-
-            String name = ClassUtils.capitalize(fieldName); // According to JavaBeans v1.01
-            Method getterMethod = null;
-            try {
-                getterMethod = datatypeClass.getMethod("get" + name);
-                if ((fieldDescription.isTransient() && !getterMethod
-                        .isAnnotationPresent(XmlTransient.class)) || (!fieldDescription.isTransient() && getterMethod
-                        .isAnnotationPresent(XmlTransient.class))) {
-                    String errorMessage = ("The '%s' field is " + (fieldDescription
-                            .isTransient() ? "not "
-                            : "") + "transient in the '%s' class. " + "Update the class so that it is compatible with the datatype.").formatted(
-                            fieldName,
-                            datatypeClassName);
-                    BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-                }
-            } catch (NoSuchMethodException e) {
-                var errorMessage = "The 'get%s' method is not found in the '%s' class. Update the class so that it is compatible with the datatype.".formatted(
-                        name,
-                        datatypeClassName);
-                name = StringUtils.capitalize(fieldName); // Try old solution (before 5.21.7)
-                try {
-                    getterMethod = datatypeClass.getMethod("get" + name);
-                } catch (NoSuchMethodException e1) {
-                    BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-                }
-            }
-            if (getterMethod != null) {
-                if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
-                    String errorMessage = """
-                            Unexpected return type for method '%s' in class '%s'. \
-                            Please, update the class to be compatible with the datatype.""".formatted(
-                            getterMethod.getName(),
-                            datatypeClassName);
-                    BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-                } else if (!Modifier.isPublic(getterMethod.getModifiers())) {
-                    String errorMessage = """
-                            Unexpected access modifier on method '%s' in class '%s'. \
-                            Please, update the class to be compatible with the datatype.""".formatted(
-                            getterMethod.getName(),
-                            datatypeClassName);
-                    BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-                } else if (instance != null && fieldEntry.getValue().getDefaultValue() != null) {
-                    var f = false;
-                    try {
-                        if (fieldEntry.getValue().hasDefaultKeyWord()) {
-                            var defaultValue = getterMethod.invoke(instance);
-                            if (defaultValue == null) {
-                                f = true;
-                            }
-                        } else if (fieldEntry.getValue().hasDefaultValue()) {
-                            var defaultValue = getterMethod.invoke(instance);
-                            if (getterMethod.getReturnType().isArray() && defaultValue.getClass().isArray()) {
-                                if (!ArrayUtils.deepEquals(fieldEntry.getValue().getDefaultValue(), defaultValue)) {
-                                    f = true;
-                                }
-                            } else {
-                                if (!Objects.equals(fieldEntry.getValue().getDefaultValue(), defaultValue)) {
-                                    f = true;
-                                }
-                            }
-                        }
-                    } catch (ReflectiveOperationException | LinkageError e) {
-                        log.debug("Ignored error: ", e);
-                    }
-                    if (f) {
-                        String errorMessage = """
-                                The default value for the '%s' field in the '%s' class \
-                                mismatches the default value used in the '%s' datatype. \
-                                Update the class so that it is compatible with the datatype.""".formatted(
-                                fieldEntry.getKey(),
-                                datatypeClassName,
-                                dataType.getName());
-                        BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-                    }
-                }
-            }
-
-            var setterMethodName = "set" + name;
-            var methods = datatypeClass.getMethods();
-            var found = false;
-            for (Method method : methods) {
-                if (method.getName()
-                        .equals(setterMethodName) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0]
-                        .getName()
-                        .equals(fieldDescription.getTypeName())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                String errorMessage = """
-                        The '%s(%s)' method is not found in the '%s' class. \
-                        Update the class so that it is compatible with the datatype.""".formatted(
-                        setterMethodName,
-                        fieldDescription.getTypeName(),
-                        datatypeClassName);
-                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-
+                log.debug("Ignored error: ", e);
             }
         }
-        if (parentDatatypeTableBoundNode != null) {
-            if (datatypeClass.getSuperclass() == null || !Objects.equals(
-                    parentDatatypeTableBoundNode.getDataType().getJavaName(),
-                    datatypeClass.getSuperclass().getName())) {
-                String errorMessage = """
-                        Invalid parent class '%s' is found in class '%s'. \
-                        Please, update the class to be compatible with the datatype.""".formatted(
-                        datatypeClass.getSuperclass() != null ? (" " + datatypeClass.getSuperclass().getTypeName()) : "",
-                        datatypeClassName);
-                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+        if (!hasParentConstructor(datatypeClass)) {
+            String errorMessage = """
+                    A mandatory constructor with parameters is not found in the '%s' class. \
+                    Update the class so that it is compatible with the datatype.""".formatted(
+                    datatypeClass.getSuperclass().getTypeName());
+            BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+        }
+    }
+
+    /**
+     * Whether the parent class has a public constructor that takes the fields of all parent datatypes, the fields of
+     * the topmost datatype first.
+     */
+    private boolean hasParentConstructor(Class<?> datatypeClass) {
+        var parentFields = new LinkedList<FieldDescription>();
+        var p = parentDatatypeTableBoundNode;
+        while (p != null) {
+            var x = new LinkedList<FieldDescription>();
+            for (FieldDescription fieldDescription : p.getFields().values()) {
+                x.addFirst(fieldDescription);
             }
-            for (Entry<String, FieldDescription> fieldEntry : parentDatatypeTableBoundNode.getFields().entrySet()) {
-                try {
-                    var f = datatypeClass.getSuperclass().getDeclaredField(fieldEntry.getKey());
-                    if (!Modifier.isPublic(f.getModifiers()) && !Modifier.isProtected(f.getModifiers())) {
-                        String errorMessage = """
-                                An invalid access modifier is found for the '%s' field in the '%s' class. \
-                                Update the class so that it is compatible with the datatype.""".formatted(
-                                fieldEntry.getKey(),
-                                datatypeClass.getSuperclass().getTypeName());
-                        BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-                    }
-                } catch (NoSuchFieldException e) {
-                    log.debug("Ignored error: ", e);
-                }
+            for (FieldDescription fieldDescription : x) {
+                parentFields.addFirst(fieldDescription);
             }
-            var g = false;
-            var parentFields = new LinkedList<FieldDescription>();
-            var p = parentDatatypeTableBoundNode;
-            while (p != null) {
-                var x = new LinkedList<FieldDescription>();
-                for (FieldDescription fieldDescription : p.getFields().values()) {
-                    x.addFirst(fieldDescription);
-                }
-                for (FieldDescription fieldDescription : x) {
-                    parentFields.addFirst(fieldDescription);
-                }
-                p = p.parentDatatypeTableBoundNode;
-            }
-            for (Constructor<?> constructor : datatypeClass.getSuperclass().getConstructors()) {
-                if (constructor.getParameterCount() == parentFields.size()) {
-                    var i = 0;
-                    var f = true;
-                    for (FieldDescription fieldDescription : parentFields) {
-                        if (!constructor.getParameterTypes()[i].getName().equals(fieldDescription.getTypeName())) {
-                            f = false;
-                            break;
-                        }
-                        i++;
-                    }
-                    if (f) {
-                        g = true;
-                        break;
-                    }
-                }
-            }
-            if (!g) {
-                String errorMessage = """
-                        A mandatory constructor with parameters is not found in the '%s' class. \
-                        Update the class so that it is compatible with the datatype.""".formatted(
-                        datatypeClass.getSuperclass().getTypeName());
-                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
+            p = p.parentDatatypeTableBoundNode;
+        }
+        for (Constructor<?> constructor : datatypeClass.getSuperclass().getConstructors()) {
+            if (constructor.getParameterCount() == parentFields.size() && hasParameterTypes(constructor,
+                    parentFields)) {
+                return true;
             }
         }
+        return false;
+    }
+
+    private static boolean hasParameterTypes(Constructor<?> constructor, List<FieldDescription> parameters) {
+        var i = 0;
+        for (FieldDescription fieldDescription : parameters) {
+            if (!constructor.getParameterTypes()[i].getName().equals(fieldDescription.getTypeName())) {
+                return false;
+            }
+            i++;
+        }
+        return true;
     }
 
     /**
@@ -690,22 +752,71 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     return null;
                 }
             }
-            String errorMessage = ContextPropertyBinderUtils
-                    .validateContextProperty(contextProperty, fieldType, bindingContext);
-            if (errorMessage != null) {
-                contextProperty = null;
-                GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(NAME_COLUMN_TITLE, 1));
-                BindHelper.processError(errorMessage, cellSource, bindingContext);
-            }
+            contextProperty = checkContextProperty(contextProperty, fieldType, row, columnTitlesOrder, bindingContext);
         } else {
             contextProperty = null;
         }
 
-        FieldDescriptionBuilder fieldDescriptionBuilder;
+        if (isAlreadyDeclared(fields, fieldName, nameCellSource, bindingContext)) {
+            return null;
+        }
+        var fieldDescriptionBuilder = FieldDescriptionBuilder.create(fieldType.getJavaName())
+                .setTransient(isTransient)
+                .setContextPropertyName(contextProperty);
+
+        fieldDescriptionBuilder.setContextPropertyName(contextProperty);
+
+        if (fieldType.getDomain() != null) {
+            fieldDescriptionBuilder.setAllowableValues(DomainUtils.values(fieldType.getDomain()));
+        }
+
+        addFieldDescription(fieldDescriptionBuilder,
+                fieldName,
+                fieldType,
+                row,
+                columnTitlesOrder,
+                fields,
+                bindingContext);
+
+        var field = new DatatypeOpenField(dataType, fieldName, fieldType, contextProperty, isTransient);
+        dataType.addField(field);
+        return field;
+    }
+
+    /**
+     * Validates the runtime context property the field is bound to.
+     *
+     * @return the context property, or {@code null} when it cannot be bound to the field
+     */
+    private static String checkContextProperty(String contextProperty,
+                                               IOpenClass fieldType,
+                                               ILogicalTable row,
+                                               Map<String, Integer> columnTitlesOrder,
+                                               IBindingContext bindingContext) {
+        String errorMessage = ContextPropertyBinderUtils
+                .validateContextProperty(contextProperty, fieldType, bindingContext);
+        if (errorMessage != null) {
+            GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(NAME_COLUMN_TITLE, 1));
+            BindHelper.processError(errorMessage, cellSource, bindingContext);
+            return null;
+        }
+        return contextProperty;
+    }
+
+    /**
+     * Reports a field that is already declared with the same name, or with a name that differs in the case of the
+     * first letter only.
+     *
+     * @return {@code true} when a field with the same name is already declared
+     */
+    private static boolean isAlreadyDeclared(Map<String, FieldDescription> fields,
+                                             String fieldName,
+                                             GridCellSourceCodeModule nameCellSource,
+                                             IBindingContext bindingContext) {
         if (fields.containsKey(fieldName)) {
             var errorMessage = "Field '%s' is already declared.".formatted(fieldName);
             BindHelper.processError(errorMessage, nameCellSource, bindingContext);
-            return null;
+            return true;
         } else if (fields.containsKey(ClassUtils.decapitalize(fieldName)) || fields
                 .containsKey(ClassUtils.capitalize(fieldName))) {
             String f = null;
@@ -718,63 +829,33 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             var errorMessage = "Field '%s' conflicts with field '%s'.".formatted(fieldName, f);
             BindHelper.processError(errorMessage, nameCellSource, bindingContext);
         }
-        fieldDescriptionBuilder = FieldDescriptionBuilder.create(fieldType.getJavaName())
-                .setTransient(isTransient)
-                .setContextPropertyName(contextProperty);
+        return false;
+    }
 
-        fieldDescriptionBuilder.setContextPropertyName(contextProperty);
-
-        if (fieldType.getDomain() != null) {
-            fieldDescriptionBuilder.setAllowableValues(DomainUtils.values(fieldType.getDomain()));
-        }
-
+    /**
+     * Reads the default value, the description, the example and the mandatory flag of the field and adds the built
+     * description to the fields.
+     */
+    private void addFieldDescription(FieldDescriptionBuilder fieldDescriptionBuilder,
+                                     String fieldName,
+                                     IOpenClass fieldType,
+                                     ILogicalTable row,
+                                     Map<String, Integer> columnTitlesOrder,
+                                     Map<String, FieldDescription> fields,
+                                     IBindingContext bindingContext) {
         FieldDescription fieldDescription;
         Object defaultValue = null;
         GridCellSourceCodeModule defaultValueCellSource = null;
-        String defaultValueCode;
         if (columnTitlesOrder.containsKey(DEFAULT_COLUMN_TITLE) && row.getWidth() > 2) {
             var defaultColumnIndex = columnTitlesOrder.get(DEFAULT_COLUMN_TITLE);
             defaultValueCellSource = getCellSource(row, bindingContext, defaultColumnIndex);
-            defaultValueCode = defaultValueCellSource.getCode();
-            if (ParserUtils.isBlankOrCommented(defaultValueCode)) {
-                defaultValueCode = null;
-            }
-            defaultValue = defaultValueCode;
-            ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, defaultValueCode);
-            if (constantOpenField != null) {
-                defaultValue = constantOpenField.getValue();
-                fieldDescriptionBuilder.setDefaultValue(defaultValue);
-                fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
-                if (!bindingContext.isExecutionMode()) {
-                    var cell = defaultValueCellSource.getCell();
-                    var metaInfoReader = tableSyntaxNode.getMetaInfoReader();
-                    if (metaInfoReader instanceof BaseMetaInfoReader<?> reader) {
-                        reader.addConstant(cell, constantOpenField);
-                    }
-                }
-            } else {
-                fieldDescriptionBuilder.setDefaultValueAsString(defaultValueCode);
-                if (String.class != fieldType.getInstanceClass()) {
-                    var theCellValue = row.getColumn(defaultColumnIndex).getCell(0, 0);
-                    if (theCellValue.hasNativeType()) {
-                        defaultValue = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
-                        if (defaultValue == null && !DefaultValue.DEFAULT.equals(defaultValueCode)) {
-                            if (fieldType.getInstanceClass() != null) {
-                                try {
-                                    defaultValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), defaultValueCode, bindingContext);
-                                } catch (Exception e) {
-                                    handleDefaultValueError(fieldName, fieldType, defaultValueCellSource, bindingContext);
-                                }
-                            } else if (StringUtils.isNotBlank(defaultValueCode)) {
-                                handleDefaultValueError(fieldName, fieldType, defaultValueCellSource, bindingContext);
-                            }
-                        }
-                        if (defaultValue != null) {
-                            fieldDescriptionBuilder.setDefaultValue(defaultValue);
-                        }
-                    }
-                }
-            }
+            defaultValue = readDefaultValue(fieldDescriptionBuilder,
+                    fieldName,
+                    fieldType,
+                    row,
+                    defaultColumnIndex,
+                    defaultValueCellSource,
+                    bindingContext);
         }
 
         if (columnTitlesOrder.containsKey(DESCRIPTION_COLUMN_TITLE)) {
@@ -787,39 +868,17 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (columnTitlesOrder.containsKey(EXAMPLE_COLUMN_TITLE)) {
             var examplesColumnIndex = columnTitlesOrder.get(EXAMPLE_COLUMN_TITLE);
             GridCellSourceCodeModule examplesValueCellSource = getCellSource(row, bindingContext, examplesColumnIndex);
-            var examplesValueCellSourceValue = examplesValueCellSource.getCode();
-            if (StringUtils.isNotBlank(examplesValueCellSourceValue)) {
-                if (fieldType.getInstanceClass() != null) {
-                    try {
-                        Object exampleValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), examplesValueCellSourceValue.trim(), bindingContext);
-                        setExampleValue(fieldDescriptionBuilder,
-                                exampleValue,
-                                examplesValueCellSourceValue.trim(),
-                                fieldType,
-                                defaultValueCellSource,
-                                bindingContext);
-                    } catch (Exception e) {
-                        handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
-                    }
-                } else {
-                    handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
-                }
-            }
+            readExampleValue(fieldDescriptionBuilder,
+                    fieldName,
+                    fieldType,
+                    examplesValueCellSource,
+                    defaultValueCellSource,
+                    bindingContext);
         }
         if (columnTitlesOrder.containsKey(MANDATORY_COLUMN_TITLE)) {
             var mandatoryColumnIndex = columnTitlesOrder.get(MANDATORY_COLUMN_TITLE);
             GridCellSourceCodeModule mandatoryValueCellSource = getCellSource(row, bindingContext, mandatoryColumnIndex);
-            if (StringUtils.isNotBlank(mandatoryValueCellSource.getCode())) {
-                try {
-                    Boolean mandatoryValue = String2DataConvertorFactory.parse(Boolean.class, mandatoryValueCellSource.getCode(), bindingContext);
-                    if (mandatoryValue != null) {
-                        fieldDescriptionBuilder.setMandatoryValue(mandatoryValue);
-                    }
-                } catch (Exception e) {
-                    var errorMessage = "The provided value '%s' is not valid for the mandatory column. Please provide a valid value.".formatted(mandatoryValueCellSource.getCode().trim());
-                    BindHelper.processError(errorMessage, mandatoryValueCellSource, bindingContext);
-                }
-            }
+            readMandatoryValue(fieldDescriptionBuilder, mandatoryValueCellSource, bindingContext);
         }
 
 
@@ -837,10 +896,128 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         } catch (Exception e) {
             // If we have an exception here, it means that default value is wrong, we have already processed it.
         }
+    }
 
-        var field = new DatatypeOpenField(dataType, fieldName, fieldType, contextProperty, isTransient);
-        dataType.addField(field);
-        return field;
+    /**
+     * Reads the default value of the field: a constant, a native cell value or a value parsed from the cell text.
+     *
+     * @return the default value, or the cell text when the value is kept as it is written
+     */
+    private Object readDefaultValue(FieldDescriptionBuilder fieldDescriptionBuilder,
+                                    String fieldName,
+                                    IOpenClass fieldType,
+                                    ILogicalTable row,
+                                    int defaultColumnIndex,
+                                    GridCellSourceCodeModule defaultValueCellSource,
+                                    IBindingContext bindingContext) {
+        var defaultValueCode = defaultValueCellSource.getCode();
+        if (ParserUtils.isBlankOrCommented(defaultValueCode)) {
+            defaultValueCode = null;
+        }
+        Object defaultValue = defaultValueCode;
+        ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, defaultValueCode);
+        if (constantOpenField != null) {
+            defaultValue = constantOpenField.getValue();
+            fieldDescriptionBuilder.setDefaultValue(defaultValue);
+            fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
+            addConstantMetaInfo(defaultValueCellSource, constantOpenField, bindingContext);
+        } else {
+            fieldDescriptionBuilder.setDefaultValueAsString(defaultValueCode);
+            if (String.class != fieldType.getInstanceClass()) {
+                var theCellValue = row.getColumn(defaultColumnIndex).getCell(0, 0);
+                if (theCellValue.hasNativeType()) {
+                    defaultValue = loadNativeDefaultValue(theCellValue,
+                            defaultValueCode,
+                            fieldName,
+                            fieldType,
+                            defaultValueCellSource,
+                            bindingContext);
+                    if (defaultValue != null) {
+                        fieldDescriptionBuilder.setDefaultValue(defaultValue);
+                    }
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    private void addConstantMetaInfo(GridCellSourceCodeModule defaultValueCellSource,
+                                     ConstantOpenField constantOpenField,
+                                     IBindingContext bindingContext) {
+        if (!bindingContext.isExecutionMode()) {
+            var cell = defaultValueCellSource.getCell();
+            var metaInfoReader = tableSyntaxNode.getMetaInfoReader();
+            if (metaInfoReader instanceof BaseMetaInfoReader<?> reader) {
+                reader.addConstant(cell, constantOpenField);
+            }
+        }
+    }
+
+    /**
+     * Loads the default value from a cell of a native type. When the native value does not fit the field type, the
+     * cell text is parsed instead.
+     */
+    private Object loadNativeDefaultValue(ICell theCellValue,
+                                          String defaultValueCode,
+                                          String fieldName,
+                                          IOpenClass fieldType,
+                                          GridCellSourceCodeModule defaultValueCellSource,
+                                          IBindingContext bindingContext) {
+        var defaultValue = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
+        if (defaultValue == null && !DefaultValue.DEFAULT.equals(defaultValueCode)) {
+            if (fieldType.getInstanceClass() != null) {
+                try {
+                    defaultValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), defaultValueCode, bindingContext);
+                } catch (Exception e) {
+                    handleDefaultValueError(fieldName, fieldType, defaultValueCellSource, bindingContext);
+                }
+            } else if (StringUtils.isNotBlank(defaultValueCode)) {
+                handleDefaultValueError(fieldName, fieldType, defaultValueCellSource, bindingContext);
+            }
+        }
+        return defaultValue;
+    }
+
+    private void readExampleValue(FieldDescriptionBuilder fieldDescriptionBuilder,
+                                  String fieldName,
+                                  IOpenClass fieldType,
+                                  GridCellSourceCodeModule examplesValueCellSource,
+                                  @Nullable GridCellSourceCodeModule defaultValueCellSource,
+                                  IBindingContext bindingContext) {
+        var examplesValueCellSourceValue = examplesValueCellSource.getCode();
+        if (StringUtils.isNotBlank(examplesValueCellSourceValue)) {
+            if (fieldType.getInstanceClass() != null) {
+                try {
+                    Object exampleValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), examplesValueCellSourceValue.trim(), bindingContext);
+                    setExampleValue(fieldDescriptionBuilder,
+                            exampleValue,
+                            examplesValueCellSourceValue.trim(),
+                            fieldType,
+                            defaultValueCellSource,
+                            bindingContext);
+                } catch (Exception e) {
+                    handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
+                }
+            } else {
+                handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
+            }
+        }
+    }
+
+    private static void readMandatoryValue(FieldDescriptionBuilder fieldDescriptionBuilder,
+                                           GridCellSourceCodeModule mandatoryValueCellSource,
+                                           IBindingContext bindingContext) {
+        if (StringUtils.isNotBlank(mandatoryValueCellSource.getCode())) {
+            try {
+                Boolean mandatoryValue = String2DataConvertorFactory.parse(Boolean.class, mandatoryValueCellSource.getCode(), bindingContext);
+                if (mandatoryValue != null) {
+                    fieldDescriptionBuilder.setMandatoryValue(mandatoryValue);
+                }
+            } catch (Exception e) {
+                var errorMessage = "The provided value '%s' is not valid for the mandatory column. Please provide a valid value.".formatted(mandatoryValueCellSource.getCode().trim());
+                BindHelper.processError(errorMessage, mandatoryValueCellSource, bindingContext);
+            }
+        }
     }
 
     private static String extractFieldName(String fieldName) {
@@ -885,40 +1062,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             generatingInProcess = true;
             try {
                 if (parentClassName != null) {
-                    IOpenClass parentOpenClass;
-                    var parentBoundNode = getParentDatatypeTableBoundNode();
-                    if (parentBoundNode != null) {
-                        parentBoundNode.generateByteCode(bindingContext);
-                        parentOpenClass = parentBoundNode.getDataType();
-                    } else {
-                        parentOpenClass = bindingContext.findType(parentClassName);
-                    }
-                    if (parentOpenClass == null) {
-                        byteCodeReadyToLoad = true;
-                        throw new OpenLCompilationException(
-                                "Parent class '%s' is not found.".formatted(parentClassName));
-                    }
-
-                    if (parentOpenClass.getInstanceClass() != null) {// parent class has
-                        // errors
-                        if (Modifier.isFinal(parentOpenClass.getInstanceClass().getModifiers())) {
-                            throw new OpenLCompilationException(
-                                    "Cannot inherit from final class '%s'.".formatted(parentClassName));
-                        }
-                        try {
-                            parentOpenClass.getInstanceClass().getConstructor();
-                        } catch (NoSuchMethodException e) {
-                            throw new OpenLCompilationException(
-                                    "Cannot inherit from class '%s'. Default constructor is not found.".formatted(
-                                            parentClassName));
-                        }
-                    }
-
-                    if (parentOpenClass instanceof DomainOpenClass) {
-                        throw new OpenLCompilationException(
-                                "Parent class '%s' cannot be a domain type.".formatted(parentClassName));
-                    }
-                    dataType.setSuperClass(parentOpenClass);
+                    dataType.setSuperClass(resolveParentClass(bindingContext));
                 }
 
                 readFieldsAndGenerateByteCode(bindingContext);
@@ -927,6 +1071,46 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 generatingInProcess = false;
             }
         }
+    }
+
+    /**
+     * Finds the parent class, generating the parent datatype first, and checks that the datatype can extend it.
+     */
+    private IOpenClass resolveParentClass(IBindingContext bindingContext) throws Exception {
+        IOpenClass parentOpenClass;
+        var parentBoundNode = getParentDatatypeTableBoundNode();
+        if (parentBoundNode != null) {
+            parentBoundNode.generateByteCode(bindingContext);
+            parentOpenClass = parentBoundNode.getDataType();
+        } else {
+            parentOpenClass = bindingContext.findType(parentClassName);
+        }
+        if (parentOpenClass == null) {
+            byteCodeReadyToLoad = true;
+            throw new OpenLCompilationException(
+                    "Parent class '%s' is not found.".formatted(parentClassName));
+        }
+
+        if (parentOpenClass.getInstanceClass() != null) {// parent class has
+            // errors
+            if (Modifier.isFinal(parentOpenClass.getInstanceClass().getModifiers())) {
+                throw new OpenLCompilationException(
+                        "Cannot inherit from final class '%s'.".formatted(parentClassName));
+            }
+            try {
+                parentOpenClass.getInstanceClass().getConstructor();
+            } catch (NoSuchMethodException e) {
+                throw new OpenLCompilationException(
+                        "Cannot inherit from class '%s'. Default constructor is not found.".formatted(
+                                parentClassName));
+            }
+        }
+
+        if (parentOpenClass instanceof DomainOpenClass) {
+            throw new OpenLCompilationException(
+                    "Parent class '%s' cannot be a domain type.".formatted(parentClassName));
+        }
+        return parentOpenClass;
     }
 
     private void validateInheritedFieldsDuplication(final IBindingContext cxt) {

@@ -65,32 +65,35 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 return null;
             }
             var tName = typeName.substring(typeName.indexOf(".") + 1);
-            var t = buildDependencyVar(compiledDependency).getType().findType(tName);
-            if (t != null) {
-                return t;
-            }
-            if (additionalSearchTypesInModule != null) {
-                t = additionalSearchTypesInModule.getType(tName,
-                        compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
-            }
-            if (t != null) {
-                return t;
-            }
-            try {
-                t = JavaOpenClass.getOpenClass(compiledDependency.getClassLoader().loadClass(tName));
-                var x = compiledDependency.getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .findType(t.getInstanceClass().getSimpleName());
-                if (x != null && x.getInstanceClass() == t.getInstanceClass()) {
-                    return x;
-                }
-                return t;
-            } catch (ClassNotFoundException e) {
-                return null;
-            }
-
+            return findTypeInDependency(compiledDependency, tName);
         }
         return null;
+    }
+
+    private IOpenClass findTypeInDependency(CompiledDependency compiledDependency, String tName) {
+        var t = buildDependencyVar(compiledDependency).getType().findType(tName);
+        if (t != null) {
+            return t;
+        }
+        if (additionalSearchTypesInModule != null) {
+            t = additionalSearchTypesInModule.getType(tName,
+                    compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
+        }
+        if (t != null) {
+            return t;
+        }
+        try {
+            t = JavaOpenClass.getOpenClass(compiledDependency.getClassLoader().loadClass(tName));
+            var x = compiledDependency.getCompiledOpenClass()
+                    .getOpenClassWithErrors()
+                    .findType(t.getInstanceClass().getSimpleName());
+            if (x != null && x.getInstanceClass() == t.getInstanceClass()) {
+                return x;
+            }
+            return t;
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 
     private DependencyVar buildDependencyVar(CompiledDependency compiledDependency) {

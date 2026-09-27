@@ -23,6 +23,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IDependency;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.ProcessedCode;
 import org.openl.util.CollectionUtils;
 
@@ -91,61 +92,15 @@ public class OpenLCompileManager {
         var messages = new LinkedHashSet<OpenLMessage>();
 
         // compile source dependencies
-        var dependencies = new LinkedHashSet<ResolvedDependency>();
-        if (dependencyManager != null) {
-            var allDeps = new LinkedHashSet<IDependency>(Arrays.asList(parsedCode.getDependencies()));
-            allDeps.addAll(getExternalDependencies(source));
-            for (IDependency dependency : allDeps) {
-                try {
-                    dependencies.addAll(dependencyManager.resolveDependency(dependency, true));
-                } catch (OpenLCompilationException e) {
-                    allMessages.add(OpenLMessagesUtils.newErrorMessage(e));
-                }
-            }
-        }
+        var dependencies = resolveDependencies(source, parsedCode, dependencyManager, allMessages);
 
         var sortedResolvedDependencies = new ArrayList<ResolvedDependency>(dependencies);
         sortedResolvedDependencies.sort(COMP);
 
-        var compiledDependencies = new LinkedHashSet<CompiledDependency>();
-        if (CollectionUtils.isNotEmpty(sortedResolvedDependencies)) {
-            if (dependencyManager != null) {
-                for (ResolvedDependency dependency : sortedResolvedDependencies) {
-                    try {
-                        var loadedDependency = dependencyManager.loadDependency(dependency);
-                        var currentClassLoader = (OpenLClassLoader) Thread.currentThread()
-                                .getContextClassLoader();
-                        var dependencyClassLoader = loadedDependency.getClassLoader();
-                        if (dependencyClassLoader != currentClassLoader
-                                && !(dependencyClassLoader instanceof OpenLClassLoader loader
-                                && loader
-                                .containsClassLoader(currentClassLoader))) {
-
-                            currentClassLoader.addClassLoader(dependencyClassLoader);
-                        }
-                        compiledDependencies.add(loadedDependency);
-
-                        var compiledOpenClass = loadedDependency.getCompiledOpenClass();
-                        var openClass = compiledOpenClass.getOpenClassWithErrors();
-                        if (openClass instanceof ExtendableModuleOpenClass extendableModuleOpenClass) {
-                            extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
-                        }
-
-                        // Save
-                        // messages
-                        // from
-                        // dependencies
-                        allMessages.addAll(compiledOpenClass.getAllMessages());
-
-                    } catch (Exception e) {
-                        allMessages.addAll(OpenLMessagesUtils.newErrorMessages(e));
-                    }
-                }
-            } else {
-                allMessages.add(
-                        OpenLMessagesUtils.newErrorMessage("Cannot load dependencies. Dependency manager is not defined."));
-            }
-        }
+        var compiledDependencies = loadDependencies(sortedResolvedDependencies,
+                parsedCode,
+                dependencyManager,
+                allMessages);
 
         parsedCode.setCompiledDependencies(compiledDependencies);
 
@@ -153,20 +108,7 @@ public class OpenLCompileManager {
 
         if (externalParams != null) {
             parsedCode.setExternalParams(externalParams);
-            if (externalParams.containsKey(ADDITIONAL_WARN_MESSAGES_KEY)) {
-                @SuppressWarnings("unchecked")
-                var warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
-                for (String message : warnMessages) {
-                    messages.add(OpenLMessagesUtils.newWarnMessage(message));
-                }
-            }
-            if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
-                @SuppressWarnings("unchecked")
-                var errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
-                for (String message : errorMessage) {
-                    messages.add(OpenLMessagesUtils.newErrorMessage(message));
-                }
-            }
+            addExternalMessages(externalParams, messages);
         }
 
         var binder = openl.getBinder();
@@ -194,6 +136,99 @@ public class OpenLCompileManager {
         allMessages.addAll(messages);
 
         return new ProcessedCode(parsedCode, boundCode, allMessages, messages);
+    }
+
+    private Set<ResolvedDependency> resolveDependencies(IOpenSourceCodeModule source,
+                                                        IParsedCode parsedCode,
+                                                        IDependencyManager dependencyManager,
+                                                        Set<OpenLMessage> allMessages) {
+        var dependencies = new LinkedHashSet<ResolvedDependency>();
+        if (dependencyManager != null) {
+            var allDeps = new LinkedHashSet<IDependency>(Arrays.asList(parsedCode.getDependencies()));
+            allDeps.addAll(getExternalDependencies(source));
+            for (IDependency dependency : allDeps) {
+                try {
+                    dependencies.addAll(dependencyManager.resolveDependency(dependency, true));
+                } catch (OpenLCompilationException e) {
+                    allMessages.add(OpenLMessagesUtils.newErrorMessage(e));
+                }
+            }
+        }
+        return dependencies;
+    }
+
+    private static Set<CompiledDependency> loadDependencies(List<ResolvedDependency> sortedResolvedDependencies,
+                                                            IParsedCode parsedCode,
+                                                            IDependencyManager dependencyManager,
+                                                            Set<OpenLMessage> allMessages) {
+        var compiledDependencies = new LinkedHashSet<CompiledDependency>();
+        if (CollectionUtils.isNotEmpty(sortedResolvedDependencies)) {
+            if (dependencyManager != null) {
+                for (ResolvedDependency dependency : sortedResolvedDependencies) {
+                    try {
+                        loadDependency(dependency, parsedCode, dependencyManager, compiledDependencies, allMessages);
+                    } catch (Exception e) {
+                        allMessages.addAll(OpenLMessagesUtils.newErrorMessages(e));
+                    }
+                }
+            } else {
+                allMessages.add(
+                        OpenLMessagesUtils.newErrorMessage("Cannot load dependencies. Dependency manager is not defined."));
+            }
+        }
+        return compiledDependencies;
+    }
+
+    /**
+     * Loads the dependency, adds its class loader to the current one, applies it to the parsed code and keeps its
+     * messages.
+     */
+    private static void loadDependency(ResolvedDependency dependency,
+                                       IParsedCode parsedCode,
+                                       IDependencyManager dependencyManager,
+                                       Set<CompiledDependency> compiledDependencies,
+                                       Set<OpenLMessage> allMessages) throws OpenLCompilationException {
+        var loadedDependency = dependencyManager.loadDependency(dependency);
+        var currentClassLoader = (OpenLClassLoader) Thread.currentThread()
+                .getContextClassLoader();
+        var dependencyClassLoader = loadedDependency.getClassLoader();
+        if (dependencyClassLoader != currentClassLoader
+                && !(dependencyClassLoader instanceof OpenLClassLoader loader
+                && loader
+                .containsClassLoader(currentClassLoader))) {
+
+            currentClassLoader.addClassLoader(dependencyClassLoader);
+        }
+        compiledDependencies.add(loadedDependency);
+
+        var compiledOpenClass = loadedDependency.getCompiledOpenClass();
+        var openClass = compiledOpenClass.getOpenClassWithErrors();
+        if (openClass instanceof ExtendableModuleOpenClass extendableModuleOpenClass) {
+            extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
+        }
+
+        // Save
+        // messages
+        // from
+        // dependencies
+        allMessages.addAll(compiledOpenClass.getAllMessages());
+    }
+
+    private static void addExternalMessages(Map<String, Object> externalParams, Set<OpenLMessage> messages) {
+        if (externalParams.containsKey(ADDITIONAL_WARN_MESSAGES_KEY)) {
+            @SuppressWarnings("unchecked")
+            var warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
+            for (String message : warnMessages) {
+                messages.add(OpenLMessagesUtils.newWarnMessage(message));
+            }
+        }
+        if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
+            @SuppressWarnings("unchecked")
+            var errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
+            for (String message : errorMessage) {
+                messages.add(OpenLMessagesUtils.newErrorMessage(message));
+            }
+        }
     }
 
     private Collection<OpenLMessage> clearOpenLMessagesForExecutionMode(Collection<OpenLMessage> messages) {

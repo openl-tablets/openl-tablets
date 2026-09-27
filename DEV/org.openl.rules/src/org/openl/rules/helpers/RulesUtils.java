@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
 import org.openl.binding.impl.cast.MethodSearchTuner;
 import org.openl.binding.impl.cast.VOID;
@@ -3046,16 +3047,7 @@ public final class RulesUtils {
             return null;
         }
         var addAllMethodDetails = (AddAllMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
-        var totalLength = 0;
-        for (var i = 0; i < arrays.length; i++) {
-            if (!addAllMethodDetails.getParamsAsElement()[i]) {
-                if (arrays[i] != null) {
-                    totalLength = totalLength + Array.getLength(arrays[i]);
-                }
-            } else {
-                totalLength++;
-            }
-        }
+        var totalLength = getTotalLength(arrays, addAllMethodDetails);
         Object result = Array.newInstance(addAllMethodDetails.getType().getComponentClass().getInstanceClass(),
                 totalLength);
         var p = 0;
@@ -3066,17 +3058,39 @@ public final class RulesUtils {
                     for (var j = 0; j < length; j++) {
                         var openCast = addAllMethodDetails.getOpenCasts()[i];
                         Object v = Array.get(arrays[i], j);
-                        Array.set(result, p, openCast != null ? openCast.convert(v) : v);
+                        Array.set(result, p, castElement(openCast, v));
                         p++;
                     }
                 }
             } else {
                 var openCast = addAllMethodDetails.getOpenCasts()[i];
-                Array.set(result, p, openCast != null ? openCast.convert(arrays[i]) : arrays[i]);
+                Array.set(result, p, castElement(openCast, arrays[i]));
                 p++;
             }
         }
         return result;
+    }
+
+    /**
+     * Counts the elements of the joined array: all elements of an array argument and one for an argument added as an
+     * element.
+     */
+    private static int getTotalLength(Object[] arrays, AddAllMethodDetails addAllMethodDetails) {
+        var totalLength = 0;
+        for (var i = 0; i < arrays.length; i++) {
+            if (!addAllMethodDetails.getParamsAsElement()[i]) {
+                if (arrays[i] != null) {
+                    totalLength = totalLength + Array.getLength(arrays[i]);
+                }
+            } else {
+                totalLength++;
+            }
+        }
+        return totalLength;
+    }
+
+    private static Object castElement(IOpenCast openCast, Object value) {
+        return openCast != null ? openCast.convert(value) : value;
     }
 
     @MethodSearchTuner(wrapper = AddAllMethodCallerWrapper.class, methodFilter = AddAllMethodFilter.class)

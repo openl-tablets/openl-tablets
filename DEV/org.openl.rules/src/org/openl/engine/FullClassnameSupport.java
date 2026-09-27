@@ -47,59 +47,10 @@ class FullClassnameSupport {
             return;
         }
         if ("local.var.declaration".equals(syntaxNode.getType())) {
-            if ("identifier".equals(syntaxNode.getChild(1).getType())) {
-                localVariables.put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
-            } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())) {
-                localVariables.put(syntaxNode.getChild(1).getChild(0).getText(),
-                        syntaxNode.getChild(0).getChild(0).getText());
-            } else {
-                throw new IllegalStateException("Unsupported syntax node type");
-            }
+            addLocalVariable(syntaxNode, localVariables);
         } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
             try {
-                var identifierChain = getIdentifierChain(syntaxNode);
-                var variableName = identifierChain.getFirst().getText();
-                var variableType = localVariables.get(variableName);
-                var varTypeLength = 0;
-                if (variableType != null) {
-                    varTypeLength = calcTypeLength(identifierChain, bindingContext, variableType);
-                    if (varTypeLength == identifierChain.size()) {
-                        return;
-                    }
-                }
-                var varNameLength = calcVarLength(identifierChain, bindingContext, variableName);
-                if (varNameLength == identifierChain.size()) {
-                    return;
-                }
-                var fullClassName = new StringBuilder();
-                String[] fullClassNames = new String[identifierChain.size()];
-                for (var j = 0; j < identifierChain.size(); j++) {
-                    var syntaxNode1 = identifierChain.get(j);
-                    if (!fullClassName.isEmpty()) {
-                        fullClassName.append(".");
-                    }
-                    fullClassName.append(syntaxNode1.getText());
-                    fullClassNames[j] = fullClassName.toString();
-                }
-                var j = identifierChain.size() - 1;
-                while (j >= 0 && j + 1 > varTypeLength && j + 1 > varNameLength) {
-                    var type = bindingContext.findType(fullClassNames[j]);
-                    if (type != null) {
-                        var originalFullClassName = new StringBuilder();
-                        for (var k = 0; k < j + 1; k++) {
-                            var syntaxNode1 = identifierChain.get(k);
-                            if (!originalFullClassName.isEmpty()) {
-                                originalFullClassName.append(".");
-                            }
-                            originalFullClassName.append(
-                                    syntaxNode1 instanceof IdentifierNode in ? in.getOriginalText()
-                                            : syntaxNode1.getText());
-                        }
-                        updateSyntaxNode(syntaxNode, identifierChain, originalFullClassName.toString(), j);
-                        break;
-                    }
-                    j--;
-                }
+                replaceChainWithFullClassName(syntaxNode, bindingContext, localVariables);
             } catch (IdentifierChainException e) {
                 var n = syntaxNode.getNumberOfChildren();
                 for (var i = 0; i < n; i++) {
@@ -112,6 +63,77 @@ class FullClassnameSupport {
                 rec(syntaxNode.getChild(i), bindingContext, localVariables);
             }
         }
+    }
+
+    private static void addLocalVariable(ISyntaxNode syntaxNode, Map<String, String> localVariables) {
+        if ("identifier".equals(syntaxNode.getChild(1).getType())) {
+            localVariables.put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
+        } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())) {
+            localVariables.put(syntaxNode.getChild(1).getChild(0).getText(),
+                    syntaxNode.getChild(0).getChild(0).getText());
+        } else {
+            throw new IllegalStateException("Unsupported syntax node type");
+        }
+    }
+
+    /**
+     * Replaces the longest leading part of the identifier chain that names a type with one identifier holding the full
+     * class name. Only a part longer than what a local variable or a field of the first name resolves is replaced.
+     */
+    private static void replaceChainWithFullClassName(ISyntaxNode syntaxNode,
+                                                      IBindingContext bindingContext,
+                                                      Map<String, String> localVariables)
+            throws IdentifierChainException {
+        var identifierChain = getIdentifierChain(syntaxNode);
+        var variableName = identifierChain.getFirst().getText();
+        var variableType = localVariables.get(variableName);
+        var varTypeLength = 0;
+        if (variableType != null) {
+            varTypeLength = calcTypeLength(identifierChain, bindingContext, variableType);
+            if (varTypeLength == identifierChain.size()) {
+                return;
+            }
+        }
+        var varNameLength = calcVarLength(identifierChain, bindingContext, variableName);
+        if (varNameLength == identifierChain.size()) {
+            return;
+        }
+        var fullClassName = new StringBuilder();
+        String[] fullClassNames = new String[identifierChain.size()];
+        for (var j = 0; j < identifierChain.size(); j++) {
+            var syntaxNode1 = identifierChain.get(j);
+            if (!fullClassName.isEmpty()) {
+                fullClassName.append(".");
+            }
+            fullClassName.append(syntaxNode1.getText());
+            fullClassNames[j] = fullClassName.toString();
+        }
+        var j = identifierChain.size() - 1;
+        while (j >= 0 && j + 1 > varTypeLength && j + 1 > varNameLength) {
+            var type = bindingContext.findType(fullClassNames[j]);
+            if (type != null) {
+                updateSyntaxNode(syntaxNode, identifierChain, getOriginalFullClassName(identifierChain, j), j);
+                break;
+            }
+            j--;
+        }
+    }
+
+    /**
+     * Joins the original texts of the chain elements up to the given index with dots.
+     */
+    private static String getOriginalFullClassName(List<ISyntaxNode> identifierChain, int j) {
+        var originalFullClassName = new StringBuilder();
+        for (var k = 0; k < j + 1; k++) {
+            var syntaxNode1 = identifierChain.get(k);
+            if (!originalFullClassName.isEmpty()) {
+                originalFullClassName.append(".");
+            }
+            originalFullClassName.append(
+                    syntaxNode1 instanceof IdentifierNode in ? in.getOriginalText()
+                            : syntaxNode1.getText());
+        }
+        return originalFullClassName.toString();
     }
 
     /**

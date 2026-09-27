@@ -174,15 +174,7 @@ public class RowParser implements IRowParser {
                 // ignore
             } else {
                 // has some operation
-                if (!label.isEmpty()) {
-                    lastNode.addLabel(label);
-                } else {
-                    // if no labels at all
-                    if (lastNode.getLabels().isEmpty()) {
-                        // add this empty label anyway
-                        lastNode.addLabel(label);
-                    }
-                }
+                addOperationLabel(lastNode, label);
 
                 lastNode.setAlgorithmRow(row);
                 nodes.add(lastNode);
@@ -195,6 +187,18 @@ public class RowParser implements IRowParser {
         }
 
         return nodes;
+    }
+
+    private static void addOperationLabel(AlgorithmTreeNode lastNode, StringValue label) {
+        if (!label.isEmpty()) {
+            lastNode.addLabel(label);
+        } else {
+            // if no labels at all
+            if (lastNode.getLabels().isEmpty()) {
+                // add this empty label anyway
+                lastNode.addLabel(label);
+            }
+        }
     }
 
     private TableParserSpecificationBean validateRow(AlgorithmRow row,

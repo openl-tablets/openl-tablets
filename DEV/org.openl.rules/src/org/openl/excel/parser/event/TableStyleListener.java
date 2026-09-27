@@ -158,17 +158,7 @@ public class TableStyleListener implements HSSFListener {
                 palette = (PaletteRecord) rec;
                 break;
             case FormulaRecord.sid: // Cell value from a formula
-                if (isNeededSheet()) {
-                    var r = (FormulaRecord) rec;
-                    var row = r.getRow();
-                    short column = r.getColumn();
-
-                    if (IGridRegion.Tool.contains(tableRegion, column, row)) {
-                        currentFormula = (FormulaRecord) rec;
-                        // Don't forget to save style index
-                        saveStyleIndex(r, row, column);
-                    }
-                }
+                processFormulaRecord(rec);
                 break;
             case SSTRecord.sid, // Holds all the strings for LabelSSTRecords
                  BoolErrRecord.sid,
@@ -177,15 +167,7 @@ public class TableStyleListener implements HSSFListener {
                  NumberRecord.sid, // Numeric cell value
                  RKRecord.sid, // Excel internal number record
                  BlankRecord.sid:
-                if (isNeededSheet()) {
-                    var r = (CellValueRecordInterface) rec;
-                    var row = r.getRow();
-                    short column = r.getColumn();
-
-                    if (IGridRegion.Tool.contains(tableRegion, column, row)) {
-                        saveStyleIndex(r, row, column);
-                    }
-                }
+                processCellValueRecord(rec);
 
                 break;
             case NoteRecord.sid, ContinueRecord.sid, ObjRecord.sid, TextObjectRecord.sid, DrawingRecord.sid:
@@ -196,6 +178,32 @@ public class TableStyleListener implements HSSFListener {
             default:
                 // other records carry no style
                 break;
+        }
+    }
+
+    private void processFormulaRecord(Record rec) {
+        if (isNeededSheet()) {
+            var r = (FormulaRecord) rec;
+            var row = r.getRow();
+            short column = r.getColumn();
+
+            if (IGridRegion.Tool.contains(tableRegion, column, row)) {
+                currentFormula = (FormulaRecord) rec;
+                // Don't forget to save style index
+                saveStyleIndex(r, row, column);
+            }
+        }
+    }
+
+    private void processCellValueRecord(Record rec) {
+        if (isNeededSheet()) {
+            var r = (CellValueRecordInterface) rec;
+            var row = r.getRow();
+            short column = r.getColumn();
+
+            if (IGridRegion.Tool.contains(tableRegion, column, row)) {
+                saveStyleIndex(r, row, column);
+            }
         }
     }
 

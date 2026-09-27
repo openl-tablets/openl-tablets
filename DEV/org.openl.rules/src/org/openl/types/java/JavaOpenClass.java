@@ -370,23 +370,31 @@ public class JavaOpenClass extends AOpenClass {
                 if (candidateField.getType() == JavaOpenClass.CLASS) {
                     continue;
                 }
-                final var fieldName = candidateField.getName();
-                final var origField = fields.get(fieldName);
-                if (origField == null) {
-                    fields.put(fieldName, candidateField);
-                } else {
-                    if (origField.getType().equals(candidateField.getType())) {
-                        // we assume that IOpenField always have read or write method
-                        if (!origField.isWritable() && candidateField.isWritable()) {
-                            fields.put(fieldName, new OpenFieldCombiner(origField, candidateField));
-                        } else if (!origField.isReadable() && candidateField.isReadable()) {
-                            fields.put(fieldName, new OpenFieldCombiner(candidateField, origField));
-                        }
-                    }
-                }
+                addSuperClassField(fields, candidateField);
             }
         }
         return fields.values();
+    }
+
+    /**
+     * Adds the field of a super class. A field of the same name and type that only reads or only writes the value is
+     * combined with it.
+     */
+    private static void addSuperClassField(Map<String, IOpenField> fields, IOpenField candidateField) {
+        final var fieldName = candidateField.getName();
+        final var origField = fields.get(fieldName);
+        if (origField == null) {
+            fields.put(fieldName, candidateField);
+        } else {
+            if (origField.getType().equals(candidateField.getType())) {
+                // we assume that IOpenField always have read or write method
+                if (!origField.isWritable() && candidateField.isWritable()) {
+                    fields.put(fieldName, new OpenFieldCombiner(origField, candidateField));
+                } else if (!origField.isReadable() && candidateField.isReadable()) {
+                    fields.put(fieldName, new OpenFieldCombiner(candidateField, origField));
+                }
+            }
+        }
     }
 
     private static class JavaArrayLengthField extends ArrayLengthOpenField {

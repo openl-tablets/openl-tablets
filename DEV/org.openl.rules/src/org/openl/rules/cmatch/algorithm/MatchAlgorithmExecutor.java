@@ -23,21 +23,7 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
             // find matching result value from left to right
             for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
-                boolean success = true;
-                // check that all children are MATCH at resultIndex element
-                List<MatchNode> children = line.getChildren();
-                for (MatchNode node : children) {
-                    Argument arg = node.getArgument();
-                    Object actualValue = arg.extractValue(target, params, env);
-                    IMatcher matcher = node.getMatcher();
-                    Object checkValue = node.getCheckValues()[resultIndex];
-                    if (!matcher.match(actualValue, checkValue)) {
-                        success = false;
-                        break;
-                    }
-                }
-
-                if (success) {
+                if (isMatch(line, resultIndex, target, params, env)) {
                     Object result = returnValues[resultIndex];
                     for (MatchNode node : line.getChildren()) {
                         env.getTracer().put(this, "match", target, node, resultIndex, null);
@@ -48,5 +34,26 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
         }
         return NO_MATCH;
+    }
+
+    /**
+     * Checks that all children of the line match their check values at the given result index.
+     */
+    private static boolean isMatch(MatchNode line,
+                                   int resultIndex,
+                                   ColumnMatch target,
+                                   Object[] params,
+                                   IRuntimeEnv env) {
+        List<MatchNode> children = line.getChildren();
+        for (MatchNode node : children) {
+            Argument arg = node.getArgument();
+            Object actualValue = arg.extractValue(target, params, env);
+            IMatcher matcher = node.getMatcher();
+            Object checkValue = node.getCheckValues()[resultIndex];
+            if (!matcher.match(actualValue, checkValue)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -381,6 +381,27 @@ public class TypeResolver implements INameSpacedTypeFactory {
             foundTypes.add(cls);
         }
 
+        var cls2 = findInPackages(name);
+        if (cls2 != NullOpenClass.the) {
+            foundTypes.add(cls2);
+        }
+
+        switch (foundTypes.size()) {
+            case 0:
+                return null;
+            case 1:
+                return foundTypes.iterator().next();
+            default:
+                throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
+        }
+    }
+
+    /**
+     * Finds the type by its simple name among the aliases or in the imported packages.
+     *
+     * @return the found type, or {@link NullOpenClass#the} when none is found
+     */
+    private IOpenClass findInPackages(String name) {
         var cls2 = aliases.get(name);
         if (cls2 == null) {
             for (var pckg : packages) {
@@ -394,19 +415,7 @@ public class TypeResolver implements INameSpacedTypeFactory {
             }
             aliases.put(name, cls2);
         }
-
-        if (cls2 != NullOpenClass.the) {
-            foundTypes.add(cls2);
-        }
-
-        switch (foundTypes.size()) {
-            case 0:
-                return null;
-            case 1:
-                return foundTypes.iterator().next();
-            default:
-                throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
-        }
+        return cls2;
     }
 
     private static IOpenClass loadClass(ClassLoader classLoader, String fullName) {

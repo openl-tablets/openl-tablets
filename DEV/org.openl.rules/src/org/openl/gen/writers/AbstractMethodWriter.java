@@ -80,16 +80,24 @@ public class AbstractMethodWriter implements BeanByteCodeWriter {
                 if (value.getClass().isArray()) {
                     for (int i = 0; i < Array.getLength(value); i++) {
                         Object elem = Array.get(value, i);
-                        arrV.visit(null, property.isType() ? Type.getType((String) elem) : elem);
+                        arrV.visit(null, toAnnotationValue(property, elem));
                     }
                 } else {
-                    arrV.visit(null, property.isType() ? Type.getType((String) value) : value);
+                    arrV.visit(null, toAnnotationValue(property, value));
                 }
                 arrV.visitEnd();
             } else {
-                av.visit(property.getName(), property.isType() ? Type.getType((String) value) : value);
+                av.visit(property.getName(), toAnnotationValue(property, value));
             }
         }
+    }
+
+    /**
+     * Returns the value to write for the property: a class given by its type descriptor becomes an ASM type, other
+     * values stay as they are.
+     */
+    private static Object toAnnotationValue(AnnotationDescription.AnnotationProperty property, Object value) {
+        return property.isType() ? Type.getType((String) value) : value;
     }
 
     private void visitMethodParameters(MethodVisitor mv) {
