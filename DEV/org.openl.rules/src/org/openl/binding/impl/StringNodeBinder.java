@@ -56,7 +56,8 @@ public class StringNodeBinder extends ANodeBinder {
 
         var buf = new StringBuilder(len);
 
-        for (var i = 1; i < len - 1; i++) {
+        var i = 1;
+        while (i < len - 1) {
             var c = s.charAt(i);
             if (c == '\\') {
                 ++i;
@@ -101,7 +102,8 @@ public class StringNodeBinder extends ANodeBinder {
             } else {
                 buf.append(c);
             }
-        } // end for
+            i++;
+        } // end while
 
         return new LiteralBoundNode(node, buf.toString(), JavaOpenClass.STRING);
     }

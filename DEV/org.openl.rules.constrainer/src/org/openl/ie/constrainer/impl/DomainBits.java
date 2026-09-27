@@ -90,7 +90,8 @@ public final class DomainBits extends DomainImpl {
 
     String printIntervals() {
         var buf = new StringBuilder();
-        for (var i = _min; i <= _max; ) {
+        var i = _min;
+        while (i <= _max) {
             if (i != _min) {
                 buf.append(" ");
             }

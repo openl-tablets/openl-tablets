@@ -330,12 +330,14 @@ public class AlgorithmCompiler {
 
     private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess, IBindingContext bindingContext) {
         // process nodes by groups of linked nodes
-        for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
-            linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
+        var i = 0;
+        while (i < nodesToProcess.size()) {
+            var linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
             var linkedNodesGroup = nodesToProcess.subList(i, i + linkedNodesGroupSize);
 
             precompileLinkedNodesGroup(linkedNodesGroup, bindingContext);
+            i += linkedNodesGroupSize;
         }
     }
 

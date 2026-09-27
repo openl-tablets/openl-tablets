@@ -19,7 +19,8 @@ public class UnmergeByColumnsAction implements IUndoableGridTableAction {
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
         for (var row = region.getTop(); row <= region.getBottom(); row++) {
-            for (var column = region.getLeft(); column < region.getRight(); column++) {
+            var column = region.getLeft();
+            while (column < region.getRight()) {
                 var mergedRegion = grid.getRegionStartingAt(column, row);
                 if (mergedRegion != null && IGridRegion.Tool.width(mergedRegion) > 1) {
                     grid.removeMergedRegion(mergedRegion);
@@ -28,6 +29,7 @@ public class UnmergeByColumnsAction implements IUndoableGridTableAction {
                     }
                     column = mergedRegion.getRight();
                 }
+                column++;
             }
         }
     }

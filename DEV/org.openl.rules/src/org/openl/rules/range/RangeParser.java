@@ -164,13 +164,13 @@ public class RangeParser {
 
                     if (ch2 == '>') {
                         // swap the order
-                        i = first;
+                        var swap = first;
                         first = first2;
-                        first2 = i;
+                        first2 = swap;
 
-                        i = last;
+                        swap = last;
                         last = last2;
-                        last2 = i;
+                        last2 = swap;
                     }
 
                     switch (type) {

@@ -205,7 +205,8 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
             var tokens = new ArrayList<String>();
             var literal = new StringBuilder();
             var derivable = true;
-            for (var i = 0; i < regexp.length(); i++) {
+            var i = 0;
+            while (i < regexp.length()) {
                 var c = regexp.charAt(i);
                 if (c == '\\' && i + 1 < regexp.length()) {
                     var escaped = regexp.charAt(++i);
@@ -234,6 +235,7 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
                         literal.append(c);
                     }
                 }
+                i++;
             }
             if (!literal.isEmpty()) {
                 tokens.add(literal.toString());

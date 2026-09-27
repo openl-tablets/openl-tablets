@@ -57,7 +57,8 @@ public class AlgoritmNodesCompiler {
                                                       IBindingContext bindingContext) {
         final var emittedOperations = new ArrayList<RuntimeOperation>();
         // process nodes by groups of linked nodes
-        for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
+        var i = 0;
+        while (i < nodesToProcess.size()) {
             if (hasUnreachableCode(nodesToProcess, i)) {
                 var errorSource = nodesToProcess.get(i + 1)
                         .getAlgorithmRow()
@@ -68,10 +69,11 @@ public class AlgoritmNodesCompiler {
                         bindingContext);
             }
 
-            linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
+            var linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
             final var nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
             emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile, bindingContext));
+            i += linkedNodesGroupSize;
         }
 
         return emittedOperations;

@@ -255,9 +255,9 @@ public class LogicalTableHelper {
         int[] columnOffset = new int[width + 1];
         var offset = 0;
 
-        for (int i = 0, cellWidth; i < width; offset += cellWidth, ++i) {
+        for (var i = 0; i < width; ++i) {
             columnOffset[i] = offset;
-            cellWidth = gt.getCell(offset, 0).getWidth();
+            offset += gt.getCell(offset, 0).getWidth();
         }
 
         columnOffset[width] = offset; // last+1 column offset is needed to determine last column's width
@@ -268,9 +268,9 @@ public class LogicalTableHelper {
         int[] rowOffset = new int[height + 1];
         var offset = 0;
 
-        for (int i = 0, cellHeight; i < height; offset += cellHeight, ++i) {
+        for (var i = 0; i < height; ++i) {
             rowOffset[i] = offset;
-            cellHeight = gt.getCell(0, offset).getHeight();
+            offset += gt.getCell(0, offset).getHeight();
         }
         rowOffset[height] = offset;
         return rowOffset;

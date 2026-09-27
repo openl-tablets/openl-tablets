@@ -93,8 +93,9 @@ public class ReturnAnalyzer {
 
     private SuitablityAsReturn analyzeSequence(List<AlgorithmTreeNode> nodesToAnalyze, IBindingContext bindingContext) {
         var result = SuitablityAsReturn.RETURN;
-        for (int i = 0, linkedNodesGroupSize; i < nodesToAnalyze.size(); i += linkedNodesGroupSize) {
-            linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToAnalyze, i);
+        var i = 0;
+        while (i < nodesToAnalyze.size()) {
+            var linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToAnalyze, i);
 
             if (linkedNodesGroupSize == 1) {
                 result = analyzeNode(nodesToAnalyze.get(i), bindingContext);
@@ -122,6 +123,7 @@ public class ReturnAnalyzer {
                         errorSource,
                         bindingContext);
             }
+            i += linkedNodesGroupSize;
         }
         return result;
     }

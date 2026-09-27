@@ -85,7 +85,8 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         var stackSize = c.getStackSize();
 
         var ruleArray = new IntExpArray(c, rules.length - nRemoved);
-        for (int i = 0, r = 0; i < rules.length; i++) {
+        var r = 0;
+        for (var i = 0; i < rules.length; i++) {
             if (!removed[i]) {
                 ruleArray.set(rules[i], r++);
             }

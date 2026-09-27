@@ -52,7 +52,8 @@ public class ArtefactPathImpl implements ArtefactPath {
     protected void appendToSegments(String pathAsString) {
         var len = pathAsString.length();
         var pos = 0;
-        for (var end = 0; end < len; ) {
+        var end = 0;
+        while (end < len) {
             end = pathAsString.indexOf(SEGMENT_DELIMITER, pos);
             if (end < 0) {
                 end = len;
