@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.SequencedMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,7 +24,7 @@ class WrapperBeanClassBuilder extends JavaBeanClassBuilder {
     }
 
     public JavaBeanClassBuilder setOriginalMethodTypeFields(
-            LinkedHashMap<String, FieldDescription> originalMethodTypeFields) {
+            SequencedMap<String, FieldDescription> originalMethodTypeFields) {
         if (originalMethodTypeFields != null) {
             this.originalMethodTypeFields.clear();
             this.originalMethodTypeFields.putAll(originalMethodTypeFields);
