@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { GroupItem, GroupList } from '../types/group'
 import { apiCall } from '../services'
 import { UserGroupType } from '../constants'
@@ -70,8 +70,10 @@ export const GroupsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         await fetchGroups()
     }, [fetchGroups])
 
+    const value = useMemo(() => ({ groups, loading, error, reloadGroups }), [groups, loading, error, reloadGroups])
+
     return (
-        <GroupsContext.Provider value={{ groups, loading, error, reloadGroups }}>
+        <GroupsContext.Provider value={value}>
             {children}
         </GroupsContext.Provider>
     )
