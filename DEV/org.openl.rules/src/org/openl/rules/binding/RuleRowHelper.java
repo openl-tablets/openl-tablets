@@ -649,7 +649,7 @@ public final class RuleRowHelper {
                 }
             }
             // For backward compatibility
-            while (values.size() > 0 && values.getLast() == EMPTY_CELL) {
+            while (!values.isEmpty() && values.getLast() == EMPTY_CELL) {
                 values.removeLast();
             }
             for (var i = 0; i < values.size(); i++) {
@@ -696,7 +696,7 @@ public final class RuleRowHelper {
                     values.add(values1);
                 }
             }
-            while (values.size() > 0 && values.getLast() == EMPTY_ROW) {
+            while (!values.isEmpty() && values.getLast() == EMPTY_ROW) {
                 values.removeLast();
             }
             for (var i = 0; i < values.size(); i++) {

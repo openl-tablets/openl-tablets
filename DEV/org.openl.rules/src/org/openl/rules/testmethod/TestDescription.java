@@ -225,7 +225,7 @@ public class TestDescription {
      * @return true or false
      */
     public boolean isEmptyOrNewStyleErrorDescription() {
-        return errorFields
-                .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.getFirst().getName()));
+        return errorFields.isEmpty()
+                || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.getFirst().getName()));
     }
 }

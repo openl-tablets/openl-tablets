@@ -222,7 +222,7 @@ public class OpenAPIJavaClassGenerator {
         if (runtimeCtxParam != null) {
             MethodParameterBuilder ctxBuilder = MethodParameterBuilder.create(runtimeCtxParam.getType().getJavaName());
             final var paramName = runtimeCtxParam.getFormattedName();
-            if (sprModel.getParameters().size() > 0 && !DEFAULT_RUNTIME_CTX_PARAM_NAME.equals(paramName)) {
+            if (!sprModel.getParameters().isEmpty() && !DEFAULT_RUNTIME_CTX_PARAM_NAME.equals(paramName)) {
                 ctxBuilder.addAnnotation(
                         AnnotationDescriptionBuilder.create(Name.class).withProperty(VALUE, paramName).build());
             }
