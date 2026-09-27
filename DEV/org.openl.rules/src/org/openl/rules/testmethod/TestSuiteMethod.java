@@ -43,7 +43,7 @@ import org.openl.vm.IRuntimeEnv;
 public class TestSuiteMethod extends ExecutableRulesMethod {
 
     private static final String PRECISION_PARAM = "precision";
-    private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s[-]\\s");
+    private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s-\\s");
     @Getter
     @Setter
     private IOpenMethod testedMethod;
