@@ -813,6 +813,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     private final IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
 
+    @Override
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return isComponentSpecificOpenClass(this, componentOpenClass, getModule(), cache);
     }

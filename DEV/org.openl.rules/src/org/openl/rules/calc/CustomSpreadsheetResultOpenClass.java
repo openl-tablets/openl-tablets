@@ -211,6 +211,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return Set.of(getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes());
     }
 
+    @Override
     protected IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
         return null;
     }

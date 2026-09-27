@@ -105,6 +105,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
         return res != null ? res : super.findVar(namespace, name, strictMatch);
     }
 
+    @Override
     protected IOpenClass findOpenClass(IOpenClass openClass) {
         if (openClass == null) {
             return null;

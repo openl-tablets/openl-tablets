@@ -180,6 +180,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
     private final IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
 
+    @Override
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return RulesModuleBindingContext
                 .isComponentSpecificOpenClass(this, componentOpenClass, xlsModuleOpenClass, cache);
