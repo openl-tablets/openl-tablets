@@ -25,7 +25,7 @@ export const useScript = (src: string | string[] | undefined) => {
             scripts.forEach(scriptSrc => {
                 const existingScript = document.querySelector(`script[src="${scriptSrc}"]`)
                 if (existingScript) {
-                    document.body.removeChild(existingScript)
+                    existingScript.remove()
                 }
             })
         }
