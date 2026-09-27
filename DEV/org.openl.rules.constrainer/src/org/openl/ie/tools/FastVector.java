@@ -54,11 +54,7 @@ public final class FastVector implements Serializable {
     }
 
     public void addElement(Object obj) {
-        if (m_size == m_data.length) {
-            grow();
-        }
-
-        m_data[m_size++] = obj;
+        add(obj);
     }
 
     public void clear() {

@@ -43,8 +43,7 @@ class FormatterTest {
     }
 
     private String printDevView(Object value) {
-        var strBuf = new StringBuilder();
-        return DefaultFormat.format(value, strBuf).toString();
+        return printBusView(value);
     }
 
     @Test

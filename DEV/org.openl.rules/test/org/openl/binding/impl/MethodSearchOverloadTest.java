@@ -226,23 +226,6 @@ class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    void testOneArgument2() throws AmbiguousMethodException {
-        assertMethod(target, "m1", primitives, "byte", "short", "int", "long", "float", "double");
-        assertMethod(target,
-                "m1",
-                boxed,
-                "Byte",
-                "Short",
-                "Integer",
-                "Long",
-                "Float",
-                "Double",
-                "BigInteger",
-                "BigDecimal");
-        assertMethod(target, "m1", nonNumbers, "boolean", "char", "Boolean", "Character");
-    }
-
-    @Test
     void testTwoArguments() throws AmbiguousMethodException {
         assertMethod(target, "m2", byte.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target,

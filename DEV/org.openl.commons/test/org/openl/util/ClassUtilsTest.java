@@ -301,7 +301,7 @@ class ClassUtilsTest {
         }
 
         public void setY(Number e) {
-            this.e = e;
+            setX(e);
         }
 
         public void setZ(double e) {

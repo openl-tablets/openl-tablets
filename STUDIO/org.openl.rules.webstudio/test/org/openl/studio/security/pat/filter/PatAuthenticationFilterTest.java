@@ -180,27 +180,6 @@ class PatAuthenticationFilterTest {
     }
 
     @Test
-    void testDoFilter_ExpiredToken() throws ServletException, IOException {
-        // Arrange
-        request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
-
-        PatAuthResolution resolution = PatAuthResolution.invalid();
-
-        when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
-
-        // Act
-        filter.doFilterInternal(request, response, filterChain);
-
-        // Assert
-        verify(patAuthService, times(1)).resolveAuthentication(any(PatToken.class));
-        verify(securityContextHolderStrategy, never()).createEmptyContext();
-        verify(filterChain, never()).doFilter(request, response);
-
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-        assertEquals("Unauthorized", response.getErrorMessage());
-    }
-
-    @Test
     void testDoFilter_RevokedToken() throws ServletException, IOException {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);

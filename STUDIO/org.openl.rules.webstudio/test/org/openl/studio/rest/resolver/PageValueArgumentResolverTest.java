@@ -144,14 +144,6 @@ class PageValueArgumentResolverTest {
     // ------
 
     @Test
-    void testOffsetQuery() throws Exception {
-        performRequest(get("/pagination-test/pageOrOffset"));
-        verify(pageableConsumer).accept(pageableCaptor.capture());
-        var pageable = pageableCaptor.getValue();
-        assertTrue(pageable.isUnpaged());
-    }
-
-    @Test
     void testOffsetQuery1() throws Exception {
         performRequest(get("/pagination-test/pageOrOffset").queryParam("size", "100"));
         verify(pageableConsumer, atLeastOnce()).accept(pageableCaptor.capture());

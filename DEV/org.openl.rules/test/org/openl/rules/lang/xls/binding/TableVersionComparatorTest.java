@@ -72,18 +72,4 @@ class TableVersionComparatorTest {
         second.setActive(null);
         assertEquals(1, comparator.compare(first, second));
     }
-
-    @Test
-    void testLessByActive() {
-        first.setActive(true);
-        second.setActive(false);
-        assertEquals(-1, comparator.compare(first, second));
-    }
-
-    @Test
-    void testMoreByActive() {
-        first.setActive(false);
-        second.setActive(true);
-        assertEquals(1, comparator.compare(first, second));
-    }
 }

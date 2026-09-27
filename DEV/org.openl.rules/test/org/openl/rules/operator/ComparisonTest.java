@@ -744,25 +744,25 @@ class ComparisonTest {
 
     @Test
     void testCharSequenceGt() {
-        assertFalse(Comparison.string_gt("aaa111aaa", "aaa111aaa"));
-        assertFalse(Comparison.string_gt("11", "11"));
-        assertFalse(Comparison.string_gt(null, null));
-        assertFalse(Comparison.string_gt(null, "some"));
-        assertTrue(Comparison.string_gt("aaa222aaa", "aaa111aaa"));
-        assertTrue(Comparison.string_gt("b", "a"));
-        assertTrue(Comparison.string_gt("a11b22", "a11b3"));
+        assertFalse(Comparison.string_gt((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
+        assertFalse(Comparison.string_gt((CharSequence) "11", (CharSequence) "11"));
+        assertFalse(Comparison.string_gt((CharSequence) null, (CharSequence) null));
+        assertFalse(Comparison.string_gt((CharSequence) null, "some"));
+        assertTrue(Comparison.string_gt((CharSequence) "aaa222aaa", (CharSequence) "aaa111aaa"));
+        assertTrue(Comparison.string_gt((CharSequence) "b", (CharSequence) "a"));
+        assertTrue(Comparison.string_gt((CharSequence) "a11b22", (CharSequence) "a11b3"));
     }
 
     @Test
     void testCharSequenceGe() {
-        assertTrue(Comparison.string_ge("aaa111aaa", "aaa111aaa"));
-        assertTrue(Comparison.string_ge("11", "11"));
-        assertTrue(Comparison.string_ge(null, null));
-        assertTrue(Comparison.string_ge("some", null));
-        assertFalse(Comparison.string_ge(null, "some"));
-        assertTrue(Comparison.string_ge("aaa222aaa", "aaa111aaa"));
-        assertTrue(Comparison.string_ge("b", "a"));
-        assertTrue(Comparison.string_ge("a11b22", "a11b3"));
+        assertTrue(Comparison.string_ge((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
+        assertTrue(Comparison.string_ge((CharSequence) "11", (CharSequence) "11"));
+        assertTrue(Comparison.string_ge((CharSequence) null, (CharSequence) null));
+        assertTrue(Comparison.string_ge("some", (CharSequence) null));
+        assertFalse(Comparison.string_ge((CharSequence) null, "some"));
+        assertTrue(Comparison.string_ge((CharSequence) "aaa222aaa", (CharSequence) "aaa111aaa"));
+        assertTrue(Comparison.string_ge((CharSequence) "b", (CharSequence) "a"));
+        assertTrue(Comparison.string_ge((CharSequence) "a11b22", (CharSequence) "a11b3"));
     }
 
 }

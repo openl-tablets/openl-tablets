@@ -371,7 +371,7 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses() throws Exception {
-        var enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
+        var enhancedClass = createService(TestWithOperationNotAnnotatedByApiResponsesInterface.class);
         var someMethod = enhancedClass.getMethod("someMethod", String.class);
         var apiResponsesAnnotationExists = false;
         for (Annotation annotation : someMethod.getAnnotations()) {

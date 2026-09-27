@@ -297,9 +297,7 @@ public final class Constrainer implements Serializable {
      * Adds an internal constrained integer variable to the Constrainer.
      */
     IntVar addIntVarInternal(IntVar intVar) {
-        _intvars.addElement(intVar);
-        addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        return intVar;
+        return addIntVar(intVar);
     }
 
     /**
