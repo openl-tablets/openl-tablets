@@ -14,6 +14,8 @@ import lombok.Getter;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.range.Range;
 
+// A parameter that is not read selects the overload by its type: the engine resolves casts and distances by signature.
+@SuppressWarnings("java:S1172")
 public class DateRange extends Range<Date> {
 
     private static final int TO_DATE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;

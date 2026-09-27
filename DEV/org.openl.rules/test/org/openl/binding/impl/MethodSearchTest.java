@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.binding.exception.AmbiguousMethodException;
 
+// The fixture methods exist only to be found by overload resolution, so they never read their parameters.
+@SuppressWarnings("java:S1172")
 class MethodSearchTest extends AbstractMethodSearchTest {
 
     @Test

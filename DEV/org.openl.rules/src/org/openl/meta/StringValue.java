@@ -15,6 +15,8 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.ArrayTool;
 
+// A parameter that is not read selects the overload by its type: the engine resolves casts by signature.
+@SuppressWarnings("java:S1172")
 @XmlRootElement
 @XmlJavaTypeAdapter(StringValueAdapter.class)
 @Slf4j

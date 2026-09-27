@@ -10,6 +10,8 @@ import org.openl.binding.impl.NumericStringComparator;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.range.Range;
 
+// A parameter that is not read selects the overload by its type: the engine resolves casts and distances by signature.
+@SuppressWarnings("java:S1172")
 @XmlRootElement
 public class StringRange extends Range<CharSequence> {
 
