@@ -20,13 +20,10 @@ public class AlgoritmNodesCompiler {
     private final ParameterConverterManager parameterConverter;
     private final OperationFactory operationFactory;
 
-    private final List<OperationAnalyzer> operationAnalyzers = new ArrayList<>();
-
-    {
-        operationAnalyzers.add(new CommonOperations());
-        operationAnalyzers.add(new NotCompileOperations());
-        operationAnalyzers.add(new NotCheckLabelOperations());
-    }
+    private final List<OperationAnalyzer> operationAnalyzers = List.of(
+            new CommonOperations(),
+            new NotCompileOperations(),
+            new NotCheckLabelOperations());
 
     /**
      * Create an instance of <code>AlgoritmNodesCompiler</code>.

@@ -2,7 +2,6 @@ package org.openl.rules.tbasic.compile;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -62,18 +61,14 @@ public class AlgorithmCompiler {
 
     private IBindingContext thisContext;
 
-    private final Map<String, OperationPreprocessor> operationPreprocessors = new HashMap<>();
+    private final Map<String, OperationPreprocessor> operationPreprocessors = Map.of(
+            OperationType.COMPILE.toString(), new CompilePreprocessor(),
+            OperationType.DECLARE.toString(), new DeclarePreprocessor(),
+            OperationType.DECLARE_ARRAY_ELEMENT.toString(), new DeclareArrayElementPreprocessor(),
+            OperationType.SUBROUTINE.toString(), new DeclareSubroutinePreprocessor(),
+            OperationType.FUNCTION.toString(), new DeclareFunctionPreprocessor());
 
     private final Stack<Collection<IOpenField>> variablesStack = new Stack<>();
-
-    {
-        operationPreprocessors.put(OperationType.COMPILE.toString(), new CompilePreprocessor());
-        operationPreprocessors.put(OperationType.DECLARE.toString(), new DeclarePreprocessor());
-        operationPreprocessors.put(OperationType.DECLARE_ARRAY_ELEMENT.toString(),
-                new DeclareArrayElementPreprocessor());
-        operationPreprocessors.put(OperationType.SUBROUTINE.toString(), new DeclareSubroutinePreprocessor());
-        operationPreprocessors.put(OperationType.FUNCTION.toString(), new DeclareFunctionPreprocessor());
-    }
 
     /***************************************************************************
      * Main logic

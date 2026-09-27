@@ -1,5 +1,3 @@
-#if ($validatorsDefinitions.size() > 0)
-    {
 #foreach( $validatorsDefinition in $validatorsDefinitions )
 #foreach( $validatorClass in $validatorsDefinition.ValidatorClasses )
 #if ( ${tool.hasConstructorWithoutParams($validatorClass)} )
@@ -12,5 +10,3 @@
         //WARNING failed to process "${validatorClass.Name}" validator.
 #end
 #end#end
-    }
-#end

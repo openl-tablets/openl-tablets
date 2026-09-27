@@ -3,18 +3,14 @@ package org.openl.rules.convertor;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class String2InstantConverter implements IString2DataConvertor<Instant> {
 
-    private final List<DateTimeFormatter> supportedFormats = new ArrayList<>();
-
-    {
-        supportedFormats.add(DateTimeFormatter.ISO_INSTANT);
-        supportedFormats.add(DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a VV", Locale.US));
-    }
+    private final List<DateTimeFormatter> supportedFormats = List.of(
+            DateTimeFormatter.ISO_INSTANT,
+            DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a VV", Locale.US));
 
     @Override
     public Instant parse(String data, String format) {

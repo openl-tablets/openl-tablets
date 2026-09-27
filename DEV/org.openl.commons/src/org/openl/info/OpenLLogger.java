@@ -15,12 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class OpenLLogger {
-    private final Logger logger;
-
-    {
-        var name = getName();
-        logger = LoggerFactory.getLogger("OpenL." + name);
-    }
+    private final Logger logger = LoggerFactory.getLogger("OpenL." + getName());
 
     protected abstract String getName();
 

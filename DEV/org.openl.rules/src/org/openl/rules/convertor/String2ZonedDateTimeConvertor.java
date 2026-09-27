@@ -3,18 +3,14 @@ package org.openl.rules.convertor;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class String2ZonedDateTimeConvertor implements IString2DataConvertor<ZonedDateTime> {
 
-    private final List<DateTimeFormatter> supportedFormats = new ArrayList<>();
-
-    {
-        supportedFormats.add(DateTimeFormatter.ISO_DATE_TIME);
-        supportedFormats.add(DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a VV", Locale.US));
-    }
+    private final List<DateTimeFormatter> supportedFormats = List.of(
+            DateTimeFormatter.ISO_DATE_TIME,
+            DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a VV", Locale.US));
 
     @Override
     public ZonedDateTime parse(String data, String format) {

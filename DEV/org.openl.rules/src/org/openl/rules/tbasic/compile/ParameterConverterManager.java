@@ -1,6 +1,5 @@
 package org.openl.rules.tbasic.compile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,13 +25,10 @@ public class ParameterConverterManager {
 
     private final LabelManager labelManager;
 
-    private final Map<Class<?>, ParameterConverter> parameterConverters = new HashMap<>();
-
-    {
-        parameterConverters.put(String.class, new StringConverter());
-        parameterConverters.put(boolean.class, new BooleanConverter());
-        parameterConverters.put(IMethodCaller.class, new MethodCallerConverter());
-    }
+    private final Map<Class<?>, ParameterConverter> parameterConverters = Map.of(
+            String.class, new StringConverter(),
+            boolean.class, new BooleanConverter(),
+            IMethodCaller.class, new MethodCallerConverter());
 
     public ParameterConverterManager(AlgorithmCompiler compiler, IOpenClass returnType) {
         this.compiler = compiler;
