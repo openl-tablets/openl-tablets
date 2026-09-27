@@ -103,7 +103,7 @@ public class FlattenParameterExport extends BaseParameterExport {
                 }
                 tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), fieldValue, styles.parameterValue));
             }
-            if (skipEmptyParameters && emptyRow) {
+            if (Boolean.TRUE.equals(skipEmptyParameters) && emptyRow) {
                 return rowNum;
             }
             performWrite(sheet, start, tasks, colNum - 1);

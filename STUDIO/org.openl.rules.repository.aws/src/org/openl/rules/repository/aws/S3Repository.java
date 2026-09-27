@@ -185,7 +185,7 @@ public class S3Repository implements Repository, Closeable {
                     }
                 }
 
-                if (response.isTruncated()) {
+                if (Boolean.TRUE.equals(response.isTruncated())) {
                     request.keyMarker(response.nextKeyMarker());
                     request.versionIdMarker(response.nextVersionIdMarker());
                 } else {
@@ -234,7 +234,7 @@ public class S3Repository implements Repository, Closeable {
                         return createFileData(deleteMarker);
                     }
                 }
-                if (response.isTruncated()) {
+                if (Boolean.TRUE.equals(response.isTruncated())) {
                     request.keyMarker(response.nextKeyMarker());
                     request.versionIdMarker(response.nextVersionIdMarker());
                 } else {
@@ -397,7 +397,7 @@ public class S3Repository implements Repository, Closeable {
                         result.add(createFileData(deleteMarkers));
                     }
                 }
-                if (response.isTruncated()) {
+                if (Boolean.TRUE.equals(response.isTruncated())) {
                     request.keyMarker(response.nextKeyMarker());
                     request.versionIdMarker(response.nextVersionIdMarker());
                 } else {
@@ -428,7 +428,7 @@ public class S3Repository implements Repository, Closeable {
                         return createFileData(deleteMarkers);
                     }
                 }
-                if (response.isTruncated()) {
+                if (Boolean.TRUE.equals(response.isTruncated())) {
                     request.keyMarker(response.nextKeyMarker());
                     request.versionIdMarker(response.nextVersionIdMarker());
                 } else {
@@ -454,7 +454,7 @@ public class S3Repository implements Repository, Closeable {
                                 new DrainableInputStream(doRead(name, version)));
                     }
                 }
-                if (response.isTruncated()) {
+                if (Boolean.TRUE.equals(response.isTruncated())) {
                     request.keyMarker(response.nextKeyMarker());
                     request.versionIdMarker(response.nextVersionIdMarker());
                 } else {
@@ -561,7 +561,7 @@ public class S3Repository implements Repository, Closeable {
                 s3.deleteObjects(it -> it.bucket(bucketName).delete(d -> d.objects(versions)));
             }
 
-            if (response.isTruncated()) {
+            if (Boolean.TRUE.equals(response.isTruncated())) {
                 listVersionsRequest.keyMarker(response.nextKeyMarker());
                 listVersionsRequest.versionIdMarker(response.nextVersionIdMarker());
             } else {

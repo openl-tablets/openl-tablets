@@ -77,7 +77,7 @@ import org.openl.util.StringUtils;
 public class UsersController {
 
     private final UserManagementService userManagementService;
-    private final Boolean canCreateInternalUsers;
+    private final boolean canCreateInternalUsers;
     private final AdminUsers adminUsersInitializer;
     private final CurrentUserInfo currentUserInfo;
     private final BeanValidationProvider validationProvider;

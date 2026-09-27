@@ -71,7 +71,7 @@ class FieldDescriptor {
                 var fieldName = newPath + (fieldValue != null ? fieldValue.toString() : "null");
                 if (!coveredFields.contains(fieldName)) {
                     coveredFields.add(fieldName);
-                    if (!skipEmptyParameters || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
+                    if (!Boolean.TRUE.equals(skipEmptyParameters) || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
                         if (fieldValue instanceof Collection<?> collection) {
                             fieldType = CastToWiderType.defineCollectionWiderType(collection);
                         }

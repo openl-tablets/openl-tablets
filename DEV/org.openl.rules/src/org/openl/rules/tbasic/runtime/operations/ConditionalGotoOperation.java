@@ -41,7 +41,7 @@ public class ConditionalGotoOperation extends GotoOperation {
     public Result execute(TBasicContextHolderEnv environment, Object param) {
         Objects.requireNonNull(param, "param cannot be null");
 
-        var condition = (Boolean) param;
+        var condition = (boolean) param;
         Result result;
 
         if (condition == expectedCondition) {

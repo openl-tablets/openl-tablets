@@ -276,7 +276,7 @@ public class AzureBlobRepository implements Repository {
     public FileData check(String name) throws IOException {
         try {
             final var client = blobContainerClient.getBlobClient(CONTENT_PREFIX + name);
-            if (client.exists()) {
+            if (Boolean.TRUE.equals(client.exists())) {
                 // File
                 return createFileDataForFile(name, null, client);
             } else {
@@ -292,7 +292,7 @@ public class AzureBlobRepository implements Repository {
     public FileItem read(String name) throws IOException {
         try {
             final var client = blobContainerClient.getBlobClient(CONTENT_PREFIX + name);
-            if (client.exists()) {
+            if (Boolean.TRUE.equals(client.exists())) {
                 return new FileItem(name, client.openInputStream()) {
                     private FileData lazyData;
 
@@ -609,7 +609,7 @@ public class AzureBlobRepository implements Repository {
 
     private void onModified() {
         var client = blobContainerClient.getBlobClient(MODIFICATION_FILE);
-        if (client.exists()) {
+        if (Boolean.TRUE.equals(client.exists())) {
             client.delete();
         }
         client.upload(BinaryData.fromBytes(new byte[0]));
@@ -770,7 +770,7 @@ public class AzureBlobRepository implements Repository {
         do {
             commitName = commitName.substring(0, commitName.lastIndexOf("/"));
             var client = blobContainerClient.getBlobVersionClient(VERSIONS_PREFIX + commitName + "/" + VERSION_FILE, version);
-            if (client.exists()) {
+            if (Boolean.TRUE.equals(client.exists())) {
                 return client;
             }
         } while (commitName.contains("/"));

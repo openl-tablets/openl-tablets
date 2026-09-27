@@ -44,10 +44,10 @@ public final class TableVersionComparator implements Comparator<ITableProperties
     @Override
     public int compare(ITableProperties first, ITableProperties second) {
         boolean firstActive = first.getActive() == null || first.getActive();
-        Boolean secondActive = second.getActive() == null || second.getActive();
+        boolean secondActive = second.getActive() == null || second.getActive();
 
         if (firstActive != secondActive) {
-            return secondActive.compareTo(firstActive);
+            return Boolean.compare(secondActive, firstActive);
         }
         // Case when both tables have the same active status
         //
