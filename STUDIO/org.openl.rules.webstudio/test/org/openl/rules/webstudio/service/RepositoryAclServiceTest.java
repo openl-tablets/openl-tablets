@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
@@ -81,52 +83,21 @@ class RepositoryAclServiceTest {
         assertNotNull(designRepositoryAclService);
     }
 
-    @Test
+    @ParameterizedTest(name = "WRITE granted on {1}")
+    @CsvSource({"repoId1, /projectName1/rules/module1.xlsx", "repoId2, /projectName1/rules"})
     @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
     @Transactional
     @Rollback
-    void permissionChecking() {
+    void permissionChecking(String repositoryId, String grantedPath) {
         var mockUser = setAdminAuthenticationToContext();
-        designRepositoryAclService.addPermissions("repoId1",
-                "/projectName1/rules/module1.xlsx",
-                List.of(BasePermission.WRITE),
-                List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
-
-        SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(
-                designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
-    }
-
-    @Test
-    @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
-    @Transactional
-    @Rollback
-    void permissionMaskChecking() {
-        var mockUser = setAdminAuthenticationToContext();
-        designRepositoryAclService.addPermissions("repoId2",
-                "/projectName1/rules",
+        designRepositoryAclService.addPermissions(repositoryId,
+                grantedPath,
                 List.of(BasePermission.WRITE),
                 List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         assertTrue(designRepositoryAclService
-                .isGranted("repoId2", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
-    }
-
-    @Test
-    @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
-    @Transactional
-    @Rollback
-    void permissionInheritanceChecking() {
-        var mockUser = setAdminAuthenticationToContext();
-        designRepositoryAclService.addPermissions("repoId2",
-                "/projectName1/rules",
-                List.of(BasePermission.WRITE),
-                List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
-
-        SecurityContextHolder.getContext().setAuthentication(mockUser);
-        assertTrue(
-                designRepositoryAclService.isGranted("repoId2", "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
+                .isGranted(repositoryId, "/projectName1/rules/module1.xlsx", List.of(BasePermission.WRITE)));
     }
 
     @Test

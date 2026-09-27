@@ -7,6 +7,8 @@ import java.util.Date;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.util.Dates;
@@ -26,34 +28,15 @@ class DatesDiffOpenLTest {
     }
 
     // ------------Testing via Openl-------------------
-    @Test
-    void testViaRule1() throws Exception {
-        var startDate = getDate("01/01/1969");
+    @ParameterizedTest(name = "{0} to 02/08/2010 is {1} days")
+    @CsvSource({"01/01/1969, 15188", "01/01/1960, 18476", "01/01/1970, 14823"})
+    void testViaRule(String start, int expectedDiff) throws Exception {
+        var startDate = getDate(start);
 
         var endDate = getDate("02/08/2010");
 
         var diff = instance.dateCount(startDate, endDate);
-        assertEquals(15188, diff);
-    }
-
-    @Test
-    void testViaRule2() throws Exception {
-        var startDate = getDate("01/01/1960");
-
-        var endDate = getDate("02/08/2010");
-
-        var diff = instance.dateCount(startDate, endDate);
-        assertEquals(18476, diff);
-    }
-
-    @Test
-    void testViaRule3() throws Exception {
-        var startDate = getDate("01/01/1970");
-
-        var endDate = getDate("02/08/2010");
-
-        var diff = instance.dateCount(startDate, endDate);
-        assertEquals(14823, diff);
+        assertEquals(expectedDiff, diff);
     }
 
     @Test

@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class SyncVersionsMojoTest {
 
@@ -30,11 +32,17 @@ class SyncVersionsMojoTest {
         assertFalse(result.content().contains("99.99.99"));
     }
 
-    @Test
-    void leavesUnmanagedCoordinateUntouched() {
-        var xml = "<mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact>";
-
-        var result = SyncVersionsMojo.sync(xml, Map.of("com.example.domain:core", "0.0.0"), Map.of());
+    @ParameterizedTest(name = "{0} with {1}:{2} managed")
+    @CsvSource(delimiter = '|', textBlock = """
+            # unmanaged coordinate
+            <mavenArtifact>org.apache.commons:commons-text:jar:1.15.0</mavenArtifact> | com.example.domain:core | 0.0.0
+            # already in sync
+            <mavenArtifact>com.example:lib:jar:2.0.0</mavenArtifact>                  | com.example:lib         | 2.0.0
+            # malformed coordinate
+            <mavenArtifact>not-a-coordinate</mavenArtifact>                           | whatever                | 1.0.0
+            """)
+    void leavesContentUntouched(String xml, String managedArtifact, String managedVersion) {
+        var result = SyncVersionsMojo.sync(xml, Map.of(managedArtifact, managedVersion), Map.of());
 
         assertEquals(0, result.changed());
         assertEquals(xml, result.content());
@@ -61,16 +69,6 @@ class SyncVersionsMojoTest {
     }
 
     @Test
-    void doesNotRewriteWhenAlreadyInSync() {
-        var xml = "<mavenArtifact>com.example:lib:jar:2.0.0</mavenArtifact>";
-
-        var result = SyncVersionsMojo.sync(xml, Map.of("com.example:lib", "2.0.0"), Map.of());
-
-        assertEquals(0, result.changed());
-        assertEquals(xml, result.content());
-    }
-
-    @Test
     void syncsOnlyManagedEntriesAmongMany() {
         var xml = """
                 <dependencies>
@@ -90,16 +88,6 @@ class SyncVersionsMojoTest {
         assertTrue(result.content().contains("com.example:lib:jar:2.0.0"));
         assertTrue(result.content().contains("org.apache.commons:commons-text:jar:1.15.0"),
                 "an unmanaged entry sandwiched between managed ones must survive verbatim");
-    }
-
-    @Test
-    void ignoresMalformedCoordinate() {
-        var xml = "<mavenArtifact>not-a-coordinate</mavenArtifact>";
-
-        var result = SyncVersionsMojo.sync(xml, Map.of("whatever", "1.0.0"), Map.of());
-
-        assertEquals(0, result.changed());
-        assertEquals(xml, result.content());
     }
 
     @Test

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class CommonVersionImplTest {
 
@@ -27,60 +29,11 @@ class CommonVersionImplTest {
         assertEquals(version2, version1);
     }
 
-    @Test
-    void testCompareToRevision() {
-        var version1 = new CommonVersionImpl("2.3.0");
-        var version2 = new CommonVersionImpl("2.3.1");
-        assertEquals(-1, version1.compareTo(version2));
-        assertEquals(1, version2.compareTo(version1));
-        assertNotEquals(version1, version2);
-        assertNotEquals(version2, version1);
-    }
-
-    @Test
-    void testCompareToRevision2() {
-        var version1 = new CommonVersionImpl("2.4.0");
-        var version2 = new CommonVersionImpl("2.3.1");
-        assertEquals(-1, version1.compareTo(version2));
-        assertEquals(1, version2.compareTo(version1));
-        assertNotEquals(version1, version2);
-        assertNotEquals(version2, version1);
-    }
-
-    @Test
-    void testCompareToRevision3() {
-        var version1 = new CommonVersionImpl("2.3.0");
-        var version2 = new CommonVersionImpl("2.4.1");
-        assertEquals(-1, version1.compareTo(version2));
-        assertEquals(1, version2.compareTo(version1));
-        assertNotEquals(version1, version2);
-        assertNotEquals(version2, version1);
-    }
-
-    @Test
-    void testCompareToMinor() {
-        var version1 = new CommonVersionImpl("2.3.2");
-        var version2 = new CommonVersionImpl("2.4.1");
-        assertEquals(-1, version1.compareTo(version2));
-        assertEquals(1, version2.compareTo(version1));
-        assertNotEquals(version1, version2);
-        assertNotEquals(version2, version1);
-    }
-
-    @Test
-    void testCompareToMinor2() {
-        var version1 = new CommonVersionImpl("2.4.2");
-        var version2 = new CommonVersionImpl("2.3.1");
-        assertEquals(1, version1.compareTo(version2));
-        assertEquals(-1, version2.compareTo(version1));
-        assertNotEquals(version1, version2);
-        assertNotEquals(version2, version1);
-    }
-
-    @Test
-    void testCompareToMajor() {
-        var version1 = new CommonVersionImpl("1.3.2");
-        var version2 = new CommonVersionImpl("2.4.1");
+    @ParameterizedTest(name = "{0} < {1}")
+    @CsvSource({"2.3.0, 2.3.1", "2.4.0, 2.3.1", "2.3.0, 2.4.1", "2.3.2, 2.4.1", "2.3.1, 2.4.2", "1.3.2, 2.4.1"})
+    void testCompareTo(String lower, String higher) {
+        var version1 = new CommonVersionImpl(lower);
+        var version2 = new CommonVersionImpl(higher);
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
         assertNotEquals(version1, version2);

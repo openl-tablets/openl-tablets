@@ -25,6 +25,8 @@ import jakarta.ws.rs.Produces;
 import groovy.lang.GroovyClassLoader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -47,9 +49,12 @@ class OpenAPIGroovyScriptGeneratorTest {
         groovyClassLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
     }
 
-    @Test
-    void testOpenAPIEmpty() throws Exception {
-        var projectModel = converter.extractProjectModel("test.converter/paths/openapiNothingToGenerate.yaml");
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"test.converter/paths/openapiNothingToGenerate.yaml",
+            "test.converter/paths/openapi_defaultContext.json",
+            "test.converter/problems/openapi_EPBDS-10993.json"})
+    void testNothingToGenerate(String openApiFile) throws Exception {
+        var projectModel = converter.extractProjectModel(openApiFile);
 
         var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         assertNull(generated.getAnnotationTemplateGroovyFile());
@@ -361,24 +366,6 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
         assertEquals("param0", method1.getParameters()[0].getAnnotation(Name.class).value());
         assertEquals(0, method1.getParameters()[1].getAnnotations().length);
-    }
-
-    @Test
-    void test_mustNotGenerateInterface() throws Exception {
-        var projectModel = converter.extractProjectModel("test.converter/paths/openapi_defaultContext.json");
-
-        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        assertNull(generated.getAnnotationTemplateGroovyFile());
-        assertTrue(generated.getGroovyCommonClasses().isEmpty());
-    }
-
-    @Test
-    void test_DataTables() throws Exception {
-        var projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
-
-        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        assertNull(generated.getAnnotationTemplateGroovyFile());
-        assertTrue(generated.getGroovyCommonClasses().isEmpty());
     }
 
     @Test

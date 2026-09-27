@@ -16,6 +16,9 @@ import java.util.stream.IntStream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -259,29 +262,32 @@ class FieldProjectionResponseBodyAdviceTest {
         assertEquals(0, body.size());
     }
 
-    @Test
-    void rejectsMalformedFieldsOnEmptyProjectableList() throws Exception {
-        // Empty result set must not silence input validation -- the same request must fail the same
-        // way whether the list has zero or many elements.
-        var result = mockMvc.perform(get("/projection-test/list-empty").param("fields", "id(")).andReturn();
+    @ParameterizedTest(name = "fields={1} on {0}")
+    @CsvSource(delimiter = '|', textBlock = """
+            # Empty result set must not silence input validation -- the same request must fail the same
+            # way whether the list has zero or many elements.
+            /projection-test/list-empty | id(
+            /projection-test/single     | id,name)
+            /projection-test/single     | id,owner(login
+            /projection-test/single     | id,(name)
+            """)
+    void rejectsMalformedFields(String url, String fields) throws Exception {
+        var result = mockMvc.perform(get(url).param("fields", fields)).andReturn();
         assertEquals(400, result.getResponse().getStatus());
         var error = (BadRequestException) result.getResolvedException();
         assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
     }
 
-    @Test
-    void leafSelectionWinsOverLaterPartial() throws Exception {
-        // owner selected as leaf first, then a sub-selection on the same name -> owner is kept whole.
-        var body = json(get("/projection-test/single").param("fields", "owner,owner(login)"));
-        var owner = body.get("owner");
-        assertEquals("login-1", owner.get("login").asText());
-        assertEquals("1@example.com", owner.get("email").asText());
-    }
-
-    @Test
-    void leafSelectionWinsOverEarlierPartial() throws Exception {
-        // Partial first, then leaf on the same name -> owner upgrades to whole.
-        var body = json(get("/projection-test/single").param("fields", "owner(login),owner"));
+    @ParameterizedTest(name = "fields={0}")
+    @ValueSource(strings = {
+            // owner selected as leaf first, then a sub-selection on the same name -> owner is kept whole.
+            "owner,owner(login)",
+            // Partial first, then leaf on the same name -> owner upgrades to whole.
+            "owner(login),owner",
+            // 'owner(login),owner(email)' merges via getOrAdd into a single owner{login,email} subtree.
+            "owner(login),owner(email)"})
+    void repeatedSelectionsOfOwnerKeepLoginAndEmail(String fields) throws Exception {
+        var body = json(get("/projection-test/single").param("fields", fields));
         var owner = body.get("owner");
         assertEquals("login-1", owner.get("login").asText());
         assertEquals("1@example.com", owner.get("email").asText());
@@ -344,30 +350,6 @@ class FieldProjectionResponseBodyAdviceTest {
     }
 
     @Test
-    void rejectsUnmatchedClosingParen() throws Exception {
-        var result = mockMvc.perform(get("/projection-test/single").param("fields", "id,name)")).andReturn();
-        assertEquals(400, result.getResponse().getStatus());
-        var error = (BadRequestException) result.getResolvedException();
-        assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
-    }
-
-    @Test
-    void rejectsUnclosedOpeningParen() throws Exception {
-        var result = mockMvc.perform(get("/projection-test/single").param("fields", "id,owner(login")).andReturn();
-        assertEquals(400, result.getResponse().getStatus());
-        var error = (BadRequestException) result.getResolvedException();
-        assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
-    }
-
-    @Test
-    void rejectsGroupWithoutPrecedingName() throws Exception {
-        var result = mockMvc.perform(get("/projection-test/single").param("fields", "id,(name)")).andReturn();
-        assertEquals(400, result.getResponse().getStatus());
-        var error = (BadRequestException) result.getResolvedException();
-        assertEquals("openl.error.400.fields.malformed.message", error.getErrorCode());
-    }
-
-    @Test
     void acceptsEmptyFieldsBetweenCommas() throws Exception {
         // cosmetic noise is forgiven
         var body = json(get("/projection-test/single").param("fields", "id,,name"));
@@ -381,15 +363,6 @@ class FieldProjectionResponseBodyAdviceTest {
         assertEquals("1", body.get("id").asText());
         assertEquals("name-1", body.get("name").asText());
         assertFalse(body.has("status"));
-    }
-
-    @Test
-    void mergesRepeatedNestedSelections() throws Exception {
-        // 'owner(login),owner(email)' merges via getOrAdd into a single owner{login,email} subtree.
-        var body = json(get("/projection-test/single").param("fields", "owner(login),owner(email)"));
-        var owner = body.get("owner");
-        assertEquals("login-1", owner.get("login").asText());
-        assertEquals("1@example.com", owner.get("email").asText());
     }
 
     private JsonNode json(RequestBuilder request) throws Exception {
