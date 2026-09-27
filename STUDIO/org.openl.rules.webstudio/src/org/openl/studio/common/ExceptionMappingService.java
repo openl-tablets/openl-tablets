@@ -181,6 +181,9 @@ public class ExceptionMappingService {
         }
         if (error.getCodes() != null) {
             for (String code : error.getCodes()) {
+                if (code == null) {
+                    continue;
+                }
                 try {
                     return messageSource.getMessage(buildErrorCode(code), error.getArguments(), Locale.US);
                 } catch (NoSuchMessageException ignored) {

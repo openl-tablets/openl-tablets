@@ -228,12 +228,13 @@ public final class StompTester implements AutoCloseable {
         @Override
         @Nullable
         public Message<?> toMessage(Object payload, @Nullable MessageHeaders headers) {
+            var messageHeaders = headers != null ? headers : new MessageHeaders(null);
             if (payload instanceof String str) {
                 return new org.springframework.messaging.support.GenericMessage<>(
-                        str.getBytes(StandardCharsets.UTF_8), headers);
+                        str.getBytes(StandardCharsets.UTF_8), messageHeaders);
             }
             if (payload instanceof byte[]) {
-                return new org.springframework.messaging.support.GenericMessage<>(payload, headers);
+                return new org.springframework.messaging.support.GenericMessage<>(payload, messageHeaders);
             }
             return null;
         }
