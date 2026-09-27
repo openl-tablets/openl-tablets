@@ -8,9 +8,9 @@ export const THEME_MODE_KEY = 'openl.theme.mode'
 /** The appearance follows the operating system until the user picks light or dark. */
 export const DEFAULT_THEME_MODE: ThemeMode = 'auto'
 
-const THEME_MODES: readonly ThemeMode[] = ['auto', 'light', 'dark']
+const THEME_MODES: ReadonlySet<ThemeMode> = new Set(['auto', 'light', 'dark'])
 
-const isThemeMode = (value: string | null): value is ThemeMode => THEME_MODES.includes(value as ThemeMode)
+const isThemeMode = (value: string | null): value is ThemeMode => THEME_MODES.has(value as ThemeMode)
 
 /**
  * The remembered appearance.

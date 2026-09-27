@@ -96,9 +96,9 @@ const dateOf = (text: string) => {
  * <p>The wording is the one the Editor read: a workbook written by hand carries `yes` or `y` as readily as
  * `true`, and a cell holding one of them opens ticked rather than blank. Anything else, blank included, is not.
  */
-const TRUE_VALUES = ['true', 'on', 'yes', 't', 'y']
+const TRUE_VALUES = new Set(['true', 'on', 'yes', 't', 'y'])
 
-const ticked = (text: string) => TRUE_VALUES.includes(text.trim().toLowerCase())
+const ticked = (text: string) => TRUE_VALUES.has(text.trim().toLowerCase())
 
 /** The values to choose from, shown by whatever wording the domain gives them. */
 const choicesOf = (asked: TableCellEditor | undefined) =>
