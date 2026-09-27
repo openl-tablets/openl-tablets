@@ -219,7 +219,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         }
         if (LOCALE_KEY.equals(name)) {
             setLocale((java.util.Locale) value);
-            return;
         }
     }
 
