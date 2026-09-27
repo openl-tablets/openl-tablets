@@ -35,7 +35,13 @@ class SourceCodeURLToolTest {
         }
 
         final var actual = stringWriter.toString();
-        final var expected = "Openl Code Fragment:\r\n" + "=======================\r\n" + " SpreadsheetResult MyS1pr (Stri1ng currentAgeBand,  String SIC)\r\n" + "                           ^^^^^^^\r\n" + "=======================\r\n";
+        final var expected = """
+                Openl Code Fragment:\r
+                =======================\r
+                 SpreadsheetResult MyS1pr (Stri1ng currentAgeBand,  String SIC)\r
+                                           ^^^^^^^\r
+                =======================\r
+                """;
 
         assertEquals(expected, actual);
     }

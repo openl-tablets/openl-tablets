@@ -123,7 +123,16 @@ class ProtectedBranchTest {
      * Restrict push operation in 'master'
      */
     private void writePrePushHook(String parent) throws IOException {
-        var hookScript = "#!/bin/bash\n" + "protected_branch='master'\n" + "current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,')\n" + "if [ $protected_branch = $current_branch ]\n" + "then\n" + "    exit 1 # push will not execute\n" + "else\n" + "    exit 0 # push will execute\n" + "fi";
+        var hookScript = """
+                #!/bin/bash
+                protected_branch='master'
+                current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,')
+                if [ $protected_branch = $current_branch ]
+                then
+                    exit 1 # push will not execute
+                else
+                    exit 0 # push will execute
+                fi""";
 
         var path = new File(parent + "/.git/hooks/", PrePushHook.NAME);
         writeText(path, hookScript);
