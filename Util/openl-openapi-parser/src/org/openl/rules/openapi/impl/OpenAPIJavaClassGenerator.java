@@ -63,11 +63,8 @@ public class OpenAPIJavaClassGenerator {
         if (!method.isInclude()) {
             return false;
         }
-        for (InputParameter inputParameter : method.getParameters()) {
-            if (inputParameter.getType().getType() == TypeInfo.Type.SPREADSHEET || inputParameter.getType()
-                    .getType() == TypeInfo.Type.SPREADSHEET_ARRAY) {
-                return true;
-            }
+        if (hasSpreadsheetParameter(method)) {
+            return true;
         }
         final var pathInfo = method.getPathInfo();
         var sb = new StringBuilder("/" + pathInfo.getFormattedPath());
@@ -80,17 +77,8 @@ public class OpenAPIJavaClassGenerator {
             // if method name doesn't match expected path
             return true;
         }
-        if (StringUtils.isNotBlank(pathInfo.getProduces())) {
-            final var typeInfo = pathInfo.getReturnType();
-            if (typeInfo.isReference() || typeInfo.getDimension() > 0) {
-                if (!DEFAULT_JSON_TYPE.equals(pathInfo.getProduces())) {
-                    // if return type is not simple, application/json by default
-                    return true;
-                }
-            } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getProduces())) {
-                // if return type is simple, text/plain by default
-                return true;
-            }
+        if (isNotDefaultProduces(pathInfo)) {
+            return true;
         }
         final var requestBodyIsPresented = parameters.stream().map(InputParameter::getIn).anyMatch(Objects::isNull);
         final var otherParamsArePresented = parameters.stream()
@@ -111,41 +99,84 @@ public class OpenAPIJavaClassGenerator {
         if (parameters.stream().anyMatch(p -> !p.getFormattedName().equalsIgnoreCase(p.getOriginalName()))) {
             return true;
         }
-        if (StringUtils.isNotBlank(pathInfo.getConsumes())) {
-            if (projectModel.isRuntimeContextProvided()) {
-                if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
-                    // if context, application/json by default
-                    return true;
-                }
-                // runtime context param may be null when it's inside the request model
-                if (!parameters.isEmpty() && pathInfo
-                        .getRuntimeContextParameter() != null && !DEFAULT_RUNTIME_CTX_PARAM_NAME
-                        .equals(pathInfo.getRuntimeContextParameter().getFormattedName())) {
-                    // if runtimeContext param name is not default
-                    return true;
-                }
-            } else if (parameters.isEmpty()) {
-                if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
-                    // if no prams, text/plan by default
-                    return true;
-                }
-            } else {
-                if (parameters.size() == 1) {
-                    if (parameters.getFirst().getType().isReference() || parameters.getFirst().getType().getDimension() > 0) {
-                        if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
-                            // if one not simple param, application/json by default
-                            return true;
-                        }
-                    } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
-                        // if one simple param, text/plain by default
-                        return true;
-                    }
-                } else if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
-                    // if more than one param, application/json by default
-                    return true;
-                }
+        if (isNotDefaultConsumes(pathInfo, parameters)) {
+            return true;
+        }
+        return isNotDefaultOperation(pathInfo, parameters);
+    }
+
+    private static boolean hasSpreadsheetParameter(MethodModel method) {
+        for (InputParameter inputParameter : method.getParameters()) {
+            if (inputParameter.getType().getType() == TypeInfo.Type.SPREADSHEET || inputParameter.getType()
+                    .getType() == TypeInfo.Type.SPREADSHEET_ARRAY) {
+                return true;
             }
         }
+        return false;
+    }
+
+    private static boolean isNotDefaultProduces(PathInfo pathInfo) {
+        if (StringUtils.isNotBlank(pathInfo.getProduces())) {
+            final var typeInfo = pathInfo.getReturnType();
+            if (typeInfo.isReference() || typeInfo.getDimension() > 0) {
+                if (!DEFAULT_JSON_TYPE.equals(pathInfo.getProduces())) {
+                    // if return type is not simple, application/json by default
+                    return true;
+                }
+            } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getProduces())) {
+                // if return type is simple, text/plain by default
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isNotDefaultConsumes(PathInfo pathInfo, List<InputParameter> parameters) {
+        if (StringUtils.isBlank(pathInfo.getConsumes())) {
+            return false;
+        }
+        if (projectModel.isRuntimeContextProvided()) {
+            if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+                // if context, application/json by default
+                return true;
+            }
+            // runtime context param may be null when it's inside the request model
+            if (!parameters.isEmpty() && pathInfo
+                    .getRuntimeContextParameter() != null && !DEFAULT_RUNTIME_CTX_PARAM_NAME
+                    .equals(pathInfo.getRuntimeContextParameter().getFormattedName())) {
+                // if runtimeContext param name is not default
+                return true;
+            }
+        } else if (parameters.isEmpty()) {
+            if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
+                // if no prams, text/plan by default
+                return true;
+            }
+        } else {
+            return isNotDefaultParametersConsumes(pathInfo, parameters);
+        }
+        return false;
+    }
+
+    private static boolean isNotDefaultParametersConsumes(PathInfo pathInfo, List<InputParameter> parameters) {
+        if (parameters.size() == 1) {
+            if (parameters.getFirst().getType().isReference() || parameters.getFirst().getType().getDimension() > 0) {
+                if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+                    // if one not simple param, application/json by default
+                    return true;
+                }
+            } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
+                // if one simple param, text/plain by default
+                return true;
+            }
+        } else if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+            // if more than one param, application/json by default
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isNotDefaultOperation(PathInfo pathInfo, List<InputParameter> parameters) {
         switch (pathInfo.getOperation()) {
             case GET -> {
                 if (projectModel.isRuntimeContextProvided()) {

@@ -17,6 +17,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -124,27 +125,30 @@ public class OpenAPITypeUtils {
                     schema.getTitle(),
                     TypeInfo.Type.VOCABULARY);
         }
+        var result = extractValueType(openAPIRefResolver, schema, allowPrimitiveTypes);
+        if (result == null) {
+            result = WRAPPER_CLASSES.get(OBJECT);
+        }
+        return result;
+    }
+
+    /**
+     * Extracts the type of a string, number, integer, boolean or array schema.
+     *
+     * @return the type, or {@code null} for a schema of any other type
+     */
+    private static @Nullable TypeInfo extractValueType(OpenAPIRefResolver openAPIRefResolver,
+                                                       Schema<?> schema,
+                                                       boolean allowPrimitiveTypes) {
         var schemaType = schema.getType();
         var format = schema.getFormat();
         TypeInfo result = null;
         if ("string".equals(schemaType)) {
             result = WRAPPER_CLASSES.get("date".equals(format) || "date-time".equals(format) ? DATE : STRING);
         } else if ("number".equals(schemaType)) {
-            if (FLOAT_PRIMITIVE.equals(format) || DOUBLE_PRIMITIVE.equals(format)) {
-                result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(format) : WRAPPER_CLASSES.get(format);
-            } else {
-                result = WRAPPER_CLASSES.get(DOUBLE_PRIMITIVE);
-            }
+            result = extractNumberType(format, allowPrimitiveTypes);
         } else if ("integer".equals(schemaType)) {
-            if ("int64".equals(format)) {
-                result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(LONG_PRIMITIVE)
-                        : WRAPPER_CLASSES.get(LONG_PRIMITIVE);
-            } else if ("int32".equals(format)) {
-                result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(INTEGER_PRIMITIVE)
-                        : WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
-            } else {
-                result = WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
-            }
+            result = extractIntegerType(format, allowPrimitiveTypes);
         } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
         } else if (schema instanceof ArraySchema arraySchema) {
@@ -154,10 +158,27 @@ public class OpenAPITypeUtils {
             var className = type.isReference() ? name : getArrayClassName(type.getJavaName(), dim);
             result = new TypeInfo(className, name, arrayTypeOf(type), dim, type.isReference());
         }
-        if (result == null) {
-            result = WRAPPER_CLASSES.get(OBJECT);
-        }
         return result;
+    }
+
+    private static TypeInfo extractNumberType(@Nullable String format, boolean allowPrimitiveTypes) {
+        if (FLOAT_PRIMITIVE.equals(format) || DOUBLE_PRIMITIVE.equals(format)) {
+            return allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(format) : WRAPPER_CLASSES.get(format);
+        } else {
+            return WRAPPER_CLASSES.get(DOUBLE_PRIMITIVE);
+        }
+    }
+
+    private static TypeInfo extractIntegerType(@Nullable String format, boolean allowPrimitiveTypes) {
+        if ("int64".equals(format)) {
+            return allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(LONG_PRIMITIVE)
+                    : WRAPPER_CLASSES.get(LONG_PRIMITIVE);
+        } else if ("int32".equals(format)) {
+            return allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(INTEGER_PRIMITIVE)
+                    : WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
+        } else {
+            return WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
+        }
     }
 
     /** What an array is by its elements: an array of spreadsheet results, of a vocabulary, or nothing special. */
