@@ -128,40 +128,27 @@ class JsonUtilsTest {
         }
     }
 
-    static class BindingClasses {
-        private String key;
-        private String value;
-    }
-
-    static class KeyClass {
-        private String field;
-
-        public KeyClass(String field) {
-            this.field = field;
-        }
-    }
-
     @Test
     void getObjectMapperTest_notNull() {
-        var key = new KeyClass("Project1");
-        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        var key = new Object();
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         assertNotNull(objectMapper1);
     }
 
     @Test
     void getObjectMapperTest_Cached() {
-        var key = new KeyClass("Project2");
-        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        var key = new Object();
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         assertNotNull(objectMapper1);
-        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         assertNotNull(objectMapper2);
         assertEquals(objectMapper1, objectMapper2);
     }
 
     @Test
     void getObjectMapperTest_GC_keep() {
-        var key = new KeyClass("Project3");
-        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        var key = new Object();
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         Runtime rt = Runtime.getRuntime();
         rt.gc();
         try {
@@ -169,14 +156,14 @@ class JsonUtilsTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         assertEquals(objectMapper1, objectMapper2);
     }
 
     @Test
     void getObjectMapperTest_GC_no_longer() {
-        var key = new KeyClass("Project4");
-        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        var key = new Object();
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         Runtime rt = Runtime.getRuntime();
         key = null;
         rt.gc();
@@ -185,15 +172,15 @@ class JsonUtilsTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        key = new KeyClass("Project4");
-        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        key = new Object();
+        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         assertNotEquals(objectMapper1, objectMapper2);
     }
 
     @Test
     void splitJSONTest_CachedObjectMapper() throws IOException {
-        var key = new KeyClass("Project4");
-        ObjectMapper objectMapper = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        var key = new Object();
+        ObjectMapper objectMapper = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
         var actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}", objectMapper);
         assertNotNull(actual);
         assertEquals(2, actual.size());

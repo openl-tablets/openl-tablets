@@ -228,7 +228,6 @@ class JavaOpenClassTest {
         private int Ba;
         private int BB;
         private int cc;
-        private int gg;
 
         public int getB() {
             return this.B;
@@ -263,7 +262,7 @@ class JavaOpenClassTest {
         }
 
         public void setGg(int gg) {
-            this.gg = gg;
+            // The setter only has to exist for the test.
         }
     }
 
