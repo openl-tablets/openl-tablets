@@ -188,13 +188,13 @@ export const DeployModal: React.FC = () => {
                 }
                 handleClose()
             }
-        } catch (info) {
+        } catch (error) {
             // Ant Design validation (ValidateErrorEntity) — form shows errors inline, no toast
-            if (info && typeof info === 'object' && Array.isArray((info as { errorFields?: unknown }).errorFields)) {
+            if (error && typeof error === 'object' && Array.isArray((error as { errorFields?: unknown }).errorFields)) {
                 return
             }
-            errorHandler.logError(info instanceof Error ? info : new Error(String(info)))
-            if (info instanceof ForbiddenError) {
+            errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
+            if (error instanceof ForbiddenError) {
                 form.setFields([{
                     name: 'repository',
                     errors: [t('deploy:notifications.no_deploy_rights_short')],
@@ -209,8 +209,8 @@ export const DeployModal: React.FC = () => {
                     title: t('deploy:notifications.deploy_failed'),
                     // The server explains what it refused; only a failure without an explanation of its
                     // own falls back to the generic sentence.
-                    description: isApiHttpError(info) && info.message
-                        ? info.message
+                    description: isApiHttpError(error) && error.message
+                        ? error.message
                         : t('deploy:notifications.deploy_failed_description'),
                     placement: 'topRight',
                 })
@@ -224,12 +224,12 @@ export const DeployModal: React.FC = () => {
         try {
             const values = await form.validateFields()
             await runWithCommitInfo(() => doDeploy(values))
-        } catch (info) {
+        } catch (error) {
             // Ant Design validation (ValidateErrorEntity) — form shows errors inline, no toast
-            if (info && typeof info === 'object' && Array.isArray((info as { errorFields?: unknown }).errorFields)) {
+            if (error && typeof error === 'object' && Array.isArray((error as { errorFields?: unknown }).errorFields)) {
                 return
             }
-            errorHandler.logError(info instanceof Error ? info : new Error(String(info)))
+            errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
         }
     }
 
