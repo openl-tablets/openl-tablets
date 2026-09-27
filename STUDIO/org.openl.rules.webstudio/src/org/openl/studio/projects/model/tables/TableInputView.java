@@ -40,8 +40,8 @@ public record TableInputView(
                 starts unset. Empty for a test table""")
         List<ParameterValue> parameters,
 
-        @Parameter(description = """
-                Schema of the runtime context the rules receive, absent when the project provides none""")
+        @Parameter(description = "Schema of the runtime context the rules receive, absent when the project "
+                + "provides none")
         @Nullable ParameterValue runtimeContext
 ) {
 }

@@ -30,8 +30,8 @@ import org.jspecify.annotations.Nullable;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "One way of entering a value, with what that way of entering it needs")
 public record TableCellEditorView(
-        @Schema(description = """
-                Kind of editor: 'combo', 'multiselect', 'numeric', 'array', 'range', 'date' or 'boolean'.""")
+        @Schema(description = "Kind of editor: 'combo', 'multiselect', 'numeric', 'array', 'range', 'date' or "
+                + "'boolean'.")
         String editor,
 
         @Schema(description = "Values to choose from; carried by 'combo' and 'multiselect'")
