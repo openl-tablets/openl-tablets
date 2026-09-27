@@ -14,7 +14,7 @@ import org.openl.types.IMethodCaller;
  *
  * @author User
  */
-public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation {
+public class ReturnOperation<R> extends OpenLEvaluationOperation {
     private final boolean hasReturnValue;
 
     /**
