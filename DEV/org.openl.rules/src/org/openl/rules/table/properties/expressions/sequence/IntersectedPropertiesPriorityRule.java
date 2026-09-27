@@ -11,9 +11,27 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
 
     @Override
     public int compare(ITableProperties tableProperties1, ITableProperties tableProperties2) {
+        var result = compareByIntersection(tableProperties1, tableProperties2);
+        if (result != 0) {
+            return result;
+        }
+
+        // Not intersected and partly intersected properties cannot be
+        // sorted. For such cases for partial backward compatibility use
+        // the previous version of comparator
+        return filledPropertiesRule.compare(tableProperties1, tableProperties2);
+    }
+
+    /**
+     * Compares the tables by how their dimensional properties intersect: the table whose properties are nested into
+     * the properties of the other table goes first.
+     *
+     * @return {@code -1} or {@code 1} for nested properties, or {@code 0} when the properties are equal, not
+     * intersected, partly intersected, or nested both ways
+     */
+    private int compareByIntersection(ITableProperties tableProperties1, ITableProperties tableProperties2) {
         var nested = false;
         var contains = false;
-        propsLoop:
         for (String propName : PROPERTY_NAMES) {
 
             switch (intersectionMatcher.match(propName, tableProperties1, tableProperties2)) {
@@ -27,9 +45,7 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
                     // do nothing
                     break;
                 case NO_INTERSECTION, PARTLY_INTERSECTS:
-                    nested = false;
-                    contains = false;
-                    break propsLoop;
+                    return 0;
                 default:
                     // an unknown intersection does not affect the order
                     break;
@@ -40,10 +56,6 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
         } else if (contains && !nested) {
             return 1;
         }
-
-        // Not intersected and partly intersected properties cannot be
-        // sorted. For such cases for partial backward compatibility use
-        // the previous version of comparator
-        return filledPropertiesRule.compare(tableProperties1, tableProperties2);
+        return 0;
     }
 }

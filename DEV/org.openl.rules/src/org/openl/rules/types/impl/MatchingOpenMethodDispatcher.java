@@ -121,7 +121,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                                                               List<String> notNullPropertyNames) {
         var nested = false;
         var contains = false;
-        propsLoop:
         for (String propName : notNullPropertyNames) {
             switch (intersectionMatcher.match(propName, candidateProperties, mostPriorityProperties)) {
                 case NESTED:
@@ -134,9 +133,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     // do nothing
                     break;
                 case NO_INTERSECTION, PARTLY_INTERSECTS:
-                    nested = false;
-                    contains = false;
-                    break propsLoop;
+                    return MethodDispatchingPriority.EQUAL;
             }
         }
 
