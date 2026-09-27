@@ -78,27 +78,27 @@ const ThemeColorMeta = () => {
  */
 export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     const [themeMode, setThemeMode] = useState<ThemeMode>(readThemeMode)
-    const [compact, setCompactState] = useState<boolean>(readCompactMode)
-    const [themeName, setThemeNameState] = useState<ThemeName>(readThemeName)
+    const [compact, setCompact] = useState<boolean>(readCompactMode)
+    const [themeName, setThemeName] = useState<ThemeName>(readThemeName)
 
     const onThemeModeChange = useCallback((mode: ThemeMode) => {
         storeThemeMode(mode)
         setThemeMode(mode)
     }, [])
 
-    const setCompact = useCallback((next: boolean) => {
+    const rememberCompact = useCallback((next: boolean) => {
         storeCompactMode(next)
-        setCompactState(next)
+        setCompact(next)
     }, [])
 
-    const setThemeName = useCallback((next: ThemeName) => {
+    const rememberThemeName = useCallback((next: ThemeName) => {
         storeThemeName(next)
-        setThemeNameState(next)
+        setThemeName(next)
     }, [])
 
     const value = useMemo(
-        () => ({ compact, setCompact, setThemeName, themeName }),
-        [compact, setCompact, setThemeName, themeName]
+        () => ({ compact, setCompact: rememberCompact, setThemeName: rememberThemeName, themeName }),
+        [compact, rememberCompact, rememberThemeName, themeName]
     )
 
     const theme = useCallback(
