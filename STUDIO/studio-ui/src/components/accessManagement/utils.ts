@@ -8,7 +8,7 @@ export const NONE_ROLE_VALUE = '__NONE__'
 
 /** Finds an option whose label holds the typed text, whatever its case. */
 const labelIncludes = (input: string, option?: DefaultOptionType) => {
-    if (!option || !option.label || !(typeof option.label === 'string')) {
+    if (!option || !option.label || typeof option.label !== 'string') {
         return false
     }
     return option.label.toLowerCase().includes(input.toLowerCase())
