@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.webstudio.notification.event.NotificationEvent;
 import org.openl.util.StringUtils;
 
-@Component
+@Service
 public class NotificationServiceImpl implements NotificationService {
 
     /** Control characters other than line breaks and tabs: they have no place in a message shown as text. */

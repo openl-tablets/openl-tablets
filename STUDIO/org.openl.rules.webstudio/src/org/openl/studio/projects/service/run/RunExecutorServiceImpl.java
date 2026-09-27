@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import jakarta.validation.constraints.NotNull;
 
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -24,7 +24,7 @@ import org.openl.studio.projects.service.ExecutionProgressListener;
  * </p>
  */
 @Validated
-@Component
+@Service
 public class RunExecutorServiceImpl extends AbstractMethodExecutorService implements RunExecutorService {
 
     @Override

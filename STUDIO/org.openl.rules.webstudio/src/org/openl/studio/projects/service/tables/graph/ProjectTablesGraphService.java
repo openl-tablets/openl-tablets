@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
@@ -60,7 +60,7 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class ProjectTablesGraphService {
 

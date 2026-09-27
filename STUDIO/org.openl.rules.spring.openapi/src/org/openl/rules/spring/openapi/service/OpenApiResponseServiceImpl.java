@@ -27,7 +27,7 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -47,7 +47,7 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
-@Component
+@Service
 public class OpenApiResponseServiceImpl implements OpenApiResponseService {
 
     private static final Set<String> ALLOWED_EXCEPTIONS_PACKAGES = Set.of("org.openl.rules.rest", "org.openl.studio.common.exception");

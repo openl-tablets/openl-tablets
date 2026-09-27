@@ -32,7 +32,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -50,7 +50,7 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
-@Component
+@Service
 public class OpenApiParameterServiceImpl implements OpenApiParameterService, DisposableBean {
 
     /**

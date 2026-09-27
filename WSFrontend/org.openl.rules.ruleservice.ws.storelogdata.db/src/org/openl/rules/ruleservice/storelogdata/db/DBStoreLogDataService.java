@@ -12,7 +12,7 @@ import jakarta.persistence.EntityManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
@@ -25,7 +25,7 @@ import org.openl.rules.ruleservice.storelogdata.db.annotation.InjectEntityManage
 import org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB;
 import org.openl.spring.config.ConditionalOnEnable;
 
-@Component
+@Service
 @ConditionalOnEnable("ruleservice.store.logs.db.enabled")
 public class DBStoreLogDataService extends AbstractStoreLogDataService {
 

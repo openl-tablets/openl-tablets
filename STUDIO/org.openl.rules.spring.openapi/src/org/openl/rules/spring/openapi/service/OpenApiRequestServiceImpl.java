@@ -31,7 +31,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.RequestEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -48,7 +48,7 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class OpenApiRequestServiceImpl implements OpenApiRequestService {
 

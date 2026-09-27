@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuite;
@@ -18,7 +18,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.util.Arrays;
 import org.openl.types.IOpenMethod;
 
-@Component
+@Service
 public class TestsExecutorServiceImpl implements TestsExecutorService {
 
     @Override

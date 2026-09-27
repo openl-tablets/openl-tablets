@@ -3,7 +3,7 @@ package org.openl.rules.spring.openapi.service;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.spring.openapi.model.SecuritySchemePair;
 
@@ -12,7 +12,7 @@ import org.openl.rules.spring.openapi.model.SecuritySchemePair;
  *
  * @author Vladyslav Pikus
  */
-@Component
+@Service
 public class OpenApiSecurityServiceImpl implements OpenApiSecurityService {
 
     private final SecuritySchemePair securitySchemePair;

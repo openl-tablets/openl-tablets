@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
-@Component("secureDeploymentRepositoryService")
+@Service("secureDeploymentRepositoryService")
 public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRepositoryService {
 
     private final DeploymentManager deploymentManager;

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.testmethod.TestDescription;
@@ -21,7 +21,7 @@ import org.openl.studio.projects.service.AbstractMethodExecutorService;
  * the worker via {@code invokeSequentially}. This never enters {@code ProjectModel.traceElement}, so the
  * project monitor is not held while execution is suspended.
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class TraceDebugServiceImpl extends AbstractMethodExecutorService implements TraceDebugService {
 

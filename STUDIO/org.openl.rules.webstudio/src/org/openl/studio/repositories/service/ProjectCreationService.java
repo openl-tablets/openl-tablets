@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -55,7 +55,7 @@ import org.openl.util.StringUtils;
  * current user's workspace, granted a CONTRIBUTOR ACL, and the resulting file data is returned.
  */
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
 public class ProjectCreationService {
 

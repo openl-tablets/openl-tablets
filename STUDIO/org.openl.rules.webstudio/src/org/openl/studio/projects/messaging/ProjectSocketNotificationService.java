@@ -12,7 +12,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -21,7 +21,7 @@ import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 
-@Component
+@Service
 @ParametersAreNonnullByDefault
 @RequiredArgsConstructor
 public class ProjectSocketNotificationService {

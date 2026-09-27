@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.studio.common.exception.NotFoundException;
 
@@ -17,7 +17,7 @@ import org.openl.studio.common.exception.NotFoundException;
  * memory so a large run degrades to a truncated trace instead of exhausting the heap.
  */
 @Slf4j
-@Component
+@Service
 public class TraceExportServiceImpl implements TraceExportService {
 
     /** Upper bound on recorded trace nodes, so a huge run cannot exhaust memory. */

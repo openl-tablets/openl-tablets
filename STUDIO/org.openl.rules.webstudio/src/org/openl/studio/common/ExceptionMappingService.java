@@ -16,7 +16,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -32,7 +32,7 @@ import org.openl.studio.common.model.BaseError;
 import org.openl.studio.common.model.ValidationError;
 import org.openl.util.StringUtils;
 
-@Component
+@Service
 public class ExceptionMappingService {
 
     private static final String DEF_ERROR_PREFIX = "openl.error.";

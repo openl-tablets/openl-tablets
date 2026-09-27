@@ -35,7 +35,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
@@ -163,7 +163,7 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
-@Component
+@Service
 @ParametersAreNonnullByDefault
 @Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
