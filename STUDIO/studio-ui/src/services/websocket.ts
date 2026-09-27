@@ -30,11 +30,11 @@ function randomSuffix(): string {
 
 class WebSocketService {
     private client: Client | null = null
-    private subscriptions: Map<string, WebSocketSubscription> = new Map()
+    private readonly subscriptions: Map<string, WebSocketSubscription> = new Map()
     private isConnected = false
     private reconnectAttempts = 0
-    private maxReconnectAttempts = 5
-    private reconnectDelay = 5000
+    private readonly maxReconnectAttempts = 5
+    private readonly reconnectDelay = 5000
 
     constructor() {
         this.initializeClient()

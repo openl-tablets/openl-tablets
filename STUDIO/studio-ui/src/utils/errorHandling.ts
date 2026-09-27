@@ -13,8 +13,8 @@ export interface ErrorInfo {
 
 class ErrorHandler {
     private static instance: ErrorHandler
-    private errorLog: ErrorInfo[] = []
-    private maxLogSize = 100
+    private readonly errorLog: ErrorInfo[] = []
+    private readonly maxLogSize = 100
 
     private constructor() {}
 
