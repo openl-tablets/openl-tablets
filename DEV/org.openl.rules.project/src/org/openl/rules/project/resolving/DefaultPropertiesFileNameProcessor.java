@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.table.properties.ITableProperties;
@@ -117,39 +119,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     multyPropertyNames = multyPropertyNames.substring(0, t);
                 }
                 final var propertyGroup = multyPropertyNames.split(",");
-                Class<?> returnType = null;
-                String propertyPattern;
-                StringBuilder finalPattern = null;
-                for (String propertyName : propertyGroup) {
-                    if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
-                        throw new InvalidFileNamePatternException(
-                                "Found unsupported property '%s' in file name pattern.".formatted(propertyName));
-                    }
-                    if (!propertyNames.add(propertyName)) {
-                        throw new InvalidFileNamePatternException(
-                                "Property '%s' is declared in pattern '%s' several times.".formatted(
-                                        propertyName,
-                                        fileNamePattern));
-                    }
-                    var currentReturnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
-                    if (returnType != null && (currentReturnType != returnType)) {
-                        throw new InvalidFileNamePatternException(
-                                "Incompatible properties in the group: %s.".formatted(Arrays.toString(propertyGroup)));
-                    }
-                    returnType = currentReturnType;
-                    try {
-                        propertyPattern = getPattern(propertyName, format, returnType);
-                    } catch (RuntimeException e) {
-                        throw new InvalidFileNamePatternException(
-                                "Invalid file name pattern at: %s.".formatted(propertyMatch));
-                    }
-                    if (finalPattern == null) {
-                        finalPattern = new StringBuilder(propertyPattern);
-                    }
-                    finalPattern = new StringBuilder("(?<" + propertyName + ">" + finalPattern + ")");
-                }
+                var groupPattern = buildGroupPattern(fileNamePattern, propertyMatch, propertyGroup, format);
 
-                regex = regex.replace(propertyMatch, finalPattern.toString());
+                regex = regex.replace(propertyMatch, groupPattern);
                 start = matcher.end();
             } else {
                 start = fileNamePattern.length();
@@ -175,6 +147,48 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
 
         return regex + "(?:\\.[^.]*)??$";
+    }
+
+    /**
+     * Builds the regular expression of a group of properties that share one place in the file name pattern. Every
+     * property of the group gets a named capturing group, nested around the value pattern of the first property.
+     */
+    private String buildGroupPattern(String fileNamePattern,
+                                     String propertyMatch,
+                                     String[] propertyGroup,
+                                     @Nullable String format) throws InvalidFileNamePatternException {
+        Class<?> returnType = null;
+        String propertyPattern;
+        StringBuilder finalPattern = null;
+        for (String propertyName : propertyGroup) {
+            if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
+                throw new InvalidFileNamePatternException(
+                        "Found unsupported property '%s' in file name pattern.".formatted(propertyName));
+            }
+            if (!propertyNames.add(propertyName)) {
+                throw new InvalidFileNamePatternException(
+                        "Property '%s' is declared in pattern '%s' several times.".formatted(
+                                propertyName,
+                                fileNamePattern));
+            }
+            var currentReturnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
+            if (returnType != null && (currentReturnType != returnType)) {
+                throw new InvalidFileNamePatternException(
+                        "Incompatible properties in the group: %s.".formatted(Arrays.toString(propertyGroup)));
+            }
+            returnType = currentReturnType;
+            try {
+                propertyPattern = getPattern(propertyName, format, returnType);
+            } catch (RuntimeException e) {
+                throw new InvalidFileNamePatternException(
+                        "Invalid file name pattern at: %s.".formatted(propertyMatch));
+            }
+            if (finalPattern == null) {
+                finalPattern = new StringBuilder(propertyPattern);
+            }
+            finalPattern = new StringBuilder("(?<" + propertyName + ">" + finalPattern + ")");
+        }
+        return finalPattern.toString();
     }
 
     private String getPattern(String propertyName, String format, Class<?> returnType) {

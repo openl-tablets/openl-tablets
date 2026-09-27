@@ -8,12 +8,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
@@ -177,17 +180,7 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<>();
             Collection<String> allExcludes = new HashSet<>();
-            for (Module m : modules) {
-                MethodFilter methodFilter = m.getMethodFilter();
-                if (methodFilter != null) {
-                    if (methodFilter.getIncludes() != null) {
-                        allIncludes.addAll(methodFilter.getIncludes());
-                    }
-                    if (methodFilter.getExcludes() != null) {
-                        allExcludes.addAll(methodFilter.getExcludes());
-                    }
-                }
-            }
+            collectMethodFilters(allIncludes, allExcludes);
             String[] includes = new String[]{};
             String[] excludes = new String[]{};
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
@@ -198,16 +191,13 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
             // Project-level exposed methods filter (glob on method name only)
             Collection<String> nameIncludes = null;
             Collection<String> nameExcludes = null;
-            if (!modules.isEmpty()) {
-                var project = modules.iterator().next().getProject();
-                var exposedMethods = project.getExposedMethods();
-                if (exposedMethods != null) {
-                    if (exposedMethods.getIncludes() != null) {
-                        nameIncludes = exposedMethods.getIncludes();
-                    }
-                    if (exposedMethods.getExcludes() != null) {
-                        nameExcludes = exposedMethods.getExcludes();
-                    }
+            var exposedMethods = getProjectExposedMethods();
+            if (exposedMethods != null) {
+                if (exposedMethods.getIncludes() != null) {
+                    nameIncludes = exposedMethods.getIncludes();
+                }
+                if (exposedMethods.getExcludes() != null) {
+                    nameExcludes = exposedMethods.getExcludes();
                 }
             }
 
@@ -219,6 +209,28 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
         }
 
         return engineFactory;
+    }
+
+    private void collectMethodFilters(Collection<String> allIncludes, Collection<String> allExcludes) {
+        for (Module m : modules) {
+            MethodFilter methodFilter = m.getMethodFilter();
+            if (methodFilter != null) {
+                if (methodFilter.getIncludes() != null) {
+                    allIncludes.addAll(methodFilter.getIncludes());
+                }
+                if (methodFilter.getExcludes() != null) {
+                    allExcludes.addAll(methodFilter.getExcludes());
+                }
+            }
+        }
+    }
+
+    private @Nullable ExposedMethods getProjectExposedMethods() {
+        if (modules.isEmpty()) {
+            return null;
+        }
+        var project = modules.iterator().next().getProject();
+        return project.getExposedMethods();
     }
 
     private boolean isProvideRuntimeContext() {

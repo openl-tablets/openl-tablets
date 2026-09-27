@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Function;
 
 import lombok.extern.slf4j.Slf4j;
@@ -112,53 +113,8 @@ public class InterfaceTransformer {
                 continue;
             }
             usedClasses.add(x);
-            var declaredFields = x.getDeclaredFields();
-            Arrays.sort(declaredFields, Comparator.comparing(Field::getName));
-            for (Field field : declaredFields) {
-                if (!field.isSynthetic() && !usedFields.contains(field.getName())) {
-                    usedFields.add(field.getName());
-                    try {
-                        var fieldVisitor = classVisitor.visitField(field.getModifiers(),
-                                field.getName(),
-                                Type.getDescriptor(field.getType()),
-                                null,
-                                isConstantField(field) ? field.get(null) : null);
-                        if (fieldVisitor != null) {
-                            for (Annotation annotation : field.getAnnotations()) {
-                                var av = fieldVisitor
-                                        .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
-                                processAnnotation(annotation, av);
-                            }
-                        }
-                    } catch (Exception e) {
-                        log.error("Failed to process field '{}'.", field.getName(), e);
-                    }
-                }
-            }
-            var declaredMethods = x.getDeclaredMethods();
-            Arrays.sort(declaredMethods, METHOD_COMPARATOR);
-            for (Method method : declaredMethods) {
-                if (!method.isSynthetic()) {
-                    var methodKey = new MethodKey(method.getName(),
-                            Arrays.stream(method.getParameterTypes())
-                                    .map(JavaOpenClass::getOpenClass)
-                                    .toArray(JavaOpenClass[]::new));
-                    if (!usedMethods.contains(methodKey)) {
-                        usedMethods.add(methodKey);
-                        var ruleName = method.getName();
-                        var methodVisitor = classVisitor.visitMethod(
-                                x.isInterface() ? method.getModifiers() : method.getModifiers() | Modifier.ABSTRACT,
-                                ruleName,
-                                Type.getMethodDescriptor(method),
-                                null,
-                                null);
-                        processAnnotationsOnExecutable(methodVisitor, method);
-                        if (methodVisitor != null) {
-                            methodVisitor.visitEnd();
-                        }
-                    }
-                }
-            }
+            visitFields(classVisitor, x, usedFields);
+            visitMethods(classVisitor, x, usedMethods);
             if (x.isInterface()) {
                 queue.addAll(Arrays.asList(x.getInterfaces()));
             } else {
@@ -171,30 +127,91 @@ public class InterfaceTransformer {
             }
         }
         if (!classToTransform.isInterface()) {
-            for (Constructor<?> constructor : classToTransform.getDeclaredConstructors()) {
-                if (!constructor.isSynthetic()) {
-                    var mg = new GeneratorAdapter(constructor.getModifiers(),
-                            org.objectweb.asm.commons.Method.getMethod(constructor),
-                            null,
-                            null,
-                            classVisitor);
-                    processAnnotationsOnExecutable(mg, constructor);
-                    mg.visitCode();
-                    mg.loadThis();
-                    mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
-                            org.objectweb.asm.commons.Method.getMethod("void <init> ()"));
-                    mg.visitInsn(Opcodes.RETURN);
-                    var i = 1;
-                    for (Class<?> paramType : constructor.getParameterTypes()) {
-                        if (long.class == paramType || double.class == paramType) {
-                            i += 2;
-                        } else {
-                            i++;
-                        }
-                    }
-                    mg.visitMaxs(1, i);
-                    mg.visitEnd();
+            visitConstructors(classVisitor);
+        }
+    }
+
+    private static void visitFields(ClassVisitor classVisitor, Class<?> x, Set<String> usedFields) {
+        var declaredFields = x.getDeclaredFields();
+        Arrays.sort(declaredFields, Comparator.comparing(Field::getName));
+        for (Field field : declaredFields) {
+            if (!field.isSynthetic() && !usedFields.contains(field.getName())) {
+                usedFields.add(field.getName());
+                visitField(classVisitor, field);
+            }
+        }
+    }
+
+    private static void visitField(ClassVisitor classVisitor, Field field) {
+        try {
+            var fieldVisitor = classVisitor.visitField(field.getModifiers(),
+                    field.getName(),
+                    Type.getDescriptor(field.getType()),
+                    null,
+                    isConstantField(field) ? field.get(null) : null);
+            if (fieldVisitor != null) {
+                for (Annotation annotation : field.getAnnotations()) {
+                    var av = fieldVisitor
+                            .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
+                    processAnnotation(annotation, av);
                 }
+            }
+        } catch (Exception e) {
+            log.error("Failed to process field '{}'.", field.getName(), e);
+        }
+    }
+
+    private void visitMethods(ClassVisitor classVisitor, Class<?> x, Set<MethodKey> usedMethods) {
+        var declaredMethods = x.getDeclaredMethods();
+        Arrays.sort(declaredMethods, METHOD_COMPARATOR);
+        for (Method method : declaredMethods) {
+            if (!method.isSynthetic()) {
+                var methodKey = new MethodKey(method.getName(),
+                        Arrays.stream(method.getParameterTypes())
+                                .map(JavaOpenClass::getOpenClass)
+                                .toArray(JavaOpenClass[]::new));
+                if (!usedMethods.contains(methodKey)) {
+                    usedMethods.add(methodKey);
+                    var ruleName = method.getName();
+                    var methodVisitor = classVisitor.visitMethod(
+                            x.isInterface() ? method.getModifiers() : method.getModifiers() | Modifier.ABSTRACT,
+                            ruleName,
+                            Type.getMethodDescriptor(method),
+                            null,
+                            null);
+                    processAnnotationsOnExecutable(methodVisitor, method);
+                    if (methodVisitor != null) {
+                        methodVisitor.visitEnd();
+                    }
+                }
+            }
+        }
+    }
+
+    private void visitConstructors(ClassVisitor classVisitor) {
+        for (Constructor<?> constructor : classToTransform.getDeclaredConstructors()) {
+            if (!constructor.isSynthetic()) {
+                var mg = new GeneratorAdapter(constructor.getModifiers(),
+                        org.objectweb.asm.commons.Method.getMethod(constructor),
+                        null,
+                        null,
+                        classVisitor);
+                processAnnotationsOnExecutable(mg, constructor);
+                mg.visitCode();
+                mg.loadThis();
+                mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
+                        org.objectweb.asm.commons.Method.getMethod("void <init> ()"));
+                mg.visitInsn(Opcodes.RETURN);
+                var i = 1;
+                for (Class<?> paramType : constructor.getParameterTypes()) {
+                    if (long.class == paramType || double.class == paramType) {
+                        i += 2;
+                    } else {
+                        i++;
+                    }
+                }
+                mg.visitMaxs(1, i);
+                mg.visitEnd();
             }
         }
     }
