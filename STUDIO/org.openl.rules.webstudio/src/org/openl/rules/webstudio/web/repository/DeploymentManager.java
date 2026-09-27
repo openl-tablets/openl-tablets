@@ -101,62 +101,73 @@ public class DeploymentManager implements InitializingBean {
                 }
 
                 for (ProjectDescriptor pd : request.projectDescriptors()) {
-                    var repositoryId = pd.repositoryId();
-                    if (repositoryId == null) {
-                        repositoryId = designRepository.getRepositories().getFirst().getId();
-                    }
-                    var designRepo = designRepository.getRepository(repositoryId);
-                    var version = pd.projectVersion().getVersionName();
-                    var projectName = pd.projectName();
-                    var projectPath = pd.path();
-                    var branch = pd.branch();
-
-                    var dest = new FileData();
-                    dest.setName(deploymentPath + projectName);
-                    dest.setAuthor(request.currentUser().getUserInfo());
-                    dest.setComment(request.comment());
-
-                    var manifestBuilder = new DeploymentManifestBuilder()
-                            .setBuiltBy(request.currentUser().getUserName())
-                            .setBuildNumber(pd.projectVersion().getRevision())
-                            .setImplementationTitle(projectName);
-                    final FileData historyData;
-                    AProject designProject = null;
-                    if (designRepo.supports().folders()) {
-                        designProject = designRepository.getProjectByPath(repositoryId, branch, projectPath, version);
-                        historyData = designProject.getFileData();
-                    } else {
-                        historyData = designRepo.checkHistory(rulesPath + projectName, version);
-                    }
-                    manifestBuilder.setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
-                    if (pd.branch() != null) {
-                        manifestBuilder.setBuildBranch(pd.branch());
-                    }
-
-                    if (designRepo.supports().folders()) {
-                        var technicalName = projectName;
-                        if (designProject != null) {
-                            technicalName = designProject.getName();
-                        }
-                        archiveAndSave(designRepo,
-                                rulesPath,
-                                technicalName,
-                                version,
-                                deployRepo,
-                                dest,
-                                manifestBuilder.build());
-                    } else {
-                        var srcPrj = designRepo.readHistory(rulesPath + projectName, version);
-                        includeManifestIntoArchiveAndSave(deployRepo,
-                                dest,
-                                srcPrj.getStream(),
-                                manifestBuilder.build());
-                    }
+                    deployProject(request, pd, deployRepo, rulesPath, deploymentPath);
                 }
             }
             return id;
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Saves the project version to a deployment repository that stores each project as an archive of its own.
+     */
+    private void deployProject(DeploymentRequest request,
+                               ProjectDescriptor pd,
+                               Repository deployRepo,
+                               String rulesPath,
+                               String deploymentPath) throws IOException, ProjectException {
+        var repositoryId = pd.repositoryId();
+        if (repositoryId == null) {
+            repositoryId = designRepository.getRepositories().getFirst().getId();
+        }
+        var designRepo = designRepository.getRepository(repositoryId);
+        var version = pd.projectVersion().getVersionName();
+        var projectName = pd.projectName();
+        var projectPath = pd.path();
+        var branch = pd.branch();
+
+        var dest = new FileData();
+        dest.setName(deploymentPath + projectName);
+        dest.setAuthor(request.currentUser().getUserInfo());
+        dest.setComment(request.comment());
+
+        var manifestBuilder = new DeploymentManifestBuilder()
+                .setBuiltBy(request.currentUser().getUserName())
+                .setBuildNumber(pd.projectVersion().getRevision())
+                .setImplementationTitle(projectName);
+        final FileData historyData;
+        AProject designProject = null;
+        if (designRepo.supports().folders()) {
+            designProject = designRepository.getProjectByPath(repositoryId, branch, projectPath, version);
+            historyData = designProject.getFileData();
+        } else {
+            historyData = designRepo.checkHistory(rulesPath + projectName, version);
+        }
+        manifestBuilder.setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
+        if (pd.branch() != null) {
+            manifestBuilder.setBuildBranch(pd.branch());
+        }
+
+        if (designRepo.supports().folders()) {
+            var technicalName = projectName;
+            if (designProject != null) {
+                technicalName = designProject.getName();
+            }
+            archiveAndSave(designRepo,
+                    rulesPath,
+                    technicalName,
+                    version,
+                    deployRepo,
+                    dest,
+                    manifestBuilder.build());
+        } else {
+            var srcPrj = designRepo.readHistory(rulesPath + projectName, version);
+            includeManifestIntoArchiveAndSave(deployRepo,
+                    dest,
+                    srcPrj.getStream(),
+                    manifestBuilder.build());
         }
     }
 

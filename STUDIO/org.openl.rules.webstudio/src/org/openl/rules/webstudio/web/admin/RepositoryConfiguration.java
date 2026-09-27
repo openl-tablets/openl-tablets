@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.config.InMemoryProperties;
@@ -297,15 +298,22 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
                 var n1 = m1.group(2);
                 var n2 = m2.group(2);
                 if (!n1.equals(n2)) {
-                    if (n1.isEmpty()) {
-                        return -1;
-                    }
-                    if (n2.isEmpty()) {
-                        return 1;
-                    }
-                    return new BigInteger(n1).compareTo(new BigInteger(n2));
+                    return compareNumbers(n1, n2);
                 }
             }
+        }
+
+        /**
+         * Compares the numbers two names carry, a name without a number going first.
+         */
+        private static int compareNumbers(String n1, String n2) {
+            if (n1.isEmpty()) {
+                return -1;
+            }
+            if (n2.isEmpty()) {
+                return 1;
+            }
+            return new BigInteger(n1).compareTo(new BigInteger(n2));
         }
     }
 
@@ -325,24 +333,32 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             configNames.forEach(rc -> configurations.forEach(configuration -> {
                 var repoValue = configuration.getPropertiesToValidate()
                         .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
-                if (repoValue != null && repoValue.startsWith(defValue)) {
-                    final var suffix = repoValue.substring(defValue.length());
-                    if (suffix.matches("\\d*")) {
-                        try {
-                            int i = suffix.isEmpty() ? 0 : Integer.parseInt(suffix);
-                            if (i > max.get()) {
-                                max.set(i);
-                            }
-                        } catch (NumberFormatException e) {
-                            // Perhaps the number is greater than the Integer.MAX_VALUE, ignore this value
-                            log.debug("Ignored error while forming the config name: ", e);
-                        }
-                    }
-                }
+                updateMaxIndex(max, repoValue, defValue);
             }));
             var index = max.get();
             return index >= 0 && index < Integer.MAX_VALUE ? defValue + (max.incrementAndGet()) : defValue;
         };
+    }
+
+    /**
+     * Raises the maximum to the number the value carries after the default value, which is 0 for the default value
+     * itself.
+     */
+    private static void updateMaxIndex(AtomicInteger max, @Nullable String repoValue, String defValue) {
+        if (repoValue != null && repoValue.startsWith(defValue)) {
+            final var suffix = repoValue.substring(defValue.length());
+            if (suffix.matches("\\d*")) {
+                try {
+                    int i = suffix.isEmpty() ? 0 : Integer.parseInt(suffix);
+                    if (i > max.get()) {
+                        max.set(i);
+                    }
+                } catch (NumberFormatException e) {
+                    // Perhaps the number is greater than the Integer.MAX_VALUE, ignore this value
+                    log.debug("Ignored error while forming the config name: ", e);
+                }
+            }
+        }
     }
 
     @Override

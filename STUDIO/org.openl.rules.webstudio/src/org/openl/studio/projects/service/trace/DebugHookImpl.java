@@ -381,28 +381,38 @@ final class DebugHookImpl implements DebugHook {
             // keeps this whole call in its time (a step's total includes the sub-calls it makes), instead of
             // subtracting the callee's steps as if they were sibling cells computed on the way.
             nestedStepNanos = nestedAtEnter;
-            // A frame unwound by a terminate neither completed nor failed, so it is skipped entirely — no
-            // misleading zero-time entry in either the hotspots or the tree.
-            if (profiling && (frame.isCompleted() || frame.getError() != null)) {
-                // Aggregate this table's time on the fly for EVERY execution — independent of whether the node
-                // is kept in the (capped) tree — so the hotspots overview stays accurate on a truncated run.
-                long selfNanos = Math.max(0, frame.getDurationNanos() - frame.getChildNanos());
-                tableStats.computeIfAbsent(frame.getUri(),
-                                uri -> new TableAccumulator(uri, frame.getName(), frame.getKind()))
-                        .add(frame.getDurationNanos(), selfNanos);
+            recordProfile(frame, parent, callerRef, recorded);
+        }
+    }
+
+    /**
+     * Records the time and the executed structure of a returned frame while profiling.
+     */
+    private void recordProfile(DebugFrame frame,
+                               @Nullable DebugFrame parent,
+                               @Nullable String callerRef,
+                               boolean recorded) {
+        // A frame unwound by a terminate neither completed nor failed, so it is skipped entirely — no
+        // misleading zero-time entry in either the hotspots or the tree.
+        if (profiling && (frame.isCompleted() || frame.getError() != null)) {
+            // Aggregate this table's time on the fly for EVERY execution — independent of whether the node
+            // is kept in the (capped) tree — so the hotspots overview stays accurate on a truncated run.
+            long selfNanos = Math.max(0, frame.getDurationNanos() - frame.getChildNanos());
+            tableStats.computeIfAbsent(frame.getUri(),
+                            uri -> new TableAccumulator(uri, frame.getName(), frame.getKind()))
+                    .add(frame.getDurationNanos(), selfNanos);
+            if (parent != null) {
+                parent.addChildNanos(frame.getDurationNanos());
+            }
+            // Profiling also keeps the returned frame's structure (no values) so the executed tree survives
+            // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
+            // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
+            if (recorded) {
+                CallNode node = frame.toCallNode(StringPool::intern, detailedTitles);
                 if (parent != null) {
-                    parent.addChildNanos(frame.getDurationNanos());
-                }
-                // Profiling also keeps the returned frame's structure (no values) so the executed tree survives
-                // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
-                // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
-                if (recorded) {
-                    CallNode node = frame.toCallNode(StringPool::intern, detailedTitles);
-                    if (parent != null) {
-                        parent.recordExecutedChild(callerRef, node);
-                    } else {
-                        completedTree.set(node);
-                    }
+                    parent.recordExecutedChild(callerRef, node);
+                } else {
+                    completedTree.set(node);
                 }
             }
         }

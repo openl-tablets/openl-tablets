@@ -218,27 +218,32 @@ public class ZipFileProjectCreator extends AProjectCreator {
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 var item = items.nextElement();
-
-                if (!item.isDirectory()) {
-                    String name = FileUtils.getName(item.getName());
-
-                    if (!NameChecker.checkName(name)) {
-                        invalidNames.add(name);
-                    }
-                } else {
-                    var files = item.getName().split("/");
-
-                    for (String folderName : files) {
-                        if (!NameChecker.checkName(folderName)) {
-                            invalidNames.add(folderName);
-                        }
-                    }
-                }
-
+                addIncorrectNames(item, invalidNames);
             } catch (Exception e) {
                 log.warn("Cannot extract zip entry.", e);
             }
         }
         return invalidNames;
+    }
+
+    /**
+     * Adds the incorrect names the entry carries: the name of a file, or the names of the folders of a folder.
+     */
+    private static void addIncorrectNames(ZipEntry item, List<String> invalidNames) {
+        if (!item.isDirectory()) {
+            String name = FileUtils.getName(item.getName());
+
+            if (!NameChecker.checkName(name)) {
+                invalidNames.add(name);
+            }
+        } else {
+            var files = item.getName().split("/");
+
+            for (String folderName : files) {
+                if (!NameChecker.checkName(folderName)) {
+                    invalidNames.add(folderName);
+                }
+            }
+        }
     }
 }

@@ -76,17 +76,24 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
         }
 
         if (isUpdateMode()) {
-            // clean up removed columns
-            var width = IGridRegion.Tool.width(tableBody.getRegion());
-            if (colMax < width) {
-                removeColumns(tableBody, width - colMax, colMax);
-            }
+            removeUnusedCells(tableBody, colMax, row);
+        }
+    }
 
-            // clean up removed rows
-            var height = IGridRegion.Tool.height(tableBody.getRegion());
-            if (row < height) {
-                removeRows(tableBody, height - row, row);
-            }
+    /**
+     * Removes the columns and the rows of the table body beyond the written ones.
+     */
+    private void removeUnusedCells(IGridTable tableBody, int colMax, int row) {
+        // clean up removed columns
+        var width = IGridRegion.Tool.width(tableBody.getRegion());
+        if (colMax < width) {
+            removeColumns(tableBody, width - colMax, colMax);
+        }
+
+        // clean up removed rows
+        var height = IGridRegion.Tool.height(tableBody.getRegion());
+        if (row < height) {
+            removeRows(tableBody, height - row, row);
         }
     }
 

@@ -51,128 +51,133 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
     @Override
     public Iterator<FileItem> iterator() {
-        return new Iterator<>() {
-            private int descriptorIndex;
-            private Iterator<FileItem> projectIterator;
+        return new DeploymentFilesIterator();
+    }
 
-            @Override
-            public boolean hasNext() {
-                if (projectIterator != null && projectIterator.hasNext()) {
-                    return true;
+    /**
+     * Iterates over the files of every project to deploy, one project after another.
+     */
+    private class DeploymentFilesIterator implements Iterator<FileItem> {
+        private int descriptorIndex;
+        private Iterator<FileItem> projectIterator;
+
+        @Override
+        public boolean hasNext() {
+            if (projectIterator != null && projectIterator.hasNext()) {
+                return true;
+            }
+
+            if (descriptorIndex < descriptors.size()) {
+                var pd = descriptors.get(descriptorIndex++);
+                var repositoryId = pd.repositoryId();
+                if (repositoryId == null) {
+                    repositoryId = designRepo.getRepositories().getFirst().getId();
                 }
-
-                if (descriptorIndex < descriptors.size()) {
-                    var pd = descriptors.get(descriptorIndex++);
-                    var repositoryId = pd.repositoryId();
-                    if (repositoryId == null) {
-                        repositoryId = designRepo.getRepositories().getFirst().getId();
+                var repository = designRepo.getRepository(repositoryId);
+                var version = pd.projectVersion().getVersionName();
+                var projectName = pd.projectName();
+                var projectPath = pd.path();
+                var branch = pd.branch();
+                var manifestBuilder = new DeploymentManifestBuilder()
+                        .setBuiltBy(username)
+                        .setBuildNumber(pd.projectVersion().getRevision())
+                        .setImplementationTitle(projectName)
+                        .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, branch, projectPath, version));
+                if (branch != null) {
+                    manifestBuilder.setBuildBranch(branch);
+                }
+                var technicalName = projectName;
+                try {
+                    var designProject = designRepo.getProjectByPath(repositoryId,
+                            branch,
+                            projectPath,
+                            version);
+                    if (designProject != null) {
+                        technicalName = designProject.getName();
                     }
-                    var repository = designRepo.getRepository(repositoryId);
-                    var version = pd.projectVersion().getVersionName();
-                    var projectName = pd.projectName();
-                    var projectPath = pd.path();
-                    var branch = pd.branch();
-                    var manifestBuilder = new DeploymentManifestBuilder()
-                            .setBuiltBy(username)
-                            .setBuildNumber(pd.projectVersion().getRevision())
-                            .setImplementationTitle(projectName)
-                            .setImplementationVersion(resolveProjectVersion(repositoryId, projectName, branch, projectPath, version));
-                    if (branch != null) {
-                        manifestBuilder.setBuildBranch(branch);
-                    }
-                    var technicalName = projectName;
-                    try {
-                        var designProject = designRepo.getProjectByPath(repositoryId,
-                                branch,
-                                projectPath,
-                                version);
-                        if (designProject != null) {
-                            technicalName = designProject.getName();
-                        }
-                    } catch (IOException e) {
-                        log.error(e.getMessage(), e);
-                        return false;
-                    }
-                    projectIterator = getProjectIterator(repository, technicalName, version, manifestBuilder);
-                    return projectIterator != null && projectIterator.hasNext();
-                } else {
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
                     return false;
                 }
+                projectIterator = getProjectIterator(repository, technicalName, version, manifestBuilder);
+                return projectIterator != null && projectIterator.hasNext();
+            } else {
+                return false;
             }
+        }
 
-            private String resolveProjectVersion(String repositoryId, String projectName, String branch,  String projectPath, String version) {
-                try {
-                    var repo = designRepo.getRepository(repositoryId);
-                    FileData historyData;
-                    if (repo.supports().folders()) {
-                        var designProject = designRepo.getProjectByPath(repositoryId, branch, projectPath, version);
-                        historyData = designProject.getFileData();
-                    } else {
-                        historyData = repo.checkHistory(rulesPath + projectName, version);
-                    }
-                    return RepositoryUtils.buildProjectVersion(historyData);
-                } catch (IOException ignored) {
-                    return null;
+        private String resolveProjectVersion(String repositoryId, String projectName, String branch,  String projectPath, String version) {
+            try {
+                var repo = designRepo.getRepository(repositoryId);
+                FileData historyData;
+                if (repo.supports().folders()) {
+                    var designProject = designRepo.getProjectByPath(repositoryId, branch, projectPath, version);
+                    historyData = designProject.getFileData();
+                } else {
+                    historyData = repo.checkHistory(rulesPath + projectName, version);
                 }
+                return RepositoryUtils.buildProjectVersion(historyData);
+            } catch (IOException ignored) {
+                return null;
             }
+        }
 
-            private Iterator<FileItem> getProjectIterator(Repository baseRepo,
-                                                          String projectName,
-                                                          String version,
-                                                          DeploymentManifestBuilder manifestBuilder) {
-                try {
-                    if (baseRepo.supports().folders()) {
-                        // Project in design repository is stored as a folder
-                        var srcProjectPath = rulesPath + projectName;
-                        Repository repository = RepositoryUtils
-                                .getRepositoryForVersion(designRepo, baseRepo, rulesPath, projectName, version);
-                        if (repository.supports().mappedFolders()) {
-                            srcProjectPath = ((FolderMapper) repository).getRealPath(srcProjectPath);
-                        }
-                        srcProjectPath += "/";
-                        var files = repository.listFiles(srcProjectPath, version);
-                        if (files.isEmpty()) {
-                            log.warn("Cannot find files in project {}", projectName);
-                        }
-                        //find and remove old manifest file from deployment
-                        var srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
-                        Iterator<FileData> it = files.iterator();
-                        while (it.hasNext()) {
-                            var f = it.next();
-                            if (srcManFileName.equals(f.getName())) {
-                                it.remove();
-                                break;
-                            }
-                        }
-                        return new FolderIterator(repository, files, projectName, manifestBuilder.build());
-                    } else {
-                        // Project in design repository is stored as a zip file
-                        var srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
-                        if (srcPrj == null) {
-                            throw new FileNotFoundException("File '%s' for version %s is not found."
-                                    .formatted(rulesPath + projectName, version));
-                        }
-                        IOUtils.closeQuietly(openedStream);
-                        var stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));
-                        openedStream = stream;
-                        return new FileChangesFromZip(stream, deploymentPath + projectName).iterator();
+        private Iterator<FileItem> getProjectIterator(Repository baseRepo,
+                                                      String projectName,
+                                                      String version,
+                                                      DeploymentManifestBuilder manifestBuilder) {
+            try {
+                if (baseRepo.supports().folders()) {
+                    // Project in design repository is stored as a folder
+                    var srcProjectPath = rulesPath + projectName;
+                    Repository repository = RepositoryUtils
+                            .getRepositoryForVersion(designRepo, baseRepo, rulesPath, projectName, version);
+                    if (repository.supports().mappedFolders()) {
+                        srcProjectPath = ((FolderMapper) repository).getRealPath(srcProjectPath);
                     }
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                    return null;
+                    srcProjectPath += "/";
+                    var files = repository.listFiles(srcProjectPath, version);
+                    if (files.isEmpty()) {
+                        log.warn("Cannot find files in project {}", projectName);
+                    }
+                    //find and remove old manifest file from deployment
+                    var srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
+                    Iterator<FileData> it = files.iterator();
+                    while (it.hasNext()) {
+                        var f = it.next();
+                        if (srcManFileName.equals(f.getName())) {
+                            it.remove();
+                            break;
+                        }
+                    }
+                    return new FolderIterator(repository, files, projectName, manifestBuilder.build());
+                } else {
+                    // Project in design repository is stored as a zip file
+                    var srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
+                    if (srcPrj == null) {
+                        throw new FileNotFoundException("File '%s' for version %s is not found."
+                                .formatted(rulesPath + projectName, version));
+                    }
+                    IOUtils.closeQuietly(openedStream);
+                    var stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));
+                    openedStream = stream;
+                    return new FileChangesFromZip(stream, deploymentPath + projectName).iterator();
                 }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                return null;
             }
+        }
 
-            @Override
-            public FileItem next() {
-                return projectIterator.next();
-            }
+        @Override
+        public FileItem next() {
+            return projectIterator.next();
+        }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Remove is not supported");
-            }
-        };
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Remove is not supported");
+        }
     }
 
     private InputStream addManifestIntoArchive(InputStream in, Manifest manifest) throws IOException {

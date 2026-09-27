@@ -120,22 +120,32 @@ public final class RepositoryUtils {
                 // Use main branch
                 return folderRepo;
             } else {
-                var branchedProject = designTimeRepository.getBranchedProject(folderRepo.getId(), projectName);
-                if (branchedProject.isPresent()) {
-                    for (var entry : branchedProject.orElseThrow().entries().values()) {
-                        var branchProject = entry.project();
-                        var secondaryBranch = branchProject.getRepository();
-                        if (secondaryBranch.checkHistory(branchProject.getFolderPath() + "/", version) != null) {
-                            return secondaryBranch;
-                        }
-                    }
-                }
-
-                return folderRepo;
+                return findBranchWithVersion(designTimeRepository, folderRepo, projectName, version);
             }
         } else {
             return folderRepo;
         }
+    }
+
+    /**
+     * The repository of the first branch that holds the project version, or the given repository if none does.
+     */
+    private static Repository findBranchWithVersion(DesignTimeRepository designTimeRepository,
+                                                    Repository folderRepo,
+                                                    String projectName,
+                                                    String version) throws IOException {
+        var branchedProject = designTimeRepository.getBranchedProject(folderRepo.getId(), projectName);
+        if (branchedProject.isPresent()) {
+            for (var entry : branchedProject.orElseThrow().entries().values()) {
+                var branchProject = entry.project();
+                var secondaryBranch = branchProject.getRepository();
+                if (secondaryBranch.checkHistory(branchProject.getFolderPath() + "/", version) != null) {
+                    return secondaryBranch;
+                }
+            }
+        }
+
+        return folderRepo;
     }
 
     /** As {@link #buildProjectVersion(FileData, ZoneId)}, in the zone this machine stands in. */

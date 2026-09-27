@@ -877,16 +877,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 open(project, Boolean.TRUE.equals(model.openDependencies()), model);
             }
         } else {
-            var closeRequested = model.status() == ProjectStatus.CLOSED && project.getStatus() != ProjectStatus.CLOSED;
-            if (closeRequested && StringUtils.isNotBlank(model.branch())) {
-                switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
-            }
-            if (closeRequested) {
-                close(project, Boolean.TRUE.equals(model.discardChanges()));
-            }
-            if (!closeRequested && StringUtils.isNotBlank(model.branch())) {
-                switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
-            }
+            closeOrSwitchBranch(project, model);
+        }
+    }
+
+    /**
+     * Closes the project when the model asks for it, switching it to the requested branch first, or else only
+     * switches it to the requested branch.
+     */
+    private void closeOrSwitchBranch(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
+        var closeRequested = model.status() == ProjectStatus.CLOSED && project.getStatus() != ProjectStatus.CLOSED;
+        if (closeRequested && StringUtils.isNotBlank(model.branch())) {
+            switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
+        }
+        if (closeRequested) {
+            close(project, Boolean.TRUE.equals(model.discardChanges()));
+        }
+        if (!closeRequested && StringUtils.isNotBlank(model.branch())) {
+            switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
         }
     }
 
@@ -1231,6 +1239,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             switchToBranch(project, model.branch(), Boolean.TRUE.equals(model.discardChanges()));
         }
 
+        openRequestedView(project, model, wasOpened);
+
+        if (openDependencies) {
+            openAllDependencies(project);
+        }
+        publishStateChanged(project);
+    }
+
+    /**
+     * Opens the revision the model asks for, or else the project itself: in the requested branch, or as a project
+     * that is not opened yet.
+     */
+    private static void openRequestedView(RulesProject project,
+                                          ProjectStatusUpdateModel model,
+                                          boolean wasOpened) throws ProjectException {
         if (StringUtils.isNotBlank(model.revision())) {
             project.openVersion(model.revision());
         } else {
@@ -1240,11 +1263,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 throw new ConflictException("project.open.conflict.message");
             }
         }
-
-        if (openDependencies) {
-            openAllDependencies(project);
-        }
-        publishStateChanged(project);
     }
 
     private void switchToBranch(RulesProject project, String branchName, boolean discardChanges) throws ProjectException {
@@ -1281,14 +1299,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 project.close();
             } else {
                 // Update files
-                try {
-                    ProjectHistoryService.deleteHistory(previousBusinessName);
-                } catch (IOException e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug(e.getMessage(), e);
-                    }
-                    throw new ProjectException("Failed to delete project history", e);
-                }
+                deleteProjectHistory(previousBusinessName);
                 if (workspace.isOpenedOtherProject(project)) {
                     throw new ConflictException("open.duplicated.project");
                 } else {
@@ -1297,6 +1308,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
         }
         publishStateChanged(project);
+    }
+
+    private static void deleteProjectHistory(String businessName) throws ProjectException {
+        try {
+            ProjectHistoryService.deleteHistory(businessName);
+        } catch (IOException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
+            throw new ProjectException("Failed to delete project history", e);
+        }
     }
 
     private static void requireDiscardForModifiedProject(RulesProject project, boolean discardChanges) {

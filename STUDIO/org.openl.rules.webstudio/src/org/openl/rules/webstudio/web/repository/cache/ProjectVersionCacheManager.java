@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -94,42 +95,9 @@ public class ProjectVersionCacheManager implements InitializingBean {
         var hashes = new ArrayList<String>();
         try {
             if (wsProject.getRepository().supports().folders()) {
-                var contentAddressable = wsProject.getRepository().supports().uniqueFileId();
-                final var manName = wsProject.getProject().getFolderPath() + "/" + JarFile.MANIFEST_NAME;
-                for (AProjectArtefact artefact : wsProject.getArtefacts()) {
-                    if (manName.equals(artefact.getFileData().getName())) {
-                        //skip manifest from hash calculation
-                        continue;
-                    }
-                    if (artefact instanceof AProjectResource resource) {
-                        hashes.add(computeFileHash(resource, contentAddressable, fileHashCache));
-                        var fileName = artefact.getFileData().getName();
-                        var folderPath = wsProject.getFolderPath();
-                        if (!StringUtils.isEmpty(folderPath)) {
-                            fileName = fileName.substring(folderPath.length() + 1);
-                        }
-                        hashes.add(DigestUtils.sha256Hex(fileName));
-                    }
-                }
+                addFolderHashes(wsProject, fileHashCache, hashes);
             } else {
-                var zip = wsProject.getRepository().read(wsProject.getFolderPath());
-                try (var zin = new ZipInputStream(zip.getStream())) {
-                    ZipEntry entry;
-                    while ((entry = zin.getNextEntry()) != null) {
-                        if (JarFile.MANIFEST_NAME.equals(entry.getName())) {
-                            //skip manifest from hash calculation
-                            continue;
-                        }
-                        var baos = new ByteArrayOutputStream();
-                        var b = zin.read();
-                        while (b >= 0) {
-                            baos.write(b);
-                            b = zin.read();
-                        }
-                        hashes.add(DigestUtils.sha256Hex(baos.toByteArray()));
-                        hashes.add(DigestUtils.sha256Hex(entry.getName()));
-                    }
-                }
+                addArchiveHashes(wsProject, hashes);
             }
         } catch (ProjectException | IOException e) {
             log.error("Error during computing hash", e);
@@ -137,6 +105,55 @@ public class ProjectVersionCacheManager implements InitializingBean {
         }
         return hashes.isEmpty() ? null
                 : DigestUtils.sha256Hex(hashes.stream().sorted().collect(Collectors.joining()));
+    }
+
+    /**
+     * Adds the hashes of the content and of the name of every file of a project stored as a folder.
+     */
+    private void addFolderHashes(AProject wsProject,
+                                 Map<String, String> fileHashCache,
+                                 List<String> hashes) throws ProjectException, IOException {
+        var contentAddressable = wsProject.getRepository().supports().uniqueFileId();
+        final var manName = wsProject.getProject().getFolderPath() + "/" + JarFile.MANIFEST_NAME;
+        for (AProjectArtefact artefact : wsProject.getArtefacts()) {
+            if (manName.equals(artefact.getFileData().getName())) {
+                //skip manifest from hash calculation
+                continue;
+            }
+            if (artefact instanceof AProjectResource resource) {
+                hashes.add(computeFileHash(resource, contentAddressable, fileHashCache));
+                var fileName = artefact.getFileData().getName();
+                var folderPath = wsProject.getFolderPath();
+                if (!StringUtils.isEmpty(folderPath)) {
+                    fileName = fileName.substring(folderPath.length() + 1);
+                }
+                hashes.add(DigestUtils.sha256Hex(fileName));
+            }
+        }
+    }
+
+    /**
+     * Adds the hashes of the content and of the name of every entry of a project stored as an archive.
+     */
+    private static void addArchiveHashes(AProject wsProject, List<String> hashes) throws IOException {
+        var zip = wsProject.getRepository().read(wsProject.getFolderPath());
+        try (var zin = new ZipInputStream(zip.getStream())) {
+            ZipEntry entry;
+            while ((entry = zin.getNextEntry()) != null) {
+                if (JarFile.MANIFEST_NAME.equals(entry.getName())) {
+                    //skip manifest from hash calculation
+                    continue;
+                }
+                var baos = new ByteArrayOutputStream();
+                var b = zin.read();
+                while (b >= 0) {
+                    baos.write(b);
+                    b = zin.read();
+                }
+                hashes.add(DigestUtils.sha256Hex(baos.toByteArray()));
+                hashes.add(DigestUtils.sha256Hex(entry.getName()));
+            }
+        }
     }
 
     /**

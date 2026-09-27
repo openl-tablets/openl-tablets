@@ -29,18 +29,7 @@ public final class OpenLTableLogic {
             IOpenMethod method = openedModule ? model.getOpenedModuleMethod(table.getUri())
                     : model.getMethod(table.getUri());
             if (method instanceof TestSuiteMethod suiteMethod) {
-                var targetMethods = new ArrayList<IOpenMethod>();
-                var testedMethod = suiteMethod.getTestedMethod();
-
-                // Overloaded methods
-                if (testedMethod instanceof OpenMethodDispatcher dispatcher) {
-                    List<IOpenMethod> overloadedMethods = dispatcher.getCandidates();
-                    targetMethods.addAll(overloadedMethods);
-                } else {
-                    targetMethods.add(testedMethod);
-                }
-
-                for (IOpenMethod targetMethod : targetMethods) {
+                for (IOpenMethod targetMethod : getTargetMethods(suiteMethod)) {
                     var methodInfo = targetMethod.getInfo();
                     if (methodInfo != null) {
                         var tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
@@ -53,6 +42,21 @@ public final class OpenLTableLogic {
             }
         }
         return targetTables;
+    }
+
+    /** Returns the methods a test or run table exercises: every overloaded version of the tested method. */
+    private static List<IOpenMethod> getTargetMethods(TestSuiteMethod suiteMethod) {
+        var targetMethods = new ArrayList<IOpenMethod>();
+        var testedMethod = suiteMethod.getTestedMethod();
+
+        // Overloaded methods
+        if (testedMethod instanceof OpenMethodDispatcher dispatcher) {
+            List<IOpenMethod> overloadedMethods = dispatcher.getCandidates();
+            targetMethods.addAll(overloadedMethods);
+        } else {
+            targetMethods.add(testedMethod);
+        }
+        return targetMethods;
     }
 
     /** Returns whether a test or run table targets rules with compilation errors. */

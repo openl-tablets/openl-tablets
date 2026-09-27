@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.errors.CorruptObjectException;
@@ -70,40 +71,45 @@ public class ZipArchiveValidator implements Validator {
                     .filter(p -> !walkRoot.equals(p))
                     .filter(p -> zipFilter.accept(p.toString()))) {
 
-                stream.forEach(path -> {
-                    if (rejectedPaths.stream().noneMatch(r -> r.startsWith(path) || path.startsWith(r))) {
-                        for (var i = 0; i < path.getNameCount(); i++) {
-                            try {
-                                NameChecker.validatePath(path.getName(i).toString());
-                            } catch (IOException e) {
-                                errors.reject("zip-archive.unknown.archive.path.message",
-                                        new String[]{e.getMessage()},
-                                        e.getMessage());
-                                rejectedPaths.add(path);
-                                return;
-                            }
-                        }
-                        try {
-                            var p = path.toString().replace('\\', '/');
-                            if (p.charAt(0) == '/') {
-                                p = p.substring(1);
-                            }
-                            if (p.charAt(p.length() - 1) == '/') {
-                                p = p.substring(0, p.length() - 1);
-                            }
-                            SystemReader.getInstance().checkPath(p);
-                        } catch (CorruptObjectException e) {
-                            String defaultMessage = StringUtils.capitalize(e.getMessage());
-                            errors.reject("zip-archive.invalid.path.message",
-                                    new String[]{defaultMessage},
-                                    defaultMessage);
-                            rejectedPaths.add(path);
-                        }
-                    }
-                });
+                stream.forEach(path -> validateEntryPath(path, rejectedPaths, errors));
             }
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
+        }
+    }
+
+    /**
+     * Rejects a path of the archive that is not a valid path, unless a path above or below it is rejected already.
+     */
+    private static void validateEntryPath(Path path, Set<Path> rejectedPaths, Errors errors) {
+        if (rejectedPaths.stream().noneMatch(r -> r.startsWith(path) || path.startsWith(r))) {
+            for (var i = 0; i < path.getNameCount(); i++) {
+                try {
+                    NameChecker.validatePath(path.getName(i).toString());
+                } catch (IOException e) {
+                    errors.reject("zip-archive.unknown.archive.path.message",
+                            new String[]{e.getMessage()},
+                            e.getMessage());
+                    rejectedPaths.add(path);
+                    return;
+                }
+            }
+            try {
+                var p = path.toString().replace('\\', '/');
+                if (p.charAt(0) == '/') {
+                    p = p.substring(1);
+                }
+                if (p.charAt(p.length() - 1) == '/') {
+                    p = p.substring(0, p.length() - 1);
+                }
+                SystemReader.getInstance().checkPath(p);
+            } catch (CorruptObjectException e) {
+                String defaultMessage = StringUtils.capitalize(e.getMessage());
+                errors.reject("zip-archive.invalid.path.message",
+                        new String[]{defaultMessage},
+                        defaultMessage);
+                rejectedPaths.add(path);
+            }
         }
     }
 

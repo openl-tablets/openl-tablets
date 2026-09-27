@@ -147,22 +147,32 @@ public final class RepositoryValidators {
         // Check for path uniqueness.
         for (RepositoryConfiguration other : repositoryConfigurations) {
             if (other != repoConfig) {
-                if (repoConfig.getName().equals(other.getName())) {
-                    var msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
-                            repoConfig.getName());
-                    throw new RepositoryValidationException(msg);
-                }
+                validateDistinct(repoConfig, settings, path, other);
+            }
+        }
+    }
 
-                if (other.getSettings() instanceof CommonRepositorySettings otherSettings
-                        && path.equals(otherSettings.getUri()) && settings.isSecure() == otherSettings.isSecure()) {
-                    // Different users can access different schemas
-                    var login = settings.getLogin();
-                    if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
-                        var msg = "Repository path '%s' already exists. Please, insert a new one.".formatted(
-                                path);
-                        throw new RepositoryValidationException(msg);
-                    }
-                }
+    /**
+     * Refuses a repository that takes the name or the path of another one.
+     */
+    private static void validateDistinct(RepositoryConfiguration repoConfig,
+                                         CommonRepositorySettings settings,
+                                         String path,
+                                         RepositoryConfiguration other) throws RepositoryValidationException {
+        if (repoConfig.getName().equals(other.getName())) {
+            var msg = "Repository name '%s' already exists. Please, insert a new one.".formatted(
+                    repoConfig.getName());
+            throw new RepositoryValidationException(msg);
+        }
+
+        if (other.getSettings() instanceof CommonRepositorySettings otherSettings
+                && path.equals(otherSettings.getUri()) && settings.isSecure() == otherSettings.isSecure()) {
+            // Different users can access different schemas
+            var login = settings.getLogin();
+            if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
+                var msg = "Repository path '%s' already exists. Please, insert a new one.".formatted(
+                        path);
+                throw new RepositoryValidationException(msg);
             }
         }
     }

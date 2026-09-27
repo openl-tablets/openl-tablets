@@ -175,6 +175,15 @@ public class TableInputParserServiceImpl implements TableInputParserService {
             }
         }
 
+        return new ParseResult(params, readRuntimeContext(fieldMap, mapper));
+    }
+
+    /**
+     * Reads the runtime context from the fields left after the parameters are matched: the explicit
+     * runtimeContext field, or else a leftover field that can be read as one.
+     */
+    private static @Nullable IRulesRuntimeContext readRuntimeContext(Map<String, JsonNode> fieldMap,
+                                                                     ObjectMapper mapper) throws IOException {
         // Check for explicit runtimeContext field first
         IRulesRuntimeContext runtimeContext = null;
         var contextNode = fieldMap.remove(RUNTIME_CONTEXT_FIELD);
@@ -188,8 +197,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
                 // If it can't be parsed as runtime context, ignore
             }
         }
-
-        return new ParseResult(params, runtimeContext);
+        return runtimeContext;
     }
 
     private Object[] parsePositionalParameters(JsonNode values,

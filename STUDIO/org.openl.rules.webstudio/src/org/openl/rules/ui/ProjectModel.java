@@ -67,6 +67,7 @@ import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrat
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
@@ -227,18 +228,29 @@ public class ProjectModel {
         for (TableSyntaxNode node : nodes) {
             if (p1.intersects(node.getGridTable().getUriParser())) {
                 if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
-                    for (TableSyntaxNode tableSyntaxNode : nodes) {
-                        IGridTable table = tableSyntaxNode.getGridTable();
-                        if (table.getGrid() instanceof CompositeGrid compositeGrid
-                                && findInCompositeGrid(compositeGrid, p1)) {
-                            return tableSyntaxNode;
-                        }
+                    var compositeNode = findCompositeNode(nodes, p1);
+                    if (compositeNode != null) {
+                        return compositeNode;
                     }
                 }
                 return node;
             }
         }
 
+        return null;
+    }
+
+    /**
+     * The node of the table whose composite grid holds the cell, or {@code null} if no such table.
+     */
+    private @Nullable TableSyntaxNode findCompositeNode(Collection<TableSyntaxNode> nodes, XlsUrlParser p1) {
+        for (TableSyntaxNode tableSyntaxNode : nodes) {
+            IGridTable table = tableSyntaxNode.getGridTable();
+            if (table.getGrid() instanceof CompositeGrid compositeGrid
+                    && findInCompositeGrid(compositeGrid, p1)) {
+                return tableSyntaxNode;
+            }
+        }
         return null;
     }
 
@@ -1101,16 +1113,7 @@ public class ProjectModel {
 
         var projectFolder = moduleInfo.getProject().getProjectFolder();
         if (reloadType == ReloadType.FORCED) {
-            ProjectResolver projectResolver = studio.getProjectResolver();
-            ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
-            Module reloadedModule = null;
-            for (Module module : projectDescriptor.getModules()) {
-                if (moduleInfo.getName().equals(module.getName())) {
-                    reloadedModule = module;
-                    break;
-                }
-            }
-            this.moduleInfo = reloadedModule;
+            this.moduleInfo = findReloadedModule(projectFolder, moduleInfo);
         } else {
             this.moduleInfo = moduleInfo;
         }
@@ -1151,6 +1154,22 @@ public class ProjectModel {
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
         }
+    }
+
+    /**
+     * The module as the project descriptor read again from the project folder declares it, or {@code null} if it no
+     * longer declares a module of that name.
+     */
+    private @Nullable Module findReloadedModule(Path projectFolder,
+                                                Module moduleInfo) throws ProjectResolvingException {
+        ProjectResolver projectResolver = studio.getProjectResolver();
+        ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
+        for (Module module : projectDescriptor.getModules()) {
+            if (moduleInfo.getName().equals(module.getName())) {
+                return module;
+            }
+        }
+        return null;
     }
 
     public void compileProject(boolean sync, boolean prepareWorkspaceDependencyManager) {
@@ -1212,13 +1231,17 @@ public class ProjectModel {
         }
         publishStatusChanged();
         if (sync) {
-            // The cycle ends the compilation however it ends — built, failed, or stopped by the reader. Waiting
-            // on the work itself would leave a caller here for good when nothing finishes it.
-            try {
-                cycle.future().join();
-            } catch (CancellationException | CompletionException ended) {
-                // What was compiled stays readable; the status is what says how the compilation ended.
-            }
+            awaitCompilation(cycle);
+        }
+    }
+
+    private static void awaitCompilation(RegisteredCompilation cycle) {
+        // The cycle ends the compilation however it ends — built, failed, or stopped by the reader. Waiting
+        // on the work itself would leave a caller here for good when nothing finishes it.
+        try {
+            cycle.future().join();
+        } catch (CancellationException | CompletionException ended) {
+            // What was compiled stays readable; the status is what says how the compilation ended.
         }
     }
 
@@ -1349,43 +1372,51 @@ public class ProjectModel {
             webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
             projectCompilationCompleted.set(null);
         } else {
-            Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
-                    .resolveWorkspace(projectDescriptor);
-            Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
-                    .map(ProjectDescriptor::getName)
-                    .collect(Collectors.toSet());
-            boolean foundOpenedProject = false;
-            boolean allProjectCanBeReused = true;
-            Collection<IDependencyLoader> projectDependencyLoaders = webStudioWorkspaceDependencyManager
-                    .getDependencyLoaders()
-                    .stream()
-                    .filter(IDependencyLoader::isProjectLoader)
-                    .toList();
-            for (IDependencyLoader projectDependencyLoader : projectDependencyLoaders) {
-                if (projectDescriptor.getName().equals(projectDependencyLoader.getProject().getName())) {
-                    foundOpenedProject = true;
-                }
-                if (!projectNamesInWorkspace.contains(projectDependencyLoader.getProject().getName())) {
-                    allProjectCanBeReused = false;
-                }
+            adaptWorkspaceDependencyManager(projectDescriptor);
+        }
+    }
+
+    /**
+     * Makes the active dependency manager serve the project. It stays as it is when it already loads the project,
+     * is expanded when every project it loads belongs to the project's workspace, and is replaced otherwise.
+     */
+    private void adaptWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
+        Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
+                .resolveWorkspace(projectDescriptor);
+        Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
+                .map(ProjectDescriptor::getName)
+                .collect(Collectors.toSet());
+        boolean foundOpenedProject = false;
+        boolean allProjectCanBeReused = true;
+        Collection<IDependencyLoader> projectDependencyLoaders = webStudioWorkspaceDependencyManager
+                .getDependencyLoaders()
+                .stream()
+                .filter(IDependencyLoader::isProjectLoader)
+                .toList();
+        for (IDependencyLoader projectDependencyLoader : projectDependencyLoaders) {
+            if (projectDescriptor.getName().equals(projectDependencyLoader.getProject().getName())) {
+                foundOpenedProject = true;
             }
-            if (!foundOpenedProject) {
-                if (!allProjectCanBeReused) {
-                    webStudioWorkspaceDependencyManager.shutdown();
-                    xlsModuleSyntaxNodesPerProject.clear();
-                    projectSyntaxNodes.clear();
-                    xlsModuleSyntaxNodes.clear();
-                    webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                            .buildDependencyManager(projectDescriptor);
-                    webStudioWorkspaceDependencyManager
-                            .registerOnCompilationCompleteListener(this::addCompiledDependency);
-                    webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
-                    projectCompilationCompleted.set(null);
-                } else {
-                    // If loaded projects are a part of the new opened project, then we can reuse dependency manager
-                    webStudioWorkspaceDependencyManager
-                            .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
-                }
+            if (!projectNamesInWorkspace.contains(projectDependencyLoader.getProject().getName())) {
+                allProjectCanBeReused = false;
+            }
+        }
+        if (!foundOpenedProject) {
+            if (!allProjectCanBeReused) {
+                webStudioWorkspaceDependencyManager.shutdown();
+                xlsModuleSyntaxNodesPerProject.clear();
+                projectSyntaxNodes.clear();
+                xlsModuleSyntaxNodes.clear();
+                webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
+                        .buildDependencyManager(projectDescriptor);
+                webStudioWorkspaceDependencyManager
+                        .registerOnCompilationCompleteListener(this::addCompiledDependency);
+                webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
+                projectCompilationCompleted.set(null);
+            } else {
+                // If loaded projects are a part of the new opened project, then we can reuse dependency manager
+                webStudioWorkspaceDependencyManager
+                        .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
             }
         }
     }

@@ -62,6 +62,10 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             }
         }
         //Checking path
+        return isValidPath(value, context);
+    }
+
+    private boolean isValidPath(String value, ConstraintValidatorContext context) {
         var basicCheck = true;
         if (!allowLeadingSlash && value.startsWith("/")) {
             context.buildConstraintViolationWithTemplate("{openl.constraints.path.1.message}").addConstraintViolation();

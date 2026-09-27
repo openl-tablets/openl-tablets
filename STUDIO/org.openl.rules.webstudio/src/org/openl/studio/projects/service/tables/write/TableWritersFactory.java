@@ -51,25 +51,11 @@ public class TableWritersFactory {
         }
 
         if (Objects.equals(XlsNodeTypes.XLS_DATATYPE.toString(), table.getType())) {
-            if (VocabularyView.TABLE_TYPE.equals(tableType)) {
-                return new VocabularyTableWriter(table);
-            } else if (DatatypeView.TABLE_TYPE.equals(tableType)) {
-                return new DatatypeTableWriter(table);
-            }
+            return getDatatypeWriter(table, tableType);
         } else if (Objects.equals(XlsNodeTypes.XLS_SPREADSHEET.toString(), table.getType())) {
-            if (SimpleSpreadsheetView.TABLE_TYPE.equals(tableType)) {
-                return new SimpleSpreadsheetTableWriter(table);
-            } else if (SpreadsheetView.TABLE_TYPE.equals(tableType)) {
-                return new SpreadsheetTableWriter(table);
-            }
+            return getSpreadsheetWriter(table, tableType);
         } else if (Objects.equals(XlsNodeTypes.XLS_DT.toString(), table.getType())) {
-            if (SimpleRulesView.TABLE_TYPE.equals(tableType)) {
-                return new SimpleRulesWriter(table);
-            } else if (SmartRulesView.TABLE_TYPE.equals(tableType)) {
-                return new SmartRulesWriter(table);
-            } else if (LookupView.SMART_TABLE_TYPE.equals(tableType) || LookupView.SIMPLE_TABLE_TYPE.equals(tableType)) {
-                return new LookupWriter(table);
-            }
+            return getRulesWriter(table, tableType);
         } else if (Objects.equals(XlsNodeTypes.XLS_DATA.toString(), table.getType())) {
             if (DataView.TABLE_TYPE.equals(tableType)) {
                 return new DataTableWriter(table);
@@ -78,6 +64,39 @@ public class TableWritersFactory {
                 && TestView.TABLE_TYPE.equals(tableType)) {
             return new TestTableWriter(table);
         }
-        throw new UnsupportedOperationException("Table type doesn't match writer type");
+        throw writerTypeMismatch();
+    }
+
+    private static TableWriter<? extends TableView> getDatatypeWriter(IOpenLTable table, String tableType) {
+        if (VocabularyView.TABLE_TYPE.equals(tableType)) {
+            return new VocabularyTableWriter(table);
+        } else if (DatatypeView.TABLE_TYPE.equals(tableType)) {
+            return new DatatypeTableWriter(table);
+        }
+        throw writerTypeMismatch();
+    }
+
+    private static TableWriter<? extends TableView> getSpreadsheetWriter(IOpenLTable table, String tableType) {
+        if (SimpleSpreadsheetView.TABLE_TYPE.equals(tableType)) {
+            return new SimpleSpreadsheetTableWriter(table);
+        } else if (SpreadsheetView.TABLE_TYPE.equals(tableType)) {
+            return new SpreadsheetTableWriter(table);
+        }
+        throw writerTypeMismatch();
+    }
+
+    private static TableWriter<? extends TableView> getRulesWriter(IOpenLTable table, String tableType) {
+        if (SimpleRulesView.TABLE_TYPE.equals(tableType)) {
+            return new SimpleRulesWriter(table);
+        } else if (SmartRulesView.TABLE_TYPE.equals(tableType)) {
+            return new SmartRulesWriter(table);
+        } else if (LookupView.SMART_TABLE_TYPE.equals(tableType) || LookupView.SIMPLE_TABLE_TYPE.equals(tableType)) {
+            return new LookupWriter(table);
+        }
+        throw writerTypeMismatch();
+    }
+
+    private static UnsupportedOperationException writerTypeMismatch() {
+        return new UnsupportedOperationException("Table type doesn't match writer type");
     }
 }

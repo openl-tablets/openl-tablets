@@ -90,28 +90,34 @@ class FileSearchSupport {
         if (query.type() == FileSearchQuery.FileType.FOLDER && !artefact.isFolder()) {
             return false;
         }
-        if (!extensions.isEmpty()) {
-            if (artefact.isFolder()) {
-                return false;
-            }
-            String ext = FileUtils.getExtension(artefact.getName());
-            if (ext == null || !extensions.contains(ext.toLowerCase())) {
-                return false;
-            }
+        if (!extensions.isEmpty() && !hasExtension(artefact, extensions)) {
+            return false;
         }
         if (matcher != null && !matcher.match(pattern, artefact.getInternalPath())) {
             return false;
         }
-        if (contentNeedle != null) {
-            if (artefact.isFolder()) {
-                return false;
-            }
-            String text = readBoundedText((AProjectResource) artefact);
-            if (text == null || !text.toLowerCase().contains(contentNeedle)) {
-                return false;
-            }
+        if (contentNeedle != null && !containsText(artefact, contentNeedle)) {
+            return false;
         }
         return aclProjectsHelper.hasPermission(artefact, BasePermission.READ);
+    }
+
+    /** Whether the artefact is a file with one of the extensions. */
+    private static boolean hasExtension(AProjectArtefact artefact, Set<String> extensions) {
+        if (artefact.isFolder()) {
+            return false;
+        }
+        String ext = FileUtils.getExtension(artefact.getName());
+        return ext != null && extensions.contains(ext.toLowerCase());
+    }
+
+    /** Whether the artefact is a file whose text contains the needle, ignoring case. */
+    private static boolean containsText(AProjectArtefact artefact, String contentNeedle) {
+        if (artefact.isFolder()) {
+            return false;
+        }
+        String text = readBoundedText((AProjectResource) artefact);
+        return text != null && text.toLowerCase().contains(contentNeedle);
     }
 
     /**

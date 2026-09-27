@@ -24,6 +24,7 @@ import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
@@ -276,95 +277,19 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             var workspace = getUserWorkspace();
             var designRepository = workspace.getDesignTimeRepository().getRepository(repositoryId);
             var localRepository = workspace.getLocalWorkspace().getRepository(repositoryId);
+            var sources = new ConflictSources(mergeConflictInfo,
+                    repositoryId,
+                    workspace,
+                    designRepository,
+                    localRepository);
 
             // Prepare resolved files based on strategies
             for (FileConflictResolution resolution : resolutions) {
-                var filePath = resolution.filePath();
-                FileItem file;
-                InputStream stream;
-
-                switch (resolution.strategy()) {
-                    case BASE:
-                        file = designRepository.readHistory(filePath, conflictDetails.baseCommit());
-                        stream = file == null ? null : file.getStream();
-                        resolvedFiles.add(new FileItem(filePath, stream));
-                        break;
-
-                    case OURS:
-                        String oursCommit = mergeConflictInfo.isExportOperation()
-                                ? conflictDetails.theirCommit()
-                                : conflictDetails.yourCommit();
-                        if (isMerging) {
-                            file = designRepository.readHistory(filePath, oursCommit);
-                        } else {
-                            // Read from local workspace
-                            var projectByPath = workspace.getProjectByPath(repositoryId, filePath);
-                            if (projectByPath.isPresent()) {
-                                var p = projectByPath.get();
-                                var artefactPath = filePath.substring(p.getRealPath().length() + 1);
-                                var localName = p.getFolderPath() + "/" + artefactPath;
-                                file = localRepository.read(localName);
-                            } else {
-                                file = null;
-                            }
-                        }
-                        stream = file == null ? null : file.getStream();
-                        resolvedFiles.add(new FileItem(filePath, stream));
-                        break;
-
-                    case THEIRS:
-                        String theirsCommit = mergeConflictInfo.isExportOperation()
-                                ? conflictDetails.yourCommit()
-                                : conflictDetails.theirCommit();
-                        file = designRepository.readHistory(filePath, theirsCommit);
-                        stream = file == null ? null : file.getStream();
-                        resolvedFiles.add(new FileItem(filePath, stream));
-                        break;
-
-                    case CUSTOM:
-                        var uploadedFile = customFiles.get(filePath);
-                        resolvedFiles.add(new FileItem(filePath, uploadedFile.getInputStream()));
-                        break;
-                }
+                addResolvedFile(sources, resolution, customFiles, resolvedFiles);
             }
 
             // Auto-resolve Excel files
-            var output = new ByteArrayOutputStream();
-            for (var autoResolveEntry : conflictDetails.toAutoResolve().entrySet()) {
-                var fileName = autoResolveEntry.getKey();
-                var diffResult = autoResolveEntry.getValue();
-
-                FileItem yoursConflictedFile;
-                String oursCommit = mergeConflictInfo.isExportOperation()
-                        ? conflictDetails.theirCommit()
-                        : conflictDetails.yourCommit();
-
-                if (isMerging) {
-                    yoursConflictedFile = designRepository.readHistory(fileName, oursCommit);
-                } else {
-                    var projectByPath = workspace.getProjectByPath(repositoryId, fileName);
-                    if (projectByPath.isPresent()) {
-                        var p = projectByPath.get();
-                        var artefactPath = fileName.substring(p.getRealPath().length() + 1);
-                        var localName = p.getFolderPath() + "/" + artefactPath;
-                        yoursConflictedFile = localRepository.read(localName);
-                    } else {
-                        throw new IllegalStateException("Cannot automatically resolve file conflict: " + fileName);
-                    }
-                }
-
-                String theirsCommit = mergeConflictInfo.isExportOperation()
-                        ? conflictDetails.yourCommit()
-                        : conflictDetails.theirCommit();
-                var theirConflictedFile = designRepository.readHistory(fileName, theirsCommit);
-
-                XlsWorkbookMerger.merge(yoursConflictedFile.getStream(),
-                        theirConflictedFile.getStream(),
-                        diffResult,
-                        output);
-                resolvedFiles.add(new FileItem(fileName, new ByteArrayInputStream(output.toByteArray())));
-                output.reset();
-            }
+            addAutoResolvedFiles(sources, resolvedFiles);
 
             // Find modules to append to rules.xml
             var modulesToAppend = findModulesToAppend(mergeConflictInfo, resolvedFiles);
@@ -401,6 +326,134 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
             }
+        }
+    }
+
+    /**
+     * Where the versions of the conflicted files are read from.
+     */
+    private record ConflictSources(MergeConflictInfo info,
+                                   String repositoryId,
+                                   UserWorkspace workspace,
+                                   Repository designRepository,
+                                   LocalRepository localRepository) {
+    }
+
+    /**
+     * Adds the version of the conflicted file the resolution chooses.
+     */
+    private static void addResolvedFile(ConflictSources sources,
+                                        FileConflictResolution resolution,
+                                        Map<String, InputStreamSource> customFiles,
+                                        List<FileItem> resolvedFiles) throws IOException {
+        var mergeConflictInfo = sources.info();
+        var conflictDetails = mergeConflictInfo.details();
+        var designRepository = sources.designRepository();
+        var filePath = resolution.filePath();
+        FileItem file;
+        InputStream stream;
+
+        switch (resolution.strategy()) {
+            case BASE:
+                file = designRepository.readHistory(filePath, conflictDetails.baseCommit());
+                stream = file == null ? null : file.getStream();
+                resolvedFiles.add(new FileItem(filePath, stream));
+                break;
+
+            case OURS:
+                file = readOursFile(sources, filePath);
+                stream = file == null ? null : file.getStream();
+                resolvedFiles.add(new FileItem(filePath, stream));
+                break;
+
+            case THEIRS:
+                String theirsCommit = mergeConflictInfo.isExportOperation()
+                        ? conflictDetails.yourCommit()
+                        : conflictDetails.theirCommit();
+                file = designRepository.readHistory(filePath, theirsCommit);
+                stream = file == null ? null : file.getStream();
+                resolvedFiles.add(new FileItem(filePath, stream));
+                break;
+
+            case CUSTOM:
+                var uploadedFile = customFiles.get(filePath);
+                resolvedFiles.add(new FileItem(filePath, uploadedFile.getInputStream()));
+                break;
+        }
+    }
+
+    /**
+     * Reads our version of the conflicted file: the revision of our commit while merging, otherwise the copy in
+     * the workspace.
+     *
+     * @return the file, or {@code null} if no project of the workspace holds it
+     */
+    private static @Nullable FileItem readOursFile(ConflictSources sources, String filePath) throws IOException {
+        var mergeConflictInfo = sources.info();
+        var conflictDetails = mergeConflictInfo.details();
+        FileItem file;
+        String oursCommit = mergeConflictInfo.isExportOperation()
+                ? conflictDetails.theirCommit()
+                : conflictDetails.yourCommit();
+        if (mergeConflictInfo.isMerging()) {
+            file = sources.designRepository().readHistory(filePath, oursCommit);
+        } else {
+            // Read from local workspace
+            var projectByPath = sources.workspace().getProjectByPath(sources.repositoryId(), filePath);
+            if (projectByPath.isPresent()) {
+                var p = projectByPath.get();
+                var artefactPath = filePath.substring(p.getRealPath().length() + 1);
+                var localName = p.getFolderPath() + "/" + artefactPath;
+                file = sources.localRepository().read(localName);
+            } else {
+                file = null;
+            }
+        }
+        return file;
+    }
+
+    /**
+     * Adds the Excel files whose conflicts are resolved automatically, merged from our and their version.
+     */
+    private static void addAutoResolvedFiles(ConflictSources sources, List<FileItem> resolvedFiles) throws IOException {
+        var mergeConflictInfo = sources.info();
+        var conflictDetails = mergeConflictInfo.details();
+        var designRepository = sources.designRepository();
+        var output = new ByteArrayOutputStream();
+        for (var autoResolveEntry : conflictDetails.toAutoResolve().entrySet()) {
+            var fileName = autoResolveEntry.getKey();
+            var diffResult = autoResolveEntry.getValue();
+
+            FileItem yoursConflictedFile;
+            String oursCommit = mergeConflictInfo.isExportOperation()
+                    ? conflictDetails.theirCommit()
+                    : conflictDetails.yourCommit();
+
+            if (mergeConflictInfo.isMerging()) {
+                yoursConflictedFile = designRepository.readHistory(fileName, oursCommit);
+            } else {
+                var projectByPath = sources.workspace().getProjectByPath(sources.repositoryId(), fileName);
+                if (projectByPath.isPresent()) {
+                    var p = projectByPath.get();
+                    var artefactPath = fileName.substring(p.getRealPath().length() + 1);
+                    var localName = p.getFolderPath() + "/" + artefactPath;
+                    yoursConflictedFile = sources.localRepository().read(localName);
+                } else {
+                    throw new IllegalStateException("Cannot automatically resolve file conflict: " + fileName);
+                }
+            }
+
+            String theirsCommit = mergeConflictInfo.isExportOperation()
+                    ? conflictDetails.yourCommit()
+                    : conflictDetails.theirCommit();
+            var theirConflictedFile = designRepository.readHistory(fileName, theirsCommit);
+
+            XlsWorkbookMerger.merge(yoursConflictedFile.getStream(),
+                    theirConflictedFile.getStream(),
+                    diffResult,
+                    output);
+            resolvedFiles.add(new FileItem(fileName, new ByteArrayInputStream(output.toByteArray())));
+            output.reset();
         }
     }
 
@@ -495,26 +548,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 var moduleInternalPath = name.substring(projectPath.length() + 1);
                 var repository = workspace.getDesignTimeRepository().getRepository(repositoryId);
 
-                Module module = null;
-
-                // Try to get module from their commit
-                try (var fileItem = repository.readHistory(rulesXmlFile, conflictDetails.theirCommit())) {
-                    if (fileItem != null) {
-                        module = getModule(fileItem, moduleInternalPath);
-                    }
-                }
-
-                // If not found, try our commit
-                if (module == null) {
-                    String oursCommit = mergeConflictInfo.isExportOperation()
-                            ? conflictDetails.theirCommit()
-                            : conflictDetails.yourCommit();
-                    try (var fileItem = repository.readHistory(rulesXmlFile, oursCommit)) {
-                        if (fileItem != null) {
-                            module = getModule(fileItem, moduleInternalPath);
-                        }
-                    }
-                }
+                Module module = findResolvedModule(mergeConflictInfo, repository, rulesXmlFile, moduleInternalPath);
 
                 if (module != null) {
                     var modules = modulesToAppend.computeIfAbsent(projectPath, k -> new ArrayList<>());
@@ -524,6 +558,40 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         }
 
         return modulesToAppend;
+    }
+
+    /**
+     * The module of the resolved file as rules.xml of their commit declares it, or else as the one of our commit
+     * does.
+     *
+     * @return the module, or {@code null} if neither commit declares it
+     */
+    private @Nullable Module findResolvedModule(MergeConflictInfo mergeConflictInfo,
+                                                Repository repository,
+                                                String rulesXmlFile,
+                                                String moduleInternalPath) throws IOException {
+        var conflictDetails = mergeConflictInfo.details();
+        Module module = null;
+
+        // Try to get module from their commit
+        try (var fileItem = repository.readHistory(rulesXmlFile, conflictDetails.theirCommit())) {
+            if (fileItem != null) {
+                module = getModule(fileItem, moduleInternalPath);
+            }
+        }
+
+        // If not found, try our commit
+        if (module == null) {
+            String oursCommit = mergeConflictInfo.isExportOperation()
+                    ? conflictDetails.theirCommit()
+                    : conflictDetails.yourCommit();
+            try (var fileItem = repository.readHistory(rulesXmlFile, oursCommit)) {
+                if (fileItem != null) {
+                    module = getModule(fileItem, moduleInternalPath);
+                }
+            }
+        }
+        return module;
     }
 
     private void updateRulesXmlFiles(String repositoryId,
@@ -598,11 +666,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 .getRepository(mergeConflict.getRepositoryId());
         for (var resolution : resolutions) {
 
-            var file = resolution.filePath();
-            // In non-flat repositories we should see full path. In flat repos only essential part.
-            if (!designRepository.supports().mappedFolders() && file.startsWith(rulesLocation)) {
-                file = file.substring(rulesLocation.length());
-            }
+            var file = messagePath(resolution.filePath(), designRepository, rulesLocation);
             messageBuilder.append("\n\t").append(file);
 
             var strategy = resolution.strategy();
@@ -622,28 +686,40 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         if (!conflictDetails.toAutoResolve().isEmpty()) {
             messageBuilder.append("\n\n Automatically resolved conflicts:");
             for (Map.Entry<String, WorkbookDiffResult> entry : conflictDetails.toAutoResolve().entrySet()) {
-                var file = entry.getKey();
-                if (!designRepository.supports().mappedFolders() && file.startsWith(rulesLocation)) {
-                    file = file.substring(rulesLocation.length());
-                }
+                var file = messagePath(entry.getKey(), designRepository, rulesLocation);
                 messageBuilder.append("\n\t").append(file);
                 var diffResult = entry.getValue();
                 var sheetDiffResult = diffResult.getSheetDiffResult();
-                for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.OUR)) {
-                    messageBuilder.append("\n\t\t").append(sheetName);
-                    if (yourBranch != null) {
-                        messageBuilder.append(" (").append(yourBranch).append(')');
-                    }
-                }
-                for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
-                    messageBuilder.append("\n\t\t").append(sheetName);
-                    if (theirBranch != null) {
-                        messageBuilder.append(" (").append(theirBranch).append(')');
-                    }
-                }
+                appendSheets(messageBuilder, sheetDiffResult.getDiffSheets(DiffStatus.OUR), yourBranch);
+                appendSheets(messageBuilder, sheetDiffResult.getDiffSheets(DiffStatus.THEIR), theirBranch);
             }
         }
         return messageBuilder.toString();
+    }
+
+    /**
+     * The path of the file as a merge message shows it.
+     */
+    private static String messagePath(String file, Repository designRepository, String rulesLocation) {
+        // In non-flat repositories we should see full path. In flat repos only essential part.
+        if (!designRepository.supports().mappedFolders() && file.startsWith(rulesLocation)) {
+            return file.substring(rulesLocation.length());
+        }
+        return file;
+    }
+
+    /**
+     * Appends the names of the sheets, each with the branch its version comes from when it is known.
+     */
+    private static void appendSheets(StringBuilder messageBuilder,
+                                     Collection<String> sheetNames,
+                                     @Nullable String branch) {
+        for (String sheetName : sheetNames) {
+            messageBuilder.append("\n\t\t").append(sheetName);
+            if (branch != null) {
+                messageBuilder.append(" (").append(branch).append(')');
+            }
+        }
     }
 
     private String getYourBranch(MergeConflictInfo mergeConflict) {

@@ -127,24 +127,7 @@ public class UserManagementService {
                 .build();
 
         if (!flags.isDisplayNameExternal() && !isNewUser) {
-            displayName = persistUser.getDisplayName();
-
-            // try to restore display name from previous pattern
-            String prevFirstName = StringUtils.trimToEmpty(persistUser.getFirstName());
-            String prevLastName = StringUtils.trimToEmpty(persistUser.getSurname());
-            String firstLastCase = StringUtils.trimToEmpty(prevFirstName + " " + prevLastName);
-            String lastFirstCase = StringUtils.trimToEmpty(prevLastName + " " + prevFirstName);
-            // preventing of removing existing display name pattern match by all empty fields from external service
-            if (flags.isFirstNameExternal() || flags.isLastNameExternal()) {
-                String syncFirstName = flags.isFirstNameExternal() ? firstName : prevFirstName;
-                String syncLastName = flags.isLastNameExternal() ? lastName : prevLastName;
-                if (Objects.equals(displayName, firstLastCase)) {
-                    displayName = syncFirstName + " " + syncLastName;
-                } else if (Objects.equals(displayName, lastFirstCase)) {
-                    displayName = syncLastName + " " + syncFirstName;
-                }
-            }
-            displayName = StringUtils.trimToEmpty(displayName);
+            displayName = syncDisplayName(persistUser, flags, firstName, lastName);
         }
 
         persistUser.setFirstName(flags.isFirstNameExternal() ? firstName : persistUser.getFirstName());
@@ -154,6 +137,34 @@ public class UserManagementService {
         persistUser.setPasswordHash(null); // No password is kept from the 3rd parties.
         persistUser.setFlags(UserExternalFlags.builder(flags).getRawFeatures());
         userDao.saveOrUpdate(persistUser);
+    }
+
+    /**
+     * The display name the user keeps: the stored one, rewritten with the synchronized first and last names when it
+     * was composed of the previous ones.
+     */
+    private static String syncDisplayName(User persistUser,
+                                          UserExternalFlags flags,
+                                          String firstName,
+                                          String lastName) {
+        var displayName = persistUser.getDisplayName();
+
+        // try to restore display name from previous pattern
+        String prevFirstName = StringUtils.trimToEmpty(persistUser.getFirstName());
+        String prevLastName = StringUtils.trimToEmpty(persistUser.getSurname());
+        String firstLastCase = StringUtils.trimToEmpty(prevFirstName + " " + prevLastName);
+        String lastFirstCase = StringUtils.trimToEmpty(prevLastName + " " + prevFirstName);
+        // preventing of removing existing display name pattern match by all empty fields from external service
+        if (flags.isFirstNameExternal() || flags.isLastNameExternal()) {
+            String syncFirstName = flags.isFirstNameExternal() ? firstName : prevFirstName;
+            String syncLastName = flags.isLastNameExternal() ? lastName : prevLastName;
+            if (Objects.equals(displayName, firstLastCase)) {
+                displayName = syncFirstName + " " + syncLastName;
+            } else if (Objects.equals(displayName, lastFirstCase)) {
+                displayName = syncLastName + " " + syncFirstName;
+            }
+        }
+        return StringUtils.trimToEmpty(displayName);
     }
 
     public void updateUserData(String user,

@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -93,31 +94,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         throw new OpenLCompilationException("Compilation is interrupted", e);
                     }
                 }
-                var currentThreadVersion = threadVersion.get();
-                if (currentThreadVersion == null) {
-                    threadVersion.set(version.get());
-                    try {
-                        log.debug("Dependency '{}' is requested with '{}' priority.",
-                                dependency.getNode().getIdentifier(),
-                                priority == null ? ThreadPriority.HIGH : priority);
-                        if (active) {
-                            return loadDependencySync(dependency);
-                        } else {
-                            return interrupted(dependency);
-                        }
-                    } finally {
-                        threadVersion.remove();
-                    }
-                } else {
-                    if (active && Objects.equals(currentThreadVersion, version.get())) {
-                        log.debug("Dependency '{}' is requested with '{}' priority.",
-                                dependency.getNode().getIdentifier(),
-                                priority == null ? ThreadPriority.HIGH : priority);
-                        return loadDependencySync(dependency);
-                    } else {
-                        return interrupted(dependency);
-                    }
-                }
+                return loadForThreadVersion(dependency, priority);
             }
         } finally {
             if (priority == null) {
@@ -128,6 +105,41 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     highThreadPriorityFlag.decrementAndGet();
                     this.notifyAll();
                 }
+            }
+        }
+    }
+
+    /**
+     * Loads the dependency for the compilation the thread takes part in. The first request of a thread fixes the
+     * version it compiles; a nested request is served only while that version is still the current one. A stopped
+     * manager loads nothing.
+     */
+    private CompiledDependency loadForThreadVersion(ResolvedDependency dependency,
+                                                    @Nullable ThreadPriority priority)
+            throws OpenLCompilationException {
+        var currentThreadVersion = threadVersion.get();
+        if (currentThreadVersion == null) {
+            threadVersion.set(version.get());
+            try {
+                log.debug("Dependency '{}' is requested with '{}' priority.",
+                        dependency.getNode().getIdentifier(),
+                        priority == null ? ThreadPriority.HIGH : priority);
+                if (active) {
+                    return loadDependencySync(dependency);
+                } else {
+                    return interrupted(dependency);
+                }
+            } finally {
+                threadVersion.remove();
+            }
+        } else {
+            if (active && Objects.equals(currentThreadVersion, version.get())) {
+                log.debug("Dependency '{}' is requested with '{}' priority.",
+                        dependency.getNode().getIdentifier(),
+                        priority == null ? ThreadPriority.HIGH : priority);
+                return loadDependencySync(dependency);
+            } else {
+                return interrupted(dependency);
             }
         }
     }

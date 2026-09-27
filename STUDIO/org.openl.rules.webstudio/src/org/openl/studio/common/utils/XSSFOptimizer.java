@@ -119,28 +119,7 @@ public final class XSSFOptimizer {
             if (sheet == null || sheet.getCTWorksheet() == null) {
                 continue;
             }
-
-            // Columns: <cols><col style="..."/></cols>
-            // NOTE: CTWorksheet has getColsList() (may be empty), no isSetCols().
-            for (CTCols cols : sheet.getCTWorksheet().getColsList()) {
-                for (CTCol col : cols.getColList()) {
-                    if (col.isSetStyle()) {
-                        markUsedIndex(used, (int) col.getStyle());
-                    }
-                }
-            }
-
-            // Rows + cells: <sheetData><row s="..."><c s="..."/></row></sheetData>
-            for (CTRow row : getRows(sheet.getCTWorksheet())) {
-                if (row.isSetS()) {
-                    markUsedIndex(used, (int) row.getS());
-                }
-                for (CTCell cell : row.getCList()) {
-                    if (cell.isSetS()) {
-                        markUsedIndex(used, (int) cell.getS());
-                    }
-                }
-            }
+            markUsedCellXfs(sheet.getCTWorksheet(), used);
         }
 
         // Build mapping oldIndex -> newIndex and the new compacted list, preserving order.
@@ -163,32 +142,65 @@ public final class XSSFOptimizer {
             if (sheet == null || sheet.getCTWorksheet() == null) {
                 continue;
             }
-
-            // Columns
-            for (CTCols cols : sheet.getCTWorksheet().getColsList()) {
-                for (CTCol col : cols.getColList()) {
-                    if (col.isSetStyle()) {
-                        col.setStyle(remapIndexOrDefault(map, (int) col.getStyle()));
-                    }
-                }
-            }
-
-            // Rows + cells
-            for (CTRow row : getRows(sheet.getCTWorksheet())) {
-                if (row.isSetS()) {
-                    row.setS(remapIndexOrDefault(map, (int) row.getS()));
-                }
-                for (CTCell cell : row.getCList()) {
-                    if (cell.isSetS()) {
-                        cell.setS(remapIndexOrDefault(map, (int) cell.getS()));
-                    }
-                }
-            }
+            remapCellXfs(sheet.getCTWorksheet(), map);
         }
 
         // Replace list content in-place.
         cellXfs.clear();
         cellXfs.addAll(newCellXfs);
+    }
+
+    /**
+     * Marks the {@code <cellXfs>} entries the columns, rows and cells of a worksheet refer to.
+     */
+    private static void markUsedCellXfs(CTWorksheet worksheet, boolean[] used) {
+        // Columns: <cols><col style="..."/></cols>
+        // NOTE: CTWorksheet has getColsList() (may be empty), no isSetCols().
+        for (CTCols cols : worksheet.getColsList()) {
+            for (CTCol col : cols.getColList()) {
+                if (col.isSetStyle()) {
+                    markUsedIndex(used, (int) col.getStyle());
+                }
+            }
+        }
+
+        // Rows + cells: <sheetData><row s="..."><c s="..."/></row></sheetData>
+        for (CTRow row : getRows(worksheet)) {
+            if (row.isSetS()) {
+                markUsedIndex(used, (int) row.getS());
+            }
+            for (CTCell cell : row.getCList()) {
+                if (cell.isSetS()) {
+                    markUsedIndex(used, (int) cell.getS());
+                }
+            }
+        }
+    }
+
+    /**
+     * Rewrites the {@code <cellXfs>} references of the columns, rows and cells of a worksheet to the new indices.
+     */
+    private static void remapCellXfs(CTWorksheet worksheet, int[] map) {
+        // Columns
+        for (CTCols cols : worksheet.getColsList()) {
+            for (CTCol col : cols.getColList()) {
+                if (col.isSetStyle()) {
+                    col.setStyle(remapIndexOrDefault(map, (int) col.getStyle()));
+                }
+            }
+        }
+
+        // Rows + cells
+        for (CTRow row : getRows(worksheet)) {
+            if (row.isSetS()) {
+                row.setS(remapIndexOrDefault(map, (int) row.getS()));
+            }
+            for (CTCell cell : row.getCList()) {
+                if (cell.isSetS()) {
+                    cell.setS(remapIndexOrDefault(map, (int) cell.getS()));
+                }
+            }
+        }
     }
 
     /**
@@ -255,14 +267,7 @@ public final class XSSFOptimizer {
         }
 
         // Compact named styles: keep only those that reference still-used styleXf IDs and remap them.
-        var newNamedStyles = new ArrayList<CTCellStyle>();
-        for (CTCellStyle named : existingNamedStyles) {
-            var oldStyleId = (int) named.getXfId();
-            if (oldStyleId >= 0 && oldStyleId < styleMap.length && styleMap[oldStyleId] >= 0) {
-                named.setXfId(styleMap[oldStyleId]);
-                newNamedStyles.add(named);
-            }
-        }
+        var newNamedStyles = compactNamedStyles(existingNamedStyles, styleMap);
 
         // Replace styleXfs in-place.
         styleXfs.clear();
@@ -273,6 +278,18 @@ public final class XSSFOptimizer {
         cellStyles.setCellStyleArray(newNamedStyles.toArray(new CTCellStyle[0]));
 
         log.info("Used: styleXfs={}, namedStyles={}", newStyleXfs.size(), newNamedStyles.size());
+    }
+
+    private static List<CTCellStyle> compactNamedStyles(List<CTCellStyle> existingNamedStyles, int[] styleMap) {
+        var newNamedStyles = new ArrayList<CTCellStyle>();
+        for (CTCellStyle named : existingNamedStyles) {
+            var oldStyleId = (int) named.getXfId();
+            if (oldStyleId >= 0 && oldStyleId < styleMap.length && styleMap[oldStyleId] >= 0) {
+                named.setXfId(styleMap[oldStyleId]);
+                newNamedStyles.add(named);
+            }
+        }
+        return newNamedStyles;
     }
 
     private static void markUsedIndex(boolean[] used, int index) {
