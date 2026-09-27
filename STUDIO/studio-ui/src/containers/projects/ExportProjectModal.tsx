@@ -22,6 +22,14 @@ const withFooter = (menu: ReactElement, footer: ReactNode): ReactElement => (
 /** Marks the workspace copy rather than a committed revision. */
 const WORKSPACE = 'workspace'
 
+/** What the workspace copy of an open project holds, as its entry names it. */
+const workspaceState = (editing: boolean, local: boolean) => {
+    if (editing) {
+        return 'in_editing'
+    }
+    return local ? 'local' : 'viewing'
+}
+
 interface ExportProjectModalProps {
     open: boolean
     project: Project | null
@@ -68,7 +76,7 @@ export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportP
         ...(opened
             ? [{
                 value: WORKSPACE,
-                label: t(`browser.export_dialog.${editing ? 'in_editing' : local ? 'local' : 'viewing'}`),
+                label: t(`browser.export_dialog.${workspaceState(editing, local)}`),
             }]
             : []),
         ...revisionOptions,

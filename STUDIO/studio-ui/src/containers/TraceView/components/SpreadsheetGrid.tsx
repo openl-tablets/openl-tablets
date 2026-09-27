@@ -35,6 +35,9 @@ const SpreadsheetGrid: React.FC<SpreadsheetGridProps> = ({ steps, columns, rows,
     const renderCell = (step: StepValueView): React.ReactNode => {
         const key = `${frameUri}#${step.ref}`
         const hasBreakpoint = breakpoints.includes(key)
+        const placeholder = step.status === 'current'
+            ? <Tag color="processing">{t('debug.executing')}</Tag>
+            : <span className={styles.pending}>{t('debug.pending')}</span>
         return (
             <div className={styles.cellInner}>
                 {/* Breakpoints are a debugger feature — the business view has none, so no gutter there. */}
@@ -53,11 +56,7 @@ const SpreadsheetGrid: React.FC<SpreadsheetGridProps> = ({ steps, columns, rows,
                 )}
                 {step.value ? (
                     <ParameterTree param={{ ...step.value, name: '' }} paramKey={`cell-${step.ref}`} />
-                ) : step.status === 'current' ? (
-                    <Tag color="processing">{t('debug.executing')}</Tag>
-                ) : (
-                    <span className={styles.pending}>{t('debug.pending')}</span>
-                )}
+                ) : placeholder}
             </div>
         )
     }

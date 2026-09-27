@@ -1372,6 +1372,20 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
         )
         : undefined
 
+    const readOnlyView = effective
+        ? (
+            <dl className={styles.openapi}>
+                {effective.path && row(t('browser.overview.openapi_path'), effective.path)}
+                {effective.mode && row(t('browser.overview.openapi_mode'), t(effective.mode === 'GENERATION'
+                    ? 'browser.overview.openapi_generation'
+                    : 'browser.overview.openapi_reconciliation'))}
+                {effective.algorithmModuleName
+                    && row(t('browser.overview.openapi_algorithm'), effective.algorithmModuleName)}
+                {effective.modelModuleName && row(t('browser.overview.openapi_model'), effective.modelModuleName)}
+            </dl>
+        )
+        : <span className={shared.microLabel} data-testid="openapi-none">{t('browser.overview.openapi_none')}</span>
+
     return (
         <Section
             action={actions}
@@ -1436,17 +1450,7 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
                         )}
                     </dl>
                 )
-                : !effective
-                    ? <span className={shared.microLabel} data-testid="openapi-none">{t('browser.overview.openapi_none')}</span>
-                    : (
-                        <dl className={styles.openapi}>
-                            {effective.path && row(t('browser.overview.openapi_path'), effective.path)}
-                            {effective.mode && row(t('browser.overview.openapi_mode'),
-                                t(effective.mode === 'GENERATION' ? 'browser.overview.openapi_generation' : 'browser.overview.openapi_reconciliation'))}
-                            {effective.algorithmModuleName && row(t('browser.overview.openapi_algorithm'), effective.algorithmModuleName)}
-                            {effective.modelModuleName && row(t('browser.overview.openapi_model'), effective.modelModuleName)}
-                        </dl>
-                    )}
+                : readOnlyView}
         </Section>
     )
 }

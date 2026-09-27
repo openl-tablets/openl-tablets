@@ -6,6 +6,17 @@ import { SystemContext } from '../contexts'
 import { useDefaultGroup } from '../hooks/useDefaultGroup'
 import { useGroups } from '../containers/groups/useGroups'
 
+/** The colour of the tag: neutral while the groups load, orange for a missing group, red for administrators. */
+const tagColorOf = (groupsLoading: boolean, groupNotFound: boolean, isAdminGroup: boolean) => {
+    if (groupsLoading) {
+        return 'default'
+    }
+    if (groupNotFound) {
+        return 'orange'
+    }
+    return isAdminGroup ? 'red' : 'blue'
+}
+
 /**
  * Displays the current Default Group value with a tooltip explaining what it is and how to change it.
  * Renders nothing in Single-User mode or when the default group cannot be loaded.
@@ -31,14 +42,11 @@ export const DefaultGroupInfo: React.FC = () => {
     const defaultGroup = hasGroup ? groups.find((g) => g.name === defaultGroupName) : undefined
     const groupNotFound = hasGroup && !groupsLoading && defaultGroup === undefined
     const isAdminGroup = defaultGroup?.admin === true
-    const tagColor =
-        hasGroup && groupsLoading
-            ? 'default'
-            : groupNotFound
-                ? 'orange'
-                : isAdminGroup
-                    ? 'red'
-                    : 'blue'
+    const tagColor = tagColorOf(hasGroup && groupsLoading, groupNotFound, isAdminGroup)
+    const tag = <Tag color={tagColor}>{defaultGroupName}</Tag>
+    const groupTag = groupNotFound
+        ? <Tooltip title={t('security:default_group_not_found')}>{tag}</Tooltip>
+        : tag
 
     return (
         <Flex
@@ -54,15 +62,7 @@ export const DefaultGroupInfo: React.FC = () => {
             <Typography.Text type="secondary">
                 {t('security:default_group')}:
             </Typography.Text>
-            {hasGroup ? (
-                groupNotFound ? (
-                    <Tooltip title={t('security:default_group_not_found')}>
-                        <Tag color={tagColor}>{defaultGroupName}</Tag>
-                    </Tooltip>
-                ) : (
-                    <Tag color={tagColor}>{defaultGroupName}</Tag>
-                )
-            ) : (
+            {hasGroup ? groupTag : (
                 <Typography.Text italic type="secondary">
                     {t('security:default_group_none')}
                 </Typography.Text>

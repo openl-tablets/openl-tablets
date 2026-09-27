@@ -5,6 +5,13 @@ import { useSharedStyles } from './sharedStyles'
 const GIT_REPOSITORY_TYPE = 'repo-git'
 const LOCAL_REPOSITORY_TYPE = 'repo-file'
 
+/** The icon each kind of repository carries. */
+const ICONS = {
+    local: HddOutlined,
+    git: BranchesOutlined,
+    database: DatabaseOutlined,
+}
+
 const useStyles = createStyles(({ css }) => ({
     badge: css`
         display: inline-flex;
@@ -27,7 +34,7 @@ interface RepoIconProps {
 /** The icon a repository carries: a branch for Git, a disk for the local files, a database otherwise. */
 export const RepoIcon = ({ type, className }: RepoIconProps) => {
     const kind = iconKind(type)
-    const Icon = kind === 'local' ? HddOutlined : kind === 'git' ? BranchesOutlined : DatabaseOutlined
+    const Icon = ICONS[kind]
     return <Icon className={className} data-testid={`repo-badge-${kind}`} />
 }
 

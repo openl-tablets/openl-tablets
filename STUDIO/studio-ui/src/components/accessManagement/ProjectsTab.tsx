@@ -33,11 +33,10 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
                     const designRepository = designRepositories.find(option => option.id === project.repository)
                     // If repository not found, use repository ID as label (e.g., "local" becomes "Local")
                     const repositoryId = (project.repository || '').trim()
-                    const repositoryLabel = designRepository
-                        ? designRepository.name
-                        : repositoryId
-                            ? repositoryId.charAt(0).toUpperCase() + repositoryId.slice(1)
-                            : 'Unknown Repository'
+                    const idLabel = repositoryId
+                        ? repositoryId.charAt(0).toUpperCase() + repositoryId.slice(1)
+                        : 'Unknown Repository'
+                    const repositoryLabel = designRepository ? designRepository.name : idLabel
 
                     indexOfOption = acc.push({
                         label: repositoryLabel,

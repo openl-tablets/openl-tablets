@@ -164,11 +164,12 @@ export const Users: React.FC = () => {
                 width: 150,
                 render: (_: string, record: any) => {
                     const canDelete = !record.superUser && !record.currentUser
-                    const deleteTooltip = record.superUser
-                        ? t('users:cannot_delete_superuser')
-                        : record.currentUser
-                            ? t('users:cannot_delete_yourself')
-                            : ''
+                    let deleteTooltip = ''
+                    if (record.superUser) {
+                        deleteTooltip = t('users:cannot_delete_superuser')
+                    } else if (record.currentUser) {
+                        deleteTooltip = t('users:cannot_delete_yourself')
+                    }
                     return (
                         <>
                             <Button

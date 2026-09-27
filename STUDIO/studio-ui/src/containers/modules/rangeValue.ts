@@ -99,15 +99,19 @@ export const formatRange = (bounds: RangeBounds): string => {
             return lower
         case 'between': {
             const between = `${lower} .. ${upper}`
-            return bounds.fromIncluded && bounds.toIncluded
-                ? between
-                : `${bounds.fromIncluded ? '[' : '('}${between}${bounds.toIncluded ? ']' : ')'}`
+            if (bounds.fromIncluded && bounds.toIncluded) {
+                return between
+            }
+            return `${bounds.fromIncluded ? '[' : '('}${between}${bounds.toIncluded ? ']' : ')'}`
         }
         case 'at-most':
             return `${bounds.toIncluded ? '<=' : '<'}${upper}`
         case 'at-least':
         default:
-            return lower === '' ? '' : `${bounds.fromIncluded ? '>=' : '>'}${lower}`
+            if (lower === '') {
+                return ''
+            }
+            return `${bounds.fromIncluded ? '>=' : '>'}${lower}`
     }
 }
 

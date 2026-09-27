@@ -329,12 +329,23 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         chosen[key]?.()
     }
 
+    const textBadge = editing ? t('browser.files.text_editor') : t('browser.editor.read_only')
+    const textView = loading
+        ? <Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />
+        : (
+            <div className={styles.body}>
+                <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />}>
+                    <CodeEditor onChange={setContent} path={activePath} readOnly={!editing} value={content} />
+                </Suspense>
+            </div>
+        )
+
     return (
         <div className={shared.paneColumn} data-testid="file-preview">
             <div className={shared.paneHeader}>
                 <span className={cx(shared.valueText, shared.ellipsis, styles.path)}>{activePath}</span>
                 <Tag className={styles.badge}>
-                    {!editable ? t('browser.files.binary') : editing ? t('browser.files.text_editor') : t('browser.editor.read_only')}
+                    {editable ? textBadge : t('browser.files.binary')}
                 </Tag>
                 <Space className={styles.actions}>
                     {editing ? (
@@ -384,17 +395,7 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                 </Space>
             </div>
             {error && <Alert showIcon className={styles.error} data-testid="file-preview-error" title={error} type="error" />}
-            {editable ? (
-                loading
-                    ? <Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />
-                    : (
-                        <div className={styles.body}>
-                            <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />}>
-                                <CodeEditor onChange={setContent} path={activePath} readOnly={!editing} value={content} />
-                            </Suspense>
-                        </div>
-                    )
-            ) : (
+            {editable ? textView : (
                 <div className={shared.panePlaceholder} data-testid="file-preview-binary">
                     <span>{t(openableModule ? 'browser.files.module_hint' : 'browser.files.binary_hint')}</span>
                     {openableModule ? (

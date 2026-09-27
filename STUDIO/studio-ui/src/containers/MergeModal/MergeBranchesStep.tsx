@@ -284,7 +284,8 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     })
                     return
                 }
-                const message = isApiHttpError(err) ? err.message : (err instanceof Error ? err.message : undefined)
+                // An API error is an Error too, carrying the message the server answered with.
+                const message = err instanceof Error ? err.message : undefined
                 setMergeError(message || t('merge:errors.merge_failed'))
             } finally {
                 setIsMerging(false)

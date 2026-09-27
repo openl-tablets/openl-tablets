@@ -66,8 +66,8 @@ export const DesignRepositoriesTab: React.FC<DesignRepositoriesTabProps> = ({ de
                                             return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }}
                                         filterSort={(optionA?: DefaultOptionType, optionB?: DefaultOptionType) => {
-                                            if (!optionA || !optionB) return 0
-                                            return optionA.disabled === optionB.disabled ? 0 : optionA.disabled ? 1 : -1
+                                            if (!optionA || !optionB || optionA.disabled === optionB.disabled) return 0
+                                            return optionA.disabled ? 1 : -1
                                         }}
                                     />
                                 </Form.Item>

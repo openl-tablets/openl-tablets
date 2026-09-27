@@ -79,6 +79,9 @@ const mute = (colour: string | undefined): string | undefined => {
     return `rgb(${grey}, ${grey}, ${grey})`
 }
 
+/** A colour of the cell as it is drawn: its own, or the grey it reads as when the cell is muted. */
+const tinted = (colour: string | undefined, muted: boolean): string | undefined => (muted ? mute(colour) : colour)
+
 /**
  * The cell's Excel styling. A cell the screen paints keeps its font and alignment but not its own
  * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
@@ -93,8 +96,8 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
         return PLAIN
     }
     return {
-        background: painted ? undefined : (muted ? mute(style?.background) : style?.background),
-        color: muted ? mute(style?.color) : style?.color,
+        background: painted ? undefined : tinted(style?.background, muted),
+        color: tinted(style?.color, muted),
         textAlign: style?.align as React.CSSProperties['textAlign'],
         verticalAlign: style?.valign as React.CSSProperties['verticalAlign'],
         fontWeight: style?.bold ? 'bold' : undefined,
@@ -151,9 +154,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     const columns = rows.reduce((widest, row) => Math.max(widest, row.length), 0)
     // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
     // table, counted down the rows or across the columns according to how the table is written.
-    const lines = layout === undefined
-        ? 0
-        : Math.max(0, (layout.transposed ? columns : rows.length) - layout.firstDataLine)
+    const extent = layout?.transposed ? columns : rows.length
+    const lines = layout === undefined ? 0 : Math.max(0, extent - layout.firstDataLine)
 
     return (
         <table

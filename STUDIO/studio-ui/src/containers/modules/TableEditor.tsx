@@ -115,6 +115,17 @@ const BACK: Record<string, string> = {
 /** How far back the way a reader came is remembered, as the old editor remembered it. */
 const STEPS_REMEMBERED = 10
 
+/**
+ * How far a key moves the reader along one direction of the table: past the whole span of the cell they
+ * leave going forward, one place going back, and nowhere for a key that moves along the other direction.
+ */
+const stride = (key: string, forward: string, back: string, span: number | undefined): number => {
+    if (key === forward) {
+        return span ?? 1
+    }
+    return key === back ? -1 : 0
+}
+
 /** The editors this screen draws; a cell asking for anything else is written as plain text. */
 const DRAWN: ReadonlySet<string> = new Set([
     'combo', 'multiselect', 'numeric', 'date', 'boolean', 'array', 'range',
@@ -382,8 +393,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     /** The cell a move in the given direction reaches, or null where the table ends. */
     const reached = (from: CellAt, key: string): CellAt | null => {
         const cell = written[from.row]?.[from.column]
-        const down = key === 'ArrowDown' ? (cell?.rowspan ?? 1) : (key === 'ArrowUp' ? -1 : 0)
-        const along = key === 'ArrowRight' ? (cell?.colspan ?? 1) : (key === 'ArrowLeft' ? -1 : 0)
+        const down = stride(key, 'ArrowDown', 'ArrowUp', cell?.rowspan)
+        const along = stride(key, 'ArrowRight', 'ArrowLeft', cell?.colspan)
         const owner = ownerOf.get(`${from.row + down}:${from.column + along}`)
         // The rows kept out of sight are not the reader's to move into: they are not drawn.
         return owner === undefined || owner.row < hidden ? null : owner

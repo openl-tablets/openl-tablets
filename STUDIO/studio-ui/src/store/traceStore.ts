@@ -299,6 +299,17 @@ const SIMPLE_SNAPSHOT_RESET = {
 const isInspectable = (status: DebugStatus | null): boolean =>
     status === 'suspended' || status === 'completed' || status === 'error'
 
+/**
+ * The frame a settled stack puts in focus: the current or failing one at the top, the root call once the run
+ * completed, and none while the stack cannot be inspected.
+ */
+const focusedFrame = (status: DebugStatus, topIndex: number | null): number | null => {
+    if (!isInspectable(status) || topIndex === null) {
+        return null
+    }
+    return status === 'completed' ? 0 : topIndex
+}
+
 /** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
 const TREE_PAGE_SIZE = 100
 
@@ -318,9 +329,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         // While suspended (or stopped at an error) the frame of interest is the current/failing one at the top;
         // once the run completes, the result to surface is the root call at index 0 — not whichever deep frame
         // the last suspend happened to leave published.
-        let focusIndex = !isInspectable(stack.status) || topIndex === null ? null
-            : stack.status === 'completed' ? 0
-                : topIndex
+        let focusIndex = focusedFrame(stack.status, topIndex)
         // In the business view a click inspects one table. If running to it stopped on a deeper frame — an
         // error parked the run inside a table it called — keep the clicked table selected (still on the stack
         // as an ancestor) so its own table and inputs show, not the unrelated frame the suspend landed on.
