@@ -26,10 +26,11 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
 
     private final String methodName;
 
-    private transient IOpenClass[] pars;
+    private final transient IOpenClass[] pars;
 
     public AmbiguousMethodException(String methodName, List<IOpenMethod> matchingMethods) {
         this.methodName = methodName;
+        this.pars = null;
         this.matchingMethods = Collections.unmodifiableList(matchingMethods);
     }
 

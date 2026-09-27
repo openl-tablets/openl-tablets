@@ -20,7 +20,7 @@ public class CompositeOpenlException extends RuntimeException {
      * Syntax errors.
      */
     private final SyntaxNodeException[] errors;
-    private transient Collection<OpenLMessage> errorMessages = new ArrayList<>();
+    private final transient Collection<OpenLMessage> errorMessages;
 
     public CompositeOpenlException(String message,
                                    SyntaxNodeException[] errors,
@@ -28,9 +28,7 @@ public class CompositeOpenlException extends RuntimeException {
         super(message);
         this.message = message;
         this.errors = errors != null ? errors : SyntaxNodeException.EMPTY_ARRAY;
-        if (errorMessages != null) {
-            this.errorMessages = new ArrayList<>(errorMessages);
-        }
+        this.errorMessages = errorMessages != null ? new ArrayList<>(errorMessages) : new ArrayList<>();
     }
 
     private String getMessage2() {

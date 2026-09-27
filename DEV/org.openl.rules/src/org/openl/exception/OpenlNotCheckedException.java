@@ -17,13 +17,16 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
     private static final long serialVersionUID = -4044064134031015107L;
 
     @Getter
-    private transient ILocation location;
+    private final transient ILocation location;
     @Getter
-    private String sourceCode;
+    private final String sourceCode;
     @Getter
-    private String sourceLocation;
+    private final String sourceLocation;
 
     public OpenlNotCheckedException() {
+        this.location = null;
+        this.sourceCode = null;
+        this.sourceLocation = null;
     }
 
     public OpenlNotCheckedException(String message) {
@@ -44,9 +47,7 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
                                     IOpenSourceCodeModule sourceModule) {
         super(message, cause);
         this.location = location;
-        if (sourceModule != null) {
-            this.sourceCode = sourceModule.getCode();
-        }
+        this.sourceCode = sourceModule != null ? sourceModule.getCode() : null;
         this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, sourceModule);
     }
 }
