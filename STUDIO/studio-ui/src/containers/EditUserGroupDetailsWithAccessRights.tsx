@@ -529,11 +529,11 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     const onValuesChange = (changedValues: any, allValues: FormValues) => {
-        const selectedDesignRepos = allValues.designRepos.filter(repo => repo).map(repo => repo.id)
-        const selectedDeployRepos = allValues.deployRepos.filter(repo => repo).map(repo => repo.id)
+        const selectedDesignRepos = allValues.designRepos.filter(Boolean).map(repo => repo.id)
+        const selectedDeployRepos = allValues.deployRepos.filter(Boolean).map(repo => repo.id)
 
         setSelectedRepositories([...selectedDesignRepos, ...selectedDeployRepos])
-        setSelectedProjects(allValues.projects.filter(project => project).map(project => project.id))
+        setSelectedProjects(allValues.projects.filter(Boolean).map(project => project.id))
 
         if (Object.keys(hasErrorOnTab).length) {
             const changedTab = Object.keys(changedValues)[0] as TabKeys
