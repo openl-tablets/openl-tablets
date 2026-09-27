@@ -211,6 +211,22 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             const every = choices.map(choice => choice.value)
             const all = every.length > 0 && every.every(one => chosen.includes(one))
             const write = (values: string[]) => onChange(joinValues(values, separator, asked?.separatorEscaper))
+            const renderPopup = (menu: React.ReactElement) => (
+                <>
+                    {/* Taking the whole list at once and saying when the choosing is over, as the
+                        Editor offered them. The press must not take the focus off the field: losing
+                        it closes the cell, and the click would land on a list already gone. */}
+                    <Flex gap="small" onMouseDown={event => event.preventDefault()} style={{ padding: 8 }}>
+                        <Button onClick={() => write(all ? [] : every)} size="small">
+                            {t(all ? 'browser.module.edit_deselect_all' : 'browser.module.edit_select_all')}
+                        </Button>
+                        <Button onClick={() => onCommit()} size="small" type="primary">
+                            {t('browser.module.edit_done')}
+                        </Button>
+                    </Flex>
+                    {menu}
+                </>
+            )
             return (
                 <Select
                     {...shared}
@@ -220,24 +236,9 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     onInputKeyDown={keys}
                     options={choices}
                     popupMatchSelectWidth={false}
+                    popupRender={renderPopup}
                     style={{ minWidth: 180 }}
                     value={chosen}
-                    popupRender={menu => (
-                        <>
-                            {/* Taking the whole list at once and saying when the choosing is over, as the
-                                Editor offered them. The press must not take the focus off the field: losing
-                                it closes the cell, and the click would land on a list already gone. */}
-                            <Flex gap="small" onMouseDown={event => event.preventDefault()} style={{ padding: 8 }}>
-                                <Button onClick={() => write(all ? [] : every)} size="small">
-                                    {t(all ? 'browser.module.edit_deselect_all' : 'browser.module.edit_select_all')}
-                                </Button>
-                                <Button onClick={() => onCommit()} size="small" type="primary">
-                                    {t('browser.module.edit_done')}
-                                </Button>
-                            </Flex>
-                            {menu}
-                        </>
-                    )}
                 />
             )
         }

@@ -58,6 +58,30 @@ export const CellColourPicker: React.FC<CellColourPickerProps> = ({
         }
     }
 
+    /** The palette with the way to the full picker under it, or the full picker once the reader asked for it. */
+    const renderPanel = (panel: React.ReactNode) => (more ? panel : (
+        <>
+            <ColourPalette
+                onPreview={onPreview}
+                onPick={chosen => {
+                    opened(false)
+                    onPick(chosen)
+                }}
+            />
+            <Button
+                block
+                data-testid={`${testId}-more`}
+                onClick={() => setMore(true)}
+                // Pressing must not take the focus off the cell the colour is meant for.
+                onMouseDown={event => event.preventDefault()}
+                size="small"
+                type="link"
+            >
+                {t('browser.module.edit_more_colours')}
+            </Button>
+        </>
+    ))
+
     return (
         <Tooltip title={title}>
             <span>
@@ -66,33 +90,12 @@ export const CellColourPicker: React.FC<CellColourPickerProps> = ({
                     format="hex"
                     onOpenChange={opened}
                     open={open}
+                    panelRender={renderPanel}
                     value={value}
                     onChangeComplete={chosen => {
                         onPreview(null)
                         onPick(colour(chosen))
                     }}
-                    panelRender={panel => (more ? panel : (
-                        <>
-                            <ColourPalette
-                                onPreview={onPreview}
-                                onPick={chosen => {
-                                    opened(false)
-                                    onPick(chosen)
-                                }}
-                            />
-                            <Button
-                                block
-                                data-testid={`${testId}-more`}
-                                onClick={() => setMore(true)}
-                                // Pressing must not take the focus off the cell the colour is meant for.
-                                onMouseDown={event => event.preventDefault()}
-                                size="small"
-                                type="link"
-                            >
-                                {t('browser.module.edit_more_colours')}
-                            </Button>
-                        </>
-                    ))}
                 >
                     <Button
                         className={className}

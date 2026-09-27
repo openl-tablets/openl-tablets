@@ -77,8 +77,26 @@ export const CrumbSwitcher = ({
         return shown.length === 0 ? <div className={styles.empty}>{emptyText}</div> : menu
     }
 
+    const renderPopup = (menu: ReactNode) => (
+        <div className={styles.popup}>
+            {/* The search sits at the top of the list: a workspace carries more names than a reader
+                wants to walk through, so the list narrows as they type. */}
+            <div className={styles.search}>
+                <SearchInput
+                    autoFocus
+                    data-testid={`${testId}-search`}
+                    onChange={event => setQuery(event.target.value)}
+                    placeholder={searchPlaceholder}
+                    value={query}
+                />
+            </div>
+            {listContent(menu)}
+        </div>
+    )
+
     const list = (
         <Dropdown
+            popupRender={renderPopup}
             trigger={['click']}
             menu={{
                 items: shown.map(item => ({ key: item.key, label: item.label })),
@@ -91,22 +109,6 @@ export const CrumbSwitcher = ({
                     onOpen?.()
                 }
             }}
-            popupRender={menu => (
-                <div className={styles.popup}>
-                    {/* The search sits at the top of the list: a workspace carries more names than a reader
-                        wants to walk through, so the list narrows as they type. */}
-                    <div className={styles.search}>
-                        <SearchInput
-                            autoFocus
-                            data-testid={`${testId}-search`}
-                            onChange={event => setQuery(event.target.value)}
-                            placeholder={searchPlaceholder}
-                            value={query}
-                        />
-                    </div>
-                    {listContent(menu)}
-                </div>
-            )}
         >
             <button
                 aria-busy={busy}

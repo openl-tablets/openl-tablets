@@ -253,6 +253,7 @@ export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectAction
             {overflow.map(renderAction)}
         </div>
     )
+    const renderOverflow = () => overflowPanel
 
     return (
         <div ref={barRef} className={styles.bar} data-testid="project-actions">
@@ -260,7 +261,7 @@ export const ProjectActionBar = ({ project, pendingId, handlers }: ProjectAction
             {overflow.length > 0 && (
                 <Dropdown
                     placement="bottomRight"
-                    popupRender={() => overflowPanel}
+                    popupRender={renderOverflow}
                     trigger={['click']}
                 >
                     <Button

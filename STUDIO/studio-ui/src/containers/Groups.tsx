@@ -10,6 +10,9 @@ import { tablePagination } from '../utils/tablePagination'
 import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWithAccessRights'
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 
+/** The members of a group, shown under its row once the row is expanded. */
+const renderMembers = (record: GroupItem) => <GroupMembers groupId={record.id} />
+
 export const Groups: React.FC = () => {
     const { modal } = App.useApp()
     const { t } = useTranslation()
@@ -128,7 +131,7 @@ export const Groups: React.FC = () => {
                 pagination={tablePagination(t)}
                 rowKey="id"
                 expandable={{
-                    expandedRowRender: (record: GroupItem) => <GroupMembers groupId={record.id} />,
+                    expandedRowRender: renderMembers,
                     rowExpandable: (record: GroupItem) => record.numberOfMembers > 0,
                 }}
                 onRow={(record) => ({
