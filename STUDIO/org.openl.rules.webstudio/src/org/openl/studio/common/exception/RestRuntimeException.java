@@ -16,7 +16,7 @@ public class RestRuntimeException extends RuntimeException {
 
     private final String code;
     @Getter
-    private final Object[] args;
+    private final transient Object[] args;
 
     public RestRuntimeException(String code) {
         this(code, null);
