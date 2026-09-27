@@ -23,8 +23,8 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class InterfaceImplBuilder {
 
     private static final String DEFAULT_PACKAGE = "org.openl.generated";
-    private static final String NAME_PATTERN = ".$%o%sImpl";
-    private static final String SCRIPT_NAME_PATTERN = ".%s%oImpl";
+    private static final String NAME_PATTERN = "%s.$%o%sImpl";
+    private static final String SCRIPT_NAME_PATTERN = "%s.%s%oImpl";
     private static final AtomicInteger counter = new AtomicInteger();
 
     private final Class<?> clazzInterface;
@@ -38,10 +38,10 @@ public class InterfaceImplBuilder {
             throw new IllegalArgumentException("Target class is not an interface.");
         }
         this.clazzInterface = clazzInterface;
-        this.beanName = String
-                .format(packagePath + NAME_PATTERN, counter.incrementAndGet(), clazzInterface.getSimpleName());
-        this.scriptName = String
-                .format(packagePath + SCRIPT_NAME_PATTERN, clazzInterface.getSimpleName(), counter.incrementAndGet());
+        this.beanName = NAME_PATTERN
+                .formatted(packagePath, counter.incrementAndGet(), clazzInterface.getSimpleName());
+        this.scriptName = SCRIPT_NAME_PATTERN
+                .formatted(packagePath, clazzInterface.getSimpleName(), counter.incrementAndGet());
         init();
     }
 
