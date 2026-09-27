@@ -140,12 +140,12 @@ class InterfaceTransformerTest {
         }
     }
 
-    @XmlType(name = "TestInterface", propOrder = {"const2", "const1"})
+    @XmlType(name = "TestInterface", propOrder = {"CONST2", "CONST1"})
     public interface TestInterface {
         @XmlAttribute(name = "int_const")
-        int const1 = 0;
+        int CONST1 = 0;
         @XmlTransient
-        String const2 = "test";
+        String CONST2 = "test";
 
         @TestAnnotation("test")
         String testMethod1();
