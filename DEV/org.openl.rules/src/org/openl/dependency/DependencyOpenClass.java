@@ -30,12 +30,8 @@ public class DependencyOpenClass extends OpenClassDelegator {
 
     private IOpenMethod applyDependencyLogicToMethod(IOpenMethod openMethod) {
         if (dependencyWrapperLogicToMethod != null && openMethod != null) {
-            var m = dependencyLogicAppliedToMethodMap.get(openMethod);
-            if (m == null) {
-                m = dependencyWrapperLogicToMethod.apply(openMethod, this);
-                dependencyLogicAppliedToMethodMap.put(openMethod, m);
-            }
-            return m;
+            return dependencyLogicAppliedToMethodMap.computeIfAbsent(openMethod,
+                    method -> dependencyWrapperLogicToMethod.apply(method, this));
         }
         return openMethod;
     }

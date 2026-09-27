@@ -135,13 +135,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             return new DummyLockEngine();
         }
         synchronized (lockEngines) {
-            var lockEngine = lockEngines.get(type);
-            if (lockEngine == null) {
-                lockEngine = LockEngineImpl.create(new File(workspaceHome), type);
-                lockEngines.put(type, lockEngine);
-            }
-
-            return lockEngine;
+            return lockEngines.computeIfAbsent(type, t -> LockEngineImpl.create(new File(workspaceHome), t));
         }
     }
 

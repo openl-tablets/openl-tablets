@@ -85,10 +85,7 @@ public class ActivePropertyValidator extends TablesValidator {
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (tsn.getMember() instanceof ExecutableRulesMethod executableMethod) {
                 var key = new DimensionPropertiesMethodKey(executableMethod);
-                if (!groupedMethods.containsKey(key)) {
-                    groupedMethods.put(key, new ArrayList<>());
-                }
-                groupedMethods.get(key).add(tsn);
+                groupedMethods.computeIfAbsent(key, k -> new ArrayList<>()).add(tsn);
             }
         }
         return groupedMethods;

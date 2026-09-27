@@ -87,11 +87,7 @@ final class Settings {
     private void resolve(Map<String, String> queries) {
         Set<String> keys = queries.keySet();
         for (String key : keys) {
-            var value = queries.get(key);
-            if (value != null) {
-                value = new StrSubstitutor(queries).replace(value);
-                queries.put(key, value);
-            }
+            queries.computeIfPresent(key, (k, value) -> new StrSubstitutor(queries).replace(value));
         }
     }
 }

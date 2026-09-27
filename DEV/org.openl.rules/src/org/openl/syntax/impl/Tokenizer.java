@@ -212,15 +212,7 @@ public final class Tokenizer {
     }
 
     private static Tokenizer getTokenizer(String delimiter) {
-
-        var tokenizer = tokenizers.get(delimiter);
-
-        if (tokenizer == null) {
-            tokenizer = new Tokenizer(delimiter);
-            tokenizers.put(delimiter, tokenizer);
-        }
-
-        return tokenizer;
+        return tokenizers.computeIfAbsent(delimiter, Tokenizer::new);
     }
 
     public static IdentifierNode[] tokenize(IOpenSourceCodeModule source,

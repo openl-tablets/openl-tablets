@@ -70,16 +70,12 @@ final class Styles {
     }
 
     CellStyle getDateStyle(Workbook workbook, CellStyle original) {
-        var dateStyle = dateStyles.get(original);
-
-        if (dateStyle == null) {
-            dateStyle = PoiExcelHelper.createCellStyle(workbook);
-            dateStyle.cloneStyleFrom(original);
+        return dateStyles.computeIfAbsent(original, style -> {
+            var dateStyle = PoiExcelHelper.createCellStyle(workbook);
+            dateStyle.cloneStyleFrom(style);
             dateStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
-            dateStyles.put(original, dateStyle);
-        }
-
-        return dateStyle;
+            return dateStyle;
+        });
     }
 
     private CellStyle textStyle(Workbook workbook, Font font) {

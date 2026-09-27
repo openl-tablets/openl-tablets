@@ -25,12 +25,9 @@ public final class SystemValuesManager {
     private SystemValuesManager() {
         for (TablePropertyDefinition propDef : TablePropertyDefinitionUtils.getSystemProperties()) {
             if (CURRENT_USER_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())) {
-                if (!systemValues.containsKey(CURRENT_USER_DESCRIPTOR)) {
-                    systemValues.put(CURRENT_USER_DESCRIPTOR, new CurrentUserValue());
-                }
-            } else if (CURRENT_DATE_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())
-                    && !systemValues.containsKey(CURRENT_DATE_DESCRIPTOR)) {
-                systemValues.put(CURRENT_DATE_DESCRIPTOR, new CurrentDateValue());
+                systemValues.computeIfAbsent(CURRENT_USER_DESCRIPTOR, k -> new CurrentUserValue());
+            } else if (CURRENT_DATE_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())) {
+                systemValues.computeIfAbsent(CURRENT_DATE_DESCRIPTOR, k -> new CurrentDateValue());
             }
         }
     }

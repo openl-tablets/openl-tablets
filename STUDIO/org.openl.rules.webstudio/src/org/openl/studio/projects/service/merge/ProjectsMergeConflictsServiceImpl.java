@@ -553,10 +553,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
                     // Add new modules
                     for (Module module : entry.getValue()) {
-                        var path = module.getRulesRootPath();
-                        if (!modules.containsKey(path)) {
-                            modules.put(path, module);
-                        }
+                        modules.putIfAbsent(module.getRulesRootPath(), module);
                     }
 
                     descriptor.setModules(new ArrayList<>(modules.values()));

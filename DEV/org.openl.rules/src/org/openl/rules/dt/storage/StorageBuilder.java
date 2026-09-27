@@ -39,12 +39,7 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
             checkMinMax(loadedValue);
 
             Map<Object, Integer> diffValues = info.getUniqueIndex();
-
-            var index1 = diffValues.get(loadedValue);
-            if (index1 == null) {
-                var size = diffValues.size();
-                diffValues.put(loadedValue, size);
-            }
+            diffValues.putIfAbsent(loadedValue, diffValues.size());
 
             writeValue((T) loadedValue, index);
         }
