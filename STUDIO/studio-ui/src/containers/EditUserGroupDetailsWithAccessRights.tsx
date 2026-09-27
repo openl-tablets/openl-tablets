@@ -259,8 +259,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     const saveReposRoles = async (repositories: RepositoryRole[], repoType: RepositoryType, sid: string) => {
         const initialRoles = repoType === RepositoryType.DESIGN ? designRepos : deployRepos
 
-        const addedRoles = repositories.filter((role: any) => !initialRoles.find((r: any) => r.id === role.id))
-        const deletedRoles = initialRoles.filter((role: any) => !repositories.find((r: any) => r.id === role.id))
+        const addedRoles = repositories.filter((role: any) => !initialRoles.some((r: any) => r.id === role.id))
+        const deletedRoles = initialRoles.filter((role: any) => !repositories.some((r: any) => r.id === role.id))
         const updatedRoles = repositories.filter((role: any) => initialRoles.find((r: any) => r.id === role.id && r.role !== role.role))
 
         const headers = new Headers()
@@ -377,8 +377,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             role: item.role
         }))
 
-        const addedRoles = projectRoles.filter((role: any) => !projects.find((r: any) => r.id === role.id))
-        const deletedRoles = projects.filter((role: any) => !projectRoles.find((r: any) => r.id === role.id))
+        const addedRoles = projectRoles.filter((role: any) => !projects.some((r: any) => r.id === role.id))
+        const deletedRoles = projects.filter((role: any) => !projectRoles.some((r: any) => r.id === role.id))
         const updatedRoles = projectRoles.filter((role: any) => projects.find((r: any) => r.id === role.id && r.role !== role.role))
 
         const headers = new Headers()

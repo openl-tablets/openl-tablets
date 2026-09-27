@@ -236,7 +236,7 @@ export const DeployModal: React.FC = () => {
     const handleSearchDeploymentName = (newValue: string) => {
         setSearchString(newValue)
         // If a user types something new, mark as new deployment
-        if (newValue && !deploymentNames.find(dep => dep.name === newValue)) {
+        if (newValue && !deploymentNames.some(dep => dep.name === newValue)) {
             setIsNewDeployment(true)
         }
     }
