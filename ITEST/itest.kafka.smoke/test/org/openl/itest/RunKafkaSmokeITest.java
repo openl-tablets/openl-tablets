@@ -61,7 +61,7 @@ class RunKafkaSmokeITest {
     void methodSimpleOk() {
         var producerRecord = new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 5}");
         addHeader(producerRecord, "X-Id", "Zulu");
-        testKafka(producerRecord, "hello-out-topic", (response) -> {
+        testKafka(producerRecord, "hello-out-topic", response -> {
             assertEquals("Good Morning", response.value());
             assertEquals(producerRecord.key(), response.key());
             assertEquals("Zulu", getHeaderValue(response, "X-Id"));
@@ -76,14 +76,14 @@ class RunKafkaSmokeITest {
 
             producer.send(new ProducerRecord<>("hello-in-topic", "key1", "5"));
 
-            checkKafkaResponse(consumer, (response) -> {
+            checkKafkaResponse(consumer, response -> {
                 assertEquals("5", response.value());
                 assertEquals("key1", response.key());
                 assertEquals(36, getHeaderValue(response, "X-Id").length());
             });
 
             producer.send(new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 22}"));
-            checkKafkaResponse(consumer, (response) -> {
+            checkKafkaResponse(consumer, response -> {
                 assertEquals("{\"hour\": 22}", response.value());
                 assertEquals("key1", response.key());
                 assertEquals("fail", getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
@@ -99,7 +99,7 @@ class RunKafkaSmokeITest {
                 "key1",
                 "{\"hour\": 5}");
         addHeader(producerRecord, KafkaHeaders.METHOD_NAME, "Hello");
-        testKafka(producerRecord, "hello-out-topic-2", (response) -> {
+        testKafka(producerRecord, "hello-out-topic-2", response -> {
             assertEquals("Good Morning", response.value());
             assertEquals(producerRecord.key(), response.key());
             assertEquals(36, getHeaderValue(response, "X-Id").length());
@@ -111,7 +111,7 @@ class RunKafkaSmokeITest {
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-2", "key1", "5");
         addHeader(producerRecord, KafkaHeaders.METHOD_NAME, "Hello");
         addHeader(producerRecord, "X-Id", "Yetty");
-        testKafka(producerRecord, "hello-dlt-topic-2", (response) -> {
+        testKafka(producerRecord, "hello-dlt-topic-2", response -> {
             assertEquals("5", response.value());
             assertEquals(producerRecord.key(), response.key());
             assertEquals("Yetty", getHeaderValue(response, "X-Id"));
@@ -124,7 +124,7 @@ class RunKafkaSmokeITest {
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 5}");
         addHeader(producerRecord, KafkaHeaders.REPLY_TOPIC, replyTopic);
         addHeader(producerRecord, "X-Id", "x-ray");
-        testKafka(producerRecord, replyTopic, (response) -> {
+        testKafka(producerRecord, replyTopic, response -> {
             assertEquals("Good Morning", response.value());
             assertEquals(producerRecord.key(), response.key());
             assertEquals("x-ray", getHeaderValue(response, "X-Id"));
@@ -186,7 +186,7 @@ class RunKafkaSmokeITest {
             consumer.subscribe(Collections.singletonList(HELLO_REPLY_DLT_TOPIC));
             producer.send(producerRecord);
 
-            checkKafkaResponse(consumer, (response) -> {
+            checkKafkaResponse(consumer, response -> {
                 assertEquals("5", response.value());
 
                 assertEquals("42", getHeaderValue(response, KafkaHeaders.CORRELATION_ID));
@@ -217,7 +217,7 @@ class RunKafkaSmokeITest {
     private static void testKafka(ProducerRecord<String, String> producerRecord,
                                   String outTopic,
                                   String expectedValue) {
-        testKafka(producerRecord, outTopic, (response) -> {
+        testKafka(producerRecord, outTopic, response -> {
             assertEquals(expectedValue, response.value());
             assertEquals(producerRecord.key(), response.key());
         });

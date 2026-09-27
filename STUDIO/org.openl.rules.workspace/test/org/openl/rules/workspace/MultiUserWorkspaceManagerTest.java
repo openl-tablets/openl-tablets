@@ -32,7 +32,7 @@ class MultiUserWorkspaceManagerTest {
     @Test
     void removeWorkspaceOnSessionTimeout() {
         var user = new WorkspaceUserImpl("user1",
-                (username) -> new UserInfo("user1", "user1@email", "User1"));
+                username -> new UserInfo("user1", "user1@email", "User1"));
         var workspace1 = manager.getUserWorkspace(user);
 
         // Must return cached version

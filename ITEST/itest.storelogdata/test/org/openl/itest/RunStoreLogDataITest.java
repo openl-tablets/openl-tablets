@@ -387,7 +387,7 @@ class RunStoreLogDataITest {
     }
 
     private void testKafka(ProducerRecord<String, String> producerRecord, String outTopic, String expectedValue) {
-        testKafka(producerRecord, outTopic, (response) -> {
+        testKafka(producerRecord, outTopic, response -> {
             if (expectedValue != null) {
                 assertEquals(expectedValue, response.value());
                 assertEquals(producerRecord.key(), response.key());

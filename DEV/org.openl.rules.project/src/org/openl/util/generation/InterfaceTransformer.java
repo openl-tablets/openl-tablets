@@ -67,7 +67,7 @@ public class InterfaceTransformer {
     public InterfaceTransformer(Class<?> interfaceToTransform, String className) {
         this.classToTransform = interfaceToTransform;
         this.className = className;
-        this.methodParameterAdaptor = (e) -> e;
+        this.methodParameterAdaptor = e -> e;
     }
 
     public InterfaceTransformer(Class<?> interfaceToTransform,

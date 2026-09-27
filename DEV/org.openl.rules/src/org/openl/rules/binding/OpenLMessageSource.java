@@ -143,7 +143,7 @@ public class OpenLMessageSource {
             if (CollectionUtils.isEmpty(args)) {
                 return msg;
             }
-            return cachedMessageFormats.computeIfAbsent(msg, (x) -> new MessageFormat(x, locale)).format(args);
+            return cachedMessageFormats.computeIfAbsent(msg, x -> new MessageFormat(x, locale)).format(args);
         }
     }
 

@@ -31,7 +31,7 @@ class LocalWorkspaceManagerImplTest {
     @Test
     void removeWorkspaceOnSessionTimeout() {
         var user = new WorkspaceUserImpl("user.1",
-                (username) -> new UserInfo("user.1", "user.1@email", "User 1"));
+                username -> new UserInfo("user.1", "user.1@email", "User 1"));
         var workspace1 = manager.getWorkspace(user.getUserId());
         var repoId = "design";
 
@@ -51,7 +51,7 @@ class LocalWorkspaceManagerImplTest {
     @Test
     void dontCreateEmptyFolder() {
         var workspace1 = manager.getWorkspace(
-                new WorkspaceUserImpl("user.1", (username) -> new UserInfo("user.1", "user.1@email", "User 1"))
+                new WorkspaceUserImpl("user.1", username -> new UserInfo("user.1", "user.1@email", "User 1"))
                         .getUserId());
         assertFalse(workspace1.getLocation().exists());
     }

@@ -65,7 +65,7 @@ public final class MethodUtil {
 
     public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
         var buf = new StringBuilder();
-        Function<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
+        Function<IOpenClass, String> typeConverter = e -> e.getDisplayName(mode);
         printMethod(methodHeader, buf, typeConverter);
         return buf.toString();
     }

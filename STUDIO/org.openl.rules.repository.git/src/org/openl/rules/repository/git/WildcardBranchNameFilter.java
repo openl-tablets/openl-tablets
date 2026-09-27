@@ -13,7 +13,7 @@ import org.openl.util.StringUtils;
  */
 public interface WildcardBranchNameFilter extends Predicate<String> {
 
-    WildcardBranchNameFilter NO_MATCH = (branch) -> false;
+    WildcardBranchNameFilter NO_MATCH = branch -> false;
     WildcardBranchNameFilter MASTER = Constants.MASTER::equals;
 
     default boolean accept(String branch) {

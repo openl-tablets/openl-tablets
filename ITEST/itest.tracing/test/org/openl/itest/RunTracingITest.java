@@ -76,7 +76,7 @@ class RunTracingITest {
             consumer.subscribe(Collections.singletonList("hello-out-topic"));
             producer.send(new ProducerRecord<>("hello-in-topic", null, "5"));
 
-            checkKafkaResponse(consumer, (response) -> {
+            checkKafkaResponse(consumer, response -> {
                 assertEquals("Good Morning", response.value());
             });
             consumer.unsubscribe();

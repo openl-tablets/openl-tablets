@@ -126,7 +126,7 @@ class WebStudioWorkspaceRelatedDependencyManagerTest {
                         try {
                             webStudioWorkspaceRelatedDependencyManager.loadDependencyAsync(
                                     AbstractDependencyManager.buildResolvedDependency(factory.getProjectDescriptor()),
-                                    (e) -> {
+                                    e -> {
                                         try {
                                             if (!e.getCompiledOpenClass().hasErrors()) {
                                                 count.incrementAndGet();

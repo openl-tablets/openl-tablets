@@ -101,12 +101,12 @@ class OpenAPIProjectCreatorTest {
 
         when(userWorkspaceMock.getDesignTimeRepository()).thenReturn(designTimeRepoMock);
         when(userWorkspaceMock.getUser()).thenReturn(new WorkspaceUserImpl("USER_MOCK",
-                (username) -> new UserInfo("USER_MOCK", "USER_MOCK@email", "USER MOCK")));
+                username -> new UserInfo("USER_MOCK", "USER_MOCK@email", "USER MOCK")));
         LockEngine lockEngine = mock(LockEngine.class);
         when(lockEngine.tryLock(nullable(String.class), nullable(String.class), nullable(String.class), nullable(String.class))).thenReturn(true);
         when(lockEngine.getLockInfo(nullable(String.class), nullable(String.class), nullable(String.class))).thenReturn(LockInfo.NO_LOCK);
 
-        when(userWorkspaceMock.getProjectsLockEngine()).thenAnswer((x) -> lockEngine);
+        when(userWorkspaceMock.getProjectsLockEngine()).thenAnswer(x -> lockEngine);
     }
 
     @Test

@@ -262,7 +262,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     @Override
     public void afterPropertiesSet() throws Exception {
         for (String defPublisher : defaultPublishers) {
-            var publisher = supportedPublishers.stream().filter((n) -> n.name().equalsIgnoreCase(defPublisher)).findAny();
+            var publisher = supportedPublishers.stream().filter(n -> n.name().equalsIgnoreCase(defPublisher)).findAny();
             if (publisher.isEmpty()) {
                 throw new BeanInitializationException(
                         "Default publisher with id '%s' is not found in the map of supported publishers.".formatted(

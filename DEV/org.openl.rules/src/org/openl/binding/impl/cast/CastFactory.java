@@ -49,8 +49,8 @@ public class CastFactory implements ICastFactory {
     private static final Set<Class<?>> INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS = Set
             .of(Serializable.class, Cloneable.class, Comparable.class);
 
-    private static final Predicate<IOpenClass> isNotIgnorableInParentSearch = (
-            e) -> e != null && e.getInstanceClass() != null && !INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS
+    private static final Predicate<IOpenClass> isNotIgnorableInParentSearch =
+            e -> e != null && e.getInstanceClass() != null && !INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS
             .contains(e.getInstanceClass()) && e.getInstanceClass().getPackage() != null && !Objects
             .equals(e.getInstanceClass().getPackage().getName(), "java.lang.constant");
 

@@ -88,7 +88,7 @@ public class DemoInit {
         initUser("user", "user@example.com", "User", VIEWERS);
 
         var user = new WorkspaceUserImpl(usr.getUsername(),
-                (x) -> new UserInfo(usr.getUsername(),
+                x -> new UserInfo(usr.getUsername(),
                         usr.getEmail(),
                         usr.getDisplayName()));
         var userWorkspace = workspaceManager.getUserWorkspace(user);

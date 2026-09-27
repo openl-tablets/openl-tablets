@@ -1173,7 +1173,7 @@ public class ProjectModel {
             // thread completes the cycle's future.
             cycle.future().whenComplete((ignored, throwable) -> publishStatusChanged());
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
-            this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
+            this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, compiledDependency -> {
                 Throwable failure = null;
                 var stopped = false;
                 synchronized (this) {

@@ -302,7 +302,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private void setUrls(OpenLService service) {
         var result = new HashMap<String, String>();
-        supportedPublishers.forEach((publisher) -> {
+        supportedPublishers.forEach(publisher -> {
             if (publisher.getServiceByDeploy(service.getDeployPath()) != null) {
                 var url = publisher.getUrl(service);
                 result.put(publisher.name(), url);
@@ -334,7 +334,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         var publishers = new ArrayList<RuleServicePublisher>();
         if (supportedPublishers.size() > 1) {
             for (String p : sp) {
-                var publisher = supportedPublishers.stream().filter((n) -> n.name().equalsIgnoreCase(p)).findFirst();
+                var publisher = supportedPublishers.stream().filter(n -> n.name().equalsIgnoreCase(p)).findFirst();
                 if (publisher.isPresent()) {
                     publishers.add(publisher.get());
                 } else {

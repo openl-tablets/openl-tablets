@@ -49,7 +49,7 @@ public final class WrapperLogic {
             return null;
         };
 
-        DependencyBindingContext.externalTypesRegistration = (openClass) -> {
+        DependencyBindingContext.externalTypesRegistration = openClass -> {
             if (openClass instanceof XlsModuleOpenClass class1) {
                 XlsModuleOpenClassHolder.getInstance()
                         .getXlsModuleOpenClass()
