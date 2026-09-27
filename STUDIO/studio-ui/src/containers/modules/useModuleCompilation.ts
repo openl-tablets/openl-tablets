@@ -26,6 +26,19 @@ interface ModuleCompilation {
     status: ProjectStatusUpdate | null
 }
 
+/** The module whose compilation is followed, and how it is asked for. */
+interface ModuleCompilationRequest {
+    projectId: string
+    branch: string | null
+    moduleName: string
+    initial: ProjectStatusUpdate | null
+    initialReadAt?: number | undefined
+    reloadToken?: number | undefined
+    enabled?: boolean | undefined
+    /** Whether the module is to be built from its workbook afresh, dropping what was compiled before. */
+    rebuild?: boolean | undefined
+}
+
 const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.modules
 
 /**
@@ -43,17 +56,16 @@ const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.m
  * Nothing is asked for at all while {@code enabled} is false — of a project nobody has opened there is no copy to
  * compile, and the screen asks the reader to open it first.
  */
-export const useModuleCompilation = (
-    projectId: string,
-    branch: string | null,
-    moduleName: string,
-    initial: ProjectStatusUpdate | null,
+export const useModuleCompilation = ({
+    projectId,
+    branch,
+    moduleName,
+    initial,
     initialReadAt = 0,
     reloadToken = 0,
     enabled = true,
-    /** Whether the module is to be built from its workbook afresh, dropping what was compiled before. */
-    rebuild = true
-): ModuleCompilation => {
+    rebuild = true,
+}: ModuleCompilationRequest): ModuleCompilation => {
     const [failure, setFailure] = useState<string | null>(null)
     // A compilation reporting its progress says how far it has come, not how many tests the project holds —
     // counting those walks every method it compiled. The last count stands until a full status brings a new one,

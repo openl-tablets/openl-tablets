@@ -256,14 +256,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design',
-            'p1',
-            'design',
-            'Beta',
-            'Copied from: Alpha.',
-            undefined,
-            undefined,
-            'master'
+            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'master' }
         ))
         expect(createProjectBranch).not.toHaveBeenCalled()
     })
@@ -278,7 +271,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'release/rates'
+            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'release/rates' }
         ))
     })
 
@@ -336,7 +329,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', undefined, undefined, 'master'
+            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'master' }
         ))
     })
 
@@ -366,7 +359,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', undefined, 'rev-1', 'master'
+            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', revision: 'rev-1', branch: 'master' }
         ))
     })
 
@@ -394,7 +387,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', 'Copied from: Alpha.', 'folder', undefined, undefined
+            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', path: 'folder' }
         ))
     })
 

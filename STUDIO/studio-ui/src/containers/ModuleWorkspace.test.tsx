@@ -59,7 +59,7 @@ vi.mock('../services/modules', () => ({
 // The compilation is followed on the status channel, which this screen is not the place to test: the module is
 // compiled exactly when the project is open.
 vi.mock('./modules/useModuleCompilation', () => ({
-    useModuleCompilation: (projectId: string) => ({
+    useModuleCompilation: ({ projectId }: { projectId: string }) => ({
         // Nothing is compiled of a project that has not been read yet: the screen does not know its id.
         ready: workspace.opened && projectId !== '',
         compiled: workspace.opened ? 1 : 0,

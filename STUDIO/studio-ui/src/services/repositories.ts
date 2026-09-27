@@ -191,6 +191,17 @@ export async function unlockProject(projectId: string): Promise<void> {
     await apiCall(`/projects/${encodeURIComponent(projectId)}/lock`, { method: 'DELETE' }, { throwError: true })
 }
 
+/** How a project is copied: each option left out or blank is left to the server. */
+interface CopyProjectOptions {
+    comment?: string | undefined
+    /** Folder of the copy in a repository that keeps projects in folders. */
+    path?: string | undefined
+    /** Revision of the source to copy instead of its latest one. */
+    revision?: string | undefined
+    /** Branch of the target repository to create the copy in. */
+    branch?: string | undefined
+}
+
 /**
  * Copy a project into the target repository under a new name. The copy happens entirely server-side:
  * the backend copies the project folder, renames the descriptor, grants access and re-indexes the
@@ -204,10 +215,7 @@ export async function copyProject(
     sourceProjectId: string,
     targetRepositoryId: string,
     newName: string,
-    comment?: string,
-    path?: string,
-    revision?: string,
-    branch?: string
+    { comment, path, revision, branch }: CopyProjectOptions = {}
 ): Promise<void> {
     await apiCall(
         `/repos/${encodeURIComponent(targetRepositoryId)}/projects/${encodeURIComponent(newName)}/from-project`,

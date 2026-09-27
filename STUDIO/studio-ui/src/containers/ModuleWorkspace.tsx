@@ -297,16 +297,16 @@ export const ModuleWorkspace = () => {
 
     // Followed by the id the server issued, not the one the address carries: a link written elsewhere may
     // spell the same project a little differently, and the channel is named after the server's spelling.
-    const compilation = useModuleCompilation(
-        project?.id ?? '',
+    const compilation = useModuleCompilation({
+        projectId: project?.id ?? '',
         branch,
         moduleName,
-        project?.compileStatus ?? null,
-        statusReadAt,
+        initial: project?.compileStatus ?? null,
+        initialReadAt: statusReadAt,
         reloadToken,
-        project !== null && !closed,
-        rebuild
-    )
+        enabled: project !== null && !closed,
+        rebuild,
+    })
 
     // Where the module's own workbook is named, so it can be exported. The descriptor does not always spell it
     // out — a project whose modules are discovered by pattern declares none — so the resolved list is read.

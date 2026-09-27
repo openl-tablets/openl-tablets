@@ -27,16 +27,15 @@ const Probe = ({ initial, reloadToken, branch, enabled, module, rebuild }: {
     module?: string
     rebuild?: boolean
 }) => {
-    const { ready, compiled, total, failure, tests } = useModuleCompilation(
-        'p1',
-        branch === undefined ? 'main' : branch,
-        module ?? 'Claims',
-        initial ?? null,
-        0,
+    const { ready, compiled, total, failure, tests } = useModuleCompilation({
+        projectId: 'p1',
+        branch: branch === undefined ? 'main' : branch,
+        moduleName: module ?? 'Claims',
+        initial: initial ?? null,
         reloadToken,
-        enabled ?? true,
-        rebuild ?? true
-    )
+        enabled: enabled ?? true,
+        rebuild: rebuild ?? true,
+    })
     return (
         <span data-testid="state">
             {`${ready ? 'ready' : 'waiting'} ${compiled}/${total} ${failure ?? '-'} tests:${tests}`}

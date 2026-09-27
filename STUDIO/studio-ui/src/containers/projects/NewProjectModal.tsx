@@ -540,16 +540,11 @@ export const NewProjectModal = ({
             try {
                 if (mode === 'copy') {
                     const source = copyableProjectSources.find(candidate => candidate.id === copySource)!
-                    await copyProject(
-                        source.repository,
-                        source.id,
-                        repository.id,
-                        trimmedName,
-                        comment.trim() || undefined,
-                        repositoryPath(),
-                        undefined,
-                        repositorySupportsBranches ? branch.trim() : undefined
-                    )
+                    await copyProject(source.repository, source.id, repository.id, trimmedName, {
+                        comment: comment.trim() || undefined,
+                        path: repositoryPath(),
+                        branch: repositorySupportsBranches ? branch.trim() : undefined,
+                    })
                 } else if (mode === 'template') {
                     const [type, category, name_] = JSON.parse(template!) as [string, string, string]
                     await createProject(repository.id, trimmedName, {

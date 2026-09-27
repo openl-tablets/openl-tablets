@@ -239,16 +239,12 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         if (targetBranchError) {
             throw new Error(targetBranchError)
         }
-        await copyProject(
-            source.repository,
-            source.id,
-            targetRepositoryId,
-            trimmed,
-            comment.trim() || undefined,
-            targetSupportsFolders ? path : undefined,
-            fromOldRevision ? revision : undefined,
-            targetSupportsBranches ? targetBranch.trim() : undefined
-        )
+        await copyProject(source.repository, source.id, targetRepositoryId, trimmed, {
+            comment: comment.trim() || undefined,
+            path: targetSupportsFolders ? path : undefined,
+            revision: fromOldRevision ? revision : undefined,
+            branch: targetSupportsBranches ? targetBranch.trim() : undefined,
+        })
         notification.success({ title: t('browser.copy_dialog.success', { name: trimmed }) })
         return true
     }

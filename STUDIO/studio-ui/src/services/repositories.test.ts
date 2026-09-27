@@ -232,8 +232,11 @@ describe('getProjects', () => {
     it('copies projects into another repository', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 
-        await copyProject('source', 'c291cmNlOkFscGhh', 'target', 'Beta', '  copied  ', ' folder ', undefined,
-            'feature/rates')
+        await copyProject('source', 'c291cmNlOkFscGhh', 'target', 'Beta', {
+            comment: '  copied  ',
+            path: ' folder ',
+            branch: 'feature/rates',
+        })
 
         expect(apiCall).toHaveBeenCalledWith(
             '/repos/target/projects/Beta/from-project',

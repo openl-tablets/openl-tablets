@@ -681,10 +681,7 @@ describe('NewProjectModal', () => {
             'source',
             'design',
             'Copied',
-            'copy comment',
-            'team/rules',
-            undefined,
-            undefined
+            { comment: 'copy comment', path: 'team/rules' }
         )
         await waitFor(() => expect(onCreated).toHaveBeenCalled())
         // A copy is confirmed the way the copy dialog confirms one.
