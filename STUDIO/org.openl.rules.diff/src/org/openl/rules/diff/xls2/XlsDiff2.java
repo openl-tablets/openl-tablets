@@ -108,47 +108,41 @@ public class XlsDiff2 {
 
     private void diff() {
         // 1. Simple cases
-        iterate(new IterClosure() {
-            @Override
-            public boolean remove(XlsTable t1, XlsTable t2) {
-                if (t1.getSheetName().equals(t2.getSheetName())) {
-                    var s1 = t1.getLocation().getStart().toString();
-                    var s2 = t2.getLocation().getStart().toString();
-                    if (s1.equals(s2)) {
-                        var sameName = t1.getTableName().equals(t2.getTableName());
-
-                        var e1 = t1.getLocation().getEnd().toString();
-                        var e2 = t2.getLocation().getEnd().toString();
-                        if (e1.equals(e2)) {
-                            if (sameName) {
-                                add(GUESS_SAME, new DiffPair(t1, t2));
-                            } else {
-                                add(GUESS_SAME_PLACE, new DiffPair(t1, t2));
-                            }
-                            return true;
-                        } else if (sameName) {
-                            add(GUESS_CAN_BE_SAME, new DiffPair(t1, t2));
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        });
-
-        // 2. Sheet and name seems the same
-        iterate(new IterClosure() {
-            @Override
-            public boolean remove(XlsTable t1, XlsTable t2) {
-                if (t1.getSheetName().equals(t2.getSheetName())) {
+        iterate((t1, t2) -> {
+            if (t1.getSheetName().equals(t2.getSheetName())) {
+                var s1 = t1.getLocation().getStart().toString();
+                var s2 = t2.getLocation().getStart().toString();
+                if (s1.equals(s2)) {
                     var sameName = t1.getTableName().equals(t2.getTableName());
-                    if (sameName) {
-                        add(GUESS_MAY_BE_SAME, new DiffPair(t1, t2));
+
+                    var e1 = t1.getLocation().getEnd().toString();
+                    var e2 = t2.getLocation().getEnd().toString();
+                    if (e1.equals(e2)) {
+                        if (sameName) {
+                            add(GUESS_SAME, new DiffPair(t1, t2));
+                        } else {
+                            add(GUESS_SAME_PLACE, new DiffPair(t1, t2));
+                        }
+                        return true;
+                    } else if (sameName) {
+                        add(GUESS_CAN_BE_SAME, new DiffPair(t1, t2));
                         return true;
                     }
                 }
-                return false;
             }
+            return false;
+        });
+
+        // 2. Sheet and name seems the same
+        iterate((t1, t2) -> {
+            if (t1.getSheetName().equals(t2.getSheetName())) {
+                var sameName = t1.getTableName().equals(t2.getTableName());
+                if (sameName) {
+                    add(GUESS_MAY_BE_SAME, new DiffPair(t1, t2));
+                    return true;
+                }
+            }
+            return false;
         });
     }
 
