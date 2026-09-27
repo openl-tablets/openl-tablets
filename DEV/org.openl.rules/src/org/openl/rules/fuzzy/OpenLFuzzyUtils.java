@@ -232,7 +232,7 @@ public final class OpenLFuzzyUtils {
         if (source == null) {
             return StringUtils.EMPTY;
         }
-        var tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_-]|\\.|,|;)");
+        var tokens = source.split("(?<=.)(?=[\\p{Lu}\\d\\s_.,;-])");
 
         tokens = concatTokens(tokens, "\\p{Lu}+");
         tokens = concatTokens(tokens, "\\d+");
