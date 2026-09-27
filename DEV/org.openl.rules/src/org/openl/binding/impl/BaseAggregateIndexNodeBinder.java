@@ -78,6 +78,19 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             }
         }
 
+        return bindExpression(node, targetNode, expressionNode, varNode, varName, varType, bindingContext);
+    }
+
+    /**
+     * Binds the aggregate expression with the iteration variable declared in its own local variable context.
+     */
+    private IBoundNode bindExpression(ISyntaxNode node,
+                                      IBoundNode targetNode,
+                                      ISyntaxNode expressionNode,
+                                      ISyntaxNode varNode,
+                                      String varName,
+                                      IOpenClass varType,
+                                      IBindingContext bindingContext) {
         try {
             bindingContext.pushLocalVarContext();
             var localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, varType);
@@ -104,7 +117,6 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         } finally {
             bindingContext.popLocalVarContext();
         }
-
     }
 
     protected abstract IBoundNode createBoundNode(ISyntaxNode node,

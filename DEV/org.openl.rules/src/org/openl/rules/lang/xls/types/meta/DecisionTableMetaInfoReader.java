@@ -152,19 +152,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
             if (!DecisionTableHelper.isSmart(table.getSyntaxNode()) && !DecisionTableHelper
                     .isSimple(table.getSyntaxNode())) {
-                if (conditionRows != null) {
-                    // Condition description
-                    for (IBaseCondition conditionRow : conditionRows) {
-                        saveExpressionMetaInfo((FunctionalRow) conditionRow, region);
-                    }
-                }
-
-                if (actionRows != null) {
-                    // Action description
-                    for (IBaseAction action : actionRows) {
-                        saveExpressionMetaInfo((FunctionalRow) action, region);
-                    }
-                }
+                saveExpressionsMetaInfo(conditionRows, actionRows, region);
             }
             if (conditionRows != null) {
                 // Condition values
@@ -183,6 +171,24 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         } catch (Exception e) {
             // Something unexpected is occurred. Work without full meta info.
             log.error(e.getMessage(), e);
+        }
+    }
+
+    private void saveExpressionsMetaInfo(IBaseCondition[] conditionRows,
+                                         IBaseAction[] actionRows,
+                                         IGridRegion region) {
+        if (conditionRows != null) {
+            // Condition description
+            for (IBaseCondition conditionRow : conditionRows) {
+                saveExpressionMetaInfo((FunctionalRow) conditionRow, region);
+            }
+        }
+
+        if (actionRows != null) {
+            // Action description
+            for (IBaseAction action : actionRows) {
+                saveExpressionMetaInfo((FunctionalRow) action, region);
+            }
         }
     }
 
@@ -267,20 +273,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         if (!sb.isEmpty()) {
             sb.append("\n");
         }
-        if (columnTypes.length > 1) {
-            if (parameterNames != null && parameterNames.length > 0 && Arrays.stream(parameterNames)
-                    .allMatch(Objects::nonNull)) {
-                sb.append("Parameters: ");
-            } else {
-                sb.append("Types: ");
-            }
-        } else {
-            if (parameterNames != null && parameterNames.length > 0) {
-                sb.append("Parameter: ");
-            } else {
-                sb.append("Type: ");
-            }
-        }
+        sb.append(getParametersTitle(parameterNames, columnTypes));
         for (IOpenClass type : columnTypes) {
             if (i > 0) {
                 sb.append(", ");
@@ -290,6 +283,23 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 sb.append(StringUtils.SPACE).append(parameterNames[i]);
             }
             i++;
+        }
+    }
+
+    private static String getParametersTitle(String[] parameterNames, IOpenClass[] columnTypes) {
+        if (columnTypes.length > 1) {
+            if (parameterNames != null && parameterNames.length > 0 && Arrays.stream(parameterNames)
+                    .allMatch(Objects::nonNull)) {
+                return "Parameters: ";
+            } else {
+                return "Types: ";
+            }
+        } else {
+            if (parameterNames != null && parameterNames.length > 0) {
+                return "Parameter: ";
+            } else {
+                return "Type: ";
+            }
         }
     }
 
@@ -701,27 +711,35 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private void addMetaInfoForArrayHolder(IGridRegion region, ILogicalTable valueCell, Object storageValue) {
         var arrayHolder = (ArrayHolder) storageValue;
         if (arrayHolder.is2DimArray()) {
-            var values = arrayHolder.get2DimValues();
-            for (var i = 0; i < values.length; i++) {
-                for (var j = 0; j < values[i].length; j++) {
-                    if (values[i][j] instanceof CompositeMethod) {
-                        addMetaInfoForCompositeMethod(region, valueCell, j, i, values[i][j]);
-                    }
-                }
-            }
+            addMetaInfoFor2DimArray(region, valueCell, arrayHolder.get2DimValues());
         } else {
-            var values = arrayHolder.getValues();
-            for (var i = 0; i < values.length; i++) {
-                if (values[i] instanceof CompositeMethod) {
-                    if (valueCell.getHeight() > 1) {
-                        addMetaInfoForCompositeMethod(region, valueCell, i, 0, values[i]);
-                    } else {
-                        addMetaInfoForCompositeMethod(region, valueCell, 0, i, values[i]);
-                    }
+            addMetaInfoForArray(region, valueCell, arrayHolder.getValues());
+        }
+    }
+
+    private void addMetaInfoFor2DimArray(IGridRegion region, ILogicalTable valueCell, Object[][] values) {
+        for (var i = 0; i < values.length; i++) {
+            for (var j = 0; j < values[i].length; j++) {
+                if (values[i][j] instanceof CompositeMethod) {
+                    addMetaInfoForCompositeMethod(region, valueCell, j, i, values[i][j]);
                 }
             }
         }
+    }
 
+    /**
+     * Adds the meta info of the formulas in a column of cells, or in a row of cells when the value cell has one row.
+     */
+    private void addMetaInfoForArray(IGridRegion region, ILogicalTable valueCell, Object[] values) {
+        for (var i = 0; i < values.length; i++) {
+            if (values[i] instanceof CompositeMethod) {
+                if (valueCell.getHeight() > 1) {
+                    addMetaInfoForCompositeMethod(region, valueCell, i, 0, values[i]);
+                } else {
+                    addMetaInfoForCompositeMethod(region, valueCell, 0, i, values[i]);
+                }
+            }
+        }
     }
 
     private void saveExpressionMetaInfo(FunctionalRow funcRow, IGridRegion region) {

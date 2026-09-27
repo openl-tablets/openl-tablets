@@ -68,70 +68,88 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
         // Link to input parameters
         Triple<IOpenMethodHeader, String, Integer> value1 = inputs.get(cellKey);
         if (value1 != null) {
-            List<NodeUsage> nodeUsages = new ArrayList<>();
-            var header = value1.getLeft();
-            for (var i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                var parameterType = header.getSignature().getParameterType(i);
-                var metaInfo = parameterType.getMetaInfo();
-                while (metaInfo == null && parameterType.isArray()) {
-                    parameterType = parameterType.getComponentClass();
-                    metaInfo = parameterType.getMetaInfo();
-                }
-                if (metaInfo != null && header instanceof OpenMethodHeader openMethodHeader) {
-                    var paramTypeLocations = openMethodHeader.getParamTypeLocations();
-                    var sourceLocation = paramTypeLocations[i];
-                    var text = new TextInfo(value1.getMiddle());
-                    var start = sourceLocation.getStart().getAbsolutePosition(text) - value1.getRight();
-                    var end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is
-                    // because
-                    // location
-                    // returns
-                    // 'end'
-                    // inclusively
-                    nodeUsages.add(new SimpleNodeUsage(start,
-                            end,
-                            metaInfo.getDisplayName(INamedThing.SHORT),
-                            metaInfo.getSourceUrl(),
-                            parameterType,
-                            NodeType.DATATYPE));
-                }
-            }
-
-            if (CollectionUtils.isNotEmpty(nodeUsages)) {
-                return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+            var inputsMetaInfo = getInputsMetaInfo(value1);
+            if (inputsMetaInfo != null) {
+                return inputsMetaInfo;
             }
         }
 
         // Link for parameters
         Pair<IParameterDeclaration, String> value2 = parameters.get(cellKey);
         if (value2 != null) {
-            var type = value2.getKey().getType();
-            while (type.getMetaInfo() == null && type.isArray()) {
-                type = type.getComponentClass();
-            }
-            var metaInfo = type.getMetaInfo();
-            if (metaInfo != null) {
-                var source = new StringSourceCodeModule(value2.getValue(),
-                        getTableSyntaxNode().getUri());
-                IdentifierNode[] paramNodes;
-                try {
-                    paramNodes = Tokenizer.tokenize(source, "[] \n\r");
-                } catch (OpenLCompilationException e) {
-                    return null;
-                }
-                if (paramNodes.length > 0) {
-                    var nodeUsage = new SimpleNodeUsage(paramNodes[0],
-                            metaInfo.getDisplayName(INamedThing.SHORT),
-                            metaInfo.getSourceUrl(),
-                            type,
-                            NodeType.DATATYPE);
-                    return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
-                }
-            }
-
+            return getParameterMetaInfo(value2);
         }
         return null;
 
+    }
+
+    /**
+     * Returns the links from the parameter types of the inputs to the types, or {@code null} when there are none.
+     */
+    private static CellMetaInfo getInputsMetaInfo(Triple<IOpenMethodHeader, String, Integer> value1) {
+        List<NodeUsage> nodeUsages = new ArrayList<>();
+        var header = value1.getLeft();
+        for (var i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+            var parameterType = header.getSignature().getParameterType(i);
+            var metaInfo = parameterType.getMetaInfo();
+            while (metaInfo == null && parameterType.isArray()) {
+                parameterType = parameterType.getComponentClass();
+                metaInfo = parameterType.getMetaInfo();
+            }
+            if (metaInfo != null && header instanceof OpenMethodHeader openMethodHeader) {
+                var paramTypeLocations = openMethodHeader.getParamTypeLocations();
+                var sourceLocation = paramTypeLocations[i];
+                var text = new TextInfo(value1.getMiddle());
+                var start = sourceLocation.getStart().getAbsolutePosition(text) - value1.getRight();
+                var end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is
+                // because
+                // location
+                // returns
+                // 'end'
+                // inclusively
+                nodeUsages.add(new SimpleNodeUsage(start,
+                        end,
+                        metaInfo.getDisplayName(INamedThing.SHORT),
+                        metaInfo.getSourceUrl(),
+                        parameterType,
+                        NodeType.DATATYPE));
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(nodeUsages)) {
+            return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+        }
+        return null;
+    }
+
+    /**
+     * Returns the link from the parameter type to the type, or to the component type of an array.
+     */
+    private CellMetaInfo getParameterMetaInfo(Pair<IParameterDeclaration, String> value2) {
+        var type = value2.getKey().getType();
+        while (type.getMetaInfo() == null && type.isArray()) {
+            type = type.getComponentClass();
+        }
+        var metaInfo = type.getMetaInfo();
+        if (metaInfo != null) {
+            var source = new StringSourceCodeModule(value2.getValue(),
+                    getTableSyntaxNode().getUri());
+            IdentifierNode[] paramNodes;
+            try {
+                paramNodes = Tokenizer.tokenize(source, "[] \n\r");
+            } catch (OpenLCompilationException e) {
+                return null;
+            }
+            if (paramNodes.length > 0) {
+                var nodeUsage = new SimpleNodeUsage(paramNodes[0],
+                        metaInfo.getDisplayName(INamedThing.SHORT),
+                        metaInfo.getSourceUrl(),
+                        type,
+                        NodeType.DATATYPE);
+                return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
+            }
+        }
+        return null;
     }
 
     public void addExpression(int col, int row, CompositeMethod compositeMethod, String expression) {

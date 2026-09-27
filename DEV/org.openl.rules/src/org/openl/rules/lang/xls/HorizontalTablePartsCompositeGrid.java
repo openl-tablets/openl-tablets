@@ -30,42 +30,64 @@ class HorizontalTablePartsCompositeGrid extends CompositeGrid {
             }
             return new CompositeCell(column, row, region, firstRowCell, t.getGridTable());
         } else {
-            var t1 = transform(0, firstRowCell.getHeight());// Properties parsing and merge
-            if (t1 != null) {
-                var propertiesCell = t1.grid().getCell(t1.getCol(), t1.getRow());
-                if (row < firstRowCell.getHeight() + propertiesCell.getHeight() && PropertiesHelper.PROPERTIES_HEADER
-                        .equals(propertiesCell.getStringValue())) {
-                    var t2 = transform(propertiesCell.getWidth(), row);
-                    if (t2 != null) {
-                        var propertiesNameCell = t2.grid().getCell(t2.getCol(), t2.getRow());
-                        var t3 = transform(propertiesCell.getWidth() + propertiesNameCell.getWidth(), row);
-                        if (t3 != null) {
-                            var propertiesValueCell = t3.grid().getCell(t3.getCol(), t3.getRow());
-                            if (column >= propertiesCell.getWidth() + propertiesNameCell.getWidth()) {
-                                var reg = getRegionContaining(
-                                        propertiesCell.getWidth() + propertiesNameCell.getWidth(),
-                                        row);
-                                IGridRegion region;
-                                if (reg != null) {
-                                    region = new GridRegion(reg.getTop(),
-                                            reg.getLeft(),
-                                            reg.getBottom(),
-                                            reg.getLeft() + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
-                                                    .getWidth()));
-                                } else {
-                                    region = new GridRegion(row,
-                                            column,
-                                            row,
-                                            column + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
-                                                    .getWidth()));
-                                }
-                                return new CompositeCell(column, row, region, propertiesValueCell, t3.getGridTable());
-                            }
-                        }
-                    }
-                }
+            var propertyValueCell = findPropertyValueCell(column, row, firstRowCell);
+            if (propertyValueCell != null) {
+                return propertyValueCell;
             }
         }
         return super.getCell(column, row);
+    }
+
+    /**
+     * Returns the cell of a property value when the row belongs to the properties that follow the first row. The
+     * property value cell spans to the right edge of the grid.
+     *
+     * @return the property value cell, or {@code null} when the cell is not a property value
+     */
+    private ICell findPropertyValueCell(int column, int row, ICell firstRowCell) {
+        var t1 = transform(0, firstRowCell.getHeight());// Properties parsing and merge
+        if (t1 != null) {
+            var propertiesCell = t1.grid().getCell(t1.getCol(), t1.getRow());
+            if (row < firstRowCell.getHeight() + propertiesCell.getHeight() && PropertiesHelper.PROPERTIES_HEADER
+                    .equals(propertiesCell.getStringValue())) {
+                return findPropertyValueCellInRow(column, row, propertiesCell);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the property value cell of the row, which follows the properties cell and the property name cell.
+     */
+    private ICell findPropertyValueCellInRow(int column, int row, ICell propertiesCell) {
+        var t2 = transform(propertiesCell.getWidth(), row);
+        if (t2 != null) {
+            var propertiesNameCell = t2.grid().getCell(t2.getCol(), t2.getRow());
+            var t3 = transform(propertiesCell.getWidth() + propertiesNameCell.getWidth(), row);
+            if (t3 != null) {
+                var propertiesValueCell = t3.grid().getCell(t3.getCol(), t3.getRow());
+                if (column >= propertiesCell.getWidth() + propertiesNameCell.getWidth()) {
+                    var reg = getRegionContaining(
+                            propertiesCell.getWidth() + propertiesNameCell.getWidth(),
+                            row);
+                    IGridRegion region;
+                    if (reg != null) {
+                        region = new GridRegion(reg.getTop(),
+                                reg.getLeft(),
+                                reg.getBottom(),
+                                reg.getLeft() + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
+                                        .getWidth()));
+                    } else {
+                        region = new GridRegion(row,
+                                column,
+                                row,
+                                column + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
+                                        .getWidth()));
+                    }
+                    return new CompositeCell(column, row, region, propertiesValueCell, t3.getGridTable());
+                }
+            }
+        }
+        return null;
     }
 }

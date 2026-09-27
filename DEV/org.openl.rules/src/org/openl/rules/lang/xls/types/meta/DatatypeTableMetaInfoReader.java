@@ -72,41 +72,50 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         }
 
         if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.DEFAULT_COLUMN_TITLE), c) || Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.EXAMPLE_COLUMN_TITLE), c)) {
-            // Default Values
+            return getDefaultValueMetaInfo(logicalTable, r);
+        } else if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.TYPE_COLUMN_TITLE), c)) {
+            return getTypeMetaInfo(logicalTable, r, c);
+        }
+        return null;
+    }
+
+    private CellMetaInfo getDefaultValueMetaInfo(ILogicalTable logicalTable, int r) {
+        // Default Values
+        try {
+            var logicalRow = logicalTable.getRow(r);
+            var field = getField(logicalRow);
+            if (field == null) {
+                return null;
+            }
+            var type = field.getType();
+            var multiValue = false;
+            if (type.getAggregateInfo().isAggregate(type)) {
+                type = type.getAggregateInfo().getComponentType(type);
+                multiValue = true;
+            }
+
+            return new CellMetaInfo(type, multiValue);
+        } catch (OpenLCompilationException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private CellMetaInfo getTypeMetaInfo(ILogicalTable logicalTable, int r, int c) {
+        var logicalRow = logicalTable.getRow(r);
+        GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, c);
+        if (!ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
             try {
-                var logicalRow = logicalTable.getRow(r);
                 var field = getField(logicalRow);
                 if (field == null) {
                     return null;
                 }
-                var type = field.getType();
-                var multiValue = false;
-                if (type.getAggregateInfo().isAggregate(type)) {
-                    type = type.getAggregateInfo().getComponentType(type);
-                    multiValue = true;
-                }
-
-                return new CellMetaInfo(type, multiValue);
+                var fieldMetaInfo = field.getType().getMetaInfo();
+                IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
+                return createMetaInfo(idn[0], fieldMetaInfo);
             } catch (OpenLCompilationException e) {
                 log.error(e.getMessage(), e);
                 return null;
-            }
-        } else if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.TYPE_COLUMN_TITLE), c)) {
-            var logicalRow = logicalTable.getRow(r);
-            GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, c);
-            if (!ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
-                try {
-                    var field = getField(logicalRow);
-                    if (field == null) {
-                        return null;
-                    }
-                    var fieldMetaInfo = field.getType().getMetaInfo();
-                    IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
-                    return createMetaInfo(idn[0], fieldMetaInfo);
-                } catch (OpenLCompilationException e) {
-                    log.error(e.getMessage(), e);
-                    return null;
-                }
             }
         }
         return null;

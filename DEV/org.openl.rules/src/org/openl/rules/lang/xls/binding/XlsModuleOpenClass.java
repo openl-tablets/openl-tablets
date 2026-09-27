@@ -381,15 +381,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (openClass instanceof XlsModuleOpenClass xlsModuleOpenClass && xlsModuleOpenClass.getDataBase() != null) {
             for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
                 if (XlsNodeTypes.XLS_DATA.equals(table.getXlsNodeType())) {
-                    if (!dataTables.containsKey(table.getName())) {
-                        dataTables.put(table.getName(), table);
-                    } else {
-                        var existingTable = dataTables.get(table.getName());
-                        if (existingTable != null && !Objects.equals(existingTable.getUri(), table.getUri())) {
-                            dataTables.put(table.getName(), null);
-                        }
-                    }
+                    putDataTable(dataTables, table);
                 }
+            }
+        }
+    }
+
+    /**
+     * Puts the data table by its name. The name of data tables from different sources is mapped to {@code null}.
+     */
+    private static void putDataTable(Map<String, ITable> dataTables, ITable table) {
+        if (!dataTables.containsKey(table.getName())) {
+            dataTables.put(table.getName(), table);
+        } else {
+            var existingTable = dataTables.get(table.getName());
+            if (existingTable != null && !Objects.equals(existingTable.getUri(), table.getUri())) {
+                dataTables.put(table.getName(), null);
             }
         }
     }
@@ -555,54 +562,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         var existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
 
         if (existedMethod != null) {
-            if (method instanceof TestSuiteMethod) {
-                DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method,
-                        existedMethod);
-                return;
-            }
-
-            if (!existedMethod.getType().equals(m.getType())) {
-                var message = "Method '%s' is already defined with another return type '%s'.".formatted(
-                        MethodUtil.printSignature(m, INamedThing.REGULAR),
-                        existedMethod.getType().getDisplayName(0));
-                throw new DuplicatedMethodException(message, existedMethod, method);
-            }
-
-            var existedMethodSignature = existedMethod.getSignature();
-            var candidateMethodSignature = method.getSignature();
-            for (var i = 0; i < existedMethodSignature.getNumberOfParameters(); i++) {
-                if (!Objects.equals(extractContextParameter(existedMethodSignature, i),
-                        extractContextParameter(candidateMethodSignature, i))) {
-                    var message = "Method '%s' is already defined with another set of context parameters.".formatted(
-                            MethodUtil.printSignature(method, INamedThing.REGULAR));
-                    throw new DuplicatedMethodException(message, existedMethod, method);
-                }
-            }
-
-            // Checks the instance of existed method. If it's the
-            // OpenMethodDecorator then just add the method-candidate to
-            // decorator; otherwise - replace existed method with new instance
-            // of OpenMethodDecorator for existed method and add new one.
-            //
-            if (existedMethod instanceof OpenMethodDispatcher dispatcher) {
-                super.removeMethod(existedMethod);
-                try {
-                    dispatcher.addMethod(m);
-                } finally {
-                    super.addMethod(existedMethod);
-                }
-            } else {
-                if (!m.equals(existedMethod)) {
-                    // Create decorator for existed method.
-                    //
-                    var dispatcher = getOpenMethodDispatcher(existedMethod);
-                    var wrappedDispatcher = (OpenMethodDispatcher) WrapperLogic
-                            .wrapOpenMethod(dispatcher, this, false);
-                    wrappedDispatcher.addMethod(m);
-                    super.removeMethod(existedMethod);
-                    super.addMethod(wrappedDispatcher);
-                }
-            }
+            addToExistedMethod(method, m, existedMethod);
         } else {
             // Just wrap original method with dispatcher functionality.
             //
@@ -619,6 +579,65 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
             } else {
                 super.addMethod(m);
+            }
+        }
+    }
+
+    /**
+     * Adds the wrapped method as an overload of the existed method with the same signature. A test suite method is
+     * only checked to be the same as the existed one.
+     *
+     * @param method the method to add
+     * @param m      the wrapped method to add
+     * @throws DuplicatedMethodException when the methods differ in the return type or in the context parameters
+     */
+    private void addToExistedMethod(IOpenMethod method, IOpenMethod m, IOpenMethod existedMethod) {
+        if (method instanceof TestSuiteMethod) {
+            DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method,
+                    existedMethod);
+            return;
+        }
+
+        if (!existedMethod.getType().equals(m.getType())) {
+            var message = "Method '%s' is already defined with another return type '%s'.".formatted(
+                    MethodUtil.printSignature(m, INamedThing.REGULAR),
+                    existedMethod.getType().getDisplayName(0));
+            throw new DuplicatedMethodException(message, existedMethod, method);
+        }
+
+        var existedMethodSignature = existedMethod.getSignature();
+        var candidateMethodSignature = method.getSignature();
+        for (var i = 0; i < existedMethodSignature.getNumberOfParameters(); i++) {
+            if (!Objects.equals(extractContextParameter(existedMethodSignature, i),
+                    extractContextParameter(candidateMethodSignature, i))) {
+                var message = "Method '%s' is already defined with another set of context parameters.".formatted(
+                        MethodUtil.printSignature(method, INamedThing.REGULAR));
+                throw new DuplicatedMethodException(message, existedMethod, method);
+            }
+        }
+
+        // Checks the instance of existed method. If it's the
+        // OpenMethodDecorator then just add the method-candidate to
+        // decorator; otherwise - replace existed method with new instance
+        // of OpenMethodDecorator for existed method and add new one.
+        //
+        if (existedMethod instanceof OpenMethodDispatcher dispatcher) {
+            super.removeMethod(existedMethod);
+            try {
+                dispatcher.addMethod(m);
+            } finally {
+                super.addMethod(existedMethod);
+            }
+        } else {
+            if (!m.equals(existedMethod)) {
+                // Create decorator for existed method.
+                //
+                var dispatcher = getOpenMethodDispatcher(existedMethod);
+                var wrappedDispatcher = (OpenMethodDispatcher) WrapperLogic
+                        .wrapOpenMethod(dispatcher, this, false);
+                wrappedDispatcher.addMethod(m);
+                super.removeMethod(existedMethod);
+                super.addMethod(wrappedDispatcher);
             }
         }
     }

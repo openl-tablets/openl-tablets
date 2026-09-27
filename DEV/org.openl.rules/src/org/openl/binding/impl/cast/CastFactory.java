@@ -151,46 +151,18 @@ public class CastFactory implements ICastFactory {
             return openClass1;
         }
 
-        if (openClass1 instanceof ModuleSpecificType moduleSpecificType1 && openClass2 instanceof ModuleSpecificType moduleSpecificType2) {
-            IOpenClass t;
-            if (moduleSpecificType1.getModule()
-                    .isDependencyModule(moduleSpecificType2.getModule(), new IdentityHashMap<>())) {
-                t = moduleSpecificType1.getClosestClass(moduleSpecificType2);
-            } else {
-                t = moduleSpecificType2.getClosestClass(moduleSpecificType1);
-            }
-            if (t != null) {
-                return t;
-            }
+        var moduleSpecificClosestClass = findModuleSpecificClosestClass(openClass1, openClass2);
+        if (moduleSpecificClosestClass != null) {
+            return moduleSpecificClosestClass;
         }
 
         if (openClass1 instanceof DomainOpenClass && !(openClass2 instanceof DomainOpenClass) || !(openClass1 instanceof DomainOpenClass) && openClass2 instanceof DomainOpenClass) {
-            return findClosestClass(
-                    openClass1 instanceof DomainOpenClass ? JavaOpenClass.getOpenClass(openClass1.getInstanceClass())
-                            : openClass1,
-                    openClass2 instanceof DomainOpenClass ? JavaOpenClass.getOpenClass(openClass2.getInstanceClass())
-                            : openClass2,
-                    casts,
-                    methods);
+            return findClosestClass(toJavaClassIfDomain(openClass1), toJavaClassIfDomain(openClass2), casts, methods);
         }
 
-        var cast1To2 = casts.getCast(openClass1, openClass2);
-        var cast2To1 = casts.getCast(openClass2, openClass1);
-        if (cast1To2 != null && cast1To2.isImplicit() && cast2To1 == null) {
-            return openClass2;
-        } else if (cast2To1 != null && cast2To1.isImplicit() && cast1To2 == null) {
-            return openClass1;
-        } else if (cast1To2 != null && cast2To1 != null) {
-            if (!cast1To2.isImplicit() && cast2To1.isImplicit()) {
-                return openClass1;
-            }
-            if (!cast2To1.isImplicit() && cast1To2.isImplicit()) {
-                return openClass2;
-            }
-            // For example NoCast
-            if (cast1To2.isImplicit() && cast2To1.isImplicit()) {
-                return cast1To2.getDistance() < cast2To1.getDistance() ? openClass2 : openClass1;
-            }
+        var closestByCasts = chooseByImplicitCasts(casts, openClass1, openClass2);
+        if (closestByCasts != null) {
+            return closestByCasts;
         }
 
         if (openClass1 instanceof DomainOpenClass) {
@@ -200,6 +172,82 @@ public class CastFactory implements ICastFactory {
                     methods);
         }
 
+        return findClosestClassByAutoCasts(openClass1, openClass2, casts, methods);
+    }
+
+    /**
+     * Returns the closest class of two module specific types. It is looked up in the type whose module depends on
+     * the module of the other type.
+     *
+     * @return the closest class, or {@code null} when it is not found or a type is not module specific
+     */
+    private static IOpenClass findModuleSpecificClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
+        if (openClass1 instanceof ModuleSpecificType moduleSpecificType1 && openClass2 instanceof ModuleSpecificType moduleSpecificType2) {
+            if (moduleSpecificType1.getModule()
+                    .isDependencyModule(moduleSpecificType2.getModule(), new IdentityHashMap<>())) {
+                return moduleSpecificType1.getClosestClass(moduleSpecificType2);
+            } else {
+                return moduleSpecificType2.getClosestClass(moduleSpecificType1);
+            }
+        }
+        return null;
+    }
+
+    private static IOpenClass toJavaClassIfDomain(IOpenClass openClass) {
+        return openClass instanceof DomainOpenClass ? JavaOpenClass.getOpenClass(openClass.getInstanceClass())
+                : openClass;
+    }
+
+    /**
+     * Chooses one of the classes by the casts between them. A class is chosen when the other class casts to it
+     * implicitly and there is no back cast. Classes with casts in both directions are compared by the casts.
+     *
+     * @return the chosen class, or {@code null} when the casts do not decide
+     */
+    private static IOpenClass chooseByImplicitCasts(ICastFactory casts, IOpenClass openClass1, IOpenClass openClass2) {
+        var cast1To2 = casts.getCast(openClass1, openClass2);
+        var cast2To1 = casts.getCast(openClass2, openClass1);
+        if (cast1To2 != null && cast1To2.isImplicit() && cast2To1 == null) {
+            return openClass2;
+        } else if (cast2To1 != null && cast2To1.isImplicit() && cast1To2 == null) {
+            return openClass1;
+        } else if (cast1To2 != null && cast2To1 != null) {
+            return chooseByMutualCasts(cast1To2, cast2To1, openClass1, openClass2);
+        }
+        return null;
+    }
+
+    /**
+     * Chooses between two classes that cast to each other. The class with the only implicit cast to it wins. When
+     * both casts are implicit, the class with the shorter cast to it wins.
+     *
+     * @return the chosen class, or {@code null} when both casts are explicit
+     */
+    private static IOpenClass chooseByMutualCasts(IOpenCast cast1To2,
+                                                  IOpenCast cast2To1,
+                                                  IOpenClass openClass1,
+                                                  IOpenClass openClass2) {
+        if (!cast1To2.isImplicit() && cast2To1.isImplicit()) {
+            return openClass1;
+        }
+        if (!cast2To1.isImplicit() && cast1To2.isImplicit()) {
+            return openClass2;
+        }
+        // For example NoCast
+        if (cast1To2.isImplicit() && cast2To1.isImplicit()) {
+            return cast1To2.getDistance() < cast2To1.getDistance() ? openClass2 : openClass1;
+        }
+        return null;
+    }
+
+    /**
+     * Finds the closest class among the classes that both classes convert to by the auto cast methods, or else their
+     * parent class. Arrays are compared by their component types within the common dimension.
+     */
+    private static IOpenClass findClosestClassByAutoCasts(IOpenClass openClass1,
+                                                          IOpenClass openClass2,
+                                                          ICastFactory casts,
+                                                          Iterable<IOpenMethod> methods) {
         var dim = 0;
         while (openClass1.isArray() && openClass2.isArray()) {
             openClass1 = openClass1.getComponentClass();
@@ -207,6 +255,31 @@ public class CastFactory implements ICastFactory {
             dim++;
         }
 
+        IOpenClass ret = chooseClosest(casts, findClosestCandidates(openClass1, openClass2, casts, methods));
+
+        if (ret == null) {
+            var c = findParentClassOrObject(openClass1, openClass2, casts);
+            return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(c, dim) : c;
+        }
+
+        // If one class is not primitive we use wrapper for prevent NPE
+        if (openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null
+                && (!openClass1.getInstanceClass().isPrimitive() || !openClass2.getInstanceClass().isPrimitive())
+                && ret.getInstanceClass().isPrimitive()) {
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
+        }
+
+        return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(ret, dim) : ret;
+    }
+
+    /**
+     * Collects the classes that both classes convert to by the auto cast methods, and keeps the ones with the
+     * shortest implicit casts.
+     */
+    private static Set<IOpenClass> findClosestCandidates(IOpenClass openClass1,
+                                                         IOpenClass openClass2,
+                                                         ICastFactory casts,
+                                                         Iterable<IOpenMethod> methods) {
         Iterator<IOpenMethod> itr = methods.iterator();
         Set<IOpenClass> openClass1Candidates = new LinkedHashSet<>();
         addClassToCandidates(openClass1, openClass1Candidates);
@@ -237,32 +310,27 @@ public class CastFactory implements ICastFactory {
             closestClasses.add(to);
         }
 
-        openClass1Candidates = closestClasses;
+        return closestClasses;
+    }
 
-        IOpenClass ret = chooseClosest(casts, openClass1Candidates);
-
-        if (ret == null) {
-            IOpenClass c;
-            if (openClass1 instanceof ModuleSpecificType type && openClass2 instanceof ModuleSpecificType type1 && type
-                    .getModule() != type1.getModule()) {
+    /**
+     * Returns the parent class of two classes. Returns the Object class when there is no parent class, or when the
+     * classes are module specific types of different modules.
+     */
+    private static IOpenClass findParentClassOrObject(IOpenClass openClass1,
+                                                      IOpenClass openClass2,
+                                                      ICastFactory casts) {
+        IOpenClass c;
+        if (openClass1 instanceof ModuleSpecificType type && openClass2 instanceof ModuleSpecificType type1 && type
+                .getModule() != type1.getModule()) {
+            c = JavaOpenClass.OBJECT;
+        } else {
+            c = casts.findParentClass(openClass1, openClass2);
+            if (c == null) {
                 c = JavaOpenClass.OBJECT;
-            } else {
-                c = casts.findParentClass(openClass1, openClass2);
-                if (c == null) {
-                    c = JavaOpenClass.OBJECT;
-                }
             }
-            return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(c, dim) : c;
         }
-
-        // If one class is not primitive we use wrapper for prevent NPE
-        if (openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null
-                && (!openClass1.getInstanceClass().isPrimitive() || !openClass2.getInstanceClass().isPrimitive())
-                && ret.getInstanceClass().isPrimitive()) {
-            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
-        }
-
-        return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(ret, dim) : ret;
+        return c;
     }
 
     @Override
@@ -294,50 +362,46 @@ public class CastFactory implements ICastFactory {
                 && (openClass1.getInstanceClass().isPrimitive() && !openClass2.getInstanceClass()
                 .isPrimitive() || !openClass1.getInstanceClass().isPrimitive() && openClass2.getInstanceClass()
                 .isPrimitive())) {
-            if (openClass1.getInstanceClass().isPrimitive()) {
-                openClass1 = JavaOpenClass
-                        .getOpenClass(ClassUtils.primitiveToWrapper(openClass1.getInstanceClass()));
-            }
-            if (openClass2.getInstanceClass().isPrimitive()) {
-                openClass2 = JavaOpenClass
-                        .getOpenClass(ClassUtils.primitiveToWrapper(openClass2.getInstanceClass()));
-            }
+            openClass1 = returnWithPrimitiveLogic(openClass1);
+            openClass2 = returnWithPrimitiveLogic(openClass2);
         }
 
         if (openClass1.isArray() && openClass2.isArray()) {
-            var dim = 0;
-            while (openClass1.isArray() && openClass2.isArray()) {
-                openClass1 = openClass1.getComponentClass();
-                openClass2 = openClass2.getComponentClass();
-                dim++;
-            }
-            IOpenClass parentClass = findParentClass1(openClass1, openClass2);
-            if (parentClass == null) {
-                return null;
-            }
-            return ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(parentClass, dim);
+            return findParentArrayClass(openClass1, openClass2);
         }
+        return findParentNonArrayClass(openClass1, openClass2);
+    }
 
+    /**
+     * Finds the parent class of two array types as an array of the parent class of their component types.
+     */
+    private static IOpenClass findParentArrayClass(IOpenClass openClass1, IOpenClass openClass2) {
+        var dim = 0;
+        while (openClass1.isArray() && openClass2.isArray()) {
+            openClass1 = openClass1.getComponentClass();
+            openClass2 = openClass2.getComponentClass();
+            dim++;
+        }
+        IOpenClass parentClass = findParentClass1(openClass1, openClass2);
+        if (parentClass == null) {
+            return null;
+        }
+        return ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(parentClass, dim);
+    }
+
+    private static IOpenClass findParentNonArrayClass(IOpenClass openClass1, IOpenClass openClass2) {
         if (openClass1.getInstanceClass() == null && openClass2.getInstanceClass() == null) {
             return openClass1;
         }
 
         // If class1 is NULL literal
         if (openClass1.getInstanceClass() == null) {
-            if (openClass2.getInstanceClass().isPrimitive()) {
-                return null;
-            } else {
-                return openClass2;
-            }
+            return findParentClassWithNullLiteral(openClass2);
         }
 
         // If class2 is NULL literal
         if (openClass2.getInstanceClass() == null) {
-            if (openClass1.getInstanceClass().isPrimitive()) {
-                return null;
-            } else {
-                return openClass1;
-            }
+            return findParentClassWithNullLiteral(openClass1);
         }
 
         if (openClass1.getInstanceClass().isPrimitive() || openClass2.getInstanceClass().isPrimitive()) { // If
@@ -356,14 +420,57 @@ public class CastFactory implements ICastFactory {
                 return t;
             }
         }
+        return findCommonSuperType(openClass1, openClass2);
+    }
 
+    /**
+     * Returns the parent class of the NULL literal and the given class, or {@code null} for a primitive class.
+     */
+    private static IOpenClass findParentClassWithNullLiteral(IOpenClass openClass) {
+        if (openClass.getInstanceClass().isPrimitive()) {
+            return null;
+        } else {
+            return openClass;
+        }
+    }
+
+    /**
+     * Finds the closest common superclass of two classes, then the closest common interface. Falls back to the
+     * Object class.
+     */
+    private static IOpenClass findCommonSuperType(IOpenClass openClass1, IOpenClass openClass2) {
         var superClasses = new HashSet<IOpenClass>();
+        var interfaces = new LinkedHashSet<IOpenClass>();
+        collectSuperClasses(openClass1, superClasses, interfaces);
+        if (superClasses.contains(openClass2)) {
+            return openClass2;
+        }
+        if (!(openClass2 instanceof JavaOpenClass)) {
+            JavaOpenClass javaOpenClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
+            if (superClasses.contains(javaOpenClass2)) {
+                return javaOpenClass2;
+            }
+        }
+        var superClass = findSuperClassAmong(openClass2, superClasses);
+        if (superClass != null) {
+            return superClass;
+        }
+        addSuperInterfaces(interfaces);
+        return findCommonInterface(openClass2, interfaces);
+    }
+
+    /**
+     * Collects the class, its superclasses and their Java classes. Collects the interfaces that the class and its
+     * superclasses implement directly.
+     */
+    private static void collectSuperClasses(IOpenClass openClass1,
+                                            Set<IOpenClass> superClasses,
+                                            Set<IOpenClass> interfaces) {
         superClasses.add(openClass1);
         if (!(openClass1 instanceof JavaOpenClass)) {
             superClasses.add(JavaOpenClass.getOpenClass(openClass1.getInstanceClass()));
         }
         var openClass = openClass1;
-        var interfaces = new LinkedHashSet<IOpenClass>();
         if (openClass.isInterface()) {
             interfaces.add(openClass);
         }
@@ -382,36 +489,51 @@ public class CastFactory implements ICastFactory {
             }
             openClass = next;
         }
-        if (superClasses.contains(openClass2)) {
-            return openClass2;
-        }
-        if (!(openClass2 instanceof JavaOpenClass)) {
-            JavaOpenClass javaOpenClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
-            if (superClasses.contains(javaOpenClass2)) {
-                return javaOpenClass2;
-            }
-        }
-        openClass = openClass2;
+    }
+
+    /**
+     * Walks up the superclasses of the class and returns the first one that is among the given classes. The Object
+     * class is not returned.
+     *
+     * @return the found superclass or {@code null}
+     */
+    private static IOpenClass findSuperClassAmong(IOpenClass openClass2, Set<IOpenClass> superClasses) {
+        var openClass = openClass2;
         while (openClass != null && !JavaOpenClass.OBJECT.equals(openClass)) {
             IOpenClass next = null;
             for (IOpenClass x : openClass.superClasses()) {
                 if (!x.isInterface()) {
-                    if (!JavaOpenClass.OBJECT.equals(x)) {
-                        if (superClasses.contains(x)) {
-                            return x;
-                        }
-                        if (!(x instanceof JavaOpenClass)) {
-                            JavaOpenClass y = JavaOpenClass.getOpenClass(x.getInstanceClass());
-                            if (superClasses.contains(x)) {
-                                return y;
-                            }
-                        }
+                    var superClass = matchSuperClass(x, superClasses);
+                    if (superClass != null) {
+                        return superClass;
                     }
                     next = x;
                 }
             }
             openClass = next;
         }
+        return null;
+    }
+
+    private static IOpenClass matchSuperClass(IOpenClass x, Set<IOpenClass> superClasses) {
+        if (!JavaOpenClass.OBJECT.equals(x)) {
+            if (superClasses.contains(x)) {
+                return x;
+            }
+            if (!(x instanceof JavaOpenClass)) {
+                JavaOpenClass y = JavaOpenClass.getOpenClass(x.getInstanceClass());
+                if (superClasses.contains(x)) {
+                    return y;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Adds the super interfaces of the interfaces, level by level, skipping the ones ignorable in the parent search.
+     */
+    private static void addSuperInterfaces(Set<IOpenClass> interfaces) {
         Queue<IOpenClass> queue = new ArrayDeque<>(interfaces);
         while (!queue.isEmpty()) {
             var queue1 = new LinkedHashSet<IOpenClass>();
@@ -428,7 +550,14 @@ public class CastFactory implements ICastFactory {
             }
             queue = new ArrayDeque<>(queue1);
         }
-        queue = new ArrayDeque<>();
+    }
+
+    /**
+     * Searches the interfaces of the class level by level and returns the first one without type parameters that is
+     * among the given interfaces. Falls back to the Object class.
+     */
+    private static IOpenClass findCommonInterface(IOpenClass openClass2, Set<IOpenClass> interfaces) {
+        Queue<IOpenClass> queue = new ArrayDeque<>();
         if (openClass2.isInterface()) {
             queue.add(openClass2);
         }
@@ -486,40 +615,7 @@ public class CastFactory implements ICastFactory {
             if (ret == null) {
                 ret = openClass;
             } else {
-                var cast = castFactory.getCast(ret, openClass);
-                if (cast == null || !cast.isImplicit()) {
-                    cast = castFactory.getCast(openClass, ret);
-                    if (cast != null && cast.isImplicit()) {
-                        // Found narrower candidate. For example Integer is narrower than Double (when convert from
-                        // int).
-                        ret = openClass;
-                    } else {
-                        // Two candidate classes are not convertible between each over. For example Float and
-                        // BigInteger.
-                        // Compare second candidate with remaining candidates later.
-                        notConvertible.add(openClass);
-                    }
-                } else {
-                    var backCast = castFactory.getCast(openClass, ret);
-                    if (backCast != null && backCast.isImplicit()) {
-                        var distance = cast.getDistance();
-                        var backDistance = backCast.getDistance();
-
-                        if (distance > backDistance) {
-                            // Assume that a cast to openClass is narrower than a cast to ret.
-                            ret = openClass;
-                        } else if (distance == backDistance) {
-                            // We have a collision.
-                            var message = "Cannot find closest cast: have two candidate classes with same cast distance: " + ret
-                                    .getName() + " and " + openClass.getName();
-                            throw new IllegalStateException(message);
-                        } else {
-                            // Previous candidate is narrower. Keep it.
-                        }
-                    } else {
-                        // Previous candidate is narrower. Keep it.
-                    }
-                }
+                ret = chooseNarrower(castFactory, ret, openClass, notConvertible);
             }
         }
 
@@ -538,6 +634,54 @@ public class CastFactory implements ICastFactory {
         }
 
         return ret;
+    }
+
+    /**
+     * Chooses the narrower of the closest candidate so far and the next candidate.
+     *
+     * <p>When the candidates are not convertible between each other, the next candidate is added to the not
+     * convertible ones and the closest candidate is kept.
+     *
+     * @throws IllegalStateException when both candidates convert to each other with the same distance
+     */
+    private static IOpenClass chooseNarrower(ICastFactory castFactory,
+                                             IOpenClass closest,
+                                             IOpenClass openClass,
+                                             Set<IOpenClass> notConvertible) {
+        var cast = castFactory.getCast(closest, openClass);
+        if (cast == null || !cast.isImplicit()) {
+            cast = castFactory.getCast(openClass, closest);
+            if (cast != null && cast.isImplicit()) {
+                // Found narrower candidate. For example Integer is narrower than Double (when convert from
+                // int).
+                return openClass;
+            }
+            // Two candidate classes are not convertible between each over. For example Float and
+            // BigInteger.
+            // Compare second candidate with remaining candidates later.
+            notConvertible.add(openClass);
+            return closest;
+        }
+        var backCast = castFactory.getCast(openClass, closest);
+        if (backCast != null && backCast.isImplicit()) {
+            var distance = cast.getDistance();
+            var backDistance = backCast.getDistance();
+
+            if (distance > backDistance) {
+                // Assume that a cast to openClass is narrower than a cast to closest.
+                return openClass;
+            } else if (distance == backDistance) {
+                // We have a collision.
+                var message = "Cannot find closest cast: have two candidate classes with same cast distance: " + closest
+                        .getName() + " and " + openClass.getName();
+                throw new IllegalStateException(message);
+            } else {
+                // Previous candidate is narrower. Keep it.
+            }
+        } else {
+            // Previous candidate is narrower. Keep it.
+        }
+        return closest;
     }
 
     private static int getDistance(ICastFactory casts, IOpenClass from1, IOpenClass from2, IOpenClass to) {
@@ -870,49 +1014,62 @@ public class CastFactory implements ICastFactory {
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && !to.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
             if (from instanceof DomainOpenClass fromDomainOpenClass && to instanceof DomainOpenClass toDomainOpenClass && from != to) {
-                var openCast = getCast(fromDomainOpenClass.getBaseClass(), toDomainOpenClass.getBaseClass());
-                if (openCast != null) {
-                    if (openCast.isImplicit() && DomainOpenClass
-                            .isFromValuesIncludedToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
-                        return new AliasToAliasOpenCast(openCast);
-                    }
-                    if (isFromValuesIntersectedWithToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
-                        return new AliasToAliasOpenCast(openCast, false);
-                    }
-                }
-                return null;
+                return findAliasToAliasCast(fromDomainOpenClass, toDomainOpenClass);
             }
-            if (from instanceof DomainOpenClass class1 && !(to instanceof DomainOpenClass) && to
-                    .equals(class1.getBaseClass())) {
-                return AliasToTypeCast.getInstance();
-            }
+            return findAliasTypeCast(from, to);
+        }
 
-            if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass class1 && from
-                    .equals(class1.getBaseClass())) {
-                return new TypeToAliasCast(to);
-            }
+        return null;
+    }
 
-            if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) { // This is
-                // not
-                // typo
-                return JavaUpCast.getInstance();
+    private IOpenCast findAliasToAliasCast(DomainOpenClass fromDomainOpenClass, DomainOpenClass toDomainOpenClass) {
+        var openCast = getCast(fromDomainOpenClass.getBaseClass(), toDomainOpenClass.getBaseClass());
+        if (openCast != null) {
+            if (openCast.isImplicit() && DomainOpenClass
+                    .isFromValuesIncludedToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
+                return new AliasToAliasOpenCast(openCast);
             }
-
-            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass)) {
-                var openCast = this.findCast(JavaOpenClass.getOpenClass(from.getInstanceClass()), to);
-                if (openCast != null) {
-                    return new AliasToTypeCast(openCast);
-                }
+            if (isFromValuesIntersectedWithToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
+                return new AliasToAliasOpenCast(openCast, false);
             }
+        }
+        return null;
+    }
 
-            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass)) {
-                var openCast = this.findCast(from, JavaOpenClass.getOpenClass(to.getInstanceClass()));
-                if (openCast != null) {
-                    return new TypeToAliasCast(to, openCast);
-                }
+    /**
+     * Finds a cast between an alias type and a type that is not a distinct alias type: to or from the base type of
+     * the alias, or through the Java class of the alias.
+     */
+    private IOpenCast findAliasTypeCast(IOpenClass from, IOpenClass to) {
+        if (from instanceof DomainOpenClass class1 && !(to instanceof DomainOpenClass) && to
+                .equals(class1.getBaseClass())) {
+            return AliasToTypeCast.getInstance();
+        }
+
+        if (!(from instanceof DomainOpenClass) && to instanceof DomainOpenClass class1 && from
+                .equals(class1.getBaseClass())) {
+            return new TypeToAliasCast(to);
+        }
+
+        if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) { // This is
+            // not
+            // typo
+            return JavaUpCast.getInstance();
+        }
+
+        if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass)) {
+            var openCast = this.findCast(JavaOpenClass.getOpenClass(from.getInstanceClass()), to);
+            if (openCast != null) {
+                return new AliasToTypeCast(openCast);
             }
         }
 
+        if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass)) {
+            var openCast = this.findCast(from, JavaOpenClass.getOpenClass(to.getInstanceClass()));
+            if (openCast != null) {
+                return new TypeToAliasCast(to, openCast);
+            }
+        }
         return null;
     }
 
@@ -981,34 +1138,117 @@ public class CastFactory implements ICastFactory {
 
         // Is auto cast ?
         var auto = true;
-        int distance;
-        if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-            distance = PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
-        } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
-            distance = NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
-        } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-            distance = NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
-        } else {
-            distance = PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
-        }
+        var distance = getAutoCastDistance(from, to);
 
         // Matching method
-        IMethodCaller castCaller = null;
-
-        var fromOpenClass = from;
-        var toOpenClass = to;
-
-        var primitiveClassFrom = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
-        var primitiveClassTo = ClassUtils.wrapperToPrimitive(to.getInstanceClass());
+        var lookup = new CastMethodLookup(methodFactory, from, to);
 
         try {
             // Try to find matching auto cast method
-            castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{from, to});
+            lookup.find(AUTO_CAST_METHOD_NAME);
+            lookup.findByPrimitiveTypes(AUTO_CAST_METHOD_NAME);
+        } catch (AmbiguousMethodException e) {
+            log.debug(IGNORED_ERROR, e);
+        }
 
+        // If appropriate auto cast method is not found try to find explicit
+        // cast method.
+        //
+        if (lookup.castCaller == null) {
+            auto = false;
+            try {
+                lookup.find(CAST_METHOD_NAME);
+                distance = getCastDistance(from, to);
+                lookup.findByPrimitiveTypes(CAST_METHOD_NAME);
+            } catch (AmbiguousMethodException e) {
+                log.debug(IGNORED_ERROR, e);
+            }
+        }
+
+        if (lookup.castCaller == null) {
+            return null;
+        }
+
+        IMethodCaller distanceCaller = null;
+
+        try {
+            distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
+                    new IOpenClass[]{lookup.fromOpenClass, lookup.toOpenClass});
+        } catch (AmbiguousMethodException e) {
+            log.debug(IGNORED_ERROR, e);
+        }
+
+        if (distanceCaller != null) {
+            distance = (Integer) distanceCaller.invoke(null,
+                    new Object[]{lookup.fromOpenClass.nullObject(), lookup.toOpenClass.nullObject()},
+                    null);
+        }
+
+        return new MethodBasedCast(lookup.castCaller, auto, distance, to, lookup.toOpenClass.nullObject());
+    }
+
+    private static int getAutoCastDistance(IOpenClass from, IOpenClass to) {
+        if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+            return PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+        } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
+            return NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+        } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+            return NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+        } else {
+            return PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+        }
+    }
+
+    private static int getCastDistance(IOpenClass from, IOpenClass to) {
+        if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+            return PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+        } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
+            return NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
+        } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+            return NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+        } else {
+            return PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
+        }
+    }
+
+    /**
+     * Looks up a cast method of the method factory by name.
+     *
+     * <p>It remembers the found method and the parameter types it was last looked up with. The types of a lookup
+     * are remembered even when it fails with {@link AmbiguousMethodException}.
+     */
+    private static final class CastMethodLookup {
+        private final IMethodFactory methodFactory;
+        private final IOpenClass from;
+        private final IOpenClass to;
+        private final Class<?> primitiveClassFrom;
+        private final Class<?> primitiveClassTo;
+        private IMethodCaller castCaller;
+        private IOpenClass fromOpenClass;
+        private IOpenClass toOpenClass;
+
+        private CastMethodLookup(IMethodFactory methodFactory, IOpenClass from, IOpenClass to) {
+            this.methodFactory = methodFactory;
+            this.from = from;
+            this.to = to;
+            this.fromOpenClass = from;
+            this.toOpenClass = to;
+            this.primitiveClassFrom = ClassUtils.wrapperToPrimitive(from.getInstanceClass());
+            this.primitiveClassTo = ClassUtils.wrapperToPrimitive(to.getInstanceClass());
+        }
+
+        private void find(String methodName) {
+            castCaller = methodFactory.getMethod(methodName, new IOpenClass[]{from, to});
+        }
+
+        /**
+         * Looks up the method with the primitive types of the wrapper types while no method is found.
+         */
+        private void findByPrimitiveTypes(String methodName) {
             // If from parameter is wrapper for primitive type try to find
-            // auto cast method using 'from' as primitive type. In this case
+            // cast method using 'from' as primitive type. In this case
             // we are emulate 2 operations: 1) unboxing operation 2)
-            // autocast operation.
+            // cast operation.
             // For example:
             // <code>
             // Integer a = 1
@@ -1023,12 +1263,12 @@ public class CastFactory implements ICastFactory {
                 IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                 fromOpenClass = openClassFrom;
                 toOpenClass = to;
-                castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{openClassFrom, to});
+                castCaller = methodFactory.getMethod(methodName, new IOpenClass[]{openClassFrom, to});
             }
 
             // If to parameter is wrapper for primitive type try to find
-            // auto cast method using 'to' as primitive type. In this case
-            // we are emulate 2 operations: 1) autocast operation,
+            // cast method using 'to' as primitive type. In this case
+            // we are emulate 2 operations: 1) cast operation,
             // 2) boxing operation.
             // For example:
             // <code>
@@ -1042,7 +1282,7 @@ public class CastFactory implements ICastFactory {
             //
             if (castCaller == null && primitiveClassTo != null) {
                 IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[]{from, openClassTo});
+                castCaller = methodFactory.getMethod(methodName, new IOpenClass[]{from, openClassTo});
                 fromOpenClass = from;
                 toOpenClass = openClassTo;
             }
@@ -1052,77 +1292,9 @@ public class CastFactory implements ICastFactory {
                 IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                 fromOpenClass = openClassFrom;
                 toOpenClass = openClassTo;
-                castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
-                        new IOpenClass[]{openClassFrom, openClassTo});
-            }
-        } catch (AmbiguousMethodException e) {
-            log.debug(IGNORED_ERROR, e);
-        }
-
-        // If appropriate auto cast method is not found try to find explicit
-        // cast method.
-        //
-        if (castCaller == null) {
-            auto = false;
-            try {
-                castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[]{from, to});
-                if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-                    distance = PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
-                } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
-                    distance = NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
-                } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-                    distance = NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
-                } else {
-                    distance = PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
-                }
-
-                if (castCaller == null && primitiveClassFrom != null) {
-                    IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
-                    fromOpenClass = openClassFrom;
-                    toOpenClass = to;
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[]{openClassFrom, to});
-                }
-
-                if (castCaller == null && primitiveClassTo != null) {
-                    IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[]{from, openClassTo});
-                    fromOpenClass = from;
-                    toOpenClass = openClassTo;
-                }
-
-                if (castCaller == null && primitiveClassFrom != null && primitiveClassTo != null) {
-                    IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
-                    IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    fromOpenClass = openClassFrom;
-                    toOpenClass = openClassTo;
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                            new IOpenClass[]{openClassFrom, openClassTo});
-                }
-
-            } catch (AmbiguousMethodException e) {
-                log.debug(IGNORED_ERROR, e);
+                castCaller = methodFactory.getMethod(methodName, new IOpenClass[]{openClassFrom, openClassTo});
             }
         }
-
-        if (castCaller == null) {
-            return null;
-        }
-
-        IMethodCaller distanceCaller = null;
-
-        try {
-            distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
-                    new IOpenClass[]{fromOpenClass, toOpenClass});
-        } catch (AmbiguousMethodException e) {
-            log.debug(IGNORED_ERROR, e);
-        }
-
-        if (distanceCaller != null) {
-            distance = (Integer) distanceCaller
-                    .invoke(null, new Object[]{fromOpenClass.nullObject(), toOpenClass.nullObject()}, null);
-        }
-
-        return new MethodBasedCast(castCaller, auto, distance, to, toOpenClass.nullObject());
     }
 
     /**

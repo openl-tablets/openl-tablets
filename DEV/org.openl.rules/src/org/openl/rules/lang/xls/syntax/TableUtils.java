@@ -39,36 +39,48 @@ public final class TableUtils {
         final var querySep = rawUri.indexOf('?');
         if (querySep > 0) {
             final var rawQuery = rawUri.substring(querySep + 1);
-            var query = new LinkedHashMap<String, String>();
-            for (String pair : rawQuery.split("&")) {
-                var idx = pair.indexOf('=');
-                if (idx < 0) {
-                    query.put(pair, null);
-                } else {
-                    query.put(pair.substring(0, idx), pair.substring(idx + 1));
-                }
-            }
+            var query = parseQuery(rawQuery);
             if (query.containsKey("range")) {
-                final var newUri = new StringBuilder();
-                newUri.append(rawUri, 0, querySep).append('?');
-                var idx = 0;
-                for (Map.Entry<String, String> pair : query.entrySet()) {
-                    if (idx > 0) {
-                        newUri.append('&');
-                    }
-                    if ("range".equals(pair.getKey())) {
-                        newUri.append("cell").append('=');
-                        var value = pair.getValue();
-                        newUri.append(value, 0, value.indexOf(':'));
-                    } else {
-                        newUri.append(pair.getKey()).append('=').append(pair.getValue());
-                    }
-                    idx++;
-                }
-                return newUri.toString();
+                return replaceRangeWithCell(rawUri, querySep, query);
             }
         }
         return rawUri;
+    }
+
+    private static Map<String, String> parseQuery(String rawQuery) {
+        var query = new LinkedHashMap<String, String>();
+        for (String pair : rawQuery.split("&")) {
+            var idx = pair.indexOf('=');
+            if (idx < 0) {
+                query.put(pair, null);
+            } else {
+                query.put(pair.substring(0, idx), pair.substring(idx + 1));
+            }
+        }
+        return query;
+    }
+
+    /**
+     * Builds the URI with the given query parameters, where the range parameter is replaced with its first cell.
+     */
+    private static String replaceRangeWithCell(String rawUri, int querySep, Map<String, String> query) {
+        final var newUri = new StringBuilder();
+        newUri.append(rawUri, 0, querySep).append('?');
+        var idx = 0;
+        for (Map.Entry<String, String> pair : query.entrySet()) {
+            if (idx > 0) {
+                newUri.append('&');
+            }
+            if ("range".equals(pair.getKey())) {
+                newUri.append("cell").append('=');
+                var value = pair.getValue();
+                newUri.append(value, 0, value.indexOf(':'));
+            } else {
+                newUri.append(pair.getKey()).append('=').append(pair.getValue());
+            }
+            idx++;
+        }
+        return newUri.toString();
     }
 
 }

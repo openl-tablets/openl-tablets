@@ -44,51 +44,23 @@ public class NumericStringComparator implements Comparator<CharSequence> {
             }
 
             // Searching begin of the number to compare
-            while (isZero(ch1) && i1 < length1 - 1 && Character.isDigit(str1.charAt(i1 + 1))) {
-                // Skip insignificant zero.
-                i1++;
-                ch1 = str1.charAt(i1);
-            }
-
-            while (isZero(ch2) && i2 < length2 - 1 && Character.isDigit(str2.charAt(i2 + 1))) {
-                // Skip insignificant zero.
-                i2++;
-                ch2 = str2.charAt(i2);
-            }
+            i1 = skipInsignificantZeros(str1, i1);
+            i2 = skipInsignificantZeros(str2, i2);
 
             // Searching end of the number to compare
-            var exp1 = 0;
-            while (Character.isDigit(ch1)) {
-                exp1++;
-                i1++;
-                if (i1 >= length1) {
-                    break;
-                }
-                ch1 = str1.charAt(i1);
-            }
-
-            var exp2 = 0;
-            while (Character.isDigit(ch2)) {
-                exp2++;
-                i2++;
-                if (i2 >= length2) {
-                    break;
-                }
-                ch2 = str2.charAt(i2);
-            }
+            var exp1 = countDigits(str1, i1);
+            i1 += exp1;
+            var exp2 = countDigits(str2, i2);
+            i2 += exp2;
 
             if (exp1 != exp2) {
                 // the first number greater than the second by the exponent
                 return Integer.compare(exp1, exp2);
             }
 
-            for (; exp1 > 0; exp1--) {
-                // compare numbers starting from the most significant digits of a number
-                var dig1 = Character.digit(str1.charAt(i1 - exp1), 10);
-                var dig2 = Character.digit(str2.charAt(i2 - exp1), 10);
-                if (dig1 != dig2) {
-                    return Integer.compare(dig1, dig2);
-                }
+            var result = compareDigits(str1, i1, str2, i2, exp1);
+            if (result != 0) {
+                return result;
             }
         }
 
@@ -99,6 +71,57 @@ public class NumericStringComparator implements Comparator<CharSequence> {
 
         return length1 - length2;
 
+    }
+
+    /**
+     * Skips the insignificant zeros of the number that starts at the given index.
+     *
+     * @return the index of the first significant digit, or of the last digit when the number has only zeros
+     */
+    private static int skipInsignificantZeros(CharSequence str, int start) {
+        final var length = str.length();
+        var i = start;
+        var ch = str.charAt(i);
+        while (isZero(ch) && i < length - 1 && Character.isDigit(str.charAt(i + 1))) {
+            // Skip insignificant zero.
+            i++;
+            ch = str.charAt(i);
+        }
+        return i;
+    }
+
+    /**
+     * Counts the digits of the number that starts at the given index.
+     */
+    private static int countDigits(CharSequence str, int start) {
+        final var length = str.length();
+        var i = start;
+        var ch = str.charAt(i);
+        var exp = 0;
+        while (Character.isDigit(ch)) {
+            exp++;
+            i++;
+            if (i >= length) {
+                break;
+            }
+            ch = str.charAt(i);
+        }
+        return exp;
+    }
+
+    /**
+     * Compares two numbers with the same count of digits, which end before the given indexes.
+     */
+    private static int compareDigits(CharSequence str1, int end1, CharSequence str2, int end2, int digits) {
+        for (var exp = digits; exp > 0; exp--) {
+            // compare numbers starting from the most significant digits of a number
+            var dig1 = Character.digit(str1.charAt(end1 - exp), 10);
+            var dig2 = Character.digit(str2.charAt(end2 - exp), 10);
+            if (dig1 != dig2) {
+                return Integer.compare(dig1, dig2);
+            }
+        }
+        return 0;
     }
 
     /**

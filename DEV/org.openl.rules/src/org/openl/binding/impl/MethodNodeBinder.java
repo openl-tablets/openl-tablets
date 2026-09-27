@@ -26,6 +26,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 
@@ -84,26 +85,10 @@ public class MethodNodeBinder extends ANodeBinder {
                 // if there are any parameters, try to bind it some additional ways
                 // someMethod( parameter1, ... )
                 //
-                if (childrenCount > 1) {
-                    // Get the root component type and dimension of the array.
-                    var argumentType = argumentTypes[0];
-                    var dims = 0;
-                    while (argumentType.isArray()) {
-                        dims++;
-                        argumentType = argumentType.getComponentClass();
-                    }
-                    var field = bindAsFieldBoundNode(node,
-                            methodName,
-                            argumentTypes,
-                            children,
-                            childrenCount,
-                            argumentType,
-                            dims,
-                            bindingContext);
-                    if (field != null) {
-                        bindingContext.addMessages(openLMessages);
-                        return field;
-                    }
+                var field = bindAsFieldAccess(node, methodName, argumentTypes, children, childrenCount, bindingContext);
+                if (field != null) {
+                    bindingContext.addMessages(openLMessages);
+                    return field;
                 }
             }
 
@@ -131,6 +116,36 @@ public class MethodNodeBinder extends ANodeBinder {
                 bindingContext.popMessages();
             }
         }
+    }
+
+    /**
+     * Binds a call with parameters as an access to the field of the first argument, or of its root component type
+     * when the argument is an array.
+     */
+    private FieldBoundNode bindAsFieldAccess(ISyntaxNode node,
+                                             String methodName,
+                                             IOpenClass[] argumentTypes,
+                                             IBoundNode[] children,
+                                             int childrenCount,
+                                             IBindingContext bindingContext) throws Exception {
+        if (childrenCount > 1) {
+            // Get the root component type and dimension of the array.
+            var argumentType = argumentTypes[0];
+            var dims = 0;
+            while (argumentType.isArray()) {
+                dims++;
+                argumentType = argumentType.getComponentClass();
+            }
+            return bindAsFieldBoundNode(node,
+                    methodName,
+                    argumentTypes,
+                    children,
+                    childrenCount,
+                    argumentType,
+                    dims,
+                    bindingContext);
+        }
+        return null;
     }
 
     private boolean isParallel(IOpenMethod openMethod) {
@@ -201,12 +216,7 @@ public class MethodNodeBinder extends ANodeBinder {
                     bindingContext.addMessage(OpenLMessagesUtils
                             .newWarnMessage("Case insensitive matching to '%s'.".formatted(methodName), methodNode));
                 }
-                if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
-                    var t = bindingContext.findType(field.getType().getName());
-                    if (t != null) {
-                        field = new ModuleSpecificOpenField(field, t);
-                    }
-                }
+                field = toModuleSpecificField(field, argumentType, bindingContext);
                 log(methodName, argumentTypes, "field access method");
                 return new FieldBoundNode(methodNode, field, children[0], dims);
             }
@@ -217,6 +227,21 @@ public class MethodNodeBinder extends ANodeBinder {
             throw new FieldNotFoundException("", methodName, argumentType);
         }
         return null;
+    }
+
+    /**
+     * Retypes a field of a module specific type to the type with the same name found in the binding context.
+     */
+    private static IOpenField toModuleSpecificField(IOpenField field,
+                                                    IOpenClass argumentType,
+                                                    IBindingContext bindingContext) {
+        if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
+            var t = bindingContext.findType(field.getType().getName());
+            if (t != null) {
+                return new ModuleSpecificOpenField(field, t);
+            }
+        }
+        return field;
     }
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {

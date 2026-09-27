@@ -46,27 +46,7 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
                 : MethodSearch
                 .findMethod(methodName, types, bindingContext, type, true);
         if (type instanceof WrapModuleSpecificTypes && methodCaller == null) {
-            IOpenClass[] nullModuleSpecificTypes = Arrays.copyOf(types, types.length);
-            for (var i = 0; i < nullModuleSpecificTypes.length; i++) {
-                if (nullModuleSpecificTypes[i] instanceof ModuleSpecificType) {
-                    nullModuleSpecificTypes[i] = NullOpenClass.the;
-                }
-            }
-            try {
-                IMethodCaller mc = constructor ? MethodSearch.findConstructor(nullModuleSpecificTypes,
-                        bindingContext,
-                        type) : MethodSearch.findMethod(methodName, nullModuleSpecificTypes, bindingContext, type, true);
-                if (mc != null && isMatchToParamsModuleSpecificTypesByNames(mc.getMethod(), types)) {
-                    methodCaller = mc;
-                }
-            } catch (AmbiguousMethodException e) {
-                for (IOpenMethod method : e.getMatchingMethods()) {
-                    if (isMatchToParamsModuleSpecificTypesByNames(method, types)) {
-                        methodCaller = method;
-                        break;
-                    }
-                }
-            }
+            methodCaller = findCallerByModuleSpecificTypeNames(type, methodName, types, constructor, bindingContext);
         }
 
         if (type instanceof WrapModuleSpecificTypes && methodCaller instanceof IOpenMethod method && methodCaller.getMethod()
@@ -78,6 +58,40 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
             }
         }
         return methodCaller;
+    }
+
+    /**
+     * Searches again with the module specific argument types replaced by the null type. A found method is accepted
+     * only when its module specific parameter types have the names of the argument types.
+     *
+     * @return the accepted method or {@code null}
+     */
+    private static IMethodCaller findCallerByModuleSpecificTypeNames(IOpenClass type,
+                                                                     String methodName,
+                                                                     IOpenClass[] types,
+                                                                     boolean constructor,
+                                                                     IBindingContext bindingContext) {
+        IOpenClass[] nullModuleSpecificTypes = Arrays.copyOf(types, types.length);
+        for (var i = 0; i < nullModuleSpecificTypes.length; i++) {
+            if (nullModuleSpecificTypes[i] instanceof ModuleSpecificType) {
+                nullModuleSpecificTypes[i] = NullOpenClass.the;
+            }
+        }
+        try {
+            IMethodCaller mc = constructor ? MethodSearch.findConstructor(nullModuleSpecificTypes,
+                    bindingContext,
+                    type) : MethodSearch.findMethod(methodName, nullModuleSpecificTypes, bindingContext, type, true);
+            if (mc != null && isMatchToParamsModuleSpecificTypesByNames(mc.getMethod(), types)) {
+                return mc;
+            }
+        } catch (AmbiguousMethodException e) {
+            for (IOpenMethod method : e.getMatchingMethods()) {
+                if (isMatchToParamsModuleSpecificTypesByNames(method, types)) {
+                    return method;
+                }
+            }
+        }
+        return null;
     }
 
     private static boolean isMatchToParamsModuleSpecificTypesByNames(IOpenMethod method, IOpenClass[] types) {

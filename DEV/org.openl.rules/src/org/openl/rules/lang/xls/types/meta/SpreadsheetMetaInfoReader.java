@@ -13,6 +13,8 @@ import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
@@ -52,30 +54,8 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
 
         var stringValue = sourceCell.getStringValue();
         if (stringValue != null) {
-            List<NodeUsage> nodeUsages = null;
-            var from = -1;
-            if (stringValue.startsWith("=")) {
-                nodeUsages = new ArrayList<>();
-                from = 0;
-                if (type != null) {
-                    var description = "Cell type: " + MethodUtil.printType(type);
-                    nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
-                }
-            } else if (stringValue.startsWith("{") && stringValue.endsWith("}")) {
-                nodeUsages = new ArrayList<>();
-                from = 0;
-            }
-
             var method = spreadsheetCell.getMethod();
-            if (from > -1) {
-                from += 1; // next symbol after '=' or '{'
-
-                if (method instanceof CompositeMethod compositeMethod) {
-                    var parsedNodeUsages = MetaInfoReaderUtils
-                            .getNodeUsages(compositeMethod, stringValue, from);
-                    nodeUsages.addAll(parsedNodeUsages);
-                }
-            }
+            List<NodeUsage> nodeUsages = getFormulaNodeUsages(stringValue, type, method);
             var isRet = spreadsheetCell.isReturnCell();
 
             if (method == null && type != null) {
@@ -90,6 +70,39 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
         }
 
         return null;
+    }
+
+    /**
+     * Returns the node usages of a formula or of an expression in braces. The usages of a formula start with the cell
+     * type.
+     *
+     * @return the node usages, or {@code null} when the cell value is neither
+     */
+    private static List<NodeUsage> getFormulaNodeUsages(String stringValue, IOpenClass type, IOpenMethod method) {
+        List<NodeUsage> nodeUsages = null;
+        var from = -1;
+        if (stringValue.startsWith("=")) {
+            nodeUsages = new ArrayList<>();
+            from = 0;
+            if (type != null) {
+                var description = "Cell type: " + MethodUtil.printType(type);
+                nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
+            }
+        } else if (stringValue.startsWith("{") && stringValue.endsWith("}")) {
+            nodeUsages = new ArrayList<>();
+            from = 0;
+        }
+
+        if (from > -1) {
+            from += 1; // next symbol after '=' or '{'
+
+            if (method instanceof CompositeMethod compositeMethod) {
+                var parsedNodeUsages = MetaInfoReaderUtils
+                        .getNodeUsages(compositeMethod, stringValue, from);
+                nodeUsages.addAll(parsedNodeUsages);
+            }
+        }
+        return nodeUsages;
     }
 
     /**

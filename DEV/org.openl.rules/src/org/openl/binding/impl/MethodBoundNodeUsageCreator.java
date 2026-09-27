@@ -6,6 +6,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.types.impl.MethodDelegator;
@@ -33,15 +34,7 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
         var location = methodBoundNode.getSyntaxNode().getSourceLocation();
         var methodCaller = methodBoundNode.getMethodCaller();
         if (methodCaller != null && location != null && location.isTextLocation()) {
-            IOpenMethod method;
-            while (methodCaller instanceof AOpenMethodDelegator delegator) {
-                methodCaller = delegator.getDelegate();
-            }
-            if (methodCaller instanceof IOpenMethod openMethod) {
-                method = openMethod;
-            } else {
-                method = methodCaller.getMethod();
-            }
+            var method = resolveMethod(methodCaller);
             if (method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) {
                 var info = new TextInfo(sourceString);
                 var pstart = location.getStart().getAbsolutePosition(info) + startIndex;
@@ -64,6 +57,20 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * Returns the method that the method caller finally delegates to.
+     */
+    private static IOpenMethod resolveMethod(IMethodCaller methodCaller) {
+        var caller = methodCaller;
+        while (caller instanceof AOpenMethodDelegator delegator) {
+            caller = delegator.getDelegate();
+        }
+        if (caller instanceof IOpenMethod openMethod) {
+            return openMethod;
+        }
+        return caller.getMethod();
     }
 
     private static class Holder {

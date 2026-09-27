@@ -106,24 +106,29 @@ public final class RuleRowHelper {
                 values.add(res);
             }
 
-            var valuesArraySize = values.size();
-            var aggregateInfo = aggregateType.getAggregateInfo();
-            arrayValues = aggregateInfo.makeIndexedAggregate(paramType, valuesArraySize);
-            var index = aggregateInfo.getIndex(aggregateType);
-
-            if (index != null) {
-                for (var i = 0; i < valuesArraySize; i++) {
-                    index.setValue(arrayValues, i, values.get(i));
-                }
-            } else {
-                if (arrayValues instanceof Collection collection) {
-                    collection.addAll(values);
-                }
-            }
+            arrayValues = makeAggregate(aggregateType, paramType, values);
         } else {
             arrayValues = aggregateType.getAggregateInfo().makeIndexedAggregate(paramType, 0);
         }
 
+        return arrayValues;
+    }
+
+    private static Object makeAggregate(IOpenClass aggregateType, IOpenClass paramType, List<Object> values) {
+        var valuesArraySize = values.size();
+        var aggregateInfo = aggregateType.getAggregateInfo();
+        var arrayValues = aggregateInfo.makeIndexedAggregate(paramType, valuesArraySize);
+        var index = aggregateInfo.getIndex(aggregateType);
+
+        if (index != null) {
+            for (var i = 0; i < valuesArraySize; i++) {
+                index.setValue(arrayValues, i, values.get(i));
+            }
+        } else {
+            if (arrayValues instanceof Collection collection) {
+                collection.addAll(values);
+            }
+        }
         return arrayValues;
     }
 
@@ -230,25 +235,33 @@ public final class RuleRowHelper {
 
     private static void validateSimpleParam(ILogicalTable table, IBindingContext bindingContext) {
         var theCell = table.getSource().getCell(0, 0);
-        if (table.getWidth() > 1 || table.getHeight() > 1) {
-            for (var i = 0; i < table.getHeight(); i++) {
-                for (var j = 0; j < table.getWidth(); j++) {
-                    if (!(i == 0 && j == 0)) {
-                        var cell = table.getCell(j, i);
-                        if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
-                                .getAbsoluteRegion()
-                                .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null
-                                && !cell.getStringValue().startsWith(COMMENTARY)) {
-                            BindHelper.processError(
-                                    "Table structure is wrong. More than one cell with data found where only one cell is expected.",
-                                    new GridCellSourceCodeModule(table.getSource(), bindingContext),
-                                    bindingContext);
-                            return;
-                        }
+        if ((table.getWidth() > 1 || table.getHeight() > 1) && hasDataOutsideOfCell(table, theCell)) {
+            BindHelper.processError(
+                    "Table structure is wrong. More than one cell with data found where only one cell is expected.",
+                    new GridCellSourceCodeModule(table.getSource(), bindingContext),
+                    bindingContext);
+        }
+    }
+
+    /**
+     * Checks whether a cell of the table outside of the region of the given top left cell has data. Comments are not
+     * data.
+     */
+    private static boolean hasDataOutsideOfCell(ILogicalTable table, ICell theCell) {
+        for (var i = 0; i < table.getHeight(); i++) {
+            for (var j = 0; j < table.getWidth(); j++) {
+                if (!(i == 0 && j == 0)) {
+                    var cell = table.getCell(j, i);
+                    if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
+                            .getAbsoluteRegion()
+                            .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null
+                            && !cell.getStringValue().startsWith(COMMENTARY)) {
+                        return true;
                     }
                 }
             }
         }
+        return false;
     }
 
     public static Object loadNativeValue(ICell cell, IOpenClass paramType) {
@@ -270,32 +283,41 @@ public final class RuleRowHelper {
                 // otherwise we lose in precision (part of EPBDS-5879)
                 res = String2DataConvertorFactory.parse(expectedType, cell.getStringValue(), null);
             } else {
-                var value = cell.getNativeNumber();
-                IObjectToDataConvertor objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType,
-                        double.class);
-                if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
-                    res = objectConverter.convert(value);
-                } else {
-                    objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
-                    if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
-                        res = objectConverter.convert(value);
-                    } else {
-                        objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
-                        if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
-                            var dateValue = cell.getNativeDate();
-                            res = objectConverter.convert(dateValue);
-                        } else if ((int) value == value) {
-                            objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
-                            if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
-                                res = objectConverter.convert((int) value);
-                            }
-
-                        }
-                    }
-                }
+                res = convertNativeNumber(cell, expectedType);
             }
         }
         return res;
+    }
+
+    /**
+     * Converts the number of the cell to the expected type by the first convertor found: from double, from Double,
+     * from the date of the cell, and from int when the number has no fraction.
+     *
+     * @return the converted value, or {@code null} when no convertor is found
+     */
+    private static Object convertNativeNumber(ICell cell, Class<?> expectedType) {
+        var value = cell.getNativeNumber();
+        IObjectToDataConvertor objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType,
+                double.class);
+        if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
+            return objectConverter.convert(value);
+        }
+        objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
+        if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
+            return objectConverter.convert(value);
+        }
+        objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+        if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
+            var dateValue = cell.getNativeDate();
+            return objectConverter.convert(dateValue);
+        }
+        if ((int) value == value) {
+            objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
+            if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
+                return objectConverter.convert((int) value);
+            }
+        }
+        return null;
     }
 
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
@@ -376,72 +398,93 @@ public final class RuleRowHelper {
                 }
             }
 
-            Class<?> expectedType = paramType.getInstanceClass();
-            if (expectedType == null) {
-                var cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
-                        bindingContext);
-                BindHelper.processError("Cannot parse cell value '%s'. Undefined cell type.".formatted(source),
-                        cellSourceCodeModule,
-                        bindingContext);
-                return null;
-            }
-
-            // Try to get cell object value with appropriate string parser.
-            // A parser instance will be selected using expected type of cell
-            // value.
-            //
-            Object result = null;
-
-            try {
-                // Parse as constant value
-                ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
-                var theValueCell = cell.getSource().getCell(0, 0);
-                if (constantOpenField != null) {
-                    if (!bindingContext.isExecutionMode()) {
-                        addConstantMetaInfo(openlAdaptor, constantOpenField, theValueCell);
-                    }
-                    if (constantOpenField.getValue() != null) {
-                        result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
-                    }
-                } else {
-                    if (String.class == paramType.getInstanceClass()) {
-                        result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
-                    } else {
-                        if (theValueCell.hasNativeType()) {
-                            result = loadNativeValue(paramType, paramName, ruleName, cell, openlAdaptor, theValueCell);
-                        }
-                        if (result == null) {
-                            result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
-                        }
-                    }
-                }
-            } catch (Exception | LinkageError e) {
-                // Parsing of loaded string value can be sophisticated process.
-                // As a result various exception types can be thrown (e.g.
-                // CompositeSyntaxNodeException) with not user-friendly message.
-                //
-                var message = "Cannot parse cell value '%s'. Expected value of type '%s'.".formatted(
-                        source,
-                        paramType.getDisplayName(INamedThing.SHORT));
-                var cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
-                        bindingContext);
-                BindHelper.processError(message, e, cellSourceCodeModule, bindingContext);
-            }
-
-            if (result instanceof IMetaHolder holder) {
-                setMetaInfo(holder, cell, paramName, ruleName, bindingContext);
-            }
-
-            var validationMessage = OpenClassUtils.isValidValue(result, paramType);
-            if (validationMessage != null) {
-                var cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
-                        bindingContext);
-                BindHelper.processError(validationMessage, cellSourceCodeModule, bindingContext);
-            }
-
-            return result;
+            return loadValue(paramType, paramName, ruleName, cell, openlAdaptor, source);
         }
 
+        return null;
+    }
+
+    /**
+     * Loads the value of a cell that is not a formula: a constant, or a value parsed from the cell. Reports an error
+     * when the value cannot be parsed or is not valid for the parameter type.
+     */
+    private static Object loadValue(IOpenClass paramType,
+                                    String paramName,
+                                    String ruleName,
+                                    ILogicalTable cell,
+                                    OpenlToolAdaptor openlAdaptor,
+                                    String source) {
+        var bindingContext = openlAdaptor.getBindingContext();
+        Class<?> expectedType = paramType.getInstanceClass();
+        if (expectedType == null) {
+            var cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                    bindingContext);
+            BindHelper.processError("Cannot parse cell value '%s'. Undefined cell type.".formatted(source),
+                    cellSourceCodeModule,
+                    bindingContext);
+            return null;
+        }
+
+        // Try to get cell object value with appropriate string parser.
+        // A parser instance will be selected using expected type of cell
+        // value.
+        //
+        Object result = null;
+
+        try {
+            // Parse as constant value
+            ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
+            var theValueCell = cell.getSource().getCell(0, 0);
+            if (constantOpenField != null) {
+                result = loadConstantValue(openlAdaptor, constantOpenField, theValueCell, paramType);
+            } else if (String.class == paramType.getInstanceClass()) {
+                result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+            } else {
+                if (theValueCell.hasNativeType()) {
+                    result = loadNativeValue(paramType, paramName, ruleName, cell, openlAdaptor, theValueCell);
+                }
+                if (result == null) {
+                    result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                }
+            }
+        } catch (Exception | LinkageError e) {
+            // Parsing of loaded string value can be sophisticated process.
+            // As a result various exception types can be thrown (e.g.
+            // CompositeSyntaxNodeException) with not user-friendly message.
+            //
+            var message = "Cannot parse cell value '%s'. Expected value of type '%s'.".formatted(
+                    source,
+                    paramType.getDisplayName(INamedThing.SHORT));
+            var cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                    bindingContext);
+            BindHelper.processError(message, e, cellSourceCodeModule, bindingContext);
+        }
+
+        if (result instanceof IMetaHolder holder) {
+            setMetaInfo(holder, cell, paramName, ruleName, bindingContext);
+        }
+
+        var validationMessage = OpenClassUtils.isValidValue(result, paramType);
+        if (validationMessage != null) {
+            var cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                    bindingContext);
+            BindHelper.processError(validationMessage, cellSourceCodeModule, bindingContext);
+        }
+
+        return result;
+    }
+
+    private static Object loadConstantValue(OpenlToolAdaptor openlAdaptor,
+                                            ConstantOpenField constantOpenField,
+                                            ICell theValueCell,
+                                            IOpenClass paramType) {
+        var bindingContext = openlAdaptor.getBindingContext();
+        if (!bindingContext.isExecutionMode()) {
+            addConstantMetaInfo(openlAdaptor, constantOpenField, theValueCell);
+        }
+        if (constantOpenField.getValue() != null) {
+            return castConstantToExpectedType(bindingContext, constantOpenField, paramType);
+        }
         return null;
     }
 
@@ -571,44 +614,7 @@ public final class RuleRowHelper {
 
         if (oneCellTable) {
             if (!isFormula(dataTable)) {
-                // try to load as constant first
-                var paramSource = dataTable.getRow(0);
-
-                var src = paramSource.getSource().getCell(0, 0).getStringValue();
-
-                if (src != null && !ArraySplitter.isArray(src)) {
-                    ConstantOpenField constantOpenField = findConstantField(openlAdaptor.getBindingContext(), src);
-                    if (constantOpenField != null) {
-                        var openCast = openlAdaptor.getBindingContext()
-                                .getCast(constantOpenField.getType(), paramType);
-                        if (openCast != null && openCast.isImplicit()) {
-                            if (!openlAdaptor.getBindingContext().isExecutionMode()) {
-                                addConstantMetaInfo(openlAdaptor,
-                                        constantOpenField,
-                                        dataTable.getRow(0).getSource().getCell(0, 0));
-                            }
-                            return openCast.convert(constantOpenField.getValue());
-                        }
-                    }
-                }
-
-                // load comma separated array
-
-                Object params = loadCommaSeparatedParam(paramType,
-                        arrayType,
-                        paramName,
-                        ruleName,
-                        paramSource,
-                        openlAdaptor);
-                Class<?> paramClass = params.getClass();
-                if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
-                    for (Object o : (Object[]) params) {
-                        if (o instanceof CompositeMethod) {
-                            return new ArrayHolder(arrayType, (Object[]) params);
-                        }
-                    }
-                }
-                return params;
+                return loadOneCellArray(dataTable, paramType, arrayType, paramName, ruleName, openlAdaptor);
             } else {
                 return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
             }
@@ -617,108 +623,226 @@ public final class RuleRowHelper {
         }
     }
 
+    /**
+     * Loads an array from one cell: a constant with an implicit cast to the array type, or comma separated values.
+     */
+    private static Object loadOneCellArray(ILogicalTable dataTable,
+                                           IOpenClass paramType,
+                                           IOpenClass arrayType,
+                                           String paramName,
+                                           String ruleName,
+                                           OpenlToolAdaptor openlAdaptor) {
+        // try to load as constant first
+        var paramSource = dataTable.getRow(0);
+
+        var src = paramSource.getSource().getCell(0, 0).getStringValue();
+
+        if (src != null && !ArraySplitter.isArray(src)) {
+            ConstantOpenField constantOpenField = findConstantField(openlAdaptor.getBindingContext(), src);
+            if (constantOpenField != null) {
+                var openCast = openlAdaptor.getBindingContext()
+                        .getCast(constantOpenField.getType(), paramType);
+                if (openCast != null && openCast.isImplicit()) {
+                    if (!openlAdaptor.getBindingContext().isExecutionMode()) {
+                        addConstantMetaInfo(openlAdaptor,
+                                constantOpenField,
+                                dataTable.getRow(0).getSource().getCell(0, 0));
+                    }
+                    return openCast.convert(constantOpenField.getValue());
+                }
+            }
+        }
+
+        // load comma separated array
+
+        Object params = loadCommaSeparatedParam(paramType,
+                arrayType,
+                paramName,
+                ruleName,
+                paramSource,
+                openlAdaptor);
+        return holdFormulas(params, arrayType);
+    }
+
+    /**
+     * Wraps the array values into an {@link ArrayHolder} when some of them are formulas.
+     */
+    private static Object holdFormulas(Object params, IOpenClass arrayType) {
+        Class<?> paramClass = params.getClass();
+        if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
+            for (Object o : (Object[]) params) {
+                if (o instanceof CompositeMethod) {
+                    return new ArrayHolder(arrayType, (Object[]) params);
+                }
+            }
+        }
+        return params;
+    }
+
     private static Object loadSimpleArrayParams(ILogicalTable dataTable,
                                                 String paramName,
                                                 String ruleName,
                                                 OpenlToolAdaptor openlAdaptor,
                                                 IOpenClass aggregateType,
                                                 IOpenClass paramType) {
-        var hasFormulas = false;
         final var height = dataTable.getHeight();
         final var width = dataTable.getWidth();
         if (!paramType.isArray() || height == 1 || width == 1) {
-            var values = new ArrayList<Object>();
-            // 1 dim array
-            var byHeight = height > 1 || width == 1;
-            for (var i = 0; i < (byHeight ? height : width); i++) { // load array values represented as
-                // number of cells
-                ILogicalTable cell = byHeight ? dataTable.getRow(i) : dataTable.getColumn(i).transpose();
+            return loadOneDimArray(dataTable, paramName, ruleName, openlAdaptor, aggregateType, paramType);
+        } else {
+            return loadTwoDimArray(dataTable, paramName, ruleName, openlAdaptor, aggregateType, paramType);
+        }
+    }
+
+    private static Object loadOneDimArray(ILogicalTable dataTable,
+                                          String paramName,
+                                          String ruleName,
+                                          OpenlToolAdaptor openlAdaptor,
+                                          IOpenClass aggregateType,
+                                          IOpenClass paramType) {
+        var values = new ArrayList<Object>();
+        // 1 dim array
+        var hasFormulas = loadOneDimValues(dataTable, paramName, ruleName, openlAdaptor, paramType, values);
+        // For backward compatibility
+        while (!values.isEmpty() && values.getLast() == EMPTY_CELL) {
+            values.removeLast();
+        }
+        for (var i = 0; i < values.size(); i++) {
+            if (values.get(i) == EMPTY_CELL) {
+                values.set(i, paramType.nullObject());
+            }
+        }
+        if (hasFormulas) {
+            return new ArrayHolder(paramType, values.toArray(new Object[0]));
+        } else {
+            var aggregateInfo = aggregateType.getAggregateInfo();
+            var array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+            var index = aggregateInfo.getIndex(aggregateType);
+            for (var i = 0; i < values.size(); i++) {
+                index.setValue(array, i, values.get(i));
+            }
+            return array;
+        }
+    }
+
+    /**
+     * Loads the values of the cells in a column, or in a row of a one row table. Empty cells are loaded as
+     * {@link #EMPTY_CELL}.
+     *
+     * @return {@code true} when some of the values are formulas
+     */
+    private static boolean loadOneDimValues(ILogicalTable dataTable,
+                                            String paramName,
+                                            String ruleName,
+                                            OpenlToolAdaptor openlAdaptor,
+                                            IOpenClass paramType,
+                                            List<Object> values) {
+        var hasFormulas = false;
+        final var height = dataTable.getHeight();
+        final var width = dataTable.getWidth();
+        var byHeight = height > 1 || width == 1;
+        for (var i = 0; i < (byHeight ? height : width); i++) { // load array values represented as
+            // number of cells
+            ILogicalTable cell = byHeight ? dataTable.getRow(i) : dataTable.getColumn(i).transpose();
+            var cellValue = cell.getCell(0, 0).getStringValue();
+            if (!StringUtils.isEmpty(cellValue)) {
+                Object parameter = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
+                if (parameter instanceof CompositeMethod) {
+                    hasFormulas = true;
+                }
+                values.add(parameter);
+            } else {
+                values.add(EMPTY_CELL);
+            }
+        }
+        return hasFormulas;
+    }
+
+    private static Object loadTwoDimArray(ILogicalTable dataTable,
+                                          String paramName,
+                                          String ruleName,
+                                          OpenlToolAdaptor openlAdaptor,
+                                          IOpenClass aggregateType,
+                                          IOpenClass paramType) {
+        var values = new ArrayList<Object[]>();
+        // 2 dim array
+        var hasFormulas = loadTwoDimValues(dataTable, paramName, ruleName, openlAdaptor, paramType, values);
+        while (!values.isEmpty() && values.getLast() == EMPTY_ROW) {
+            values.removeLast();
+        }
+        for (var i = 0; i < values.size(); i++) {
+            if (values.get(i) == EMPTY_ROW) {
+                values.set(i, new Object[dataTable.getHeight()]);
+            }
+        }
+        if (hasFormulas) {
+            return new ArrayHolder(paramType, values.toArray(new Object[0][0]));
+        } else {
+            return makeTwoDimArray(dataTable, aggregateType, paramType, values);
+        }
+    }
+
+    /**
+     * Loads the values of the cells column by column. Empty cells are loaded as {@code null}, and columns without
+     * values as {@link #EMPTY_ROW}.
+     *
+     * @return {@code true} when some of the values are formulas
+     */
+    private static boolean loadTwoDimValues(ILogicalTable dataTable,
+                                            String paramName,
+                                            String ruleName,
+                                            OpenlToolAdaptor openlAdaptor,
+                                            IOpenClass paramType,
+                                            List<Object[]> values) {
+        var hasFormulas = false;
+        final var height = dataTable.getHeight();
+        final var width = dataTable.getWidth();
+        for (var i = 0; i < width; i++) {
+            Object[] values1 = new Object[height];
+            var emptyRow = true;
+            for (var j = 0; j < height; j++) {
+                // load array values represented as number of cells
+                var cell = dataTable.getSubtable(i, j, 1, 1);
                 var cellValue = cell.getCell(0, 0).getStringValue();
                 if (!StringUtils.isEmpty(cellValue)) {
-                    Object parameter = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
+                    emptyRow = false;
+                    Object parameter = loadSingleParam(paramType
+                            .getComponentClass(), paramName, ruleName, cell, openlAdaptor);
                     if (parameter instanceof CompositeMethod) {
                         hasFormulas = true;
                     }
-                    values.add(parameter);
+                    values1[j] = parameter;
                 } else {
-                    values.add(EMPTY_CELL);
+                    values1[j] = null;
                 }
             }
-            // For backward compatibility
-            while (!values.isEmpty() && values.getLast() == EMPTY_CELL) {
-                values.removeLast();
-            }
-            for (var i = 0; i < values.size(); i++) {
-                if (values.get(i) == EMPTY_CELL) {
-                    values.set(i, paramType.nullObject());
-                }
-            }
-            if (hasFormulas) {
-                return new ArrayHolder(paramType, values.toArray(new Object[0]));
+            if (emptyRow) {
+                values.add(EMPTY_ROW);
             } else {
-                var aggregateInfo = aggregateType.getAggregateInfo();
-                var array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
-                var index = aggregateInfo.getIndex(aggregateType);
-                for (var i = 0; i < values.size(); i++) {
-                    index.setValue(array, i, values.get(i));
-                }
-                return array;
-            }
-        } else {
-            var values = new ArrayList<Object[]>();
-            // 2 dim array
-            for (var i = 0; i < width; i++) {
-                Object[] values1 = new Object[height];
-                var emptyRow = true;
-                for (var j = 0; j < height; j++) {
-                    // load array values represented as number of cells
-                    var cell = dataTable.getSubtable(i, j, 1, 1);
-                    var cellValue = cell.getCell(0, 0).getStringValue();
-                    if (!StringUtils.isEmpty(cellValue)) {
-                        emptyRow = false;
-                        Object parameter = loadSingleParam(paramType
-                                .getComponentClass(), paramName, ruleName, cell, openlAdaptor);
-                        if (parameter instanceof CompositeMethod) {
-                            hasFormulas = true;
-                        }
-                        values1[j] = parameter;
-                    } else {
-                        values1[j] = null;
-                    }
-                }
-                if (emptyRow) {
-                    values.add(EMPTY_ROW);
-                } else {
-                    values.add(values1);
-                }
-            }
-            while (!values.isEmpty() && values.getLast() == EMPTY_ROW) {
-                values.removeLast();
-            }
-            for (var i = 0; i < values.size(); i++) {
-                if (values.get(i) == EMPTY_ROW) {
-                    values.set(i, new Object[dataTable.getHeight()]);
-                }
-            }
-            if (hasFormulas) {
-                return new ArrayHolder(paramType, values.toArray(new Object[0][0]));
-            } else {
-                var aggregateInfo = aggregateType.getAggregateInfo();
-                var array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
-                var index = aggregateInfo.getIndex(aggregateType);
-                for (var i = 0; i < values.size(); i++) {
-                    var aggregateInfo1 = paramType.getAggregateInfo();
-                    var array1 = aggregateInfo1.makeIndexedAggregate(paramType.getComponentClass(),
-                            dataTable.getHeight());
-                    var index1 = aggregateInfo1.getIndex(paramType);
-                    for (var j = 0; j < values.get(i).length; j++) {
-                        var v = values.get(i)[j];
-                        index1.setValue(array1, j, v != null ? v : paramType.getComponentClass().nullObject());
-                    }
-                    index.setValue(array, i, array1);
-                }
-                return array;
+                values.add(values1);
             }
         }
+        return hasFormulas;
+    }
+
+    private static Object makeTwoDimArray(ILogicalTable dataTable,
+                                          IOpenClass aggregateType,
+                                          IOpenClass paramType,
+                                          List<Object[]> values) {
+        var aggregateInfo = aggregateType.getAggregateInfo();
+        var array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+        var index = aggregateInfo.getIndex(aggregateType);
+        for (var i = 0; i < values.size(); i++) {
+            var aggregateInfo1 = paramType.getAggregateInfo();
+            var array1 = aggregateInfo1.makeIndexedAggregate(paramType.getComponentClass(),
+                    dataTable.getHeight());
+            var index1 = aggregateInfo1.getIndex(paramType);
+            for (var j = 0; j < values.get(i).length; j++) {
+                var v = values.get(i)[j];
+                index1.setValue(array1, j, v != null ? v : paramType.getComponentClass().nullObject());
+            }
+            index.setValue(array, i, array1);
+        }
+        return array;
     }
 }

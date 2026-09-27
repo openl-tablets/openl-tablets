@@ -210,24 +210,7 @@ public final class WrapperLogic {
         if (topClass == null) {
             var oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                IOpenClass typeClass;
-                if (target instanceof IDynamicObject dynamicObject) {
-                    typeClass = dynamicObject.getType();
-                } else if (ASMProxyFactory.isProxy(target)) {
-                    ASMProxyHandler invocationHandler = ASMProxyFactory.getProxyHandler(target);
-                    if (invocationHandler instanceof IOpenLMethodHandler<?,?> openLMethodHandler) {
-                        var openlInstance = openLMethodHandler.getTarget();
-                        if (openlInstance instanceof IDynamicObject dynamicObject) {
-                            typeClass = dynamicObject.getType();
-                        } else {
-                            throw new IllegalStateException("Cannot define OpenL class from target object.");
-                        }
-                    } else {
-                        throw new IllegalStateException("Cannot define OpenL class from target object.");
-                    }
-                } else {
-                    throw new IllegalStateException("Cannot define OpenL class from target object.");
-                }
+                IOpenClass typeClass = getTargetType(target);
                 simpleRuntimeEnv.setTopClass(typeClass);
                 Thread.currentThread().setContextClassLoader(wrapper.getXlsModuleOpenClass().getClassLoader());
                 return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRuntimeEnv);
@@ -247,6 +230,31 @@ public final class WrapperLogic {
             }
         }
         return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRuntimeEnv);
+    }
+
+    /**
+     * Returns the OpenL type of the target, which is a dynamic object or a proxy of a dynamic object.
+     *
+     * @throws IllegalStateException when the target is neither
+     */
+    private static IOpenClass getTargetType(Object target) {
+        if (target instanceof IDynamicObject dynamicObject) {
+            return dynamicObject.getType();
+        } else if (ASMProxyFactory.isProxy(target)) {
+            ASMProxyHandler invocationHandler = ASMProxyFactory.getProxyHandler(target);
+            if (invocationHandler instanceof IOpenLMethodHandler<?,?> openLMethodHandler) {
+                var openlInstance = openLMethodHandler.getTarget();
+                if (openlInstance instanceof IDynamicObject dynamicObject) {
+                    return dynamicObject.getType();
+                } else {
+                    throw new IllegalStateException("Cannot define OpenL class from target object.");
+                }
+            } else {
+                throw new IllegalStateException("Cannot define OpenL class from target object.");
+            }
+        } else {
+            throw new IllegalStateException("Cannot define OpenL class from target object.");
+        }
     }
 
     public static Object invoke(IRulesMethodWrapper wrapper,

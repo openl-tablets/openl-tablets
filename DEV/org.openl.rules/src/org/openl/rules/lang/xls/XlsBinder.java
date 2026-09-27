@@ -535,25 +535,34 @@ public class XlsBinder implements IOpenBinder {
                 return null;
             }
             x1 = x1.substring(0, y).trim();
-            if (XlsNodeTypes.XLS_SPREADSHEET
-                    .equals(tableSyntaxNode.getNodeType()) && (x1.endsWith("[") || x1.endsWith("]"))) {
-                return null;
-            }
-            while (!x1.isEmpty() && x1.charAt(x1.length() - 1) == ' ' || x1.charAt(x1.length() - 1) == '[' || x1
-                    .charAt(x1.length() - 1) == ']') {
-                x1 = x1.substring(0, x1.length() - 1);
-            }
-            var z = x1.lastIndexOf(" ");
-            if (z < 0 || z == x1.length() - 1) {
-                return null;
-            }
-            var tableType = x1.substring(z + 1);
-            if (SpreadsheetResult.class.getSimpleName().equals(tableType) || SpreadsheetResult.class.getName()
-                    .equals(tableType)) {
+            if (isSpreadsheetResultReturnType(tableSyntaxNode, x1)) {
                 return Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + tableName;
             }
         }
         return null;
+    }
+
+    /**
+     * Checks whether the header part before the table name ends with the SpreadsheetResult type. A spreadsheet that
+     * returns an array does not match.
+     */
+    private static boolean isSpreadsheetResultReturnType(TableSyntaxNode tableSyntaxNode, String headerPrefix) {
+        var x1 = headerPrefix;
+        if (XlsNodeTypes.XLS_SPREADSHEET
+                .equals(tableSyntaxNode.getNodeType()) && (x1.endsWith("[") || x1.endsWith("]"))) {
+            return false;
+        }
+        while (!x1.isEmpty() && x1.charAt(x1.length() - 1) == ' ' || x1.charAt(x1.length() - 1) == '[' || x1
+                .charAt(x1.length() - 1) == ']') {
+            x1 = x1.substring(0, x1.length() - 1);
+        }
+        var z = x1.lastIndexOf(" ");
+        if (z < 0 || z == x1.length() - 1) {
+            return false;
+        }
+        var tableType = x1.substring(z + 1);
+        return SpreadsheetResult.class.getSimpleName().equals(tableType) || SpreadsheetResult.class.getName()
+                .equals(tableType);
     }
 
     private Map<TableSyntaxNode, CustomSpreadsheetResultOpenClass> registerNewCustomSpreadsheetResultTypes(
@@ -617,19 +626,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        for (var i = 0; i < tableSyntaxNodes.length; i++) {
-            if (!isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
-                var child = childrens[i];
-                if (child != null) {
-                    try {
-                        child.addTo(module);
-                    } catch (OpenlNotCheckedException e) {
-                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
-                        processError(error, rulesModuleBindingContext);
-                    }
-                }
-            }
-        }
+        addToModule(childrens, tableSyntaxNodes, module, rulesModuleBindingContext);
 
         generateByteCode(childrens, tableSyntaxNodes, rulesModuleBindingContext);
 
@@ -652,6 +649,28 @@ public class XlsBinder implements IOpenBinder {
         }
 
         return new ModuleNode(moduleSyntaxNode, rulesModuleBindingContext.getModule());
+    }
+
+    /**
+     * Adds the bound nodes of the tables that are not executable to the module.
+     */
+    private void addToModule(IMemberBoundNode[] childrens,
+                             TableSyntaxNode[] tableSyntaxNodes,
+                             XlsModuleOpenClass module,
+                             RulesModuleBindingContext rulesModuleBindingContext) {
+        for (var i = 0; i < tableSyntaxNodes.length; i++) {
+            if (!isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
+                var child = childrens[i];
+                if (child != null) {
+                    try {
+                        child.addTo(module);
+                    } catch (OpenlNotCheckedException e) {
+                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
+                        processError(error, rulesModuleBindingContext);
+                    }
+                }
+            }
+        }
     }
 
     private String getParentClassName(DatatypeTableBoundNode datatypeTableBoundNode,

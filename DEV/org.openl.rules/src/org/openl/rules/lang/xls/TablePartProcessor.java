@@ -59,25 +59,7 @@ public class TablePartProcessor {
 
         for (TablePart tablePart : set) {
 
-            if (tablePart.getPart() != cnt + 1) {
-                var message = TABLE_PART_NUMBER + tablePart.getPart() + " is out of order";
-                throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-            }
-
-            if (tablePart.getSize() != n) {
-                var message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong number of parts: " + tablePart
-                        .getSize() + ". There are " + n + " parts with the same name";
-                throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-            }
-
-            var cell00 = tablePart.getTable().getCell(0, 0);
-
-            var table = tablePart.getTable().getRows(cell00.getHeight());
-            if (table == null) {
-                var message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong content.";
-                throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-
-            }
+            var table = getPartTable(tablePart, cnt, n);
             var myVert = tablePart.isVertical();
             int myDim = myVert ? table.getWidth() : table.getHeight();
 
@@ -86,26 +68,7 @@ public class TablePartProcessor {
                 vertical = myVert;
                 dimension = myDim;
             } else {
-                if (myVert != vertical) {
-                    var message = TABLE_PART_NUMBER + tablePart.getPart() + " must use " + (vertical ?
-                            "row" :
-                            "column");
-                    throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-                }
-
-                if (myDim != dimension) {
-                    var message = TABLE_PART_NUMBER + tablePart.getPart() + " has " + (vertical ?
-                            "width" :
-                            "height") + " = " + myDim + " instead of " + dimension;
-                    if (vertical) {
-                        throw new OpenLCompilationException(message,
-                                null,
-                                null,
-                                makeSourceModule(tablePart.getTable()));
-                    } else {
-                        messages.add(OpenLMessagesUtils.newErrorMessage(message));
-                    }
-                }
+                validateLayout(tablePart, myVert, myDim, vertical, dimension);
             }
             tables[cnt++] = table;
         }
@@ -122,6 +85,67 @@ public class TablePartProcessor {
         var table = new GridTable(0, 0, grid.getHeight() - 1, grid.getWidth() - 1, grid);
 
         return new TablePart(table, first.source);
+    }
+
+    /**
+     * Returns the table of the part without its header.
+     *
+     * @throws OpenLCompilationException when the part is out of order, has a wrong number of parts, or has no content
+     */
+    private static IGridTable getPartTable(TablePart tablePart, int cnt, int n) throws OpenLCompilationException {
+        if (tablePart.getPart() != cnt + 1) {
+            var message = TABLE_PART_NUMBER + tablePart.getPart() + " is out of order";
+            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+        }
+
+        if (tablePart.getSize() != n) {
+            var message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong number of parts: " + tablePart
+                    .getSize() + ". There are " + n + " parts with the same name";
+            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+        }
+
+        var cell00 = tablePart.getTable().getCell(0, 0);
+
+        var table = tablePart.getTable().getRows(cell00.getHeight());
+        if (table == null) {
+            var message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong content.";
+            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+
+        }
+        return table;
+    }
+
+    /**
+     * Checks that the part is merged in the direction of the first part and has its size across that direction. A
+     * horizontal part of another height is reported as an error message only.
+     *
+     * @throws OpenLCompilationException when the direction differs, or a vertical part has another width
+     */
+    private void validateLayout(TablePart tablePart,
+                                boolean myVert,
+                                int myDim,
+                                boolean vertical,
+                                int dimension) throws OpenLCompilationException {
+        if (myVert != vertical) {
+            var message = TABLE_PART_NUMBER + tablePart.getPart() + " must use " + (vertical ?
+                    "row" :
+                    "column");
+            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+        }
+
+        if (myDim != dimension) {
+            var message = TABLE_PART_NUMBER + tablePart.getPart() + " has " + (vertical ?
+                    "width" :
+                    "height") + " = " + myDim + " instead of " + dimension;
+            if (vertical) {
+                throw new OpenLCompilationException(message,
+                        null,
+                        null,
+                        makeSourceModule(tablePart.getTable()));
+            } else {
+                messages.add(OpenLMessagesUtils.newErrorMessage(message));
+            }
+        }
     }
 
     private static IOpenSourceCodeModule makeSourceModule(IGridTable table) {

@@ -300,16 +300,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
             }
         } else {
-            var t = openMethodBinder.getType();
-            if (t != null) {
-                while (t.isArray()) {
-                    t = t.getComponentClass();
-                }
-                if (t instanceof CustomSpreadsheetResultOpenClass) {
-                    // Fires type compilation
-                    findType(t.getName());
-                }
-            }
+            compileCustomSpreadsheetResultType(openMethodBinder);
             openMethodBinders = List.of(openMethodBinder);
         }
         Optional<RecursiveOpenMethodPreBinder> prebindingOpenMethodPreBinder = openMethodBinders.stream()
@@ -330,6 +321,22 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::preBind);
         openMethodBinders.forEach(e -> preBinderMethods.remove(e.getHeader()));
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::finishPreBind);
+    }
+
+    /**
+     * Compiles the custom spreadsheet result type that the method returns, directly or as an array component type.
+     */
+    private void compileCustomSpreadsheetResultType(RecursiveOpenMethodPreBinder openMethodBinder) {
+        var t = openMethodBinder.getType();
+        if (t != null) {
+            while (t.isArray()) {
+                t = t.getComponentClass();
+            }
+            if (t instanceof CustomSpreadsheetResultOpenClass) {
+                // Fires type compilation
+                findType(t.getName());
+            }
+        }
     }
 
     public static final class DispatchingTablePropertiesOpenField implements IOpenField {

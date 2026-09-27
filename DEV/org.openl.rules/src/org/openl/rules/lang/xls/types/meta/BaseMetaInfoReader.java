@@ -86,36 +86,46 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
             var cellMetaInfo = getBodyMetaInfo(row, col);
 
             if (Boolean.TRUE.equals(constantsMap.get(CellKey.CellKeyFactory.getCellKey(col, row)))) {
-                var firstCell = getTableSyntaxNode().getTableBody().getSource().getCell(0, 0);
-                var r = row - firstCell.getAbsoluteRow();
-                var c = col - firstCell.getAbsoluteColumn();
-                var theValueCell = getTableSyntaxNode().getTableBody().getSource().getCell(c, r);
-                String[] tokens = ArraySplitter.split(theValueCell.getStringValue());
-                var cellValue = theValueCell.getStringValue();
-                var startFrom = 0;
-                var nodeUsages = new ArrayList<NodeUsage>();
-                for (String token : tokens) {
-                    var start = cellValue.indexOf(token, startFrom);
-                    startFrom = start + token.length();
-                    for (ConstantOpenField constantOpenField : constantOpenFields) {
-                        if (token.equals(constantOpenField.getName())) {
-                            var end = start + constantOpenField.getName().length();
-                            SimpleNodeUsage nodeUsage = createConstantNodeUsage(constantOpenField, start, end);
-                            nodeUsages.add(nodeUsage);
-                        }
-                    }
-                }
-                if (!nodeUsages.isEmpty()) {
-                    return cellMetaInfo != null ? new CellMetaInfo(cellMetaInfo.getDataType(),
-                            cellMetaInfo.isMultiValue(),
-                            nodeUsages) : new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
-                }
+                return addConstantUsages(row, col, cellMetaInfo);
             }
             return cellMetaInfo;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    /**
+     * Adds the links to the constants used in the cell value to the meta info of the cell.
+     *
+     * @return the meta info with the links, or the given meta info when the cell value has no constants
+     */
+    private CellMetaInfo addConstantUsages(int row, int col, CellMetaInfo cellMetaInfo) {
+        var firstCell = getTableSyntaxNode().getTableBody().getSource().getCell(0, 0);
+        var r = row - firstCell.getAbsoluteRow();
+        var c = col - firstCell.getAbsoluteColumn();
+        var theValueCell = getTableSyntaxNode().getTableBody().getSource().getCell(c, r);
+        String[] tokens = ArraySplitter.split(theValueCell.getStringValue());
+        var cellValue = theValueCell.getStringValue();
+        var startFrom = 0;
+        var nodeUsages = new ArrayList<NodeUsage>();
+        for (String token : tokens) {
+            var start = cellValue.indexOf(token, startFrom);
+            startFrom = start + token.length();
+            for (ConstantOpenField constantOpenField : constantOpenFields) {
+                if (token.equals(constantOpenField.getName())) {
+                    var end = start + constantOpenField.getName().length();
+                    SimpleNodeUsage nodeUsage = createConstantNodeUsage(constantOpenField, start, end);
+                    nodeUsages.add(nodeUsage);
+                }
+            }
+        }
+        if (!nodeUsages.isEmpty()) {
+            return cellMetaInfo != null ? new CellMetaInfo(cellMetaInfo.getDataType(),
+                    cellMetaInfo.isMultiValue(),
+                    nodeUsages) : new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+        }
+        return cellMetaInfo;
     }
 
     @Override

@@ -92,29 +92,30 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
-        if (header instanceof OpenMethodHeader tableHeader) {
+        if (!(header instanceof OpenMethodHeader tableHeader)) {
+            return;
+        }
 
-            IOpenSourceCodeModule headerSyntaxNode = null;
-            // Return type
-            IOpenClass type = OpenClassUtils.getRootComponentClass(tableHeader.getType());
-            if (!NullOpenClass.isAnyNull(type) && type.getInstanceClass() == null) {
-                headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
-                addTypeError(bindingContext, type, tableHeader.getTypeLocation(), headerSyntaxNode);
-            }
+        IOpenSourceCodeModule headerSyntaxNode = null;
+        // Return type
+        IOpenClass type = OpenClassUtils.getRootComponentClass(tableHeader.getType());
+        if (!NullOpenClass.isAnyNull(type) && type.getInstanceClass() == null) {
+            headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
+            addTypeError(bindingContext, type, tableHeader.getTypeLocation(), headerSyntaxNode);
+        }
 
-            // Input parameters
-            var paramTypeLocations = tableHeader.getParamTypeLocations();
-            for (var i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                IOpenClass parameterType = OpenClassUtils
-                        .getRootComponentClass(header.getSignature().getParameterType(i));
+        // Input parameters
+        var paramTypeLocations = tableHeader.getParamTypeLocations();
+        for (var i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+            IOpenClass parameterType = OpenClassUtils
+                    .getRootComponentClass(header.getSignature().getParameterType(i));
 
-                ILocation sourceLocation = paramTypeLocations == null ? null : paramTypeLocations[i];
-                if (!NullOpenClass.isAnyNull(parameterType) && parameterType.getInstanceClass() == null) {
-                    if (headerSyntaxNode == null) {
-                        headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
-                    }
-                    addTypeError(bindingContext, parameterType, sourceLocation, headerSyntaxNode);
+            ILocation sourceLocation = paramTypeLocations == null ? null : paramTypeLocations[i];
+            if (!NullOpenClass.isAnyNull(parameterType) && parameterType.getInstanceClass() == null) {
+                if (headerSyntaxNode == null) {
+                    headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
                 }
+                addTypeError(bindingContext, parameterType, sourceLocation, headerSyntaxNode);
             }
         }
     }

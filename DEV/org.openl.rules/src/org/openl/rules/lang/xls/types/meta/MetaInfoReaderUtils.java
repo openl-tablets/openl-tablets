@@ -66,27 +66,7 @@ public class MetaInfoReaderUtils {
         for (IOpenSourceCodeModule module : modules) {
             var moduleEnd = moduleStart + module.getCode().length();
             if (module instanceof GridCellSourceCodeModule) {
-                // find all methods used in current cell
-                var currentCellMethodUsages = new ArrayList<NodeUsage>();
-                for (NodeUsage usage : nodeUsages) {
-                    if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
-                        switch (usage) {
-                            case ConstructorUsage constructorUsage -> currentCellMethodUsages
-                                    .add(new ConstructorUsage(constructorUsage.getConstructorNode(),
-                                            usage.getStart() - moduleStart,
-                                            usage.getEnd() - moduleStart,
-                                            ((MethodUsage) usage).getMethod()));
-                            case MethodUsage methodUsage -> currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
-                                    usage.getEnd() - moduleStart,
-                                    methodUsage.getMethod()));
-                            case null, default -> currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
-                                    usage.getEnd() - moduleStart,
-                                    usage.getDescription(),
-                                    usage.getUri(),
-                                    usage.getNodeType()));
-                        }
-                    }
-                }
+                var currentCellMethodUsages = getModuleNodeUsages(nodeUsages, moduleStart, moduleEnd);
                 metaInfoList.add(getCellMetaInfoOrNull(currentCellMethodUsages));
             } else {
                 metaInfoList.add(null);
@@ -95,6 +75,34 @@ public class MetaInfoReaderUtils {
         }
 
         return metaInfoList;
+    }
+
+    /**
+     * Returns the node usages located in the module, with positions relative to the module start.
+     */
+    private static List<NodeUsage> getModuleNodeUsages(List<NodeUsage> nodeUsages, int moduleStart, int moduleEnd) {
+        // find all methods used in current cell
+        var currentCellMethodUsages = new ArrayList<NodeUsage>();
+        for (NodeUsage usage : nodeUsages) {
+            if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
+                switch (usage) {
+                    case ConstructorUsage constructorUsage -> currentCellMethodUsages
+                            .add(new ConstructorUsage(constructorUsage.getConstructorNode(),
+                                    usage.getStart() - moduleStart,
+                                    usage.getEnd() - moduleStart,
+                                    ((MethodUsage) usage).getMethod()));
+                    case MethodUsage methodUsage -> currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
+                            usage.getEnd() - moduleStart,
+                            methodUsage.getMethod()));
+                    case null, default -> currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
+                            usage.getEnd() - moduleStart,
+                            usage.getDescription(),
+                            usage.getUri(),
+                            usage.getNodeType()));
+                }
+            }
+        }
+        return currentCellMethodUsages;
     }
 
     private static CellMetaInfo getCellMetaInfoOrNull(List<NodeUsage> methodUsages) {

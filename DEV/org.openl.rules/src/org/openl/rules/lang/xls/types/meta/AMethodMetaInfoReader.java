@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.types.meta;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -68,11 +69,27 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
         }
 
         // Link to input parameters
+        addParameterTypeUsages(nodeUsages, tableHeader, startPosition, tableHeaderText);
+
+        if (CollectionUtils.isNotEmpty(nodeUsages)) {
+            return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+        }
+
+        return null;
+    }
+
+    /**
+     * Adds the links from the parameter types in the header to the types, or to the component types of arrays.
+     */
+    private static void addParameterTypeUsages(List<NodeUsage> nodeUsages,
+                                               OpenMethodHeader tableHeader,
+                                               int startPosition,
+                                               TextInfo tableHeaderText) {
         var paramTypeLocations = tableHeader.getParamTypeLocations();
         if (paramTypeLocations != null) {
             for (var i = 0; i < tableHeader.getSignature().getNumberOfParameters(); i++) {
                 var parameterType = tableHeader.getSignature().getParameterType(i);
-                metaInfo = parameterType.getMetaInfo();
+                var metaInfo = parameterType.getMetaInfo();
                 while (metaInfo == null && parameterType.isArray()) {
                     parameterType = parameterType.getComponentClass();
                     metaInfo = parameterType.getMetaInfo();
@@ -91,11 +108,5 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                 }
             }
         }
-
-        if (CollectionUtils.isNotEmpty(nodeUsages)) {
-            return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
-        }
-
-        return null;
     }
 }

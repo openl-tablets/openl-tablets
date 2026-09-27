@@ -5,6 +5,7 @@ import java.util.Date;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.Formats;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
@@ -51,25 +52,7 @@ public final class TableSyntaxNodeUtils {
             // Add dimension properties info only if there are more than one table in dictionary.
             // For single table don`t add this info.
             //
-            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-
-            for (String dimensionalPropertyName : dimensionalPropertyNames) {
-                String value;
-
-                var propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
-                if (formats != null && propertyValue instanceof Date date) {
-                    value = formats.formatDateOrDateTime(date);
-                } else {
-                    value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
-                }
-
-                if (StringUtils.isNotEmpty(value)) {
-                    if (!dimensionInfo.isEmpty()) {
-                        dimensionInfo.append(", ");
-                    }
-                    dimensionInfo.append(dimensionalPropertyName).append('=').append(value);
-                }
-            }
+            appendDimensionalProperties(dimensionInfo, tableProperties, formats);
         }
 
         if (!dimensionInfo.isEmpty()) {
@@ -77,6 +60,33 @@ public final class TableSyntaxNodeUtils {
         }
 
         return new String[]{name + sfx, display + sfx, display + sfx};
+    }
+
+    /**
+     * Appends the dimensional properties that have values as a comma separated list of {@code name=value} pairs.
+     */
+    private static void appendDimensionalProperties(StringBuilder dimensionInfo,
+                                                    ITableProperties tableProperties,
+                                                    Formats formats) {
+        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+
+        for (String dimensionalPropertyName : dimensionalPropertyNames) {
+            String value;
+
+            var propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
+            if (formats != null && propertyValue instanceof Date date) {
+                value = formats.formatDateOrDateTime(date);
+            } else {
+                value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
+            }
+
+            if (StringUtils.isNotEmpty(value)) {
+                if (!dimensionInfo.isEmpty()) {
+                    dimensionInfo.append(", ");
+                }
+                dimensionInfo.append(dimensionalPropertyName).append('=').append(value);
+            }
+        }
     }
 
     // TODO: refactor

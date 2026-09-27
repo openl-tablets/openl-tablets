@@ -3,14 +3,18 @@ package org.openl.binding.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.util.MessageUtils;
 
@@ -65,37 +69,14 @@ public class ConstructorSugarSupport {
                     cleanErrorsAndMessages(bindingContext);
                     return ANodeBinder.makeErrorNode("Field '%s' has already used.".formatted(
                             duplicatedParamSyntaxNode.getText()), duplicatedParamSyntaxNode, bindingContext);
-                } else if (isAllParamsAssign && defaultConstructor == null) {
-                    cleanErrorsAndMessages(bindingContext);
-                    return ANodeBinder.makeErrorNode("Default constructor is not found in type '%s'.".formatted(
-                            type.getDisplayName(INamedThing.SHORT)), node, bindingContext);
-                } else if (defaultConstructor != null && isAllParamsAssign) {
-                    for (var e : namedParams.entrySet()) {
-                        var f = type.getField(e.getKey());
-                        if (f == null || f.isStatic() || !f.isWritable()) {
-                            cleanErrorsAndMessages(bindingContext);
-                            if (f == null) {
-                                return ANodeBinder.makeErrorNode("Field '%s' is not found.".formatted(e.getKey()),
-                                        e.getValue(),
-                                        bindingContext);
-                            }
-                            if (f.isStatic()) {
-                                return ANodeBinder.makeErrorNode(
-                                        "Field '%s' is found, but it is declared with static modifier.".formatted(
-                                                e.getKey()),
-                                        e.getValue(),
-                                        bindingContext);
-                            }
-                            if (!f.isWritable()) {
-                                return ANodeBinder.makeErrorNode(
-                                        "Field '%s' is found, but it is read only.".formatted(e.getKey()),
-                                        e.getValue(),
-                                        bindingContext);
-                            }
-                        }
-                    }
-                    var methodBoundNode = new MethodBoundNode(node, defaultConstructor);
-                    return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
+                } else if (isAllParamsAssign) {
+                    return makeNamedParamsConstructor(node,
+                            type,
+                            defaultConstructor,
+                            localVar,
+                            params,
+                            namedParams,
+                            bindingContext);
                 } else if (isAllParamsNoAssign && !Date.class.getName().equals(type.getName())) {
                     var children = params.toArray(IBoundNode.EMPTY);
                     var types = ANodeBinder.getTypes(children);
@@ -115,6 +96,51 @@ public class ConstructorSugarSupport {
             bindingContext.popErrors().forEach(bindingContext::addError);
             bindingContext.popMessages().forEach(bindingContext::addMessage);
         }
+    }
+
+    /**
+     * Creates a call of the default constructor that assigns the named parameters to the fields of the type.
+     *
+     * <p>Returns an error node when the type has no default constructor, or when a parameter names a field that is
+     * missing, static or read only.
+     */
+    private static IBoundNode makeNamedParamsConstructor(ISyntaxNode node,
+                                                         IOpenClass type,
+                                                         IMethodCaller defaultConstructor,
+                                                         ILocalVar localVar,
+                                                         List<IBoundNode> params,
+                                                         Map<String, ISyntaxNode> namedParams,
+                                                         IBindingContext bindingContext) {
+        if (defaultConstructor == null) {
+            cleanErrorsAndMessages(bindingContext);
+            return ANodeBinder.makeErrorNode("Default constructor is not found in type '%s'.".formatted(
+                    type.getDisplayName(INamedThing.SHORT)), node, bindingContext);
+        }
+        for (var e : namedParams.entrySet()) {
+            var f = type.getField(e.getKey());
+            if (f == null || f.isStatic() || !f.isWritable()) {
+                cleanErrorsAndMessages(bindingContext);
+                if (f == null) {
+                    return ANodeBinder.makeErrorNode("Field '%s' is not found.".formatted(e.getKey()),
+                            e.getValue(),
+                            bindingContext);
+                }
+                if (f.isStatic()) {
+                    return ANodeBinder.makeErrorNode(
+                            "Field '%s' is found, but it is declared with static modifier.".formatted(e.getKey()),
+                            e.getValue(),
+                            bindingContext);
+                }
+                if (!f.isWritable()) {
+                    return ANodeBinder.makeErrorNode(
+                            "Field '%s' is found, but it is read only.".formatted(e.getKey()),
+                            e.getValue(),
+                            bindingContext);
+                }
+            }
+        }
+        var methodBoundNode = new MethodBoundNode(node, defaultConstructor);
+        return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
     }
 
     private static void cleanErrorsAndMessages(IBindingContext bindingContext) {

@@ -2,6 +2,7 @@ package org.openl.binding.impl;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.TreeMap;
 
 import lombok.Getter;
@@ -70,19 +71,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
             element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
             var key = (T) orderBy.evaluate(env);
-            var prev = map.put(key, element);
-            if (prev != null) {
-                OrderList list;
-                if (prev.getClass() != OrderList.class) {
-                    list = new OrderList();
-                    list.add(prev);
-                } else {
-                    list = (OrderList) prev;
-                }
-
-                list.add(element);
-                map.put(key, list);
-            }
+            putElement(map, key, element);
         }
 
         var objects = new ArrayList<Object>();
@@ -94,6 +83,25 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
             }
         }
         return CollectionUtils.toArray(objects, componentClass);
+    }
+
+    /**
+     * Puts the element by its key. Elements with equal keys are collected into a list in the order they are put.
+     */
+    private static <K> void putElement(Map<K, Object> map, K key, Object element) {
+        var prev = map.put(key, element);
+        if (prev != null) {
+            OrderList list;
+            if (prev.getClass() != OrderList.class) {
+                list = new OrderList();
+                list.add(prev);
+            } else {
+                list = (OrderList) prev;
+            }
+
+            list.add(element);
+            map.put(key, list);
+        }
     }
 
     private static class OrderList extends ArrayList<Object> {

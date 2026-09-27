@@ -90,22 +90,7 @@ public class IdentifierBinder extends ANodeBinder {
             dims++;
             type = type.getComponentClass();
         }
-        IOpenField field;
-        var strictMatch = isStrictMatch(node);
-        if (target.isStaticTarget()) {
-            field = type.getStaticField(fieldName, strictMatch);
-        } else {
-            if (!isAllowOnlyStrictFieldMatch(type)) {
-                // disable strict match for all types to save backward compatibility with old client projects, except
-                // new types annotated with @AllowOnlyStrictFieldMatchType
-                strictMatch = false;
-            }
-            field = type.getField(fieldName, strictMatch);
-            if (field != null && !fieldName.equals(field.getName().replaceAll("\\s", ""))) {
-                bindingContext.addMessage(OpenLMessagesUtils
-                        .newWarnMessage("Case insensitive matching to '%s'.".formatted(field.getName()), node));
-            }
-        }
+        var field = findField(node, bindingContext, target, type, fieldName);
 
         if (field == null) {
             throw new OpenlNotCheckedException("%s '%s' is not found in type '%s'.".formatted(
@@ -114,22 +99,7 @@ public class IdentifierBinder extends ANodeBinder {
                     type instanceof StaticOpenClass soc ? soc.getDelegate().getName() : type.getName()));
         }
 
-        var t = field.getType();
-        var dim = 0;
-        while (t.isArray()) {
-            t = t.getComponentClass();
-            dim++;
-        }
-
-        if (type instanceof WrapModuleSpecificTypes && t instanceof ModuleSpecificType) {
-            var newType = bindingContext.findType(t.getName());
-            if (newType != null) {
-                if (dim > 0) {
-                    newType = newType.getArrayType(dim);
-                }
-                field = new ModuleSpecificOpenField(field, newType);
-            }
-        }
+        field = toModuleSpecificField(field, type, bindingContext);
 
         if (target.isStaticTarget() != field.isStatic()) {
 
@@ -151,6 +121,59 @@ public class IdentifierBinder extends ANodeBinder {
 
         BindHelper.checkOnDeprecation(node, bindingContext, field);
         return new FieldBoundNode(node, field, target, dims);
+    }
+
+    /**
+     * Finds a static field of a static target, or a field of an object target.
+     *
+     * <p>An object field is matched case insensitively unless its type allows only strict field matching. Such a
+     * match adds a warning to the binding context.
+     */
+    private IOpenField findField(ISyntaxNode node,
+                                 IBindingContext bindingContext,
+                                 IBoundNode target,
+                                 IOpenClass type,
+                                 String fieldName) {
+        IOpenField field;
+        var strictMatch = isStrictMatch(node);
+        if (target.isStaticTarget()) {
+            field = type.getStaticField(fieldName, strictMatch);
+        } else {
+            if (!isAllowOnlyStrictFieldMatch(type)) {
+                // disable strict match for all types to save backward compatibility with old client projects, except
+                // new types annotated with @AllowOnlyStrictFieldMatchType
+                strictMatch = false;
+            }
+            field = type.getField(fieldName, strictMatch);
+            if (field != null && !fieldName.equals(field.getName().replaceAll("\\s", ""))) {
+                bindingContext.addMessage(OpenLMessagesUtils
+                        .newWarnMessage("Case insensitive matching to '%s'.".formatted(field.getName()), node));
+            }
+        }
+        return field;
+    }
+
+    /**
+     * Retypes a field of a module specific type to the type with the same name found in the binding context.
+     */
+    private static IOpenField toModuleSpecificField(IOpenField field, IOpenClass type, IBindingContext bindingContext) {
+        var t = field.getType();
+        var dim = 0;
+        while (t.isArray()) {
+            t = t.getComponentClass();
+            dim++;
+        }
+
+        if (type instanceof WrapModuleSpecificTypes && t instanceof ModuleSpecificType) {
+            var newType = bindingContext.findType(t.getName());
+            if (newType != null) {
+                if (dim > 0) {
+                    newType = newType.getArrayType(dim);
+                }
+                return new ModuleSpecificOpenField(field, newType);
+            }
+        }
+        return field;
     }
 
     private IOpenField selectFieldFromAmbiguous(AmbiguousFieldException ex,

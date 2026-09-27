@@ -126,23 +126,41 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
                 return new CellMetaInfo(domainOpenClass, false);
             }
 
-            var subValues = row.get(VALUES);
-            for (var sv = 0; sv < subValues.length; sv++) {
-                var subValue = subValues[sv];
-                region = subValue.getGridRegion();
-                cell = grid.getCell(region.getLeft(), region.getTop());
-
-                if (isNeededCell(cell, rowNum, colNum)) {
-                    // "values" column
-                    // We must check actual value because we can find IntRange instead of Integer there.
-                    var checkValues = getCheckValues(columnMatch, i);
-                    Object value = checkValues == null ? null : checkValues[sv];
-                    return value == null ? null : new CellMetaInfo(JavaOpenClass.getOpenClass(value.getClass()), false);
-                }
+            var metaInfo = checkRowValuesMetaInfo(columnMatch, grid, row, i, rowNum, colNum);
+            if (metaInfo != NOT_FOUND) {
+                return metaInfo;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Searches the cell among the values of the row.
+     *
+     * @return the meta info of the value cell, or {@link #NOT_FOUND} when the cell is not a value of the row
+     */
+    private CellMetaInfo checkRowValuesMetaInfo(ColumnMatch columnMatch,
+                                                IGrid grid,
+                                                TableRow row,
+                                                int rowIndex,
+                                                int rowNum,
+                                                int colNum) {
+        var subValues = row.get(VALUES);
+        for (var sv = 0; sv < subValues.length; sv++) {
+            var subValue = subValues[sv];
+            var region = subValue.getGridRegion();
+            var cell = grid.getCell(region.getLeft(), region.getTop());
+
+            if (isNeededCell(cell, rowNum, colNum)) {
+                // "values" column
+                // We must check actual value because we can find IntRange instead of Integer there.
+                var checkValues = getCheckValues(columnMatch, rowIndex);
+                Object value = checkValues == null ? null : checkValues[sv];
+                return value == null ? null : new CellMetaInfo(JavaOpenClass.getOpenClass(value.getClass()), false);
+            }
+        }
+        return NOT_FOUND;
     }
 
     private Object[] getCheckValues(ColumnMatch columnMatch, int rowIndex) {
