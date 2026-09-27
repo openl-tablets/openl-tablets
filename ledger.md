@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- PR #2184 is open (2 commits, studio-ui). Maintain it to green, then sweep on that same branch.
+- No PR is open: #2184 merged. Cut a fresh `dead-code/*` branch from a freshly fetched `origin/main`.
 - All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect near zero),
   spend the rest on a NEW vein. Paying veins: documentation, build config, and now i18n keys and dead TS imports —
   a UI rewrite orphans message keys that only a full-dotted-path search sees.
@@ -22,24 +22,22 @@
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | PAID; 1,648 keys, 151 flagged, 6 dead in #2184 |
-| 11 | TypeScript exports, types, components, imports | PAID; 0 dead exports, 1 dead React import in #2184 |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 6 dead keys merged in #2184; re-run per delta |
+| 11 | TypeScript exports, types, components, imports | done; 0 dead exports, 1 dead import merged in #2184 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
 | 14 | Documentation of settings and classes the code no longer has | done; 1 removal, merged in #2145 |
 
 ## Open PR
 
-- #2184 `dead-code/studio-ui-leftovers`, head 9c4d111c28. Opened ready for review; no review yet.
-- `Drop the repository bundle keys no screen asks for any more` — 6 keys under `browser` in repository.en.ts.
-- `Drop the React import the automatic JSX transform leaves unread` — ResultOptions.test.tsx.
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8). Each merged the day it
-  opened, with no review comment, on the PR body's evidence alone.
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7). Each merged
+  the day it opened, with no review comment, on the PR body's evidence alone.
 - A removal proven by unreachable behaviour, not by non-reference, is accepted. The maintainer never merges a sweep
-  PR red: they rebase onto new main, wait for green, then rebase-merge.
+  PR red: they rebase onto new main, wait for green, then rebase-merge; the head branch auto-deletes on merge.
 
 ## Module coverage
 
@@ -297,4 +295,5 @@
 - 2026-09-24: swept the 140-file EPBDS-16668..16702 delta at zero; 9 new veins closed. The Lombok no-op vein paid
   4 removals; #2166 MERGED (-8) the same day and its branch deleted. The two DEMO `.properties` are keep-listed.
 - 2026-09-27: swept the 819-file EPBDS-16704..16762 delta (the Studio table-editor rewrite, Java 27). Reactor build
-  and PMD green, both at zero; the i18n and dead-TS-import veins paid 7 removals in the new PR #2184.
+  and PMD at zero; the i18n and dead-TS-import veins paid 7 removals. #2184 MERGED (-7) the same day, CI green on
+  the first run with no flake, Sonar 0 new issues; branch auto-deleted on merge.
