@@ -61,8 +61,7 @@ public class InterfaceByteCodeBuilder {
      * @return Java Interface Builder
      */
     public static InterfaceByteCodeBuilder create(String interfaceName) {
-        interfaceName = requireNonBlank(interfaceName, "Interface name is null or blank.");
-        return new InterfaceByteCodeBuilder(interfaceName);
+        return new InterfaceByteCodeBuilder(requireNonBlank(interfaceName, "Interface name is null or blank."));
     }
 
     static String requireNonBlank(String str, String message) {
