@@ -5,8 +5,10 @@ export interface NormalizedFileChange {
     type: ProjectFileChangeType
 }
 
+// Trailing slashes are matched from the first of their run only, so a run inside the path is not read again from
+// each of its slashes.
 const normalizePath = (path?: string | null): string =>
-    (path ?? '').replaceAll('\\', '/').replace(/^\/+|\/+$/g, '')
+    (path ?? '').replaceAll('\\', '/').replace(/^\/+|(?<!\/)\/+$/g, '')
 
 const stripPrefix = (path: string, prefix?: string | null): string => {
     const normalizedPrefix = normalizePath(prefix)

@@ -27,7 +27,7 @@ export interface TargetStructure {
  * policy, Integer age)`. A header the compiler could not read declares nothing.
  */
 export const parseArguments = (signature: string | undefined): TableArgument[] => {
-    const parameters = signature?.match(/\(([^)]*)\)/)?.[1]?.trim()
+    const parameters = signature?.match(/^[^(]*\(([^)]*)\)/)?.[1]?.trim()
     if (!parameters) {
         return []
     }
