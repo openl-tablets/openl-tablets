@@ -27,6 +27,7 @@ import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -121,24 +122,33 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             } else if (indexes.containsKey(v)) {
                 result.add(indexes.get(v));
             } else {
-                String[] edges = StringUtils.split(v, '-');
-                if (edges.length == 0) {
-                    // Dashes and nothing else: the case named by a dash alone was found above, so nothing is named.
-                    throw unknownCase(v);
-                }
-                if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
-                    edges = DASH_SEPARATOR.split(v);
-                }
-                var startIndex = requireIndex(edges[0].trim());
-                var endIndex = requireIndex(edges[edges.length - 1].trim());
-
-                for (var i = startIndex; i <= endIndex; i++) {
-                    result.add(i);
-                }
+                addRangeIndices(result, v);
             }
         }
         Integer[] indices = new Integer[result.size()];
         return ArrayUtils.toPrimitive(result.toArray(indices));
+    }
+
+    /**
+     * Adds the indexes of the test cases from the first to the last one of a range, e.g. {@code 1 - 3}.
+     *
+     * @throws IllegalArgumentException when an edge of the range is not an id of a test case
+     */
+    private void addRangeIndices(Set<Integer> result, String v) {
+        String[] edges = StringUtils.split(v, '-');
+        if (edges.length == 0) {
+            // Dashes and nothing else: the case named by a dash alone was found above, so nothing is named.
+            throw unknownCase(v);
+        }
+        if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
+            edges = DASH_SEPARATOR.split(v);
+        }
+        var startIndex = requireIndex(edges[0].trim());
+        var endIndex = requireIndex(edges[edges.length - 1].trim());
+
+        for (var i = startIndex; i <= endIndex; i++) {
+            result.add(i);
+        }
     }
 
     /**
@@ -299,148 +309,185 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         for (var colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
             var columnDescriptor = dataModel.getDescriptor(colNum);
             if (columnDescriptor != null) {
-                List<IOpenField> toAdd;
-                IOpenClass resultType;
                 var nodes = columnDescriptor.getFieldChainTokens();
                 var firstNode = nodes.length == 0 ? "" : nodes[0].getIdentifier();
                 if (firstNode.startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
-                    toAdd = fieldsToTest;
-                    resultType = testedMethod.getType();
+                    addFieldsToTest(fieldsToTest,
+                            testedMethod.getType(),
+                            columnDescriptor,
+                            nodes,
+                            testTablePrecision);
                 } else if (firstNode.startsWith(TestMethodHelper.EXPECTED_ERROR)) {
-                    toAdd = errorFieldsToTest;
-                    resultType = new UserErrorOpenClass();
-                } else {
-                    // skip empty, non-'_res_' and non-'_error_' columns
-                    continue;
+                    addFieldsToTest(errorFieldsToTest,
+                            new UserErrorOpenClass(),
+                            columnDescriptor,
+                            nodes,
+                            testTablePrecision);
                 }
-                var fieldPrecision = testTablePrecision;
-                if (nodes.length > 1 && StringUtils.matches(DataTableBindHelper.PRECISION_PATTERN,
-                        nodes[nodes.length - 1].getIdentifier())) {
-                    // set the precision of the field
-                    fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
-                    nodes = ArrayUtils.remove(nodes, nodes.length - 1);
-                }
+                // skip empty, non-'_res_' and non-'_error_' columns
+            }
+        }
+    }
 
-                IOpenField[] fieldSequence;
-                var resIsCollection = isCollectionType(nodes[0].getIdentifier());
-                var startIndex = 0;
-                var currentType = resultType;
+    /**
+     * Adds the fields of the result that a column of the expected result or of the expected error checks.
+     */
+    private static void addFieldsToTest(List<IOpenField> toAdd,
+                                        IOpenClass resultType,
+                                        ColumnDescriptor columnDescriptor,
+                                        IdentifierNode[] nodes,
+                                        Integer testTablePrecision) {
+        var fieldPrecision = testTablePrecision;
+        if (nodes.length > 1 && StringUtils.matches(DataTableBindHelper.PRECISION_PATTERN,
+                nodes[nodes.length - 1].getIdentifier())) {
+            // set the precision of the field
+            fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
+            nodes = ArrayUtils.remove(nodes, nodes.length - 1);
+        }
 
-                if (resIsCollection) {
-                    startIndex = 1;
-                    fieldSequence = new IOpenField[nodes.length];
-                    var arrayField = new ThisField(resultType);
-                    CollectionType collectionType = getCollectionType(arrayField.getType());
-                    IOpenField arrayAccessField;
-                    if (collectionType == CollectionType.MAP) {
-                        Object key = DataTableBindHelper.getCollectionKey(nodes[0]);
-                        arrayAccessField = new CollectionElementField(arrayField,
-                                key,
-                                arrayField.getType().getComponentClass());
-                    } else {
-                        var index = DataTableBindHelper.getCollectionIndex(nodes[0]);
-                        arrayAccessField = new CollectionElementField(arrayField,
-                                index,
-                                arrayField.getType().getComponentClass(),
-                                collectionType);
-                    }
-                    if (arrayAccessField.getType().isArray()) {
-                        currentType = arrayAccessField.getType().getComponentClass();
-                    } else {
-                        currentType = arrayAccessField.getType();
-                    }
-                    fieldSequence[0] = arrayAccessField;
-                } else {
-                    fieldSequence = new IOpenField[nodes.length - 1];
-                }
-                int i;
-                for (i = startIndex; i < fieldSequence.length; i++) {
-                    var identifier = nodes[i + 1 - startIndex].getIdentifier();
-                    var isCollection = isCollectionType(identifier);
-                    if (isCollection) {
-                        var arrayField = currentType
-                                .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
-                        // Try process field as SpreadsheetResult
-                        if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && StringUtils
-                                .matches(DataTableBindHelper.SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
-                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
-                            arrayField = spreadsheetResultOpenClass
-                                    .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
-                        }
-                        if (arrayField != null) {
-                            var type = arrayField.getType();
-                            CollectionType collectionType = getCollectionType(type);
-                            IOpenField arrayAccessField;
-                            if (collectionType == CollectionType.MAP) {
-                                Object key = DataTableBindHelper.getCollectionKey(nodes[i + 1 - startIndex]);
-                                arrayAccessField = new CollectionElementField(arrayField,
-                                        key,
-                                        type.getComponentClass());
-                            } else {
-                                var arrayIndex = DataTableBindHelper.getCollectionIndex(nodes[i + 1 - startIndex]);
-                                arrayAccessField = new CollectionElementField(arrayField,
-                                        arrayIndex,
-                                        type.getComponentClass(),
-                                        collectionType);
-                            }
-                            fieldSequence[i] = arrayAccessField;
-                        }
-                    } else {
-                        fieldSequence[i] = currentType.getField(identifier);
-                        if (fieldSequence[i] == null && StringUtils
-                                .matches(DataTableBindHelper.SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
-                            // Try process field as SpreadsheetResult
-                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
-                            var openField = spreadsheetResultOpenClass.getField(identifier);
-                            if (openField != null) {
-                                fieldSequence[i] = openField;
-                            }
-                        }
-                    }
-                    if (fieldSequence[i] == null) {
-                        break;
-                    }
-                    if (fieldSequence[i].getType().isArray() && isCollection) {
-                        currentType = fieldSequence[i].getType().getComponentClass();
-                    } else {
-                        currentType = fieldSequence[i].getType();
-                    }
-                }
-                if (i == 0 || i == fieldSequence.length) {
-                    if (fieldSequence.length == 0 && columnDescriptor.isReference()) {
-                        if (resultType.isSimple() || resultType.isArray()) {
-                            toAdd.add(new ThisField(resultType));
-                        } else {
-                            toAdd.addAll(resultType.getFields());
-                        }
-                    } else {
-                        if (fieldSequence.length == 0) {
-                            fieldSequence = new IOpenField[]{new ThisField(resultType)};
-                        }
-                        if (fieldPrecision != null) {
-                            toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
-                        } else {
-                            if (fieldSequence.length > 1) {
-                                var hasNull = false;
-                                for (IOpenField field : fieldSequence) {
-                                    if (field == null) {
-                                        hasNull = true;
-                                        break;
-                                    }
-                                }
-                                if (!hasNull) {
-                                    toAdd.add(new FieldChain(currentType, fieldSequence));
-                                }
-                            } else {
-                                var field = fieldSequence[0];
-                                if (field != null) {
-                                    toAdd.add(field);
-                                }
-                            }
-                        }
-                    }
+        IOpenField[] fieldSequence;
+        var resIsCollection = isCollectionType(nodes[0].getIdentifier());
+        var startIndex = 0;
+        var currentType = resultType;
+
+        if (resIsCollection) {
+            startIndex = 1;
+            fieldSequence = new IOpenField[nodes.length];
+            var arrayField = new ThisField(resultType);
+            IOpenField arrayAccessField = createCollectionElementField(arrayField, nodes[0]);
+            currentType = getNextType(arrayAccessField, true);
+            fieldSequence[0] = arrayAccessField;
+        } else {
+            fieldSequence = new IOpenField[nodes.length - 1];
+        }
+        int i;
+        for (i = startIndex; i < fieldSequence.length; i++) {
+            var identifier = nodes[i + 1 - startIndex].getIdentifier();
+            var isCollection = isCollectionType(identifier);
+            fieldSequence[i] = findField(currentType, nodes[i + 1 - startIndex], isCollection);
+            if (fieldSequence[i] == null) {
+                break;
+            }
+            currentType = getNextType(fieldSequence[i], isCollection);
+        }
+        if (i == 0 || i == fieldSequence.length) {
+            addFieldSequence(toAdd, resultType, columnDescriptor, fieldSequence, currentType, fieldPrecision);
+        }
+    }
+
+    private static void addFieldSequence(List<IOpenField> toAdd,
+                                         IOpenClass resultType,
+                                         ColumnDescriptor columnDescriptor,
+                                         IOpenField[] fieldSequence,
+                                         IOpenClass currentType,
+                                         Integer fieldPrecision) {
+        if (fieldSequence.length == 0 && columnDescriptor.isReference()) {
+            if (resultType.isSimple() || resultType.isArray()) {
+                toAdd.add(new ThisField(resultType));
+            } else {
+                toAdd.addAll(resultType.getFields());
+            }
+        } else {
+            if (fieldSequence.length == 0) {
+                fieldSequence = new IOpenField[]{new ThisField(resultType)};
+            }
+            if (fieldPrecision != null) {
+                toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
+            } else {
+                addFieldChain(toAdd, currentType, fieldSequence);
+            }
+        }
+    }
+
+    /**
+     * Adds the chain of the fields, or the only field. Nothing is added when a field is missing.
+     */
+    private static void addFieldChain(List<IOpenField> toAdd, IOpenClass currentType, IOpenField[] fieldSequence) {
+        if (fieldSequence.length > 1) {
+            var hasNull = false;
+            for (IOpenField field : fieldSequence) {
+                if (field == null) {
+                    hasNull = true;
+                    break;
                 }
             }
+            if (!hasNull) {
+                toAdd.add(new FieldChain(currentType, fieldSequence));
+            }
+        } else {
+            var field = fieldSequence[0];
+            if (field != null) {
+                toAdd.add(field);
+            }
+        }
+    }
+
+    /**
+     * Finds a field of the type, or an element of a collection field of it. A field that is not found is searched in
+     * the spreadsheet result type when the field name looks like a spreadsheet cell reference.
+     */
+    private static IOpenField findField(IOpenClass currentType, IdentifierNode node, boolean isCollection) {
+        var identifier = node.getIdentifier();
+        if (isCollection) {
+            var arrayField = currentType
+                    .getField(DataTableBindHelper.getCollectionName(node));
+            // Try process field as SpreadsheetResult
+            if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && StringUtils
+                    .matches(DataTableBindHelper.SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
+                IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
+                arrayField = spreadsheetResultOpenClass
+                        .getField(DataTableBindHelper.getCollectionName(node));
+            }
+            if (arrayField != null) {
+                return createCollectionElementField(arrayField, node);
+            }
+            return null;
+        } else {
+            var field = currentType.getField(identifier);
+            if (field == null && StringUtils
+                    .matches(DataTableBindHelper.SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
+                // Try process field as SpreadsheetResult
+                IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
+                var openField = spreadsheetResultOpenClass.getField(identifier);
+                if (openField != null) {
+                    field = openField;
+                }
+            }
+            return field;
+        }
+    }
+
+    /**
+     * Creates the field of a collection element: by the key for a map, and by the index otherwise.
+     */
+    private static IOpenField createCollectionElementField(IOpenField arrayField, IdentifierNode node) {
+        var type = arrayField.getType();
+        CollectionType collectionType = getCollectionType(type);
+        IOpenField arrayAccessField;
+        if (collectionType == CollectionType.MAP) {
+            Object key = DataTableBindHelper.getCollectionKey(node);
+            arrayAccessField = new CollectionElementField(arrayField,
+                    key,
+                    type.getComponentClass());
+        } else {
+            var arrayIndex = DataTableBindHelper.getCollectionIndex(node);
+            arrayAccessField = new CollectionElementField(arrayField,
+                    arrayIndex,
+                    type.getComponentClass(),
+                    collectionType);
+        }
+        return arrayAccessField;
+    }
+
+    /**
+     * Returns the type the next field of the chain belongs to: the component type of an array accessed by an element,
+     * or the type of the field otherwise.
+     */
+    private static IOpenClass getNextType(IOpenField field, boolean isCollection) {
+        if (field.getType().isArray() && isCollection) {
+            return field.getType().getComponentClass();
+        } else {
+            return field.getType();
         }
     }
 

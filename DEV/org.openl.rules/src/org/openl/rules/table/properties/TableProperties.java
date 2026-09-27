@@ -543,38 +543,39 @@ public class TableProperties implements ITableProperties {
      */
     @Override
     public String getPropertyValueAsString(String key) {
-        String result = null;
         var propValue = getPropertyValue(key);
-        if (propValue != null) {
-            if (propValue instanceof Date date) {
-                var format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
-                if (format != null) {
-                    var dateFormat = new SimpleDateFormat(format);
-                    result = dateFormat.format(date);
-                }
-            } else if (EnumUtils.isEnum(propValue)) {
-                result = ((Enum<?>) propValue).name();
-            } else if (EnumUtils.isEnumArray(propValue)) {
-
-                var enums = (Object[]) propValue;
-
-                if (!ArrayTool.isEmpty(enums)) {
-
-                    String[] names = EnumUtils.getNames(enums);
-                    result = String.join(",", names);
-                } else {
-                    result = "";
-                }
-            } else if (propValue.getClass().isArray()) {
-                var array = (Object[]) propValue;
-                if (!ArrayTool.isEmpty(array)) {
-                    result = StringUtils.join(array, ",");
-                } else {
-                    result = "";
-                }
-            } else {
-                result = propValue.toString();
+        if (propValue == null) {
+            return null;
+        }
+        String result = null;
+        if (propValue instanceof Date date) {
+            var format = TablePropertyDefinitionUtils.getPropertyByName(key).getFormat();
+            if (format != null) {
+                var dateFormat = new SimpleDateFormat(format);
+                result = dateFormat.format(date);
             }
+        } else if (EnumUtils.isEnum(propValue)) {
+            result = ((Enum<?>) propValue).name();
+        } else if (EnumUtils.isEnumArray(propValue)) {
+
+            var enums = (Object[]) propValue;
+
+            if (!ArrayTool.isEmpty(enums)) {
+
+                String[] names = EnumUtils.getNames(enums);
+                result = String.join(",", names);
+            } else {
+                result = "";
+            }
+        } else if (propValue.getClass().isArray()) {
+            var array = (Object[]) propValue;
+            if (!ArrayTool.isEmpty(array)) {
+                result = StringUtils.join(array, ",");
+            } else {
+                result = "";
+            }
+        } else {
+            result = propValue.toString();
         }
         return result;
     }

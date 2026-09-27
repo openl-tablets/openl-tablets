@@ -9,6 +9,7 @@ package org.openl.rules.table.xls;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import lombok.Getter;
@@ -39,24 +40,7 @@ public class XlsUrlParser {
             file = url.substring(0, indexQuestionMark);
             var query = url.substring(indexQuestionMark + 1);
 
-            var st = new StringTokenizer(query, "&");
-
-            while (st.hasMoreTokens()) {
-                var pair = st.nextToken();
-
-                var idx = pair.indexOf('=');
-
-                if (idx < 0) {
-                    map.put(pair, "");
-                } else {
-                    var key = pair.substring(0, idx);
-                    var value = pair.substring(idx + 1);
-                    if ("sheet".equals(key)) {
-                        value = StringTool.decodeURL(value);
-                    }
-                    map.put(key, value);
-                }
-            }
+            parseQuery(query, map);
         } else {
             file = url;
         }
@@ -82,19 +66,44 @@ public class XlsUrlParser {
             wbPath = "/unexistingPath/";
             wbName = "unexistingSourceFile.xls";
         } else {
-            if (file != null && file.startsWith("file:/")) {
-                // In current OpenL implementation in Linux the path will be like this: file:/opt/smth.
-                // In Windows like this: file:/C:/smth.
-                int prefixSize = file.length() > 7 && file.charAt(7) == ':' ? 6 : 5;
-                file = file.substring(prefixSize);
+            var f = toCanonicalFile(file);
+            wbPath = f.getParent();
+            wbName = f.getName();
+        }
+    }
+
+    private static void parseQuery(String query, Map<String, String> map) {
+        var st = new StringTokenizer(query, "&");
+
+        while (st.hasMoreTokens()) {
+            var pair = st.nextToken();
+
+            var idx = pair.indexOf('=');
+
+            if (idx < 0) {
+                map.put(pair, "");
+            } else {
+                var key = pair.substring(0, idx);
+                var value = pair.substring(idx + 1);
+                if ("sheet".equals(key)) {
+                    value = StringTool.decodeURL(value);
+                }
+                map.put(key, value);
             }
-            try {
-                var f = new File(file).getCanonicalFile();
-                wbPath = f.getParent();
-                wbName = f.getName();
-            } catch (IOException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
-            }
+        }
+    }
+
+    private static File toCanonicalFile(String file) {
+        if (file != null && file.startsWith("file:/")) {
+            // In current OpenL implementation in Linux the path will be like this: file:/opt/smth.
+            // In Windows like this: file:/C:/smth.
+            int prefixSize = file.length() > 7 && file.charAt(7) == ':' ? 6 : 5;
+            file = file.substring(prefixSize);
+        }
+        try {
+            return new File(file).getCanonicalFile();
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
         }
     }
 

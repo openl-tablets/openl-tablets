@@ -20,15 +20,7 @@ public class TestResultComparatorFactory {
         } else if (String.class == clazz) {
             return StringComparator.getInstance();
         } else if (NumberUtils.isNumberType(clazz)) {
-            if (delta == null) {
-                if (NumberUtils.isNonFloatPointType(clazz)) {
-                    // let's use Comparable comparator
-                    return ComparableComparator.getInstance();
-                }
-                return NumberComparator.getInstance();
-            } else {
-                return new NumberComparator(delta);
-            }
+            return getNumberComparator(clazz, delta);
         } else if (ClassUtils.isAssignable(clazz, Comparable.class)) {
             // Expected result and actual result can be different types (StubSpreadsheet)
             return ComparableComparator.getInstance();
@@ -44,5 +36,17 @@ public class TestResultComparatorFactory {
             }
         }
         return GenericComparator.getInstance();
+    }
+
+    private static TestResultComparator getNumberComparator(Class<?> clazz, Double delta) {
+        if (delta == null) {
+            if (NumberUtils.isNonFloatPointType(clazz)) {
+                // let's use Comparable comparator
+                return ComparableComparator.getInstance();
+            }
+            return NumberComparator.getInstance();
+        } else {
+            return new NumberComparator(delta);
+        }
     }
 }

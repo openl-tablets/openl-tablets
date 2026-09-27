@@ -1,5 +1,6 @@
 package org.openl.rules.calc;
 
+import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IDynamicObject;
 import org.openl.vm.IRuntimeEnv;
@@ -53,28 +54,21 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
         for (var i = 0; i < height; i++) {
             var row = cc[i];
             for (var j = 0; j < width; j++) {
-                var cell = row[j];
-                if (cell != null) {
-                    switch (cell.getSpreadsheetCellType()) {
-                        case EMPTY:
-                            res[i][j] = cell.isDefaultPrimitiveCell() ? cell.getValue()
-                                    : SpreadsheetResultCalculator.EMPTY_CELL;
-                            break;
-                        case VALUE, CONSTANT:
-                            res[i][j] = cell.getValue();
-                            break;
-                        case METHOD:
-                            res[i][j] = SpreadsheetResultCalculator.METHOD_VALUE;
-                            break;
-                        case DESCRIPTION:
-                            res[i][j] = SpreadsheetResultCalculator.DESCRIPTION_CELL;
-                            break;
-                    }
-                } else {
-                    res[i][j] = SpreadsheetResultCalculator.DESCRIPTION_CELL;
-                }
+                res[i][j] = preFetchValue(row[j]);
             }
         }
         return res;
+    }
+
+    private static Object preFetchValue(SpreadsheetCell cell) {
+        if (cell == null) {
+            return SpreadsheetResultCalculator.DESCRIPTION_CELL;
+        }
+        return switch (cell.getSpreadsheetCellType()) {
+            case EMPTY -> cell.isDefaultPrimitiveCell() ? cell.getValue() : SpreadsheetResultCalculator.EMPTY_CELL;
+            case VALUE, CONSTANT -> cell.getValue();
+            case METHOD -> SpreadsheetResultCalculator.METHOD_VALUE;
+            case DESCRIPTION -> SpreadsheetResultCalculator.DESCRIPTION_CELL;
+        };
     }
 }

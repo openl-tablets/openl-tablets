@@ -368,49 +368,7 @@ public class SpreadsheetStructureBuilder {
         if (StringUtils.isBlank(code)) {
             spreadsheetCell.setValue(type.nullObject());
         } else if (SpreadsheetExpressionMarker.isFormula(code)) {
-
-            var end = 0;
-            if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
-                end = -1;
-            }
-
-            var srcCode = new SubTextSourceCodeModule(source, 1, end);
-            var signature = spreadsheetHeader.getSignature();
-            var declaringClass = spreadsheetHeader.getDeclaringClass();
-            var header = new OpenMethodHeader(name, type, signature, declaringClass);
-            var columnBindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
-            var openl = columnBindingContext.getOpenL();
-            // columnBindingContext - is never null
-            try {
-                CompositeMethod method;
-                if (header.getType() == null) {
-                    method = OpenLManager.makeMethodWithUnknownType(openl,
-                            srcCode,
-                            name,
-                            signature,
-                            declaringClass,
-                            columnBindingContext);
-                    spreadsheetCell.setType(method.getType() != null ? method.getType() : NullOpenClass.the);
-                } else {
-                    method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
-                }
-                spreadsheetCell.setValue(method);
-                // Validate literal expressions against domain type
-                if (type instanceof DomainOpenClass) {
-                    var bodyNode = method.getMethodBodyBoundNode();
-                    if (bodyNode != null && bodyNode.getChildren() != null) {
-                        for (var child : bodyNode.getChildren()) {
-                            BindHelper.validateDomainValue(child, type, columnBindingContext);
-                        }
-                    }
-                }
-            } catch (Exception | LinkageError e) {
-                spreadsheetCell.setType(NullOpenClass.the);
-                var message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
-                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
-                        .createError(message, e, LocationUtils.createTextInterval(code), source));
-            }
-
+            extractFormulaValue(spreadsheetCell, source, name, rowBindingContext, physicalRow, physicalCol);
         } else if (spreadsheetCell.isConstantCell()) {
             try {
                 var openField = rowBindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, code, true);
@@ -421,37 +379,106 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
             }
         } else {
-            Class<?> instanceClass = type.getInstanceClass();
-            if (instanceClass == null) {
-                String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
-                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, source));
-            }
+            extractValue(spreadsheetCell, cell, source, name, rowBindingContext, physicalRow, physicalCol);
+        }
+    }
 
-            try {
-                var columnBindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
-                Object result = null;
-                if (String.class == instanceClass) {
+    /**
+     * Compiles the formula of a cell into a method, and sets the type of the cell from it when the cell has no type.
+     */
+    private void extractFormulaValue(SpreadsheetCell spreadsheetCell,
+                                     CellSourceCodeModule source,
+                                     String name,
+                                     IBindingContext rowBindingContext,
+                                     int physicalRow,
+                                     int physicalCol) {
+        var code = source.getCode();
+        var type = spreadsheetCell.getType();
+        var end = 0;
+        if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
+            end = -1;
+        }
+
+        var srcCode = new SubTextSourceCodeModule(source, 1, end);
+        var signature = spreadsheetHeader.getSignature();
+        var declaringClass = spreadsheetHeader.getDeclaringClass();
+        var header = new OpenMethodHeader(name, type, signature, declaringClass);
+        var columnBindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
+        var openl = columnBindingContext.getOpenL();
+        // columnBindingContext - is never null
+        try {
+            CompositeMethod method;
+            if (header.getType() == null) {
+                method = OpenLManager.makeMethodWithUnknownType(openl,
+                        srcCode,
+                        name,
+                        signature,
+                        declaringClass,
+                        columnBindingContext);
+                spreadsheetCell.setType(method.getType() != null ? method.getType() : NullOpenClass.the);
+            } else {
+                method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
+            }
+            spreadsheetCell.setValue(method);
+            // Validate literal expressions against domain type
+            if (type instanceof DomainOpenClass) {
+                var bodyNode = method.getMethodBodyBoundNode();
+                if (bodyNode != null && bodyNode.getChildren() != null) {
+                    for (var child : bodyNode.getChildren()) {
+                        BindHelper.validateDomainValue(child, type, columnBindingContext);
+                    }
+                }
+            }
+        } catch (Exception | LinkageError e) {
+            spreadsheetCell.setType(NullOpenClass.the);
+            var message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
+            spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
+                    .createError(message, e, LocationUtils.createTextInterval(code), source));
+        }
+    }
+
+    /**
+     * Parses the value of a cell to the type of the cell.
+     */
+    private void extractValue(SpreadsheetCell spreadsheetCell,
+                              ICell cell,
+                              CellSourceCodeModule source,
+                              String name,
+                              IBindingContext rowBindingContext,
+                              int physicalRow,
+                              int physicalCol) {
+        var code = source.getCode();
+        var type = spreadsheetCell.getType();
+        Class<?> instanceClass = type.getInstanceClass();
+        if (instanceClass == null) {
+            String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
+            spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, source));
+        }
+
+        try {
+            var columnBindingContext = getColumnContext(physicalCol, physicalRow, rowBindingContext);
+            Object result = null;
+            if (String.class == instanceClass) {
+                result = String2DataConvertorFactory.parse(instanceClass, code, columnBindingContext);
+            } else {
+                if (cell.hasNativeType()) {
+                    result = RuleRowHelper.loadNativeValue(cell, type);
+                }
+                if (result == null) {
                     result = String2DataConvertorFactory.parse(instanceClass, code, columnBindingContext);
-                } else {
-                    if (cell.hasNativeType()) {
-                        result = RuleRowHelper.loadNativeValue(cell, type);
-                    }
-                    if (result == null) {
-                        result = String2DataConvertorFactory.parse(instanceClass, code, columnBindingContext);
-                    }
                 }
-
-                if (columnBindingContext.isExecutionMode() && result instanceof IMetaHolder holder) {
-                    var meta = new ValueMetaInfo(name, null, source);
-                    holder.setMetaInfo(meta);
-                }
-
-                var openCast = columnBindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
-                spreadsheetCell.setValue(openCast.convert(result));
-            } catch (Exception t) {
-                var message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
-                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
             }
+
+            if (columnBindingContext.isExecutionMode() && result instanceof IMetaHolder holder) {
+                var meta = new ValueMetaInfo(name, null, source);
+                holder.setMetaInfo(meta);
+            }
+
+            var openCast = columnBindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
+            spreadsheetCell.setValue(openCast.convert(result));
+        } catch (Exception t) {
+            var message = "Cannot parse cell value '%s' to the necessary type.".formatted(code);
+            spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
         }
     }
 
@@ -544,41 +571,50 @@ public class SpreadsheetStructureBuilder {
         } else if (rowHeader != null && rowHeader.getType() != null) {
             cellType = rowHeader.getType();
         } else {
-
-            // Try to derive cell type as double.
-            //
-            try {
-                // Try to parse cell value.
-                // If parse process will be finished with success then return
-                // double type else string type.
-                //
-                if (autoType) {
-                    if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
-                        cellType = null;
-                    } else if (cellCode != null) {
-                        var objectValue = sourceCell.getObjectValue();
-                        if (objectValue instanceof String) {
-                            String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
-                            cellType = JavaOpenClass.getOpenClass(Double.class);
-                        } else {
-                            cellType = JavaOpenClass.getOpenClass(objectValue.getClass());
-                        }
-                    } else {
-                        cellType = NullOpenClass.the;
-                    }
-                } else {
-                    if (!SpreadsheetExpressionMarker.isFormula(cellCode)) {
-                        String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
-                    }
-                    cellType = JavaOpenClass.getOpenClass(Double.class);
-                }
-            } catch (Exception t) {
-                cellType = JavaOpenClass.getOpenClass(String.class);
-            }
+            cellType = deriveCellType(sourceCell, cellCode, autoType);
         }
         spreadsheetCell.setType(cellType);
 
         return spreadsheetCell;
+    }
+
+    /**
+     * Derives the type of a cell whose headers have no type. A value that cannot be parsed as a number gives the
+     * {@code String} type.
+     */
+    private static IOpenClass deriveCellType(ICell sourceCell, String cellCode, boolean autoType) {
+        IOpenClass cellType;
+        // Try to derive cell type as double.
+        //
+        try {
+            // Try to parse cell value.
+            // If parse process will be finished with success then return
+            // double type else string type.
+            //
+            if (autoType) {
+                if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
+                    cellType = null;
+                } else if (cellCode != null) {
+                    var objectValue = sourceCell.getObjectValue();
+                    if (objectValue instanceof String) {
+                        String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
+                        cellType = JavaOpenClass.getOpenClass(Double.class);
+                    } else {
+                        cellType = JavaOpenClass.getOpenClass(objectValue.getClass());
+                    }
+                } else {
+                    cellType = NullOpenClass.the;
+                }
+            } else {
+                if (!SpreadsheetExpressionMarker.isFormula(cellCode)) {
+                    String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
+                }
+                cellType = JavaOpenClass.getOpenClass(Double.class);
+            }
+        } catch (Exception t) {
+            cellType = JavaOpenClass.getOpenClass(String.class);
+        }
+        return cellType;
     }
 
     private IBindingContext getRowContext(int rowIndex) {
@@ -737,36 +773,14 @@ public class SpreadsheetStructureBuilder {
         var height = tableBody.getHeight() - 1;
         var width = tableBody.getWidth() - 1;
         var registered = new HashSet<String>();
-        var descriptionRows = new ArrayList<Integer>();
-        for (var row = 0; row < height; row++) {
-            var cell = tableBody.getCell(0, row + 1);
-            var value = cell.getStringValue();
-            if (StringUtils.isNotBlank(value)) {
-                if (value.trim().startsWith("//")) {
-                    descriptionRows.add(row);
-                } else {
-                    parseHeader(cell, row, true, registered);
-                }
-            }
-        }
+        var descriptionRows = parseHeaders(true, height, registered);
         // First we parse headers and then descriptions, because descriptions need to be validated by headers
         var rowNames = new HashMap<String, Integer>();
         rowHeaders.values().forEach(e -> rowNames.put(e.getDefinitionName(), e.getRow()));
         var rowNamesForDescription = new HashSet<String>();
         descriptionRows.forEach(e -> parseDescription(e, true, rowNames, rowNamesForDescription));
 
-        var descriptionColumns = new ArrayList<Integer>();
-        for (var col = 0; col < width; col++) {
-            var cell = tableBody.getCell(col + 1, 0);
-            var value = cell.getStringValue();
-            if (StringUtils.isNotBlank(value)) {
-                if (!value.trim().startsWith("//")) {
-                    parseHeader(cell, col, false, registered);
-                } else {
-                    descriptionColumns.add(col);
-                }
-            }
-        }
+        var descriptionColumns = parseHeaders(false, width, registered);
         // First we parse headers and then descriptions, because descriptions need to be validated by headers
         var columnNames = new HashMap<String, Integer>();
         columnHeaders.values().forEach(e -> columnNames.put(e.getDefinitionName(), e.getColumn()));
@@ -799,6 +813,27 @@ public class SpreadsheetStructureBuilder {
             // No Java array in the return method signature
             returnHeaderDefinition.setType(spreadsheetHeaderType);
         }
+    }
+
+    /**
+     * Parses the headers of the rows or of the columns.
+     *
+     * @return the indexes of the description rows or columns, which are parsed after the headers
+     */
+    private List<Integer> parseHeaders(boolean row, int count, Set<String> registered) {
+        var descriptions = new ArrayList<Integer>();
+        for (var index = 0; index < count; index++) {
+            var cell = row ? tableBody.getCell(0, index + 1) : tableBody.getCell(index + 1, 0);
+            var value = cell.getStringValue();
+            if (StringUtils.isNotBlank(value)) {
+                if (value.trim().startsWith("//")) {
+                    descriptions.add(index);
+                } else {
+                    parseHeader(cell, index, row, registered);
+                }
+            }
+        }
+        return descriptions;
     }
 
     private void parseDescription(int index, boolean row, Map<String, Integer> names, Set<String> used) {
@@ -910,26 +945,35 @@ public class SpreadsheetStructureBuilder {
                 nodeUsages.add(nodeUsage);
             }
             if (headerType != null) {
-                var identifier = cutTypeIdentifier(typeIdentifierNode);
-                if (identifier != null) {
-                    var type = headerType;
-                    while (type.getMetaInfo() == null && type.isArray()) {
-                        type = type.getComponentClass();
-                    }
-                    var typeMeta = type.getMetaInfo();
-                    if (typeMeta != null) {
-                        var nodeUsage = new SimpleNodeUsage(identifier,
-                                typeMeta.getDisplayName(INamedThing.SHORT),
-                                typeMeta.getSourceUrl(),
-                                type,
-                                NodeType.DATATYPE);
-                        nodeUsages.add(nodeUsage);
-                    }
-                }
+                addTypeNodeUsage(nodeUsages, headerType, typeIdentifierNode);
             }
             if (!nodeUsages.isEmpty()) {
                 var cellMetaInfo = new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
                 metaInfoReader.addHeaderMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), cellMetaInfo);
+            }
+        }
+    }
+
+    /**
+     * Adds a link to the definition of the header type, or of its component type for an array type.
+     */
+    private void addTypeNodeUsage(List<NodeUsage> nodeUsages,
+                                  IOpenClass headerType,
+                                  IdentifierNode typeIdentifierNode) {
+        var identifier = cutTypeIdentifier(typeIdentifierNode);
+        if (identifier != null) {
+            var type = headerType;
+            while (type.getMetaInfo() == null && type.isArray()) {
+                type = type.getComponentClass();
+            }
+            var typeMeta = type.getMetaInfo();
+            if (typeMeta != null) {
+                var nodeUsage = new SimpleNodeUsage(identifier,
+                        typeMeta.getDisplayName(INamedThing.SHORT),
+                        typeMeta.getSourceUrl(),
+                        type,
+                        NodeType.DATATYPE);
+                nodeUsages.add(nodeUsage);
             }
         }
     }
@@ -979,19 +1023,29 @@ public class SpreadsheetStructureBuilder {
 
         for (var columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
             for (var rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
-                if (headerDefinition.isRow() && columnHeaders.containsKey(columnIndex) || !headerDefinition.isRow() && rowHeaders.containsKey(rowIndex)) {
-                    var value = tableBody.getCell(columnIndex + 1, rowIndex + 1).getStringValue();
-                    var isFormula = SpreadsheetExpressionMarker.isFormula(value);
-                    if (StringUtils.isNotBlank(value) && !isFormula) {
-                        nonEmptyCellsCount += 1;
-                        if (nonEmptyCellsCount > 1) {
-                            return false;
-                        }
+                if (isNonEmptyValueCell(headerDefinition, columnIndex, rowIndex)) {
+                    nonEmptyCellsCount += 1;
+                    if (nonEmptyCellsCount > 1) {
+                        return false;
                     }
                 }
             }
         }
         return nonEmptyCellsCount == 1;
+    }
+
+    /**
+     * Checks whether a cell of the header is under a header of the other direction, and has a value that is neither
+     * blank nor a formula.
+     */
+    private boolean isNonEmptyValueCell(SpreadsheetHeaderDefinition headerDefinition, int columnIndex, int rowIndex) {
+        if (headerDefinition.isRow() && columnHeaders.containsKey(columnIndex)
+                || !headerDefinition.isRow() && rowHeaders.containsKey(rowIndex)) {
+            var value = tableBody.getCell(columnIndex + 1, rowIndex + 1).getStringValue();
+            var isFormula = SpreadsheetExpressionMarker.isFormula(value);
+            return StringUtils.isNotBlank(value) && !isFormula;
+        }
+        return false;
     }
 
     public boolean isExistsReturnHeader() {
@@ -1014,121 +1068,162 @@ public class SpreadsheetStructureBuilder {
         } else {
             // real return type
             //
-            List<SpreadsheetCell> returnSpreadsheetCells = new ArrayList<>();
-            List<IOpenCast> casts = new ArrayList<>();
-            var returnSpreadsheetCellsAsArray = new ArrayList<SpreadsheetCell>();
-            var castsAsArray = new ArrayList<IOpenCast>();
-
-            var type = spreadsheet.getType();
-            var aggregateInfo = type.getAggregateInfo();
-            var componentType = aggregateInfo.getComponentType(type);
-            var asArray = false;
-
-            var sprCells = new ArrayList<SpreadsheetCell>();
-            var physicalIndex = returnHeaderDefinition.getRow();
-            if (physicalIndex < 0) {
-                // Return header is a column, convert physical to logical
-                physicalIndex = returnHeaderDefinition.getColumn();
-                var logicalCol = physicalToLogicalColumn.get(physicalIndex);
-                for (var i = 0; i < spreadsheet.getCells().length; i++) {
-                    sprCells.add(spreadsheet.getCells()[i][logicalCol]);
-                }
-            } else {
-                // Return header is a row, convert physical to logical
-                var logicalRow = physicalToLogicalRow.get(physicalIndex);
-                sprCells.addAll(Arrays.asList(spreadsheet.getCells()[logicalRow]));
-            }
-
-            var nonEmptySpreadsheetCells = new ArrayList<SpreadsheetCell>();
-            for (SpreadsheetCell cell : sprCells) {
-                if (cell != null && !cell.isEmpty()) {
-                    nonEmptySpreadsheetCells.add(cell);
-                    if (cell.getType() != null) {
-                        var cast = bindingContext.getCast(cell.getType(), type);
-                        if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
-                            returnSpreadsheetCells.add(cell);
-                            casts.add(cast);
-                        }
-
-                        if (returnSpreadsheetCells.isEmpty() && componentType != null) {
-                            cast = bindingContext.getCast(cell.getType(), componentType);
-                            if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
-                                returnSpreadsheetCellsAsArray.add(cell);
-                                castsAsArray.add(cast);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (componentType != null && returnSpreadsheetCells.isEmpty()) {
-                returnSpreadsheetCells = returnSpreadsheetCellsAsArray;
-                returnHeaderDefinition.setType(componentType);
-                casts = castsAsArray;
-                asArray = true;
-            } else {
-                returnHeaderDefinition.setType(type);
-            }
-
-            if (!returnSpreadsheetCells.isEmpty()) {
-                if (asArray) {
-                    for (SpreadsheetCell cell : returnSpreadsheetCells) {
-                        cell.setReturnCell(true);
-                    }
-                } else {
-                    var spreadsheetCell = returnSpreadsheetCells.getLast();
-                    spreadsheetCell.setReturnCell(true);
-                }
-            } else if (!nonEmptySpreadsheetCells.isEmpty()) {
-                if (asArray) {
-                    for (SpreadsheetCell cell : nonEmptySpreadsheetCells) {
-                        cell.setReturnCell(true);
-                    }
-                } else {
-                    var spreadsheetCell = nonEmptySpreadsheetCells.getLast();
-                    spreadsheetCell.setReturnCell(true);
-                }
-            }
-
-            if (returnSpreadsheetCells.isEmpty()) {
-                var symbolicTypeDefinitionName = Optional.ofNullable(returnHeaderDefinition)
-                        .map(SpreadsheetHeaderDefinition::getDefinition)
-                        .map(SymbolicTypeDefinition::getName)
-                        .orElse(null);
-                if (!nonEmptySpreadsheetCells.isEmpty()) {
-                    var nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.getLast();
-                    if (nonEmptySpreadsheetCell.getType() != null) {
-                        throw SyntaxNodeExceptionUtils.createError(
-                                "Cannot convert from '%s' to '%s'.".formatted(
-                                        nonEmptySpreadsheetCell.getType().getName(),
-                                        spreadsheet.getHeader().getType().getName()),
-                                Optional.ofNullable(nonEmptySpreadsheetCell.getMethod())
-                                        .filter(CompositeMethod.class::isInstance)
-                                        .map(CompositeMethod.class::cast)
-                                        .map(CompositeMethod::getMethodBodyBoundNode)
-                                        .map(IBoundMethodNode::getSyntaxNode)
-                                        .orElse(symbolicTypeDefinitionName));
-                    } else {
-                        return null;
-                    }
-                } else {
-                    throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
-                            symbolicTypeDefinitionName);
-                }
-            } else if (asArray) {
-                resultBuilder = new ArrayResultBuilder(returnSpreadsheetCells.toArray(new SpreadsheetCell[0]),
-                        castsAsArray.toArray(new IOpenCast[]{}),
-                        type,
-                        isCalculateAllCellsInSpreadsheet(spreadsheet));
-            } else {
-                resultBuilder = new ScalarResultBuilder(
-                        returnSpreadsheetCells.getLast(),
-                        casts.getLast(),
-                        isCalculateAllCellsInSpreadsheet(spreadsheet));
-
-            }
+            resultBuilder = buildReturnCellsResultBuilder(spreadsheet, bindingContext);
         }
         return resultBuilder;
+    }
+
+    /**
+     * Builds the result from the cells of the return header. The cells convertible to the return type are preferred
+     * to the cells convertible to its component type, which are returned as an array.
+     */
+    private IResultBuilder buildReturnCellsResultBuilder(Spreadsheet spreadsheet,
+                                                         IBindingContext bindingContext) throws SyntaxNodeException {
+        List<SpreadsheetCell> returnSpreadsheetCells = new ArrayList<>();
+        List<IOpenCast> casts = new ArrayList<>();
+        var returnSpreadsheetCellsAsArray = new ArrayList<SpreadsheetCell>();
+        var castsAsArray = new ArrayList<IOpenCast>();
+
+        var type = spreadsheet.getType();
+        var aggregateInfo = type.getAggregateInfo();
+        var componentType = aggregateInfo.getComponentType(type);
+        var asArray = false;
+
+        var sprCells = getReturnHeaderCells(spreadsheet);
+
+        var nonEmptySpreadsheetCells = new ArrayList<SpreadsheetCell>();
+        for (SpreadsheetCell cell : sprCells) {
+            if (cell != null && !cell.isEmpty()) {
+                nonEmptySpreadsheetCells.add(cell);
+                if (cell.getType() != null) {
+                    var cast = bindingContext.getCast(cell.getType(), type);
+                    addIfImplicitCast(cell, cast, returnSpreadsheetCells, casts);
+
+                    if (returnSpreadsheetCells.isEmpty() && componentType != null) {
+                        cast = bindingContext.getCast(cell.getType(), componentType);
+                        addIfImplicitCast(cell, cast, returnSpreadsheetCellsAsArray, castsAsArray);
+                    }
+                }
+            }
+        }
+
+        if (componentType != null && returnSpreadsheetCells.isEmpty()) {
+            returnSpreadsheetCells = returnSpreadsheetCellsAsArray;
+            returnHeaderDefinition.setType(componentType);
+            casts = castsAsArray;
+            asArray = true;
+        } else {
+            returnHeaderDefinition.setType(type);
+        }
+
+        return createResultBuilder(spreadsheet,
+                type,
+                returnSpreadsheetCells,
+                casts,
+                castsAsArray,
+                nonEmptySpreadsheetCells,
+                asArray);
+    }
+
+    private List<SpreadsheetCell> getReturnHeaderCells(Spreadsheet spreadsheet) {
+        var sprCells = new ArrayList<SpreadsheetCell>();
+        var physicalIndex = returnHeaderDefinition.getRow();
+        if (physicalIndex < 0) {
+            // Return header is a column, convert physical to logical
+            physicalIndex = returnHeaderDefinition.getColumn();
+            var logicalCol = physicalToLogicalColumn.get(physicalIndex);
+            for (var i = 0; i < spreadsheet.getCells().length; i++) {
+                sprCells.add(spreadsheet.getCells()[i][logicalCol]);
+            }
+        } else {
+            // Return header is a row, convert physical to logical
+            var logicalRow = physicalToLogicalRow.get(physicalIndex);
+            sprCells.addAll(Arrays.asList(spreadsheet.getCells()[logicalRow]));
+        }
+        return sprCells;
+    }
+
+    private static void addIfImplicitCast(SpreadsheetCell cell,
+                                          IOpenCast cast,
+                                          List<SpreadsheetCell> cells,
+                                          List<IOpenCast> casts) {
+        if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
+            cells.add(cell);
+            casts.add(cast);
+        }
+    }
+
+    /**
+     * Marks the return cells and creates the result builder for them.
+     *
+     * <p>When no cell is convertible to the return type, an error is thrown for the last non-empty cell of the return
+     * header, or for the header itself when all its cells are empty. A last non-empty cell without a type gives no
+     * result builder.
+     */
+    private IResultBuilder createResultBuilder(Spreadsheet spreadsheet,
+                                               IOpenClass type,
+                                               List<SpreadsheetCell> returnSpreadsheetCells,
+                                               List<IOpenCast> casts,
+                                               List<IOpenCast> castsAsArray,
+                                               List<SpreadsheetCell> nonEmptySpreadsheetCells,
+                                               boolean asArray) throws SyntaxNodeException {
+        if (!returnSpreadsheetCells.isEmpty()) {
+            markReturnCells(returnSpreadsheetCells, asArray);
+        } else if (!nonEmptySpreadsheetCells.isEmpty()) {
+            markReturnCells(nonEmptySpreadsheetCells, asArray);
+        }
+
+        if (returnSpreadsheetCells.isEmpty()) {
+            var symbolicTypeDefinitionName = Optional.ofNullable(returnHeaderDefinition)
+                    .map(SpreadsheetHeaderDefinition::getDefinition)
+                    .map(SymbolicTypeDefinition::getName)
+                    .orElse(null);
+            if (!nonEmptySpreadsheetCells.isEmpty()) {
+                var nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.getLast();
+                if (nonEmptySpreadsheetCell.getType() != null) {
+                    throw SyntaxNodeExceptionUtils.createError(
+                            "Cannot convert from '%s' to '%s'.".formatted(
+                                    nonEmptySpreadsheetCell.getType().getName(),
+                                    spreadsheet.getHeader().getType().getName()),
+                            Optional.ofNullable(nonEmptySpreadsheetCell.getMethod())
+                                    .filter(CompositeMethod.class::isInstance)
+                                    .map(CompositeMethod.class::cast)
+                                    .map(CompositeMethod::getMethodBodyBoundNode)
+                                    .map(IBoundMethodNode::getSyntaxNode)
+                                    .orElse(symbolicTypeDefinitionName));
+                } else {
+                    return null;
+                }
+            } else {
+                throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
+                        symbolicTypeDefinitionName);
+            }
+        } else if (asArray) {
+            return new ArrayResultBuilder(returnSpreadsheetCells.toArray(new SpreadsheetCell[0]),
+                    castsAsArray.toArray(new IOpenCast[]{}),
+                    type,
+                    isCalculateAllCellsInSpreadsheet(spreadsheet));
+        } else {
+            return new ScalarResultBuilder(
+                    returnSpreadsheetCells.getLast(),
+                    casts.getLast(),
+                    isCalculateAllCellsInSpreadsheet(spreadsheet));
+
+        }
+    }
+
+    /**
+     * Marks all the cells as return cells for an array result, or only the last cell otherwise.
+     */
+    private static void markReturnCells(List<SpreadsheetCell> cells, boolean asArray) {
+        if (asArray) {
+            for (SpreadsheetCell cell : cells) {
+                cell.setReturnCell(true);
+            }
+        } else {
+            var spreadsheetCell = cells.getLast();
+            spreadsheetCell.setReturnCell(true);
+        }
     }
 
     private boolean isCalculateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {

@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import lombok.Getter;
@@ -179,54 +180,85 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 if (spreadsheet.getColumnNamesForResultModel()[j] != null && spreadsheet
                         .getRowNamesForResultModel()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
                     // messages
-                    String fieldName = SpreadsheetStructureBuilder
-                            .getSpreadsheetCellFieldName(spreadsheet.getColumnNames()[j], spreadsheet.getRowNames()[i]);
-
-                    var field = spreadsheet.getSpreadsheetType().getField(fieldName);
-                    var t = field.getType();
-                    while (t.isArray()) {
-                        t = t.getComponentClass();
-                    }
-                    var f = !JavaOpenClass.VOID.equals(t) && !JavaOpenClass.CLS_VOID.equals(t) && !NullOpenClass.the
-                            .equals(t);
-                    // IGNORE VOID TYPES
-
-                    if (f) {
-                        String refName;
-                        if (columnsForResultModelCount == 1) {
-                            refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
-                        } else if (rowsForResultModelCount == 1) {
-                            refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
-                        } else {
-                            refName = fieldName;
-                        }
-
-                        var sb = new StringBuilder();
-                        if (columnsForResultModelCount == 1) {
-                            sb.append(ClassUtils.decapitalize(spreadsheet.getRowNamesForResultModel()[i]));
-                        } else if (rowsForResultModelCount == 1) {
-                            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
-                        } else {
-                            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
-                            sb.append(ClassUtils.capitalize(spreadsheet.getRowNamesForResultModel()[i]));
-                        }
-                        var fName = sb.toString();
-                        if (StringUtils.isBlank(fName)) {
-                            fName = "_";
-                        }
-                        String key = fName.length() > 1 ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
-                                : fName.toLowerCase();
-                        var v = fNames.put(key, refName);
-                        if (v != null) {
-                            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Cells '%s' and '%s' conflict with each other in the spreadsheet output model.".formatted(
-                                    v,
-                                    refName), getTableSyntaxNode()));
-                            warnCnt++;
-                        }
+                    var conflict = putResultModelFieldName(spreadsheet,
+                            i,
+                            j,
+                            columnsForResultModelCount,
+                            rowsForResultModelCount,
+                            fNames);
+                    if (conflict != null) {
+                        bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(conflict, getTableSyntaxNode()));
+                        warnCnt++;
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Registers the output model field name of a cell that is not of a void type.
+     *
+     * @return the warning about a cell registered under the same name before, or {@code null} if there is none
+     */
+    private static String putResultModelFieldName(Spreadsheet spreadsheet,
+                                                  int i,
+                                                  int j,
+                                                  long columnsForResultModelCount,
+                                                  long rowsForResultModelCount,
+                                                  Map<String, String> fNames) {
+        String fieldName = SpreadsheetStructureBuilder
+                .getSpreadsheetCellFieldName(spreadsheet.getColumnNames()[j], spreadsheet.getRowNames()[i]);
+
+        var field = spreadsheet.getSpreadsheetType().getField(fieldName);
+        var t = field.getType();
+        while (t.isArray()) {
+            t = t.getComponentClass();
+        }
+        var f = !JavaOpenClass.VOID.equals(t) && !JavaOpenClass.CLS_VOID.equals(t) && !NullOpenClass.the
+                .equals(t);
+        // IGNORE VOID TYPES
+
+        if (f) {
+            String refName;
+            if (columnsForResultModelCount == 1) {
+                refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
+            } else if (rowsForResultModelCount == 1) {
+                refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
+            } else {
+                refName = fieldName;
+            }
+
+            var fName = getResultModelFieldName(spreadsheet, i, j, columnsForResultModelCount, rowsForResultModelCount);
+            String key = fName.length() > 1 ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
+                    : fName.toLowerCase();
+            var v = fNames.put(key, refName);
+            if (v != null) {
+                return "Cells '%s' and '%s' conflict with each other in the spreadsheet output model.".formatted(v,
+                        refName);
+            }
+        }
+        return null;
+    }
+
+    private static String getResultModelFieldName(Spreadsheet spreadsheet,
+                                                  int i,
+                                                  int j,
+                                                  long columnsForResultModelCount,
+                                                  long rowsForResultModelCount) {
+        var sb = new StringBuilder();
+        if (columnsForResultModelCount == 1) {
+            sb.append(ClassUtils.decapitalize(spreadsheet.getRowNamesForResultModel()[i]));
+        } else if (rowsForResultModelCount == 1) {
+            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
+        } else {
+            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
+            sb.append(ClassUtils.capitalize(spreadsheet.getRowNamesForResultModel()[i]));
+        }
+        var fName = sb.toString();
+        if (StringUtils.isBlank(fName)) {
+            fName = "_";
+        }
+        return fName;
     }
 
     public void preBind() throws SyntaxNodeException {
@@ -289,14 +321,18 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         if (cells != null) {
             for (SpreadsheetCell[] cellArray : cells) {
                 if (cellArray != null) {
-                    for (SpreadsheetCell cell : cellArray) {
-                        if (cell != null) {
-                            var method = (CompositeMethod) cell.getMethod();
-                            if (method != null) {
-                                method.updateDependency(dependencies);
-                            }
-                        }
-                    }
+                    updateCellsDependency(cellArray, dependencies);
+                }
+            }
+        }
+    }
+
+    private static void updateCellsDependency(SpreadsheetCell[] cellArray, BindingDependencies dependencies) {
+        for (SpreadsheetCell cell : cellArray) {
+            if (cell != null) {
+                var method = (CompositeMethod) cell.getMethod();
+                if (method != null) {
+                    method.updateDependency(dependencies);
                 }
             }
         }

@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import static org.openl.rules.calc.ASpreadsheetField.createFieldName;
@@ -22,6 +21,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +31,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.VOID;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
@@ -246,58 +247,28 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     "Bean class for custom spreadsheet result is already generated. This spreadsheet result type cannot be extended.");
         }
 
-        var nRowNames = Arrays.stream(this.rowNames).collect(toList());
-        var nRowNamesForResultModel = Arrays.stream(this.rowNamesForResultModel).collect(toList());
+        var nRowNames = new ArrayList<>(Arrays.asList(this.rowNames));
+        var nRowNamesForResultModel = new ArrayList<>(Arrays.asList(this.rowNamesForResultModel));
         var existedRowNamesSet = Arrays.stream(this.rowNames).collect(toSet());
 
-        var nColumnNames = Arrays.stream(this.columnNames).collect(toList());
-        var nColumnNamesForResultModel = Arrays.stream(this.columnNamesForResultModel).collect(toList());
+        var nColumnNames = new ArrayList<>(Arrays.asList(this.columnNames));
+        var nColumnNamesForResultModel = new ArrayList<>(Arrays.asList(this.columnNamesForResultModel));
         var existedColumnNamesSet = Arrays.stream(this.columnNames).collect(toSet());
 
-        var rowColumnsForResultModelNeedUpdate = false;
+        var rowNamesForResultModelNeedUpdate = mergeNames(rowNames,
+                rowNamesForResultModel,
+                existedRowNamesSet,
+                nRowNames,
+                nRowNamesForResultModel);
+        var columnNamesForResultModelNeedUpdate = mergeNames(columnNames,
+                columnNamesForResultModel,
+                existedColumnNamesSet,
+                nColumnNames,
+                nColumnNamesForResultModel);
 
-        for (var i = 0; i < rowNames.length; i++) {
-            if (!existedRowNamesSet.contains(rowNames[i])) {
-                nRowNames.add(rowNames[i]);
-                nRowNamesForResultModel.add(rowNamesForResultModel[i]);
-                rowColumnsForResultModelNeedUpdate = true;
-            } else if (rowNamesForResultModel[i] != null) {
-                var k = nRowNames.indexOf(rowNames[i]);
-                nRowNamesForResultModel.set(k, rowNamesForResultModel[i]);
-                rowColumnsForResultModelNeedUpdate = true;
-            }
-        }
+        this.descriptions = mergeDescriptions(nRowNames, nColumnNames, rowNames, columnNames, descriptions);
 
-        for (var i = 0; i < columnNames.length; i++) {
-            if (!existedColumnNamesSet.contains(columnNames[i])) {
-                nColumnNames.add(columnNames[i]);
-                nColumnNamesForResultModel.add(columnNamesForResultModel[i]);
-                rowColumnsForResultModelNeedUpdate = true;
-            } else if (columnNamesForResultModel[i] != null) {
-                var k = nColumnNames.indexOf(columnNames[i]);
-                nColumnNamesForResultModel.set(k, columnNamesForResultModel[i]);
-                rowColumnsForResultModelNeedUpdate = true;
-            }
-        }
-
-        String[][] newDescriptions = new String[nRowNames.size()][nColumnNames.size()];
-        var rowNames1 = Arrays.stream(rowNames).toList();
-        var colNames1 = Arrays.stream(columnNames).toList();
-        for (var i = 0; i < nRowNames.size(); i++) {
-            for (var j = 0; j < nColumnNames.size(); j++) {
-                if (i < this.descriptions.length && j < this.descriptions[i].length) {
-                    newDescriptions[i][j] = this.descriptions[i][j];
-                }
-                var i0 = rowNames1.indexOf(nRowNames.get(i));
-                var j0 = colNames1.indexOf(nColumnNames.get(j));
-                if (i0 >= 0 && j0 >= 0) {
-                    newDescriptions[i][j] = chooseBestDescription(newDescriptions[i][j], descriptions[i0][j0]);
-                }
-            }
-        }
-        this.descriptions = newDescriptions;
-
-        if (rowColumnsForResultModelNeedUpdate) {
+        if (rowNamesForResultModelNeedUpdate || columnNamesForResultModelNeedUpdate) {
             this.simpleRefByRow = simpleRefByRow && this.simpleRefByRow;
             this.simpleRefByColumn = simpleRefByColumn && this.simpleRefByColumn;
 
@@ -320,6 +291,58 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         new CastingCustomSpreadsheetResultField(this, field.getName(), thisField, field));
             }
         }
+    }
+
+    /**
+     * Appends the names that are not merged yet, and replaces the result model names of the merged ones when given.
+     *
+     * @return {@code true} when the merged result model names are changed
+     */
+    private static boolean mergeNames(String[] names,
+                                      String[] namesForResultModel,
+                                      Set<String> existedNamesSet,
+                                      List<String> nNames,
+                                      List<String> nNamesForResultModel) {
+        var namesForResultModelNeedUpdate = false;
+        for (var i = 0; i < names.length; i++) {
+            if (!existedNamesSet.contains(names[i])) {
+                nNames.add(names[i]);
+                nNamesForResultModel.add(namesForResultModel[i]);
+                namesForResultModelNeedUpdate = true;
+            } else if (namesForResultModel[i] != null) {
+                var k = nNames.indexOf(names[i]);
+                nNamesForResultModel.set(k, namesForResultModel[i]);
+                namesForResultModelNeedUpdate = true;
+            }
+        }
+        return namesForResultModelNeedUpdate;
+    }
+
+    /**
+     * Builds the descriptions of the merged rows and columns, choosing the best one when both spreadsheets describe
+     * the same cell.
+     */
+    private String[][] mergeDescriptions(List<String> nRowNames,
+                                         List<String> nColumnNames,
+                                         String[] rowNames,
+                                         String[] columnNames,
+                                         String[][] descriptions) {
+        String[][] newDescriptions = new String[nRowNames.size()][nColumnNames.size()];
+        var rowNames1 = Arrays.stream(rowNames).toList();
+        var colNames1 = Arrays.stream(columnNames).toList();
+        for (var i = 0; i < nRowNames.size(); i++) {
+            for (var j = 0; j < nColumnNames.size(); j++) {
+                if (i < this.descriptions.length && j < this.descriptions[i].length) {
+                    newDescriptions[i][j] = this.descriptions[i][j];
+                }
+                var i0 = rowNames1.indexOf(nRowNames.get(i));
+                var j0 = colNames1.indexOf(nColumnNames.get(j));
+                if (i0 >= 0 && j0 >= 0) {
+                    newDescriptions[i][j] = chooseBestDescription(newDescriptions[i][j], descriptions[i0][j0]);
+                }
+            }
+        }
+        return newDescriptions;
     }
 
     public String[] getRowNames() {
@@ -455,98 +478,141 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public static Object createBean(Class<?> clazz, SpreadsheetResult spreadsheetResult, SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
         try {
             var method = clazz.getMethod("valueOf", SpreadsheetResult.class, BiFunction.class);
-            return method.invoke(null, spreadsheetResult, new BiFunction<Object, Class<?>, Object>() {
-                @Override
-                public Object apply(Object v, Class<?> toClass) {
-                    if (v == null) {
-                        return JavaOpenClass.getOpenClass(toClass).nullObject();
-                    }
-                    var fromClass = v.getClass();
-                    if (toClass.equals(Object.class) && v instanceof SpreadsheetResult sr) {
-                        var customClass = sr.getCustomSpreadsheetResultOpenClass();
-                        if (customClass != null) {
-                            return customClass.createBean(sr, namingStrategy);
-                        }
-                    }
-
-                    var toComponentType = toClass;
-                    while (toComponentType.isArray()) {
-                        toComponentType = toComponentType.getComponentType();
-                    }
-                    if (toComponentType.equals(Object.class) && fromClass.isArray()) {
-                        // Optimized case for SpreadsheetResult[][][]...
-                        var fromComponentType = fromClass;
-                        while (fromComponentType.isArray()) {
-                            fromComponentType = fromComponentType.getComponentType();
-                        }
-                        if (SpreadsheetResult.class.isAssignableFrom(fromComponentType)) {
-                            return ArrayUtils.convert(v, x -> apply(x, Object.class));
-                        }
-                    }
-                    if (v instanceof SpreadsheetResult result && toClass.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
-                        return createBean(toClass, result, namingStrategy);
-                    }
-                    if (v instanceof Collection<?> collection) {
-                        try {
-                            var newCollection = (Collection<Object>) v.getClass().getDeclaredConstructor().newInstance();
-                            for (var o : collection) {
-                                newCollection.add(apply(o, Object.class));
-                            }
-                            return newCollection;
-                        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                            return v;
-                        }
-                    }
-                    if (v instanceof Map<?, ?> map) {
-                        try {
-                            var newCollection = (Map<Object, Object>) v.getClass().getDeclaredConstructor().newInstance();
-                            for (var o : map.entrySet()) {
-                                newCollection.put(apply(o.getKey(), Object.class), apply(o.getValue(), Object.class));
-                            }
-                            return newCollection;
-                        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                            return v;
-                        }
-                    }
-                    if (ClassUtils.isAssignable(fromClass, toClass)) {
-                        // Optimization for the trivial case without type conversion
-                        return v;
-                    }
-
-                    if (toClass.isArray()) {
-                        var componentType = toClass.getComponentType();
-                        if (v.getClass().isArray()) {
-                            var len = Array.getLength(v);
-                            var array = Array.newInstance(componentType, len);
-                            for (var i = 0; i < len; i++) {
-                                Array.set(array, i, apply(Array.get(v, i), componentType));
-                            }
-                            return array;
-                        } else {
-                            var array = Array.newInstance(componentType, 1);
-                            Array.set(array, 0, apply(v, componentType));
-                            return array;
-                        }
-                    }
-
-                    var openClass = spreadsheetResult.getCustomSpreadsheetResultOpenClass();
-                    if (openClass != null) {
-                        var resultModule = openClass.getModule();
-                        if (resultModule != null) {
-                            var cast = resultModule.getObjectToDataOpenCastConvertor().getConvertor(fromClass, toClass);
-                            if (cast != null && cast.isImplicit()) {
-                                // Embedded conversion
-                                return cast.convert(v);
-                            }
-                        }
-                    }
-
-                    // Fallback to old implementation.
-                    return SpreadsheetResult.convertSpreadsheetResult(v, toClass, null, namingStrategy);
-                }
-            });
+            return method.invoke(null, spreadsheetResult, new BeanValueConvertor(spreadsheetResult, namingStrategy));
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Converts the values of a spreadsheet result to the types of the bean properties.
+     */
+    @RequiredArgsConstructor
+    private static final class BeanValueConvertor implements BiFunction<Object, Class<?>, Object> {
+
+        private final SpreadsheetResult spreadsheetResult;
+        private final SpreadsheetResultBeanPropertyNamingStrategy namingStrategy;
+
+        @Override
+        public Object apply(Object v, Class<?> toClass) {
+            if (v == null) {
+                return JavaOpenClass.getOpenClass(toClass).nullObject();
+            }
+            var fromClass = v.getClass();
+            if (toClass.equals(Object.class) && v instanceof SpreadsheetResult sr) {
+                var customClass = sr.getCustomSpreadsheetResultOpenClass();
+                if (customClass != null) {
+                    return customClass.createBean(sr, namingStrategy);
+                }
+            }
+
+            if (isSpreadsheetResultArrayToObject(fromClass, toClass)) {
+                // Optimized case for SpreadsheetResult[][][]...
+                return ArrayUtils.convert(v, x -> apply(x, Object.class));
+            }
+            if (v instanceof SpreadsheetResult result
+                    && toClass.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                return createBean(toClass, result, namingStrategy);
+            }
+            if (v instanceof Collection<?> collection) {
+                return convertCollection(collection);
+            }
+            if (v instanceof Map<?, ?> map) {
+                return convertMap(map);
+            }
+            if (ClassUtils.isAssignable(fromClass, toClass)) {
+                // Optimization for the trivial case without type conversion
+                return v;
+            }
+
+            if (toClass.isArray()) {
+                return convertToArray(v, toClass.getComponentType());
+            }
+
+            var cast = findImplicitCast(fromClass, toClass);
+            if (cast != null) {
+                // Embedded conversion
+                return cast.convert(v);
+            }
+
+            // Fallback to old implementation.
+            return SpreadsheetResult.convertSpreadsheetResult(v, toClass, null, namingStrategy);
+        }
+
+        /**
+         * Checks whether an array of spreadsheet results is converted to {@code Object} or to an array of it.
+         */
+        private static boolean isSpreadsheetResultArrayToObject(Class<?> fromClass, Class<?> toClass) {
+            var toComponentType = toClass;
+            while (toComponentType.isArray()) {
+                toComponentType = toComponentType.getComponentType();
+            }
+            if (toComponentType.equals(Object.class) && fromClass.isArray()) {
+                var fromComponentType = fromClass;
+                while (fromComponentType.isArray()) {
+                    fromComponentType = fromComponentType.getComponentType();
+                }
+                return SpreadsheetResult.class.isAssignableFrom(fromComponentType);
+            }
+            return false;
+        }
+
+        private Object convertCollection(Collection<?> collection) {
+            try {
+                var newCollection = (Collection<Object>) collection.getClass().getDeclaredConstructor().newInstance();
+                for (var o : collection) {
+                    newCollection.add(apply(o, Object.class));
+                }
+                return newCollection;
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
+                    | InvocationTargetException e) {
+                return collection;
+            }
+        }
+
+        private Object convertMap(Map<?, ?> map) {
+            try {
+                var newCollection = (Map<Object, Object>) map.getClass().getDeclaredConstructor().newInstance();
+                for (var o : map.entrySet()) {
+                    newCollection.put(apply(o.getKey(), Object.class), apply(o.getValue(), Object.class));
+                }
+                return newCollection;
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
+                    | InvocationTargetException e) {
+                return map;
+            }
+        }
+
+        private Object convertToArray(Object v, Class<?> componentType) {
+            if (v.getClass().isArray()) {
+                var len = Array.getLength(v);
+                var array = Array.newInstance(componentType, len);
+                for (var i = 0; i < len; i++) {
+                    Array.set(array, i, apply(Array.get(v, i), componentType));
+                }
+                return array;
+            } else {
+                var array = Array.newInstance(componentType, 1);
+                Array.set(array, 0, apply(v, componentType));
+                return array;
+            }
+        }
+
+        /**
+         * Finds an implicit cast in the module of the converted spreadsheet result.
+         */
+        private IOpenCast findImplicitCast(Class<?> fromClass, Class<?> toClass) {
+            var openClass = spreadsheetResult.getCustomSpreadsheetResultOpenClass();
+            if (openClass != null) {
+                var resultModule = openClass.getModule();
+                if (resultModule != null) {
+                    var cast = resultModule.getObjectToDataOpenCastConvertor().getConvertor(fromClass, toClass);
+                    if (cast != null && cast.isImplicit()) {
+                        return cast;
+                    }
+                }
+            }
+            return null;
         }
     }
 
@@ -666,128 +732,194 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             var rowName = rowNamesForResultModel[row];
             var columnName = columnNamesForResultModel[column];
             if (rowName != null && columnName != null) {
-                IOpenField field;
                 if (used[row][column] == null) {
-                    String fieldName;
-                    String xmlName;
-                    if (simpleRefByRow || StringUtils.isBlank(columnName)) {
-                        fieldName = rowName;
-                        xmlName = rowName;
-                        field = getField(createFieldName(null, rowName));
-                    } else if (simpleRefByColumn || StringUtils.isBlank(rowName)) {
-                        fieldName = columnName;
-                        xmlName = columnName;
-                        field = getField(createFieldName(columnName, null));
-                    } else {
-                        fieldName = columnName + StringUtils.capitalize(rowName);
-                        xmlName = columnName + "_" + rowName;
-                        field = getField(createFieldName(columnName, rowName));
-                    }
-                    if (field == null) {
-                        field = pair.getRight();
-                    }
-                    if (StringUtils.isBlank(fieldName)) {
-                        fieldName = "_";
-                        xmlName = "_";
-                    }
-                    String typeName;
-                    var t = field.getType();
-                    var dim = 0;
-                    while (t.isArray()) {
-                        dim++;
-                        t = t.getComponentClass();
-                    }
-                    if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass || t instanceof AnySpreadsheetResultOpenClass) {
-                        String fieldClsName;
-                        XlsModuleOpenClass additionalClassGenerationClassloaderModule = null;
-                        switch (t) {
-                            case CustomSpreadsheetResultOpenClass csroc -> {
-                                var externalCustomSpreadsheetResultOpenClass = isExternalCustomSpreadsheetResultOpenClass(
-                                        csroc,
-                                        cache);
-                                if (externalCustomSpreadsheetResultOpenClass) {
-                                    additionalClassGenerationClassloaderModule = csroc.getModule();
-                                }
-                                fieldClsName = csroc.getBeanClassName();
-                                csroc.generateBeanClass();
-                            }
-                            case SpreadsheetResultOpenClass spreadsheetResultOpenClass -> {
-                                final var externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(
-                                        spreadsheetResultOpenClass,
-                                        cache);
-                                XlsModuleOpenClass m = externalSpreadsheetResultOpenClass ? spreadsheetResultOpenClass
-                                        .getModule() : getModule();
-                                if (externalSpreadsheetResultOpenClass) {
-                                    additionalClassGenerationClassloaderModule = spreadsheetResultOpenClass.getModule();
-                                }
-                                fieldClsName = m.getGlobalTableProperties()
-                                        .getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
-                                m.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                                        .toCustomSpreadsheetResultOpenClass()
-                                        .generateBeanClass();
-                            }
-                            case null, default -> fieldClsName = Map.class.getCanonicalName();
-                        }
-                        if (additionalClassGenerationClassloaderModule != null) {
-                            getModule().getClassGenerationClassLoader()
-                                    .addClassLoader(
-                                            additionalClassGenerationClassloaderModule.getClassGenerationClassLoader());
-                        }
-                        typeName = fieldClsName + "[]".repeat(dim);
-                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
-                            .equals(t) || JavaOpenClass.getOpenClass(VOID.class).equals(t)) {
-                        continue; // IGNORE VOID FIELDS
-                    } else {
-                        Class<?> instanceClass = field.getType().getInstanceClass();
-                        if (instanceClass.isPrimitive()) {
-                            typeName = ClassUtils.primitiveToWrapper(instanceClass).getName();
-                        } else {
-                            typeName = instanceClass.getCanonicalName();
-                        }
-                    }
-
-                    fieldName = ClassUtils.decapitalize(fieldName);
-                    if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName) || addFieldNameWithCollisions) {
-                        if (usedXmlNames.containsKey(fieldName) || usedXmlNames.containsValue(xmlName)) {
-                            var newFieldName = fieldName;
-                            var i = 1;
-                            while (usedXmlNames.containsKey(newFieldName)) {
-                                newFieldName = fieldName + i;
-                                i++;
-                            }
-                            var newXmlName = xmlName;
-                            i = 1;
-                            while (usedXmlNames.containsValue(newXmlName)) {
-                                newXmlName = xmlName + i;
-                                i++;
-                            }
-                            fieldName = newFieldName;
-                            xmlName = newXmlName;
-                        }
-
-                        var fieldDescription = new FieldDescription(typeName,
-                                simpleRefByRow || !simpleRefByColumn ? rowNames[row] : null,
-                                !simpleRefByRow ? columnNames[column] : null,
-                                descriptions[row][column],
-                                DomainOpenClass.vocabularyValues(field.getType()));
-                        beanFields.add(fieldDescription);
-                        beanFieldsMap.put(fieldName, fillUsed(used, point, field));
-                        usedXmlNames.put(fieldName, xmlName);
-                    }
+                    addBeanField(beanFields,
+                            pair,
+                            used,
+                            usedXmlNames,
+                            addFieldNameWithCollisions,
+                            beanFieldsMap,
+                            cache);
                 } else {
-                    var f = false;
-                    for (IOpenField openField : used[row][column]) { // Do not add the same twice
-                        if (openField.getName().equals(pair.getRight().getName())) {
-                            f = true;
-                            break;
-                        }
-                    }
-                    if (!f) {
-                        used[row][column].add(pair.getRight());
-                    }
+                    addUsedField(used[row][column], pair.getRight());
                 }
             }
         }
+    }
+
+    /**
+     * Adds a bean property for the field of a cell. A field of a void type is skipped.
+     *
+     * <p>When the property name or the XML name is used already, the property is skipped, or it is added under unique
+     * names if collisions are allowed.
+     */
+    private void addBeanField(List<FieldDescription> beanFields,
+                              Pair<Point, IOpenField> pair,
+                              List<IOpenField>[][] used,
+                              Map<String, String> usedXmlNames,
+                              boolean addFieldNameWithCollisions,
+                              Map<String, List<IOpenField>> beanFieldsMap,
+                              IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
+        var point = pair.getLeft();
+        var namedField = toNamedField(pair);
+        var field = namedField.field();
+        var fieldName = namedField.fieldName();
+        var xmlName = namedField.xmlName();
+        String typeName;
+        var t = field.getType();
+        var dim = 0;
+        while (t.isArray()) {
+            dim++;
+            t = t.getComponentClass();
+        }
+        if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass
+                || t instanceof AnySpreadsheetResultOpenClass) {
+            typeName = getSpreadsheetResultBeanClassName(t, cache) + "[]".repeat(dim);
+        } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
+                .equals(t) || JavaOpenClass.getOpenClass(VOID.class).equals(t)) {
+            return; // IGNORE VOID FIELDS
+        } else {
+            typeName = getJavaTypeName(field.getType().getInstanceClass());
+        }
+
+        fieldName = ClassUtils.decapitalize(fieldName);
+        if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)
+                || addFieldNameWithCollisions) {
+            if (usedXmlNames.containsKey(fieldName) || usedXmlNames.containsValue(xmlName)) {
+                fieldName = uniqueName(fieldName, usedXmlNames::containsKey);
+                xmlName = uniqueName(xmlName, usedXmlNames::containsValue);
+            }
+
+            var fieldDescription = createFieldDescription(typeName, point, field);
+            beanFields.add(fieldDescription);
+            beanFieldsMap.put(fieldName, fillUsed(used, point, field));
+            usedXmlNames.put(fieldName, xmlName);
+        }
+    }
+
+    /**
+     * The field of a cell with the property name and the XML name of the bean property for it.
+     */
+    private record NamedField(IOpenField field, String fieldName, String xmlName) {
+    }
+
+    /**
+     * Names the bean property of a cell by its row, by its column, or by both, and finds the field referenced by
+     * these names. The field of the cell is used when no such field exists.
+     */
+    private NamedField toNamedField(Pair<Point, IOpenField> pair) {
+        var point = pair.getLeft();
+        var rowName = rowNamesForResultModel[point.getRow()];
+        var columnName = columnNamesForResultModel[point.getColumn()];
+        String fieldName;
+        String xmlName;
+        IOpenField field;
+        if (simpleRefByRow || StringUtils.isBlank(columnName)) {
+            fieldName = rowName;
+            xmlName = rowName;
+            field = getField(createFieldName(null, rowName));
+        } else if (simpleRefByColumn || StringUtils.isBlank(rowName)) {
+            fieldName = columnName;
+            xmlName = columnName;
+            field = getField(createFieldName(columnName, null));
+        } else {
+            fieldName = columnName + StringUtils.capitalize(rowName);
+            xmlName = columnName + "_" + rowName;
+            field = getField(createFieldName(columnName, rowName));
+        }
+        if (field == null) {
+            field = pair.getRight();
+        }
+        if (StringUtils.isBlank(fieldName)) {
+            fieldName = "_";
+            xmlName = "_";
+        }
+        return new NamedField(field, fieldName, xmlName);
+    }
+
+    /**
+     * Returns the bean class name of a spreadsheet result type and generates that bean class. The class loader of an
+     * external module is added to the class loader of this module.
+     */
+    private String getSpreadsheetResultBeanClassName(
+            IOpenClass t,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
+        String fieldClsName;
+        XlsModuleOpenClass additionalClassGenerationClassloaderModule = null;
+        switch (t) {
+            case CustomSpreadsheetResultOpenClass csroc -> {
+                var externalCustomSpreadsheetResultOpenClass = isExternalCustomSpreadsheetResultOpenClass(
+                        csroc,
+                        cache);
+                if (externalCustomSpreadsheetResultOpenClass) {
+                    additionalClassGenerationClassloaderModule = csroc.getModule();
+                }
+                fieldClsName = csroc.getBeanClassName();
+                csroc.generateBeanClass();
+            }
+            case SpreadsheetResultOpenClass spreadsheetResultOpenClass -> {
+                final var externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(
+                        spreadsheetResultOpenClass,
+                        cache);
+                XlsModuleOpenClass m = externalSpreadsheetResultOpenClass ? spreadsheetResultOpenClass
+                        .getModule() : getModule();
+                if (externalSpreadsheetResultOpenClass) {
+                    additionalClassGenerationClassloaderModule = spreadsheetResultOpenClass.getModule();
+                }
+                fieldClsName = m.getGlobalTableProperties()
+                        .getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
+                m.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .generateBeanClass();
+            }
+            case null, default -> fieldClsName = Map.class.getCanonicalName();
+        }
+        if (additionalClassGenerationClassloaderModule != null) {
+            getModule().getClassGenerationClassLoader()
+                    .addClassLoader(
+                            additionalClassGenerationClassloaderModule.getClassGenerationClassLoader());
+        }
+        return fieldClsName;
+    }
+
+    private static String getJavaTypeName(Class<?> instanceClass) {
+        if (instanceClass.isPrimitive()) {
+            return ClassUtils.primitiveToWrapper(instanceClass).getName();
+        } else {
+            return instanceClass.getCanonicalName();
+        }
+    }
+
+    /**
+     * Returns the name, or the name followed by the smallest number starting from 1 that makes it unused.
+     */
+    private static String uniqueName(String name, Predicate<String> isUsed) {
+        var newName = name;
+        var i = 1;
+        while (isUsed.test(newName)) {
+            newName = name + i;
+            i++;
+        }
+        return newName;
+    }
+
+    private FieldDescription createFieldDescription(String typeName, Point point, IOpenField field) {
+        var row = point.getRow();
+        var column = point.getColumn();
+        return new FieldDescription(typeName,
+                simpleRefByRow || !simpleRefByColumn ? rowNames[row] : null,
+                !simpleRefByRow ? columnNames[column] : null,
+                descriptions[row][column],
+                DomainOpenClass.vocabularyValues(field.getType()));
+    }
+
+    private static void addUsedField(List<IOpenField> usedFields, IOpenField field) {
+        for (IOpenField openField : usedFields) { // Do not add the same twice
+            if (openField.getName().equals(field.getName())) {
+                return;
+            }
+        }
+        usedFields.add(field);
     }
 
     private List<IOpenField> fillUsed(List<IOpenField>[][] used, Point point, IOpenField field) {

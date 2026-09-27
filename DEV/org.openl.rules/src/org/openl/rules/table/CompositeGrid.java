@@ -5,6 +5,7 @@ package org.openl.rules.table;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import lombok.Getter;
@@ -174,44 +175,52 @@ public class CompositeGrid extends AGrid {
                         continue;
                     }
 
-                    var tableRegion = gridTables[j].getRegion();
-
-                    // check if merged region on the sheet belongs to table
-                    // region
-                    IGridRegion intersection = IGridRegion.Tool.intersect(mergedRegion, tableRegion);
-
-                    if (intersection != null) {
-                        if (!gridTables[j].isNormalOrientation()) {
-                            var left = intersection.getTop();
-                            var top = intersection.getLeft();
-
-                            var right = intersection.getBottom();
-                            var bottom = intersection.getRight();
-
-                            intersection = new GridRegion(top, left, bottom, right);
-                        }
-                        // there is an intersection between merged region and
-                        // table region
-                        // and we need to move merged region to current grid.
-                        // calculate horizontal and vertical steps for moving.
-                        int dx;
-                        int dy;
-                        if (!gridTables[j].isNormalOrientation()) {
-                            dx = mappedRegions[j].getLeft() - tableRegion.getTop();
-                            dy = mappedRegions[j].getTop() - tableRegion.getLeft();
-                        } else {
-                            dx = mappedRegions[j].getLeft() - tableRegion.getLeft();
-                            dy = mappedRegions[j].getTop() - tableRegion.getTop();
-                        }
-
-                        // move intersection from one place to another.
-                        IGridRegion moved = IGridRegion.Tool.move(intersection, dx, dy);
-                        mergedRegionsList.add(moved);
-                    }
+                    addMovedMergedRegion(mergedRegionsList, mergedRegion, j);
                 }
             }
         }
         mergedRegions = mergedRegionsList.toArray(IGridRegion.EMPTY_REGION);
+    }
+
+    /**
+     * Moves the part of a merged region that is inside the table with the given index to the place of that table in
+     * the current grid.
+     */
+    private void addMovedMergedRegion(List<IGridRegion> mergedRegionsList, IGridRegion mergedRegion, int j) {
+        var tableRegion = gridTables[j].getRegion();
+
+        // check if merged region on the sheet belongs to table
+        // region
+        IGridRegion intersection = IGridRegion.Tool.intersect(mergedRegion, tableRegion);
+
+        if (intersection != null) {
+            if (!gridTables[j].isNormalOrientation()) {
+                var left = intersection.getTop();
+                var top = intersection.getLeft();
+
+                var right = intersection.getBottom();
+                var bottom = intersection.getRight();
+
+                intersection = new GridRegion(top, left, bottom, right);
+            }
+            // there is an intersection between merged region and
+            // table region
+            // and we need to move merged region to current grid.
+            // calculate horizontal and vertical steps for moving.
+            int dx;
+            int dy;
+            if (!gridTables[j].isNormalOrientation()) {
+                dx = mappedRegions[j].getLeft() - tableRegion.getTop();
+                dy = mappedRegions[j].getTop() - tableRegion.getLeft();
+            } else {
+                dx = mappedRegions[j].getLeft() - tableRegion.getLeft();
+                dy = mappedRegions[j].getTop() - tableRegion.getTop();
+            }
+
+            // move intersection from one place to another.
+            IGridRegion moved = IGridRegion.Tool.move(intersection, dx, dy);
+            mergedRegionsList.add(moved);
+        }
     }
 
     private Set<IGrid> getGridSet() {

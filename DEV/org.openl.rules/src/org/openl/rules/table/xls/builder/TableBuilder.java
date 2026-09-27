@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -314,44 +315,51 @@ public class TableBuilder {
         for (var i = 0; i < table.getWidth(); i++) {
             for (var j = 0; j < table.getHeight(); j++) {
                 var cell = table.getCell(i, j);
-                var cellWidth = cell.getWidth();
-                var cellHeight = cell.getHeight();
-                Object cellValue;
-                if (cell.getFormula() != null) {
-                    cellValue = "=" + cell.getFormula();
-                } else {
-                    cellValue = cell.getObjectValue();
-                }
-                var style = cell.getStyle();
-                writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
-                Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
-                        currentRow + j + region.getTop(),
-                        gridModel.getSheetToWrite());
-                if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
-                    newCell.setCellValue(cellValue.toString());
-                }
-                var iCellComment = cell.getComment();
-                if (iCellComment != null) {
-                    var xlxComment = ((XlsCellComment) iCellComment).getXlxComment();
-                    var sheet = newCell.getSheet();
-                    var anchor = sheet.getWorkbook().getCreationHelper().createClientAnchor();
-                    anchor.setCol1(newCell.getColumnIndex());
-                    anchor.setCol2(newCell.getColumnIndex() + 1);
-                    anchor.setRow1(newCell.getRow().getRowNum());
-                    anchor.setRow2(newCell.getRow().getRowNum() + 3);
-                    var comment = sheet.createDrawingPatriarch().createCellComment(anchor);
-                    comment.setAuthor(xlxComment.getAuthor());
-                    comment.setString(xlxComment.getString());
-                    newCell.setCellComment(comment);
-                }
-                if (metaInfoWriter != null && newCell != null) {
-                    metaInfoWriter.setMetaInfo(newCell.getRowIndex(),
-                            newCell.getColumnIndex(),
-                            metaInfoWriter.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
-                }
+                writeGridCell(cell, i, j);
             }
         }
         currentRow += table.getHeight();
+    }
+
+    /**
+     * Writes a cell of a table grid with its value, style, comment and meta info.
+     */
+    private void writeGridCell(ICell cell, int i, int j) {
+        var cellWidth = cell.getWidth();
+        var cellHeight = cell.getHeight();
+        Object cellValue;
+        if (cell.getFormula() != null) {
+            cellValue = "=" + cell.getFormula();
+        } else {
+            cellValue = cell.getObjectValue();
+        }
+        var style = cell.getStyle();
+        writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
+        Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
+                currentRow + j + region.getTop(),
+                gridModel.getSheetToWrite());
+        if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
+            newCell.setCellValue(cellValue.toString());
+        }
+        var iCellComment = cell.getComment();
+        if (iCellComment != null) {
+            var xlxComment = ((XlsCellComment) iCellComment).getXlxComment();
+            var sheet = newCell.getSheet();
+            var anchor = sheet.getWorkbook().getCreationHelper().createClientAnchor();
+            anchor.setCol1(newCell.getColumnIndex());
+            anchor.setCol2(newCell.getColumnIndex() + 1);
+            anchor.setRow1(newCell.getRow().getRowNum());
+            anchor.setRow2(newCell.getRow().getRowNum() + 3);
+            var comment = sheet.createDrawingPatriarch().createCellComment(anchor);
+            comment.setAuthor(xlxComment.getAuthor());
+            comment.setString(xlxComment.getString());
+            newCell.setCellComment(comment);
+        }
+        if (metaInfoWriter != null && newCell != null) {
+            metaInfoWriter.setMetaInfo(newCell.getRowIndex(),
+                    newCell.getColumnIndex(),
+                    metaInfoWriter.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
+        }
     }
 
     /**

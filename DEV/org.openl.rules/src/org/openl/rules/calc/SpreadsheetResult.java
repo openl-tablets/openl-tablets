@@ -112,34 +112,38 @@ public class SpreadsheetResult implements Serializable {
                                                       String[] modelRowNames) {
         var fieldsCoordinates = new HashMap<String, Point>();
         if (columnNames != null && rowNames != null) {
-            for (var row = 0; row < rowNames.length; row++) {
-                for (var column = 0; column < columnNames.length; column++) {
-                    if (columnNames[column] != null && rowNames[row] != null) {
-                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], rowNames[row]), Point.get(column, row));
-                    }
-                }
-            }
+            putCellFieldsCoordinates(fieldsCoordinates, columnNames, rowNames);
 
             var index = getIndex(modelColumnNames == null ? columnNames : modelColumnNames);
             if (index >= 0) {
-                for (var row = 0; row < rowNames.length; row++) {
-                    if (rowNames[row] != null) {
-                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(null, rowNames[row]), Point.get(index, row));
-                    }
-                }
+                putRowFieldsCoordinates(fieldsCoordinates, rowNames, index);
             }
 
             index = getIndex(modelRowNames == null ? rowNames : modelRowNames);
             if (index >= 0) {
-                for (var column = 0; column < columnNames.length; column++) {
-                    if (columnNames[column] != null) {
-                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], null), Point.get(column, index));
-                    }
-
-                }
+                putColumnFieldsCoordinates(fieldsCoordinates, columnNames, index);
             }
         }
         return Map.copyOf(fieldsCoordinates);
+    }
+
+    private static void putRowFieldsCoordinates(Map<String, Point> fieldsCoordinates, String[] rowNames, int column) {
+        for (var row = 0; row < rowNames.length; row++) {
+            if (rowNames[row] != null) {
+                fieldsCoordinates.put(ASpreadsheetField.createFieldName(null, rowNames[row]), Point.get(column, row));
+            }
+        }
+    }
+
+    private static void putColumnFieldsCoordinates(Map<String, Point> fieldsCoordinates,
+                                                   String[] columnNames,
+                                                   int row) {
+        for (var column = 0; column < columnNames.length; column++) {
+            if (columnNames[column] != null) {
+                fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], null),
+                        Point.get(column, row));
+            }
+        }
     }
 
     private static int getIndex(String[] names) {
@@ -167,43 +171,66 @@ public class SpreadsheetResult implements Serializable {
             var nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
             var simpleRefByC = nonNullsColumnsCount == 1 || simpleRefByRow;
             var simpleRefByR = nonNullsRowsCount == 1 || simpleRefByColumn;
-            for (var i = 0; i < rowNames.length; i++) {
-                for (var j = 0; j < columnNames.length; j++) {
-                    if (columnNames[j] != null && rowNames[i] != null) {
-                        fieldsCoordinates.put(
-                                ASpreadsheetField.createFieldName(columnNames[j], rowNames[i]),
-                                Point.get(j, i));
-                    }
-                }
-            }
+            putCellFieldsCoordinates(fieldsCoordinates, columnNames, rowNames);
             if (simpleRefByC) {
-                for (var j = 0; j < columnNames.length; j++) {
-                    if (columnNames[j] != null) {
-                        for (var i = 0; i < rowNames.length; i++) {
-                            if (rowNames[i] != null) {
-                                fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
-                                        Point.get(j, i));
-                            }
-                        }
-                        break;
-                    }
-                }
+                putRowReferencesCoordinates(fieldsCoordinates, columnNames, rowNames);
             }
             if (simpleRefByR) {
-                for (var i = 0; i < rowNames.length; i++) {
-                    if (rowNames[i] != null) {
-                        for (var j = 0; j < columnNames.length; j++) {
-                            if (columnNames[j] != null) {
-                                fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
-                                        Point.get(j, i));
-                            }
-                        }
-                        break;
-                    }
-                }
+                putColumnReferencesCoordinates(fieldsCoordinates, columnNames, rowNames);
             }
         }
         return fieldsCoordinates;
+    }
+
+    private static void putCellFieldsCoordinates(Map<String, Point> fieldsCoordinates,
+                                                 String[] columnNames,
+                                                 String[] rowNames) {
+        for (var row = 0; row < rowNames.length; row++) {
+            for (var column = 0; column < columnNames.length; column++) {
+                if (columnNames[column] != null && rowNames[row] != null) {
+                    fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], rowNames[row]),
+                            Point.get(column, row));
+                }
+            }
+        }
+    }
+
+    /**
+     * Maps the references by a row name to the cells of the first column that has a name.
+     */
+    private static void putRowReferencesCoordinates(Map<String, Point> fieldsCoordinates,
+                                                    String[] columnNames,
+                                                    String[] rowNames) {
+        for (var j = 0; j < columnNames.length; j++) {
+            if (columnNames[j] != null) {
+                for (var i = 0; i < rowNames.length; i++) {
+                    if (rowNames[i] != null) {
+                        fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
+                                Point.get(j, i));
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+     * Maps the references by a column name to the cells of the first row that has a name.
+     */
+    private static void putColumnReferencesCoordinates(Map<String, Point> fieldsCoordinates,
+                                                       String[] columnNames,
+                                                       String[] rowNames) {
+        for (var i = 0; i < rowNames.length; i++) {
+            if (rowNames[i] != null) {
+                for (var j = 0; j < columnNames.length; j++) {
+                    if (columnNames[j] != null) {
+                        fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
+                                Point.get(j, i));
+                    }
+                }
+                break;
+            }
+        }
     }
 
     @XmlTransient
@@ -398,28 +425,14 @@ public class SpreadsheetResult implements Serializable {
             var maxWidth = Math.min(MAX_WIDTH, getWidth());
             var maxHeight = Math.min(MAX_HEIGHT, getHeight());
 
-            int[] width = new int[maxWidth + 1];
-
-            for (var i1 = 0; i1 <= maxHeight; i1++) {
-                for (var j1 = 0; j1 <= maxWidth; j1++) {
-                    width[j1] = Math.max(width[j1],
-                            i1 > 0 && j1 > 0 && getValue(i1 - 1,
-                                    j1 - 1) instanceof SpreadsheetResult && d > MAX_DEPTH ? TRUNCATED_TABLE
-                                    .length() : truncateStringValue(getStringValue(j1, i1)).length());
-                }
-            }
+            int[] width = getColumnWidths(maxWidth, maxHeight, d);
 
             for (var i = 0; i <= maxHeight; i++) {
                 for (var j = 0; j <= maxWidth; j++) {
                     if (j != 0) {
                         sb.append(" | ");
                     }
-                    String cell;
-                    if (i > 0 && j > 0 && getValue(i - 1, j - 1) instanceof SpreadsheetResult && d > MAX_DEPTH) {
-                        cell = TRUNCATED_TABLE;
-                    } else {
-                        cell = truncateStringValue(getStringValue(j, i));
-                    }
+                    String cell = getCellText(i, j, d);
 
                     sb.append(cell);
                     for (var k = 0; k < width[j] - cell.length(); k++) {
@@ -440,6 +453,28 @@ public class SpreadsheetResult implements Serializable {
         }
 
         return sb.toString();
+    }
+
+    private int[] getColumnWidths(int maxWidth, int maxHeight, int depth) {
+        int[] width = new int[maxWidth + 1];
+
+        for (var i1 = 0; i1 <= maxHeight; i1++) {
+            for (var j1 = 0; j1 <= maxWidth; j1++) {
+                width[j1] = Math.max(width[j1], getCellText(i1, j1, depth).length());
+            }
+        }
+        return width;
+    }
+
+    /**
+     * Returns the truncated text of a table cell. A spreadsheet result nested deeper than the maximum depth is shown as
+     * a truncated table.
+     */
+    private String getCellText(int row, int col, int depth) {
+        if (row > 0 && col > 0 && getValue(row - 1, col - 1) instanceof SpreadsheetResult && depth > MAX_DEPTH) {
+            return TRUNCATED_TABLE;
+        }
+        return truncateStringValue(getStringValue(col, row));
     }
 
     private String getStringValue(int col, int row) {
@@ -488,76 +523,113 @@ public class SpreadsheetResult implements Serializable {
                 Map<String, String> xmlNamesMap = customSpreadsheetResultOpenClass.getXmlNamesMap();
                 for (Map.Entry<String, List<IOpenField>> e : customSpreadsheetResultOpenClass.getBeanFieldsMap()
                         .entrySet()) {
-                    List<IOpenField> openFields = e.getValue();
-                    var p1 = new HashMap<String, Integer>();
-                    var points = new HashSet<Point>();
-                    for (IOpenField openField : openFields) {
-                        var p = getPoint(openField.getName());
-                        if (p != null && !points.contains(p) && columnNamesForResultModel[p
-                                .getColumn()] != null && rowNamesForResultModel[p.getRow()] != null) {
-                            var key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
-                            p1.merge(key, 1, Integer::sum);
-                            points.add(p);
-                        }
-                    }
-                    for (IOpenField openField : openFields) {
-                        var p = getPoint(openField.getName());
-                        if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
-                                .getRow()] != null) {
-                            var key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
-                            String fName;
-                            if (p1.get(key) == 1) {
-                                fName = key;
-                            } else {
-                                fName = xmlNamesMap.get(e.getKey());
-                            }
-                            values.put(fName,
-                                    convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()),
-                                            spreadsheetResultsToMap,
-                                            spreadsheetResultBeanPropertyNamingStrategy));
-                        }
-                    }
+                    putBeanFieldValues(values,
+                            e,
+                            xmlNamesMap,
+                            spreadsheetResultsToMap,
+                            spreadsheetResultBeanPropertyNamingStrategy);
                 }
             } else {
-                for (var i = 0; i < rowNamesForResultModel.length; i++) {
-                    for (var j = 0; j < columnNamesForResultModel.length; j++) {
-                        if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
-                            String fName;
-                            if (isSingleColumn) {
-                                fName = spreadsheetResultBeanPropertyNamingStrategy == null ? rowNamesForResultModel[i]
-                                        : spreadsheetResultBeanPropertyNamingStrategy
-                                        .transform(
-                                                rowNamesForResultModel[i]);
-                            } else {
-                                if (isSingleRow) {
-                                    fName = spreadsheetResultBeanPropertyNamingStrategy == null ? columnNamesForResultModel[j]
-                                            : spreadsheetResultBeanPropertyNamingStrategy
-                                            .transform(
-                                                    columnNamesForResultModel[j]);
-                                } else {
-                                    fName = spreadsheetResultBeanPropertyNamingStrategy == null ? columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i]
-                                            : spreadsheetResultBeanPropertyNamingStrategy
-                                            .transform(
-                                                    columnNamesForResultModel[j],
-                                                    rowNamesForResultModel[i]);
-                                }
-                            }
-                            var fNewName = fName;
-                            var k = 1;
-                            while (values.containsKey(fNewName)) {
-                                fNewName = fName + k;
-                                k++;
-                            }
-                            values.put(fNewName,
-                                    convertSpreadsheetResult(getValue(i, j),
-                                            spreadsheetResultsToMap,
-                                            spreadsheetResultBeanPropertyNamingStrategy));
-                        }
-                    }
-                }
+                putCellValues(values,
+                        isSingleRow,
+                        isSingleColumn,
+                        spreadsheetResultsToMap,
+                        spreadsheetResultBeanPropertyNamingStrategy);
             }
         }
         return values;
+    }
+
+    /**
+     * Puts the values of the cells of a bean property. A value is put under its key when no other cell of the
+     * property has the same key, and under the XML name of the property otherwise.
+     */
+    private void putBeanFieldValues(Map<String, Object> values,
+                                    Entry<String, List<IOpenField>> e,
+                                    Map<String, String> xmlNamesMap,
+                                    boolean spreadsheetResultsToMap,
+                                    SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+        List<IOpenField> openFields = e.getValue();
+        var p1 = new HashMap<String, Integer>();
+        var points = new HashSet<Point>();
+        for (IOpenField openField : openFields) {
+            var p = getPoint(openField.getName());
+            if (p != null && !points.contains(p) && columnNamesForResultModel[p
+                    .getColumn()] != null && rowNamesForResultModel[p.getRow()] != null) {
+                var key = getKey(namingStrategy, xmlNamesMap, e, p);
+                p1.merge(key, 1, Integer::sum);
+                points.add(p);
+            }
+        }
+        for (IOpenField openField : openFields) {
+            var p = getPoint(openField.getName());
+            if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
+                    .getRow()] != null) {
+                var key = getKey(namingStrategy, xmlNamesMap, e, p);
+                String fName;
+                if (p1.get(key) == 1) {
+                    fName = key;
+                } else {
+                    fName = xmlNamesMap.get(e.getKey());
+                }
+                values.put(fName,
+                        convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()),
+                                spreadsheetResultsToMap,
+                                namingStrategy));
+            }
+        }
+    }
+
+    /**
+     * Puts the values of the cells that have both a row and a column name for the result model. A value is put under
+     * a numbered name when its name is used already.
+     */
+    private void putCellValues(Map<String, Object> values,
+                               boolean isSingleRow,
+                               boolean isSingleColumn,
+                               boolean spreadsheetResultsToMap,
+                               SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+        for (var i = 0; i < rowNamesForResultModel.length; i++) {
+            for (var j = 0; j < columnNamesForResultModel.length; j++) {
+                if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
+                    String fName = getCellValueName(i, j, isSingleRow, isSingleColumn, namingStrategy);
+                    values.put(freeName(values, fName),
+                            convertSpreadsheetResult(getValue(i, j),
+                                    spreadsheetResultsToMap,
+                                    namingStrategy));
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the name when the map has no such key yet. Otherwise returns the name followed by the first number that
+     * makes it a new key.
+     */
+    private static String freeName(Map<String, ?> values, String name) {
+        var candidate = name;
+        var k = 1;
+        while (values.containsKey(candidate)) {
+            candidate = name + k;
+            k++;
+        }
+        return candidate;
+    }
+
+    private String getCellValueName(int i,
+                                    int j,
+                                    boolean isSingleRow,
+                                    boolean isSingleColumn,
+                                    SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+        if (isSingleColumn) {
+            return namingStrategy == null ? rowNamesForResultModel[i]
+                    : namingStrategy.transform(rowNamesForResultModel[i]);
+        } else if (isSingleRow) {
+            return namingStrategy == null ? columnNamesForResultModel[j]
+                    : namingStrategy.transform(columnNamesForResultModel[j]);
+        }
+        return namingStrategy == null ? columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i]
+                : namingStrategy.transform(columnNamesForResultModel[j], rowNamesForResultModel[i]);
     }
 
     private String getKey(SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy,
@@ -615,30 +687,35 @@ public class SpreadsheetResult implements Serializable {
             return convertMap(map, e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
         }
         if (v.getClass().isArray()) {
-            Class<?> componentType = v.getClass().getComponentType();
-            Class<?> t = v.getClass();
-            while (t.isArray()) {
-                t = t.getComponentType();
-            }
-            var len = Array.getLength(v);
-            Object newArray = null;
-            if (mapClassToSprOpenClass.containsKey(t)) {
-                newArray = Array.newInstance(SpreadsheetResult.class, len);
-            } else if (ClassUtils.isAssignable(t, Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
-                newArray = Array.newInstance(componentType, len);
-            }
-            if (newArray != null) {
-                for (var i = 0; i < len; i++) {
-                    Array.set(newArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
-                }
-                return newArray;
-            }
-            return v;
+            return convertBeanArray(v, mapClassToSprOpenClass);
         }
         if (mapClassToSprOpenClass.containsKey(v.getClass())) {
             var customSpreadsheetResultOpenClass1 = mapClassToSprOpenClass
                     .get(v.getClass());
             return customSpreadsheetResultOpenClass1.createSpreadsheetResult(v, mapClassToSprOpenClass);
+        }
+        return v;
+    }
+
+    private static Object convertBeanArray(Object v,
+                                           Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass) {
+        Class<?> componentType = v.getClass().getComponentType();
+        Class<?> t = v.getClass();
+        while (t.isArray()) {
+            t = t.getComponentType();
+        }
+        var len = Array.getLength(v);
+        Object newArray = null;
+        if (mapClassToSprOpenClass.containsKey(t)) {
+            newArray = Array.newInstance(SpreadsheetResult.class, len);
+        } else if (ClassUtils.isAssignable(t, Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
+            newArray = Array.newInstance(componentType, len);
+        }
+        if (newArray != null) {
+            for (var i = 0; i < len; i++) {
+                Array.set(newArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
+            }
+            return newArray;
         }
         return v;
     }
@@ -660,104 +737,156 @@ public class SpreadsheetResult implements Serializable {
                     e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
         }
         if (v.getClass().isArray()) {
-            Class<?> componentType = v.getClass().getComponentType();
-            Class<?> t = v.getClass();
-            while (t.isArray()) {
-                t = t.getComponentType();
-            }
-            var len = Array.getLength(v);
-            if (ClassUtils.isAssignable(t, SpreadsheetResult.class)) {
-                Object tmpArray = Array
-                        .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
-                for (var i = 0; i < len; i++) {
-                    Array.set(tmpArray,
-                            i,
-                            convertSpreadsheetResult(Array.get(v, i),
-                                    toType != null && toType.isArray() ? toType.getComponentType() : null,
-                                    toTypeOpenClass != null && toTypeOpenClass.isArray() ? toTypeOpenClass.getComponentClass()
-                                            : null,
-                                    spreadsheetResultsToMap,
-                                    spreadsheetResultBeanPropertyNamingStrategy));
-                }
-                if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
-                    return tmpArray;
-                }
-                Class<?> c = null;
-                var f = true;
-                for (var i = 0; i < len; i++) {
-                    Object v1 = Array.get(tmpArray, i);
-                    if (v1 != null) {
-                        if (c == null) {
-                            c = v1.getClass();
-                        } else {
-                            if (!c.equals(v1.getClass())) {
-                                f = false;
-                            }
-                        }
-                    }
-                }
-                if (f && c != null) {
-                    Object newArray = Array.newInstance(c, len);
-                    for (var i = 0; i < len; i++) {
-                        Array.set(newArray, i, Array.get(tmpArray, i));
-                    }
-                    return newArray;
-                }
-                return tmpArray;
-            } else if (ClassUtils.isAssignable(SpreadsheetResult.class, t) || ClassUtils.isAssignable(t,
-                    Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
-                Object newArray = Array.newInstance(componentType, len);
-                for (var i = 0; i < len; i++) {
-                    Array.set(newArray,
-                            i,
-                            convertSpreadsheetResult(Array.get(v, i),
-                                    componentType,
-                                    null,
-                                    spreadsheetResultsToMap,
-                                    spreadsheetResultBeanPropertyNamingStrategy));
-                }
-                return newArray;
-            } else {
-                return v;
-            }
+            return convertArray(v,
+                    toType,
+                    toTypeOpenClass,
+                    spreadsheetResultsToMap,
+                    spreadsheetResultBeanPropertyNamingStrategy);
         }
         if (v instanceof SpreadsheetResult spreadsheetResult) {
-            if (toType != null && toType.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
-                return CustomSpreadsheetResultOpenClass.createBean(toType, spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
+            return convertSpreadsheetResultToType(spreadsheetResult,
+                    toType,
+                    toTypeOpenClass,
+                    spreadsheetResultsToMap,
+                    spreadsheetResultBeanPropertyNamingStrategy);
+        }
+        return v;
+    }
+
+    private static Object convertArray(Object v,
+                                       Class<?> toType,
+                                       IOpenClass toTypeOpenClass,
+                                       boolean spreadsheetResultsToMap,
+                                       SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+        Class<?> componentType = v.getClass().getComponentType();
+        Class<?> t = v.getClass();
+        while (t.isArray()) {
+            t = t.getComponentType();
+        }
+        var len = Array.getLength(v);
+        if (ClassUtils.isAssignable(t, SpreadsheetResult.class)) {
+            return convertSpreadsheetResultArray(v,
+                    len,
+                    toType,
+                    toTypeOpenClass,
+                    spreadsheetResultsToMap,
+                    namingStrategy);
+        } else if (ClassUtils.isAssignable(SpreadsheetResult.class, t) || ClassUtils.isAssignable(t,
+                Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
+            Object newArray = Array.newInstance(componentType, len);
+            for (var i = 0; i < len; i++) {
+                Array.set(newArray,
+                        i,
+                        convertSpreadsheetResult(Array.get(v, i),
+                                componentType,
+                                null,
+                                spreadsheetResultsToMap,
+                                namingStrategy));
             }
-            if (Map.class == toType || spreadsheetResultsToMap) {
-                return spreadsheetResult.toMap(spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy);
-            } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass && customSpreadsheetResultOpenClass
-                    .getBeanClass() == toType) {
-                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
-                        spreadsheetResultBeanPropertyNamingStrategy);
-            } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass class1 && class1
-                    .toCustomSpreadsheetResultOpenClass()
-                    .getBeanClass() == toType) {
-                var customSpreadsheetResultOpenClass = class1
-                        .toCustomSpreadsheetResultOpenClass();
-                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
-                        spreadsheetResultBeanPropertyNamingStrategy);
-            } else if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null && toType == spreadsheetResult
-                    .getCustomSpreadsheetResultOpenClass()
+            return newArray;
+        } else {
+            return v;
+        }
+    }
+
+    /**
+     * Converts the elements of an array of spreadsheet results. The converted array has the component type of the
+     * requested array type. When that type is {@code Object} or no array type is requested, the converted array has
+     * the class shared by all its elements that are not null, if there is such a class.
+     */
+    private static Object convertSpreadsheetResultArray(Object v,
+                                                        int len,
+                                                        Class<?> toType,
+                                                        IOpenClass toTypeOpenClass,
+                                                        boolean spreadsheetResultsToMap,
+                                                        SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+        Object tmpArray = Array
+                .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
+        for (var i = 0; i < len; i++) {
+            Array.set(tmpArray,
+                    i,
+                    convertSpreadsheetResult(Array.get(v, i),
+                            toType != null && toType.isArray() ? toType.getComponentType() : null,
+                            toTypeOpenClass != null && toTypeOpenClass.isArray() ? toTypeOpenClass.getComponentClass()
+                                    : null,
+                            spreadsheetResultsToMap,
+                            namingStrategy));
+        }
+        if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
+            return tmpArray;
+        }
+        var c = getCommonElementClass(tmpArray, len);
+        if (c != null) {
+            Object newArray = Array.newInstance(c, len);
+            for (var i = 0; i < len; i++) {
+                Array.set(newArray, i, Array.get(tmpArray, i));
+            }
+            return newArray;
+        }
+        return tmpArray;
+    }
+
+    /**
+     * Returns the class of the array elements that are not null when all of them have the same class, or
+     * {@code null} otherwise.
+     */
+    private static Class<?> getCommonElementClass(Object array, int len) {
+        Class<?> c = null;
+        var f = true;
+        for (var i = 0; i < len; i++) {
+            Object v1 = Array.get(array, i);
+            if (v1 != null) {
+                if (c == null) {
+                    c = v1.getClass();
+                } else {
+                    if (!c.equals(v1.getClass())) {
+                        f = false;
+                    }
+                }
+            }
+        }
+        return f ? c : null;
+    }
+
+    private static Object convertSpreadsheetResultToType(SpreadsheetResult spreadsheetResult,
+                                                         Class<?> toType,
+                                                         IOpenClass toTypeOpenClass,
+                                                         boolean spreadsheetResultsToMap,
+                                                         SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+        if (toType != null && toType.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+            return CustomSpreadsheetResultOpenClass.createBean(toType, spreadsheetResult, namingStrategy);
+        }
+        if (Map.class == toType || spreadsheetResultsToMap) {
+            return spreadsheetResult.toMap(spreadsheetResultsToMap, namingStrategy);
+        } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass
+                && customSpreadsheetResultOpenClass.getBeanClass() == toType) {
+            return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
+                    namingStrategy);
+        } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass class1 && class1
+                .toCustomSpreadsheetResultOpenClass()
+                .getBeanClass() == toType) {
+            var customSpreadsheetResultOpenClass = class1
+                    .toCustomSpreadsheetResultOpenClass();
+            return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
+                    namingStrategy);
+        } else if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null && toType == spreadsheetResult
+                .getCustomSpreadsheetResultOpenClass()
+                .getModule()
+                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                .toCustomSpreadsheetResultOpenClass()
+                .getBeanClass()) {
+            return spreadsheetResult.getCustomSpreadsheetResultOpenClass()
                     .getModule()
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
-                    .getBeanClass()) {
-                return spreadsheetResult.getCustomSpreadsheetResultOpenClass()
-                        .getModule()
-                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .createBean(spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
+                    .createBean(spreadsheetResult, namingStrategy);
+        } else {
+            if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null) {
+                return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult, null);
             } else {
-                if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null) {
-                    return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult, null);
-                } else {
-                    return spreadsheetResult.toMap(false, null);
-                }
+                return spreadsheetResult.toMap(false, null);
             }
         }
-        return v;
     }
 
     private static Object convertMap(Map<?, ?> v, UnaryOperator<Object> function) {

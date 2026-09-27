@@ -92,22 +92,7 @@ public class FlattenParameterExport extends BaseParameterExport {
 
         var rowNum = start.getRowNum();
         if (CollectionUtils.isEmpty(fields)) {
-            var tasks = new TreeSet<WriteTask>();
-            var colNum = start.getColNum();
-            tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), namePrefix, styles.header));
-            var emptyRow = true;
-            for (var description : descriptions) {
-                var fieldValue = getFieldValueChain.apply(description).orElse(null);
-                if (fieldValue != null && !(fieldValue.getClass().isArray() && Array.getLength(fieldValue) == 0)) {
-                    emptyRow = false;
-                }
-                tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), fieldValue, styles.parameterValue));
-            }
-            if (Boolean.TRUE.equals(skipEmptyParameters) && emptyRow) {
-                return rowNum;
-            }
-            performWrite(sheet, start, tasks, colNum - 1);
-            return ++rowNum;
+            return writeRowValues(sheet, start, namePrefix, descriptions, getFieldValueChain, skipEmptyParameters);
         }
 
         fields.sort(FIELD_ORDER);
@@ -139,6 +124,37 @@ public class FlattenParameterExport extends BaseParameterExport {
             }
         }
         return rowNum;
+    }
+
+    /**
+     * Writes a row with the name and the values of a field in all the tests. An empty row is not written when empty
+     * parameters are skipped.
+     *
+     * @return the number of the row to write next
+     */
+    private int writeRowValues(Sheet sheet,
+                               Cursor start,
+                               String namePrefix,
+                               TestDescription[] descriptions,
+                               Function<Object, Optional<Object>> getFieldValueChain,
+                               Boolean skipEmptyParameters) {
+        var rowNum = start.getRowNum();
+        var tasks = new TreeSet<WriteTask>();
+        var colNum = start.getColNum();
+        tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), namePrefix, styles.header));
+        var emptyRow = true;
+        for (var description : descriptions) {
+            var fieldValue = getFieldValueChain.apply(description).orElse(null);
+            if (fieldValue != null && !(fieldValue.getClass().isArray() && Array.getLength(fieldValue) == 0)) {
+                emptyRow = false;
+            }
+            tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), fieldValue, styles.parameterValue));
+        }
+        if (Boolean.TRUE.equals(skipEmptyParameters) && emptyRow) {
+            return rowNum;
+        }
+        performWrite(sheet, start, tasks, colNum - 1);
+        return ++rowNum;
     }
 
     private static int getMaxArraySize(TestDescription[] descriptions, Function<Object, Optional<Object>> getFieldValueChain) {

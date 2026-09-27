@@ -106,23 +106,19 @@ public class CollectionElementWithMultiRowField extends AOpenField {
                 Array.set(array, 0, value);
                 setIntoTarget(target, array, env);
             }
-        } else {
-            if (Array.getLength(v) < elementIndex + 1) {
-                Object newArray = Array.newInstance(arrayType.getInstanceClass(), elementIndex + 1);
+        } else if (Array.getLength(v) < elementIndex + 1) {
+            Object newArray = Array.newInstance(arrayType.getInstanceClass(), elementIndex + 1);
 
-                var oldArryLeng = Array.getLength(v);
-                for (var i = 0; i < oldArryLeng; i++) {
-                    Array.set(newArray, i, Array.get(v, i));
-                }
-                if (!isPkField()) {
-                    Array.set(newArray, elementIndex, value);
-                    setIntoTarget(target, newArray, env);
-                }
-            } else {
-                if (!isPkField()) {
-                    Array.set(v, elementIndex, value);
-                }
+            var oldArryLeng = Array.getLength(v);
+            for (var i = 0; i < oldArryLeng; i++) {
+                Array.set(newArray, i, Array.get(v, i));
             }
+            if (!isPkField()) {
+                Array.set(newArray, elementIndex, value);
+                setIntoTarget(target, newArray, env);
+            }
+        } else if (!isPkField()) {
+            Array.set(v, elementIndex, value);
         }
     }
 

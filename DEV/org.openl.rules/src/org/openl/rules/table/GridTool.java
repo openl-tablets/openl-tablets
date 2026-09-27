@@ -219,21 +219,34 @@ public class GridTool {
                     var cTo = colTo + i;
                     var rTo = rowTo + j;
                     if (!grid.isInOneMergedRegion(cFrom, rFrom, cTo, rTo)) {
-                        int col;
-                        int row;
-                        if (before) {
-                            col = cFrom;
-                            row = rFrom;
-                        } else {
-                            col = cTo;
-                            row = rTo;
-                        }
-                        actions.add(new UndoableSetValueAction(col, row, null, metaInfoWriter));
+                        actions.add(emptyCellAction(before, cFrom, rFrom, cTo, rTo, metaInfoWriter));
                     }
                 }
             }
         }
         return actions;
+    }
+
+    /**
+     * Creates the action that empties the source cell when cells are inserted before it, or the target cell
+     * otherwise.
+     */
+    private static IUndoableGridTableAction emptyCellAction(boolean before,
+                                                            int cFrom,
+                                                            int rFrom,
+                                                            int cTo,
+                                                            int rTo,
+                                                            MetaInfoWriter metaInfoWriter) {
+        int col;
+        int row;
+        if (before) {
+            col = cFrom;
+            row = rFrom;
+        } else {
+            col = cTo;
+            row = rTo;
+        }
+        return new UndoableSetValueAction(col, row, null, metaInfoWriter);
     }
 
     /**
@@ -400,22 +413,12 @@ public class GridTool {
 
             // add style for expanded header's and properties's cells
             for (var row = topCell; row < tableRegion.getBottom(); row++) {
-                for (var j = leftCell + regionWidth; j < leftCell + 3; j++) {
-                    actions.add(new SetBorderStyleAction(j,
-                            row,
-                            grid.getCell(leftCell + regionWidth - 1, row).getStyle(),
-                            metaInfoWriter));
-                }
+                addExpandedCellsStyle(actions, grid, row, row, leftCell, regionWidth, metaInfoWriter);
             }
 
             // add style for expanded others cells
             for (var row = topCell + 1; row < tableRegion.getBottom(); row++) {
-                for (var j = leftCell + regionWidth; j < leftCell + 3; j++) {
-                    actions.add(new SetBorderStyleAction(j,
-                            row + 1,
-                            grid.getCell(leftCell + regionWidth - 1, row).getStyle(),
-                            metaInfoWriter));
-                }
+                addExpandedCellsStyle(actions, grid, row, row + 1, leftCell, regionWidth, metaInfoWriter);
             }
 
             // merge right cells in each row
@@ -443,6 +446,24 @@ public class GridTool {
         }
 
         return new UndoableCompositeAction(actions);
+    }
+
+    /**
+     * Styles the cells a table is expanded by in a row like the last cell of the given row of the table.
+     */
+    private static void addExpandedCellsStyle(List<IUndoableGridTableAction> actions,
+                                              IGrid grid,
+                                              int row,
+                                              int targetRow,
+                                              int leftCell,
+                                              int regionWidth,
+                                              MetaInfoWriter metaInfoWriter) {
+        for (var j = leftCell + regionWidth; j < leftCell + 3; j++) {
+            actions.add(new SetBorderStyleAction(j,
+                    targetRow,
+                    grid.getCell(leftCell + regionWidth - 1, row).getStyle(),
+                    metaInfoWriter));
+        }
     }
 
     private static CellStyle makeNewPropStyle(IGrid grid, int col, int row, int regionLeftCell, int regionWidth) {
@@ -561,17 +582,7 @@ public class GridTool {
                     grid,
                     metaInfoWriter));
         } else {
-            for (var column = startColumn - nCols; column < startColumn; column++) {
-                for (var row = region.getTop(); row <= region.getBottom(); row++) {
-                    if (!grid.isPartOfTheMergedRegion(column, row) || grid.isTopLeftCellInMergedRegion(column,
-                            row) && IGridRegion.Tool.width(grid.getRegionStartingAt(column, row)) <= nCols) {
-                        // Sense of the second check: if it was a merged
-                        // cell then it can be removed or resized depending
-                        // on count of columns deleted
-                        shiftActions.add(new UndoableClearAction(column, row, metaInfoWriter));
-                    }
-                }
-            }
+            shiftActions.addAll(clearRemovedColumns(startColumn, nCols, region, grid, metaInfoWriter));
         }
 
         // The second step: shift cells
@@ -599,6 +610,30 @@ public class GridTool {
     }
 
     /**
+     * Clears the cells of the columns to remove. A merged cell is cleared when it is not wider than the removed
+     * columns.
+     */
+    private static List<IUndoableGridTableAction> clearRemovedColumns(int startColumn,
+                                                                      int nCols,
+                                                                      IGridRegion region,
+                                                                      IGrid grid,
+                                                                      MetaInfoWriter metaInfoWriter) {
+        var actions = new ArrayList<IUndoableGridTableAction>();
+        for (var column = startColumn - nCols; column < startColumn; column++) {
+            for (var row = region.getTop(); row <= region.getBottom(); row++) {
+                if (!grid.isPartOfTheMergedRegion(column, row) || grid.isTopLeftCellInMergedRegion(column,
+                        row) && IGridRegion.Tool.width(grid.getRegionStartingAt(column, row)) <= nCols) {
+                    // Sense of the second check: if it was a merged
+                    // cell then it can be removed or resized depending
+                    // on count of columns deleted
+                    actions.add(new UndoableClearAction(column, row, metaInfoWriter));
+                }
+            }
+        }
+        return actions;
+    }
+
+    /**
      * @param startRow       number of the row in region to start some manipulations (shifting down or up)
      * @param nRows          number of rows to be moved
      * @param isInsert       do we need to insert rows or to shift it up.
@@ -618,17 +653,7 @@ public class GridTool {
             shiftActions.addAll(clearCells(region
                     .getLeft(), IGridRegion.Tool.width(region), region.getBottom() + 1, nRows, grid, metaInfoWriter));
         } else {
-            for (var row = startRow - nRows; row < startRow; row++) {
-                for (var column = region.getLeft(); column <= region.getRight(); column++) {
-                    if (!grid.isPartOfTheMergedRegion(column, row) || grid.isTopLeftCellInMergedRegion(column,
-                            row) && IGridRegion.Tool.height(grid.getRegionStartingAt(column, row)) <= nRows) {
-                        // Sense of the second check: if it was a merged
-                        // cell then it can be removed or resized depending
-                        // on count of rows deleted
-                        shiftActions.add(new UndoableClearAction(column, row, metaInfoWriter));
-                    }
-                }
-            }
+            shiftActions.addAll(clearRemovedRows(startRow, nRows, region, grid, metaInfoWriter));
         }
 
         // The second step: shift cells
@@ -654,6 +679,29 @@ public class GridTool {
             rowFromCopy += direction;
         }
         return shiftActions;
+    }
+
+    /**
+     * Clears the cells of the rows to remove. A merged cell is cleared when it is not higher than the removed rows.
+     */
+    private static List<IUndoableGridTableAction> clearRemovedRows(int startRow,
+                                                                   int nRows,
+                                                                   IGridRegion region,
+                                                                   IGrid grid,
+                                                                   MetaInfoWriter metaInfoWriter) {
+        var actions = new ArrayList<IUndoableGridTableAction>();
+        for (var row = startRow - nRows; row < startRow; row++) {
+            for (var column = region.getLeft(); column <= region.getRight(); column++) {
+                if (!grid.isPartOfTheMergedRegion(column, row) || grid.isTopLeftCellInMergedRegion(column,
+                        row) && IGridRegion.Tool.height(grid.getRegionStartingAt(column, row)) <= nRows) {
+                    // Sense of the second check: if it was a merged
+                    // cell then it can be removed or resized depending
+                    // on count of rows deleted
+                    actions.add(new UndoableClearAction(column, row, metaInfoWriter));
+                }
+            }
+        }
+        return actions;
     }
 
     public static IUndoableGridTableAction removeColumns(int nCols,

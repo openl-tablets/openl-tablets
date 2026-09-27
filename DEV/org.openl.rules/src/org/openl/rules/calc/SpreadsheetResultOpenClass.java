@@ -75,89 +75,116 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             return null;
         }
         if (openField == resolvingInProgress) {
-            IOpenField f = strictMatch ? strictBlankCache.get(fieldName)
-                    : noStrictBlankCache.get(fieldName.toLowerCase());
-            if (f == null) {
-                f = new SpreadsheetResultField(this,
-                        strictMatch ? fieldName : fieldName.toLowerCase(),
-                        JavaOpenClass.OBJECT);
-                if (strictMatch) {
-                    strictBlankCache.put(fieldName, f);
-                } else {
-                    noStrictBlankCache.put(fieldName.toLowerCase(), f);
-                }
-            }
-            return f;
+            return getBlankField(fieldName, strictMatch);
         } else {
+            return resolveField(fieldName, strictMatch);
+        }
+    }
+
+    /**
+     * Returns a field of the {@code Object} type for a field that is being resolved now.
+     */
+    private IOpenField getBlankField(String fieldName, boolean strictMatch) {
+        IOpenField f = strictMatch ? strictBlankCache.get(fieldName)
+                : noStrictBlankCache.get(fieldName.toLowerCase());
+        if (f == null) {
+            f = new SpreadsheetResultField(this,
+                    strictMatch ? fieldName : fieldName.toLowerCase(),
+                    JavaOpenClass.OBJECT);
             if (strictMatch) {
-                strictMatchCache.put(fieldName, resolvingInProgress);
+                strictBlankCache.put(fieldName, f);
             } else {
-                noStrictMatchCache.put(fieldName.toLowerCase(), resolvingInProgress);
+                noStrictBlankCache.put(fieldName.toLowerCase(), f);
             }
-            openField = super.getField(fieldName, strictMatch);
-            var g = SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get() == null;
-            if (openField == null && fieldName.startsWith("$")) {
-                if (module == null) {
-                    openField = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
-                } else {
-                    CustomSpreadsheetResultField mergedField = null;
-                    for (IOpenClass openClass : module.getTypes()) {
-                        if (openClass instanceof CustomSpreadsheetResultOpenClass spreadsheetType && spreadsheetType
-                                .isSpreadsheet()) {
-                            try {
-                                if (g) {
-                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
-                                }
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashSet<>());
-                                module.getRulesModuleBindingContext()
-                                        .findType(openClass.getName());
-                            } finally {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
-                                if (g) {
-                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
-                                }
-                            }
-                            var f = spreadsheetType.getField(fieldName, strictMatch);
-                            if (f instanceof CustomSpreadsheetResultField field) {
-                                if (mergedField == null) {
-                                    mergedField = field;
-                                } else {
-                                    mergedField = new CastingCustomSpreadsheetResultField(this,
-                                            fieldName,
-                                            f,
-                                            mergedField);
-                                }
-                            }
-                        }
-                    }
-                    if (mergedField != null) {
-                        try {
-                            if (g) {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
-                            }
-                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashSet<>());
-                            mergedField.getType(); // Fires compilation
-                            openField = mergedField;
-                        } finally {
-                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
-                            if (g) {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
-                            }
-                        }
+        }
+        return f;
+    }
+
+    /**
+     * Resolves a field and caches it. A field that is found in the cache after resolving takes precedence.
+     */
+    private IOpenField resolveField(String fieldName, boolean strictMatch) {
+        if (strictMatch) {
+            strictMatchCache.put(fieldName, resolvingInProgress);
+        } else {
+            noStrictMatchCache.put(fieldName.toLowerCase(), resolvingInProgress);
+        }
+        var openField = super.getField(fieldName, strictMatch);
+        var g = SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get() == null;
+        if (openField == null && fieldName.startsWith("$")) {
+            openField = findCellField(fieldName, strictMatch, g);
+        }
+        IOpenField f = strictMatch ? strictMatchCache.get(fieldName)
+                : noStrictMatchCache.get(fieldName.toLowerCase());
+        if (f == null || f == resolvingInProgress) {
+            if (strictMatch) {
+                strictMatchCache.put(fieldName, openField);
+            } else {
+                noStrictMatchCache.put(fieldName.toLowerCase(), openField);
+            }
+            return openField;
+        }
+        return f;
+    }
+
+    /**
+     * Finds the cell field of the given name in the spreadsheets of the module and compiles it. The cell fields found
+     * in several spreadsheets are merged into one field.
+     *
+     * <p>Without a module, a cell field of the {@code Object} type is created.
+     *
+     * @return the found cell field, or {@code null} if no spreadsheet of the module has it
+     */
+    private IOpenField findCellField(String fieldName, boolean strictMatch, boolean g) {
+        if (module == null) {
+            return new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
+        }
+        CustomSpreadsheetResultField mergedField = null;
+        for (IOpenClass openClass : module.getTypes()) {
+            if (openClass instanceof CustomSpreadsheetResultOpenClass spreadsheetType && spreadsheetType
+                    .isSpreadsheet()) {
+                try {
+                    startCellsLoopingPrevention(g);
+                    module.getRulesModuleBindingContext()
+                            .findType(openClass.getName());
+                } finally {
+                    stopCellsLoopingPrevention(g);
+                }
+                var f = spreadsheetType.getField(fieldName, strictMatch);
+                if (f instanceof CustomSpreadsheetResultField field) {
+                    if (mergedField == null) {
+                        mergedField = field;
+                    } else {
+                        mergedField = new CastingCustomSpreadsheetResultField(this,
+                                fieldName,
+                                f,
+                                mergedField);
                     }
                 }
             }
-            IOpenField f = strictMatch ? strictMatchCache.get(fieldName)
-                    : noStrictMatchCache.get(fieldName.toLowerCase());
-            if (f == null || f == resolvingInProgress) {
-                if (strictMatch) {
-                    strictMatchCache.put(fieldName, openField);
-                } else {
-                    noStrictMatchCache.put(fieldName.toLowerCase(), openField);
-                }
-                return openField;
+        }
+        if (mergedField != null) {
+            try {
+                startCellsLoopingPrevention(g);
+                mergedField.getType(); // Fires compilation
+            } finally {
+                stopCellsLoopingPrevention(g);
             }
-            return f;
+        }
+        return mergedField;
+    }
+
+    private static void startCellsLoopingPrevention(boolean g) {
+        if (g) {
+            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
+        }
+        SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashSet<>());
+    }
+
+    private static void stopCellsLoopingPrevention(boolean g) {
+        SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
+        if (g) {
+            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
         }
     }
 
@@ -168,22 +195,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 result = customSpreadsheetResultOpenClass.get();
                 if (result == null) {
                     // HERE
-                    var anySpreadsheetResultName = ANY_SPREADSHEET_RESULT;
-                    var i = 0;
-                    var nameExists = this.module.getTypes()
-                            .stream()
-                            .anyMatch(t -> t.getName()
-                                    .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + ANY_SPREADSHEET_RESULT));
-                    while (nameExists) {
-                        anySpreadsheetResultName = ANY_SPREADSHEET_RESULT + i++;
-                        var anySpreadsheetResultName0 = anySpreadsheetResultName;
-                        nameExists = this.module.getTypes()
-                                .stream()
-                                .anyMatch(t -> t.getName()
-                                        .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
-                    }
                     var anySpreadsheetResult = new CustomAnySpreadsheetResultOpenClass(
-                            anySpreadsheetResultName,
+                            getAnySpreadsheetResultName(),
                             this.module,
                             null,
                             false);
@@ -202,6 +215,27 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             }
         }
         return result;
+    }
+
+    /**
+     * Returns the name of the AnySpreadsheetResult type, numbered when a type of the module has the name already.
+     */
+    private String getAnySpreadsheetResultName() {
+        var anySpreadsheetResultName = ANY_SPREADSHEET_RESULT;
+        var i = 0;
+        var nameExists = this.module.getTypes()
+                .stream()
+                .anyMatch(t -> t.getName()
+                        .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + ANY_SPREADSHEET_RESULT));
+        while (nameExists) {
+            anySpreadsheetResultName = ANY_SPREADSHEET_RESULT + i++;
+            var anySpreadsheetResultName0 = anySpreadsheetResultName;
+            nameExists = this.module.getTypes()
+                    .stream()
+                    .anyMatch(t -> t.getName()
+                            .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
+        }
+        return anySpreadsheetResultName;
     }
 
     @Override

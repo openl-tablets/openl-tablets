@@ -303,20 +303,27 @@ public final class TablePropertyDefinitionUtils {
             } else if (v2 == null && properties1.containsKey(key)) {
                 mergedGlobalProperties.put(key, v1);
             } else if (!Objects.equals(v1, v2)) {
-                Object defaultValue = getDefaultValueForProperty(key);
-                if (Objects.equals(defaultValue, v1)) {
-                    mergedGlobalProperties.put(key, v2);
-                } else if (Objects.equals(defaultValue, v2)) {
-                    mergedGlobalProperties.put(key, v1);
-                } else if (v1 instanceof Comparable comparable && v2 instanceof Comparable && v1.getClass() == v2.getClass()) {
-                    mergedGlobalProperties.put(key, comparable.compareTo(v2) < 0 ? v1 : v2);
-                }
-                throw new IllegalStateException("Failed to merge global properties.");
+                mergeDifferentValues(mergedGlobalProperties, key, v1, v2);
             } else {
                 mergedGlobalProperties.put(key, v1 != null ? v1 : v2);
             }
         }
         return mergedGlobalProperties;
+    }
+
+    private static void mergeDifferentValues(Map<String, Object> mergedGlobalProperties,
+                                             String key,
+                                             Object v1,
+                                             Object v2) {
+        Object defaultValue = getDefaultValueForProperty(key);
+        if (Objects.equals(defaultValue, v1)) {
+            mergedGlobalProperties.put(key, v2);
+        } else if (Objects.equals(defaultValue, v2)) {
+            mergedGlobalProperties.put(key, v1);
+        } else if (v1 instanceof Comparable comparable && v2 instanceof Comparable && v1.getClass() == v2.getClass()) {
+            mergedGlobalProperties.put(key, comparable.compareTo(v2) < 0 ? v1 : v2);
+        }
+        throw new IllegalStateException("Failed to merge global properties.");
     }
 
     public static ITableProperties buildGlobalTableProperties() {

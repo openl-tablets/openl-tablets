@@ -299,33 +299,39 @@ public final class PoiExcelHelper {
 
     public static void setCellBorderColors(CellStyle style, short[][] colors, Workbook workbook) {
         if (style instanceof HSSFCellStyle) {
-            var hssfWorkbook = (HSSFWorkbook) workbook;
-            if (colors[0] != null) {
-                style.setTopBorderColor(getOrAddColorIndex(colors[0], hssfWorkbook));
-            }
-            if (colors[1] != null) {
-                style.setRightBorderColor(getOrAddColorIndex(colors[1], hssfWorkbook));
-            }
-            if (colors[2] != null) {
-                style.setBottomBorderColor(getOrAddColorIndex(colors[2], hssfWorkbook));
-            }
-            if (colors[3] != null) {
-                style.setLeftBorderColor(getOrAddColorIndex(colors[3], hssfWorkbook));
-            }
+            setHssfCellBorderColors(style, colors, (HSSFWorkbook) workbook);
         } else if (style instanceof XSSFCellStyle xssfStyle) {
-            var xssfWorkbook = (XSSFWorkbook) workbook;
-            if (colors[0] != null) {
-                xssfStyle.setTopBorderColor(getColor(colors[0], xssfWorkbook));
-            }
-            if (colors[1] != null) {
-                xssfStyle.setRightBorderColor(getColor(colors[1], xssfWorkbook));
-            }
-            if (colors[2] != null) {
-                xssfStyle.setBottomBorderColor(getColor(colors[2], xssfWorkbook));
-            }
-            if (colors[3] != null) {
-                xssfStyle.setLeftBorderColor(getColor(colors[3], xssfWorkbook));
-            }
+            setXssfCellBorderColors(xssfStyle, colors, (XSSFWorkbook) workbook);
+        }
+    }
+
+    private static void setHssfCellBorderColors(CellStyle style, short[][] colors, HSSFWorkbook hssfWorkbook) {
+        if (colors[0] != null) {
+            style.setTopBorderColor(getOrAddColorIndex(colors[0], hssfWorkbook));
+        }
+        if (colors[1] != null) {
+            style.setRightBorderColor(getOrAddColorIndex(colors[1], hssfWorkbook));
+        }
+        if (colors[2] != null) {
+            style.setBottomBorderColor(getOrAddColorIndex(colors[2], hssfWorkbook));
+        }
+        if (colors[3] != null) {
+            style.setLeftBorderColor(getOrAddColorIndex(colors[3], hssfWorkbook));
+        }
+    }
+
+    private static void setXssfCellBorderColors(XSSFCellStyle xssfStyle, short[][] colors, XSSFWorkbook xssfWorkbook) {
+        if (colors[0] != null) {
+            xssfStyle.setTopBorderColor(getColor(colors[0], xssfWorkbook));
+        }
+        if (colors[1] != null) {
+            xssfStyle.setRightBorderColor(getColor(colors[1], xssfWorkbook));
+        }
+        if (colors[2] != null) {
+            xssfStyle.setBottomBorderColor(getColor(colors[2], xssfWorkbook));
+        }
+        if (colors[3] != null) {
+            xssfStyle.setLeftBorderColor(getColor(colors[3], xssfWorkbook));
         }
     }
 

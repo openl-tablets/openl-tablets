@@ -147,42 +147,12 @@ class ParameterExport extends BaseParameterExport {
                 }
 
                 if (value instanceof Map<?, ?> map) {
-                    for (Object val : map.values()) {
-                        tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
-                    }
+                    colNum = addMapValueTasks(tasks, rowNum, colNum, map);
                     continue;
                 }
 
                 var fields = nonEmptyFields.get(p);
-                if (fields == null) {
-                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++), value, styles.parameterValue, maxHeight));
-                } else {
-                    // _PK_
-                    if (isHasPK(parameter)) {
-                        var keyField = parameter.getKeyField();
-                        Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
-
-                        if (id != null && id.getClass().isArray()) {
-                            var pkRow = rowNum;
-                            var count = Array.getLength(id);
-                            for (var i = 0; i < count; i++) {
-                                var height = getRowHeight(Array.get(value, i), fields);
-                                tasks.add(new WriteTask(new Cursor(pkRow, colNum),
-                                        Array.get(id, i),
-                                        styles.parameterValue,
-                                        height));
-                                pkRow += height;
-                            }
-                        } else {
-                            tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, maxHeight));
-                        }
-                        colNum++;
-                    }
-
-                    // Actual fields
-                    addValueTasks(tasks, new Cursor(rowNum, colNum), fields, value, maxHeight);
-                    colNum += getFieldWidth(fields);
-                }
+                colNum = addParameterValueTasks(tasks, rowNum, colNum, parameter, value, fields, maxHeight);
             }
 
             var cursor = performWrite(sheet, new Cursor(rowNum, FIRST_COLUMN), tasks, lastColNum);
@@ -194,6 +164,58 @@ class ParameterExport extends BaseParameterExport {
         return rowNum;
     }
 
+    private int addMapValueTasks(TreeSet<WriteTask> tasks, int rowNum, int colNum, Map<?, ?> map) {
+        for (Object val : map.values()) {
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
+        }
+        return colNum;
+    }
+
+    /**
+     * Adds the tasks that write the value of a parameter: the primary key and the fields of a parameter with fields,
+     * or the value itself otherwise.
+     *
+     * @return the column to write the next parameter to
+     */
+    private int addParameterValueTasks(TreeSet<WriteTask> tasks,
+                                       int rowNum,
+                                       int colNum,
+                                       ParameterWithValueDeclaration parameter,
+                                       Object value,
+                                       List<FieldDescriptor> fields,
+                                       int maxHeight) {
+        if (fields == null) {
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), value, styles.parameterValue, maxHeight));
+        } else {
+            // _PK_
+            if (isHasPK(parameter)) {
+                var keyField = parameter.getKeyField();
+                Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
+
+                if (id != null && id.getClass().isArray()) {
+                    var pkRow = rowNum;
+                    var count = Array.getLength(id);
+                    for (var i = 0; i < count; i++) {
+                        var height = getRowHeight(Array.get(value, i), fields);
+                        tasks.add(new WriteTask(new Cursor(pkRow, colNum),
+                                Array.get(id, i),
+                                styles.parameterValue,
+                                height));
+                        pkRow += height;
+                    }
+                } else {
+                    tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, maxHeight));
+                }
+                colNum++;
+            }
+
+            // Actual fields
+            addValueTasks(tasks, new Cursor(rowNum, colNum), fields, value, maxHeight);
+            colNum += getFieldWidth(fields);
+        }
+        return colNum;
+    }
+
     private void addValueTasks(TreeSet<WriteTask> tasks,
                                Cursor cursor,
                                List<FieldDescriptor> fields,
@@ -203,27 +225,13 @@ class ParameterExport extends BaseParameterExport {
         var rowNum = cursor.getRowNum();
 
         if (value != null && value.getClass().isArray()) {
-            var count = Array.getLength(value);
-            var heightLeft = rowHeight;
-            for (var i = 0; i < count; i++) {
-                Object elem = Array.get(value, i);
-                var height = getRowHeight(elem, fields);
-                if (i < count - 1) {
-                    addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, height);
-                    heightLeft -= height;
-                } else {
-                    addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, heightLeft);
-                }
-                rowNum += height;
-            }
+            addArrayValueTasks(tasks, rowNum, colNum, fields, value, rowHeight);
         } else {
             for (FieldDescriptor fieldDescriptor : fields) {
                 Object fieldValue = ExportUtils.fieldValue(value, fieldDescriptor.getField());
                 List<FieldDescriptor> children = fieldDescriptor.getChildren();
                 if (fieldValue instanceof Map<?, ?> map) {
-                    for (Object val : map.values()) {
-                        tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
-                    }
+                    colNum = addMapValueTasks(tasks, rowNum, colNum, map);
                     continue;
                 } else if (fieldValue instanceof Collection<?> collection) {
                     fieldValue = collection.toArray();
@@ -236,6 +244,31 @@ class ParameterExport extends BaseParameterExport {
 
                 colNum += fieldDescriptor.getLeafNodeCount();
             }
+        }
+    }
+
+    /**
+     * Adds the tasks that write the elements of an array one under another. The last element takes the rest of the
+     * row height.
+     */
+    private void addArrayValueTasks(TreeSet<WriteTask> tasks,
+                                    int rowNum,
+                                    int colNum,
+                                    List<FieldDescriptor> fields,
+                                    Object value,
+                                    int rowHeight) {
+        var count = Array.getLength(value);
+        var heightLeft = rowHeight;
+        for (var i = 0; i < count; i++) {
+            Object elem = Array.get(value, i);
+            var height = getRowHeight(elem, fields);
+            if (i < count - 1) {
+                addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, height);
+                heightLeft -= height;
+            } else {
+                addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, heightLeft);
+            }
+            rowNum += height;
         }
     }
 

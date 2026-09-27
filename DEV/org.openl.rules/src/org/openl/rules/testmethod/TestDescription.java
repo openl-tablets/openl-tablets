@@ -10,10 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.RowIdField;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -189,27 +191,7 @@ public class TestDescription {
         }
         IOpenField foreignKeyField = null;
         if (dataModel != null) {
-            for (var colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
-                var columnDescriptor = dataModel.getDescriptor(colNum);
-                if (columnDescriptor != null) {
-                    var fieldChainTokens = columnDescriptor.getFieldChainTokens();
-                    if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
-                        // Found first column descriptor for needed parameter
-                        if (columnDescriptor.isReference()
-                                && columnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
-                            foreignKeyField = descriptor.getForeignKeyField(type, db);
-                        } else {
-                            // Test data is described in the current Test Table
-                            if (fieldChainTokens.length > 1) {
-                                // The field of a complex bean
-                                var fieldName = fieldChainTokens[fieldChainTokens.length - 1];
-                                foreignKeyField = type.getField(fieldName.getIdentifier());
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+            foreignKeyField = findKeyField(paramName, type, db, dataModel);
         }
         if (foreignKeyField == null) {
             // Could not find foreign key field in foreign Data Table or current Test Table - fallback to index field
@@ -217,6 +199,44 @@ public class TestDescription {
         }
 
         return foreignKeyField;
+    }
+
+    /**
+     * Finds the key field of a parameter by the first column that describes the parameter.
+     */
+    private static IOpenField findKeyField(String paramName, IOpenClass type, IDataBase db, ITableModel dataModel) {
+        for (var colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
+            var columnDescriptor = dataModel.getDescriptor(colNum);
+            if (columnDescriptor != null) {
+                var fieldChainTokens = columnDescriptor.getFieldChainTokens();
+                if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
+                    // Found first column descriptor for needed parameter
+                    return getColumnKeyField(columnDescriptor, fieldChainTokens, type, db);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the foreign key field of a reference column, or the last field of the field chain of a column.
+     */
+    private static IOpenField getColumnKeyField(ColumnDescriptor columnDescriptor,
+                                                IdentifierNode[] fieldChainTokens,
+                                                IOpenClass type,
+                                                IDataBase db) {
+        if (columnDescriptor.isReference()
+                && columnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
+            return descriptor.getForeignKeyField(type, db);
+        } else {
+            // Test data is described in the current Test Table
+            if (fieldChainTokens.length > 1) {
+                // The field of a complex bean
+                var fieldName = fieldChainTokens[fieldChainTokens.length - 1];
+                return type.getField(fieldName.getIdentifier());
+            }
+        }
+        return null;
     }
 
     /**

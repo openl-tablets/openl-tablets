@@ -311,7 +311,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
-    @SuppressWarnings("unchecked")
     public void populateLiteralByForeignKey(Object target,
                                             ILogicalTable valuesTable,
                                             IDataBase db,
@@ -336,29 +335,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             var resType = foreignTable.getDataModel().getType();
             var s = getCellStringValue(valuesTable);
-            if (!StringUtils.isEmpty(s)) {
-                Object result;
-                result = foreignTable.findObject(foreignKeyIndex, s, cxt);
-                if (result != null) {
-                    var chainRes = getChainObject(cxt,
-                            resType,
-                            result,
-                            foreignKeyTableAccessorChainTokens);
-                    if (chainRes == null) {
-                        throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
-                    }
-                    resType = chainRes.getType();
-                }
-            }
+            resType = resolveReferencedType(foreignTable, foreignKeyIndex, valuesTable, s, resType, cxt);
 
-            var isCollection = ClassUtils.isAssignable(fieldType.getInstanceClass(), Collection.class);
-
-            var f = true;
-            if (fieldType.isArray()) {
-                f = !fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass());
-            } else if (isCollection) {
-                f = fieldType.isAssignableFrom(resType);
-            }
+            var f = isAssignedAsWhole(fieldType, resType);
 
             if (isSupportMultirows()) {
                 populateLiteralByForeignKeyWithMultiRowSupport(target,
@@ -374,12 +353,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
             if (f) {
                 if (!StringUtils.isEmpty(s)) {
-                    var cast = cxt.getCast(resType, fieldType);
-                    if (cast == null || !cast.isImplicit()) {
-                        String message = MessageUtils
-                                .getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
-                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                    }
+                    var cast = getImplicitCast(cxt, resType, fieldType);
                     var res = getValueByForeignKeyIndex(cxt,
                             foreignTable,
                             foreignKeyIndex,
@@ -389,55 +363,132 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     getField().set(target, cast.convert(res), env);
                 }
             } else {
-                var componentType = getComponentType(fieldType);
-                IOpenCast cast = null;
-                if (fieldType.isArray()) {
-                    cast = cxt.getCast(resType, componentType);
-                    if (cast == null || !cast.isImplicit()) {
-                        String message = MessageUtils
-                                .getIncompatibleTypesErrorMessage(getField(), fieldType, resType.getArrayType(1));
-                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                    }
-                }
-                // processing array or list values.
-                var cellValues = getArrayValuesByForeignKey(valuesTable,
-                        cxt,
-                        foreignTable,
-                        foreignKeyIndex,
-                        foreignKeyTableAccessorChainTokens);
-                // Cell can contain empty reference value. As a result we
-                // will
-                // receive collection with one null value element. The
-                // following code snippet
-                // searches null value elements and removes them.
-                //
-
-                var values = CollectionUtils.findAll(cellValues, Objects::nonNull);
-                if (!values.isEmpty()) {
-                    var size = values.size();
-                    var v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
-
-                    // Populate result array with values.
-                    //
-                    var isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
-                    var isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
-                    for (var i = 0; i < size; i++) {
-                        var value = values.get(i);
-                        if (cast != null) {
-                            value = cast.convert(value);
-                        }
-                        if (isList) {
-                            ((List<Object>) v).set(i, cast != null ? cast.convert(value) : value);
-                        } else if (isSet) {
-                            ((Set<Object>) v).add(cast != null ? cast.convert(value) : value);
-                        } else {
-                            Array.set(v, i, value);
-                        }
-                    }
-                    getField().set(target, v, env);
-                }
+                populateValuesByForeignKey(target, valuesTable, cxt, foreignTable, foreignKeyIndex, resType, env);
             }
         }
+    }
+
+    /**
+     * Returns the type of the value the cell refers to. It is the type of the foreign table, or the type of the
+     * field of it that the accessor chain selects.
+     */
+    private IOpenClass resolveReferencedType(ITable foreignTable,
+                                             int foreignKeyIndex,
+                                             ILogicalTable valuesTable,
+                                             String s,
+                                             IOpenClass resType,
+                                             IBindingContext cxt) throws SyntaxNodeException {
+        if (!StringUtils.isEmpty(s)) {
+            Object result;
+            result = foreignTable.findObject(foreignKeyIndex, s, cxt);
+            if (result != null) {
+                var chainRes = getChainObject(cxt,
+                        resType,
+                        result,
+                        foreignKeyTableAccessorChainTokens);
+                if (chainRes == null) {
+                    throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
+                }
+                return chainRes.getType();
+            }
+        }
+        return resType;
+    }
+
+    /**
+     * Checks whether the field is assigned the referenced value itself, and not a collection of the referenced values.
+     */
+    private static boolean isAssignedAsWhole(IOpenClass fieldType, IOpenClass resType) {
+        var isCollection = ClassUtils.isAssignable(fieldType.getInstanceClass(), Collection.class);
+
+        var f = true;
+        if (fieldType.isArray()) {
+            f = !fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass());
+        } else if (isCollection) {
+            f = fieldType.isAssignableFrom(resType);
+        }
+        return f;
+    }
+
+    private IOpenCast getImplicitCast(IBindingContext cxt,
+                                      IOpenClass resType,
+                                      IOpenClass fieldType) throws SyntaxNodeException {
+        var cast = cxt.getCast(resType, fieldType);
+        if (cast == null || !cast.isImplicit()) {
+            String message = MessageUtils
+                    .getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+        }
+        return cast;
+    }
+
+    /**
+     * Sets the field to an array or a collection of the values referenced by the cell.
+     */
+    private void populateValuesByForeignKey(Object target,
+                                            ILogicalTable valuesTable,
+                                            IBindingContext cxt,
+                                            ITable foreignTable,
+                                            int foreignKeyIndex,
+                                            IOpenClass resType,
+                                            IRuntimeEnv env) throws SyntaxNodeException {
+        var fieldType = getField().getType();
+        var componentType = getComponentType(fieldType);
+        IOpenCast cast = null;
+        if (fieldType.isArray()) {
+            cast = cxt.getCast(resType, componentType);
+            if (cast == null || !cast.isImplicit()) {
+                String message = MessageUtils
+                        .getIncompatibleTypesErrorMessage(getField(), fieldType, resType.getArrayType(1));
+                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+            }
+        }
+        // processing array or list values.
+        var cellValues = getArrayValuesByForeignKey(valuesTable,
+                cxt,
+                foreignTable,
+                foreignKeyIndex,
+                foreignKeyTableAccessorChainTokens);
+        // Cell can contain empty reference value. As a result we
+        // will
+        // receive collection with one null value element. The
+        // following code snippet
+        // searches null value elements and removes them.
+        //
+
+        var values = CollectionUtils.findAll(cellValues, Objects::nonNull);
+        if (!values.isEmpty()) {
+            var v = makeAggregate(fieldType, componentType, values, cast);
+            getField().set(target, v, env);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object makeAggregate(IOpenClass fieldType,
+                                        IOpenClass componentType,
+                                        List<Object> values,
+                                        IOpenCast cast) {
+        var size = values.size();
+        var v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
+
+        // Populate result array with values.
+        //
+        var isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
+        var isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
+        for (var i = 0; i < size; i++) {
+            var value = values.get(i);
+            if (cast != null) {
+                value = cast.convert(value);
+            }
+            if (isList) {
+                ((List<Object>) v).set(i, cast != null ? cast.convert(value) : value);
+            } else if (isSet) {
+                ((Set<Object>) v).add(cast != null ? cast.convert(value) : value);
+            } else {
+                Array.set(v, i, value);
+            }
+        }
+        return v;
     }
 
     private IOpenClass getComponentType(IOpenClass fieldType) {
@@ -460,43 +511,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
                     .getSubtable(0, 0, 1, 1);
             if (isCollection) {
-                var cellValues = getArrayValuesByForeignKey(logicalTable,
-                        cxt,
-                        foreignTable,
-                        foreignKeyIndex,
-                        foreignKeyTableAccessorChainTokens);
-                var values = CollectionUtils.findAll(cellValues, Objects::nonNull);
-                var componentType = getComponentType(fieldType);
-                var currentValue = getField().get(target, env);
-                var isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
-                var isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
-                var isArray = !isList && !isSet;
-                var shift = 0;
-                Object v;
-                if (currentValue == null) {
-                    int size = isArray ? values.size() : 0;
-                    v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
-                } else {
-                    if (isArray) {
-                        shift = Array.getLength(currentValue);
-                        var size = values.size() + shift;
-                        v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
-                        System.arraycopy(currentValue, 0, v, 0, shift);
-                    } else {
-                        v = currentValue;
-                    }
-                }
-                for (var j = 0; j < values.size(); j++) {
-                    var value = values.get(j);
-                    if (isList) {
-                        ((List<Object>) v).add(value);
-                    } else if (isSet) {
-                        ((Set<Object>) v).add(value);
-                    } else {
-                        Array.set(v, j + shift, value);
-                    }
-                }
-                getField().set(target, v, env);
+                addValuesByForeignKey(target, logicalTable, cxt, foreignTable, foreignKeyIndex, fieldType, env);
             } else {
                 var s = getCellStringValue(logicalTable);
                 if (StringUtils.isEmpty(s)) {
@@ -508,14 +523,59 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         foreignKeyTableAccessorChainTokens,
                         logicalTable,
                         s);
-                var cast = cxt.getCast(resType, fieldType);
-                if (cast == null || !cast.isImplicit()) {
-                    String message = MessageUtils.getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                }
+                var cast = getImplicitCast(cxt, resType, fieldType);
                 getField().set(target, cast.convert(res), env);
             }
         }
+    }
+
+    /**
+     * Adds the values referenced by a row of the cell to the array or the collection of the field.
+     */
+    private void addValuesByForeignKey(Object target,
+                                       ILogicalTable logicalTable,
+                                       IBindingContext cxt,
+                                       ITable foreignTable,
+                                       int foreignKeyIndex,
+                                       IOpenClass fieldType,
+                                       IRuntimeEnv env) throws SyntaxNodeException {
+        var cellValues = getArrayValuesByForeignKey(logicalTable,
+                cxt,
+                foreignTable,
+                foreignKeyIndex,
+                foreignKeyTableAccessorChainTokens);
+        var values = CollectionUtils.findAll(cellValues, Objects::nonNull);
+        var componentType = getComponentType(fieldType);
+        var currentValue = getField().get(target, env);
+        var isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
+        var isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
+        var isArray = !isList && !isSet;
+        var shift = 0;
+        Object v;
+        if (currentValue == null) {
+            int size = isArray ? values.size() : 0;
+            v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
+        } else {
+            if (isArray) {
+                shift = Array.getLength(currentValue);
+                var size = values.size() + shift;
+                v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
+                System.arraycopy(currentValue, 0, v, 0, shift);
+            } else {
+                v = currentValue;
+            }
+        }
+        for (var j = 0; j < values.size(); j++) {
+            var value = values.get(j);
+            if (isList) {
+                ((List<Object>) v).add(value);
+            } else if (isSet) {
+                ((Set<Object>) v).add(value);
+            } else {
+                Array.set(v, j + shift, value);
+            }
+        }
+        getField().set(target, v, env);
     }
 
     private int getForeignKeyIndex(ITable foreignTable) {

@@ -121,59 +121,65 @@ public abstract class ResultExport extends BaseExport {
     protected abstract void writeResultHeader(TestUnitsResults result, Row row, int colNum);
 
     private int writeResults(Sheet sheet, TestUnitsResults result, int rowNum) {
-        Row row;
-        int colNum;
         var hasExpected = result.hasExpected();
         for (ITestUnit testUnit : result.getTestUnits()) {
-            TestStatus testStatus = hasExpected ? testUnit.getResultStatus() : TestStatus.TR_OK;
-            var ok = testStatus == TestStatus.TR_OK;
-
-            row = sheet.createRow(rowNum++);
-            // ID
-            colNum = FIRST_COLUMN;
-            createCell(row, colNum++, testUnit.getTest().getId(), ok ? styles.resultSuccessId : styles.resultFailureId);
-
-            // Status
-            if (hasExpected) {
-                String status;
-                switch (testStatus) {
-                    case TR_OK:
-                        status = "Passed";
-                        break;
-                    case TR_NEQ:
-                        status = "Failed";
-                        break;
-                    case TR_EXCEPTION:
-                        status = "Error";
-                        break;
-                    default:
-                        throw new UnsupportedOperationException();
-
-                }
-                createCell(row, colNum++, status, ok ? styles.resultSuccessStatus : styles.resultFailureStatus);
-            }
-
-            // Description
-            if (result.hasDescription()) {
-                createCell(row, colNum++, testUnit.getDescription(), styles.resultOther);
-            }
-
-            // Context
-            if (result.hasContext()) {
-                for (ParameterWithValueDeclaration parameter : testUnit.getContextParams(result)) {
-                    createCell(row, colNum++, parameter.getValue(), styles.resultOther);
-                }
-            }
-
-            // Input data
-            for (ParameterWithValueDeclaration parameter : testUnit.getTest().getExecutionParams()) {
-                createCell(row, colNum++, parameter, styles.resultOther);
-            }
-
-            // Result
-            writeResult(row, colNum, result, testUnit);
+            writeResultRow(sheet, rowNum++, result, testUnit, hasExpected);
         }
         return rowNum;
+    }
+
+    private void writeResultRow(Sheet sheet,
+                                int rowNum,
+                                TestUnitsResults result,
+                                ITestUnit testUnit,
+                                boolean hasExpected) {
+        TestStatus testStatus = hasExpected ? testUnit.getResultStatus() : TestStatus.TR_OK;
+        var ok = testStatus == TestStatus.TR_OK;
+
+        var row = sheet.createRow(rowNum);
+        // ID
+        var colNum = FIRST_COLUMN;
+        createCell(row, colNum++, testUnit.getTest().getId(), ok ? styles.resultSuccessId : styles.resultFailureId);
+
+        // Status
+        if (hasExpected) {
+            String status;
+            switch (testStatus) {
+                case TR_OK:
+                    status = "Passed";
+                    break;
+                case TR_NEQ:
+                    status = "Failed";
+                    break;
+                case TR_EXCEPTION:
+                    status = "Error";
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+
+            }
+            createCell(row, colNum++, status, ok ? styles.resultSuccessStatus : styles.resultFailureStatus);
+        }
+
+        // Description
+        if (result.hasDescription()) {
+            createCell(row, colNum++, testUnit.getDescription(), styles.resultOther);
+        }
+
+        // Context
+        if (result.hasContext()) {
+            for (ParameterWithValueDeclaration parameter : testUnit.getContextParams(result)) {
+                createCell(row, colNum++, parameter.getValue(), styles.resultOther);
+            }
+        }
+
+        // Input data
+        for (ParameterWithValueDeclaration parameter : testUnit.getTest().getExecutionParams()) {
+            createCell(row, colNum++, parameter, styles.resultOther);
+        }
+
+        // Result
+        writeResult(row, colNum, result, testUnit);
     }
 
     protected abstract void writeResult(Row row, int colNum, TestUnitsResults result, ITestUnit testUnit);

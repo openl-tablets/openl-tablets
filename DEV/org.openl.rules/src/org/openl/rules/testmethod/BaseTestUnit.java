@@ -81,39 +81,7 @@ public class BaseTestUnit implements ITestUnit {
      */
     private TestStatus compareResult(Object expectedError, Object expectedResult, Object actualResult) {
         if (actualError != null) {
-            String oldStyleMessage = switch (expectedError) {
-                case null -> null;
-                case UserErrorOpenClass.Entry e -> e.get().toString();
-                default -> expectedError.toString();
-            };
-            Throwable rootCause = ExceptionUtils.getRootCause(actualError);
-            if (rootCause instanceof OpenLUserRuntimeException exception) {
-                var detailedEx = exception.getBody();
-                if (test.isEmptyOrNewStyleErrorDescription()) {
-                    // to support old behaviour
-                    return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
-                } else {
-                    return compareMessageAndGetResult(expectedError, detailedEx, expectedResult, rootCause.getMessage());
-                }
-            } else if (rootCause instanceof OutsideOfValidDomainException) {
-                if (test.isEmptyOrNewStyleErrorDescription()) {
-                    // to support old behaviour
-                    return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
-                } else {
-                    return compareMessageAndGetResult(expectedError,
-                            rootCause.getMessage(),
-                            expectedResult,
-                            rootCause.getMessage());
-                }
-            } else {
-                var results = new ComparedResult(null,
-                        expectedError == null ? expectedResult : expectedError,
-                        rootCause == null ? actualResult : rootCause.getMessage(),
-                        TR_EXCEPTION);
-
-                addComparisonResult(results);
-                return TR_EXCEPTION;
-            }
+            return compareError(expectedError, expectedResult, actualResult);
         } else {
             if (expectedError != null) {
                 var results = new ComparedResult(null, expectedError, actualResult, TR_NEQ);
@@ -122,6 +90,45 @@ public class BaseTestUnit implements ITestUnit {
             } else {
                 return compareAndGetResult(expectedResult, actualResult, test.getFields());
             }
+        }
+    }
+
+    /**
+     * Compares the expected error with the error thrown by the tested method.
+     */
+    private TestStatus compareError(Object expectedError, Object expectedResult, Object actualResult) {
+        String oldStyleMessage = switch (expectedError) {
+            case null -> null;
+            case UserErrorOpenClass.Entry e -> e.get().toString();
+            default -> expectedError.toString();
+        };
+        Throwable rootCause = ExceptionUtils.getRootCause(actualError);
+        if (rootCause instanceof OpenLUserRuntimeException exception) {
+            var detailedEx = exception.getBody();
+            if (test.isEmptyOrNewStyleErrorDescription()) {
+                // to support old behaviour
+                return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
+            } else {
+                return compareMessageAndGetResult(expectedError, detailedEx, expectedResult, rootCause.getMessage());
+            }
+        } else if (rootCause instanceof OutsideOfValidDomainException) {
+            if (test.isEmptyOrNewStyleErrorDescription()) {
+                // to support old behaviour
+                return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
+            } else {
+                return compareMessageAndGetResult(expectedError,
+                        rootCause.getMessage(),
+                        expectedResult,
+                        rootCause.getMessage());
+            }
+        } else {
+            var results = new ComparedResult(null,
+                    expectedError == null ? expectedResult : expectedError,
+                    rootCause == null ? actualResult : rootCause.getMessage(),
+                    TR_EXCEPTION);
+
+            addComparisonResult(results);
+            return TR_EXCEPTION;
         }
     }
 

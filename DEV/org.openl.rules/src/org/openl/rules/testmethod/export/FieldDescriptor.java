@@ -62,35 +62,52 @@ class FieldDescriptor {
             if (field.getType().equals(CLASS)) {
                 continue;
             }
-            var fieldType = field.getType();
-            var childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
-            String newPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
-
-            for (Object value : values) {
-                Object fieldValue = value == null ? null : field.get(value, null);
-                var fieldName = newPath + (fieldValue != null ? fieldValue.toString() : "null");
-                if (!coveredFields.contains(fieldName)) {
-                    coveredFields.add(fieldName);
-                    if (!Boolean.TRUE.equals(skipEmptyParameters) || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
-                        if (fieldValue instanceof Collection<?> collection) {
-                            fieldType = CastToWiderType.defineCollectionWiderType(collection);
-                        }
-                        var children = nonEmptyFieldsForFlatten(fieldType,
-                                childFieldValues,
-                                skipEmptyParameters,
-                                coveredFields,
-                                newPath);
-                        result.add(new FieldDescriptor(field, children));
-
-                        break;
-                    }
-                }
+            var fieldDescriptor = describeField(field, values, skipEmptyParameters, coveredFields, path);
+            if (fieldDescriptor != null) {
+                result.add(fieldDescriptor);
             }
         }
 
         result.sort(Comparator.comparing(FieldDescriptor::isArray));
 
         return result;
+    }
+
+    /**
+     * Describes a field by its first value that is not covered yet. An empty value is skipped when empty parameters
+     * are skipped.
+     *
+     * @return {@code null} when no value of the field is described
+     */
+    private static FieldDescriptor describeField(IOpenField field,
+                                                 List<?> values,
+                                                 Boolean skipEmptyParameters,
+                                                 Set<String> coveredFields,
+                                                 String path) {
+        var fieldType = field.getType();
+        var childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
+        String newPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
+
+        for (Object value : values) {
+            Object fieldValue = value == null ? null : field.get(value, null);
+            var fieldName = newPath + (fieldValue != null ? fieldValue.toString() : "null");
+            if (coveredFields.contains(fieldName)) {
+                continue;
+            }
+            coveredFields.add(fieldName);
+            if (!Boolean.TRUE.equals(skipEmptyParameters) || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
+                if (fieldValue instanceof Collection<?> collection) {
+                    fieldType = CastToWiderType.defineCollectionWiderType(collection);
+                }
+                var children = nonEmptyFieldsForFlatten(fieldType,
+                        childFieldValues,
+                        skipEmptyParameters,
+                        coveredFields,
+                        newPath);
+                return new FieldDescriptor(field, children);
+            }
+        }
+        return null;
     }
 
     public boolean isArray() {

@@ -77,6 +77,33 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         List<SyntaxNodeException> errors;
     }
 
+    /**
+     * Selects the binding of a tested method: the first binding without errors, or else the first binding with the
+     * fewest errors. The bindings without errors are collected when there are several of them.
+     */
+    private static class TestedMethodBindingSelection {
+        TestedMethodBindingDetails best;
+        boolean hasNoErrorBinding;
+        List<TestedMethodBindingDetails> noErrorsCases;
+
+        void add(TestedMethodBindingDetails current) {
+            if (!current.errors.isEmpty() && (best == null || best.errors.size() > current.errors.size())) {
+                best = current;
+            } else if (current.errors.isEmpty()) {
+                if (!hasNoErrorBinding) {
+                    hasNoErrorBinding = true;
+                    best = current;
+                } else {
+                    if (noErrorsCases == null) {
+                        noErrorsCases = new ArrayList<>();
+                        noErrorsCases.add(best);
+                    }
+                    noErrorsCases.add(current);
+                }
+            }
+        }
+    }
+
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
                                     OpenL openl,
@@ -121,9 +148,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 IMethodSignature.VOID,
                 module);
 
-        TestedMethodBindingDetails best = null;
-        boolean hasNoErrorBinding = false;
-        List<TestedMethodBindingDetails> noErrorsCases = null;
+        var selection = new TestedMethodBindingSelection();
         for (IOpenMethod testedMethod : moduleToSearch.getMethods()) {
             if (!methodName.equals(testedMethod.getName())) {
                 continue;
@@ -141,72 +166,16 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 String message = "Table '%s' is defined with errors.".formatted(methodName);
                 throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
             }
-            bindingContext.pushErrors();
-            bindingContext.pushMessages();
-            try {
-                current.dataTable = makeTable(module,
-                        tableSyntaxNode,
-                        tableName,
-                        current.testMethodOpenClass,
-                        bindingContext,
-                        openl,
-                        false);
-            } finally {
-                current.errors = bindingContext.popErrors();
-                if (current.errors == null) {
-                    current.errors = List.of();
-                }
-                current.messages = bindingContext.popMessages();
-                if (current.messages == null) {
-                    current.messages = List.of();
-                }
-            }
+            makeDataTable(current, tableSyntaxNode, tableName, module, bindingContext, openl);
             current.testMethodBoundNode.setTable(current.dataTable);
 
-            if (!current.errors.isEmpty() && (best == null || best.errors.size() > current.errors.size())) {
-                best = current;
-            } else if (current.errors.isEmpty()) {
-                if (!hasNoErrorBinding) {
-                    hasNoErrorBinding = true;
-                    best = current;
-                } else {
-                    if (noErrorsCases == null) {
-                        noErrorsCases = new ArrayList<>();
-                        noErrorsCases.add(best);
-                    }
-                    noErrorsCases.add(current);
-                }
-            }
+            selection.add(current);
         }
 
+        var best = selection.best;
+        var noErrorsCases = selection.noErrorsCases;
         if (noErrorsCases != null && noErrorsCases.size() > 1) {
-            List<TestedMethodBindingDetails> exactMatches = new ArrayList<>();
-            for (TestedMethodBindingDetails noErrorCase : noErrorsCases) {
-                int c = 0;
-                for (int i = 0; i < noErrorCase.testedMethod.getSignature().getNumberOfParameters(); i++) {
-                    String parameterName = noErrorCase.testedMethod.getSignature().getParameterName(i);
-                    for (int j = 0; j < noErrorCase.dataTable.getNumberOfColumns(); j++) {
-                        String columnFieldName = noErrorCase.dataTable.getColumnDescriptor(j).getName();
-                        if (Objects.equals(columnFieldName, parameterName)) {
-                            c++;
-                            break;
-                        }
-                    }
-                }
-                if (c == noErrorCase.testedMethod.getSignature().getNumberOfParameters()) {
-                    exactMatches.add(noErrorCase);
-                }
-            }
-            if (exactMatches.isEmpty()) {
-                throw new AmbiguousMethodException(methodName,
-                        noErrorsCases.stream().map(e -> e.testedMethod).toList());
-            }
-            if (exactMatches.size() > 1) {
-                throw new AmbiguousMethodException(methodName,
-                        exactMatches.stream().map(e -> e.testedMethod).toList());
-            } else {
-                best = exactMatches.getFirst();
-            }
+            best = findExactMatch(methodName, noErrorsCases);
         }
 
         if (best != null) {
@@ -219,6 +188,79 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         String message = MessageUtils.getTableNotFoundErrorMessage(methodName);
         throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
+    }
+
+    /**
+     * Makes the data table of the test for the tested method, and keeps the errors and the messages of it apart from
+     * the binding context.
+     */
+    private void makeDataTable(TestedMethodBindingDetails current,
+                               TableSyntaxNode tableSyntaxNode,
+                               String tableName,
+                               XlsModuleOpenClass module,
+                               RulesModuleBindingContext bindingContext,
+                               OpenL openl) throws Exception {
+        bindingContext.pushErrors();
+        bindingContext.pushMessages();
+        try {
+            current.dataTable = makeTable(module,
+                    tableSyntaxNode,
+                    tableName,
+                    current.testMethodOpenClass,
+                    bindingContext,
+                    openl,
+                    false);
+        } finally {
+            current.errors = bindingContext.popErrors();
+            if (current.errors == null) {
+                current.errors = List.of();
+            }
+            current.messages = bindingContext.popMessages();
+            if (current.messages == null) {
+                current.messages = List.of();
+            }
+        }
+    }
+
+    /**
+     * Selects the only binding whose tested method has a column in the test table for each of its parameters.
+     *
+     * @throws AmbiguousMethodException when there is no such binding, or there are several of them
+     */
+    private static TestedMethodBindingDetails findExactMatch(String methodName,
+                                                             List<TestedMethodBindingDetails> noErrorsCases) {
+        List<TestedMethodBindingDetails> exactMatches = new ArrayList<>();
+        for (TestedMethodBindingDetails noErrorCase : noErrorsCases) {
+            int c = countParametersWithColumns(noErrorCase);
+            if (c == noErrorCase.testedMethod.getSignature().getNumberOfParameters()) {
+                exactMatches.add(noErrorCase);
+            }
+        }
+        if (exactMatches.isEmpty()) {
+            throw new AmbiguousMethodException(methodName,
+                    noErrorsCases.stream().map(e -> e.testedMethod).toList());
+        }
+        if (exactMatches.size() > 1) {
+            throw new AmbiguousMethodException(methodName,
+                    exactMatches.stream().map(e -> e.testedMethod).toList());
+        } else {
+            return exactMatches.getFirst();
+        }
+    }
+
+    private static int countParametersWithColumns(TestedMethodBindingDetails noErrorCase) {
+        int c = 0;
+        for (int i = 0; i < noErrorCase.testedMethod.getSignature().getNumberOfParameters(); i++) {
+            String parameterName = noErrorCase.testedMethod.getSignature().getParameterName(i);
+            for (int j = 0; j < noErrorCase.dataTable.getNumberOfColumns(); j++) {
+                String columnFieldName = noErrorCase.dataTable.getColumnDescriptor(j).getName();
+                if (Objects.equals(columnFieldName, parameterName)) {
+                    c++;
+                    break;
+                }
+            }
+        }
+        return c;
     }
 
     private void validateTableName(String tableName, ISyntaxNode syntaxNode, IBindingContext context) {

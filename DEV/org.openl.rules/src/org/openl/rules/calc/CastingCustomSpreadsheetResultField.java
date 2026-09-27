@@ -99,57 +99,69 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             if (types.size() == 1) {
                 this.type = types.iterator().next();
                 this.casts = null;
+            } else if (isCustomSpreadsheetResultsOf(types, xlsModuleOpenClass)) {
+                this.type = combineCustomSpreadsheetResults(types, xlsModuleOpenClass);
+                this.casts = null;
             } else {
-                boolean allTypesCustomSpreadsheetResult = true;
-                Set<XlsModuleOpenClass> modules = Collections.newSetFromMap(new IdentityHashMap<>());
-                for (IOpenClass openClass : types) {
-                    if (!(openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass)) {
-                        allTypesCustomSpreadsheetResult = false;
-                        break;
-                    } else {
-                        modules.add(customSpreadsheetResultOpenClass.getModule());
-                    }
-                }
-                if (allTypesCustomSpreadsheetResult && modules.size() == 1 && modules.iterator()
-                        .next() == xlsModuleOpenClass) {
-                    Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = types.stream()
-                            .map(CustomSpreadsheetResultOpenClass.class::cast)
-                            .collect(Collectors.toSet());
-                    if (customSpreadsheetResultOpenClasses.size() > 1) {
-                        this.type = xlsModuleOpenClass.buildOrGetCombinedSpreadsheetResult(
-                                customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
-                    } else {
-                        this.type = customSpreadsheetResultOpenClasses.iterator().next();
-                    }
-                    this.casts = null;
-                } else {
-                    Iterator<IOpenClass> itr = types.iterator();
-                    IOpenClass t = itr.next();
-                    while (itr.hasNext()) {
-                        IOpenClass t1 = itr.next();
-                        CastToWiderType castToWiderType = CastToWiderType
-                                .create(xlsModuleOpenClass.getRulesModuleBindingContext(), t, t1);
-                        t = castToWiderType.getWiderType();
-                    }
-                    this.casts = new ArrayList<>();
-                    this.type = t;
-                    for (IOpenClass fieldType : types) {
-                        if (!NullOpenClass.isAnyNull(fieldType)) {
-                            IOpenCast cast = xlsModuleOpenClass.getRulesModuleBindingContext()
-                                    .getCast(fieldType, this.type);
-                            IOpenClass x = fieldType;
-                            if (fieldType.getInstanceClass() != null && fieldType.getInstanceClass().isPrimitive()) {
-                                x = JavaOpenClass
-                                        .getOpenClass(ClassUtils.primitiveToWrapper(fieldType.getInstanceClass()));
-                            }
-                            this.casts.add(Pair.of(x, cast));
-                        }
-                    }
-                    if (this.casts.isEmpty()) {
-                        this.casts = null;
-                    }
-                }
+                initWiderTypeAndCasts(types, xlsModuleOpenClass);
             }
+        }
+    }
+
+    /**
+     * Checks whether all the types are custom spreadsheet results of the given module.
+     */
+    private static boolean isCustomSpreadsheetResultsOf(Set<IOpenClass> types, XlsModuleOpenClass xlsModuleOpenClass) {
+        Set<XlsModuleOpenClass> modules = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (IOpenClass openClass : types) {
+            if (!(openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass)) {
+                return false;
+            }
+            modules.add(customSpreadsheetResultOpenClass.getModule());
+        }
+        return modules.size() == 1 && modules.iterator().next() == xlsModuleOpenClass;
+    }
+
+    private static IOpenClass combineCustomSpreadsheetResults(Set<IOpenClass> types,
+                                                              XlsModuleOpenClass xlsModuleOpenClass) {
+        Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = types.stream()
+                .map(CustomSpreadsheetResultOpenClass.class::cast)
+                .collect(Collectors.toSet());
+        if (customSpreadsheetResultOpenClasses.size() > 1) {
+            return xlsModuleOpenClass.buildOrGetCombinedSpreadsheetResult(
+                    customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+        }
+        return customSpreadsheetResultOpenClasses.iterator().next();
+    }
+
+    /**
+     * Resolves the type as the widest of the given types, with a cast to it from each type that is not null.
+     */
+    private void initWiderTypeAndCasts(Set<IOpenClass> types, XlsModuleOpenClass xlsModuleOpenClass) {
+        Iterator<IOpenClass> itr = types.iterator();
+        IOpenClass t = itr.next();
+        while (itr.hasNext()) {
+            IOpenClass t1 = itr.next();
+            CastToWiderType castToWiderType = CastToWiderType
+                    .create(xlsModuleOpenClass.getRulesModuleBindingContext(), t, t1);
+            t = castToWiderType.getWiderType();
+        }
+        this.casts = new ArrayList<>();
+        this.type = t;
+        for (IOpenClass fieldType : types) {
+            if (!NullOpenClass.isAnyNull(fieldType)) {
+                IOpenCast cast = xlsModuleOpenClass.getRulesModuleBindingContext()
+                        .getCast(fieldType, this.type);
+                IOpenClass x = fieldType;
+                if (fieldType.getInstanceClass() != null && fieldType.getInstanceClass().isPrimitive()) {
+                    x = JavaOpenClass
+                            .getOpenClass(ClassUtils.primitiveToWrapper(fieldType.getInstanceClass()));
+                }
+                this.casts.add(Pair.of(x, cast));
+            }
+        }
+        if (this.casts.isEmpty()) {
+            this.casts = null;
         }
     }
 

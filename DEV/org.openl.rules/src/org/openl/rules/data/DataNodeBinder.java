@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -38,6 +40,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.MessageUtils;
 import org.openl.util.TableNameChecker;
 import org.openl.util.text.TextInterval;
@@ -212,25 +215,11 @@ public class DataNodeBinder extends AXlsTableBinder {
                 }
                 var field = descriptor.getField();
                 if (field instanceof FieldChain chain) {
-                    var fields = chain.getFields();
-                    // for fields with a context property, the length must be 2
-                    if (fields.length != 2) {
-                        continue;
-                    }
-                    if (fields[1].isContextProperty()) {
-                        var contextProperty = fields[1].getContextProperty();
-                        if (runtimeContextProps.contains(contextProperty)) {
-                            duplicatedRuntimeContextProps.put(contextProperty, fields[0].getName());
-                        }
-                        if (testRuntimeContextProps.contains(contextProperty)) {
-                            throw SyntaxNodeExceptionUtils.createError("'%s' is redundant since this field is already defined in '%s' parameter.".formatted(
-                                    TestMethodHelper.CONTEXT_NAME + "." + contextProperty,
-                                    fields[0].getName()), tableToProcess.getTableSyntaxNode());
-                        }
-                        runtimeContextProps.add(contextProperty);
-                    } else if (fields[0].getName().equals(TestMethodHelper.CONTEXT_NAME)) {
-                        testRuntimeContextProps.add(fields[1].getName());
-                    }
+                    collectContextProperty(chain.getFields(),
+                            runtimeContextProps,
+                            testRuntimeContextProps,
+                            duplicatedRuntimeContextProps,
+                            tableToProcess);
                 }
             }
         }
@@ -247,6 +236,38 @@ public class DataNodeBinder extends AXlsTableBinder {
             bindingContext.addMessage(
                     new OpenLWarnMessage("'%s' column is missing.".formatted(TestMethodHelper.EXPECTED_RESULT_NAME),
                             tableToProcess.getTableSyntaxNode()));
+        }
+    }
+
+    /**
+     * Registers the context property set by a field chain, or by the context parameter of a test.
+     *
+     * @throws SyntaxNodeException when the context parameter of a test sets the property already
+     */
+    private static void collectContextProperty(IOpenField[] fields,
+                                               Set<String> runtimeContextProps,
+                                               Set<String> testRuntimeContextProps,
+                                               Map<String, String> duplicatedRuntimeContextProps,
+                                               ITable tableToProcess) throws SyntaxNodeException {
+        // for fields with a context property, the length must be 2
+        if (fields.length != 2) {
+            return;
+        }
+        if (fields[1].isContextProperty()) {
+            var contextProperty = fields[1].getContextProperty();
+            if (runtimeContextProps.contains(contextProperty)) {
+                duplicatedRuntimeContextProps.put(contextProperty, fields[0].getName());
+            }
+            if (testRuntimeContextProps.contains(contextProperty)) {
+                throw SyntaxNodeExceptionUtils.createError(
+                        "'%s' is redundant since this field is already defined in '%s' parameter.".formatted(
+                                TestMethodHelper.CONTEXT_NAME + "." + contextProperty,
+                                fields[0].getName()),
+                        tableToProcess.getTableSyntaxNode());
+            }
+            runtimeContextProps.add(contextProperty);
+        } else if (fields[0].getName().equals(TestMethodHelper.CONTEXT_NAME)) {
+            testRuntimeContextProps.add(fields[1].getName());
         }
     }
 
