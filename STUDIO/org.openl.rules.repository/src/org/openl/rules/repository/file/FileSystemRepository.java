@@ -198,18 +198,26 @@ public class FileSystemRepository implements Repository, Closeable {
 
     private void deleteEmptyParentFolders(Path file) {
         var parent = file.getParent();
-        while (parent != null) {
-            try (var stream = Files.list(parent)) {
-                if (stream.findAny().isEmpty()) {
-                    Files.delete(parent);
-                } else {
-                    break;
-                }
-            } catch (IOException e) {
-                log.warn("Failed to check or delete parent directory '{}'.", parent, e);
-                break;
-            }
+        while (parent != null && deleteIfEmpty(parent)) {
             parent = parent.equals(root) ? null : parent.getParent();
+        }
+    }
+
+    /**
+     * Deletes a folder when it is empty.
+     *
+     * @return {@code true} when the folder is deleted, {@code false} when it is not empty or cannot be deleted
+     */
+    private static boolean deleteIfEmpty(Path folder) {
+        try (var stream = Files.list(folder)) {
+            if (stream.findAny().isEmpty()) {
+                Files.delete(folder);
+                return true;
+            }
+            return false;
+        } catch (IOException e) {
+            log.warn("Failed to check or delete parent directory '{}'.", folder, e);
+            return false;
         }
     }
 

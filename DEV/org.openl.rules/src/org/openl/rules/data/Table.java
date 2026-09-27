@@ -197,18 +197,18 @@ public class Table implements ITable {
             var gridTable = logicalTable.getSubtable(colIdx, entry.getValue(), 1, 1).getSource();
             var key = gridTable.getCell(0, 0).getStringValue();
 
+            String errorMessage = null;
             if (key == null) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
-                        new GridCellSourceCodeModule(gridTable));
-                cxt.addError(error);
-                break;
+                errorMessage = MessageUtils.EMPTY_UNQ_IDX_KEY;
+            } else {
+                key = key.trim();
+                if (index.containsKey(key)) {
+                    errorMessage = MessageUtils.getDuplicatedKeyIndexErrorMessage(key);
+                }
             }
 
-            key = key.trim();
-
-            if (index.containsKey(key)) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                        MessageUtils.getDuplicatedKeyIndexErrorMessage(key),
+            if (errorMessage != null) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage,
                         new GridCellSourceCodeModule(gridTable));
                 cxt.addError(error);
                 break;

@@ -642,10 +642,7 @@ public final class MethodSearch {
                     matchingResult.clear();
                     matchingResult.add(match);
                     f = true;
-                    continue;
-                }
-
-                if (oneElementToArrayCastCount == bestOneElementToArrayCastCount
+                } else if (oneElementToArrayCastCount == bestOneElementToArrayCastCount
                         && multiCallParamsHolderCount == bestMultiCallParamsCount && eq(match, bestMethodMatch) && !f) {
                     matchingResult.add(match);
                     f = true;

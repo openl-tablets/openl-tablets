@@ -353,19 +353,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             var cell = getGridTable().getGrid().getCell(col, row);
             var stringValue = cell.getStringValue();
 
-            if (StringUtils.isBlank(stringValue)) {
-                continue;
+            if (StringUtils.isNotBlank(stringValue)) {
+                var returnMetaInfo = entry.getValue();
+                var simpleNodeUsage = new SimpleNodeUsage(0,
+                        stringValue.length(),
+                        returnMetaInfo.getDetails(),
+                        returnMetaInfo.getUri(),
+                        returnMetaInfo.getUri() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
+                var metaInfo = new CellMetaInfo(JavaOpenClass.STRING,
+                        false,
+                        List.of(simpleNodeUsage));
+                setPreparedMetaInfo(row, col, metaInfo);
             }
-            var returnMetaInfo = entry.getValue();
-            var simpleNodeUsage = new SimpleNodeUsage(0,
-                    stringValue.length(),
-                    returnMetaInfo.getDetails(),
-                    returnMetaInfo.getUri(),
-                    returnMetaInfo.getUri() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
-            var metaInfo = new CellMetaInfo(JavaOpenClass.STRING,
-                    false,
-                    List.of(simpleNodeUsage));
-            setPreparedMetaInfo(row, col, metaInfo);
         }
     }
 

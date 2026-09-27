@@ -747,15 +747,14 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 continue;
             }
             var childChildren = builtChildren.getOrDefault(artefact, List.of());
-            if (!filter.test(artefact) && childChildren.isEmpty()) {
-                continue;
+            if (filter.test(artefact) || !childChildren.isEmpty()) {
+                FsNode mapped = resourceMapper.map(artefact);
+                if (mapped instanceof FolderNode fr && !childChildren.isEmpty()) {
+                    // childChildren was already sorted when it was stored, so no need to sort again.
+                    mapped = fr.withChildren(childChildren);
+                }
+                out.add(mapped);
             }
-            FsNode mapped = resourceMapper.map(artefact);
-            if (mapped instanceof FolderNode fr && !childChildren.isEmpty()) {
-                // childChildren was already sorted when it was stored, so no need to sort again.
-                mapped = fr.withChildren(childChildren);
-            }
-            out.add(mapped);
         }
         return out;
     }

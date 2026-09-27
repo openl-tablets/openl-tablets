@@ -115,28 +115,26 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
         var ranges = Objects.requireNonNullElse(StringUtils.split(ids.trim(), ','), StringUtils.EMPTY_STRING_ARRAY);
         for (String range : ranges) {
+            var v = range.trim();
             if (range.isEmpty() && indexes.containsKey(",")) {
                 result.add(indexes.get(","));
-                continue;
-            }
-            var v = range.trim();
-            if (indexes.containsKey(v)) {
+            } else if (indexes.containsKey(v)) {
                 result.add(indexes.get(v));
-                continue;
-            }
-            String[] edges = StringUtils.split(v, '-');
-            if (edges.length == 0) {
-                // Dashes and nothing else: the case named by a dash alone was found above, so nothing is named.
-                throw unknownCase(v);
-            }
-            if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
-                edges = DASH_SEPARATOR.split(v);
-            }
-            var startIndex = requireIndex(edges[0].trim());
-            var endIndex = requireIndex(edges[edges.length - 1].trim());
+            } else {
+                String[] edges = StringUtils.split(v, '-');
+                if (edges.length == 0) {
+                    // Dashes and nothing else: the case named by a dash alone was found above, so nothing is named.
+                    throw unknownCase(v);
+                }
+                if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
+                    edges = DASH_SEPARATOR.split(v);
+                }
+                var startIndex = requireIndex(edges[0].trim());
+                var endIndex = requireIndex(edges[edges.length - 1].trim());
 
-            for (var i = startIndex; i <= endIndex; i++) {
-                result.add(i);
+                for (var i = startIndex; i <= endIndex; i++) {
+                    result.add(i);
+                }
             }
         }
         Integer[] indices = new Integer[result.size()];
@@ -304,18 +302,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 List<IOpenField> toAdd;
                 IOpenClass resultType;
                 var nodes = columnDescriptor.getFieldChainTokens();
-                if (nodes.length == 0) {
-                    // skip empty
-                    continue;
-                }
-                if (nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                var firstNode = nodes.length == 0 ? "" : nodes[0].getIdentifier();
+                if (firstNode.startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
                     toAdd = fieldsToTest;
                     resultType = testedMethod.getType();
-                } else if (nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_ERROR)) {
+                } else if (firstNode.startsWith(TestMethodHelper.EXPECTED_ERROR)) {
                     toAdd = errorFieldsToTest;
                     resultType = new UserErrorOpenClass();
                 } else {
-                    // skip non-'_res_' and non-'_error_' columns
+                    // skip empty, non-'_res_' and non-'_error_' columns
                     continue;
                 }
                 var fieldPrecision = testTablePrecision;
@@ -412,36 +407,35 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     }
                 }
                 if (i == 0 || i == fieldSequence.length) {
-                    if (fieldSequence.length == 0) {
-                        if (columnDescriptor.isReference()) {
-                            if (resultType.isSimple() || resultType.isArray()) {
-                                toAdd.add(new ThisField(resultType));
-                            } else {
-                                toAdd.addAll(resultType.getFields());
-                            }
-                            continue;
+                    if (fieldSequence.length == 0 && columnDescriptor.isReference()) {
+                        if (resultType.isSimple() || resultType.isArray()) {
+                            toAdd.add(new ThisField(resultType));
                         } else {
+                            toAdd.addAll(resultType.getFields());
+                        }
+                    } else {
+                        if (fieldSequence.length == 0) {
                             fieldSequence = new IOpenField[]{new ThisField(resultType)};
                         }
-                    }
-                    if (fieldPrecision != null) {
-                        toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
-                    } else {
-                        if (fieldSequence.length > 1) {
-                            var hasNull = false;
-                            for (IOpenField field : fieldSequence) {
-                                if (field == null) {
-                                    hasNull = true;
-                                    break;
-                                }
-                            }
-                            if (!hasNull) {
-                                toAdd.add(new FieldChain(currentType, fieldSequence));
-                            }
+                        if (fieldPrecision != null) {
+                            toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
                         } else {
-                            var field = fieldSequence[0];
-                            if (field != null) {
-                                toAdd.add(field);
+                            if (fieldSequence.length > 1) {
+                                var hasNull = false;
+                                for (IOpenField field : fieldSequence) {
+                                    if (field == null) {
+                                        hasNull = true;
+                                        break;
+                                    }
+                                }
+                                if (!hasNull) {
+                                    toAdd.add(new FieldChain(currentType, fieldSequence));
+                                }
+                            } else {
+                                var field = fieldSequence[0];
+                                if (field != null) {
+                                    toAdd.add(field);
+                                }
                             }
                         }
                     }

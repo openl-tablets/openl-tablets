@@ -13,6 +13,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCol;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCols;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRow;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorksheet;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 @Slf4j
@@ -130,12 +131,7 @@ public final class XSSFOptimizer {
             }
 
             // Rows + cells: <sheetData><row s="..."><c s="..."/></row></sheetData>
-            var sheetData = sheet.getCTWorksheet().getSheetData();
-            if (sheetData == null) {
-                continue;
-            }
-
-            for (CTRow row : sheetData.getRowList()) {
+            for (CTRow row : getRows(sheet.getCTWorksheet())) {
                 if (row.isSetS()) {
                     markUsedIndex(used, (int) row.getS());
                 }
@@ -178,12 +174,7 @@ public final class XSSFOptimizer {
             }
 
             // Rows + cells
-            var sheetData = sheet.getCTWorksheet().getSheetData();
-            if (sheetData == null) {
-                continue;
-            }
-
-            for (CTRow row : sheetData.getRowList()) {
+            for (CTRow row : getRows(sheet.getCTWorksheet())) {
                 if (row.isSetS()) {
                     row.setS(remapIndexOrDefault(map, (int) row.getS()));
                 }
@@ -198,6 +189,14 @@ public final class XSSFOptimizer {
         // Replace list content in-place.
         cellXfs.clear();
         cellXfs.addAll(newCellXfs);
+    }
+
+    /**
+     * Returns the rows of a worksheet: none when it has no {@code <sheetData>}.
+     */
+    private static List<CTRow> getRows(CTWorksheet worksheet) {
+        var sheetData = worksheet.getSheetData();
+        return sheetData == null ? List.of() : sheetData.getRowList();
     }
 
     /**

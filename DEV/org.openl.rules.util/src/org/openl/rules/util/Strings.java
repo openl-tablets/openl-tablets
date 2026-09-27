@@ -746,10 +746,7 @@ public final class Strings {
         var sb = new StringBuilder();
         var i = 0;
         for (Object o : values) {
-            if (o == null) {
-                continue;
-            }
-            String str = String.valueOf(o);
+            String str = o == null ? null : String.valueOf(o);
             if (isEmpty0(str)) {
                 continue;
             }

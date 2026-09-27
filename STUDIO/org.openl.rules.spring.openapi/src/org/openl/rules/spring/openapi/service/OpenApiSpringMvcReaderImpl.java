@@ -253,10 +253,8 @@ public class OpenApiSpringMvcReaderImpl {
         var formRequest = methodInfo.isFormRequest();
         for (MethodParameter methodParameter : methodParameters) {
             var parameterInfo = new ParameterInfo(methodInfo, methodParameter, idx++);
-            if (parameterInfo.getParameter() != null && parameterInfo.getParameter().hidden()) {
-                continue;
-            }
-            if (OpenApiUtils.isIgnorableType(parameterInfo.getType())) {
+            if (parameterInfo.getParameter() != null && parameterInfo.getParameter().hidden()
+                    || OpenApiUtils.isIgnorableType(parameterInfo.getType())) {
                 continue;
             }
             var reqPart = parameterInfo.getParameterAnnotation(RequestPart.class);

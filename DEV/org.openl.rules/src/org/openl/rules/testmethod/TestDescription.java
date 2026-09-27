@@ -191,23 +191,23 @@ public class TestDescription {
         if (dataModel != null) {
             for (var colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
                 var columnDescriptor = dataModel.getDescriptor(colNum);
-                if (columnDescriptor == null) {
-                    continue;
-                }
-                var fieldChainTokens = columnDescriptor.getFieldChainTokens();
-                if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
-                    // Found first column descriptor for needed parameter
-                    if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
-                        foreignKeyField = descriptor.getForeignKeyField(type, db);
-                    } else {
-                        // Test data is described in the current Test Table
-                        if (fieldChainTokens.length > 1) {
-                            // The field of a complex bean
-                            var fieldName = fieldChainTokens[fieldChainTokens.length - 1];
-                            foreignKeyField = type.getField(fieldName.getIdentifier());
+                if (columnDescriptor != null) {
+                    var fieldChainTokens = columnDescriptor.getFieldChainTokens();
+                    if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
+                        // Found first column descriptor for needed parameter
+                        if (columnDescriptor.isReference()
+                                && columnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
+                            foreignKeyField = descriptor.getForeignKeyField(type, db);
+                        } else {
+                            // Test data is described in the current Test Table
+                            if (fieldChainTokens.length > 1) {
+                                // The field of a complex bean
+                                var fieldName = fieldChainTokens[fieldChainTokens.length - 1];
+                                foreignKeyField = type.getField(fieldName.getIdentifier());
+                            }
                         }
+                        break;
                     }
-                    break;
                 }
             }
         }

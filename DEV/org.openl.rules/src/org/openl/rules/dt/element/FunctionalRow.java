@@ -462,14 +462,11 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
 
         for (var j = 0; j < paramDecl.length; j++) {
-            if (paramDecl[j] == null) {
+            if (paramDecl[j] == null || paramDecl[j].getType() == NullOpenClass.the) {
                 continue;
             }
 
             var paramType = paramDecl[j].getType();
-            if (paramType == NullOpenClass.the) {
-                continue;
-            }
 
             var gridHeight = paramsTable.getRow(j).getSource().getHeight();
             var singleParamGridTable = paramGridColumn.getRows(fromHeight, fromHeight + gridHeight - 1);

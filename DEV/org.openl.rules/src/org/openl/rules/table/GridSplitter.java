@@ -117,13 +117,8 @@ public class GridSplitter {
 
             for (var col = grid.getMinColumnIndex(row); col < ncells; col++) {
 
-                // check if this cell was used
-                if (cellIsUsed(col, row)) {
-                    continue;
-                }
-
-                // skip empty cell
-                if (grid.isEmpty(col, row)) {
+                // skip the cells that were used and empty cells
+                if (cellIsUsed(col, row) || grid.isEmpty(col, row)) {
                     continue;
                 }
 

@@ -290,26 +290,23 @@ final class Comparators {
         List<String> missed = new ArrayList<>();
         for (String raw : spec.split("\n")) {
             String line = raw.trim();
-            if (line.isEmpty()) {
-                continue;
-            }
             if (line.equals("*")) {
                 allowExtra = true;
-                continue;
+            } else if (!line.isEmpty()) {
+                int eq = line.indexOf('=');
+                String nameGlob = (eq < 0 ? line : line.substring(0, eq)).trim();
+                String contentGlob = eq < 0 ? null : line.substring(eq + 1).trim();
+                String nameRegExp = patternToRegexp(nameGlob);
+                String matchedKey = actualEntries.keySet().stream()
+                        .filter(key -> key.matches(nameRegExp))
+                        .findFirst()
+                        .orElse(null);
+                if (matchedKey == null) {
+                    missed.add(nameGlob);
+                } else {
+                    assertZipEntryContent(subject + " > " + matchedKey, actualEntries.remove(matchedKey), contentGlob);
+                }
             }
-            int eq = line.indexOf('=');
-            String nameGlob = (eq < 0 ? line : line.substring(0, eq)).trim();
-            String contentGlob = eq < 0 ? null : line.substring(eq + 1).trim();
-            String nameRegExp = patternToRegexp(nameGlob);
-            String matchedKey = actualEntries.keySet().stream()
-                    .filter(key -> key.matches(nameRegExp))
-                    .findFirst()
-                    .orElse(null);
-            if (matchedKey == null) {
-                missed.add(nameGlob);
-                continue;
-            }
-            assertZipEntryContent(subject + " > " + matchedKey, actualEntries.remove(matchedKey), contentGlob);
         }
         failOnEntries(subject, missed, allowExtra ? Set.of() : actualEntries.keySet());
     }

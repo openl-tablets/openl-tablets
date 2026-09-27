@@ -99,26 +99,15 @@ public class XlsWorkbookMerger implements Closeable {
             var theirMatchRes = theirToBase.get(sheetName);
             DiffStatus diffDecision;
             if (ourMatchRes != null && ourMatchRes == theirMatchRes) {
-                switch (ourMatchRes) {
-                    case EQUAL -> {
-                        // no changes for both workbooks
-                        continue;
-                    }
-                    case REMOVED -> {
-                        // sheet was removed for both workbooks
-                        continue;
-                    }
-                    default -> {
-                        var hasChanges = XlsSheetsMatcher.hasChanges(ourWorkbook,
+                // no changes for both workbooks, sheet was removed for both workbooks, or the same changes in both
+                if (ourMatchRes == XlsMatch.EQUAL || ourMatchRes == XlsMatch.REMOVED
+                        || !XlsSheetsMatcher.hasChanges(ourWorkbook,
                                 ourWorkbook.getSheet(sheetName),
                                 theirWorkbook,
-                                theirWorkbook.getSheet(sheetName));
-                        if (!hasChanges) {
-                            continue;
-                        }
-                        diffDecision = DiffStatus.CONFLICT;
-                    }
+                                theirWorkbook.getSheet(sheetName))) {
+                    continue;
                 }
+                diffDecision = DiffStatus.CONFLICT;
             } else {
                 if (ourMatchRes == XlsMatch.EQUAL) {
                     diffDecision = DiffStatus.THEIR;
@@ -157,23 +146,12 @@ public class XlsWorkbookMerger implements Closeable {
             var theirMatchRes = theirToBase.get(cIdx);
             DiffStatus diffDecision;
             if (ourMatchRes == theirMatchRes) {
-                switch (ourMatchRes) {
-                    case EQUAL -> {
-                        // no changes for both workbooks
-                        continue;
-                    }
-                    case REMOVED -> {
-                        // sheet was removed for both workbooks
-                        continue;
-                    }
-                    default -> {
-                        var match = ourToTheir.get(cIdx);
-                        if (match == XlsMatch.EQUAL) {
-                            continue;
-                        }
-                        diffDecision = DiffStatus.CONFLICT;
-                    }
+                // no changes for both workbooks, color was removed for both workbooks, or the same changes in both
+                if (ourMatchRes == XlsMatch.EQUAL || ourMatchRes == XlsMatch.REMOVED
+                        || ourToTheir.get(cIdx) == XlsMatch.EQUAL) {
+                    continue;
                 }
+                diffDecision = DiffStatus.CONFLICT;
             } else {
                 if (ourMatchRes == XlsMatch.EQUAL) {
                     diffDecision = DiffStatus.THEIR;

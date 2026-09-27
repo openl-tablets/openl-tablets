@@ -156,15 +156,15 @@ class FullClassnameSupport {
                 } catch (Exception | LinkageError e) {
                     return ret;
                 }
-                if (f != null) {
-                    type = f.getType();
-                    ret++;
-                    continue;
-                } else if (j == identifierChain.size() - 1
-                        && type.getMethods().stream().anyMatch(e -> e.getName().equals(part))) {
-                    return identifierChain.size();
+                if (f == null) {
+                    if (j == identifierChain.size() - 1
+                            && type.getMethods().stream().anyMatch(e -> e.getName().equals(part))) {
+                        return identifierChain.size();
+                    }
+                    break;
                 }
-                break;
+                type = f.getType();
+                ret++;
             }
         }
         return ret;

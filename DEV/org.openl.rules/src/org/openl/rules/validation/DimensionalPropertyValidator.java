@@ -61,12 +61,11 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
                             if (OverlapState.NOT_OVERLAP == overlapState) {
                                 break;
                             }
-                            if (usedKeys.contains(propKey)) {
-                                continue;
+                            if (!usedKeys.contains(propKey)) {
+                                var prop = propertiesA.get(propKey);
+                                var p = propertiesB.get(propKey);
+                                overlapState = loopInternal(overlapState, vResult, propKey, prop, p);
                             }
-                            var prop = propertiesA.get(propKey);
-                            var p = propertiesB.get(propKey);
-                            overlapState = loopInternal(overlapState, vResult, propKey, prop, p);
                         }
 
                         if (overlapState == OverlapState.OVERLAP) {

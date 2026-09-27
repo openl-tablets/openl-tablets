@@ -123,7 +123,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 signatureCode1 = StringUtils.EMPTY;
             }
             final var signatureCode = signatureCode1;
-            var finished = false;
             var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.secure().next(16, true, false) + "(";
             var headerCode = prefix + signatureCode + ")";
             IOpenMethodHeader header;
@@ -153,106 +152,152 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     .getSubtable(tableStructure[headerIndexes[EXPRESSION_INDEX]], i, 1, 1);
             var expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
 
-            var j = 0;
-            var j1 = 0;
-            var parameters = new HashMap<String, List<IParameterDeclaration>>();
-            List<IParameterDeclaration> parametersForMergedTitle = new ArrayList<>();
-            var uniqueSetOfParameters = new HashSet<String>();
-            var uniqueSetOfTitles = new HashSet<String>();
-            String title = null;
-            Boolean singleParameter = null;
-            GridCellSourceCodeModule pGridCellSourceCodeModule = null;
-            var d = expressionTable.getCell(0, 0).getHeight();
-            while (j < d) {
-                if (pGridCellSourceCodeModule != null && parametersForMergedTitle
-                        .size() == 1 && parametersForMergedTitle.getFirst() == null) {
-                    var errMsg = PARAMETER_CELL_FORMAT;
-                    BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
-                    finished = true;
-                    break;
-                }
-                var pCodeTable = tableBody1.getSource()
-                        .getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], i + j, 1, 1);
-                if (singleParameter == null) {
-                    singleParameter = j + pCodeTable.getCell(0, 0).getHeight() >= d;
-                }
-                pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, bindingContext);
-
-                IParameterDeclaration parameterDeclaration = null;
-                var code = pGridCellSourceCodeModule.getCode();
-                if (StringUtils.isNotBlank(code)) {
-                    parameterDeclaration = OpenLManager
-                            .makeParameterDeclaration(openl, pGridCellSourceCodeModule, bindingContext);
-                    if (parameterDeclaration == null) {
-                        var errMsg = PARAMETER_CELL_FORMAT;
-                        BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
-                        finished = true;
-                        break;
-                    }
-                }
-
-                if (!parametersForMergedTitle.isEmpty() && parameterDeclaration == null) {
-                    var errMsg = PARAMETER_CELL_FORMAT;
-                    BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
-                    finished = true;
-                    break;
-                }
-
-                parametersForMergedTitle.add(parameterDeclaration);
-                if (parameterDeclaration != null) {
-                    if (parameterDeclaration.getName() != null) {
-                        if (uniqueSetOfParameters.contains(parameterDeclaration.getName())) {
-                            var errorMessage = "Parameter '" + parameterDeclaration
-                                    .getName() + "' is already defined.";
-                            BindHelper.processError(errorMessage, pGridCellSourceCodeModule, bindingContext);
-                            finished = true;
-                            break;
-                        }
-                        uniqueSetOfParameters.add(parameterDeclaration.getName());
-                    }
-                    if (!bindingContext.isExecutionMode()) {
-                        var parameterCell = tableBody1.getSource()
-                                .getCell(tableStructure1[headerIndexes1[PARAMETER_INDEX]], i + j);
-                        addMetaInfoForParameter(parameterDeclaration, parameterCell);
-                    }
-                }
-
-                if (j1 <= j) {
-                    var tCodeTable = tableBody1.getSource()
-                            .getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], i + j, 1, 1);
-                    var title1 = tCodeTable.getCell(0, 0).getStringValue();
-                    if (StringUtils.isEmpty(title1)) {
-                        var tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
-                                bindingContext);
-                        BindHelper.processError("Title cannot be empty.", tGridCellSourceCodeModule, bindingContext);
-                        finished = true;
-                        break;
-                    }
-                    title = OpenLFuzzyUtils.toTokenString(title1);
-                    if (uniqueSetOfTitles.contains(title)) {
-                        var tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
-                                bindingContext);
-                        BindHelper.processError("Title '" + title1 + "' is already defined.",
-                                tGridCellSourceCodeModule,
-                                bindingContext);
-                        finished = true;
-                        break;
-                    }
-                    uniqueSetOfTitles.add(title);
-                    j1 = j1 + tCodeTable.getCell(0, 0).getHeight();
-                }
-
-                j = j + pCodeTable.getCell(0, 0).getHeight();
-                if (j1 <= j || j >= d) {
-                    parameters.put(title, parametersForMergedTitle);
-                    parametersForMergedTitle = new ArrayList<>();
-                }
-            }
-            if (!finished && header != null) {
+            var parameters = readParameters(tableBody1,
+                    tableStructure1,
+                    headerIndexes1,
+                    i,
+                    expressionTable.getCell(0, 0).getHeight());
+            if (parameters != null && header != null) {
                 createAndAddDefinition(header, parameters, expressionTable, expressionCell);
             }
             i = i + expressionTable.getCell(0, 0).getHeight();
         }
+    }
+
+    /**
+     * Reads the parameters of the definition that spans the given rows. The parameters are grouped by the titles they
+     * are listed under.
+     * <p>
+     * A blank parameter cell is allowed only as the single parameter of its title.
+     *
+     * @param row    the first row of the definition
+     * @param height the number of rows the definition spans
+     * @return the parameters by title, or {@code null} when a parameter or a title is invalid and the error is reported
+     */
+    private Map<String, List<IParameterDeclaration>> readParameters(ILogicalTable tableBody,
+                                                                   int[] tableStructure,
+                                                                   int[] headerIndexes,
+                                                                   int row,
+                                                                   int height) {
+        var j = 0;
+        var j1 = 0;
+        var parameters = new HashMap<String, List<IParameterDeclaration>>();
+        List<IParameterDeclaration> parametersForMergedTitle = new ArrayList<>();
+        var uniqueSetOfParameters = new HashSet<String>();
+        var uniqueSetOfTitles = new HashSet<String>();
+        String title = null;
+        Boolean singleParameter = null;
+        while (j < height) {
+            var pCodeTable = tableBody.getSource()
+                    .getSubtable(tableStructure[headerIndexes[PARAMETER_INDEX]], row + j, 1, 1);
+            if (singleParameter == null) {
+                singleParameter = j + pCodeTable.getCell(0, 0).getHeight() >= height;
+            }
+            var pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, bindingContext);
+            if (!readParameter(pGridCellSourceCodeModule,
+                    parametersForMergedTitle,
+                    uniqueSetOfParameters,
+                    tableBody.getSource(),
+                    tableStructure[headerIndexes[PARAMETER_INDEX]],
+                    row + j)) {
+                return null;
+            }
+
+            if (j1 <= j) {
+                var tCodeTable = tableBody.getSource()
+                        .getSubtable(tableStructure[headerIndexes[TITLE_INDEX]], row + j, 1, 1);
+                title = readTitle(tCodeTable, uniqueSetOfTitles);
+                if (title == null) {
+                    return null;
+                }
+                j1 = j1 + tCodeTable.getCell(0, 0).getHeight();
+            }
+
+            j = j + pCodeTable.getCell(0, 0).getHeight();
+            if (j1 <= j || j >= height) {
+                parameters.put(title, parametersForMergedTitle);
+                parametersForMergedTitle = new ArrayList<>();
+            } else if (parametersForMergedTitle.size() == 1 && parametersForMergedTitle.getFirst() == null) {
+                // The title spans the next rows too, so its blank parameter cell is not the only one
+                BindHelper.processError(PARAMETER_CELL_FORMAT, pGridCellSourceCodeModule, bindingContext);
+                return null;
+            }
+        }
+        return parameters;
+    }
+
+    /**
+     * Reads the parameter declared in a cell of the parameter column and adds it to the parameters of the current
+     * title. A blank cell adds a {@code null} parameter.
+     *
+     * @return {@code false} when the parameter is invalid and the error is reported
+     */
+    private boolean readParameter(GridCellSourceCodeModule pGridCellSourceCodeModule,
+                                  List<IParameterDeclaration> parametersForMergedTitle,
+                                  Set<String> uniqueSetOfParameters,
+                                  IGridTable grid,
+                                  int column,
+                                  int row) {
+        IParameterDeclaration parameterDeclaration = null;
+        var code = pGridCellSourceCodeModule.getCode();
+        if (StringUtils.isNotBlank(code)) {
+            parameterDeclaration = OpenLManager
+                    .makeParameterDeclaration(openl, pGridCellSourceCodeModule, bindingContext);
+            if (parameterDeclaration == null) {
+                BindHelper.processError(PARAMETER_CELL_FORMAT, pGridCellSourceCodeModule, bindingContext);
+                return false;
+            }
+        }
+
+        if (!parametersForMergedTitle.isEmpty() && parameterDeclaration == null) {
+            BindHelper.processError(PARAMETER_CELL_FORMAT, pGridCellSourceCodeModule, bindingContext);
+            return false;
+        }
+
+        parametersForMergedTitle.add(parameterDeclaration);
+        if (parameterDeclaration != null) {
+            if (parameterDeclaration.getName() != null) {
+                if (uniqueSetOfParameters.contains(parameterDeclaration.getName())) {
+                    var errorMessage = "Parameter '" + parameterDeclaration
+                            .getName() + "' is already defined.";
+                    BindHelper.processError(errorMessage, pGridCellSourceCodeModule, bindingContext);
+                    return false;
+                }
+                uniqueSetOfParameters.add(parameterDeclaration.getName());
+            }
+            if (!bindingContext.isExecutionMode()) {
+                var parameterCell = grid.getCell(column, row);
+                addMetaInfoForParameter(parameterDeclaration, parameterCell);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Reads the title from a cell of the title column.
+     *
+     * @return the title in its token form, or {@code null} when the title is empty or already defined and the error
+     * is reported
+     */
+    private String readTitle(IGridTable tCodeTable, Set<String> uniqueSetOfTitles) {
+        var title1 = tCodeTable.getCell(0, 0).getStringValue();
+        if (StringUtils.isEmpty(title1)) {
+            var tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
+                    bindingContext);
+            BindHelper.processError("Title cannot be empty.", tGridCellSourceCodeModule, bindingContext);
+            return null;
+        }
+        var title = OpenLFuzzyUtils.toTokenString(title1);
+        if (uniqueSetOfTitles.contains(title)) {
+            var tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable,
+                    bindingContext);
+            BindHelper.processError("Title '" + title1 + "' is already defined.",
+                    tGridCellSourceCodeModule,
+                    bindingContext);
+            return null;
+        }
+        uniqueSetOfTitles.add(title);
+        return title;
     }
 
     @Override

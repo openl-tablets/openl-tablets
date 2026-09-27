@@ -60,20 +60,16 @@ class ParameterExport extends BaseParameterExport {
                             param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
                             styles.header));
                 }
-                continue;
-            }
-
-            if (fields == null || fields.isEmpty()) {
+            } else if (fields == null || fields.isEmpty()) {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), param.getName(), styles.header));
-                continue;
-            }
+            } else {
+                var prefix = param.getName() + ".";
+                if (hasPK) {
+                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++), prefix + "_PK_", styles.header));
+                }
 
-            var prefix = param.getName() + ".";
-            if (hasPK) {
-                tasks.add(new WriteTask(new Cursor(rowNum, colNum++), prefix + "_PK_", styles.header));
+                colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix, param);
             }
-
-            colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix, param);
 
         }
 
@@ -158,34 +154,33 @@ class ParameterExport extends BaseParameterExport {
                 var fields = nonEmptyFields.get(p);
                 if (fields == null) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++), value, styles.parameterValue, maxHeight));
-                    continue;
-                }
+                } else {
+                    // _PK_
+                    if (isHasPK(parameter)) {
+                        var keyField = parameter.getKeyField();
+                        Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
 
-                // _PK_
-                if (isHasPK(parameter)) {
-                    var keyField = parameter.getKeyField();
-                    Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
-
-                    if (id != null && id.getClass().isArray()) {
-                        var pkRow = rowNum;
-                        var count = Array.getLength(id);
-                        for (var i = 0; i < count; i++) {
-                            var height = getRowHeight(Array.get(value, i), fields);
-                            tasks.add(new WriteTask(new Cursor(pkRow, colNum),
-                                    Array.get(id, i),
-                                    styles.parameterValue,
-                                    height));
-                            pkRow += height;
+                        if (id != null && id.getClass().isArray()) {
+                            var pkRow = rowNum;
+                            var count = Array.getLength(id);
+                            for (var i = 0; i < count; i++) {
+                                var height = getRowHeight(Array.get(value, i), fields);
+                                tasks.add(new WriteTask(new Cursor(pkRow, colNum),
+                                        Array.get(id, i),
+                                        styles.parameterValue,
+                                        height));
+                                pkRow += height;
+                            }
+                        } else {
+                            tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, maxHeight));
                         }
-                    } else {
-                        tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, maxHeight));
+                        colNum++;
                     }
-                    colNum++;
-                }
 
-                // Actual fields
-                addValueTasks(tasks, new Cursor(rowNum, colNum), fields, value, maxHeight);
-                colNum += getFieldWidth(fields);
+                    // Actual fields
+                    addValueTasks(tasks, new Cursor(rowNum, colNum), fields, value, maxHeight);
+                    colNum += getFieldWidth(fields);
+                }
             }
 
             var cursor = performWrite(sheet, new Cursor(rowNum, FIRST_COLUMN), tasks, lastColNum);

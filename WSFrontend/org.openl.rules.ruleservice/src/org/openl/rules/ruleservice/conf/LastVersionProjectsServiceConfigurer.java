@@ -72,34 +72,34 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                 var projectName = project.getName();
                 try {
                     var pd = ruleServiceLoader.resolveProject(deploymentName, deploymentVersion, projectName);
-                    if (pd == null) {
-                        // Not an OpenL project
-                        continue;
-                    }
-                    Collection<Module> modulesOfProject = pd.getModules();
-                    var serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
-                            .setProvideRuntimeContext(isProvideRuntimeContext())
-                            .setPublishers(defaultPublishers)
-                            .setDeployment(deploymentDescription);
+                    // A project without a descriptor is not an OpenL project
+                    if (pd != null) {
+                        Collection<Module> modulesOfProject = pd.getModules();
+                        var serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
+                                .setProvideRuntimeContext(isProvideRuntimeContext())
+                                .setPublishers(defaultPublishers)
+                                .setDeployment(deploymentDescription);
 
-                    serviceDescriptionBuilder.setModules(modulesOfProject);
-                    serviceDescriptionBuilder.setProjectDescriptor(pd);
-                    var resourceLoader = new ResourceLoaderImpl(project);
-                    serviceDescriptionBuilder.setResourceLoader(resourceLoader);
-                    var rulesDeploy = applyRulesDeploy(project, serviceDescriptionBuilder);
-                    serviceDescriptionBuilder.setManifest(readManifestFile(project));
-                    serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
-                    serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
-                    serviceDescriptionBuilder.setServicePath(ruleServiceLoader.getLogicalProjectFolder(project.getFolderPath()));
-                    var serviceDescription = serviceDescriptionBuilder.build();
+                        serviceDescriptionBuilder.setModules(modulesOfProject);
+                        serviceDescriptionBuilder.setProjectDescriptor(pd);
+                        var resourceLoader = new ResourceLoaderImpl(project);
+                        serviceDescriptionBuilder.setResourceLoader(resourceLoader);
+                        var rulesDeploy = applyRulesDeploy(project, serviceDescriptionBuilder);
+                        serviceDescriptionBuilder.setManifest(readManifestFile(project));
+                        serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
+                        serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
+                        serviceDescriptionBuilder
+                                .setServicePath(ruleServiceLoader.getLogicalProjectFolder(project.getFolderPath()));
+                        var serviceDescription = serviceDescriptionBuilder.build();
 
-                    if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
-                        serviceDescriptions.add(serviceDescription);
-                    } else {
-                        if (serviceDescriptions.contains(serviceDescription)) {
-                            log.error(
-                                    "Service '{}' already exists in the deployment list.",
-                                    serviceDescription.getDeployPath());
+                        if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
+                            serviceDescriptions.add(serviceDescription);
+                        } else {
+                            if (serviceDescriptions.contains(serviceDescription)) {
+                                log.error(
+                                        "Service '{}' already exists in the deployment list.",
+                                        serviceDescription.getDeployPath());
+                            }
                         }
                     }
                 } catch (Exception e) {

@@ -122,16 +122,7 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
         var patterns = new LinkedHashSet<String>();
         for (var regexp : regexps) {
             var parsed = ParsedPattern.parse(regexp);
-            Pattern pattern;
-            try {
-                pattern = Pattern.compile(parsed.regex());
-            } catch (PatternSyntaxException e) {
-                continue; // the legacy runtime could never apply such a pattern either
-            }
-            var matched = methods.stream()
-                    .filter(m -> pattern.matcher(m.signature()).matches())
-                    .map(MethodView::name)
-                    .collect(Collectors.toSet());
+            var matched = matchedNames(parsed.regex(), methods);
             if (matched.isEmpty()) {
                 continue; // matches nothing in the built project — the pattern just disappears
             }
@@ -152,6 +143,23 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
         return patterns.stream()
                 .filter(p -> patterns.stream().noneMatch(other -> covers(other, p)))
                 .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    /**
+     * Returns the names of the methods whose signatures the regexp matches. A regexp that does not compile matches
+     * nothing.
+     */
+    private static Set<String> matchedNames(String regex, List<MethodView> methods) {
+        Pattern pattern;
+        try {
+            pattern = Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
+            return Set.of(); // the legacy runtime could never apply such a pattern either
+        }
+        return methods.stream()
+                .filter(m -> pattern.matcher(m.signature()).matches())
+                .map(MethodView::name)
+                .collect(Collectors.toSet());
     }
 
     /** Method names the produced pattern selects under the runtime's own glob matching. */

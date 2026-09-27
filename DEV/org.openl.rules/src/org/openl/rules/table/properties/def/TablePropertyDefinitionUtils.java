@@ -300,13 +300,9 @@ public final class TablePropertyDefinitionUtils {
             var v2 = properties2.get(key);
             if (v1 == null && properties2.containsKey(key)) {
                 mergedGlobalProperties.put(key, v2);
-                continue;
-            }
-            if (v2 == null && properties1.containsKey(key)) {
+            } else if (v2 == null && properties1.containsKey(key)) {
                 mergedGlobalProperties.put(key, v1);
-                continue;
-            }
-            if (!Objects.equals(v1, v2)) {
+            } else if (!Objects.equals(v1, v2)) {
                 Object defaultValue = getDefaultValueForProperty(key);
                 if (Objects.equals(defaultValue, v1)) {
                     mergedGlobalProperties.put(key, v2);

@@ -48,10 +48,9 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
                 continue;
             }
             var key = condition.getParamValue(0, ruleN);
-            if (key == null || !set.add(key)) {
-                continue;
+            if (key != null && set.add(key)) {
+                list.add(key);
             }
-            list.add(key);
         }
 
         return new EnumDomain<>(list.toArray());

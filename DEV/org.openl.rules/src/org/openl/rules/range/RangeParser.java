@@ -251,25 +251,21 @@ public class RangeParser {
         if (!Character.isWhitespace(text.charAt(sepLeft + 1)) || !Character.isWhitespace(text.charAt(index))) {
             // try to find more suitable separator surrounded with spaces
             index = sepRight - 1;
-            while (index < last) {
+            // a negative index means that no more separators are found
+            while (index >= 0 && index < last) {
                 index = findSep(text, index, last);
-                if (index < 0) {
-                    // not found
-                    break;
-                }
-                if (!Character.isWhitespace(text.charAt(index - 1))) {
-                    // no prefixed whitespace
-                    continue;
-                }
-                var prev = index;
-                Separator sep2 = Separator.recognize(text, index);
-                index += sep2.length();
-                if (index < last && Character.isWhitespace(text.charAt(index))) {
-                    // found
-                    sep = sep2;
-                    sepLeft = prevNonSpace(text, first, prev - 1);
-                    sepRight = nextNonSpace(text, index, last);
-                    break;
+                // only a separator with a prefixed whitespace
+                if (index >= 0 && Character.isWhitespace(text.charAt(index - 1))) {
+                    var prev = index;
+                    Separator sep2 = Separator.recognize(text, index);
+                    index += sep2.length();
+                    if (index < last && Character.isWhitespace(text.charAt(index))) {
+                        // found
+                        sep = sep2;
+                        sepLeft = prevNonSpace(text, first, prev - 1);
+                        sepRight = nextNonSpace(text, index, last);
+                        break;
+                    }
                 }
             }
         }

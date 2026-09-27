@@ -61,7 +61,8 @@ public class RulesInFolderTestRunner {
             log.warn("Test folder is not found.");
             return false;
         }
-        File[] files = testsDir.listFiles();
+        // Skip not a project files
+        File[] files = testsDir.listFiles(RulesInFolderTestRunner::isRulesSource);
         if (files == null) {
             log.warn("Test folder is not found.");
             return false;
@@ -71,54 +72,10 @@ public class RulesInFolderTestRunner {
             int messagesCount = 0;
             final long startTime = System.nanoTime();
             String sourceFile = file.getName();
-            CompiledOpenClass compiledOpenClass;
-            if (file.isFile() && (sourceFile.endsWith(".xlsx") || sourceFile.endsWith(".xls"))) {
-                try {
-                    new FileInputStream(file).close();
-                } catch (Exception ex) {
-                    error(messagesCount, startTime, sourceFile, "Failed to read the excel file.", ex);
-                    testsFailed = true;
-                    continue;
-                }
-
-                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(path + sourceFile);
-                engineFactory.setExecutionMode(executionMode);
-                compiledOpenClass = engineFactory.getCompiledOpenClass();
-            } else if (file.isDirectory()) {
-                File[] filesInFolder = file.listFiles();
-                boolean multiProject = filesInFolder != null && Arrays.stream(filesInFolder)
-                        .allMatch(File::isDirectory);
-                try {
-                    SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
-                    engineFactoryBuilder.setExecutionMode(executionMode);
-                    if (multiProject) {
-                        engineFactoryBuilder.setWorkspace(file.getPath());
-                        for (File f : filesInFolder) {
-                            if (Objects.equals(file.getName(), f.getName())) {
-                                engineFactoryBuilder.setProject(f.getPath());
-                                break;
-                            }
-                        }
-                    } else {
-                        engineFactoryBuilder.setProject(file.getPath());
-                    }
-                    SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
-                    compiledOpenClass = engineFactory.getCompiledOpenClass();
-                    compiledOpenClass = validate(compiledOpenClass,
-                            engineFactory.getProjectDescriptor(),
-                            engineFactory.getRulesInstantiationStrategy());
-                    if (!compiledOpenClass.hasErrors() && engineFactory.newInstance() == null) {
-                        // To cover interface generation functionality
-                        throw new IllegalStateException("Failed to create an instance of the rules engine.");
-                    }
-                } catch (Exception e) {
-                    error(messagesCount, startTime, sourceFile, "Compilation fails.", e);
-                    testsFailed = true;
-                    continue;
-                }
-            } else {
-                // Skip not a project files
-                continue;
+            CompiledOpenClass compiledOpenClass = file.isDirectory() ? compileProject(file, startTime)
+                    : compileWorkbook(path, file, startTime);
+            if (compiledOpenClass == null) {
+                testsFailed = true;
             }
 
             boolean success = true;
@@ -126,7 +83,8 @@ public class RulesInFolderTestRunner {
             // Check messages
             File msgFile = new File(testsDir, sourceFile + ".msg.txt");
             List<String> expectedMessages = new ArrayList<>();
-            if (msgFile.exists() && executionMode) {
+            if (compiledOpenClass == null || msgFile.exists() && executionMode) {
+                // Nothing to check when the compilation fails, and messages are not checked in the execution mode
                 continue;
             }
             if (msgFile.exists()) {
@@ -253,6 +211,73 @@ public class RulesInFolderTestRunner {
             }
         }
         return testsFailed;
+    }
+
+    /**
+     * Checks whether the file holds rules to compile: an Excel file or a project folder.
+     */
+    private static boolean isRulesSource(File file) {
+        String name = file.getName();
+        return file.isFile() && (name.endsWith(".xlsx") || name.endsWith(".xls")) || file.isDirectory();
+    }
+
+    /**
+     * Compiles the rules of an Excel file.
+     *
+     * @return the compiled rules, or {@code null} when the file cannot be read and the failure is reported
+     */
+    private CompiledOpenClass compileWorkbook(String path, File file, long startTime) {
+        String sourceFile = file.getName();
+        try {
+            new FileInputStream(file).close();
+        } catch (Exception ex) {
+            error(0, startTime, sourceFile, "Failed to read the excel file.", ex);
+            return null;
+        }
+
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(path + sourceFile);
+        engineFactory.setExecutionMode(executionMode);
+        return engineFactory.getCompiledOpenClass();
+    }
+
+    /**
+     * Compiles the rules of a project folder, or of the project of a workspace folder that holds only projects.
+     *
+     * @return the compiled rules, or {@code null} when the compilation fails and the failure is reported
+     */
+    private CompiledOpenClass compileProject(File file, long startTime) {
+        File[] filesInFolder = file.listFiles();
+        boolean multiProject = filesInFolder != null && Arrays.stream(filesInFolder)
+                .allMatch(File::isDirectory);
+        try {
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder =
+                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            engineFactoryBuilder.setExecutionMode(executionMode);
+            if (multiProject) {
+                engineFactoryBuilder.setWorkspace(file.getPath());
+                for (File f : filesInFolder) {
+                    if (Objects.equals(file.getName(), f.getName())) {
+                        engineFactoryBuilder.setProject(f.getPath());
+                        break;
+                    }
+                }
+            } else {
+                engineFactoryBuilder.setProject(file.getPath());
+            }
+            SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
+            CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
+            compiledOpenClass = validate(compiledOpenClass,
+                    engineFactory.getProjectDescriptor(),
+                    engineFactory.getRulesInstantiationStrategy());
+            if (!compiledOpenClass.hasErrors() && engineFactory.newInstance() == null) {
+                // To cover interface generation functionality
+                throw new IllegalStateException("Failed to create an instance of the rules engine.");
+            }
+            return compiledOpenClass;
+        } catch (Exception e) {
+            error(0, startTime, file.getName(), "Compilation fails.", e);
+            return null;
+        }
     }
 
     private void ok(long startTime, String sourceFile) {

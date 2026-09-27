@@ -482,16 +482,12 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
         for (FileItem resolvedFile : resolvedFiles) {
             var name = resolvedFile.getData().getName();
-            if (!FileTypeHelper.isExcelFile(name)) {
+            if (!FileTypeHelper.isExcelFile(name) || resolvedFile.getStream() == null) {
                 continue;
             }
 
-            if (resolvedFile.getStream() != null) {
-                var projectByPath = workspace.getProjectByPath(repositoryId, name);
-                if (projectByPath.isEmpty()) {
-                    continue;
-                }
-
+            var projectByPath = workspace.getProjectByPath(repositoryId, name);
+            if (projectByPath.isPresent()) {
                 var project = projectByPath.get();
                 var projectPath = project.getRealPath();
                 var rulesXmlFile = projectPath + "/rules.xml";

@@ -182,11 +182,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
             var obs = (Observer) _observers.elementAt(i);
             var master = obs.master();
 
-            if (master == null) {
-                continue;
-            }
-
-            if (dependendts.contains(master)) {
+            if (master == null || dependendts.contains(master)) {
                 continue;
             }
 

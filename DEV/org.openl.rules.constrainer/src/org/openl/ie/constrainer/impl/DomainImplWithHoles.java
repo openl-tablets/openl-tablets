@@ -112,18 +112,14 @@ public final class DomainImplWithHoles extends DomainImpl {
         // remove a hole
         while (!_values.isEmpty()) {
             var interval = (DomainInterval) _values.lastElement();
-            if (max < interval.from) {
-                _values.removeLast();
-                continue;
-            }
-
-            if (max >= interval.to) {
+            if (max >= interval.from) {
+                if (max < interval.to) {
+                    // (max >= interval.from && max < interval.to)
+                    interval.to = max;
+                }
                 break;
             }
-
-            // (max >= interval.from && max < interval.to)
-            interval.to = max;
-            break;
+            _values.removeLast();
         }
 
         var interval = (DomainInterval) _values.lastElement();
@@ -147,18 +143,14 @@ public final class DomainImplWithHoles extends DomainImpl {
         // remove hole
         while (!_values.isEmpty()) {
             var interval = (DomainInterval) _values.firstElement();
-            if (m > interval.to) {
-                _values.removeElementAt(0);
-                continue;
-            }
-
-            if (m <= interval.from) {
+            if (m <= interval.to) {
+                if (m > interval.from) {
+                    // (m > interval.from && m <= interval.to)
+                    interval.from = m;
+                }
                 break;
             }
-
-            // (m > interval.from && m <= interval.to)
-            interval.from = m;
-            break;
+            _values.removeElementAt(0);
         }
 
         var interval = (DomainInterval) _values.firstElement();

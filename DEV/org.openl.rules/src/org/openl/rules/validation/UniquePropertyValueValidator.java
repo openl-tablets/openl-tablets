@@ -56,21 +56,19 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 //
                 var value = methodProperties.getPropertyValue(propertyName);
 
-                if (value == null) {
-                    continue;
-                }
-
-                // Check that method with same property value does not exist. If
-                // method with the same property value exists then create/add
-                // validation error message else add current property value to list
-                // of processed values.
-                //
-                if (values.containsKey(value)) {
-                    values.get(value).add(method);
-                } else {
-                    var setOfExecutableRulesMethods = new HashSet<ExecutableRulesMethod>();
-                    setOfExecutableRulesMethods.add(method);
-                    values.put(value, setOfExecutableRulesMethods);
+                if (value != null) {
+                    // Check that method with same property value does not exist. If
+                    // method with the same property value exists then create/add
+                    // validation error message else add current property value to list
+                    // of processed values.
+                    //
+                    if (values.containsKey(value)) {
+                        values.get(value).add(method);
+                    } else {
+                        var setOfExecutableRulesMethods = new HashSet<ExecutableRulesMethod>();
+                        setOfExecutableRulesMethods.add(method);
+                        values.put(value, setOfExecutableRulesMethods);
+                    }
                 }
             }
         }

@@ -212,17 +212,9 @@ public class GridTool {
                 var cFrom = colFrom + i;
                 var rFrom = rowFrom + j;
                 if (isColumns) {
-                    if (grid.isTopLeftCellInMergedRegion(cFrom, rFrom)) {
-                        var cell = grid.getCell(cFrom, rFrom);
-                        if (cell.getHeight() > nRows || cell.getWidth() > nCols) {
-                            // Don't clear merged cells which are bigger than the cleaned region.
-                            continue;
-                        }
-                    } else if (grid.isPartOfTheMergedRegion(cFrom, rFrom)) {
-                        // Don't clear middle of the merged cells.
-                        continue;
+                    if (isClearable(grid, cFrom, rFrom, nCols, nRows)) {
+                        actions.add(new UndoableSetValueAction(cFrom, rFrom, null, metaInfoWriter));
                     }
-                    actions.add(new UndoableSetValueAction(cFrom, rFrom, null, metaInfoWriter));
                 } else {
                     var cTo = colTo + i;
                     var rTo = rowTo + j;
@@ -242,6 +234,19 @@ public class GridTool {
             }
         }
         return actions;
+    }
+
+    /**
+     * Checks whether the cell can be cleared within a region of the given size.
+     */
+    private static boolean isClearable(IGrid grid, int col, int row, int nCols, int nRows) {
+        if (grid.isTopLeftCellInMergedRegion(col, row)) {
+            var cell = grid.getCell(col, row);
+            // Don't clear merged cells which are bigger than the cleaned region.
+            return cell.getHeight() <= nRows && cell.getWidth() <= nCols;
+        }
+        // Don't clear middle of the merged cells.
+        return !grid.isPartOfTheMergedRegion(col, row);
     }
 
     /**

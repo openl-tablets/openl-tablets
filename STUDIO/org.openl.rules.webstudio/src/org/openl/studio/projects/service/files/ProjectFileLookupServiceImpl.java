@@ -201,15 +201,11 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             if (result.size() >= MAX_FILES_COUNT) {
                 break;
             }
-            String content = null;
-            if (includeContent) {
-                content = readContentQuietly(candidate);
-                if (content == null) {
-                    // Too large, missing, or unreadable — skip this one rather than fail the whole lookup.
-                    continue;
-                }
+            String content = includeContent ? readContentQuietly(candidate) : null;
+            // Content too large, missing, or unreadable — skip this one rather than fail the whole lookup.
+            if (!includeContent || content != null) {
+                result.add(toNode(candidate, content));
             }
-            result.add(toNode(candidate, content));
         }
         return result;
     }

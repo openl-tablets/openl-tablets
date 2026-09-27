@@ -571,27 +571,18 @@ public class OpenApiProjectValidator {
                                     actualParameter.getName());
                             if ("path".equalsIgnoreCase(actualParameter.getIn())) {
                                 var s = extractPathParameterName(context.getExpectedPath(), index);
-                                if (s != null && Objects.equals(s, expectedParameter.getName())) {
-                                    found = true;
-                                    validateParameter(context,
-                                            openMethod,
-                                            methodName,
-                                            actualParameter,
-                                            expectedParameter,
-                                            index);
-                                    break;
-                                }
+                                found = s != null && Objects.equals(s, expectedParameter.getName());
                             } else {
-                                if (Objects.equals(actualParameter.getName(), expectedParameter.getName())) {
-                                    found = true;
-                                    validateParameter(context,
-                                            openMethod,
-                                            methodName,
-                                            actualParameter,
-                                            expectedParameter,
-                                            index);
-                                    break;
-                                }
+                                found = Objects.equals(actualParameter.getName(), expectedParameter.getName());
+                            }
+                            if (found) {
+                                validateParameter(context,
+                                        openMethod,
+                                        methodName,
+                                        actualParameter,
+                                        expectedParameter,
+                                        index);
+                                break;
                             }
                         }
                     }
@@ -620,15 +611,12 @@ public class OpenApiProjectValidator {
                                             actualParameter.getIn(),
                                             actualParameter.getName());
                                     var s = extractPathParameterName(context.getExpectedPath(), index);
-                                    if (s != null && Objects.equals(s, expectedParameter.getName())) {
-                                        found = true;
-                                        break;
-                                    }
+                                    found = s != null && Objects.equals(s, expectedParameter.getName());
                                 } else {
-                                    if (Objects.equals(actualParameter.getName(), expectedParameter.getName())) {
-                                        found = true;
-                                        break;
-                                    }
+                                    found = Objects.equals(actualParameter.getName(), expectedParameter.getName());
+                                }
+                                if (found) {
+                                    break;
                                 }
                             }
                         }

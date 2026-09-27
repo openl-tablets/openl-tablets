@@ -162,18 +162,16 @@ public class TBasicVM {
             if (operationResult.getReturnType() == ReturnType.GOTO) {
                 assert operationResult.getValue() instanceof String;
                 operation = getLabeledOperation((String) operationResult.getValue());
-                continue;
             } else if (operationResult.getReturnType() == ReturnType.RETURN) {
-                returnResult = operationResult.getValue();
-                break;
-            }
-
-            operation = currentContext.getNextOperation(operation);
-            previousStepResult = operationResult.getValue();
-            if (previousStepResult != null) {
-                // store last not-null calculation result,
-                // if return is absent last calculation result will be returned
-                returnResult = previousStepResult;
+                return operationResult.getValue();
+            } else {
+                operation = currentContext.getNextOperation(operation);
+                previousStepResult = operationResult.getValue();
+                if (previousStepResult != null) {
+                    // store last not-null calculation result,
+                    // if return is absent last calculation result will be returned
+                    returnResult = previousStepResult;
+                }
             }
         }
         return returnResult;

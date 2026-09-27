@@ -122,23 +122,24 @@ public final class PomlessMojo extends AbstractMojo {
     private List<MavenProject> collectClassicOpenLProjects(Path anchorDir) {
         var result = new ArrayList<MavenProject>();
         for (var p : reactorProjects) {
-            if (p == project) {
-                continue;
+            if (isClassicOpenLProject(p, anchorDir)) {
+                result.add(p);
             }
-            if (!OpenLPackagings.isOpenL(p.getPackaging())) {
-                continue;
-            }
-            var file = p.getFile();
-            if (file == null || !file.isFile()) {
-                continue; // already pom-less (synthesised) — nothing to delete
-            }
-            var basedir = p.getBasedir();
-            if (basedir == null || !basedir.toPath().toAbsolutePath().normalize().startsWith(anchorDir)) {
-                continue;
-            }
-            result.add(p);
         }
         return result;
+    }
+
+    /** True for an OpenL project other than {@code ${project}} that still has its pom and lives under the anchor. */
+    private boolean isClassicOpenLProject(MavenProject p, Path anchorDir) {
+        if (p == project || !OpenLPackagings.isOpenL(p.getPackaging())) {
+            return false;
+        }
+        var file = p.getFile();
+        if (file == null || !file.isFile()) {
+            return false; // already pom-less (synthesised) — nothing to delete
+        }
+        var basedir = p.getBasedir();
+        return basedir != null && basedir.toPath().toAbsolutePath().normalize().startsWith(anchorDir);
     }
 
     // ----------------------------------------------------------------------------------------------
@@ -229,21 +230,22 @@ public final class PomlessMojo extends AbstractMojo {
             }
             var newDep = new ProjectDependencyDescriptor();
             newDep.setMavenArtifact(coords);
+            ProjectDependencyDescriptor match = null;
             if (OpenLPackagings.ZIP_DEPENDENCY_TYPE.equals(dep.getType())) {
                 // OpenL sibling: reuse the existing <name> entry when present, else append a fresh one with the
                 // sibling's logical <name> (falling back to the artifactId when it isn't in the reactor).
                 var name = lookupSiblingName(dep);
-                var match = findMatchingNameEntry(existing, name);
-                if (match != null) {
-                    match.setMavenArtifact(coords);
-                    merged++;
-                    continue;
-                }
+                match = findMatchingNameEntry(existing, name);
                 newDep.setName(name != null ? name : dep.getArtifactId());
             }
             // else: bare jar — a name-less <mavenArtifact> is treated as a plain jar on the classpath.
-            existing.add(newDep);
-            appended++;
+            if (match != null) {
+                match.setMavenArtifact(coords);
+                merged++;
+            } else {
+                existing.add(newDep);
+                appended++;
+            }
         }
         if (merged == 0 && appended == 0) {
             return;
@@ -273,13 +275,8 @@ public final class PomlessMojo extends AbstractMojo {
      */
     private String lookupSiblingName(Dependency dep) {
         for (var p : reactorProjects) {
-            if (p == project) {
-                continue;
-            }
-            if (!OpenLPackagings.isOpenL(p.getPackaging())) {
-                continue;
-            }
-            if (!dep.getGroupId().equals(p.getGroupId()) || !dep.getArtifactId().equals(p.getArtifactId())) {
+            if (p == project || !OpenLPackagings.isOpenL(p.getPackaging())
+                    || !dep.getGroupId().equals(p.getGroupId()) || !dep.getArtifactId().equals(p.getArtifactId())) {
                 continue;
             }
             var basedir = p.getBasedir();
@@ -397,10 +394,9 @@ public final class PomlessMojo extends AbstractMojo {
                 continue; // skipped earlier (no ancestor pom)
             }
             var anchor = collapseAnchorOf(planDir(plan), reactorByDir, passThroughDirs, anchorDir, new HashSet<>());
-            if (anchor == null) {
-                continue;
+            if (anchor != null) {
+                convByAnchor.computeIfAbsent(anchor, a -> new ArrayList<>()).add(plan);
             }
-            convByAnchor.computeIfAbsent(anchor, a -> new ArrayList<>()).add(plan);
         }
         // Reconcile <dependenciesThreshold> per anchor across all OpenL projects under it (convertible +
         // blocked) — the max value never fails a stricter project that stays classic.
@@ -446,12 +442,12 @@ public final class PomlessMojo extends AbstractMojo {
         for (var entry : leafToCollapseAnchor.entrySet()) {
             var leaf = entry.getKey();
             var collapseAnchor = entry.getValue();
-            if (leaf.groupId() == null) {
-                continue;
-            }
             var flatten = flattenByAnchor.get(collapseAnchor);
-            if (leaf.groupId().equals(installedGroupId(collapseAnchor, flatten, planDir(leaf)))) {
-                continue; // already preserved by the heuristic's chosen flatten — no conflict
+            // a leaf without a groupId, or whose groupId the heuristic's chosen flatten already preserves, has no
+            // conflict
+            if (leaf.groupId() == null
+                    || leaf.groupId().equals(installedGroupId(collapseAnchor, flatten, planDir(leaf)))) {
+                continue;
             }
             var subAnchor = findPreservingSubAnchor(leaf, collapseAnchor, reactorByDir, passThroughDirs, anchorDir);
             if (subAnchor != null) {
@@ -481,24 +477,20 @@ public final class PomlessMojo extends AbstractMojo {
                                                 Path anchorDir) {
         var collapseDir = collapseAnchor.getBasedir().toPath().toAbsolutePath().normalize();
         MavenProject highest = null;
+        // sub-anchor must be strictly below the collapse anchor
         for (var dir = planDir(leaf).getParent();
-                dir != null && !dir.equals(collapseDir.getParent());
+                dir != null && !dir.equals(collapseDir.getParent()) && !dir.equals(collapseDir);
                 dir = dir.getParent()) {
-            if (dir.equals(collapseDir)) {
-                break; // sub-anchor must be strictly below the collapse anchor
-            }
-            if (!passThroughDirs.contains(dir)) {
-                continue; // only pass-throughs are candidates to be promoted
-            }
-            if (!dir.startsWith(anchorDir)) {
-                break;
-            }
-            var candidate = reactorByDir.get(dir);
-            if (candidate == null || OpenLPackagings.isOpenL(candidate.getPackaging())) {
-                continue;
-            }
-            if (preserves(candidate, planDir(leaf), leaf.groupId())) {
-                highest = candidate;
+            // only pass-throughs are candidates to be promoted
+            if (passThroughDirs.contains(dir)) {
+                if (!dir.startsWith(anchorDir)) {
+                    break;
+                }
+                var candidate = reactorByDir.get(dir);
+                if (candidate != null && !OpenLPackagings.isOpenL(candidate.getPackaging())
+                        && preserves(candidate, planDir(leaf), leaf.groupId())) {
+                    highest = candidate;
+                }
             }
         }
         return highest;
@@ -578,17 +570,11 @@ public final class PomlessMojo extends AbstractMojo {
         var survivors = new HashSet<Path>();
         survivors.add(anchorDir);
         for (var p : reactorProjects) {
-            if (p == project || p.getFile() == null || p.getBasedir() == null) {
-                continue;
+            // OpenL leaves are handled by the blocked list below
+            var dir = aggregatorDir(p, anchorDir);
+            if (dir != null && !passThroughDirs.contains(dir)) {
+                survivors.add(dir);
             }
-            if (OpenLPackagings.isOpenL(p.getPackaging())) {
-                continue; // OpenL leaves are handled by the blocked list below
-            }
-            var dir = p.getBasedir().toPath().toAbsolutePath().normalize();
-            if (!dir.startsWith(anchorDir) || passThroughDirs.contains(dir)) {
-                continue;
-            }
-            survivors.add(dir);
         }
         for (var plan : blocked) {
             survivors.add(planDir(plan));
@@ -717,14 +703,11 @@ public final class PomlessMojo extends AbstractMojo {
             if (candidate == null || OpenLPackagings.isOpenL(candidate.getPackaging())) {
                 continue;
             }
-            if (dir.equals(invocationRootDir)) {
-                return candidate; // ${project} is the final stop — always anchorable
+            // ${project} is the final stop — always anchorable
+            if (dir.equals(invocationRootDir) || !passThroughDirs.contains(dir)) {
+                return candidate;
             }
-            if (passThroughDirs.contains(dir)) {
-                collapsedOut.add(dir);
-                continue;
-            }
-            return candidate;
+            collapsedOut.add(dir);
         }
         return null;
     }
@@ -771,24 +754,25 @@ public final class PomlessMojo extends AbstractMojo {
     private Set<Path> identifyPassThroughs(Path anchorDir) {
         var result = new HashSet<Path>();
         for (var p : reactorProjects) {
-            if (p == project) {
-                continue;
-            }
-            if (p.getFile() == null || p.getBasedir() == null) {
-                continue;
-            }
-            if (OpenLPackagings.isOpenL(p.getPackaging())) {
-                continue;
-            }
-            var dir = p.getBasedir().toPath().toAbsolutePath().normalize();
-            if (!dir.startsWith(anchorDir)) {
-                continue;
-            }
-            if (isPassThrough(p.getOriginalModel())) {
+            var dir = aggregatorDir(p, anchorDir);
+            if (dir != null && isPassThrough(p.getOriginalModel())) {
                 result.add(dir);
             }
         }
         return result;
+    }
+
+    /**
+     * The normalized basedir of a non-OpenL reactor project other than {@code ${project}} that has a pom and lives
+     * under {@code anchorDir}, or {@code null} for any other project.
+     */
+    private Path aggregatorDir(MavenProject p, Path anchorDir) {
+        if (p == project || p.getFile() == null || p.getBasedir() == null
+                || OpenLPackagings.isOpenL(p.getPackaging())) {
+            return null;
+        }
+        var dir = p.getBasedir().toPath().toAbsolutePath().normalize();
+        return dir.startsWith(anchorDir) ? dir : null;
     }
 
     private static Path planDir(PomlessConverter.Plan plan) {
@@ -803,16 +787,14 @@ public final class PomlessMojo extends AbstractMojo {
                 continue;
             }
             var file = p.getFile().toPath().toAbsolutePath().normalize();
-            if (editedAnchorFiles.contains(file)) {
-                continue; // already pruned while editing it as an anchor
-            }
             var original = p.getOriginalModel();
-            if (original.getModules() == null || original.getModules().isEmpty()) {
-                continue;
-            }
-            var model = original.clone();
-            if (removeModules(model, p.getBasedir().toPath().toAbsolutePath().normalize(), convertedDirs)) {
-                writeModel(file, model);
+            // an edited anchor was already pruned while editing it
+            if (!editedAnchorFiles.contains(file)
+                    && original.getModules() != null && !original.getModules().isEmpty()) {
+                var model = original.clone();
+                if (removeModules(model, p.getBasedir().toPath().toAbsolutePath().normalize(), convertedDirs)) {
+                    writeModel(file, model);
+                }
             }
         }
     }

@@ -97,46 +97,58 @@ public class ZipCharsetDetector {
                 filesToCompare.addAll(existingFiles);
             }
 
-            Charset bestCharset = null;
-            var bestRatio = 0D;
-            for (Charset charset : charsets) {
-                try {
-                    var fileNames = convertEntryNames(defaultEntryNames, defaultCharset, charset);
-                    if (!checkNames(fileNames)) {
-                        continue;
-                    }
-
-                    if (bestCharset == null) {
-                        bestCharset = charset;
-                    }
-
-                    if (filesToCompare.isEmpty()) {
-                        // Cannot figure out best charset. Use first applicable.
-                        break;
-                    }
-
-                    var ratio = calcRatio(fileNames, filesToCompare);
-
-                    if (ratio > bestRatio) {
-                        bestCharset = charset;
-                        bestRatio = ratio;
-                    }
-
-                    if (Math.abs(1 - bestRatio) < 0.001) {
-                        // Found full match. No need to iterate further.
-                        break;
-                    }
-
-                } catch (Exception e) {
-                    log.debug("Charset '{}' cannot be used for zip decoding: {}", charset.name(), e.getMessage(), e);
-                }
-            }
-
+            var bestCharset = findBestCharset(defaultEntryNames, defaultCharset, filesToCompare);
             log.debug("Best charset: '{}'", bestCharset);
             return bestCharset;
         }
 
         return null;
+    }
+
+    /**
+     * Finds the charset whose decoded entry names match the files to compare best. When there is nothing to compare
+     * with, the first charset that decodes the names is used.
+     *
+     * @return the best charset, or {@code null} when no charset decodes the names
+     */
+    private Charset findBestCharset(List<String> defaultEntryNames,
+                                    Charset defaultCharset,
+                                    Collection<String> filesToCompare) {
+        Charset bestCharset = null;
+        var bestRatio = 0D;
+        for (Charset charset : charsets) {
+            try {
+                var fileNames = convertEntryNames(defaultEntryNames, defaultCharset, charset);
+                if (!checkNames(fileNames)) {
+                    continue;
+                }
+
+                if (bestCharset == null) {
+                    bestCharset = charset;
+                }
+
+                if (filesToCompare.isEmpty()) {
+                    // Cannot figure out best charset. Use first applicable.
+                    return bestCharset;
+                }
+
+                var ratio = calcRatio(fileNames, filesToCompare);
+
+                if (ratio > bestRatio) {
+                    bestCharset = charset;
+                    bestRatio = ratio;
+                }
+
+                if (Math.abs(1 - bestRatio) < 0.001) {
+                    // Found full match. No need to iterate further.
+                    return bestCharset;
+                }
+
+            } catch (Exception e) {
+                log.debug("Charset '{}' cannot be used for zip decoding: {}", charset.name(), e.getMessage(), e);
+            }
+        }
+        return bestCharset;
     }
 
     private Collection<String> getRulesXmlFiles(ZipSource source, Charset charset, RootFolderExtractor extractor) {

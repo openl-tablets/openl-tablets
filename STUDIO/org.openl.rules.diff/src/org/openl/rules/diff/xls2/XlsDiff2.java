@@ -229,25 +229,24 @@ public class XlsDiff2 {
         var grid2Height = grid2.getHeight();
         for (var grid1Row = 0; grid1Row < grid1Height; grid1Row++) {
             var followingRow = true;
-            for (var grid2Row = grid2LastMatched; grid2Row < grid2Height; grid2Row++) {
+            var stop = false;
+            for (var grid2Row = grid2LastMatched; !stop && grid2Row < grid2Height; grid2Row++) {
                 var diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
                 if (diffs.size() == 0) {
-                    if (!followingRow && grid1Row != grid2Row && grid1Row < grid1Height + 1) {
-                        // Check if the next line matches the one found.
-                        // For cases when several identical lines can go in a row.
-                        var nextRowDiffs = getDiffs(grid1, grid2, grid1Row + 1, grid2Row);
-                        if (nextRowDiffs.size() == 0) {
-                            break;
-                        }
+                    // Check if the next line matches the one found.
+                    // For cases when several identical lines can go in a row.
+                    var nextRowMatches = !followingRow && grid1Row != grid2Row && grid1Row < grid1Height + 1
+                            && getDiffs(grid1, grid2, grid1Row + 1, grid2Row).size() == 0;
+                    if (!nextRowMatches) {
+                        grid1MatchedRows.add(grid1Row);
+                        grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row));
+                        grid2LastMatched = grid2Row + 1;
                     }
-                    grid1MatchedRows.add(grid1Row);
-                    grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row));
-                    grid2LastMatched = grid2Row + 1;
-                    break;
+                    stop = true;
                 } else if (grid1Height == grid2Height) {
                     grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row).setDiff(diffs));
                     grid2LastMatched = grid2Row + 1;
-                    break;
+                    stop = true;
                 }
                 followingRow = false;
             }

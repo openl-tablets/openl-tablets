@@ -54,6 +54,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.constants.ConstantOpenField;
+import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
@@ -1392,7 +1393,6 @@ public final class DecisionTableHelper {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private static boolean getMinMaxOrder(ILogicalTable originalTable,
                                           NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
                                           int firstColumnHeight,
@@ -1417,34 +1417,43 @@ public final class DecisionTableHelper {
 
                 var cell2 = originalTable.getSource()
                         .getCell(column + numberOfColumnsUnderTitleCounter.getWidth(column, 0), h);
-                var s2 = cell2.getStringValue();
-                Object o2;
-                try {
-                    o2 = string2DataConverter.parse(s2, null);
-                } catch (IllegalArgumentException e) {
-                    continue;
-                }
-
-                if (JavaOpenClass.STRING.equals(type) && o1 != null && o2 != null) {
-                    var res = NumericStringComparator.INSTANCE.compare((String) o1, (String) o2);
-                    if (res > 0) {
-                        t1++;
-                    } else if (res < 0) {
-                        t2++;
-                    }
-                } else if (o1 instanceof Comparable comparable && o2 instanceof Comparable) {
-                    var res = comparable.compareTo(o2);
-                    if (res > 0) {
-                        t1++;
-                    } else if (res < 0) {
-                        t2++;
-                    }
+                var res = compareValues(type, string2DataConverter, o1, cell2.getStringValue());
+                if (res > 0) {
+                    t1++;
+                } else if (res < 0) {
+                    t2++;
                 }
             } finally {
                 h = h + cell1.getHeight();
             }
         }
         return t1 <= t2;
+    }
+
+    /**
+     * Compares a value with the one parsed from the text of another cell.
+     *
+     * @return the result of the comparison, or {@code 0} when the text cannot be parsed or the values cannot be
+     * compared
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static int compareValues(IOpenClass type,
+                                     IString2DataConvertor<?> string2DataConverter,
+                                     Object o1,
+                                     String s2) {
+        Object o2;
+        try {
+            o2 = string2DataConverter.parse(s2, null);
+        } catch (IllegalArgumentException e) {
+            return 0;
+        }
+
+        if (JavaOpenClass.STRING.equals(type) && o1 != null && o2 != null) {
+            return NumericStringComparator.INSTANCE.compare((String) o1, (String) o2);
+        } else if (o1 instanceof Comparable comparable && o2 instanceof Comparable) {
+            return comparable.compareTo(o2);
+        }
+        return 0;
     }
 
     private static final String[] MIN_MAX_ORDER = new String[]{"min", "max"};
@@ -3394,20 +3403,14 @@ public final class DecisionTableHelper {
                         titles.remove(extractedTitle.getMiddle());
                     }
                     for (String s : definition.getTitles()) {
-                        if (f1 && s.equals(extractedTitle.getLeft())) {
-                            g = true;
+                        var matchedByLeft = f1 && s.equals(extractedTitle.getLeft());
+                        if (matchedByLeft || f2 && s.equals(extractedTitle.getMiddle())) {
+                            g = matchedByLeft;
                             if (columnParameters == null) {
                                 columnParameters = new IParameterDeclaration[definition.getNumberOfTitles()][];
                             }
-                            columnParameters[i] = definition.getParameters(extractedTitle.getLeft())
-                                    .toArray(IParameterDeclaration.EMPTY);
-                            break;
-                        }
-                        if (f2 && s.equals(extractedTitle.getMiddle())) {
-                            if (columnParameters == null) {
-                                columnParameters = new IParameterDeclaration[definition.getNumberOfTitles()][];
-                            }
-                            columnParameters[i] = definition.getParameters(extractedTitle.getMiddle())
+                            var matchedTitle = matchedByLeft ? extractedTitle.getLeft() : extractedTitle.getMiddle();
+                            columnParameters[i] = definition.getParameters(matchedTitle)
                                     .toArray(IParameterDeclaration.EMPTY);
                             break;
                         }
@@ -3701,8 +3704,11 @@ public final class DecisionTableHelper {
                     continue;
                 }
                 var value = cellValue.getValue();
+                var formula = RuleRowHelper.isFormula(value) && !isRangeType;
+                ConstantOpenField constantOpenField = formula ? null
+                        : RuleRowHelper.findConstantField(bindingContext, value);
 
-                if (RuleRowHelper.isFormula(value) && !isRangeType) {
+                if (formula) {
                     try {
                         bindingContext.pushErrors();
                         bindingContext.pushMessages();
@@ -3740,11 +3746,7 @@ public final class DecisionTableHelper {
                         bindingContext.popErrors();
                     }
                     h[valueNum][cellNum] = false;
-                    continue;
-                }
-
-                ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, value);
-                if (constantOpenField != null) {
+                } else if (constantOpenField != null) {
                     if (constantOpenField.getType().isArray() && RANGE_TYPES
                             .contains(constantOpenField.getType().getComponentClass().getInstanceClass())) {
                         isAllParsableAsArrayFlag = false;
@@ -3763,36 +3765,35 @@ public final class DecisionTableHelper {
                     }
                     h[valueNum][cellNum] = false;
                     canMadeDecisionAboutSingle = canMadeDecisionAboutSingle && type.equals(constantOpenField.getType());
-                    continue;
-                }
-                if (!arraySeparatorFoundFlag && ArraySplitter.isArray(value)) {
-                    arraySeparatorFoundFlag = true;
-                }
-                try {
-                    if ((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag && !parsableAs(value,
-                            type.getInstanceClass(),
-                            bindingContext)) {
-                        isAllParsableAsSingleFlag = false;
-                    } else if (isStringType) {
-                        if (isAllParsableAsDomainFlag && (type
-                                .getDomain() == null || !((IDomain<String>) type.getDomain()).selectObject(value))) {
-                            isAllParsableAsDomainFlag = false;
-                        }
-                        if (isAllParsableAsDomainArrayFlag) {
-                            if (type.getDomain() == null) {
-                                isAllParsableAsDomainArrayFlag = false;
-                            } else {
-                                for (String s : ArraySplitter.split(value)) {
-                                    if (!((IDomain<String>) type.getDomain()).selectObject(s)) {
-                                        isAllParsableAsDomainArrayFlag = false;
-                                        break;
+                } else {
+                    if (!arraySeparatorFoundFlag && ArraySplitter.isArray(value)) {
+                        arraySeparatorFoundFlag = true;
+                    }
+                    try {
+                        if ((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag
+                                && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
+                            isAllParsableAsSingleFlag = false;
+                        } else if (isStringType) {
+                            if (isAllParsableAsDomainFlag && (type.getDomain() == null
+                                    || !((IDomain<String>) type.getDomain()).selectObject(value))) {
+                                isAllParsableAsDomainFlag = false;
+                            }
+                            if (isAllParsableAsDomainArrayFlag) {
+                                if (type.getDomain() == null) {
+                                    isAllParsableAsDomainArrayFlag = false;
+                                } else {
+                                    for (String s : ArraySplitter.split(value)) {
+                                        if (!((IDomain<String>) type.getDomain()).selectObject(s)) {
+                                            isAllParsableAsDomainArrayFlag = false;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
+                    } catch (Exception ignored) {
+                        // guessing the column type is a heuristic: a value the checks fail on does not affect it
                     }
-                } catch (Exception ignored) {
-                    // guessing the column type is a heuristic: a value the checks fail on does not affect it
                 }
             }
         }
@@ -3900,44 +3901,43 @@ public final class DecisionTableHelper {
                         }
                     } else if (isDateType) {
                         var o = cellValue.getCell().getObjectValue();
-                        if (o instanceof Date) {
-                            continue;
-                        }
-                        if (o instanceof String && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
-                            isAllParsableAsSingleFlag = false;
-                        }
-                        String[] arrs = null;
-                        if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
-                            arrs = ArraySplitter.split(value);
-                            var f = parsableAs(arrs, DateRange.class, bindingContext);
-                            var parsableAsSingleRange = parsableAs(value, DateRange.class, bindingContext);
-                            if (isAllParsableAsRangeFlag && !f && !parsableAsSingleRange) {
-                                isAllParsableAsRangeFlag = false;
+                        if (!(o instanceof Date)) {
+                            if (o instanceof String && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
+                                isAllParsableAsSingleFlag = false;
                             }
-                            if (f && arrs.length > 1 && !parsableAsSingleRange) {
-                                isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
-                            }
-                        }
-                        if (isAllLikelyNotRangeFlag && o instanceof String && DateRangeParser.getInstance()
-                                .likelyRangeThanDate(value)) {
-                            isAllLikelyNotRangeFlag = false;
-                        }
-                        if (isAllElementsLikelyNotRangeFlag) {
-                            if (arrs == null) {
+                            String[] arrs = null;
+                            if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                                 arrs = ArraySplitter.split(value);
-                            }
-                            for (String v : arrs) {
-                                if (DateRangeParser.getInstance().likelyRangeThanDate(v)) {
-                                    isAllElementsLikelyNotRangeFlag = false;
-                                    break;
+                                var f = parsableAs(arrs, DateRange.class, bindingContext);
+                                var parsableAsSingleRange = parsableAs(value, DateRange.class, bindingContext);
+                                if (isAllParsableAsRangeFlag && !f && !parsableAsSingleRange) {
+                                    isAllParsableAsRangeFlag = false;
+                                }
+                                if (f && arrs.length > 1 && !parsableAsSingleRange) {
+                                    isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                                 }
                             }
-                        }
-                        if (isAllParsableAsArrayFlag) {
-                            arrs = ArraySplitter.split(value);
-                            var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
-                            if (!g) {
-                                isAllParsableAsArrayFlag = false;
+                            if (isAllLikelyNotRangeFlag && o instanceof String && DateRangeParser.getInstance()
+                                    .likelyRangeThanDate(value)) {
+                                isAllLikelyNotRangeFlag = false;
+                            }
+                            if (isAllElementsLikelyNotRangeFlag) {
+                                if (arrs == null) {
+                                    arrs = ArraySplitter.split(value);
+                                }
+                                for (String v : arrs) {
+                                    if (DateRangeParser.getInstance().likelyRangeThanDate(v)) {
+                                        isAllElementsLikelyNotRangeFlag = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (isAllParsableAsArrayFlag) {
+                                arrs = ArraySplitter.split(value);
+                                var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
+                                if (!g) {
+                                    isAllParsableAsArrayFlag = false;
+                                }
                             }
                         }
                     } else if (isStringType) {

@@ -144,12 +144,8 @@ public class MethodNodeBinder extends ANodeBinder {
         if (openMethod instanceof OpenMethodDispatcher openMethodDispatcher) {
             var f = true;
             for (IOpenMethod method : openMethodDispatcher.getCandidates()) {
-                if (method instanceof ITablePropertiesMethod tablePropertiesMethod) {
-                    if (!Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
-                        f = false;
-                        break;
-                    }
-                } else {
+                if (!(method instanceof ITablePropertiesMethod tablePropertiesMethod)
+                        || !Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
                     f = false;
                     break;
                 }

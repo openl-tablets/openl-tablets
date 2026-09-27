@@ -204,25 +204,19 @@ public class SequentialXlsLoader {
         int len = p1.endsWith("/") ? pp1.length : pp1.length - 1;
 
         for (var i = 0; i < len; i++) {
-            if (pp1[i].equals(".")) {
-                continue;
-            }
             if (pp1[i].equals("..") && !result.isEmpty() && !result.getLast().equals("..")) {
                 result.removeLast();
-                continue;
+            } else if (!pp1[i].equals(".")) {
+                result.add(pp1[i]);
             }
-            result.add(pp1[i]);
         }
 
         for (String s : pp2) {
-            if (s.equals(".")) {
-                continue;
-            }
             if (!result.isEmpty() && s.equals("..")) {
                 result.removeLast();
-                continue;
+            } else if (!s.equals(".")) {
+                result.add(s);
             }
-            result.add(s);
         }
 
         return String.join("/", result);

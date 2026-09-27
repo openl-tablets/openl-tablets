@@ -3,6 +3,7 @@ package org.openl.rules.maven;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -118,26 +119,26 @@ public class PrepareDeploymentBomMojo extends AbstractMojo {
         var anchorDir = anchorBasedir.toPath().toAbsolutePath().normalize();
         var members = new ArrayList<MavenProject>();
         for (var p : session.getAllProjects()) {
-            if (p == project) {
-                continue;
+            if (isMember(p, anchorDir)) {
+                members.add(p);
             }
-            if (!OpenLPackagings.isOpenL(p.getPackaging())) {
-                continue;
-            }
-            var memberBasedir = p.getBasedir();
-            if (memberBasedir == null) {
-                continue;
-            }
-            var memberDir = memberBasedir.toPath().toAbsolutePath().normalize();
-            if (!memberDir.startsWith(anchorDir)) {
-                continue;
-            }
-            members.add(p);
         }
         members.sort(Comparator
                 .comparing(MavenProject::getGroupId)
                 .thenComparing(MavenProject::getArtifactId));
         return members;
+    }
+
+    /**
+     * Checks whether the reactor project is an OpenL project, other than the anchor, whose basedir is located under
+     * the anchor's basedir.
+     */
+    private boolean isMember(MavenProject p, Path anchorDir) {
+        if (p == project || !OpenLPackagings.isOpenL(p.getPackaging())) {
+            return false;
+        }
+        var memberBasedir = p.getBasedir();
+        return memberBasedir != null && memberBasedir.toPath().toAbsolutePath().normalize().startsWith(anchorDir);
     }
 
     /**

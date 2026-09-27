@@ -173,13 +173,10 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
     private static List<MavenProject> findAnchors(MavenSession session) {
         var result = new ArrayList<MavenProject>();
         for (var p : session.getProjects()) {
-            if (OpenLPackagings.isOpenL(p.getPackaging())) {
-                continue;
+            if (!OpenLPackagings.isOpenL(p.getPackaging())
+                    && findOpenLPluginInBuildPlugins(p.getOriginalModel()) != null) {
+                result.add(p);
             }
-            if (findOpenLPluginInBuildPlugins(p.getOriginalModel()) == null) {
-                continue;
-            }
-            result.add(p);
         }
         return result;
     }

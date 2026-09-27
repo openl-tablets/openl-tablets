@@ -44,6 +44,18 @@ public final class MethodKey {
      * @param originalParams parameters of method
      * @return normalized parameters
      */
+    /**
+     * Checks whether the type of a method parameter is normalized. Any type but a Java one is, and a Java type is when
+     * its {@link CustomJavaOpenClass} asks for it.
+     */
+    private static boolean needsNormalization(IOpenClass param) {
+        if (param instanceof JavaOpenClass) {
+            var customJavaOpenClass = param.getInstanceClass().getAnnotation(CustomJavaOpenClass.class);
+            return customJavaOpenClass != null && customJavaOpenClass.normalize();
+        }
+        return true;
+    }
+
     private IOpenClass[] getNormalizedParams(IOpenClass[] originalParams) {
 
         if (originalParams == null) {
@@ -52,15 +64,10 @@ public final class MethodKey {
 
         var firstParamToConvert = -1;
         for (var i = 0; i < originalParams.length; i++) {
-            if (originalParams[i] instanceof JavaOpenClass) {
-                var customJavaOpenClass = originalParams[i].getInstanceClass()
-                        .getAnnotation(CustomJavaOpenClass.class);
-                if (customJavaOpenClass == null || !customJavaOpenClass.normalize()) {
-                    continue;
-                }
+            if (needsNormalization(originalParams[i])) {
+                firstParamToConvert = i;
+                break;
             }
-            firstParamToConvert = i;
-            break;
         }
 
         if (firstParamToConvert < 0) {

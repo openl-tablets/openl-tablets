@@ -659,11 +659,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                              boolean addFieldNameWithCollisions,
                                              Map<String, List<IOpenField>> beanFieldsMap,
                                              IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
-        for (Pair<Point, IOpenField> pair : fields) {
+        for (Pair<Point, IOpenField> pair : fields.stream().filter(e -> e.getLeft() != null).toList()) {
             var point = pair.getLeft();
-            if (point == null) {
-                continue;
-            }
             var row = point.getRow();
             var column = point.getColumn();
             var rowName = rowNamesForResultModel[row];

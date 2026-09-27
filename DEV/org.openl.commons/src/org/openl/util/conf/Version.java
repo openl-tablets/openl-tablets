@@ -90,22 +90,16 @@ public class Version implements Comparable<Version> {
 
         for (var i = from; i < len && nnum <= pattern.length(); ++i) {
             var c = s.charAt(i);
-            if (inNumber) {
-                if (Character.isDigit(c)) {
-                    continue;
+            if (Character.isDigit(c)) {
+                if (!inNumber) {
+                    ++nnum;
+                    inNumber = true;
                 }
+            } else if (inNumber && c == pattern.charAt(nnum - 1)) {
                 inNumber = false;
-                if (c == pattern.charAt(nnum - 1)) {
-                    continue;
-                }
+            } else {
                 break;
             }
-            if (Character.isDigit(c)) {
-                ++nnum;
-                inNumber = true;
-                continue;
-            }
-            break;
         }
         return nnum;
     }

@@ -269,20 +269,10 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         var allowed = getAllowedDependencies(scopeFilter);
         var dependencies = new HashSet<Artifact>();
         for (Artifact artifact : getDependentNonOpenLProjects()) {
-            if (!scopeFilter.test(artifact.getScope()) || isOpenLCoreDependency(artifact.getGroupId())) {
-                debug(SKIP_PREFIX, artifact);
+            if (isSkipped(artifact, scopeFilter)) {
                 continue;
             }
-            List<String> dependencyTrail = artifact.getDependencyTrail();
-            if (dependencyTrail.size() < 2) {
-                debug(SKIP_PREFIX, artifact, " (by dependency depth)");
-                continue;
-            }
-            if (skipOpenLCoreDependency(dependencyTrail)) {
-                debug(SKIP_PREFIX, artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
-                continue;
-            }
-            var tr = dependencyTrail.get(1);
+            var tr = artifact.getDependencyTrail().get(1);
             var key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
             if (allowed.contains(key)) {
                 debug("ADD : ", artifact);
@@ -290,6 +280,27 @@ abstract class BaseOpenLMojo extends AbstractMojo {
             }
         }
         return dependencies;
+    }
+
+    /**
+     * Checks whether the artifact is left out of the filtered dependencies, and tells why in the debug log: by its
+     * scope or its OpenL-core group, by its dependency depth, or as a transitive dependency of an OpenL or SLF4j one.
+     */
+    private boolean isSkipped(Artifact artifact, Predicate<String> scopeFilter) {
+        if (!scopeFilter.test(artifact.getScope()) || isOpenLCoreDependency(artifact.getGroupId())) {
+            debug(SKIP_PREFIX, artifact);
+            return true;
+        }
+        List<String> dependencyTrail = artifact.getDependencyTrail();
+        if (dependencyTrail.size() < 2) {
+            debug(SKIP_PREFIX, artifact, " (by dependency depth)");
+            return true;
+        }
+        if (skipOpenLCoreDependency(dependencyTrail)) {
+            debug(SKIP_PREFIX, artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
+            return true;
+        }
+        return false;
     }
 
     /**

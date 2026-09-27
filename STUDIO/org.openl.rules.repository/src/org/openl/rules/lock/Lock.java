@@ -105,8 +105,7 @@ public class Lock {
                 result = tryLock(lockedBy);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                // Thread is interrupted. Quit the loop.
-                break;
+                // Thread is interrupted. The loop condition quits the loop.
             }
         }
         return result;
