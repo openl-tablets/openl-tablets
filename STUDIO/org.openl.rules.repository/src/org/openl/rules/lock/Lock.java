@@ -153,9 +153,19 @@ public class Lock {
     }
 
     private void deleteEmptyParentFolders() {
-        var file = lockPath.toFile();
-        while (!file.equals(locksLocation.toFile()) && file.delete()) {
-            file = file.getParentFile();
+        var folder = lockPath;
+        while (!folder.equals(locksLocation) && deleteEmptyFolder(folder)) {
+            folder = folder.getParent();
+        }
+    }
+
+    /** Deletes the folder if nothing is left in it, telling whether it was deleted. */
+    private static boolean deleteEmptyFolder(Path folder) {
+        try {
+            Files.delete(folder);
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 

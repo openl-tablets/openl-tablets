@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -189,8 +190,10 @@ public class ZipFileProjectCreator extends AProjectCreator {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        if (!uploadedFile.delete()) {
-            log.warn("Cannot delete the file {}", uploadedFile.getName());
+        try {
+            Files.delete(uploadedFile.toPath());
+        } catch (IOException e) {
+            log.warn("Cannot delete the file {}", uploadedFile.getName(), e);
         }
     }
 
