@@ -1,11 +1,14 @@
 package org.openl.rules.serialization;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -162,14 +165,12 @@ class JsonUtilsTest {
 
     @Test
     void getObjectMapperTest_GC_no_longer() {
-        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(new Object(), new Class[]{Car.class});
-        Runtime rt = Runtime.getRuntime();
-        rt.gc();
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        var droppedKey = new WeakReference<>(new Object());
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(droppedKey.get(), new Class[]{Car.class});
+        await().atMost(Duration.ofSeconds(10)).until(() -> {
+            Runtime.getRuntime().gc();
+            return droppedKey.get() == null;
+        });
         ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(new Object(), new Class[]{Car.class});
         assertNotEquals(objectMapper1, objectMapper2);
     }

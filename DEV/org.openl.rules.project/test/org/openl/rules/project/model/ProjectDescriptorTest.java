@@ -1,5 +1,6 @@
 package org.openl.rules.project.model;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,6 +18,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -829,13 +831,12 @@ class ProjectDescriptorTest {
         return tempJars;
     }
 
-    private static void awaitDeleted(List<Path> files) throws InterruptedException {
-        // Generous timeout (~10s) so the GC + Cleaner have time under CI load; the loop exits early once deleted.
-        for (var i = 0; i < 200 && files.stream().anyMatch(Files::exists); i++) {
+    private static void awaitDeleted(List<Path> files) {
+        // Generous timeout so the GC + Cleaner have time under CI load; the wait ends as soon as the jars are deleted.
+        await().atMost(Duration.ofSeconds(10)).pollInterval(Duration.ofMillis(50)).untilAsserted(() -> {
             System.gc();
-            Thread.sleep(50);
-        }
-        files.forEach(p -> assertFalse(Files.exists(p),
-                "temp jar must be deleted after the descriptor is garbage-collected: " + p));
+            files.forEach(p -> assertFalse(Files.exists(p),
+                    "temp jar must be deleted after the descriptor is garbage-collected: " + p));
+        });
     }
 }

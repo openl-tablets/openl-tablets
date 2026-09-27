@@ -71,7 +71,7 @@ class RunTracingITest {
 
     @Test
     @StdIo
-    void testKafkaServiceSpan(StdErr stdOut) throws Exception {
+    void testKafkaServiceSpan(StdErr stdOut) {
         try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
             consumer.subscribe(Collections.singletonList("hello-out-topic"));
             producer.send(new ProducerRecord<>("hello-in-topic", null, "5"));
@@ -81,20 +81,28 @@ class RunTracingITest {
             });
             consumer.unsubscribe();
         }
-        Thread.sleep(500);
-        var log = stdOut.capturedString();
 
-        checkOpenLMethodsSpans(log, "Hello", "hello-in-topic publish", "openl-rules-opentelemetry", "io.opentelemetry.kafka-clients");
+        awaitOpenLMethodsSpans(stdOut, "Hello", "hello-in-topic publish", "openl-rules-opentelemetry",
+                "io.opentelemetry.kafka-clients");
     }
 
     @Test
     @StdIo
-    void testRESTServiceSpans(StdErr stdOut) throws Exception {
+    void testRESTServiceSpans(StdErr stdOut) {
         client.send("simple1.tracing.rest.post");
 
-        Thread.sleep(500);
-        var log = stdOut.capturedString();
-        checkOpenLMethodsSpans(log, "Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.java-http-client");
+        awaitOpenLMethodsSpans(stdOut, "Hello", "POST", "openl-rules-opentelemetry",
+                "io.opentelemetry.java-http-client");
+    }
+
+    /**
+     * Waits until the spans of the call reach the log, which the span exporter writes to in the background.
+     */
+    private void awaitOpenLMethodsSpans(StdErr stdErr, String expectedOpenLMethodSpanName,
+            String expectedRootSpanName, String expectedScope, String expectedParentScope) {
+        given().ignoreExceptions().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> checkOpenLMethodsSpans(
+                stdErr.capturedString(), expectedOpenLMethodSpanName, expectedRootSpanName, expectedScope,
+                expectedParentScope));
     }
 
     private void checkOpenLMethodsSpans(String log, String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) {
