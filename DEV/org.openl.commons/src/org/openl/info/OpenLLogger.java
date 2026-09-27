@@ -71,11 +71,15 @@ abstract class OpenLLogger {
     }
 
     private void logSimpleObject(String text, Object arg1, Object arg2) {
-        logger.info(text, toString(arg1), toString(arg2));
+        if (logger.isInfoEnabled()) {
+            logger.info(text, toString(arg1), toString(arg2));
+        }
     }
 
     private void logSimpleObject(String text, Object arg1) {
-        logger.info(text, toString(arg1));
+        if (logger.isInfoEnabled()) {
+            logger.info(text, toString(arg1));
+        }
     }
 
     @SuppressWarnings("rawtypes")
