@@ -47,9 +47,9 @@ export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, de
         if (tagType) {
             return updateTagType({
                 ...tagType,
-                name: name !== null ? name : tagType.name,
-                extensible: extensible !== null ? extensible : tagType.extensible,
-                nullable: nullable !== null ? nullable : tagType.nullable,
+                name: name ?? tagType.name,
+                extensible: extensible ?? tagType.extensible,
+                nullable: nullable ?? tagType.nullable,
             })
         }
 
