@@ -1971,12 +1971,13 @@ public final class DecisionTableHelper {
                 String lowParamName = toLowerCase(header.getSignature().getParameterName(i));
                 if (!usedMethodParameterIndexes.contains(i) && methodParametersUsedInExpression
                         .contains(lowParamName)) {
-                    var newParamName = "_" + originalMethodParametersUsedInExpression.get(lowParamName);
-                    while (u.contains(newParamName)) {
-                        newParamName = "_" + newParamName;
+                    var newParamName = new StringBuilder("_")
+                            .append(originalMethodParametersUsedInExpression.get(lowParamName));
+                    while (u.contains(newParamName.toString())) {
+                        newParamName.insert(0, '_');
                     }
-                    u.add(newParamName);
-                    methodParametersToRename.put(lowParamName, newParamName);
+                    u.add(newParamName.toString());
+                    methodParametersToRename.put(lowParamName, newParamName.toString());
                 }
             }
             mayHaveCompilationErrors = true;

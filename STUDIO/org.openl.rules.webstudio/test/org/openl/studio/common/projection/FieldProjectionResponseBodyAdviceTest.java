@@ -328,10 +328,7 @@ class FieldProjectionResponseBodyAdviceTest {
     @Test
     void rejectsExcessivelyDeepNesting() throws Exception {
         // 20 levels of '(' > MAX_DEPTH (16) -> 400 before unbounded tree growth.
-        var deep = "x";
-        for (var i = 0; i < 20; i++) {
-            deep = "a(" + deep + ")";
-        }
+        var deep = "a(".repeat(20) + "x" + ")".repeat(20);
         var result = mockMvc.perform(get("/projection-test/single").param("fields", deep)).andReturn();
         assertEquals(400, result.getResponse().getStatus());
         assertInstanceOf(BadRequestException.class, result.getResolvedException());

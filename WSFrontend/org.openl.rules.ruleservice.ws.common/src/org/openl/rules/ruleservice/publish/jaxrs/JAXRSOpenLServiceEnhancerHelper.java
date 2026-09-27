@@ -343,7 +343,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             while (!Objects.equals(s, s.replace("//", "/"))) {
                 s = s.replace("//", "/");
             }
-            while (!s.startsWith("/")) {
+            if (!s.startsWith("/")) {
                 s = "/" + s;
             }
             while (s.endsWith("/")) {

@@ -43,7 +43,7 @@ public final class TableSyntaxNodeUtils {
         }
 
         String sfx = i < 2 ? "" : " (" + i + ")";
-        var dimensionInfo = StringUtils.EMPTY;
+        var dimensionInfo = new StringBuilder();
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode
                 .getMember() instanceof IOpenMethod method && dictionary.contains(method)
@@ -64,14 +64,15 @@ public final class TableSyntaxNodeUtils {
                 }
 
                 if (StringUtils.isNotEmpty(value)) {
-                    var propertyInfo = dimensionalPropertyName + "=" + value;
-                    dimensionInfo = dimensionInfo + (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY
-                            : ", ") + propertyInfo;
+                    if (!dimensionInfo.isEmpty()) {
+                        dimensionInfo.append(", ");
+                    }
+                    dimensionInfo.append(dimensionalPropertyName).append('=').append(value);
                 }
             }
         }
 
-        if (StringUtils.isNotEmpty(dimensionInfo)) {
+        if (!dimensionInfo.isEmpty()) {
             sfx = sfx + " [" + dimensionInfo + "]";
         }
 
