@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { App, Button, Spin } from 'antd'
 import Logo from '../components/Logo'
 import { apiCall } from '../services'
+import { errorHandler } from '../utils/errorHandling'
 import { useUserStore } from 'store'
 import { useTranslation } from 'react-i18next'
 import { useStyles } from '../styles/splashCard.styles'
@@ -81,7 +82,8 @@ export const EmailVerification = () => {
             await apiCall(`/mail/send/${userProfile.username}`, { method: 'POST' }, true)
             notification.success({ title: t('users:verification_email_sent') })
             setCooldown(60)
-        } catch (_) {
+        } catch (error) {
+            errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
             notification.error({ title: t('users:failed_to_send_verification_email') })
         } finally {
             setResendLoading(false)

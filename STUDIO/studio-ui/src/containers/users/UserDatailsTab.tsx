@@ -7,6 +7,7 @@ import { formatDisplayName } from '../../utils/displayName'
 import { UserExternalFlags, UserProfile, UserDetails } from '../../types/user'
 import { SystemContext } from '../../contexts'
 import { apiCall } from '../../services'
+import { errorHandler } from '../../utils/errorHandling'
 import { useStyles } from './UserDetailsTab.styles'
 
 interface UserDetailsTabProps {
@@ -69,7 +70,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
             await apiCall(`/mail/send/${userProfile.username}`, { method: 'POST' }, true)
             notification.success({ title: t('users:verification_email_sent') })
             setLocalCooldown(60)
-        } catch (_) {
+        } catch (error) {
+            errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
             notification.error({ title: t('users:failed_to_send_verification_email') })
         } finally {
             setLocalResendLoading(false)
