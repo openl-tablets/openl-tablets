@@ -162,18 +162,15 @@ class JsonUtilsTest {
 
     @Test
     void getObjectMapperTest_GC_no_longer() {
-        var key = new Object();
-        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(new Object(), new Class[]{Car.class});
         Runtime rt = Runtime.getRuntime();
-        key = null;
         rt.gc();
         try {
             Thread.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        key = new Object();
-        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{Car.class});
+        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(new Object(), new Class[]{Car.class});
         assertNotEquals(objectMapper1, objectMapper2);
     }
 
