@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -178,7 +179,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
         final StoreLogData storeLogData = StoreLogDataHolder.get();
         try {
             storeLogData.setResponseMessage(loggingMessage);
-            storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
+            storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
             getStoreLoggingManager().store(storeLogData);
         } catch (StoreLogDataException e) {
             throw new Fault(e);

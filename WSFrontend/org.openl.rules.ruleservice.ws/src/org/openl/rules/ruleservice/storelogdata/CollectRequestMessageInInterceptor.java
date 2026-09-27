@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -113,7 +114,7 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
     private void handleMessage(LoggingMessage loggingMessage) {
         StoreLogData storeLogData = StoreLogDataHolder.get();
         storeLogData.setRequestMessage(loggingMessage);
-        storeLogData.setIncomingMessageTime(ZonedDateTime.now());
+        storeLogData.setIncomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
     }
 
     protected void logReader(Message message, Reader reader, LoggingMessage buffer) {

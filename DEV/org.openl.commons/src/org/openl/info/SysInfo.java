@@ -4,6 +4,7 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -20,7 +21,7 @@ public class SysInfo {
     public static Map<String, Object> get() {
         var fn = new LinkedHashMap<String, Object>();
         fn.put("locale", Locale.getDefault());
-        fn.put("time.now", ZonedDateTime.now().toString());
+        fn.put("time.now", ZonedDateTime.now(ZoneId.systemDefault()).toString());
         fn.put("time.milli", Instant.now().toEpochMilli());
         fn.put("cpu", Runtime.getRuntime().availableProcessors());
         fn.put("maxMemory", Runtime.getRuntime().maxMemory());

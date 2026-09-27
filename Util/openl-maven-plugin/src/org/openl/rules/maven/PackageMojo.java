@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -423,7 +424,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         if (addDefaultManifest) {
             // initialize with default values
-            attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            attributes.putValue("Build-Date",
+                    ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             attributes.putValue("Built-By", userName);
             attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
                     "%s:%s".formatted(project.getGroupId(), project.getArtifactId()));

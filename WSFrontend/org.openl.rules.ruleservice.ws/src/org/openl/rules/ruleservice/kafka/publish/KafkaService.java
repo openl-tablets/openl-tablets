@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
@@ -211,7 +212,7 @@ public final class KafkaService implements Runnable {
                 var records = consumer.poll(Duration.ofMillis(100));
                 if (!records.isEmpty()) {
                     var countDownLatch = new CountDownLatch(records.count());
-                    ZonedDateTime incomingTime = ZonedDateTime.now();
+                    ZonedDateTime incomingTime = ZonedDateTime.now(ZoneId.systemDefault());
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
                         executor.submit(() -> {
                             StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
@@ -264,7 +265,7 @@ public final class KafkaService implements Runnable {
                                     forwardHeadersToOutput(consumerRecord, producerRecord);
 
                                     if (storeLogData != null) {
-                                        storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
+                                        storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
                                     }
                                     var finalRequestIdHeader = requestIdHeader;
                                     producer.send(producerRecord, (metadata, exception) -> {
@@ -295,7 +296,7 @@ public final class KafkaService implements Runnable {
                                     });
                                 } else {
                                     if (storeLogData != null) {
-                                        storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
+                                        storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
                                         getStoreLogDataManager().store(storeLogData);
                                     }
                                 }
@@ -436,7 +437,7 @@ public final class KafkaService implements Runnable {
             forwardHeadersToDlt(consumerRecord, dltRecord);
             setDltHeaders(consumerRecord, e, dltRecord);
             if (storeLogData != null) {
-                storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
+                storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
             }
             dltProducer.send(dltRecord, (metadata, exception) -> {
                 if (storeLogData != null) {

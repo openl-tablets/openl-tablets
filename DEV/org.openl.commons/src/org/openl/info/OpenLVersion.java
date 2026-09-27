@@ -3,6 +3,7 @@ package org.openl.info;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -56,7 +57,7 @@ public final class OpenLVersion {
         source.put("openl.version", VERSION);
         source.put("openl.build.date", BUILD_DATE);
         source.put("openl.build.number", BUILD_NUMBER);
-        source.put("openl.start.time", ZonedDateTime.now().toString());
+        source.put("openl.start.time", ZonedDateTime.now(ZoneId.systemDefault()).toString());
         source.put("openl.start.milli", Long.toString(Instant.now().toEpochMilli()));
         source.put("openl.start.hash",
                 new Random().ints(65, 91)

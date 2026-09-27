@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository.deployment;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -91,7 +92,8 @@ public class DeploymentManifestBuilder {
         var manifest = new Manifest();
         var attributes = manifest.getMainAttributes();
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        attributes.putValue("Build-Date",
+                ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         attributes.putValue("Created-By", "OpenL Studio v." + OpenLVersion.getVersion());
         for (Map.Entry<String, String> entry : entries.entrySet()) {
             attributes.putValue(entry.getKey(), entry.getValue());
