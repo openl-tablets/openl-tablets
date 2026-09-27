@@ -294,54 +294,50 @@ class HttpData {
      * {@code Header <name>} or {@code Body}.
      */
     void assertTo(HttpData expected) throws IOException, AssertionError {
-        try {
-            assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code");
-            for (Map.Entry<String, String> r : expected.headers.entrySet()) {
-                String headerName = r.getKey();
-                String value = r.getValue();
-                Comparators.txt("Header " + headerName, value, this.headers.get(headerName));
-            }
+        assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code");
+        for (Map.Entry<String, String> r : expected.headers.entrySet()) {
+            String headerName = r.getKey();
+            String value = r.getValue();
+            Comparators.txt("Header " + headerName, value, this.headers.get(headerName));
+        }
 
-            if (expected.body == null) {
-                return; // No body expected
+        if (expected.body == null) {
+            return; // No body expected
+        }
+        var expectedText = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
+        if (expectedText.equals("***")) {
+            return; // Whole-body wildcard skips content comparison for any content type (json, zip, xml, ...)
+        }
+        // A body that declares its own framing is read literally, so a reference in it is resolved
+        // here - before the content type chooses how to compare, so every type resolves it alike.
+        byte[] expectedBody = isFileRef(expectedText)
+                ? readFileRef(expected.pathToResource, expectedText)
+                : expected.body;
+        var decoder = contentDecoder();
+        String contentType = headers.get(CONTENT_TYPE_HEADER);
+        contentType = contentType == null ? "null" : contentType;
+        int sep = contentType.indexOf(';');
+        if (sep > 0) {
+            contentType = contentType.substring(0, sep);
+        }
+        switch (contentType) {
+            case "text/css",
+                 "text/javascript",
+                 "text/html",
+                 "text/plain",
+                 "image/svg+xml" ->
+                    Comparators.txt(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
+            case "application/xml",
+                 "text/xml" ->
+                    Comparators.xml(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
+            case "application/json" -> {
+                JsonNode actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
+                JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expectedBody));
+                Comparators.compareJsonObjects(expectedNode, actualNode, BODY_SUBJECT);
             }
-            var expectedText = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
-            if (expectedText.equals("***")) {
-                return; // Whole-body wildcard skips content comparison for any content type (json, zip, xml, ...)
-            }
-            // A body that declares its own framing is read literally, so a reference in it is resolved
-            // here - before the content type chooses how to compare, so every type resolves it alike.
-            byte[] expectedBody = isFileRef(expectedText)
-                    ? readFileRef(expected.pathToResource, expectedText)
-                    : expected.body;
-            var decoder = contentDecoder();
-            String contentType = headers.get(CONTENT_TYPE_HEADER);
-            contentType = contentType == null ? "null" : contentType;
-            int sep = contentType.indexOf(';');
-            if (sep > 0) {
-                contentType = contentType.substring(0, sep);
-            }
-            switch (contentType) {
-                case "text/css",
-                     "text/javascript",
-                     "text/html",
-                     "text/plain",
-                     "image/svg+xml" ->
-                        Comparators.txt(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
-                case "application/xml",
-                     "text/xml" ->
-                        Comparators.xml(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
-                case "application/json" -> {
-                    JsonNode actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
-                    JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expectedBody));
-                    Comparators.compareJsonObjects(expectedNode, actualNode, BODY_SUBJECT);
-                }
-                case "application/zip" ->
-                        Comparators.zip(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
-                default -> assertArrayEquals(decoder.apply(expectedBody), decoder.apply(this.body), BODY_SUBJECT);
-            }
-        } catch (Exception | AssertionError ex) {
-            throw ex;
+            case "application/zip" ->
+                    Comparators.zip(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
+            default -> assertArrayEquals(decoder.apply(expectedBody), decoder.apply(this.body), BODY_SUBJECT);
         }
     }
 
