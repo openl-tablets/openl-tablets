@@ -317,10 +317,26 @@ class ParserTest {
                 String.class,
                 "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\123bla"), "\123bla", String.class, "literal.string");
-        _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\1230bla"), "\1230bla", String.class, "literal.string");
-        _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\128bla"), "\128bla", String.class, "literal.string");
-        _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\78bla"), "\78bla", String.class, "literal.string");
-        _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\33338bla"), "\33338bla", String.class, "literal.string");
+        _testLiteralParseAndBind(new StringNodeBinder(),
+                wrapStrLit("\\1230bla"),
+                "\123" + "0bla",
+                String.class,
+                "literal.string");
+        _testLiteralParseAndBind(new StringNodeBinder(),
+                wrapStrLit("\\128bla"),
+                "\12" + "8bla",
+                String.class,
+                "literal.string");
+        _testLiteralParseAndBind(new StringNodeBinder(),
+                wrapStrLit("\\78bla"),
+                "\7" + "8bla",
+                String.class,
+                "literal.string");
+        _testLiteralParseAndBind(new StringNodeBinder(),
+                wrapStrLit("\\33338bla"),
+                "\333" + "38bla",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\7"), "\7", String.class, "literal.string");
 
         _testLiteralParseAndBind(new StringNodeBinder(),
