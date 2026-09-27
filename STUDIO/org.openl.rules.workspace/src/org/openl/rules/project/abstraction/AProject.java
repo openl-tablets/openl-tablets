@@ -16,6 +16,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -365,50 +366,59 @@ public class AProject extends AProjectFolder implements IProject {
             if (!projectFrom.isFolder()) {
                 if (getResourceTransformer() != null) {
                     // projectFrom will be unarchived, transformed and then archived
-
-                    Path tempFolder = null;
-                    try {
-                        // Unpack to temp folder
-                        tempFolder = FileTool.createTempDirectory("openl");
-                        try (var tempRepository = new FileSystemRepository()) {
-                            tempRepository.setRoot(tempFolder);
-                            tempRepository.initialize();
-                            unpack(projectFrom, tempRepository, projectFrom.getBusinessName(), user);
-                            var tempProject = new AProject(tempRepository, projectFrom.getBusinessName());
-
-                            transformAndArchive(tempProject, user);
-                        }
-                    } catch (IOException e) {
-                        throw new ProjectException(e.getMessage(), e);
-                    } finally {
-                        FileUtils.deleteQuietly(tempFolder);
-                    }
+                    unpackTransformAndArchive(projectFrom, user);
                 } else {
                     // Just copy a single file
-                    var fileData = getFileData();
-
-                    InputStream stream = null;
-                    try {
-                        FileItem fileItem;
-                        if (projectFrom.isHistoric()) {
-                            fileItem = projectFrom.getRepository()
-                                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
-                        } else {
-                            fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
-                        }
-                        fileData.setSize(fileItem.getData().getSize());
-                        stream = fileItem.getStream();
-                        fileData.setAuthor(user == null ? null : user.getUserInfo());
-                        setFileData(repositoryTo.save(fileData, stream));
-                    } catch (IOException ex) {
-                        throw new ProjectException(ex.getMessage(), ex);
-                    } finally {
-                        IOUtils.closeQuietly(stream);
-                    }
+                    copyArchive(projectFrom, repositoryTo, user);
                 }
             } else {
                 transformAndArchive(projectFrom, user);
             }
+        }
+    }
+
+    private void unpackTransformAndArchive(AProject projectFrom, @Nullable CommonUser user) throws ProjectException {
+        Path tempFolder = null;
+        try {
+            // Unpack to temp folder
+            tempFolder = FileTool.createTempDirectory("openl");
+            try (var tempRepository = new FileSystemRepository()) {
+                tempRepository.setRoot(tempFolder);
+                tempRepository.initialize();
+                unpack(projectFrom, tempRepository, projectFrom.getBusinessName(), user);
+                var tempProject = new AProject(tempRepository, projectFrom.getBusinessName());
+
+                transformAndArchive(tempProject, user);
+            }
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        } finally {
+            FileUtils.deleteQuietly(tempFolder);
+        }
+    }
+
+    private void copyArchive(AProject projectFrom,
+                             Repository repositoryTo,
+                             @Nullable CommonUser user) throws ProjectException {
+        var fileData = getFileData();
+
+        InputStream stream = null;
+        try {
+            FileItem fileItem;
+            if (projectFrom.isHistoric()) {
+                fileItem = projectFrom.getRepository()
+                        .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+            } else {
+                fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
+            }
+            fileData.setSize(fileItem.getData().getSize());
+            stream = fileItem.getStream();
+            fileData.setAuthor(user == null ? null : user.getUserInfo());
+            setFileData(repositoryTo.save(fileData, stream));
+        } catch (IOException ex) {
+            throw new ProjectException(ex.getMessage(), ex);
+        } finally {
+            IOUtils.closeQuietly(stream);
         }
     }
 

@@ -11,6 +11,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -176,79 +177,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 var toRepository = getRepository();
                 if (fromRepository.supports().uniqueFileId() && toRepository.supports().uniqueFileId()) {
                     changesetType = ChangesetType.DIFF;
-
-                    var fromFilePath = from.getFolderPath() + "/";
-                    List<FileData> fromList;
-                    if (fromRepository.supports().versions()) {
-                        if (from.isHistoric()) {
-                            fromProjectVersion = from.getHistoryVersion();
-                            fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
-                        } else {
-                            var fileData = fromRepository.check(from.getFolderPath());
-                            if (fileData == null) {
-                                fromList = List.of();
-                            } else {
-                                fromProjectVersion = fileData.getVersion();
-                                fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
-                            }
-                        }
-                    } else {
-                        fromList = fromRepository.list(fromFilePath);
-                    }
-
-                    var toFilePath = getFolderPath() + "/";
-                    List<FileData> toList = isHistoric() ? toRepository.listFiles(toFilePath, getHistoryVersion())
-                            : toRepository.list(toFilePath);
-
-                    var transformer = getResourceTransformer();
-
-                    // Search added and modified files
-                    for (FileData fromData : fromList) {
-                        var nameFrom = fromData.getName();
-                        var nameTo = getFolderPath() + nameFrom.substring(from.getFolderPath().length());
-
-                        var fromUniqueId = fromData.getUniqueId();
-                        if (fromUniqueId == null) {
-                            // The file was modified or added
-                            FileItem read = fromRepository.supports().versions()
-                                    ? fromRepository.readHistory(nameFrom,
-                                    fromProjectVersion)
-                                    : fromRepository.read(nameFrom);
-                            changes.add(new FileItem(nameTo, read.getStream()));
-                        } else {
-                            FileData toData = find(toList, nameTo);
-                            if (toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
-                                // The file is absent in destination. Add it.
-                                // Or different revision of a file.
-                                var data = copyAndChangeName(fromData, nameTo);
-                                InputStream content;
-                                if (transformer != null) {
-                                    FileData fileData = fromRepository.supports().versions() ? fromRepository
-                                            .checkHistory(nameFrom, fromProjectVersion) : fromRepository.check(nameFrom);
-                                    content = transformer
-                                            .transform(new AProjectResource(from.getProject(), fromRepository, fileData));
-                                } else {
-                                    FileItem read = fromRepository.supports().versions() ? fromRepository
-                                            .readHistory(nameFrom, fromProjectVersion) : fromRepository.read(nameFrom);
-                                    content = read.getStream();
-                                }
-                                changes.add(new FileItem(data, content));
-                            }
-                            // Otherwise the file is same, no need to save it
-                        }
-                    }
-
-                    // Search deleted files
-                    for (FileData toData : toList) {
-                        var nameTo = toData.getName();
-                        var nameFrom = from.getFolderPath() + nameTo.substring(getFolderPath().length());
-
-                        FileData fromData = find(fromList, nameFrom);
-                        if (fromData == null) {
-                            // File was deleted
-                            changes.add(new FileItem(toData, null));
-                        }
-                    }
+                    fromProjectVersion = findDiffChanges(from, changes);
                 } else {
                     changesetType = ChangesetType.FULL;
                     findChanges(from, changes);
@@ -269,6 +198,111 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 for (FileItem change : changes) {
                     IOUtils.closeQuietly(change.getStream());
                 }
+            }
+        }
+    }
+
+    /**
+     * Collects the files that are added, modified or deleted in the given folder compared to this one.
+     *
+     * @return the version of the given folder the files are read from, or {@code null} if there is none
+     */
+    private @Nullable String findDiffChanges(AProjectFolder from,
+                                             List<FileItem> changes) throws IOException, ProjectException {
+        String fromProjectVersion = null;
+
+        var fromRepository = from.getRepository();
+        var fromFilePath = from.getFolderPath() + "/";
+        List<FileData> fromList;
+        if (fromRepository.supports().versions()) {
+            if (from.isHistoric()) {
+                fromProjectVersion = from.getHistoryVersion();
+                fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
+            } else {
+                var fileData = fromRepository.check(from.getFolderPath());
+                if (fileData == null) {
+                    fromList = List.of();
+                } else {
+                    fromProjectVersion = fileData.getVersion();
+                    fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
+                }
+            }
+        } else {
+            fromList = fromRepository.list(fromFilePath);
+        }
+
+        var toRepository = getRepository();
+        var toFilePath = getFolderPath() + "/";
+        List<FileData> toList = isHistoric() ? toRepository.listFiles(toFilePath, getHistoryVersion())
+                : toRepository.list(toFilePath);
+
+        // Search added and modified files
+        findAddedAndModifiedFiles(from, fromList, fromProjectVersion, toList, changes);
+        // Search deleted files
+        findDeletedFiles(from, fromList, toList, changes);
+        return fromProjectVersion;
+    }
+
+    private void findAddedAndModifiedFiles(AProjectFolder from,
+                                           List<FileData> fromList,
+                                           @Nullable String fromProjectVersion,
+                                           List<FileData> toList,
+                                           List<FileItem> changes) throws IOException, ProjectException {
+        var fromRepository = from.getRepository();
+        var transformer = getResourceTransformer();
+
+        for (FileData fromData : fromList) {
+            var nameFrom = fromData.getName();
+            var nameTo = getFolderPath() + nameFrom.substring(from.getFolderPath().length());
+
+            var fromUniqueId = fromData.getUniqueId();
+            if (fromUniqueId == null) {
+                // The file was modified or added
+                FileItem read = fromRepository.supports().versions()
+                        ? fromRepository.readHistory(nameFrom, fromProjectVersion)
+                        : fromRepository.read(nameFrom);
+                changes.add(new FileItem(nameTo, read.getStream()));
+            } else {
+                FileData toData = find(toList, nameTo);
+                if (toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
+                    // The file is absent in destination. Add it.
+                    // Or different revision of a file.
+                    var data = copyAndChangeName(fromData, nameTo);
+                    changes.add(new FileItem(data, readContent(from, nameFrom, fromProjectVersion, transformer)));
+                }
+                // Otherwise the file is same, no need to save it
+            }
+        }
+    }
+
+    private static InputStream readContent(AProjectFolder from,
+                                           String nameFrom,
+                                           @Nullable String fromProjectVersion,
+                                           @Nullable ResourceTransformer transformer)
+            throws IOException, ProjectException {
+        var fromRepository = from.getRepository();
+        if (transformer != null) {
+            FileData fileData = fromRepository.supports().versions() ? fromRepository
+                    .checkHistory(nameFrom, fromProjectVersion) : fromRepository.check(nameFrom);
+            return transformer.transform(new AProjectResource(from.getProject(), fromRepository, fileData));
+        }
+        FileItem read = fromRepository.supports().versions() ? fromRepository
+                .readHistory(nameFrom, fromProjectVersion) : fromRepository.read(nameFrom);
+        return read.getStream();
+    }
+
+    private void findDeletedFiles(AProjectFolder from,
+                                  List<FileData> fromList,
+                                  List<FileData> toList,
+                                  List<FileItem> changes) {
+        for (FileData toData : toList) {
+            var nameTo = toData.getName();
+            var nameFrom = from.getFolderPath() + nameTo.substring(getFolderPath().length());
+
+            FileData fromData = find(fromList, nameFrom);
+            if (fromData == null) {
+                // File was deleted
+                changes.add(new FileItem(toData, null));
             }
         }
     }

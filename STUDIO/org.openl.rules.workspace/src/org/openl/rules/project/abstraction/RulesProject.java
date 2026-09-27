@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -59,32 +60,8 @@ public class RulesProject extends UserWorkspaceProject {
         this.designFolderName = designFileData == null ? null : designFileData.getName();
         this.lockEngine = lockEngine;
 
-        FileData fullLocalFileData;
         if (localFileData != null && designFileData != null) {
-            var localVersion = localFileData.getVersion();
-            if (localVersion == null || localVersion.equals(designFileData.getVersion())) {
-                // Set the path for local repository, other properties are equal to design repository properties
-                fullLocalFileData = new FileData();
-                fullLocalFileData.setName(localFileData.getName());
-                fullLocalFileData.setVersion(designFileData.getVersion());
-                fullLocalFileData.setSize(designFileData.getSize());
-                fullLocalFileData.setAuthor(designFileData.getAuthor());
-                fullLocalFileData.setModifiedAt(designFileData.getModifiedAt());
-                fullLocalFileData.setComment(designFileData.getComment());
-                fullLocalFileData.setDeleted(designFileData.isDeleted());
-                for (AdditionalData data : designFileData.getAdditionalData().values()) {
-                    fullLocalFileData.addAdditionalData(data);
-                }
-                setFileData(fullLocalFileData);
-            } else {
-                if (localFileData.getAuthor() == null || localFileData.getAuthor().getName() == null || localFileData
-                        .getModifiedAt() == null) {
-                    // Lazy load properties
-                    setFileData(null);
-                } else {
-                    setFileData(localFileData);
-                }
-            }
+            initLocalFileData(localFileData, designFileData);
         }
 
         if (designFileData != null) {
@@ -95,6 +72,33 @@ public class RulesProject extends UserWorkspaceProject {
             designTags = new ProjectTags(new AProject(designRepository, designFileData));
         } else {
             designTags = localTags;
+        }
+    }
+
+    private void initLocalFileData(FileData localFileData, FileData designFileData) {
+        var localVersion = localFileData.getVersion();
+        if (localVersion == null || localVersion.equals(designFileData.getVersion())) {
+            // Set the path for local repository, other properties are equal to design repository properties
+            var fullLocalFileData = new FileData();
+            fullLocalFileData.setName(localFileData.getName());
+            fullLocalFileData.setVersion(designFileData.getVersion());
+            fullLocalFileData.setSize(designFileData.getSize());
+            fullLocalFileData.setAuthor(designFileData.getAuthor());
+            fullLocalFileData.setModifiedAt(designFileData.getModifiedAt());
+            fullLocalFileData.setComment(designFileData.getComment());
+            fullLocalFileData.setDeleted(designFileData.isDeleted());
+            for (AdditionalData data : designFileData.getAdditionalData().values()) {
+                fullLocalFileData.addAdditionalData(data);
+            }
+            setFileData(fullLocalFileData);
+        } else {
+            if (localFileData.getAuthor() == null || localFileData.getAuthor().getName() == null || localFileData
+                    .getModifiedAt() == null) {
+                // Lazy load properties
+                setFileData(null);
+            } else {
+                setFileData(localFileData);
+            }
         }
     }
 
@@ -383,29 +387,33 @@ public class RulesProject extends UserWorkspaceProject {
         }
 
         if (actualVersion != null) {
-            try {
-                var repoData = realDesignRepository.checkHistory(designFolderName, actualVersion);
-                if (repoData != null) {
-                    fileData.setAuthor(repoData.getAuthor());
-                    fileData.setModifiedAt(repoData.getModifiedAt());
-                    fileData.setComment(repoData.getComment());
-                    fileData.setSize(repoData.getSize());
-                    fileData.setDeleted(repoData.isDeleted());
-                    fileData.setUniqueId(repoData.getUniqueId());
-                    var mappingData = repoData.getAdditionalData(FileMappingData.class);
-                    if (mappingData != null) {
-                        fileData.addAdditionalData(mappingData);
-                    } else if (!realDesignRepository.supports().mappedFolders()) {
-                        // For flat folder structure external (virtual) path is equal to internal (real) path.
-                        fileData.addAdditionalData(new FileMappingData(repoData.getName(), repoData.getName()));
-                    }
-                }
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-            }
+            copyDesignRevisionData(fileData, realDesignRepository, actualVersion);
         }
 
         return fileData;
+    }
+
+    private void copyDesignRevisionData(FileData fileData, Repository realDesignRepository, String actualVersion) {
+        try {
+            var repoData = realDesignRepository.checkHistory(designFolderName, actualVersion);
+            if (repoData != null) {
+                fileData.setAuthor(repoData.getAuthor());
+                fileData.setModifiedAt(repoData.getModifiedAt());
+                fileData.setComment(repoData.getComment());
+                fileData.setSize(repoData.getSize());
+                fileData.setDeleted(repoData.isDeleted());
+                fileData.setUniqueId(repoData.getUniqueId());
+                var mappingData = repoData.getAdditionalData(FileMappingData.class);
+                if (mappingData != null) {
+                    fileData.addAdditionalData(mappingData);
+                } else if (!realDesignRepository.supports().mappedFolders()) {
+                    // For flat folder structure external (virtual) path is equal to internal (real) path.
+                    fileData.addAdditionalData(new FileMappingData(repoData.getName(), repoData.getName()));
+                }
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -548,17 +556,7 @@ public class RulesProject extends UserWorkspaceProject {
         var repository = getDesignRepository();
         if (repository.supports().mappedFolders()) {
             if (isOpened()) {
-                var state = localRepository.getProjectState(getFolderPath());
-                FileMappingData mappingData = null;
-                if (state.getFileData() != null) {
-                    mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
-                }
-                if (mappingData == null) {
-                    final var fileData = getFileData();
-                    if (fileData != null) {
-                        mappingData = fileData.getAdditionalData(FileMappingData.class);
-                    }
-                }
+                var mappingData = findOpenedMappingData();
                 if (mappingData != null) {
                     return mappingData.getInternalPath();
                 }
@@ -567,6 +565,24 @@ public class RulesProject extends UserWorkspaceProject {
         } else {
             return folderPath;
         }
+    }
+
+    /**
+     * The folder mapping of the opened project: the one its workspace copy records, or else its own.
+     */
+    private @Nullable FileMappingData findOpenedMappingData() {
+        var state = localRepository.getProjectState(getFolderPath());
+        FileMappingData mappingData = null;
+        if (state.getFileData() != null) {
+            mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
+        }
+        if (mappingData == null) {
+            final var fileData = getFileData();
+            if (fileData != null) {
+                mappingData = fileData.getAdditionalData(FileMappingData.class);
+            }
+        }
+        return mappingData;
     }
 
     public String getMainBusinessName() {

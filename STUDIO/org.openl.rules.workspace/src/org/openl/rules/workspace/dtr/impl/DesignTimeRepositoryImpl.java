@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.common.CommonVersion;
@@ -172,27 +173,37 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 message = rootCause.getMessage();
             }
 
-            return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
-                    new Class[]{Repository.class},
-                    (proxy, method, args) -> {
-                        final var methodName = method.getName();
-                        final Class<?> returnType = method.getReturnType();
-                        if (methodName.startsWith("set") && returnType == void.class) {
-                            return null;
-                        } else if ("supports".equals(methodName) && returnType == Features.class) {
-                            return new FeaturesBuilder(null).setVersions(false).build();
-                        } else if ("close".equals(methodName) && returnType == void.class && args == null) {
-                            return null;
-                        } else if ("getId".equals(methodName) && returnType == String.class) {
-                            return configName;
-                        }
-                        var repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
-                        if ("getName".equals(methodName) && returnType == String.class) {
-                            return repoName;
-                        }
-                        throw new IllegalStateException(message);
-                    });
+            return createFailedRepository(configName, message);
         }
+    }
+
+    /**
+     * Creates a stand-in for a repository that cannot be created.
+     *
+     * <p>It reports the configured id and name, supports no versions, and accepts setters and closing. Any other
+     * call throws an {@link IllegalStateException} with the given message.
+     */
+    private Repository createFailedRepository(String configName, String message) {
+        return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class[]{Repository.class},
+                (proxy, method, args) -> {
+                    final var methodName = method.getName();
+                    final Class<?> returnType = method.getReturnType();
+                    if (methodName.startsWith("set") && returnType == void.class) {
+                        return null;
+                    } else if ("supports".equals(methodName) && returnType == Features.class) {
+                        return new FeaturesBuilder(null).setVersions(false).build();
+                    } else if ("close".equals(methodName) && returnType == void.class && args == null) {
+                        return null;
+                    } else if ("getId".equals(methodName) && returnType == String.class) {
+                        return configName;
+                    }
+                    var repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
+                    if ("getName".equals(methodName) && returnType == String.class) {
+                        return repoName;
+                    }
+                    throw new IllegalStateException(message);
+                });
     }
 
     @Override
@@ -295,18 +306,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             if (repository.supports().branches()) {
                 try {
-                    var branchedProject = getBranchedProject(repositoryId, name);
-                    if (branchedProject.isPresent()) {
-                        for (var entry : branchedProject.orElseThrow().entries().values()) {
-                            var branchProject = entry.project();
-                            var fileData = branchProject.getRepository()
-                                    .checkHistory(branchProject.getFolderPath(), repoVersion);
-                            if (fileData != null) {
-                                project = new AProject(branchProject.getRepository(), fileData);
-                                break;
-                            }
-                        }
-                    }
+                    project = findBranchProject(repositoryId, name, repoVersion);
                     if (project == null) {
                         log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
                         project = new AProject(repository, projectPath, repoVersion);
@@ -322,6 +322,26 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             projectsVersions.put(key, project);
         }
         return project;
+    }
+
+    /**
+     * The project version held by the first branch that has it, or {@code null} if no branch has it.
+     */
+    private @Nullable AProject findBranchProject(String repositoryId,
+                                                 String name,
+                                                 String repoVersion) throws IOException {
+        var branchedProject = getBranchedProject(repositoryId, name);
+        if (branchedProject.isPresent()) {
+            for (var entry : branchedProject.orElseThrow().entries().values()) {
+                var branchProject = entry.project();
+                var fileData = branchProject.getRepository()
+                        .checkHistory(branchProject.getFolderPath(), repoVersion);
+                if (fileData != null) {
+                    return new AProject(branchProject.getRepository(), fileData);
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -468,28 +488,32 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         exceptions.clear();
         for (Repository repository : repositories.get()) {
             if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
-                var snapshot = indexService.getSnapshot(repository.getId());
-                if (!snapshot.published()) {
-                    // Nothing indexed yet: fall back to the default branch until the first snapshot is published.
-                    projects.putAll(configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of()));
-                } else {
-                    addSnapshotProjects(branchRepository, snapshot);
-                    if (snapshot.health().state() == BranchedProjectIndexService.IndexState.DEGRADED &&
-                            !snapshot.branches().containsKey(branchRepository.getBranch())) {
-                        configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of())
-                                .forEach(projects::putIfAbsent);
-                    }
-                }
-                var error = snapshot.health().lastError();
-                if (error != null) {
-                    exceptions.add("Repository '%s' : %s".formatted(repository.getName(), error));
-                }
+                addIndexedProjects(branchRepository);
             } else {
                 projects.putAll(scanProjects(repository));
             }
         }
 
         projectsRefreshNeeded = false;
+    }
+
+    private void addIndexedProjects(BranchRepository repository) {
+        var snapshot = indexService.getSnapshot(repository.getId());
+        if (!snapshot.published()) {
+            // Nothing indexed yet: fall back to the default branch until the first snapshot is published.
+            projects.putAll(configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of()));
+        } else {
+            addSnapshotProjects(repository, snapshot);
+            if (snapshot.health().state() == BranchedProjectIndexService.IndexState.DEGRADED &&
+                    !snapshot.branches().containsKey(repository.getBranch())) {
+                configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of())
+                        .forEach(projects::putIfAbsent);
+            }
+        }
+        var error = snapshot.health().lastError();
+        if (error != null) {
+            exceptions.add("Repository '%s' : %s".formatted(repository.getName(), error));
+        }
     }
 
     private void addSnapshotProjects(BranchRepository repository,

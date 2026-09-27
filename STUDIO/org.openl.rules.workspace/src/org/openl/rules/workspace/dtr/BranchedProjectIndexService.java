@@ -514,15 +514,7 @@ public final class BranchedProjectIndexService implements AutoCloseable {
                 }
             }
 
-            Map<String, BranchTreeRevision> revisions = Map.of();
-            if (!candidates.isEmpty()) {
-                try {
-                    revisions = repository.getBranchTreeRevisions(candidates, revisionPath);
-                } catch (Exception e) {
-                    log.error("Failed to read branch tree revisions for repository '{}'.", repository.getId(), e);
-                    candidates.forEach(branch -> failures.put(branch, TREE_ERROR));
-                }
-            }
+            var revisions = readTreeRevisions(candidates, failures);
 
             var retryBranches = new HashSet<String>();
             var scan = new ScanState(previous, statuses, revisions, nextBranches, failures, succeeded, retryBranches);
@@ -544,6 +536,24 @@ public final class BranchedProjectIndexService implements AutoCloseable {
             }
 
             return finish(branchNames, scan);
+        }
+
+        /**
+         * Reads the tree revisions of the candidate branches. When they cannot be read, every candidate is recorded
+         * as failed and no revision is returned.
+         */
+        private Map<String, BranchTreeRevision> readTreeRevisions(List<String> candidates,
+                                                                  Map<String, String> failures) {
+            Map<String, BranchTreeRevision> revisions = Map.of();
+            if (!candidates.isEmpty()) {
+                try {
+                    revisions = repository.getBranchTreeRevisions(candidates, revisionPath);
+                } catch (Exception e) {
+                    log.error("Failed to read branch tree revisions for repository '{}'.", repository.getId(), e);
+                    candidates.forEach(branch -> failures.put(branch, TREE_ERROR));
+                }
+            }
+            return revisions;
         }
 
         /**

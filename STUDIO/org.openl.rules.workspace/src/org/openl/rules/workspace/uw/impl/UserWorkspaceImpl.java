@@ -359,65 +359,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             // add new
             for (DesignProject designProject : designProjects) {
-                var rp = designProject.project();
-                var repoId = rp.getRepository().getId();
-                var localRepository = localWorkspace.getRepository(repoId);
-                var name = rp.getName();
-                var branchedProject = Optional.ofNullable(designProject.branches());
-                var lp = findLocalProject(repoId, rp, designFolders.getOrDefault(repoId, Set.of()));
-
-                FileData local = lp == null ? null : lp.getFileData();
-
-                var selectedProject = rp;
-                var closeProject = false;
-
-                if (branchedProject.isPresent()) {
-                    var selectedBranch = local == null
-                            ? branchPreferences.get(repoId, name).orElse(null)
-                            : local.getBranch();
-                    if (selectedBranch != null) {
-                        var branchEntry = branchedProject.get().entry(selectedBranch);
-                        if (branchEntry.isPresent()) {
-                            selectedProject = branchEntry.get().project();
-                        } else if (local != null) {
-                            log.info("Close the project '{}' because it does not exist in branch '{}'.",
-                                    name,
-                                    selectedBranch);
-                            closeProject = true;
-                        } else {
-                            branchPreferences.remove(repoId, name);
-                        }
-                    }
-                }
-
-                var project = new RulesProject(getUser(),
-                        localRepository,
-                        local,
-                        selectedProject.getRepository(),
-                        selectedProject.getFileData(),
-                        projectsLockEngine);
-
-                // Clean ups after session activation (should be done only once).
-                if (cleanUpOnActivation && !isVersionExistInHistory(project)) {
-                    log.warn("The Project '{}' has a version {}, but absents in the history.",
-                            project.getName(),
-                            project.getHistoryVersion());
-                    if (!project.isModified()) {
-                        log.warn(
-                                "The project '{}' is not modified and will be closed because it absents in the history.",
-                                project.getName());
-                        closeProject = true;
-                    }
-                }
-
-                if (closeProject) {
-                    try {
-                        project.close();
-                    } catch (ProjectException e) {
-                        log.warn("Cannot close the project {}", project.getName(), e);
-                    }
-                }
-                putRulesProject(project);
+                addDesignProject(designProject, designFolders);
             }
 
             // Workspace projects that have no corresponding project in the main branch of the
@@ -441,6 +383,87 @@ public class UserWorkspaceImpl implements UserWorkspace {
             if (syncNeeded) {
                 doSyncProjects();
             }
+        }
+    }
+
+    /**
+     * Adds the project the user works on for the design project: the one of the branch the workspace copy is on,
+     * or else of the branch last chosen for the project.
+     */
+    private void addDesignProject(DesignProject designProject, Map<String, Set<String>> designFolders) {
+        var rp = designProject.project();
+        var repoId = rp.getRepository().getId();
+        var localRepository = localWorkspace.getRepository(repoId);
+        var name = rp.getName();
+        var branchedProject = Optional.ofNullable(designProject.branches());
+        var lp = findLocalProject(repoId, rp, designFolders.getOrDefault(repoId, Set.of()));
+
+        FileData local = lp == null ? null : lp.getFileData();
+
+        var selectedProject = rp;
+        var closeProject = false;
+
+        if (branchedProject.isPresent()) {
+            var selectedBranch = local == null
+                    ? branchPreferences.get(repoId, name).orElse(null)
+                    : local.getBranch();
+            if (selectedBranch != null) {
+                var branchEntry = branchedProject.get().entry(selectedBranch);
+                if (branchEntry.isPresent()) {
+                    selectedProject = branchEntry.get().project();
+                } else if (local != null) {
+                    log.info("Close the project '{}' because it does not exist in branch '{}'.",
+                            name,
+                            selectedBranch);
+                    closeProject = true;
+                } else {
+                    branchPreferences.remove(repoId, name);
+                }
+            }
+        }
+
+        var project = new RulesProject(getUser(),
+                localRepository,
+                local,
+                selectedProject.getRepository(),
+                selectedProject.getFileData(),
+                projectsLockEngine);
+
+        // Clean ups after session activation (should be done only once).
+        if (isAbsentInHistoryOnActivation(project)) {
+            closeProject = true;
+        }
+
+        if (closeProject) {
+            closeProject(project);
+        }
+        putRulesProject(project);
+    }
+
+    /**
+     * Whether the project is to be closed on session activation: its version is absent in the history, and it is
+     * not modified.
+     */
+    private boolean isAbsentInHistoryOnActivation(RulesProject project) {
+        if (cleanUpOnActivation && !isVersionExistInHistory(project)) {
+            log.warn("The Project '{}' has a version {}, but absents in the history.",
+                    project.getName(),
+                    project.getHistoryVersion());
+            if (!project.isModified()) {
+                log.warn(
+                        "The project '{}' is not modified and will be closed because it absents in the history.",
+                        project.getName());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void closeProject(RulesProject project) {
+        try {
+            project.close();
+        } catch (ProjectException e) {
+            log.warn("Cannot close the project {}", project.getName(), e);
         }
     }
 

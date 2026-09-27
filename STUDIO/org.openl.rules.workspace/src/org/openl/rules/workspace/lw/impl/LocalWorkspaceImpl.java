@@ -164,28 +164,34 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 var mappingData = fileData.getAdditionalData(FileMappingData.class);
                 if (mappingData != null) {
                     repositoryPath = mappingData.getInternalPath();
-
-                    var mappedName = name;
-                    var designRepo = designTimeRepository.getRepository(repository.getId());
-                    var rulesLocation = designTimeRepository.getRulesLocation();
-                    if (designRepo != null && designRepo.supports().mappedFolders()) {
-                        var mapper = (FolderMapper) designRepo;
-                        var mappedPath = mapper.findMappedName(repositoryPath);
-                        if (mappedPath == null) {
-                            mappedName = mapper.getMappedName(name, repositoryPath);
-                        } else {
-                            mappedName = mappedPath.startsWith(rulesLocation)
-                                    ? mappedPath
-                                    .substring(rulesLocation.length())
-                                    : mappedPath;
-                        }
-                    }
-                    mappingData.setExternalPath(rulesLocation + mappedName);
+                    mappingData.setExternalPath(getExternalPath(repository, name, repositoryPath));
                 }
                 lpi = new AProject(repository, fileData);
             }
             localProjects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
         }
+    }
+
+    /**
+     * The path the design repository shows the project folder under.
+     */
+    private String getExternalPath(LocalRepository repository, String name, String repositoryPath) {
+        var mappedName = name;
+        var designRepo = designTimeRepository.getRepository(repository.getId());
+        var rulesLocation = designTimeRepository.getRulesLocation();
+        if (designRepo != null && designRepo.supports().mappedFolders()) {
+            var mapper = (FolderMapper) designRepo;
+            var mappedPath = mapper.findMappedName(repositoryPath);
+            if (mappedPath == null) {
+                mappedName = mapper.getMappedName(name, repositoryPath);
+            } else {
+                mappedName = mappedPath.startsWith(rulesLocation)
+                        ? mappedPath
+                        .substring(rulesLocation.length())
+                        : mappedPath;
+            }
+        }
+        return rulesLocation + mappedName;
     }
 
     @Override
