@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.function.Consumer;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -53,7 +54,7 @@ class TablePropertiesServiceImplTest {
 
     @Test
     void readsADateInIso(@TempDir Path projectDir) throws Exception {
-        writeDatatype(projectDir, "createdOn", cell -> date(cell, LocalDate.of(2009, 1, 1)));
+        writeDatatype(projectDir, "createdOn", cell -> date(cell, LocalDate.of(2009, Month.JANUARY, 1)));
 
         var properties = service.read(firstTable(projectDir));
 
