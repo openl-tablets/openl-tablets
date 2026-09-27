@@ -106,7 +106,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
         ]
     ), [t])
 
-    const isResendVerificationButtonVisible: Boolean = useMemo(() => {
+    const isResendVerificationButtonVisible: boolean = useMemo(() => {
         return !!(showResendVerification && userProfile?.externalFlags && !userProfile.externalFlags.emailVerified && systemSettings?.supportedFeatures?.emailVerification)
     }, [showResendVerification, userProfile, systemSettings])
 
