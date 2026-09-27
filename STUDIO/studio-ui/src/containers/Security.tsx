@@ -41,21 +41,36 @@ const BypassProtectedBranchesModal = (
         text={(
             <>
                 <p>
-                    <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_enabled" />
+                    <Trans
+                        components={[<b key="b" />]}
+                        i18nKey="security:allowBypassProtectedBranches_info_enabled"
+                    />
                 </p>
                 <p>
-                    <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_scope_intro" />
+                    <Trans
+                        components={[<b key="b" />]}
+                        i18nKey="security:allowBypassProtectedBranches_info_scope_intro"
+                    />
                 </p>
                 <ul>
                     <li>
-                        <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_scope_project" />
+                        <Trans
+                            components={[<b key="b" />]}
+                            i18nKey="security:allowBypassProtectedBranches_info_scope_project"
+                        />
                     </li>
                     <li>
-                        <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_scope_repository" />
+                        <Trans
+                            components={[<b key="b" />]}
+                            i18nKey="security:allowBypassProtectedBranches_info_scope_repository"
+                        />
                     </li>
                 </ul>
                 <p>
-                    <Trans components={[<b />]} i18nKey="security:allowBypassProtectedBranches_info_note" />
+                    <Trans
+                        components={[<b key="b" />]}
+                        i18nKey="security:allowBypassProtectedBranches_info_note"
+                    />
                 </p>
             </>
         )}

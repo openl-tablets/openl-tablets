@@ -177,7 +177,7 @@ export const System: React.FC = () => {
             <p>
                 <WarningFilled style={{ color: token.colorError }} />
                 <Trans
-                    components={[<b style={{ color: token.colorError }} />]}
+                    components={[<b key="b" style={{ color: token.colorError }} />]}
                     i18nKey="system:restore_defaults_warning"
                 />
             </p>

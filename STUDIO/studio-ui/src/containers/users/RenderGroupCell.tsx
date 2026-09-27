@@ -108,6 +108,7 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
                 && groups.length > 0
                 && groups.map((group) => (
                     <EditUserGroupDetailsWithAccessRights
+                        key={group.name}
                         group={selectedGroup}
                         onClose={onCloseEditDrawer}
                         reloadGroups={reloadGroups}
@@ -115,7 +116,6 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
                         sid={selectedGroup?.name}
                         renderButton={(onOpenEditDrawer) => (
                             <Tag
-                                key={group.name}
                                 onClick={() => onClickGroup(group, onOpenEditDrawer)}
                                 style={{ cursor: 'pointer', margin: '2px' }}
                                 {...(group.color !== undefined && { color: group.color })}

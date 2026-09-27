@@ -183,19 +183,19 @@ export const Tags: React.FC = () => {
                 {t('tags:tag_types_and_values')}
             </Typography.Title>
             <Trans
-                components={[<b />, <p />]}
+                components={[<b key="b" />, <p key="p" />]}
                 i18nKey="tags:tag_type_description"
             />
             <ul>
                 <li>
                     <Trans
-                        components={[<b />]}
+                        components={[<b key="b" />]}
                         i18nKey="tags:tag_type_instruction_p1"
                     />
                 </li>
                 <li>
                     <Trans
-                        components={[<b />]}
+                        components={[<b key="b" />]}
                         i18nKey="tags:tag_type_instruction_p2"
                     />
                 </li>
@@ -247,7 +247,7 @@ export const Tags: React.FC = () => {
             </p>
             <p>
                 <Trans
-                    components={[<b />]}
+                    components={[<b key="b" />]}
                     i18nKey="tags:example_template"
                 />
             </p>
