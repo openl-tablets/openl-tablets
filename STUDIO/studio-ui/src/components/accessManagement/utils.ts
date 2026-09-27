@@ -11,7 +11,7 @@ const labelIncludes = (input: string, option?: DefaultOptionType) => {
     if (!option || !option.label || !(typeof option.label === 'string')) {
         return false
     }
-    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+    return option.label.toLowerCase().includes(input.toLowerCase())
 }
 
 /** Searches a project by its name. */
