@@ -91,8 +91,6 @@ public class DeployClasspathJarsBean {
                     log.info("Rules deployer service is not ready. Wait {} seconds...", retryPeriod);
                     TimeUnit.SECONDS.sleep(retryPeriod);
                     continue;
-                } else {
-                    ready = true;
                 }
 
                 ready = deployFirst(filesToDeploy);

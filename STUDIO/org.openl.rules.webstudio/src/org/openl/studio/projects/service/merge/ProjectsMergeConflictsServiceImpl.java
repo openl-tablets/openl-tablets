@@ -530,7 +530,6 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                                                           List<FileItem> resolvedFiles) throws IOException {
         var workspace = getUserWorkspace();
         var repositoryId = mergeConflictInfo.getRepositoryId();
-        var conflictDetails = mergeConflictInfo.details();
         var modulesToAppend = new HashMap<String, List<Module>>();
 
         for (FileItem resolvedFile : resolvedFiles) {
