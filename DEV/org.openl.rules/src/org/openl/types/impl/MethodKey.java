@@ -37,14 +37,6 @@ public final class MethodKey {
     }
 
     /**
-     * Normalizes types of method parameters. OpenL engine uses alias data types as internal types and they are used
-     * only in OpenL. For java users alias data types are represented as appropriate java type. While method key usage
-     * we should use underlying type of alias data type parameter as real type of parameter.
-     *
-     * @param originalParams parameters of method
-     * @return normalized parameters
-     */
-    /**
      * Checks whether the type of a method parameter is normalized. Any type but a Java one is, and a Java type is when
      * its {@link CustomJavaOpenClass} asks for it.
      */
@@ -56,6 +48,14 @@ public final class MethodKey {
         return true;
     }
 
+    /**
+     * Normalizes types of method parameters. OpenL engine uses alias data types as internal types and they are used
+     * only in OpenL. For java users alias data types are represented as appropriate java type. While method key usage
+     * we should use underlying type of alias data type parameter as real type of parameter.
+     *
+     * @param originalParams parameters of method
+     * @return normalized parameters
+     */
     private IOpenClass[] getNormalizedParams(IOpenClass[] originalParams) {
 
         if (originalParams == null) {
