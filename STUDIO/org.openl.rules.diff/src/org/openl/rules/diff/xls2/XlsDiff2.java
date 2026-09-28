@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -112,7 +113,7 @@ public class XlsDiff2 {
 
         // 2. Sheet and name seems the same
         iterate((t1, t2) -> {
-            if (t1.getSheetName().equals(t2.getSheetName())) {
+            if (Objects.equals(t1.getSheetName(), t2.getSheetName())) {
                 var sameName = t1.getTableName().equals(t2.getTableName());
                 if (sameName) {
                     add(GUESS_MAY_BE_SAME, new DiffPair(t1, t2));
@@ -130,7 +131,7 @@ public class XlsDiff2 {
      * @return {@code true} if the tables are paired
      */
     private boolean guessBySameStart(XlsTable t1, XlsTable t2) {
-        if (t1.getSheetName().equals(t2.getSheetName())) {
+        if (Objects.equals(t1.getSheetName(), t2.getSheetName())) {
             var s1 = t1.getLocation().getStart().toString();
             var s2 = t2.getLocation().getStart().toString();
             if (s1.equals(s2)) {
