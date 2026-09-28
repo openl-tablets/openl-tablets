@@ -1126,7 +1126,7 @@ public class DataTableBindHelper {
                                                         IOpenField field) {
             Object mapKey;
             try {
-                mapKey = getCollectionKey(currentFieldNameNode,
+                mapKey = getMapKey(currentFieldNameNode,
                         loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
                         bindingContext);
             } catch (SyntaxNodeException e) {
@@ -1244,6 +1244,46 @@ public class DataTableBindHelper {
             }
             return JavaOpenClass.OBJECT;
         }
+
+        private static Object getMapKey(IdentifierNode currentFieldNameNode,
+                                        TestMethodOpenClass testMethodOpenClass,
+                                        IBindingContext bindingContext) throws SyntaxNodeException {
+            var s = currentFieldNameNode.getIdentifier();
+            s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
+            if (testMethodOpenClass != null
+                    && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod executableRulesMethod) {
+                var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
+                if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
+                    var keyOpenClass = bindingContext.findType(
+                            tableSyntaxNode.getHeader().getCollectParameters()[0]);
+                    if (keyOpenClass != null) {
+                        return parseCollectionKey(s, keyOpenClass, currentFieldNameNode);
+                    }
+                }
+            }
+            return getCollectionKey(currentFieldNameNode);
+        }
+
+        /**
+         * Converts a map key to the key type. A quoted key of the {@code String} type is unquoted.
+         */
+        private static Object parseCollectionKey(String s,
+                                                 IOpenClass keyOpenClass,
+                                                 IdentifierNode currentFieldNameNode) throws SyntaxNodeException {
+            if (keyOpenClass.getInstanceClass() == String.class && StringUtils.matches(QUOTED, s)) {
+                s = s.substring(1, s.length() - 1);
+            }
+            try {
+                var converter = String2DataConvertorFactory
+                        .getConvertor(keyOpenClass.getInstanceClass());
+                return converter.parse(s, null);
+            } catch (Exception e) {
+                log.debug(ERROR_OCCURRED, e);
+                throw SyntaxNodeExceptionUtils.createError(
+                        "Cannot convert a key value '%s' to type '%s'.".formatted(s, keyOpenClass.getName()),
+                        currentFieldNameNode);
+            }
+        }
     }
 
     public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
@@ -1301,46 +1341,6 @@ public class DataTableBindHelper {
             fieldName = fieldName.substring(0, endIndex).trim();
         }
         return fieldName;
-    }
-
-    private static Object getCollectionKey(IdentifierNode currentFieldNameNode,
-                                           TestMethodOpenClass testMethodOpenClass,
-                                           IBindingContext bindingContext) throws SyntaxNodeException {
-        var s = currentFieldNameNode.getIdentifier();
-        s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
-        if (testMethodOpenClass != null
-                && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod executableRulesMethod) {
-            var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
-            if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
-                var keyOpenClass = bindingContext.findType(
-                        tableSyntaxNode.getHeader().getCollectParameters()[0]);
-                if (keyOpenClass != null) {
-                    return parseCollectionKey(s, keyOpenClass, currentFieldNameNode);
-                }
-            }
-        }
-        return getCollectionKey(currentFieldNameNode);
-    }
-
-    /**
-     * Converts a map key to the key type. A quoted key of the {@code String} type is unquoted.
-     */
-    private static Object parseCollectionKey(String s,
-                                             IOpenClass keyOpenClass,
-                                             IdentifierNode currentFieldNameNode) throws SyntaxNodeException {
-        if (keyOpenClass.getInstanceClass() == String.class && StringUtils.matches(QUOTED, s)) {
-            s = s.substring(1, s.length() - 1);
-        }
-        try {
-            var converter = String2DataConvertorFactory
-                    .getConvertor(keyOpenClass.getInstanceClass());
-            return converter.parse(s, null);
-        } catch (Exception e) {
-            log.debug(ERROR_OCCURRED, e);
-            throw SyntaxNodeExceptionUtils.createError(
-                    "Cannot convert a key value '%s' to type '%s'.".formatted(s, keyOpenClass.getName()),
-                    currentFieldNameNode);
-        }
     }
 
     public static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
