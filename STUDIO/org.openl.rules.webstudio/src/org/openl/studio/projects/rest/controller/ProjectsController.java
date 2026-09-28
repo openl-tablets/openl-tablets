@@ -739,7 +739,7 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody EditableTableView editTable,
-                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.updateTable(project, tableId, editTable, module);
         recompileWrittenModule();
         return tableWriteResponse(tableId, newTableId);
@@ -752,7 +752,7 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody AppendTableView editTable,
-                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.appendTableLines(project, tableId, editTable, module);
         recompileWrittenModule();
         return tableWriteResponse(tableId, newTableId);
@@ -765,7 +765,7 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> editTableSource(@ProjectId @PathVariable("projectId") RulesProject project,
                                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                        @Valid @RequestBody RawTableSourceAction action,
-                                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+                                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.editTableSource(project, tableId, List.of(action), module);
         recompileWrittenModule();
         return tableWriteResponse(tableId, newTableId);
@@ -778,7 +778,7 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> editTableSourceBatch(@ProjectId @PathVariable("projectId") RulesProject project,
                                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                             @Valid @RequestBody RawTableSourceActions actions,
-                                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+                                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.editTableSource(project, tableId, actions.actions(), module);
         recompileWrittenModule();
         return tableWriteResponse(tableId, newTableId);
@@ -791,7 +791,7 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> updateTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
                                                              @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                              @Valid @RequestBody TablePropertiesUpdate update,
-                                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+                                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.updateTableProperties(project, tableId, update.properties(), module);
         recompileWrittenModule();
         return tableWriteResponse(tableId, newTableId);
@@ -802,7 +802,7 @@ public class ProjectsController {
     @DeleteMapping("/{projectId}/tables/{tableId}")
     public ResponseEntity<Void> deleteTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
-                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         projectService.deleteTable(project, tableId, module);
         recompileWrittenModule();
         return ResponseEntity.noContent().build();

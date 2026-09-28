@@ -54,6 +54,7 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -1504,6 +1505,36 @@ class WorkspaceProjectServiceTest {
         assertEquals("openl.error.409.table.new-module.exists.message", exception.getErrorCode());
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
         verify(project).unlock();
+    }
+
+    @Test
+    void a_write_to_a_project_another_user_is_holding_is_refused_as_a_conflict_that_names_them() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class), tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        stubResolvedSource(service, project, mock(IOpenLTable.class));
+        var destHandle = mock(ProjectHandle.class);
+        when(destHandle.awaitCompiled()).thenReturn(mock(ProjectModel.class));
+        doReturn(destHandle).when(service).openProject(project, "Existing");
+        // Another user pressed Edit first and is holding the project while they write.
+        var currentProject = mock(RulesProject.class);
+        when(webStudio.getCurrentProject()).thenReturn(currentProject);
+        doThrow(new ProjectException("The project is locked by other user")).when(currentProject).tryLockOrThrow();
+        var lockInfo = mock(LockInfo.class);
+        when(lockInfo.getLockedBy()).thenReturn("user2");
+        when(currentProject.getLockInfo()).thenReturn(lockInfo);
+        var request = new CopyTableRequest("Existing", "Copies", null, "CopyName", null);
+
+        var conflict = assertThrows(ConflictException.class, () -> service.copyTable(project, "src-id", request));
+
+        // Answered as the files API answers it, and naming whom to wait for: a 500 says only that Studio broke.
+        assertEquals("openl.error.409.project.locked.by.message", conflict.getErrorCode());
+        assertEquals(List.of("user2"), List.of(conflict.getArgs()));
+        verify(tableCopyService, never()).copyInto(any(), any(), any(), any(), any());
     }
 
     /** Stubs the source-resolution chain so {@code getOpenLTable(project, "src-id")} returns {@code source}. */
