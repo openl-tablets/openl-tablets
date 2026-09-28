@@ -150,14 +150,7 @@ public final class OpenLFuzzyUtils {
         String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
         var fields = new LinkedList<IOpenField>();
         fields.add(field);
-        var x = findTokenFields(ret, t, deepLevel);
-        if (x == null) {
-            x = new LinkedList<>();
-            x.add(fields);
-            ret.put(new Token(t, deepLevel), x);
-        } else {
-            x.add(fields);
-        }
+        addTokenFields(ret, t, deepLevel, fields);
 
         var type = field.getType();
         if (!type.isSimple() && !type.isArray()) {
@@ -179,17 +172,23 @@ public final class OpenLFuzzyUtils {
         }
     }
 
-    private static LinkedList<LinkedList<IOpenField>> findTokenFields(
-            Map<Token, LinkedList<LinkedList<IOpenField>>> ret,
-            String t,
-            int deepLevel) {
+    /**
+     * Adds the path of fields to the token of the given value and level, adding the token when there is none yet.
+     */
+    private static void addTokenFields(Map<Token, LinkedList<LinkedList<IOpenField>>> ret,
+                                       String t,
+                                       int deepLevel,
+                                       LinkedList<IOpenField> fields) {
         for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : ret.entrySet()) {
             var token = entry.getKey();
             if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
-                return entry.getValue();
+                entry.getValue().add(fields);
+                return;
             }
         }
-        return null;
+        var x = new LinkedList<LinkedList<IOpenField>>();
+        x.add(fields);
+        ret.put(new Token(t, deepLevel), x);
     }
 
     /**

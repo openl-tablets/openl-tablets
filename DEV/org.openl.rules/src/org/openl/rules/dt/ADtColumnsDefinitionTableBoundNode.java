@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -163,8 +164,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 headerIndexes,
                 i,
                 expressionTable.getCell(0, 0).getHeight());
-        if (parameters != null && header != null) {
-            createAndAddDefinition(header, parameters, expressionTable, expressionCell);
+        if (parameters.isPresent() && header != null) {
+            createAndAddDefinition(header, parameters.get(), expressionTable, expressionCell);
         }
         return expressionTable.getCell(0, 0).getHeight();
     }
@@ -177,13 +178,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
      *
      * @param row    the first row of the definition
      * @param height the number of rows the definition spans
-     * @return the parameters by title, or {@code null} when a parameter or a title is invalid and the error is reported
+     * @return the parameters by title, or empty when a parameter or a title is invalid and the error is reported
      */
-    private Map<String, List<IParameterDeclaration>> readParameters(ILogicalTable tableBody,
-                                                                   int[] tableStructure,
-                                                                   int[] headerIndexes,
-                                                                   int row,
-                                                                   int height) {
+    private Optional<Map<String, List<IParameterDeclaration>>> readParameters(ILogicalTable tableBody,
+                                                                             int[] tableStructure,
+                                                                             int[] headerIndexes,
+                                                                             int row,
+                                                                             int height) {
         var j = 0;
         var j1 = 0;
         var parameters = new HashMap<String, List<IParameterDeclaration>>();
@@ -205,7 +206,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     tableBody.getSource(),
                     tableStructure[headerIndexes[PARAMETER_INDEX]],
                     row + j)) {
-                return null;
+                return Optional.empty();
             }
 
             if (j1 <= j) {
@@ -213,7 +214,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         .getSubtable(tableStructure[headerIndexes[TITLE_INDEX]], row + j, 1, 1);
                 title = readTitle(tCodeTable, uniqueSetOfTitles);
                 if (title == null) {
-                    return null;
+                    return Optional.empty();
                 }
                 j1 = j1 + tCodeTable.getCell(0, 0).getHeight();
             }
@@ -225,10 +226,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             } else if (parametersForMergedTitle.size() == 1 && parametersForMergedTitle.getFirst() == null) {
                 // The title spans the next rows too, so its blank parameter cell is not the only one
                 BindHelper.processError(PARAMETER_CELL_FORMAT, pGridCellSourceCodeModule, bindingContext);
-                return null;
+                return Optional.empty();
             }
         }
-        return parameters;
+        return Optional.of(parameters);
     }
 
     /**
