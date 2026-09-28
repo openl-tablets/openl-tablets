@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -96,6 +98,72 @@ class ParameterExportTest extends AbstractParameterExportTest {
         assertRowEquals(row, "ID", "p1", "p2[\"key1\"]:Integer", "p2[\"key2\"]:Integer");
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "#1", "12,23.0", "123", "333");
+    }
+
+    /**
+     * A run may be given nothing for a map, and a map may hold nothing under a key. The parameter is written out
+     * either way: this is what the workbook of a result looks like when nothing was asked of it, so a run of a
+     * rule taking a map must not be the one run that cannot be written down.
+     */
+    @Test
+    void mapThatIsNotThere() throws IOException {
+        var result = mockResults(params(new Class[]{ Map.class }, new Object[]{ null }));
+        export.write(sheet, result, true);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        assertRowEquals(sheetToCheck.getRow(rowNum), "ID", "p1");
+        assertRowEquals(sheetToCheck.getRow(++rowNum), "#1", "");
+    }
+
+    @Test
+    void mapHoldingNothingUnderAKey() throws IOException {
+        var mapValues = new HashMap<String, Integer>();
+        mapValues.put("key1", 123);
+        mapValues.put("key2", null);
+        var result = mockResults(params(mapValues));
+        export.write(sheet, result, true);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        // The key is named all the same; with nothing under it there is no type to name after it.
+        assertRowEquals(sheetToCheck.getRow(rowNum), "ID", "p1[\"key1\"]:Integer", "p1[\"key2\"]");
+        assertRowEquals(sheetToCheck.getRow(++rowNum), "#1", "123", "");
+    }
+
+    /**
+     * The columns of a map are laid out once for the whole table, from every key any of the cases carries.
+     * Taken from the first case alone they would be too few for a case holding more, and its values would be
+     * written over the columns of whatever stands after it.
+     */
+    @Test
+    void casesWhoseMapsDifferShareTheColumns() throws IOException {
+        var first = new LinkedHashMap<String, Integer>();
+        first.put("a", 1);
+        var second = new LinkedHashMap<String, Integer>();
+        second.put("a", 2);
+        second.put("b", 3);
+        var result = mockResults(params(first), params(second));
+        export.write(sheet, result, true);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        assertRowEquals(sheetToCheck.getRow(rowNum), "ID", "p1[\"a\"]:Integer", "p1[\"b\"]:Integer");
+        assertRowEquals(sheetToCheck.getRow(++rowNum), "#1", "1", "");
+        assertRowEquals(sheetToCheck.getRow(++rowNum), "#2", "2", "3");
+    }
+
+    @Test
+    void aCaseGivenNoMapLeavesTheColumnsOfTheOthersWhereTheyAre() throws IOException {
+        var second = new LinkedHashMap<String, Integer>();
+        second.put("a", 1);
+        second.put("b", 2);
+        var result = mockResults(
+                params(new Class[]{ Map.class }, new Object[]{ null }),
+                params(new Class[]{ Map.class }, new Object[]{ second }));
+        export.write(sheet, result, true);
+        var sheetToCheck = saveAndReadSheet();
+        var rowNum = BaseExport.FIRST_ROW + 2;
+        assertRowEquals(sheetToCheck.getRow(rowNum), "ID", "p1[\"a\"]:Integer", "p1[\"b\"]:Integer");
+        assertRowEquals(sheetToCheck.getRow(++rowNum), "#1", "", "");
+        assertRowEquals(sheetToCheck.getRow(++rowNum), "#2", "1", "2");
     }
 
     @Test
