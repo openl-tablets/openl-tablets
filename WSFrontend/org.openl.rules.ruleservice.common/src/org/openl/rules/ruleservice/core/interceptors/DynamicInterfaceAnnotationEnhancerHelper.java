@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -83,95 +84,121 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                          final String signature,
                                          final String[] exceptions) {
             if (templateClass != null) {
-                Method templateMethod = null;
-                List<Method> methods = templateClassMethodsByName.get(name);
-                if (methods != null) {
-                    for (Method method : methods) {
-                        var typesInTemplateMethod = Arrays.stream(method.getParameters())
-                                .filter(e -> !e.isAnnotationPresent(ExternalParam.class)) // Skip parameters with
-                                // @ExternalParam annotation
-                                .map(e -> Type.getType(e.getType()))
-                                .toArray(Type[]::new);
-                        Type[] typesInCurrentMethod = Type.getArgumentTypes(descriptor);
-                        if (typesInCurrentMethod.length == typesInTemplateMethod.length) {
-                            var isCompatible = true;
-                            for (var i = 0; i < typesInCurrentMethod.length; i++) {
-                                if (!typesInCurrentMethod[i].equals(typesInTemplateMethod[i])) {
-                                    var parameter = method.getParameters()[i];
-                                    var isCompatibleParameter = false;
-                                    var rulesType = parameter.getAnnotation(RulesType.class);
-                                    if (rulesType != null) {
-                                        try {
-                                            var type = RuleServiceInstantiationFactoryHelper
-                                                    .findOrLoadType(rulesType, openClass, classLoader);
-                                            var d = typesInCurrentMethod[i].getDescriptor();
-                                            while (d.startsWith("[")) {
-                                                d = d.substring(1);
-                                            }
-                                            if (Objects.equals(Type.getType(type), Type.getType(d))) {
-                                                isCompatibleParameter = true;
-                                            }
-                                        } catch (ClassNotFoundException e) {
-                                            throw new InstantiationException("Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.".formatted(
-                                                    rulesType.value()));
-                                        }
-                                    }
-                                    if (!isCompatibleParameter) {
-                                        isCompatible = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (isCompatible) {
-                                if (templateMethod == null) {
-                                    templateMethod = method;
-                                } else {
-                                    throw new InstantiationException("Failed to apply annotation template class to the service class. It is a non-obvious choice of '%s' method.".formatted(
-                                            MethodUtil.printMethod(method.getName(), method.getParameterTypes())));
-                                }
-                            }
-                        }
-                    }
-                }
+                var templateMethod = findTemplateMethod(name, descriptor);
                 if (templateMethod != null) {
-                    foundMethods.add(templateMethod);
-                    Type[] argumentTypes = Type.getArgumentTypes(templateMethod);
-                    Type[] originalMethodArgumentTypes = Type.getArgumentTypes(descriptor);
-                    var i = 0;
-                    var j = 0;
-                    for (Parameter parameter : templateMethod.getParameters()) {
-                        if (!parameter.isAnnotationPresent(ExternalParam.class)) {
-                            if (!parameter.isAnnotationPresent(RulesType.class) || isObjectType(parameter.getType())) {
-                                argumentTypes[i] = originalMethodArgumentTypes[j];
-                            }
-                            j++;
-                        }
-                        i++;
-                    }
-                    var mv = super.visitMethod(access,
-                            name,
-                            Type.getMethodDescriptor(Type.getType(templateMethod.getReturnType()), argumentTypes),
-                            signature,
-                            exceptions);
-                    var annotations = templateMethod.getAnnotations();
-                    for (Annotation annotation : annotations) {
-                        var annotationVisitor = mv
-                                .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
-                        InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
-                    }
-                    i = 0;
-                    for (Parameter parameter : templateMethod.getParameters()) {
-                        for (Annotation annotation : parameter.getAnnotations()) {
-                            var annotationVisitor = mv
-                                    .visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
-                            InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
-                        }
-                        i++;
-                    }
-                    return mv;
+                    return visitTemplateMethod(access, name, descriptor, signature, exceptions, templateMethod);
                 }
             }
             return super.visitMethod(access, name, descriptor, signature, exceptions);
+        }
+
+        /**
+         * Returns the template method that is compatible with the method, or {@code null} when there is none.
+         *
+         * @throws InstantiationException if several template methods are compatible with the method
+         */
+        private @Nullable Method findTemplateMethod(String name, String descriptor) {
+            Method templateMethod = null;
+            List<Method> methods = templateClassMethodsByName.get(name);
+            if (methods != null) {
+                for (Method method : methods) {
+                    if (isCompatible(method, descriptor)) {
+                        if (templateMethod == null) {
+                            templateMethod = method;
+                        } else {
+                            throw new InstantiationException("Failed to apply annotation template class to the service class. It is a non-obvious choice of '%s' method.".formatted(
+                                    MethodUtil.printMethod(method.getName(), method.getParameterTypes())));
+                        }
+                    }
+                }
+            }
+            return templateMethod;
+        }
+
+        private boolean isCompatible(Method method, String descriptor) {
+            var typesInTemplateMethod = Arrays.stream(method.getParameters())
+                    .filter(e -> !e.isAnnotationPresent(ExternalParam.class)) // Skip parameters with
+                    // @ExternalParam annotation
+                    .map(e -> Type.getType(e.getType()))
+                    .toArray(Type[]::new);
+            Type[] typesInCurrentMethod = Type.getArgumentTypes(descriptor);
+            if (typesInCurrentMethod.length != typesInTemplateMethod.length) {
+                return false;
+            }
+            for (var i = 0; i < typesInCurrentMethod.length; i++) {
+                if (!typesInCurrentMethod[i].equals(typesInTemplateMethod[i])) {
+                    var parameter = method.getParameters()[i];
+                    if (!isCompatibleParameter(parameter, typesInCurrentMethod[i])) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private boolean isCompatibleParameter(Parameter parameter, Type typeInCurrentMethod) {
+            var isCompatibleParameter = false;
+            var rulesType = parameter.getAnnotation(RulesType.class);
+            if (rulesType != null) {
+                try {
+                    var type = RuleServiceInstantiationFactoryHelper
+                            .findOrLoadType(rulesType, openClass, classLoader);
+                    var d = typeInCurrentMethod.getDescriptor();
+                    while (d.startsWith("[")) {
+                        d = d.substring(1);
+                    }
+                    if (Objects.equals(Type.getType(type), Type.getType(d))) {
+                        isCompatibleParameter = true;
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new InstantiationException("Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.".formatted(
+                            rulesType.value()));
+                }
+            }
+            return isCompatibleParameter;
+        }
+
+        private MethodVisitor visitTemplateMethod(int access,
+                                                  String name,
+                                                  String descriptor,
+                                                  String signature,
+                                                  String[] exceptions,
+                                                  Method templateMethod) {
+            foundMethods.add(templateMethod);
+            Type[] argumentTypes = Type.getArgumentTypes(templateMethod);
+            Type[] originalMethodArgumentTypes = Type.getArgumentTypes(descriptor);
+            var i = 0;
+            var j = 0;
+            for (Parameter parameter : templateMethod.getParameters()) {
+                if (!parameter.isAnnotationPresent(ExternalParam.class)) {
+                    if (!parameter.isAnnotationPresent(RulesType.class) || isObjectType(parameter.getType())) {
+                        argumentTypes[i] = originalMethodArgumentTypes[j];
+                    }
+                    j++;
+                }
+                i++;
+            }
+            var mv = super.visitMethod(access,
+                    name,
+                    Type.getMethodDescriptor(Type.getType(templateMethod.getReturnType()), argumentTypes),
+                    signature,
+                    exceptions);
+            var annotations = templateMethod.getAnnotations();
+            for (Annotation annotation : annotations) {
+                var annotationVisitor = mv
+                        .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
+                InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
+            }
+            i = 0;
+            for (Parameter parameter : templateMethod.getParameters()) {
+                for (Annotation annotation : parameter.getAnnotations()) {
+                    var annotationVisitor = mv
+                            .visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
+                    InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
+                }
+                i++;
+            }
+            return mv;
         }
 
         private static boolean isObjectType(Class<?> type) {

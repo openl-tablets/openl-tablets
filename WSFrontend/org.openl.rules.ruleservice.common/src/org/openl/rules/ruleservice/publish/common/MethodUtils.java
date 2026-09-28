@@ -102,6 +102,12 @@ public final class MethodUtils {
             }
         }
         fixJavaKeyWords(parameterNames);
+        applyNameAnnotations(method, parameterNames);
+        validateAndUpdateParameterNames(parameterNames);
+        return parameterNames;
+    }
+
+    private static void applyNameAnnotations(Method method, String[] parameterNames) {
         var i = 0;
         for (Parameter parameter : method.getParameters()) {
             var name = parameter.getAnnotation(Name.class);
@@ -120,8 +126,6 @@ public final class MethodUtils {
             }
             i++;
         }
-        validateAndUpdateParameterNames(parameterNames);
-        return parameterNames;
     }
 
     private static void fixJavaKeyWords(String[] parameterNames) {
@@ -132,19 +136,21 @@ public final class MethodUtils {
                 while (!f) {
                     k++;
                     var s = parameterNames[i] + k;
-                    var g = true;
-                    for (var j = 0; j < parameterNames.length; j++) {
-                        if (j != i && s.equals(parameterNames[j])) {
-                            g = false;
-                            break;
-                        }
-                    }
-                    if (g) {
+                    if (!isNameOfOtherParameter(parameterNames, i, s)) {
                         f = true;
                     }
                 }
                 parameterNames[i] += k;
             }
         }
+    }
+
+    private static boolean isNameOfOtherParameter(String[] parameterNames, int index, String name) {
+        for (var j = 0; j < parameterNames.length; j++) {
+            if (j != index && name.equals(parameterNames[j])) {
+                return true;
+            }
+        }
+        return false;
     }
 }
