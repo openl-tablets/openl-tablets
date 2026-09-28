@@ -67,11 +67,12 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
     // The reads of a result, one after another. A signal arriving while a read is on its way waits for it:
     // two reads could both find the result, and the file would be saved twice.
     const reads = useRef<Promise<unknown>>(Promise.resolve())
-    // The workbook starts out the way it is written when nothing is asked for, which is the sheet the
-    // download this panel replaced produced.
+    // The options start where the Run menu this panel replaced left them: Skip Empty Parameters off, Flat
+    // Parameter Layout on. They are always sent, so what the endpoint writes when it is asked for neither —
+    // the sheet of the download it replaced — is a promise of its own and says nothing about this panel.
     const [file, setFile] = useState<RunFileChoice>({
-        skipEmptyParameters: true,
-        flattenParameters: false,
+        skipEmptyParameters: false,
+        flattenParameters: true,
         resultInJson: false,
     })
     const [testsOptions, setTestsOptions] = useState<TestsOptions>(() => ({

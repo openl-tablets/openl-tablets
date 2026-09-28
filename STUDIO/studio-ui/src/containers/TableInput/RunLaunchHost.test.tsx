@@ -309,23 +309,39 @@ describe('RunLaunchHost', () => {
         expect(save).toHaveBeenCalledWith(expect.any(Blob), 'test-results.xlsx', 'application/xlsx')
     })
 
-    it('writes the run into a workbook, laid out the way the options ask for', async () => {
+    it('writes the run into a workbook laid out as the Run menu it replaced laid it out', async () => {
         inputRead.mockResolvedValue(ruleTable)
         render(<RunLaunchHost />)
 
         await open()
-        await userEvent.click(await screen.findByTestId('run-flattenParameters'))
-        await userEvent.click(screen.getByTestId('run-into-file'))
+        await userEvent.click(await screen.findByTestId('run-into-file'))
 
-        // The panel starts out asking for the sheet the endpoint writes when nothing is asked for; ticking
-        // an option asks for the other one.
+        // Touched by nobody, the panel asks for what the old Run menu asked for: empty parameters written
+        // out, and the parameters laid flat. It says both rather than leaving them to the endpoint, whose
+        // own answer to being asked for neither is the sheet of the download it replaced.
         await waitFor(() => expect(workbook).toHaveBeenCalledWith('real-p1', {
-            skipEmptyParameters: true,
+            skipEmptyParameters: false,
             flattenParameters: true,
             resultInJson: false,
         }))
         expect(save).toHaveBeenCalledWith(expect.any(Blob), 'run-result.xlsx', 'application/xlsx')
         expect(screen.queryByTestId('run-result-modal')).toBeNull()
+    })
+
+    it('writes it the other way round when the options are ticked over', async () => {
+        inputRead.mockResolvedValue(ruleTable)
+        render(<RunLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('run-skipEmptyParameters'))
+        await userEvent.click(screen.getByTestId('run-flattenParameters'))
+        await userEvent.click(screen.getByTestId('run-into-file'))
+
+        await waitFor(() => expect(workbook).toHaveBeenCalledWith('real-p1', {
+            skipEmptyParameters: true,
+            flattenParameters: false,
+            resultInJson: false,
+        }))
     })
 
     it('writes the returned value into a JSON file when it is asked for', async () => {
