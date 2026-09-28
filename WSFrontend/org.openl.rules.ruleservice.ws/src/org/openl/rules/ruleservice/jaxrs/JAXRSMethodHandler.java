@@ -36,24 +36,7 @@ class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
             throw new IllegalStateException("Method is not found in the map of methods.");
         }
         if (args != null && args.length > 0 && method.getParameterCount() != m.getParameterCount()) {
-            var requestObject = args[0];
-            Object[] newArgs = new Object[m.getParameterCount()];
-            Object[] requestWrapperArgs = null;
-            if (requestObject != null) {
-                requestWrapperArgs = (Object[]) requestObject.getClass().getMethod("_args").invoke(requestObject);
-            }
-            var i = 0;
-            var j = 1;
-            var k = 0;
-            for (Parameter parameter : m.getParameters()) {
-                if (JAXRSOpenLServiceEnhancerHelper.isParameterInWrapperClass(parameter)) {
-                    newArgs[i] = requestWrapperArgs != null ? requestWrapperArgs[k++] : null;
-                } else {
-                    newArgs[i] = args[j++];
-                }
-                i++;
-            }
-            args = newArgs;
+            args = unwrapRequestArgs(m, args);
         }
 
         Object o;
@@ -70,5 +53,31 @@ class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
         } else {
             return Response.status(o == null ? Response.Status.NO_CONTENT : Response.Status.OK).entity(o).build();
         }
+    }
+
+    /**
+     * Replaces the request wrapper, the first argument, with the values it wraps. The arguments that are not wrapped
+     * keep their order.
+     */
+    private static Object[] unwrapRequestArgs(Method m, Object[] args)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        var requestObject = args[0];
+        Object[] newArgs = new Object[m.getParameterCount()];
+        Object[] requestWrapperArgs = null;
+        if (requestObject != null) {
+            requestWrapperArgs = (Object[]) requestObject.getClass().getMethod("_args").invoke(requestObject);
+        }
+        var i = 0;
+        var j = 1;
+        var k = 0;
+        for (Parameter parameter : m.getParameters()) {
+            if (JAXRSOpenLServiceEnhancerHelper.isParameterInWrapperClass(parameter)) {
+                newArgs[i] = requestWrapperArgs != null ? requestWrapperArgs[k++] : null;
+            } else {
+                newArgs[i] = args[j++];
+            }
+            i++;
+        }
+        return newArgs;
     }
 }

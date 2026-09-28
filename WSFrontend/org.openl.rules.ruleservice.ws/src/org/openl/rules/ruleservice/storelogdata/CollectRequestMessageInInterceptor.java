@@ -18,6 +18,7 @@ import org.apache.cxf.io.DelegatingInputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.jspecify.annotations.Nullable;
 
 /**
  * CXF interceptor for collecting request data for logging to external source feature.
@@ -67,18 +68,7 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
         append(message.get(Message.CONTENT_TYPE), buffer.getContentType());
         append(message.get(Message.PROTOCOL_HEADERS), buffer.getHeader());
 
-        var uri = (String) message.get(Message.REQUEST_URL);
-        if (uri == null) {
-            var address = (String) message.get(Message.ENDPOINT_ADDRESS);
-            uri = (String) message.get(Message.REQUEST_URI);
-            if (uri != null && uri.startsWith("/")) {
-                if (address != null && !address.startsWith(uri)) {
-                    uri = address + uri;
-                }
-            } else {
-                uri = address;
-            }
-        }
+        var uri = resolveUri(message);
         if (uri != null) {
             buffer.getAddress().append(uri);
             var query = (String) message.get(Message.QUERY_STRING);
@@ -103,6 +93,22 @@ public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor
             }
         }
         handleMessage(buffer);
+    }
+
+    private static @Nullable String resolveUri(Message message) {
+        var uri = (String) message.get(Message.REQUEST_URL);
+        if (uri == null) {
+            var address = (String) message.get(Message.ENDPOINT_ADDRESS);
+            uri = (String) message.get(Message.REQUEST_URI);
+            if (uri != null && uri.startsWith("/")) {
+                if (address != null && !address.startsWith(uri)) {
+                    uri = address + uri;
+                }
+            } else {
+                uri = address;
+            }
+        }
+        return uri;
     }
 
     private static void append(Object headers, StringBuilder builder) {

@@ -45,27 +45,33 @@ public final class KafkaHelpers {
             throw new AmbiguousMethodException(
                     "Multiple methods with the same name '%s' is found in the service class.".formatted(methodName));
         } else {
-            String[] methodParametersSplitted = KafkaHelpers.getMethodParameters(methodParameters);
-            var methods = new ArrayList<Method>();
-            for (Method m : service.getServiceClass().getMethods()) {
-                if (m.getName().equals(methodName) && isMethodParametersMatched(m.getParameterTypes(),
-                        methodParametersSplitted)) {
-                    methods.add(m);
-                }
+            return findMethodByParameters(service, methodName, methodParameters);
+        }
+    }
+
+    private static Method findMethodByParameters(OpenLService service,
+                                                 String methodName,
+                                                 String methodParameters) throws RuleServiceInstantiationException {
+        String[] methodParametersSplitted = KafkaHelpers.getMethodParameters(methodParameters);
+        var methods = new ArrayList<Method>();
+        for (Method m : service.getServiceClass().getMethods()) {
+            if (m.getName().equals(methodName) && isMethodParametersMatched(m.getParameterTypes(),
+                    methodParametersSplitted)) {
+                methods.add(m);
             }
-            if (methods.isEmpty()) {
-                throw new MethodNotFoundException(
-                        "Method with name '%s' and parameters '%s' is not found in the service class.".formatted(
-                                methodName,
-                                Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
-            } else {
-                if (methods.size() == 1) {
-                    return methods.getFirst();
-                } else {
-                    throw new AmbiguousMethodException("Multiple methods with the same name '%s' and parameters '%s' is found in the service class.".formatted(
+        }
+        if (methods.isEmpty()) {
+            throw new MethodNotFoundException(
+                    "Method with name '%s' and parameters '%s' is not found in the service class.".formatted(
                             methodName,
                             Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
-                }
+        } else {
+            if (methods.size() == 1) {
+                return methods.getFirst();
+            } else {
+                throw new AmbiguousMethodException("Multiple methods with the same name '%s' and parameters '%s' is found in the service class.".formatted(
+                        methodName,
+                        Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
             }
         }
     }

@@ -31,6 +31,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -214,107 +215,7 @@ public final class KafkaService implements Runnable {
                     var countDownLatch = new CountDownLatch(records.count());
                     ZonedDateTime incomingTime = ZonedDateTime.now(ZoneId.systemDefault());
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
-                        executor.submit(() -> {
-                            StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
-                            String requestIdHeader = null;
-                            try {
-                                if (requestIdHeaderKey != null) {
-                                    var idHeader = consumerRecord.headers().lastHeader(requestIdHeaderKey);
-                                    if (idHeader != null) {
-                                        requestIdHeader = new String(idHeader.value(), StandardCharsets.UTF_8);
-                                    }
-                                    if (StringUtils.isBlank(requestIdHeader)) {
-                                        requestIdHeader = UUID.randomUUID().toString();
-                                    }
-                                    MDC.put(RuleServicesFilter.REQUEST_ID_KEY, requestIdHeader);
-                                }
-                                if (storeLogData != null) {
-                                    storeLogData.setServiceClass(service.getServiceClass());
-                                    storeLogData.setServiceName(service.getName());
-                                    storeLogData.setIncomingMessageTime(incomingTime);
-                                    storeLogData.setPublisherType(PublisherType.KAFKA);
-                                    storeLogData.setObjectSerializer(getObjectSerializer());
-                                    storeLogData.setConsumerRecord(consumerRecord);
-                                }
-                                var requestMessage = consumerRecord.value();
-                                if (storeLogData != null) {
-                                    storeLogData.setServiceMethod(requestMessage.getMethod());
-                                    storeLogData.setParameters(requestMessage.getParameters());
-                                }
-                                var outputTopic = getOutTopic(consumerRecord);
-                                if (!StringUtils.isBlank(outputTopic)) {
-                                    var result = requestMessage.getMethod()
-                                            .invoke(service.getServiceBean(), requestMessage.getParameters());
-                                    var header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
-                                    ProducerRecord<String, Object> producerRecord;
-                                    if (header == null) {
-                                        producerRecord = new ProducerRecord<>(outputTopic,
-                                                consumerRecord.key(),
-                                                result);
-                                    } else {
-                                        Integer partition = Integer
-                                                .parseInt(new String(header.value(), StandardCharsets.UTF_8));
-                                        producerRecord = new ProducerRecord<>(outputTopic,
-                                                partition,
-                                                consumerRecord.key(),
-                                                result);
-                                    }
-                                    if (requestIdHeader != null) {
-                                        producerRecord.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
-                                    }
-                                    forwardHeadersToOutput(consumerRecord, producerRecord);
-
-                                    if (storeLogData != null) {
-                                        storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
-                                    }
-                                    var finalRequestIdHeader = requestIdHeader;
-                                    producer.send(producerRecord, (metadata, exception) -> {
-                                        if (storeLogData != null) {
-                                            storeLogData.setProducerRecord(producerRecord);
-                                        }
-                                        if (exception == null && storeLogData != null) {
-                                            try {
-                                                getStoreLogDataManager().store(storeLogData);
-                                            } catch (StoreLogDataException e) {
-                                                exception = e;
-                                            }
-                                        }
-                                        if (exception != null) {
-                                            try {
-                                                if (log.isErrorEnabled()) {
-                                                    log.error(
-                                                            "Failed to send a result message for method '{}' in service '{}' to output topic '{}'.",
-                                                            requestMessage.getMethod(),
-                                                            getService().getDeployPath(),
-                                                            getOutTopic(consumerRecord), exception);
-                                                }
-                                            } catch (Exception e) {
-                                                log.error("Unexpected error.", e);
-                                            }
-                                            sendErrorToDlt(consumerRecord, exception, storeLogData, finalRequestIdHeader);
-                                        }
-                                    });
-                                } else {
-                                    if (storeLogData != null) {
-                                        storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
-                                        getStoreLogDataManager().store(storeLogData);
-                                    }
-                                }
-                            } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                                var ex = e.getCause();
-                                sendError(consumerRecord, storeLogData, ex instanceof Exception e1 ? e1 : e, requestIdHeader);
-                            } catch (Exception e) {
-                                sendError(consumerRecord, storeLogData, e, requestIdHeader);
-                            } finally {
-                                countDownLatch.countDown();
-                                if (isStoreLogDataEnabled()) {
-                                    StoreLogDataHolder.remove();
-                                }
-                                if (requestIdHeader != null) {
-                                    MDC.remove(RuleServicesFilter.REQUEST_ID_KEY);
-                                }
-                            }
-                        });
+                        executor.submit(() -> processRecord(consumerRecord, incomingTime, countDownLatch));
                     }
                     countDownLatch.await();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
@@ -333,6 +234,148 @@ public final class KafkaService implements Runnable {
                     return;
                 }
             }
+        }
+    }
+
+    private void processRecord(ConsumerRecord<String, RequestMessage> consumerRecord,
+                               ZonedDateTime incomingTime,
+                               CountDownLatch countDownLatch) {
+        StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
+        String requestIdHeader = null;
+        try {
+            if (requestIdHeaderKey != null) {
+                requestIdHeader = resolveRequestIdHeader(consumerRecord);
+                MDC.put(RuleServicesFilter.REQUEST_ID_KEY, requestIdHeader);
+            }
+            if (storeLogData != null) {
+                storeLogData.setServiceClass(service.getServiceClass());
+                storeLogData.setServiceName(service.getName());
+                storeLogData.setIncomingMessageTime(incomingTime);
+                storeLogData.setPublisherType(PublisherType.KAFKA);
+                storeLogData.setObjectSerializer(getObjectSerializer());
+                storeLogData.setConsumerRecord(consumerRecord);
+            }
+            var requestMessage = consumerRecord.value();
+            if (storeLogData != null) {
+                storeLogData.setServiceMethod(requestMessage.getMethod());
+                storeLogData.setParameters(requestMessage.getParameters());
+            }
+            var outputTopic = getOutTopic(consumerRecord);
+            if (!StringUtils.isBlank(outputTopic)) {
+                sendResult(consumerRecord, requestMessage, outputTopic, storeLogData, requestIdHeader);
+            } else {
+                if (storeLogData != null) {
+                    storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
+                    getStoreLogDataManager().store(storeLogData);
+                }
+            }
+        } catch (InvocationTargetException | UndeclaredThrowableException e) {
+            var ex = e.getCause();
+            sendError(consumerRecord, storeLogData, ex instanceof Exception e1 ? e1 : e, requestIdHeader);
+        } catch (Exception e) {
+            sendError(consumerRecord, storeLogData, e, requestIdHeader);
+        } finally {
+            countDownLatch.countDown();
+            if (isStoreLogDataEnabled()) {
+                StoreLogDataHolder.remove();
+            }
+            if (requestIdHeader != null) {
+                MDC.remove(RuleServicesFilter.REQUEST_ID_KEY);
+            }
+        }
+    }
+
+    /**
+     * Returns the request id from the message header, or a new random id when the header is blank.
+     */
+    private String resolveRequestIdHeader(ConsumerRecord<String, RequestMessage> consumerRecord) {
+        String requestIdHeader = null;
+        var idHeader = consumerRecord.headers().lastHeader(requestIdHeaderKey);
+        if (idHeader != null) {
+            requestIdHeader = new String(idHeader.value(), StandardCharsets.UTF_8);
+        }
+        if (StringUtils.isBlank(requestIdHeader)) {
+            requestIdHeader = UUID.randomUUID().toString();
+        }
+        return requestIdHeader;
+    }
+
+    /**
+     * Invokes the requested service method and sends its result to the output topic.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    private void sendResult(ConsumerRecord<String, RequestMessage> consumerRecord,
+                            RequestMessage requestMessage,
+                            String outputTopic,
+                            @Nullable StoreLogData storeLogData,
+                            @Nullable String requestIdHeader) throws Exception {
+        var result = requestMessage.getMethod()
+                .invoke(service.getServiceBean(), requestMessage.getParameters());
+        var header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
+        ProducerRecord<String, Object> producerRecord;
+        if (header == null) {
+            producerRecord = new ProducerRecord<>(outputTopic,
+                    consumerRecord.key(),
+                    result);
+        } else {
+            Integer partition = Integer
+                    .parseInt(new String(header.value(), StandardCharsets.UTF_8));
+            producerRecord = new ProducerRecord<>(outputTopic,
+                    partition,
+                    consumerRecord.key(),
+                    result);
+        }
+        if (requestIdHeader != null) {
+            producerRecord.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
+        }
+        forwardHeadersToOutput(consumerRecord, producerRecord);
+
+        if (storeLogData != null) {
+            storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
+        }
+        producer.send(producerRecord,
+                (metadata, exception) -> onResultSent(consumerRecord,
+                        requestMessage,
+                        producerRecord,
+                        storeLogData,
+                        requestIdHeader,
+                        exception));
+    }
+
+    /**
+     * Stores the log data of a sent result, or sends the request to the dead letter queue when sending or storing
+     * fails.
+     */
+    private void onResultSent(ConsumerRecord<String, RequestMessage> consumerRecord,
+                              RequestMessage requestMessage,
+                              ProducerRecord<String, Object> producerRecord,
+                              @Nullable StoreLogData storeLogData,
+                              @Nullable String requestIdHeader,
+                              @Nullable Exception exception) {
+        if (storeLogData != null) {
+            storeLogData.setProducerRecord(producerRecord);
+        }
+        var failure = exception;
+        if (exception == null && storeLogData != null) {
+            try {
+                getStoreLogDataManager().store(storeLogData);
+            } catch (StoreLogDataException e) {
+                failure = e;
+            }
+        }
+        if (failure != null) {
+            try {
+                if (log.isErrorEnabled()) {
+                    log.error(
+                            "Failed to send a result message for method '{}' in service '{}' to output topic '{}'.",
+                            requestMessage.getMethod(),
+                            getService().getDeployPath(),
+                            getOutTopic(consumerRecord), failure);
+                }
+            } catch (Exception e) {
+                log.error("Unexpected error.", e);
+            }
+            sendErrorToDlt(consumerRecord, failure, storeLogData, requestIdHeader);
         }
     }
 
@@ -439,30 +482,41 @@ public final class KafkaService implements Runnable {
             if (storeLogData != null) {
                 storeLogData.setOutcomingMessageTime(ZonedDateTime.now(ZoneId.systemDefault()));
             }
-            dltProducer.send(dltRecord, (metadata, exception) -> {
-                if (storeLogData != null) {
-                    storeLogData.setDltRecord(dltRecord);
-                    storeLogData.fault();
-                }
-                if (exception != null && log.isErrorEnabled()) {
-                    log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
+            dltProducer.send(dltRecord,
+                    (metadata, exception) -> onDltSent(consumerRecord,
+                            dltRecord,
                             recordDltTopic,
-                            System.lineSeparator(),
-                            consumerRecord.value().asText(), exception);
-                } else if (storeLogData != null) {
-                    try {
-                        getStoreLogDataManager().store(storeLogData);
-                    } catch (StoreLogDataException e1) {
-                        log.error("Failed on data store operation.", e1);
-                    }
-                }
-            });
+                            storeLogData,
+                            exception));
         } catch (Exception e1) {
             if (log.isErrorEnabled()) {
                 log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
                         recordDltTopic,
                         System.lineSeparator(),
                         consumerRecord.value().asText(), e1);
+            }
+        }
+    }
+
+    private void onDltSent(ConsumerRecord<String, RequestMessage> consumerRecord,
+                           ProducerRecord<String, byte[]> dltRecord,
+                           String recordDltTopic,
+                           @Nullable StoreLogData storeLogData,
+                           @Nullable Exception exception) {
+        if (storeLogData != null) {
+            storeLogData.setDltRecord(dltRecord);
+            storeLogData.fault();
+        }
+        if (exception != null && log.isErrorEnabled()) {
+            log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
+                    recordDltTopic,
+                    System.lineSeparator(),
+                    consumerRecord.value().asText(), exception);
+        } else if (storeLogData != null) {
+            try {
+                getStoreLogDataManager().store(storeLogData);
+            } catch (StoreLogDataException e1) {
+                log.error("Failed on data store operation.", e1);
             }
         }
     }

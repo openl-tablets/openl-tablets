@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +10,9 @@ import java.util.IdentityHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -106,43 +109,78 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                           Class<? extends Annotation> annotationClass,
                           Function<Annotation, Object> supplier) throws Exception {
         if (annotationClass != null) {
-            Class<?> cls = target.getClass();
-            Object resource = null;
-            var initialized = false;
-            while (cls != Object.class) {
-                for (Field field : cls.getDeclaredFields()) {
-                    var annotation = field.getAnnotation(annotationClass);
-                    if (annotation != null) {
-                        if (!initialized) {
-                            resource = supplier.apply(annotation);
-                            if (resource == null) {
-                                return null;
-                            }
-                            initialized = true;
-                        }
-                        ClassUtils.set(target, field.getName(), resource);
-                    }
-                }
-                cls = cls.getSuperclass();
+            var lazyResource = new LazyResource(supplier);
+            if (injectFields(target, annotationClass, lazyResource)
+                    && injectMethods(target, annotationClass, lazyResource)) {
+                return lazyResource.resource;
             }
-            for (Method method : target.getClass().getMethods()) {
-                if (method.getParameterCount() == 1) {
-                    var annotation = method.getAnnotation(annotationClass);
-                    if (annotation != null) {
-                        if (!initialized) {
-                            resource = supplier.apply(annotation);
-                            if (resource == null) {
-                                return null;
-                            }
-                            initialized = true;
-                        }
-                        method.invoke(target, resource);
+        }
+        return null;
+    }
+
+    /**
+     * Injects the resource into the annotated fields of the target class and its super classes. Returns
+     * {@code false} when no resource is created.
+     */
+    private static boolean injectFields(Object target,
+                                        Class<? extends Annotation> annotationClass,
+                                        LazyResource lazyResource) throws Exception {
+        Class<?> cls = target.getClass();
+        while (cls != Object.class) {
+            for (Field field : cls.getDeclaredFields()) {
+                var annotation = field.getAnnotation(annotationClass);
+                if (annotation != null) {
+                    var resource = lazyResource.get(annotation);
+                    if (resource == null) {
+                        return false;
                     }
+                    ClassUtils.set(target, field.getName(), resource);
                 }
+            }
+            cls = cls.getSuperclass();
+        }
+        return true;
+    }
+
+    /**
+     * Injects the resource through the annotated single-parameter methods of the target. Returns {@code false} when
+     * no resource is created.
+     */
+    private static boolean injectMethods(Object target,
+                                         Class<? extends Annotation> annotationClass,
+                                         LazyResource lazyResource)
+            throws IllegalAccessException, InvocationTargetException {
+        for (Method method : target.getClass().getMethods()) {
+            if (method.getParameterCount() == 1) {
+                var annotation = method.getAnnotation(annotationClass);
+                if (annotation != null) {
+                    var resource = lazyResource.get(annotation);
+                    if (resource == null) {
+                        return false;
+                    }
+                    method.invoke(target, resource);
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * The resource that the supplier creates from the first annotation it is asked for.
+     */
+    @RequiredArgsConstructor
+    private static final class LazyResource {
+        private final Function<Annotation, Object> supplier;
+        private boolean created;
+        private @Nullable Object resource;
+
+        private @Nullable Object get(Annotation annotation) {
+            if (!created) {
+                resource = supplier.apply(annotation);
+                created = true;
             }
             return resource;
         }
-        return null;
     }
 
     @Override
