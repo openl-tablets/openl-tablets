@@ -2387,15 +2387,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId   table id
      * @param tableView new table data
      * @return table id after the write; differs from {@code tableId} when the table was relocated to grow
-     * @throws ProjectException if project is locked by another user
+     * @throws ConflictException if the project is held by another user
      */
     public String updateTable(RulesProject project, String tableId, EditableTableView tableView,
-            @Nullable String moduleName) throws ProjectException {
+            @Nullable String moduleName) {
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableWriterExecutor.executeWrite(writer, tableView));
     }
 
@@ -2406,17 +2406,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId   table id
      * @param tableView lines to append
      * @return table id after the append; differs from {@code tableId} when the table was relocated to grow
-     * @throws ProjectException if project is locked by another user
+     * @throws ConflictException if the project is held by another user
      */
     public String appendTableLines(RulesProject project,
                                    String tableId,
                                    AppendTableView tableView,
-                                   @Nullable String moduleName) throws ProjectException {
+                                   @Nullable String moduleName) {
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableWriterExecutor.executeAppend(writer, tableView));
     }
 
@@ -2432,17 +2432,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @param actions the edits to apply, in order
      * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
-     * @throws ProjectException if project is locked by another user
+     * @throws ConflictException if the project is held by another user
      */
     public String editTableSource(RulesProject project,
                                   String tableId,
                                   List<RawTableSourceAction> actions,
-                                  @Nullable String moduleName) throws ProjectException {
+                                  @Nullable String moduleName) {
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
     }
 
@@ -2457,14 +2457,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId    table to write to
      * @param properties the properties to write, each with the text its value is written as
      * @return the table's identifier after the write, which changes when the table had to be moved to grow
-     * @throws ProjectException if project is locked by another user
+     * @throws ConflictException if the project is held by another user
      */
     public String updateTableProperties(RulesProject project, String tableId,
                                         List<TableProperty> properties,
-                                        @Nullable String moduleName) throws ProjectException {
+                                        @Nullable String moduleName) {
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tablePropertiesService.write(context.table(), properties));
     }
 
@@ -2476,14 +2476,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * @param project project
      * @param tableId table id
-     * @throws ProjectException if project is locked by another user
+     * @throws ConflictException if the project is held by another user
      */
-    public void deleteTable(RulesProject project, String tableId, @Nullable String moduleName)
-            throws ProjectException {
+    public void deleteTable(RulesProject project, String tableId, @Nullable String moduleName) {
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        reserveForWriting(getWebStudio().getCurrentProject());
         writing(() -> {
             writer.delete();
             return null;
@@ -2506,7 +2505,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return null;
         }
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableCreatorService.createTable(createTableRequest, projectModel));
     }
 
@@ -2526,7 +2525,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param sourceTableId id of the table to copy
      * @param request       the copy request
      * @return the copy's identifier, or {@code null} for a newly created module
-     * @throws ProjectException if project is locked by another user
+     * @throws ConflictException if the project is held by another user
      */
     public @Nullable String copyTable(RulesProject project,
                                       String sourceTableId,
@@ -2540,7 +2539,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return copyIntoNewModule(project, source, request, sheetName);
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
-        getWebStudio().getCurrentProject().tryLockOrThrow();
+        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> writeCopy(projectModel, source, request, sheetName));
     }
 
@@ -2567,7 +2566,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                                CopyTableRequest request,
                                                String sheetName) throws ProjectException {
         var lockedBefore = project.isLockedByMe();
-        project.tryLockOrThrow();
+        reserveForWriting(project);
         boolean moduleCreated = false;
         try {
             var projectDescriptor = getProjectDescriptor(project);
@@ -2599,7 +2598,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // A project without modules never opens, so the session has no current project to lock; the project the
         // module is written to is locked instead.
         var lockedBefore = project.isLockedByMe();
-        project.tryLockOrThrow();
+        reserveForWriting(project);
         try {
             var projectDescriptor = getProjectDescriptor(project);
             requireModuleAbsent(projectDescriptor.getModules(), createTableRequest.moduleName(),
@@ -2616,6 +2615,31 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             releaseLockTaken(project, lockedBefore);
             throw e;
         }
+    }
+
+    /**
+     * Reserves the project for this user before something of it is written.
+     *
+     * <p>A project another user is already holding is not a fault of this one: the write is refused the way the
+     * files API refuses it, with the conflict the API documents, and the answer names who is holding it so the
+     * reader knows whom to wait for rather than retrying into the same wall.
+     *
+     * @throws ConflictException when the project is held by another user
+     */
+    private static void reserveForWriting(RulesProject project) {
+        try {
+            project.tryLockOrThrow();
+        } catch (ProjectException refused) {
+            throw lockedByAnother(project);
+        }
+    }
+
+    /** Says who is holding the project, falling back to the plain refusal when the lock has since gone. */
+    private static ConflictException lockedByAnother(RulesProject project) {
+        var lockedBy = project.getLockInfo().getLockedBy();
+        return StringUtils.isBlank(lockedBy)
+                ? new ConflictException("project.locked.message")
+                : new ConflictException("project.locked.by.message", lockedBy);
     }
 
     /** Releases the lock this request took, leaving one the session already held alone. */
