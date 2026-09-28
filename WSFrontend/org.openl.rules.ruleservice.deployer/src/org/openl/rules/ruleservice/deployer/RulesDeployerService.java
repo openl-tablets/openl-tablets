@@ -164,58 +164,66 @@ public class RulesDeployerService implements Closeable {
      */
     public void read(String deployPath, Set<String> projectsPath, OutputStream output) throws IOException {
         if (deployRepo.supports().folders()) {
-            final var fullDeployPath = baseDeployPath + deployPath;
-            try {
-                if (Optional.ofNullable(deployRepo.check(fullDeployPath))
-                        .map(FileData::getSize)
-                        .filter(size -> size > FileData.UNDEFINED_SIZE)
-                        .isPresent()) {
-                    var archive = deployRepo.read(fullDeployPath);
-                    if (archive != null) {
-                        IOUtils.copyAndClose(archive.getStream(), output);
-                        return;
-                    }
-                }
-            } catch (IOException ignored) {
-                // OK
-            }
-            final var isDeployment = hasDeploymentDescriptor(fullDeployPath);
-            final var isMultiProject = isDeployment || deployRepo.listFolders(fullDeployPath).size() > 1;
-
-            final var basePath = (isMultiProject ? fullDeployPath
-                    : baseDeployPath + projectsPath.iterator().next()) + "/";
-            var files = deployRepo.list(basePath);
-            try (var target = new ZipOutputStream(output)) {
-                for (FileData fileData : files) {
-                    try (var fileItem = deployRepo.read(fileData.getName())) {
-                        var targetEntry = new ZipEntry(fileItem.getData().getName().substring(basePath.length()));
-                        target.putNextEntry(targetEntry);
-                        var input = fileItem.getStream();
-                        input.transferTo(target);
-                    }
-                }
-            }
+            readFromFolders(deployPath, projectsPath, output);
         } else {
-            if (projectsPath.size() == 1) {
-                IOUtils.copyAndClose(deployRepo.read(baseDeployPath + projectsPath.iterator().next()).getStream(),
-                        output);
-                return;
+            readFromArchives(deployPath, projectsPath, output);
+        }
+    }
+
+    private void readFromFolders(String deployPath, Set<String> projectsPath, OutputStream output) throws IOException {
+        final var fullDeployPath = baseDeployPath + deployPath;
+        try {
+            if (Optional.ofNullable(deployRepo.check(fullDeployPath))
+                    .map(FileData::getSize)
+                    .filter(size -> size > FileData.UNDEFINED_SIZE)
+                    .isPresent()) {
+                var archive = deployRepo.read(fullDeployPath);
+                if (archive != null) {
+                    IOUtils.copyAndClose(archive.getStream(), output);
+                    return;
+                }
             }
-            try (var target = new ZipOutputStream(output)) {
-                target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
-                target.write("name: ".getBytes(StandardCharsets.UTF_8));
-                target.write(deployPath.getBytes(StandardCharsets.UTF_8));
-                for (String projectPath : projectsPath) {
-                    final var projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
-                    final var fullDeployPath = baseDeployPath + projectPath;
-                    try (var source = new ZipInputStream(deployRepo.read(fullDeployPath).getStream())) {
-                        ZipEntry sourceEntry;
-                        while ((sourceEntry = source.getNextEntry()) != null) {
-                            var targetEntry = new ZipEntry(projectFolder + sourceEntry.getName());
-                            target.putNextEntry(targetEntry);
-                            if (!sourceEntry.isDirectory()) {
-                                source.transferTo(target);
-                            }
+        } catch (IOException ignored) {
+            // OK
+        }
+        final var isDeployment = hasDeploymentDescriptor(fullDeployPath);
+        final var isMultiProject = isDeployment || deployRepo.listFolders(fullDeployPath).size() > 1;
+
+        final var basePath = (isMultiProject ? fullDeployPath
+                : baseDeployPath + projectsPath.iterator().next()) + "/";
+        var files = deployRepo.list(basePath);
+        try (var target = new ZipOutputStream(output)) {
+            for (FileData fileData : files) {
+                try (var fileItem = deployRepo.read(fileData.getName())) {
+                    var targetEntry = new ZipEntry(fileItem.getData().getName().substring(basePath.length()));
+                    target.putNextEntry(targetEntry);
+                    var input = fileItem.getStream();
+                    input.transferTo(target);
+                }
+            }
+        }
+    }
+
+    private void readFromArchives(String deployPath, Set<String> projectsPath, OutputStream output) throws IOException {
+        if (projectsPath.size() == 1) {
+            IOUtils.copyAndClose(deployRepo.read(baseDeployPath + projectsPath.iterator().next()).getStream(),
+                    output);
+            return;
+        }
+        try (var target = new ZipOutputStream(output)) {
+            target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
+            target.write("name: ".getBytes(StandardCharsets.UTF_8));
+            target.write(deployPath.getBytes(StandardCharsets.UTF_8));
+            for (String projectPath : projectsPath) {
+                final var projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
+                final var fullDeployPath = baseDeployPath + projectPath;
+                try (var source = new ZipInputStream(deployRepo.read(fullDeployPath).getStream())) {
+                    ZipEntry sourceEntry;
+                    while ((sourceEntry = source.getNextEntry()) != null) {
+                        var targetEntry = new ZipEntry(projectFolder + sourceEntry.getName());
+                        target.putNextEntry(targetEntry);
+                        if (!sourceEntry.isDirectory()) {
+                            source.transferTo(target);
                         }
                     }
                 }
@@ -299,16 +307,7 @@ public class RulesDeployerService implements Closeable {
             }
         } else {
             // split zip to single-project deployment if repository doesn't support folders
-            final List<Path> folders;
-            try (var stream = Files.walk(root, 1)) {
-                folders = stream.filter(path -> !root.equals(path)).filter(Files::isDirectory).map(folder -> {
-                    var s = folder.toString();
-                    if (s.endsWith("/")) {
-                        return root.resolve(s.substring(0, s.length() - 1));
-                    }
-                    return folder;
-                }).filter(RulesDeployerService::isRulesProject).toList();
-            }
+            final var folders = listProjectFolders(root);
             var tmpArchives = new ArrayList<Path>();
             var fileItems = new ArrayList<FileItem>();
             try {
@@ -321,20 +320,7 @@ public class RulesDeployerService implements Closeable {
                     Path tmp = FileTool.createTempFile(folderName, ".zip");
                     tmpArchives.add(tmp);
                     try (var target = new ZipOutputStream(Files.newOutputStream(tmp))) {
-                        Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
-                            @Override
-                            public FileVisitResult visitFile(Path p, BasicFileAttributes attr) throws IOException {
-                                if (!attr.isRegularFile()) {
-                                    return FileVisitResult.CONTINUE;
-                                }
-                                var targetEntry = new ZipEntry(folder.relativize(p).toString());
-                                target.putNextEntry(targetEntry);
-                                try (InputStream source = Files.newInputStream(p)) {
-                                    source.transferTo(target);
-                                }
-                                return FileVisitResult.CONTINUE;
-                            }
-                        });
+                        zipFolder(folder, target);
                     }
                     BasicFileAttributes attrs = Files.readAttributes(tmp, BasicFileAttributes.class);
                     var dest = fileData.get();
@@ -349,6 +335,35 @@ public class RulesDeployerService implements Closeable {
                 tmpArchives.forEach(RulesDeployerService::deleteQuietly);
             }
         }
+    }
+
+    private static List<Path> listProjectFolders(Path root) throws IOException {
+        try (var stream = Files.walk(root, 1)) {
+            return stream.filter(path -> !root.equals(path)).filter(Files::isDirectory).map(folder -> {
+                var s = folder.toString();
+                if (s.endsWith("/")) {
+                    return root.resolve(s.substring(0, s.length() - 1));
+                }
+                return folder;
+            }).filter(RulesDeployerService::isRulesProject).toList();
+        }
+    }
+
+    private static void zipFolder(Path folder, ZipOutputStream target) throws IOException {
+        Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path p, BasicFileAttributes attr) throws IOException {
+                if (!attr.isRegularFile()) {
+                    return FileVisitResult.CONTINUE;
+                }
+                var targetEntry = new ZipEntry(folder.relativize(p).toString());
+                target.putNextEntry(targetEntry);
+                try (InputStream source = Files.newInputStream(p)) {
+                    source.transferTo(target);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     private void deployRegularProject(Path pathToArchive,
