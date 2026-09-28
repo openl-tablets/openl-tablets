@@ -73,35 +73,40 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
             synchronized (this) {
                 type = convertToType.get();
                 if (type == null) {
-                    var convertToType1 = Pair.<Class<?>, IOpenClass>of(null, null);
-                    var openClass = openMember.getType();
-                    var dim = 0;
-                    while (openClass.isArray()) {
-                        openClass = openClass.getComponentClass();
-                        dim++;
-                    }
-                    if (openClass instanceof SpreadsheetResultOpenClass || openClass instanceof AnySpreadsheetResultOpenClass || openClass instanceof CustomSpreadsheetResultOpenClass) {
-                        Class<?> t = Map.class;
-                        if (openClass instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass && spreadsheetResultOpenClass
-                                .getModule() != null) {
-                            t = spreadsheetResultOpenClass.getModule()
-                                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                                    .toCustomSpreadsheetResultOpenClass()
-                                    .getBeanClass();
-                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass class1) {
-                            t = class1.getBeanClass();
-                        }
-                        if (dim > 0) {
-                            t = Array.newInstance(t, dim).getClass();
-                            openClass = openClass.getArrayType(dim);
-                        }
-                        convertToType1 = Pair.of(t, openClass);
-                    }
-                    type = convertToType1;
+                    type = resolveConvertToType();
                     convertToType.set(type);
                 }
             }
         }
         return type;
+    }
+
+    private Pair<Class<?>, IOpenClass> resolveConvertToType() {
+        var convertToType1 = Pair.<Class<?>, IOpenClass>of(null, null);
+        var openClass = openMember.getType();
+        var dim = 0;
+        while (openClass.isArray()) {
+            openClass = openClass.getComponentClass();
+            dim++;
+        }
+        if (openClass instanceof SpreadsheetResultOpenClass || openClass instanceof AnySpreadsheetResultOpenClass
+                || openClass instanceof CustomSpreadsheetResultOpenClass) {
+            Class<?> t = Map.class;
+            if (openClass instanceof SpreadsheetResultOpenClass spreadsheetResultOpenClass && spreadsheetResultOpenClass
+                    .getModule() != null) {
+                t = spreadsheetResultOpenClass.getModule()
+                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .getBeanClass();
+            } else if (openClass instanceof CustomSpreadsheetResultOpenClass class1) {
+                t = class1.getBeanClass();
+            }
+            if (dim > 0) {
+                t = Array.newInstance(t, dim).getClass();
+                openClass = openClass.getArrayType(dim);
+            }
+            convertToType1 = Pair.of(t, openClass);
+        }
+        return convertToType1;
     }
 }
