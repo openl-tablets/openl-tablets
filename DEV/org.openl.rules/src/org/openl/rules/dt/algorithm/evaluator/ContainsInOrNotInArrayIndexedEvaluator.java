@@ -209,14 +209,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                                         Object value,
                                         DecisionTableRuleNodeBuilder emptyBuilder,
                                         int i) {
-        var builder = map.get(value);
-
-        if (builder == null) {
-            builder = new DecisionTableRuleNodeBuilder(emptyBuilder);
-            map.put(value, builder);
-        }
-
-        builder.addRule(i);
+        map.computeIfAbsent(value, v -> new DecisionTableRuleNodeBuilder(emptyBuilder)).addRule(i);
     }
 
     private static Map<Object, DecisionTableRuleNode> makeNodes(Map<Object, DecisionTableRuleNodeBuilder> map,
