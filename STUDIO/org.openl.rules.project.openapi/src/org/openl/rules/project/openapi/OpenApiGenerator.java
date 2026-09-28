@@ -121,25 +121,10 @@ public class OpenApiGenerator {
         Class<?> serviceClass = instantiationStrategy.getInstanceClass();
         var resolveServiceClassLoader = resolveServiceClassLoader(instantiationStrategy);
         if (!StringUtils.isEmpty(templateClassName)) {
-            try {
-                var templateClass = resolveServiceClassLoader.loadClass(templateClassName);
-                if (templateClass.isInterface() || Modifier.isAbstract(templateClass.getModifiers())) {
-                    serviceClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
-                            templateClass,
-                            instantiationStrategy.compile().getOpenClass(),
-                            resolveServiceClassLoader);
-                } else {
-                    throw new OpenApiGenerationException("Interface or abstract class is expected for annotation template class '%s', but class is found.".formatted(
-                            templateClassName));
-                }
-            } catch (RulesInstantiationException e) {
-                throw e;
-            } catch (Exception | NoClassDefFoundError e) {
-                throw new OpenApiGenerationException(
-                        "An error is occurred during loading or applying annotation template class '%s'.%s".formatted(
-                                templateClassName,
-                                StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
-            }
+            serviceClass = applyAnnotationTemplate(serviceClass,
+                    templateClassName,
+                    instantiationStrategy,
+                    resolveServiceClassLoader);
         }
         return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(
                 instantiationStrategy.compile().getOpenClass(),
@@ -147,6 +132,36 @@ public class OpenApiGenerator {
                 resolveServiceClassLoader,
                 instantiationStrategy.instantiate(true),
                 isProvidedRuntimeContext());
+    }
+
+    /**
+     * Decorates the service class with the annotations of the template class, which must be an interface or an
+     * abstract class.
+     */
+    private static Class<?> applyAnnotationTemplate(Class<?> serviceClass,
+                                                    String templateClassName,
+                                                    RulesInstantiationStrategy strategy,
+                                                    ClassLoader resolveServiceClassLoader)
+            throws RulesInstantiationException, OpenApiGenerationException {
+        try {
+            var templateClass = resolveServiceClassLoader.loadClass(templateClassName);
+            if (templateClass.isInterface() || Modifier.isAbstract(templateClass.getModifiers())) {
+                return DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
+                        templateClass,
+                        strategy.compile().getOpenClass(),
+                        resolveServiceClassLoader);
+            } else {
+                throw new OpenApiGenerationException("Interface or abstract class is expected for annotation template class '%s', but class is found.".formatted(
+                        templateClassName));
+            }
+        } catch (RulesInstantiationException e) {
+            throw e;
+        } catch (Exception | NoClassDefFoundError e) {
+            throw new OpenApiGenerationException(
+                    "An error is occurred during loading or applying annotation template class '%s'.%s".formatted(
+                            templateClassName,
+                            StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
+        }
     }
 
     private boolean isProvidedRuntimeContext() {
