@@ -559,7 +559,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
         private Object convertCollection(Collection<?> collection) {
             try {
-                var newCollection = (Collection<Object>) collection.getClass().getDeclaredConstructor().newInstance();
+                Collection<Object> newCollection = collection.getClass().getDeclaredConstructor().newInstance();
                 for (var o : collection) {
                     newCollection.add(apply(o, Object.class));
                 }
@@ -572,7 +572,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
         private Object convertMap(Map<?, ?> map) {
             try {
-                var newCollection = (Map<Object, Object>) map.getClass().getDeclaredConstructor().newInstance();
+                Map<Object, Object> newCollection = map.getClass().getDeclaredConstructor().newInstance();
                 for (var o : map.entrySet()) {
                     newCollection.put(apply(o.getKey(), Object.class), apply(o.getValue(), Object.class));
                 }
