@@ -2882,22 +2882,22 @@ public final class DecisionTableHelper {
             }
 
         }
-    }
 
-    private static String buildConditionStatement(DecisionTable decisionTable,
-                                                  int paramIndex,
-                                                  IOpenField[] fieldsChain) {
-        var conditionStatement = new StringBuilder(
-                decisionTable.getSignature().getParameterName(paramIndex));
-        if (fieldsChain != null) {
-            var c = buildStatementByFieldsChain(
-                    decisionTable.getSignature().getParameterType(paramIndex),
-                    fieldsChain);
-            var chainStatement = c.getLeft();
-            conditionStatement.append(".");
-            conditionStatement.append(chainStatement);
+        private static String buildConditionStatement(DecisionTable decisionTable,
+                                                      int paramIndex,
+                                                      IOpenField[] fieldsChain) {
+            var conditionStatement = new StringBuilder(
+                    decisionTable.getSignature().getParameterName(paramIndex));
+            if (fieldsChain != null) {
+                var c = buildStatementByFieldsChain(
+                        decisionTable.getSignature().getParameterType(paramIndex),
+                        fieldsChain);
+                var chainStatement = c.getLeft();
+                conditionStatement.append(".");
+                conditionStatement.append(chainStatement);
+            }
+            return conditionStatement.toString();
         }
-        return conditionStatement.toString();
     }
 
     private static List<DTHeader> matchWithFuzzySearch(DecisionTable decisionTable,
@@ -2917,61 +2917,6 @@ public final class DecisionTableHelper {
         new FuzzyTitlesSearch(decisionTable, layout, fuzzyContext, column, newDtHeaders, onlyReturns).match(0, 0);
         dtHeaders.addAll(newDtHeaders);
         return Collections.unmodifiableList(newDtHeaders);
-    }
-
-    private static boolean isCompatibleHeaders(DTHeader a, DTHeader b) {
-        var c1 = a.getColumn();
-        var c2 = a.getColumn() + a.getWidth() - 1;
-        var d1 = b.getColumn();
-        var d2 = b.getColumn() + b.getWidth() - 1;
-
-        if (intersects(d1, d2, c1, c2)) {
-            return false;
-        }
-
-        if (mustPrecede(a, b) && c1 >= d1) {
-            return false;
-        }
-        if (mustPrecede(b, a) && d1 >= c1) {
-            return false;
-        }
-
-        if (a instanceof FuzzyDTHeader a1 && b instanceof FuzzyDTHeader b1 && isConflictingFuzzyHeaders(a1, b1)) {
-            return false;
-        }
-        if (a instanceof DeclaredDTHeader a1 && b instanceof DeclaredDTHeader b1) {
-            return !a1.getMatchedDefinition()
-                    .getDtColumnsDefinition()
-                    .equals(b1.getMatchedDefinition().getDtColumnsDefinition());
-        }
-        return true;
-    }
-
-    /**
-     * Checks whether the first header is of a kind that goes before the kind of the second one in a table.
-     */
-    private static boolean mustPrecede(DTHeader first, DTHeader second) {
-        return first.isRule() && second.isCondition() || first.isCondition() && second.isAction() || first
-                .isAction() && second.isReturn() || first.isCondition() && second.isReturn();
-    }
-
-    private static boolean isConflictingFuzzyHeaders(FuzzyDTHeader a1, FuzzyDTHeader b1) {
-        if (a1.isMethodParameterUsed() && b1.isMethodParameterUsed() && a1.isCondition() && b1
-                .isCondition() && a1.getMethodParameterIndex() == b1.getMethodParameterIndex() && Arrays
-                .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
-            return true;
-        }
-
-        if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
-            return true;
-        }
-
-        return !isSameKind(a1, b1) && a1.getTopColumn() == b1.getTopColumn();
-    }
-
-    private static boolean isSameKind(DTHeader a1, DTHeader b1) {
-        return a1.isHCondition() && b1.isHCondition() || a1.isCondition() && b1.isCondition() || a1.isAction() && b1
-                .isAction() || a1.isReturn() && b1.isReturn();
     }
 
     private static final int FITS_MAX_LIMIT = 10000;
@@ -3197,6 +3142,79 @@ public final class DecisionTableHelper {
             }
             return matrix;
         }
+
+        private static boolean isCompatibleHeaders(DTHeader a, DTHeader b) {
+            var c1 = a.getColumn();
+            var c2 = a.getColumn() + a.getWidth() - 1;
+            var d1 = b.getColumn();
+            var d2 = b.getColumn() + b.getWidth() - 1;
+
+            if (intersects(d1, d2, c1, c2)) {
+                return false;
+            }
+
+            if (mustPrecede(a, b) && c1 >= d1) {
+                return false;
+            }
+            if (mustPrecede(b, a) && d1 >= c1) {
+                return false;
+            }
+
+            if (a instanceof FuzzyDTHeader a1 && b instanceof FuzzyDTHeader b1 && isConflictingFuzzyHeaders(a1, b1)) {
+                return false;
+            }
+            if (a instanceof DeclaredDTHeader a1 && b instanceof DeclaredDTHeader b1) {
+                return !a1.getMatchedDefinition()
+                        .getDtColumnsDefinition()
+                        .equals(b1.getMatchedDefinition().getDtColumnsDefinition());
+            }
+            return true;
+        }
+
+        /**
+         * Checks whether the first header is of a kind that goes before the kind of the second one in a table.
+         */
+        private static boolean mustPrecede(DTHeader first, DTHeader second) {
+            return first.isRule() && second.isCondition() || first.isCondition() && second.isAction() || first
+                    .isAction() && second.isReturn() || first.isCondition() && second.isReturn();
+        }
+
+        private static boolean isConflictingFuzzyHeaders(FuzzyDTHeader a1, FuzzyDTHeader b1) {
+            if (a1.isMethodParameterUsed() && b1.isMethodParameterUsed() && a1.isCondition() && b1
+                    .isCondition() && a1.getMethodParameterIndex() == b1.getMethodParameterIndex() && Arrays
+                    .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
+                return true;
+            }
+
+            if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
+                return true;
+            }
+
+            return !isSameKind(a1, b1) && a1.getTopColumn() == b1.getTopColumn();
+        }
+
+        private static boolean isSameKind(DTHeader a1, DTHeader b1) {
+            return a1.isHCondition() && b1.isHCondition() || a1.isCondition() && b1.isCondition() || a1.isAction() && b1
+                    .isAction() || a1.isReturn() && b1.isReturn();
+        }
+
+        private static boolean fieldsChainsIsCrossed(IOpenField[] m1, IOpenField[] m2) {
+            if (m1 == null && m2 == null) {
+                return true;
+            }
+            if (m1 != null && m2 != null) {
+                var i = 0;
+                while (i < m1.length && i < m2.length) {
+                    if (m1[i].equals(m2[i])) {
+                        i++;
+                    } else {
+                        break;
+                    }
+                }
+                return i == m1.length || i == m2.length;
+            }
+            return false;
+        }
     }
 
     private static List<List<DTHeader>> filterHeadersByMax(List<List<DTHeader>> fits,
@@ -3307,24 +3325,6 @@ public final class DecisionTableHelper {
                 .filter(
                         e -> e.isEmpty() || isLastDtColumnValid(e.getLast(), maxColumn, twoColumnsInReturn ? w1 : 0))
                 .toList();
-    }
-
-    private static boolean fieldsChainsIsCrossed(IOpenField[] m1, IOpenField[] m2) {
-        if (m1 == null && m2 == null) {
-            return true;
-        }
-        if (m1 != null && m2 != null) {
-            var i = 0;
-            while (i < m1.length && i < m2.length) {
-                if (m1[i].equals(m2[i])) {
-                    i++;
-                } else {
-                    break;
-                }
-            }
-            return i == m1.length || i == m2.length;
-        }
-        return false;
     }
 
     private static boolean isAmbiguousFits(List<List<DTHeader>> fits, Predicate<DTHeader> predicate) {

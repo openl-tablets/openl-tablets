@@ -84,19 +84,6 @@ public class RulesInFolderTestRunner {
         return file.isFile() && (name.endsWith(".xlsx") || name.endsWith(".xls")) || file.isDirectory();
     }
 
-    private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
-        if (count == 0) {
-            final long ms = duration(startTime);
-            // Red ANSI color
-            log.error("\u001B[1;31mFAILURE\u001B[2;36m {}\u001B[0m ({} ms)", sourceFile, ms);
-        }
-        log.error(msg, args);
-    }
-
-    private long duration(long startTime) {
-        return (System.nanoTime() - startTime) / 1000000;
-    }
-
     /**
      * Checks the compilation messages of one rules source and runs its tests. Every reported error is counted, and
      * the first one is preceded by the failure header of the source.
@@ -310,6 +297,19 @@ public class RulesInFolderTestRunner {
             final long ms = duration(startTime);
             // Green ANSI color
             log.info("\u001B[1;32mOK\u001B[2;36m {}\u001B[0m ({} ms)", sourceFile, ms);
+        }
+
+        private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
+            if (count == 0) {
+                final long ms = duration(startTime);
+                // Red ANSI color
+                log.error("\u001B[1;31mFAILURE\u001B[2;36m {}\u001B[0m ({} ms)", sourceFile, ms);
+            }
+            log.error(msg, args);
+        }
+
+        private long duration(long startTime) {
+            return (System.nanoTime() - startTime) / 1000000;
         }
     }
 

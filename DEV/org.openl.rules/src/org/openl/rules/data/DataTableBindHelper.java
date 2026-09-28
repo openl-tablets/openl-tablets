@@ -778,50 +778,6 @@ public class DataTableBindHelper {
         return currentColumnDescriptor;
     }
 
-    private static IOpenClass getTypeForCollection(IdentifierNode identifierNode,
-                                                   TestMethodOpenClass testMethodOpenClass,
-                                                   IBindingContext bindingContext) {
-        var typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
-        if (typeSeparatorIndex < 0) {
-            return getCollectedType(testMethodOpenClass, bindingContext);
-        }
-
-        var typeName = identifierNode.getIdentifier().substring(typeSeparatorIndex + 1);
-        typeName = typeName.trim();
-
-        var type = bindingContext.findType(typeName);
-        if (type == null) {
-            var message = "Cannot bind node: '%s'. Cannot find type: '%s'.".formatted(identifierNode, typeName);
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
-            bindingContext.addError(error);
-        }
-        return type;
-    }
-
-    /**
-     * Returns the type of the values collected by the tested method, or {@code Object} when it is unknown.
-     */
-    private static IOpenClass getCollectedType(TestMethodOpenClass testMethodOpenClass,
-                                               IBindingContext bindingContext) {
-        if (testMethodOpenClass != null
-                && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod executableRulesMethod) {
-            var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
-            if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                var cType = bindingContext
-                        .findType(
-                                tableSyntaxNode.getHeader()
-                                        .getCollectParameters()[ClassUtils
-                                        .isAssignable(executableRulesMethod.getType().getInstanceClass(), Map.class) ? 1
-                                        : 0]);
-                if (cType != null) {
-                    return cType;
-
-                }
-            }
-        }
-        return JavaOpenClass.OBJECT;
-    }
-
     /**
      * Process the chain of fields, e.g. driver.homeAdress.street;
      *
@@ -1134,6 +1090,160 @@ public class DataTableBindHelper {
 
             return collectionAccessField;
         }
+
+        private static IOpenField createMultiRowElementField(IBindingContext bindingContext,
+                                                             IdentifierNode currentFieldNameNode,
+                                                             IOpenClass loadedFieldType,
+                                                             String partPathFromRoot,
+                                                             IOpenField field) {
+            IOpenField collectionAccessField;
+            var fieldType = field.getType();
+            if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
+                IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
+                        loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
+                        bindingContext);
+                collectionAccessField = new CollectionElementWithMultiRowField(field,
+                        buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
+                        elementType,
+                        CollectionType.LIST);
+            } else {
+                collectionAccessField = new CollectionElementWithMultiRowField(field,
+                        buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
+                        getArrayElementType(fieldType),
+                        CollectionType.ARRAY);
+            }
+            return collectionAccessField;
+        }
+
+        /**
+         * Creates the field of a map element.
+         *
+         * @return {@code null} when the key cannot be parsed, which is reported to the binding context
+         */
+        private static IOpenField createMapElementField(IBindingContext bindingContext,
+                                                        IdentifierNode currentFieldNameNode,
+                                                        IOpenClass loadedFieldType,
+                                                        IOpenField field) {
+            Object mapKey;
+            try {
+                mapKey = getCollectionKey(currentFieldNameNode,
+                        loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
+                        bindingContext);
+            } catch (SyntaxNodeException e) {
+                bindingContext.addError(e);
+                return null;
+            } catch (Exception e) {
+                log.debug(ERROR_OCCURRED, e);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
+                        currentFieldNameNode);
+                bindingContext.addError(error);
+                return null;
+            }
+            IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
+                    loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
+                    bindingContext);
+            return new CollectionElementField(field, mapKey, elementType);
+        }
+
+        /**
+         * Creates the field of an array or a list element.
+         *
+         * @return {@code null} when the index cannot be parsed, which is reported to the binding context
+         */
+        private static IOpenField createIndexedElementField(IBindingContext bindingContext,
+                                                            IdentifierNode currentFieldNameNode,
+                                                            IOpenClass loadedFieldType,
+                                                            IOpenField field) {
+            int index;
+            try {
+                index = getCollectionIndex(currentFieldNameNode);
+            } catch (Exception e) {
+                log.debug(ERROR_OCCURRED, e);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
+                        currentFieldNameNode);
+                bindingContext.addError(error);
+                return null;
+            }
+            IOpenField collectionAccessField;
+            var fieldType = field.getType();
+            if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
+                IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
+                        loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
+                        bindingContext);
+                collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
+            } else {
+                collectionAccessField = new CollectionElementField(field,
+                        index,
+                        getArrayElementType(fieldType),
+                        CollectionType.ARRAY);
+            }
+            return collectionAccessField;
+        }
+
+        private static IOpenClass getTypeForCollection(IdentifierNode identifierNode,
+                                                       TestMethodOpenClass testMethodOpenClass,
+                                                       IBindingContext bindingContext) {
+            var typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
+            if (typeSeparatorIndex < 0) {
+                return getCollectedType(testMethodOpenClass, bindingContext);
+            }
+
+            var typeName = identifierNode.getIdentifier().substring(typeSeparatorIndex + 1);
+            typeName = typeName.trim();
+
+            var type = bindingContext.findType(typeName);
+            if (type == null) {
+                var message = "Cannot bind node: '%s'. Cannot find type: '%s'.".formatted(identifierNode, typeName);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
+                bindingContext.addError(error);
+            }
+            return type;
+        }
+
+        private static String buildRootPathForDatatypeArrayMultiRowElementField(String partPathFromRoot, String fieldName) {
+            if (StringUtils.isEmpty(partPathFromRoot)) {
+                return fieldName + "[]";
+            } else {
+                return partPathFromRoot + "." + fieldName + "[]";
+            }
+        }
+
+        /**
+         * Returns the element type of an array field. A field of the {@code Object} type holds {@code Object} elements.
+         */
+        private static IOpenClass getArrayElementType(IOpenClass fieldType) {
+            if (fieldType instanceof UserErrorOpenClass) {
+                return new UserErrorOpenClass();
+            } else if (!fieldType.isArray() && Object.class == fieldType.getInstanceClass()) {
+                return JavaOpenClass.OBJECT;
+            } else {
+                return fieldType.getComponentClass();
+            }
+        }
+
+        /**
+         * Returns the type of the values collected by the tested method, or {@code Object} when it is unknown.
+         */
+        private static IOpenClass getCollectedType(TestMethodOpenClass testMethodOpenClass,
+                                                   IBindingContext bindingContext) {
+            if (testMethodOpenClass != null
+                    && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod executableRulesMethod) {
+                var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
+                if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
+                    var cType = bindingContext
+                            .findType(
+                                    tableSyntaxNode.getHeader()
+                                            .getCollectParameters()[ClassUtils
+                                            .isAssignable(executableRulesMethod.getType().getInstanceClass(), Map.class) ? 1
+                                            : 0]);
+                    if (cType != null) {
+                        return cType;
+
+                    }
+                }
+            }
+            return JavaOpenClass.OBJECT;
+        }
     }
 
     public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
@@ -1191,116 +1301,6 @@ public class DataTableBindHelper {
             fieldName = fieldName.substring(0, endIndex).trim();
         }
         return fieldName;
-    }
-
-    private static String buildRootPathForDatatypeArrayMultiRowElementField(String partPathFromRoot, String fieldName) {
-        if (StringUtils.isEmpty(partPathFromRoot)) {
-            return fieldName + "[]";
-        } else {
-            return partPathFromRoot + "." + fieldName + "[]";
-        }
-    }
-
-    private static IOpenField createMultiRowElementField(IBindingContext bindingContext,
-                                                         IdentifierNode currentFieldNameNode,
-                                                         IOpenClass loadedFieldType,
-                                                         String partPathFromRoot,
-                                                         IOpenField field) {
-        IOpenField collectionAccessField;
-        var fieldType = field.getType();
-        if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
-            IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                    loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
-                    bindingContext);
-            collectionAccessField = new CollectionElementWithMultiRowField(field,
-                    buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
-                    elementType,
-                    CollectionType.LIST);
-        } else {
-            collectionAccessField = new CollectionElementWithMultiRowField(field,
-                    buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
-                    getArrayElementType(fieldType),
-                    CollectionType.ARRAY);
-        }
-        return collectionAccessField;
-    }
-
-    /**
-     * Creates the field of a map element.
-     *
-     * @return {@code null} when the key cannot be parsed, which is reported to the binding context
-     */
-    private static IOpenField createMapElementField(IBindingContext bindingContext,
-                                                    IdentifierNode currentFieldNameNode,
-                                                    IOpenClass loadedFieldType,
-                                                    IOpenField field) {
-        Object mapKey;
-        try {
-            mapKey = getCollectionKey(currentFieldNameNode,
-                    loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
-                    bindingContext);
-        } catch (SyntaxNodeException e) {
-            bindingContext.addError(e);
-            return null;
-        } catch (Exception e) {
-            log.debug(ERROR_OCCURRED, e);
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
-                    currentFieldNameNode);
-            bindingContext.addError(error);
-            return null;
-        }
-        IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
-                bindingContext);
-        return new CollectionElementField(field, mapKey, elementType);
-    }
-
-    /**
-     * Creates the field of an array or a list element.
-     *
-     * @return {@code null} when the index cannot be parsed, which is reported to the binding context
-     */
-    private static IOpenField createIndexedElementField(IBindingContext bindingContext,
-                                                        IdentifierNode currentFieldNameNode,
-                                                        IOpenClass loadedFieldType,
-                                                        IOpenField field) {
-        int index;
-        try {
-            index = getCollectionIndex(currentFieldNameNode);
-        } catch (Exception e) {
-            log.debug(ERROR_OCCURRED, e);
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
-                    currentFieldNameNode);
-            bindingContext.addError(error);
-            return null;
-        }
-        IOpenField collectionAccessField;
-        var fieldType = field.getType();
-        if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
-            IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                    loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
-                    bindingContext);
-            collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
-        } else {
-            collectionAccessField = new CollectionElementField(field,
-                    index,
-                    getArrayElementType(fieldType),
-                    CollectionType.ARRAY);
-        }
-        return collectionAccessField;
-    }
-
-    /**
-     * Returns the element type of an array field. A field of the {@code Object} type holds {@code Object} elements.
-     */
-    private static IOpenClass getArrayElementType(IOpenClass fieldType) {
-        if (fieldType instanceof UserErrorOpenClass) {
-            return new UserErrorOpenClass();
-        } else if (!fieldType.isArray() && Object.class == fieldType.getInstanceClass()) {
-            return JavaOpenClass.OBJECT;
-        } else {
-            return fieldType.getComponentClass();
-        }
     }
 
     private static Object getCollectionKey(IdentifierNode currentFieldNameNode,

@@ -489,13 +489,6 @@ public final class MethodSearch {
         return count;
     }
 
-    /**
-     * Returns the i-th greatest of the sorted values, or the default value when there are not so many values.
-     */
-    private static int getFromEnd(int[] sortedValues, int i, int defaultValue) {
-        return i < sortedValues.length ? sortedValues[sortedValues.length - 1 - i] : defaultValue;
-    }
-
     private static class Match {
         @Getter
         private final IOpenMethod method;
@@ -887,6 +880,13 @@ public final class MethodSearch {
                 }
             }
             return true;
+        }
+
+        /**
+         * Returns the i-th greatest of the sorted values, or the default value when there are not so many values.
+         */
+        private static int getFromEnd(int[] sortedValues, int i, int defaultValue) {
+            return i < sortedValues.length ? sortedValues[sortedValues.length - 1 - i] : defaultValue;
         }
     }
 
