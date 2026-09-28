@@ -53,47 +53,65 @@ final class OpenApiProjectValidatorMessagesUtils {
             for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
                 if (context.getField() != null && m instanceof Spreadsheet spreadsheet && m
                         .getType() instanceof CustomSpreadsheetResultOpenClass) {
-                    IOpenField openFieldInSpr = SpreadsheetMethodResolver.findSpreadsheetOpenField(spreadsheet,
-                            context.getField());
-                    if (openFieldInSpr != null) {
-                        if (context.getIsIncompatibleTypesPredicate() != null) {
-                            Class<?> instanceClass;
-                            if (openFieldInSpr.getType() instanceof SpreadsheetResultOpenClass sprType
-                                    && sprType.getModule() != null) {
-                                instanceClass = sprType.toCustomSpreadsheetResultOpenClass().getBeanClass();
-                            } else if (openFieldInSpr.getType() instanceof CustomSpreadsheetResultOpenClass csrType) {
-                                instanceClass = csrType.getBeanClass();
-                            } else {
-                                instanceClass = openFieldInSpr.getType().getInstanceClass();
-                            }
-                            if (instanceClass == null) {
-                                instanceClass = Object.class;
-                            }
-                            var openAPIContext = new ModelConverterContextImpl(OpenAPIConfiguration.getConverters(context.getObjectMapper()));
-                            var actualSchema = openAPIContext.resolve(new AnnotatedType().type(instanceClass));
-                            if (context.getIsIncompatibleTypesPredicate().test(actualSchema, openFieldInSpr)) {
-                                addMethodError(context, m, summary);
-                            }
-                        } else {
-                            addMethodError(context, m, summary);
-                        }
-                    }
+                    addSpreadsheetFieldError(context, spreadsheet, summary);
                 } else {
                     addMethodError(context, m, summary);
                 }
             }
         } else {
-            TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
-            if (tableSyntaxNode != null) {
-                SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                        tableSyntaxNode);
-                if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
-                    OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-                    context.getValidatedCompiledOpenClass().addMessage(openLMessage);
+            addTableError(context, method, summary);
+        }
+    }
+
+    /**
+     * Adds the error to the spreadsheet candidate that has a cell for the field in question. When the error is about
+     * incompatible types, it is added only if the type of that cell is incompatible too.
+     */
+    private static void addSpreadsheetFieldError(Context context, Spreadsheet spreadsheet, String summary) {
+        IOpenField openFieldInSpr = SpreadsheetMethodResolver.findSpreadsheetOpenField(spreadsheet,
+                context.getField());
+        if (openFieldInSpr != null) {
+            if (context.getIsIncompatibleTypesPredicate() != null) {
+                Class<?> instanceClass = resolveInstanceClass(openFieldInSpr);
+                var openAPIContext = new ModelConverterContextImpl(
+                        OpenAPIConfiguration.getConverters(context.getObjectMapper()));
+                var actualSchema = openAPIContext.resolve(new AnnotatedType().type(instanceClass));
+                if (context.getIsIncompatibleTypesPredicate().test(actualSchema, openFieldInSpr)) {
+                    addMethodError(context, spreadsheet, summary);
                 }
             } else {
-                addError(context, summary);
+                addMethodError(context, spreadsheet, summary);
             }
+        }
+    }
+
+    private static Class<?> resolveInstanceClass(IOpenField openFieldInSpr) {
+        Class<?> instanceClass;
+        if (openFieldInSpr.getType() instanceof SpreadsheetResultOpenClass sprType
+                && sprType.getModule() != null) {
+            instanceClass = sprType.toCustomSpreadsheetResultOpenClass().getBeanClass();
+        } else if (openFieldInSpr.getType() instanceof CustomSpreadsheetResultOpenClass csrType) {
+            instanceClass = csrType.getBeanClass();
+        } else {
+            instanceClass = openFieldInSpr.getType().getInstanceClass();
+        }
+        if (instanceClass == null) {
+            instanceClass = Object.class;
+        }
+        return instanceClass;
+    }
+
+    private static void addTableError(Context context, IOpenMethod method, String summary) {
+        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
+        if (tableSyntaxNode != null) {
+            SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
+                    tableSyntaxNode);
+            if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
+                OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
+                context.getValidatedCompiledOpenClass().addMessage(openLMessage);
+            }
+        } else {
+            addError(context, summary);
         }
     }
 
