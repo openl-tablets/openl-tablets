@@ -16,6 +16,8 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.kafka.common.header.Headers;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
@@ -88,114 +90,149 @@ public class StoreLogDataMapper {
         }
 
         for (Entry<Annotation, AnnotatedElement> entry : annotationElements) {
-            var annotation = entry.getKey();
-            var annotatedElement = entry.getValue();
-            if (annotation instanceof IncomingTime) {
-                injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getIncomingMessageTime());
-            } else if (annotation instanceof OutcomingTime) {
-                injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getOutcomingMessageTime());
-            } else if (annotation instanceof MethodName && storeLogData.getServiceMethod() != null) {
-                injectValue(storeLogData,
-                        target,
-                        annotation,
-                        annotatedElement,
-                        storeLogData.getServiceMethod().getName());
-            } else if (annotation instanceof ServiceName) {
-                injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getServiceName());
-            } else if (annotation instanceof Publisher) {
-                injectValue(storeLogData,
-                        target,
-                        annotation,
-                        annotatedElement,
-                        storeLogData.getPublisherType().toString());
-            } else if (annotation instanceof Url) {
-                if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage().getAddress() != null) {
-                    injectValue(storeLogData,
-                            target,
-                            annotation,
-                            annotatedElement,
-                            storeLogData.getRequestMessage().getAddress().toString());
-                }
-            } else if (annotation instanceof Request) {
-                String request = null;
-                switch (storeLogData.getPublisherType()) {
-                    case KAFKA -> request = storeLogData.getConsumerRecord().value().asText();
-                    case RESTFUL -> {
-                        if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage()
-                                .getPayload() != null) {
-                            request = storeLogData.getRequestMessage().getPayload().toString();
-                        }
-                    }
-                    default -> { /* unsupported publisher type */ }
-                }
-                injectValue(storeLogData, target, annotation, annotatedElement, request);
-            } else if (annotation instanceof Response) {
-                String response = null;
-                switch (storeLogData.getPublisherType()) {
-                    case KAFKA -> {
-                        if (storeLogData.getDltRecord() != null) {
-                            final var bytes = storeLogData.getDltRecord().value();
-                            response = new String(bytes, StandardCharsets.UTF_8);
-                        } else if (storeLogData.getProducerRecord() != null) {
-                            try {
-                                response = storeLogData.getObjectSerializer()
-                                        .writeValueAsString(storeLogData.getProducerRecord().value());
-                            } catch (ProcessingException e) {
-                                throw new RuleServiceRuntimeException(e);
-                            }
-                        }
-                    }
-                    case RESTFUL -> {
-                        if (storeLogData.getResponseMessage() != null && storeLogData.getResponseMessage()
-                                .getPayload() != null) {
-                            response = storeLogData.getResponseMessage().getPayload().toString();
-                        }
-                    }
-                    default -> { /* unsupported publisher type */ }
-                }
-                injectValue(storeLogData, target, annotation, annotatedElement, response);
-            } else if (annotation instanceof KafkaMessageHeader kafkaMessageHeader) {
-                if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
-                    if (storeLogData.getConsumerRecord() != null) {
-                        var header = storeLogData.getConsumerRecord()
-                                .headers()
-                                .lastHeader(kafkaMessageHeader.value());
-                        if (header != null) {
-                            injectValue(storeLogData, target, annotation, annotatedElement, header.value());
-                        }
-                    }
-                } else {
-                    if (storeLogData.getProducerRecord() != null) {
-                        var header = storeLogData.getProducerRecord()
-                                .headers()
-                                .lastHeader(kafkaMessageHeader.value());
-                        if (header != null) {
-                            injectValue(storeLogData, target, annotation, annotatedElement, header.value());
-                        }
-                    } else if (storeLogData.getDltRecord() != null) {
-                        var header = storeLogData.getDltRecord().headers().lastHeader(kafkaMessageHeader.value());
-                        if (header != null) {
-                            injectValue(storeLogData, target, annotation, annotatedElement, header.value());
-                        }
-                    }
-                }
-            }
+            injectMappedValue(storeLogData, target, entry.getKey(), entry.getValue());
         }
 
         for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
-            var annotation = entry.getKey();
-            var annotatedElement = entry.getValue();
-            if (annotation instanceof Value valueAnnotation) {
-                if (StoreLogDataConverter.class.isAssignableFrom(valueAnnotation.converter())) {
-                    injectValue(storeLogData, target, annotation, annotatedElement, storeLogData);
-                } else {
-                    var key = valueAnnotation.value();
-                    injectValue(storeLogData,
-                            target,
-                            annotation,
-                            annotatedElement,
-                            storeLogData.getCustomValues().get(key));
+            injectCustomValue(storeLogData, target, entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void injectMappedValue(StoreLogData storeLogData,
+                                   Object target,
+                                   Annotation annotation,
+                                   AnnotatedElement annotatedElement) {
+        if (annotation instanceof IncomingTime) {
+            injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getIncomingMessageTime());
+        } else if (annotation instanceof OutcomingTime) {
+            injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getOutcomingMessageTime());
+        } else if (annotation instanceof MethodName && storeLogData.getServiceMethod() != null) {
+            injectValue(storeLogData,
+                    target,
+                    annotation,
+                    annotatedElement,
+                    storeLogData.getServiceMethod().getName());
+        } else if (annotation instanceof ServiceName) {
+            injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getServiceName());
+        } else if (annotation instanceof Publisher) {
+            injectValue(storeLogData,
+                    target,
+                    annotation,
+                    annotatedElement,
+                    storeLogData.getPublisherType().toString());
+        } else if (annotation instanceof Url) {
+            if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage().getAddress() != null) {
+                injectValue(storeLogData,
+                        target,
+                        annotation,
+                        annotatedElement,
+                        storeLogData.getRequestMessage().getAddress().toString());
+            }
+        } else if (annotation instanceof Request) {
+            injectValue(storeLogData, target, annotation, annotatedElement, getRequest(storeLogData));
+        } else if (annotation instanceof Response) {
+            injectValue(storeLogData, target, annotation, annotatedElement, getResponse(storeLogData));
+        } else if (annotation instanceof KafkaMessageHeader kafkaMessageHeader) {
+            injectKafkaMessageHeader(storeLogData, target, kafkaMessageHeader, annotatedElement);
+        }
+    }
+
+    private static @Nullable String getRequest(StoreLogData storeLogData) {
+        String request = null;
+        switch (storeLogData.getPublisherType()) {
+            case KAFKA -> request = storeLogData.getConsumerRecord().value().asText();
+            case RESTFUL -> {
+                if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage()
+                        .getPayload() != null) {
+                    request = storeLogData.getRequestMessage().getPayload().toString();
                 }
+            }
+            default -> { /* unsupported publisher type */ }
+        }
+        return request;
+    }
+
+    private static @Nullable String getResponse(StoreLogData storeLogData) {
+        String response = null;
+        switch (storeLogData.getPublisherType()) {
+            case KAFKA -> {
+                if (storeLogData.getDltRecord() != null) {
+                    final var bytes = storeLogData.getDltRecord().value();
+                    response = new String(bytes, StandardCharsets.UTF_8);
+                } else if (storeLogData.getProducerRecord() != null) {
+                    try {
+                        response = storeLogData.getObjectSerializer()
+                                .writeValueAsString(storeLogData.getProducerRecord().value());
+                    } catch (ProcessingException e) {
+                        throw new RuleServiceRuntimeException(e);
+                    }
+                }
+            }
+            case RESTFUL -> {
+                if (storeLogData.getResponseMessage() != null && storeLogData.getResponseMessage()
+                        .getPayload() != null) {
+                    response = storeLogData.getResponseMessage().getPayload().toString();
+                }
+            }
+            default -> { /* unsupported publisher type */ }
+        }
+        return response;
+    }
+
+    private void injectKafkaMessageHeader(StoreLogData storeLogData,
+                                          Object target,
+                                          KafkaMessageHeader kafkaMessageHeader,
+                                          AnnotatedElement annotatedElement) {
+        if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
+            if (storeLogData.getConsumerRecord() != null) {
+                injectHeaderValue(storeLogData,
+                        target,
+                        kafkaMessageHeader,
+                        annotatedElement,
+                        storeLogData.getConsumerRecord().headers());
+            }
+        } else {
+            if (storeLogData.getProducerRecord() != null) {
+                injectHeaderValue(storeLogData,
+                        target,
+                        kafkaMessageHeader,
+                        annotatedElement,
+                        storeLogData.getProducerRecord().headers());
+            } else if (storeLogData.getDltRecord() != null) {
+                injectHeaderValue(storeLogData,
+                        target,
+                        kafkaMessageHeader,
+                        annotatedElement,
+                        storeLogData.getDltRecord().headers());
+            }
+        }
+    }
+
+    private void injectHeaderValue(StoreLogData storeLogData,
+                                   Object target,
+                                   KafkaMessageHeader kafkaMessageHeader,
+                                   AnnotatedElement annotatedElement,
+                                   Headers headers) {
+        var header = headers.lastHeader(kafkaMessageHeader.value());
+        if (header != null) {
+            injectValue(storeLogData, target, kafkaMessageHeader, annotatedElement, header.value());
+        }
+    }
+
+    private void injectCustomValue(StoreLogData storeLogData,
+                                   Object target,
+                                   Annotation annotation,
+                                   AnnotatedElement annotatedElement) {
+        if (annotation instanceof Value valueAnnotation) {
+            if (StoreLogDataConverter.class.isAssignableFrom(valueAnnotation.converter())) {
+                injectValue(storeLogData, target, annotation, annotatedElement, storeLogData);
+            } else {
+                var key = valueAnnotation.value();
+                injectValue(storeLogData,
+                        target,
+                        annotation,
+                        annotatedElement,
+                        storeLogData.getCustomValues().get(key));
             }
         }
     }
@@ -239,38 +276,12 @@ public class StoreLogDataMapper {
                             annotation.getClass().getTypeName()));
         }
 
+        Object convertedValue = value;
         if (!(NoConverter.class == converterClass || NoStringConverter.class == converterClass || NoDateConverter.class == converterClass)) {
-            Converter<Object, Object> converter = null;
-            try {
-                converter = (Converter<Object, Object>) converterClass.getDeclaredConstructor(StoreLogData.class)
-                        .newInstance(storeLogData);
-            } catch (Exception e) {
-                try {
-                    converter = (Converter<Object, Object>) converterClass.getDeclaredConstructor().newInstance();
-                } catch (Exception e1) {
-                    if (log.isErrorEnabled()) {
-                        log.error(
-                                "Converter class instantiation is failed. Please, check that class '{}' is not abstract and has a default constructor.",
-                                converterClass.getTypeName(), e1);
-                    }
-                    value = null;
-                }
-            }
-            if (converter != null) {
-                try {
-                    value = converter.apply(value);
-                } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(
-                                "Failed on type conversion for annotated element '{}'! Null value is used as a result.",
-                                getAnnotatedElementRef(annotatedElement), e);
-                    }
-                    value = null;
-                }
-            }
+            convertedValue = convertValue(storeLogData, converterClass, annotatedElement, value);
         }
         try {
-            setValueWithAnnotatedElement(target, annotatedElement, value);
+            setValueWithAnnotatedElement(target, annotatedElement, convertedValue);
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error("Failed on set a value! Please, check that the element '{}' is annotated correctly.",
@@ -279,6 +290,50 @@ public class StoreLogDataMapper {
             }
         }
 
+    }
+
+    /**
+     * Converts the value with a new instance of the converter class. Returns {@code null} when the converter cannot
+     * be created or fails.
+     */
+    private @Nullable Object convertValue(StoreLogData storeLogData,
+                                          Class<? extends Converter<?, ?>> converterClass,
+                                          AnnotatedElement annotatedElement,
+                                          Object value) {
+        var converter = newConverter(storeLogData, converterClass);
+        if (converter == null) {
+            return null;
+        }
+        try {
+            return converter.apply(value);
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(
+                        "Failed on type conversion for annotated element '{}'! Null value is used as a result.",
+                        getAnnotatedElementRef(annotatedElement), e);
+            }
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static @Nullable Converter<Object, Object> newConverter(StoreLogData storeLogData,
+                                                                    Class<? extends Converter<?, ?>> converterClass) {
+        try {
+            return (Converter<Object, Object>) converterClass.getDeclaredConstructor(StoreLogData.class)
+                    .newInstance(storeLogData);
+        } catch (Exception e) {
+            try {
+                return (Converter<Object, Object>) converterClass.getDeclaredConstructor().newInstance();
+            } catch (Exception e1) {
+                if (log.isErrorEnabled()) {
+                    log.error(
+                            "Converter class instantiation is failed. Please, check that class '{}' is not abstract and has a default constructor.",
+                            converterClass.getTypeName(), e1);
+                }
+                return null;
+            }
+        }
     }
 
     private String getAnnotatedElementRef(AnnotatedElement annotatedElement) {
