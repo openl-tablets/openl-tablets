@@ -85,34 +85,38 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
             sheetNode.getElements()[1] = new DiffElementImpl(p2);
 
             // Create Table Nodes in a Sheet
-            for (DiffPair r : diffs) {
-                var tableNode = newDiffTreeNode();
-                sheetNode.getChildren().add(tableNode);
+            addTableNodes(sheetNode, diffs);
+        }
+    }
 
-                XlsProjection tp1 = null;
-                XlsProjection tp2 = null;
+    private void addTableNodes(DiffTreeNodeImpl sheetNode, List<DiffPair> diffs) {
+        for (DiffPair r : diffs) {
+            var tableNode = newDiffTreeNode();
+            sheetNode.getChildren().add(tableNode);
 
-                var t1 = r.getTable1();
-                var t2 = r.getTable2();
+            XlsProjection tp1 = null;
+            XlsProjection tp2 = null;
 
-                if (t1 != null) {
-                    tp1 = new XlsProjection(t1.getTableName(), XlsProjectionType.TABLE);
-                    tp1.setTable(t1.getTable());
-                    fillProps(tp1, t1);
+            var t1 = r.getTable1();
+            var t2 = r.getTable2();
 
-                    tp1.setDiffCells(r.getDiffCells1());
-                }
-                if (r.getTable2() != null) {
-                    tp2 = new XlsProjection(t2.getTableName(), XlsProjectionType.TABLE);
-                    tp2.setTable(t2.getTable());
-                    fillProps(tp2, t2);
+            if (t1 != null) {
+                tp1 = new XlsProjection(t1.getTableName(), XlsProjectionType.TABLE);
+                tp1.setTable(t1.getTable());
+                fillProps(tp1, t1);
 
-                    tp2.setDiffCells(r.getDiffCells2());
-                }
-
-                tableNode.getElements()[0] = new DiffElementImpl(tp1);
-                tableNode.getElements()[1] = new DiffElementImpl(tp2);
+                tp1.setDiffCells(r.getDiffCells1());
             }
+            if (r.getTable2() != null) {
+                tp2 = new XlsProjection(t2.getTableName(), XlsProjectionType.TABLE);
+                tp2.setTable(t2.getTable());
+                fillProps(tp2, t2);
+
+                tp2.setDiffCells(r.getDiffCells2());
+            }
+
+            tableNode.getElements()[0] = new DiffElementImpl(tp1);
+            tableNode.getElements()[1] = new DiffElementImpl(tp2);
         }
     }
 

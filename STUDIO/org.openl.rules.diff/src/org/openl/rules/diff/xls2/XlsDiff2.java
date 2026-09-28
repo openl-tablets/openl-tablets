@@ -108,30 +108,7 @@ public class XlsDiff2 {
 
     private void diff() {
         // 1. Simple cases
-        iterate((t1, t2) -> {
-            if (t1.getSheetName().equals(t2.getSheetName())) {
-                var s1 = t1.getLocation().getStart().toString();
-                var s2 = t2.getLocation().getStart().toString();
-                if (s1.equals(s2)) {
-                    var sameName = t1.getTableName().equals(t2.getTableName());
-
-                    var e1 = t1.getLocation().getEnd().toString();
-                    var e2 = t2.getLocation().getEnd().toString();
-                    if (e1.equals(e2)) {
-                        if (sameName) {
-                            add(GUESS_SAME, new DiffPair(t1, t2));
-                        } else {
-                            add(GUESS_SAME_PLACE, new DiffPair(t1, t2));
-                        }
-                        return true;
-                    } else if (sameName) {
-                        add(GUESS_CAN_BE_SAME, new DiffPair(t1, t2));
-                        return true;
-                    }
-                }
-            }
-            return false;
-        });
+        iterate(this::guessBySameStart);
 
         // 2. Sheet and name seems the same
         iterate((t1, t2) -> {
@@ -144,6 +121,37 @@ public class XlsDiff2 {
             }
             return false;
         });
+    }
+
+    /**
+     * Pairs the tables starting at the same cell of the same sheet when they also end at the same cell or have the
+     * same name.
+     *
+     * @return {@code true} if the tables are paired
+     */
+    private boolean guessBySameStart(XlsTable t1, XlsTable t2) {
+        if (t1.getSheetName().equals(t2.getSheetName())) {
+            var s1 = t1.getLocation().getStart().toString();
+            var s2 = t2.getLocation().getStart().toString();
+            if (s1.equals(s2)) {
+                var sameName = t1.getTableName().equals(t2.getTableName());
+
+                var e1 = t1.getLocation().getEnd().toString();
+                var e2 = t2.getLocation().getEnd().toString();
+                if (e1.equals(e2)) {
+                    if (sameName) {
+                        add(GUESS_SAME, new DiffPair(t1, t2));
+                    } else {
+                        add(GUESS_SAME_PLACE, new DiffPair(t1, t2));
+                    }
+                    return true;
+                } else if (sameName) {
+                    add(GUESS_CAN_BE_SAME, new DiffPair(t1, t2));
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void iterate(IterClosure closure) {
@@ -228,32 +236,81 @@ public class XlsDiff2 {
         var grid1Height = grid1.getHeight();
         var grid2Height = grid2.getHeight();
         for (var grid1Row = 0; grid1Row < grid1Height; grid1Row++) {
-            var followingRow = true;
-            var stop = false;
-            for (var grid2Row = grid2LastMatched; !stop && grid2Row < grid2Height; grid2Row++) {
-                var diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
-                if (diffs.isEmpty()) {
-                    // Check if the next line matches the one found.
-                    // For cases when several identical lines can go in a row.
-                    var nextRowMatches = !followingRow && grid1Row != grid2Row && grid1Row < grid1Height + 1
-                            && getDiffs(grid1, grid2, grid1Row + 1, grid2Row).isEmpty();
-                    if (!nextRowMatches) {
-                        grid1MatchedRows.add(grid1Row);
-                        grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row));
-                        grid2LastMatched = grid2Row + 1;
-                    }
-                    stop = true;
-                } else if (grid1Height == grid2Height) {
-                    grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row).setDiff(diffs));
-                    grid2LastMatched = grid2Row + 1;
-                    stop = true;
-                }
-                followingRow = false;
-            }
+            grid2LastMatched = matchRow(grid1, grid2, grid1Row, grid2LastMatched, grid1MatchedRows, grid1RowsState);
             if (grid1RowsState.get(grid1Row) == null) {
                 grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(-1));
             }
         }
+        matchUnmatchedRows(grid1, grid2, grid1MatchedRows, grid1RowsState, diff1);
+        diff1.addAll(
+                grid1RowsState.values().stream().map(RowDiff::getDiff).flatMap(List::stream).collect(Collectors.toList()));
+        // For grid2 we compare the rows found for grid1, if there are no such rows, we assume that the row was added.
+        for (var grid2Row = 0; grid2Row < grid2Height; grid2Row++) {
+            var finalGrid2Row = grid2Row;
+            Optional<Integer> matchedKey = grid1RowsState.keySet()
+                    .stream()
+                    .filter(key -> grid1RowsState.get(key).getRowIndex() == finalGrid2Row)
+                    .findFirst();
+            if (matchedKey.isPresent()) {
+                var rowIndex = matchedKey.get();
+                if (!grid1RowsState.get(rowIndex).getDiff().isEmpty()) {
+                    diff2.addAll(getDiffs(grid2, grid1, grid2Row, rowIndex));
+                }
+            } else {
+                for (var grid2Col = 0; grid2Col < grid2.getWidth(); grid2Col++) {
+                    diff2.add(grid2.getCell(grid2Col, grid2Row));
+                }
+            }
+        }
+    }
+
+    /**
+     * Searches the second grid, from the row after the last matched one, for the row matching the row of the first
+     * grid, and records the match in the state of the row. An identical row is recorded unless the next row of the
+     * first grid matches it too. A different row is recorded only when both grids have the same height.
+     *
+     * @return the row of the second grid the search for the next row of the first grid starts from
+     */
+    private int matchRow(IGridTable grid1,
+                         IGridTable grid2,
+                         int grid1Row,
+                         int grid2LastMatched,
+                         List<Integer> grid1MatchedRows,
+                         Map<Integer, RowDiff> grid1RowsState) {
+        var grid1Height = grid1.getHeight();
+        var grid2Height = grid2.getHeight();
+        var followingRow = true;
+        for (var grid2Row = grid2LastMatched; grid2Row < grid2Height; grid2Row++) {
+            var diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
+            if (diffs.isEmpty()) {
+                // Check if the next line matches the one found.
+                // For cases when several identical lines can go in a row.
+                var nextRowMatches = !followingRow && grid1Row != grid2Row && grid1Row < grid1Height + 1
+                        && getDiffs(grid1, grid2, grid1Row + 1, grid2Row).isEmpty();
+                if (nextRowMatches) {
+                    return grid2LastMatched;
+                }
+                grid1MatchedRows.add(grid1Row);
+                grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row));
+                return grid2Row + 1;
+            } else if (grid1Height == grid2Height) {
+                grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row).setDiff(diffs));
+                return grid2Row + 1;
+            }
+            followingRow = false;
+        }
+        return grid2LastMatched;
+    }
+
+    /**
+     * Finds the most similar row of the second grid for each row of the first grid without a match, between the rows
+     * matching the previous and the next rows. A row with no candidate rows is taken as deleted.
+     */
+    private void matchUnmatchedRows(IGridTable grid1,
+                                    IGridTable grid2,
+                                    List<Integer> grid1MatchedRows,
+                                    Map<Integer, RowDiff> grid1RowsState,
+                                    List<ICell> diff1) {
         for (var entry : grid1RowsState.entrySet()) {
             var grid1row = entry.getKey();
             var rowState = entry.getValue();
@@ -277,26 +334,6 @@ public class XlsDiff2 {
                 // If there are no rows in the range, then we assume that the row was deleted.
                 for (var grid1Col = 0; grid1Col < grid1.getWidth(); grid1Col++) {
                     diff1.add(grid1.getCell(grid1Col, grid1row));
-                }
-            }
-        }
-        diff1.addAll(
-                grid1RowsState.values().stream().map(RowDiff::getDiff).flatMap(List::stream).collect(Collectors.toList()));
-        // For grid2 we compare the rows found for grid1, if there are no such rows, we assume that the row was added.
-        for (var grid2Row = 0; grid2Row < grid2Height; grid2Row++) {
-            var finalGrid2Row = grid2Row;
-            Optional<Integer> matchedKey = grid1RowsState.keySet()
-                    .stream()
-                    .filter(key -> grid1RowsState.get(key).getRowIndex() == finalGrid2Row)
-                    .findFirst();
-            if (matchedKey.isPresent()) {
-                var rowIndex = matchedKey.get();
-                if (!grid1RowsState.get(rowIndex).getDiff().isEmpty()) {
-                    diff2.addAll(getDiffs(grid2, grid1, grid2Row, rowIndex));
-                }
-            } else {
-                for (var grid2Col = 0; grid2Col < grid2.getWidth(); grid2Col++) {
-                    diff2.add(grid2.getCell(grid2Col, grid2Row));
                 }
             }
         }

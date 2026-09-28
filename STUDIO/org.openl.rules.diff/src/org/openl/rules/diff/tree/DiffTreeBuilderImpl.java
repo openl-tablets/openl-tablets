@@ -155,30 +155,41 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
             } else {
                 // full compare
                 var selfEqual = projectionDiffer.compare(original, other);
-
-                var hierarhyEqual = true;
-                var childrenEqual = true;
-
-                for (DiffTreeNode child : node.getChildren()) {
-                    var ce1 = child.getElement(originalIdx);
-                    var ce2 = child.getElement(otherIdx);
-
-                    var p1 = ce1.getProjection();
-                    var p2 = ce2.getProjection();
-
-                    if (!ce2.isHierarhyEqual() || p1 == null || p2 == null) {
-                        hierarhyEqual = false;
-                        childrenEqual = false;
-                        break;
-                    }
-                    if (!ce2.isChildrenEqual() || !ce2.isSelfEqual()) {
-                        childrenEqual = false;
-                    }
-                }
-
-                diff.asExists(hierarhyEqual, childrenEqual, selfEqual);
+                compareChildren(node, originalIdx, otherIdx, diff, selfEqual);
             }
         }
+    }
+
+    /**
+     * Marks the element as existing in both projections. The hierarchy is equal when every child exists in both
+     * projections with an equal hierarchy, and the children are equal when, in addition, each child is equal.
+     */
+    private static void compareChildren(DiffTreeNodeImpl node,
+                                        int originalIdx,
+                                        int otherIdx,
+                                        DiffElementImpl diff,
+                                        boolean selfEqual) {
+        var hierarhyEqual = true;
+        var childrenEqual = true;
+
+        for (DiffTreeNode child : node.getChildren()) {
+            var ce1 = child.getElement(originalIdx);
+            var ce2 = child.getElement(otherIdx);
+
+            var p1 = ce1.getProjection();
+            var p2 = ce2.getProjection();
+
+            if (!ce2.isHierarhyEqual() || p1 == null || p2 == null) {
+                hierarhyEqual = false;
+                childrenEqual = false;
+                break;
+            }
+            if (!ce2.isChildrenEqual() || !ce2.isSelfEqual()) {
+                childrenEqual = false;
+            }
+        }
+
+        diff.asExists(hierarhyEqual, childrenEqual, selfEqual);
     }
 
     /**
