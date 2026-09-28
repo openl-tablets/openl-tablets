@@ -5,12 +5,17 @@ editing the same workbook into two different shapes and losing one of them at th
 
 ## The whole lifecycle belongs to the back end
 
-No client asks for the lock and no client gives it up. There is no API to take one and none to release one, and
-none is wanted: every integration — the Studio UI, an MCP server, an agent driving the REST API — writes tables
-through the same endpoints, and an integration that had to orchestrate a lock around its writes would sooner or
-later forget to, and write over somebody's work.
+No client manages the lock, and there is nothing for one to call: no endpoint asks for a lock and none gives one
+up. Every integration — the Studio UI, an MCP server, an agent driving the REST API — writes tables through the
+same endpoints, and an integration that had to orchestrate a lock around its writes would eventually forget to,
+and write over somebody's work.
 
-So the lock is a consequence of what is asked for, never a request of its own:
+The lock is a consequence of what is asked for, never a request of its own. Editing a table is asked for at both
+ends and the lock follows: the request that begins editing takes it, and the one that ends editing gives back
+what there is no longer anything to protect. Neither says the word lock, and neither is about it.
+
+The one endpoint that does name the lock is `DELETE /projects/{id}/lock`, and it is not for a client to manage
+its own: it breaks somebody else's, and it is an administrator's — see below.
 
 | When | What happens |
 |---|---|
@@ -29,8 +34,39 @@ browser — share it. The first editor closed gives it back, because nothing has
 nothing to protect; the other tab's first write takes the project again, or is refused where somebody else took
 it meanwhile. The JSF editor let the lock go the same way, on the unload of whichever table page was left first.
 
+## How an operation says it holds the project
+
+By being marked `@LockForEditing`. Nothing in the method body takes or releases a lock: the annotation is read by
+`ProjectLockInterceptor`, which settles that the caller may write the project, locks it, and gives back a lock it
+took itself where the call was refused — so a request that wrote nothing leaves the project free, and a lock the
+caller was already holding is left alone.
+
+The write right is settled *before* the lock on purpose. A lock stands in the name of whoever holds it, so one
+taken for a reader who may not write would turn a legitimate writer away with a conflict naming somebody who was
+never editing at all.
+
+It is Spring AOP through an advisor rather than an aspect: `ProjectLockPostProcessor` publishes a
+`DefaultPointcutAdvisor` over the annotation, the same shape `CommitInfoPostProcessor` beside it already uses,
+and the application carries no AspectJ. It proxies the target class rather than its interfaces, because the
+service is injected by class.
+
+A method marked `@LockForEditing` has to name the project it is about; one that names none is a mistake and says
+so, rather than running as an unguarded write.
+
+The `GET` that begins editing is deliberately not a safe method: it answers with the metadata and takes the lock
+in the same breath, because that request is the only thing that unambiguously says "I am taking this table up to
+write it".
+
 While a project is held, everyone else reads its tables as read-only — their read of the project carries no
 `canWrite` and names who is holding it — so the Studio does not offer them Edit at all.
+
+## A lock left behind
+
+Editing begins and ends with two requests, and the editor sends them in the order the reader did them. A tab
+closed in the moment between the two — Edit pressed and the tab shut before the server has answered it — is the
+one case that can leave a project held with nobody editing it: the take is already on its way and the release
+has nothing to be sent after. The reader gets the project back by saving or closing it, and an administrator can
+break the lock; EPBDS-15633 is where this goes away altogether.
 
 ## Breaking a lock is an administrator's, and only for the case it was made for
 

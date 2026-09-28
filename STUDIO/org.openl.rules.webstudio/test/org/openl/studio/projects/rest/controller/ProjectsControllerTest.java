@@ -240,7 +240,7 @@ class ProjectsControllerTest {
     }
 
     @Test
-    void writingATableCompilesThatModuleAloneRatherThanResettingTheSession() throws Exception {
+    void writingATableCompilesThatModuleAloneRatherThanResettingTheSession() {
         var projectService = mock(WorkspaceProjectService.class);
         var webStudio = mock(WebStudio.class);
         var controller = controller(projectService, webStudio);
@@ -258,7 +258,7 @@ class ProjectsControllerTest {
     }
 
     @Test
-    void aRefusedWriteLeavesWhatTheSessionCompiledAlone() throws Exception {
+    void aRefusedWriteLeavesWhatTheSessionCompiledAlone() {
         var projectService = mock(WorkspaceProjectService.class);
         var webStudio = mock(WebStudio.class);
         var controller = controller(projectService, webStudio);
@@ -339,7 +339,6 @@ class ProjectsControllerTest {
         verify(webStudio).reset();
         verify(webStudio, never()).recompileCurrentModule();
     }
-
 
     private static ProjectsController controller(WorkspaceProjectService projectService, WebStudio webStudio) {
         return new ProjectsController(

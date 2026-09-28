@@ -93,6 +93,7 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.lock.LockForEditing;
 import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
 import org.openl.studio.projects.model.DescriptorViewModel;
@@ -2206,11 +2207,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the editors the table needs and the cells that ask for them
      * @throws ConflictException when the project is held by another user
      */
+    @LockForEditing
     public TableEditorsView getTableEditors(RulesProject project, String tableId, @Nullable Integer startRow,
             @Nullable Integer maxRows, @Nullable String moduleName) {
-        requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
-        reserveForWriting(project);
         return tableEditorsReader.read(context.table(), startRow, maxRows);
     }
 
@@ -2233,8 +2233,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param project project whose table is being put down
      */
     public void stopEditing(RulesProject project) throws ProjectException {
-        // Whose the lock is, is the release's own business: releaseMyLock lets go of one of this user's and
-        // leaves anybody else's where it is, which the bare unlock beneath it would not.
+        // Asked in that order on purpose: what the workspace holds is known without a word to the lock engine,
+        // and the editor sends this on every close — including the closes that keep the lock anyway. Whose the
+        // lock is, is then the release's own business: releaseMyLock lets go of one of this user's and leaves
+        // anybody else's where it is, which the bare unlock beneath it would not.
         if (!project.isModified()) {
             project.releaseMyLock();
         }
@@ -2430,13 +2432,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table id after the write; differs from {@code tableId} when the table was relocated to grow
      * @throws ConflictException if the project is held by another user
      */
+    @LockForEditing
     public String updateTable(RulesProject project, String tableId, EditableTableView tableView,
             @Nullable String moduleName) {
-        requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableWriterExecutor.executeWrite(writer, tableView));
     }
 
@@ -2449,15 +2450,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table id after the append; differs from {@code tableId} when the table was relocated to grow
      * @throws ConflictException if the project is held by another user
      */
+    @LockForEditing
     public String appendTableLines(RulesProject project,
                                    String tableId,
                                    AppendTableView tableView,
                                    @Nullable String moduleName) {
-        requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableWriterExecutor.executeAppend(writer, tableView));
     }
 
@@ -2475,15 +2475,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
      * @throws ConflictException if the project is held by another user
      */
+    @LockForEditing
     public String editTableSource(RulesProject project,
                                   String tableId,
                                   List<RawTableSourceAction> actions,
                                   @Nullable String moduleName) {
-        requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
-        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
     }
 
@@ -2500,12 +2499,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the table's identifier after the write, which changes when the table had to be moved to grow
      * @throws ConflictException if the project is held by another user
      */
+    @LockForEditing
     public String updateTableProperties(RulesProject project, String tableId,
                                         List<TableProperty> properties,
                                         @Nullable String moduleName) {
-        requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
-        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tablePropertiesService.write(context.table(), properties));
     }
 
@@ -2519,11 +2517,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @throws ConflictException if the project is held by another user
      */
+    @LockForEditing
     public void deleteTable(RulesProject project, String tableId, @Nullable String moduleName) {
-        requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
-        reserveForWriting(getWebStudio().getCurrentProject());
         writing(() -> {
             writer.delete();
             return null;
@@ -2538,15 +2535,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * @return created table identifier, or {@code null} for a newly created module
      */
+    @LockForEditing
     public @Nullable String createNewTable(RulesProject project,
                                            CreateNewTableRequest createTableRequest) throws ProjectException {
-        requireGranted(project, BasePermission.WRITE);
         if (StringUtils.isNotBlank(createTableRequest.modulePath())) {
             createTableInNewModule(project, createTableRequest);
             return null;
         }
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
-        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> tableCreatorService.createTable(createTableRequest, projectModel));
     }
 
@@ -2568,10 +2564,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the copy's identifier, or {@code null} for a newly created module
      * @throws ConflictException if the project is held by another user
      */
+    @LockForEditing
     public @Nullable String copyTable(RulesProject project,
                                       String sourceTableId,
                                       CopyTableRequest request) throws ProjectException {
-        requireGranted(project, BasePermission.WRITE);
         // Resolve the source (with its live grid) before opening the destination module. The resolved POI grid stays
         // valid across the reopen — the copy only reads it — so a copy into another module still sees the source cells.
         var source = getOpenLTable(project, sourceTableId).table();
@@ -2580,7 +2576,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return copyIntoNewModule(project, source, request, sheetName);
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
-        reserveForWriting(getWebStudio().getCurrentProject());
         return writing(() -> writeCopy(projectModel, source, request, sheetName));
     }
 
@@ -2606,8 +2601,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                                IOpenLTable source,
                                                CopyTableRequest request,
                                                String sheetName) throws ProjectException {
-        var lockedBefore = project.isLockedByMe();
-        reserveForWriting(project);
         boolean moduleCreated = false;
         try {
             var projectDescriptor = getProjectDescriptor(project);
@@ -2621,12 +2614,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             writeCopy(projectModel, source, request, sheetName);
             return null;
         } catch (RuntimeException | ProjectException e) {
-            // The write can fail after the empty module is registered — unlike the atomic create path. Remove the
-            // module so no phantom lingers to block a retry, and release the lock this request took.
+            // The write can fail after the empty module is registered — unlike the atomic create path. Remove
+            // the module so no phantom lingers to block a retry; the lock is the interceptor's to give back.
             if (moduleCreated) {
                 tableCreatorService.deleteModule(project, request.moduleName(), request.modulePath());
             }
-            releaseLockTaken(project, lockedBefore);
             throw e;
         }
     }
@@ -2636,58 +2628,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!(createTableRequest.table() instanceof RawTableView rawTable)) {
             throw new BadRequestException("table.new-module.raw-source.message");
         }
-        // A project without modules never opens, so the session has no current project to lock; the project the
-        // module is written to is locked instead.
-        var lockedBefore = project.isLockedByMe();
-        reserveForWriting(project);
-        try {
-            var projectDescriptor = getProjectDescriptor(project);
-            requireModuleAbsent(projectDescriptor.getModules(), createTableRequest.moduleName(),
-                    createTableRequest.modulePath());
-            var newTableName = rawTable.name;
-            // Required whether or not the project has a module to compile first: without a name the table is written
-            // and then cannot be found again, which answers a successful create with an empty body.
-            tableCreatorService.requireTableName(newTableName);
-            tableCreatorService.createModuleWithTable(project, projectDescriptor, createTableRequest, rawTable);
-        } catch (RuntimeException e) {
-            // The checks answer ordinary input and the layout is refused the same way, so a rejected request leaves
-            // no lock behind: the project would otherwise stay reserved for a write that never happened, and
-            // clearing a lock its owner never meant to take takes an administrator.
-            releaseLockTaken(project, lockedBefore);
-            throw e;
-        }
-    }
-
-    /**
-     * Reserves the project for this user before something of it is written.
-     *
-     * <p>A project another user is already holding is not a fault of this one: the write is refused the way the
-     * files API refuses it, with the conflict the API documents, and the answer names who is holding it so the
-     * reader knows whom to wait for rather than retrying into the same wall.
-     *
-     * @throws ConflictException when the project is held by another user
-     */
-    private static void reserveForWriting(RulesProject project) {
-        try {
-            project.tryLockOrThrow();
-        } catch (ProjectException refused) {
-            throw lockedByAnother(project);
-        }
-    }
-
-    /** Says who is holding the project, falling back to the plain refusal when the lock has since gone. */
-    private static ConflictException lockedByAnother(RulesProject project) {
-        var lockedBy = project.getLockInfo().getLockedBy();
-        return StringUtils.isBlank(lockedBy)
-                ? new ConflictException("project.locked.message")
-                : new ConflictException("project.locked.by.message", lockedBy);
-    }
-
-    /** Releases the lock this request took, leaving one the session already held alone. */
-    private static void releaseLockTaken(RulesProject project, boolean lockedBefore) {
-        if (!lockedBefore && project.isLockedByMe()) {
-            project.unlock();
-        }
+        var projectDescriptor = getProjectDescriptor(project);
+        requireModuleAbsent(projectDescriptor.getModules(), createTableRequest.moduleName(),
+                createTableRequest.modulePath());
+        var newTableName = rawTable.name;
+        // Required whether or not the project has a module to compile first: without a name the table is written
+        // and then cannot be found again, which answers a successful create with an empty body.
+        tableCreatorService.requireTableName(newTableName);
+        // The module and its table are written as one, so a refusal leaves nothing behind to clean up. The lock
+        // this request took goes back with the refusal, which is the interceptor's to do.
+        tableCreatorService.createModuleWithTable(project, projectDescriptor, createTableRequest, rawTable);
     }
 
     /** Rejects a new module whose name or path already resolves in the project. */
