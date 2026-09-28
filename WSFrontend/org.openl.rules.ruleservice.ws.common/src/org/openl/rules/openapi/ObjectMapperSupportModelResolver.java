@@ -29,6 +29,7 @@ import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.util.JAXBUtils;
@@ -83,32 +84,42 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                         .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
                 var superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
                 var jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
-                if (jsonSubTypes != null) {
-                    for (JsonSubTypes.Type subType : jsonSubTypes.value()) {
-                        if (subType.value() == type.getRawClass()) {
-                            if (Objects.equals(superJsonTypeInfo.property(), typeInfo.property())) {
-                                return;
-                            }
-                            break;
-                        }
-                    }
+                if (isListedSubtype(jsonSubTypes, type)
+                        && Objects.equals(superJsonTypeInfo.property(), typeInfo.property())) {
+                    return;
                 }
             }
             var typeInfoProp = typeInfo.property();
             if (StringUtils.isNotBlank(typeInfoProp)) {
-                var modelToUpdate = model;
-                if (StringUtils.isNotBlank(model.get$ref())) {
-                    modelToUpdate = context.getDefinedModels().get(model.get$ref().substring(21));
-                }
-                if (modelToUpdate.getProperties() == null || !modelToUpdate.getProperties().containsKey(typeInfoProp)) {
-                    var discriminatorSchema = new StringSchema().name(typeInfoProp);
-                    modelToUpdate.addProperties(typeInfoProp, discriminatorSchema);
-                    if (modelToUpdate.getRequired() == null || !modelToUpdate.getRequired().contains(typeInfoProp)) {
-                        modelToUpdate.addRequiredItem(typeInfoProp);
-                    }
+                addDiscriminatorProperty(context, model, typeInfoProp);
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static void addDiscriminatorProperty(ModelConverterContext context, Schema model, String typeInfoProp) {
+        var modelToUpdate = model;
+        if (StringUtils.isNotBlank(model.get$ref())) {
+            modelToUpdate = context.getDefinedModels().get(model.get$ref().substring(21));
+        }
+        if (modelToUpdate.getProperties() == null || !modelToUpdate.getProperties().containsKey(typeInfoProp)) {
+            var discriminatorSchema = new StringSchema().name(typeInfoProp);
+            modelToUpdate.addProperties(typeInfoProp, discriminatorSchema);
+            if (modelToUpdate.getRequired() == null || !modelToUpdate.getRequired().contains(typeInfoProp)) {
+                modelToUpdate.addRequiredItem(typeInfoProp);
+            }
+        }
+    }
+
+    private static boolean isListedSubtype(@Nullable JsonSubTypes jsonSubTypes, JavaType type) {
+        if (jsonSubTypes != null) {
+            for (JsonSubTypes.Type subType : jsonSubTypes.value()) {
+                if (subType.value() == type.getRawClass()) {
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     @Override
@@ -133,32 +144,30 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                         .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
                 var superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
                 var jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
-                if (jsonSubTypes != null) {
-                    for (JsonSubTypes.Type subType : jsonSubTypes.value()) {
-                        if (subType.value() == type.getRawClass()) {
-                            avoidDisc = true;
-                            break;
-                        }
-                    }
-                }
-                avoidDisc = avoidDisc && superJsonTypeInfo != null && Objects.equals(superJsonTypeInfo.property(),
-                        disc);
+                avoidDisc = isListedSubtype(jsonSubTypes, type) && superJsonTypeInfo != null
+                        && Objects.equals(superJsonTypeInfo.property(), disc);
             }
         }
         if (StringUtils.isNotBlank(disc) && !avoidDisc) {
             var discriminator = new Discriminator().propertyName(disc);
             if (declaredSchemaAnnotation != null) {
-                var mappings = declaredSchemaAnnotation.discriminatorMapping();
-                for (DiscriminatorMapping mapping : mappings) {
-                    if (!mapping.value().isEmpty() && !mapping.schema().equals(Void.class)) {
-                        discriminator.mapping(mapping.value(),
-                                constructRef(context.resolve(new AnnotatedType().type(mapping.schema())).getName()));
-                    }
-                }
+                addDiscriminatorMappings(discriminator, declaredSchemaAnnotation, context);
             }
             return discriminator;
         }
         return null;
+    }
+
+    private static void addDiscriminatorMappings(Discriminator discriminator,
+                                                 io.swagger.v3.oas.annotations.media.Schema declaredSchemaAnnotation,
+                                                 ModelConverterContext context) {
+        var mappings = declaredSchemaAnnotation.discriminatorMapping();
+        for (DiscriminatorMapping mapping : mappings) {
+            if (!mapping.value().isEmpty() && !mapping.schema().equals(Void.class)) {
+                discriminator.mapping(mapping.value(),
+                        constructRef(context.resolve(new AnnotatedType().type(mapping.schema())).getName()));
+            }
+        }
     }
 
     @Override

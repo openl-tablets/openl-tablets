@@ -86,19 +86,7 @@ public class OpenAPIRefResolver {
         }
         Schema<?> resolvedSchema = resolve(schema, Schema::get$ref);
         if (resolvedSchema != null) {
-            allSchemaProperties = new HashMap<>();
-            if (resolvedSchema instanceof ComposedSchema composedSchema
-                    && composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
-                for (Schema<?> embeddedSchema : composedSchema.getAllOf()) {
-                    Map<String, Schema> embeddedSchemaProperties = resolveAllProperties(embeddedSchema, allPropertiesCache);
-                    if (embeddedSchemaProperties != null) {
-                        allSchemaProperties.putAll(embeddedSchemaProperties);
-                    }
-                }
-            }
-            if (resolvedSchema.getProperties() != null) {
-                allSchemaProperties.putAll(resolvedSchema.getProperties());
-            }
+            allSchemaProperties = collectAllProperties(resolvedSchema, allPropertiesCache);
             if (resolvedSchema != schema) {
                 allPropertiesCache.put(resolvedSchema, allSchemaProperties);
             }
@@ -106,6 +94,27 @@ public class OpenAPIRefResolver {
             allSchemaProperties = schema.getProperties() != null ? schema.getProperties() : Map.of();
         }
         allPropertiesCache.put(schema, allSchemaProperties);
+        return allSchemaProperties;
+    }
+
+    /**
+     * Returns the properties of the schema together with the properties of all schemas it is composed of.
+     */
+    private Map<String, Schema> collectAllProperties(Schema<?> resolvedSchema,
+                                                     Map<Schema, Map<String, Schema>> allPropertiesCache) {
+        Map<String, Schema> allSchemaProperties = new HashMap<>();
+        if (resolvedSchema instanceof ComposedSchema composedSchema
+                && composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
+            for (Schema<?> embeddedSchema : composedSchema.getAllOf()) {
+                Map<String, Schema> embeddedSchemaProperties = resolveAllProperties(embeddedSchema, allPropertiesCache);
+                if (embeddedSchemaProperties != null) {
+                    allSchemaProperties.putAll(embeddedSchemaProperties);
+                }
+            }
+        }
+        if (resolvedSchema.getProperties() != null) {
+            allSchemaProperties.putAll(resolvedSchema.getProperties());
+        }
         return allSchemaProperties;
     }
 }

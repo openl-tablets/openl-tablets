@@ -57,6 +57,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -255,30 +256,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             var parameterNames = resolveParameterNames(openMember, originalMethod);
             var parameterTypes = resolveParameterTypes(openMember, originalMethod);
 
-            var requestParameterName = StringUtils.capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX;
-            if (suffix > 0) {
-                requestParameterName = requestParameterName + suffix;
-            }
-            var nonConflictedRequestParameterName = requestParameterName;
-            var s = new StringBuilder("0");
-            while (getUsedOpenApiComponentNamesWithRequestParameterSuffix()
-                    .contains(nonConflictedRequestParameterName)) {
-                nonConflictedRequestParameterName = StringUtils
-                        .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
-                s.insert(0, "0");
-            }
-            usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
-            var beanName = "org.openl.jaxrs." + nonConflictedRequestParameterName;
-
-            var openApiRequestBodyProperties = new HashMap<String, io.swagger.v3.oas.models.media.Schema>();
-            if (operation != null) {
-                var requestBody = this.openAPIRefResolver.resolve(operation.getRequestBody(), RequestBody::get$ref);
-                if (requestBody != null && requestBody.getContent() != null && requestBody.getContent().containsKey(MediaType.APPLICATION_JSON)) {
-                    var mediaType = requestBody.getContent().get(MediaType.APPLICATION_JSON);
-                    io.swagger.v3.oas.models.media.Schema<?> schema = this.openAPIRefResolver.resolve(mediaType.getSchema(), io.swagger.v3.oas.models.media.Schema::get$ref);
-                    openApiRequestBodyProperties.putAll(this.openAPIRefResolver.resolveAllProperties(schema, new IdentityHashMap<>()));
-                }
-            }
+            var beanName = "org.openl.jaxrs." + registerRequestParameterName(originalMethod, suffix);
+            var openApiRequestBodyProperties = getOpenApiRequestBodyProperties(operation);
 
             var i = 0;
             var beanClassBuilder = new WrapperBeanClassBuilder(beanName, originalMethod.getName());
@@ -318,6 +297,44 @@ public class JAXRSOpenLServiceEnhancerHelper {
             var byteCode = beanClassBuilder.byteCode();
 
             return ClassLoaderUtils.defineClass(beanName, byteCode, classLoader);
+        }
+
+        /**
+         * Returns a name for the request wrapper of the method that no OpenAPI component uses, and marks it as used.
+         */
+        private String registerRequestParameterName(Method originalMethod, int suffix) {
+            var requestParameterName = StringUtils.capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX;
+            if (suffix > 0) {
+                requestParameterName = requestParameterName + suffix;
+            }
+            var nonConflictedRequestParameterName = requestParameterName;
+            var s = new StringBuilder("0");
+            while (getUsedOpenApiComponentNamesWithRequestParameterSuffix()
+                    .contains(nonConflictedRequestParameterName)) {
+                nonConflictedRequestParameterName = StringUtils.capitalize(originalMethod.getName())
+                        + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
+                s.insert(0, "0");
+            }
+            usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
+            return nonConflictedRequestParameterName;
+        }
+
+        private Map<String, io.swagger.v3.oas.models.media.Schema> getOpenApiRequestBodyProperties(
+                io.swagger.v3.oas.models.Operation operation) {
+            var openApiRequestBodyProperties = new HashMap<String, io.swagger.v3.oas.models.media.Schema>();
+            if (operation != null) {
+                var requestBody = this.openAPIRefResolver.resolve(operation.getRequestBody(), RequestBody::get$ref);
+                if (requestBody != null && requestBody.getContent() != null
+                        && requestBody.getContent().containsKey(MediaType.APPLICATION_JSON)) {
+                    var mediaType = requestBody.getContent().get(MediaType.APPLICATION_JSON);
+                    io.swagger.v3.oas.models.media.Schema<?> schema = this.openAPIRefResolver.resolve(
+                            mediaType.getSchema(),
+                            io.swagger.v3.oas.models.media.Schema::get$ref);
+                    openApiRequestBodyProperties.putAll(
+                            this.openAPIRefResolver.resolveAllProperties(schema, new IdentityHashMap<>()));
+                }
+            }
+            return openApiRequestBodyProperties;
         }
 
         Set<String> getUsedPaths() {
@@ -380,7 +397,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 throw new IllegalStateException("Method is not found in the original class");
             }
 
-            MethodVisitor mv;
             var returnType = extractOriginalType(originalMethod.getReturnType());
             var hasResponse = returnType == Response.class;
             descriptor = hasResponse ? descriptor
@@ -389,12 +405,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
             var allParametersIsPrimitive = true;
             var originalParameterTypes = originalMethod.getParameterTypes();
-            var numOfParameters = originalParameterTypes.length;
-            for (Parameter parameter : originalMethod.getParameters()) {
-                if (!isParameterInWrapperClass(parameter)) {
-                    numOfParameters--;
-                }
-            }
+            var numOfParameters = countWrapperClassParameters(originalMethod);
             if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET) {
                 for (Class<?> parameterType : originalParameterTypes) {
                     if (!parameterType.isPrimitive()) {
@@ -407,137 +418,24 @@ public class JAXRSOpenLServiceEnhancerHelper {
             IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
                     targetService);
 
-            Set<String> usedParamNames = null;
-
-            PathItem pathItem = null;
-            io.swagger.v3.oas.models.Operation operation = null;
-
-            if ((numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !isHttpMethodTypeAnnotationPresented(originalMethod)) || originalMethod.isAnnotationPresent(GET.class)) {
-                var sb = new StringBuilder();
-                mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-                var parameterNames = resolveParameterNames(openMember, originalMethod);
-                processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
-                addGetAnnotation(mv, originalMethod);
-
-                if (!originalMethod.isAnnotationPresent(Path.class)) {
-                    usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
-                            PathParam.class,
-                            PathParam::value);
-                    var i = 0;
-                    for (String paramName : parameterNames) {
-                        var parameter = originalMethod.getParameters()[i];
-                        var pathParam = parameter.getAnnotation(PathParam.class);
-                        if (pathParam == null) {
-                            var p = paramName;
-                            var j = 1;
-                            while (usedParamNames.contains(p)) {
-                                p = paramName + j;
-                            }
-                            sb.append("/{").append(p).append(": .*}");
-                            addPathParamAnnotation(mv, i, p);
-                            usedParamNames.add(p);
-                        } else {
-                            sb.append("/{").append(pathParam.value()).append(": .*}");
-                        }
-                        i++;
-                    }
-                    if (!originalMethod.isAnnotationPresent(Path.class)) {
-                        var path = "/" + originalMethod.getName() + sb;
-                        var c = 1;
-                        while (getUsedPaths().contains(normalizePath(path))) {
-                            path = "/" + originalMethod.getName() + c++ + sb;
-                        }
-                        getUsedPaths().add(normalizePath(path));
-                        path = addPathAnnotation(mv, originalMethod, path);
-                        pathItem = findPathItem(path);
-                    }
-                } else {
-                    usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
-                            QueryParam.class,
-                            QueryParam::value);
-                    var i = 0;
-                    for (String paramName : parameterNames) {
-                        var jaxrsAnnotationPresented = isJAXRSParamAnnotation(originalMethod.getParameters()[i]);
-                        if (!jaxrsAnnotationPresented) {
-                            var p = paramName;
-                            var j = 1;
-                            while (usedParamNames.contains(p)) {
-                                p = paramName + j;
-                            }
-                            addQueryParamAnnotation(mv, i, p);
-                            usedParamNames.add(p);
-                        }
-                        i++;
-                    }
-                    pathItem = findPathItem(originalMethod.getAnnotation(Path.class).value());
-                }
-                if (pathItem != null) {
-                    operation = pathItem.getGet();
-                }
+            MethodMapping methodMapping;
+            if ((numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive
+                    && !isHttpMethodTypeAnnotationPresented(originalMethod))
+                    || originalMethod.isAnnotationPresent(GET.class)) {
+                methodMapping = mapGetMethod(super.visitMethod(access, name, descriptor, signature, exceptions),
+                        originalMethod,
+                        openMember);
             } else {
-                try {
-                    String path = null;
-                    var c = 0;
-                    if (!originalMethod.isAnnotationPresent(Path.class)) {
-                        path = "/" + originalMethod.getName();
-                        while (getUsedPaths().contains(normalizePath(path))) {
-                            c++;
-                            path = "/" + originalMethod.getName() + c;
-                        }
-                        getUsedPaths().add(normalizePath(path));
-                    }
-                    if (originalMethod.isAnnotationPresent(Path.class)) {
-                        path = originalMethod.getAnnotation(Path.class).value();
-                    }
-                    pathItem = findPathItem(path);
-                    if (pathItem != null) {
-                        if (!isHttpMethodTypeAnnotationPresented(originalMethod)) {
-                            operation = pathItem.getPost();
-                        } else {
-                            if (originalMethod.isAnnotationPresent(GET.class)) {
-                                operation = pathItem.getGet();
-                            } else if (originalMethod.isAnnotationPresent(POST.class)) {
-                                operation = pathItem.getPost();
-                            } else if (originalMethod.isAnnotationPresent(PUT.class)) {
-                                operation = pathItem.getPut();
-                            } else if (originalMethod.isAnnotationPresent(DELETE.class)) {
-                                operation = pathItem.getDelete();
-                            } else if (originalMethod.isAnnotationPresent(PATCH.class)) {
-                                operation = pathItem.getPatch();
-                            } else if (originalMethod.isAnnotationPresent(OPTIONS.class)) {
-                                operation = pathItem.getOptions();
-                            } else if (originalMethod.isAnnotationPresent(HEAD.class)) {
-                                operation = pathItem.getHead();
-                            }
-                        }
-                    }
-                    if (numOfParameters > 1) {
-                        if (!isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
-                            mv = super.visitMethod(access,
-                                    name,
-                                    changedParameterTypesDescription(descriptor, openMember, originalMethod, c, operation),
-                                    signature,
-                                    exceptions);
-                            processAnnotationsOnMethodExternalParameters(originalMethod, mv);
-                        } else {
-                            mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-                            processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
-                        }
-                    } else {
-                        mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-                        processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
-                    }
-                    if (!hasResponse) {
-                        annotateReturnElementClass(mv, returnType);
-                    }
-                    addPathAnnotation(mv, originalMethod, path);
-                    if (!isHttpMethodTypeAnnotationPresented(originalMethod)) {
-                        addPostAnnotation(mv, originalMethod);
-                    }
-                } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                }
+                methodMapping = mapNonGetMethod(
+                        methodDescriptor -> super.visitMethod(access, name, methodDescriptor, signature, exceptions),
+                        descriptor,
+                        originalMethod,
+                        openMember,
+                        numOfParameters,
+                        hasResponse,
+                        returnType);
             }
+            var mv = methodMapping.mv();
             addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
             var nickname = originalMethod.getName();
             var c = 1;
@@ -545,10 +443,202 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 nickname = originalMethod.getName() + "_" + c++;
             }
             nicknames.add(nickname);
-            addSwaggerMethodAnnotation(mv, openMember, originalMethod, nickname, pathItem, operation, usedParamNames);
+            addSwaggerMethodAnnotation(mv,
+                    openMember,
+                    originalMethod,
+                    nickname,
+                    methodMapping.pathItem(),
+                    methodMapping.operation(),
+                    methodMapping.usedParamNames());
             addOpenApiResponsesMethodAnnotation(mv, openMember, originalMethod);
             addOpenApiAcceptLanguageHeader(mv, originalMethod);
             return mv;
+        }
+
+        /**
+         * The visitor of a generated method with the OpenAPI path item and operation the method is mapped to, and the
+         * names of its path or query parameters.
+         */
+        private record MethodMapping(MethodVisitor mv,
+                                     @Nullable Set<String> usedParamNames,
+                                     @Nullable PathItem pathItem,
+                                     io.swagger.v3.oas.models.@Nullable Operation operation) {
+        }
+
+        private static int countWrapperClassParameters(Method originalMethod) {
+            var numOfParameters = originalMethod.getParameterTypes().length;
+            for (Parameter parameter : originalMethod.getParameters()) {
+                if (!isParameterInWrapperClass(parameter)) {
+                    numOfParameters--;
+                }
+            }
+            return numOfParameters;
+        }
+
+        /**
+         * Annotates the method as a GET operation. Its parameters become path parameters, or query parameters when
+         * the method has a path already.
+         */
+        private MethodMapping mapGetMethod(MethodVisitor mv, Method originalMethod, IOpenMember openMember) {
+            var parameterNames = resolveParameterNames(openMember, originalMethod);
+            processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
+            addGetAnnotation(mv, originalMethod);
+
+            Set<String> usedParamNames;
+            PathItem pathItem = null;
+            if (!originalMethod.isAnnotationPresent(Path.class)) {
+                usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
+                        PathParam.class,
+                        PathParam::value);
+                var pathParams = annotatePathParameters(mv, originalMethod, parameterNames, usedParamNames);
+                if (!originalMethod.isAnnotationPresent(Path.class)) {
+                    var path = "/" + originalMethod.getName() + pathParams;
+                    var c = 1;
+                    while (getUsedPaths().contains(normalizePath(path))) {
+                        path = "/" + originalMethod.getName() + c++ + pathParams;
+                    }
+                    getUsedPaths().add(normalizePath(path));
+                    path = addPathAnnotation(mv, originalMethod, path);
+                    pathItem = findPathItem(path);
+                }
+            } else {
+                usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
+                        QueryParam.class,
+                        QueryParam::value);
+                annotateQueryParameters(mv, originalMethod, parameterNames, usedParamNames);
+                pathItem = findPathItem(originalMethod.getAnnotation(Path.class).value());
+            }
+            io.swagger.v3.oas.models.Operation operation = null;
+            if (pathItem != null) {
+                operation = pathItem.getGet();
+            }
+            return new MethodMapping(mv, usedParamNames, pathItem, operation);
+        }
+
+        /**
+         * Adds a path parameter for each method parameter that has none, and returns the path template of all path
+         * parameters.
+         */
+        private String annotatePathParameters(MethodVisitor mv,
+                                              Method originalMethod,
+                                              String[] parameterNames,
+                                              Set<String> usedParamNames) {
+            var sb = new StringBuilder();
+            var i = 0;
+            for (String paramName : parameterNames) {
+                var parameter = originalMethod.getParameters()[i];
+                var pathParam = parameter.getAnnotation(PathParam.class);
+                if (pathParam == null) {
+                    var p = paramName;
+                    var j = 1;
+                    while (usedParamNames.contains(p)) {
+                        p = paramName + j;
+                    }
+                    sb.append("/{").append(p).append(": .*}");
+                    addPathParamAnnotation(mv, i, p);
+                    usedParamNames.add(p);
+                } else {
+                    sb.append("/{").append(pathParam.value()).append(": .*}");
+                }
+                i++;
+            }
+            return sb.toString();
+        }
+
+        private void annotateQueryParameters(MethodVisitor mv,
+                                             Method originalMethod,
+                                             String[] parameterNames,
+                                             Set<String> usedParamNames) {
+            var i = 0;
+            for (String paramName : parameterNames) {
+                var jaxrsAnnotationPresented = isJAXRSParamAnnotation(originalMethod.getParameters()[i]);
+                if (!jaxrsAnnotationPresented) {
+                    var p = paramName;
+                    var j = 1;
+                    while (usedParamNames.contains(p)) {
+                        p = paramName + j;
+                    }
+                    addQueryParamAnnotation(mv, i, p);
+                    usedParamNames.add(p);
+                }
+                i++;
+            }
+        }
+
+        /**
+         * Annotates the method as an operation of the HTTP method it declares, or as a POST operation. Its parameters
+         * are wrapped into a request class when there are several of them and none is bound by a JAX-RS annotation.
+         */
+        private MethodMapping mapNonGetMethod(Function<String, MethodVisitor> methodVisitor,
+                                              String descriptor,
+                                              Method originalMethod,
+                                              IOpenMember openMember,
+                                              int numOfParameters,
+                                              boolean hasResponse,
+                                              Class<?> returnType) {
+            try {
+                String path = null;
+                var c = 0;
+                if (!originalMethod.isAnnotationPresent(Path.class)) {
+                    path = "/" + originalMethod.getName();
+                    while (getUsedPaths().contains(normalizePath(path))) {
+                        c++;
+                        path = "/" + originalMethod.getName() + c;
+                    }
+                    getUsedPaths().add(normalizePath(path));
+                }
+                if (originalMethod.isAnnotationPresent(Path.class)) {
+                    path = originalMethod.getAnnotation(Path.class).value();
+                }
+                var pathItem = findPathItem(path);
+                io.swagger.v3.oas.models.Operation operation = null;
+                if (pathItem != null) {
+                    operation = findOperation(pathItem, originalMethod);
+                }
+                MethodVisitor mv;
+                if (numOfParameters > 1 && !isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
+                    mv = methodVisitor.apply(
+                            changedParameterTypesDescription(descriptor, openMember, originalMethod, c, operation));
+                    processAnnotationsOnMethodExternalParameters(originalMethod, mv);
+                } else {
+                    mv = methodVisitor.apply(descriptor);
+                    processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
+                }
+                if (!hasResponse) {
+                    annotateReturnElementClass(mv, returnType);
+                }
+                addPathAnnotation(mv, originalMethod, path);
+                if (!isHttpMethodTypeAnnotationPresented(originalMethod)) {
+                    addPostAnnotation(mv, originalMethod);
+                }
+                return new MethodMapping(mv, null, pathItem, operation);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        private io.swagger.v3.oas.models.@Nullable Operation findOperation(PathItem pathItem, Method originalMethod) {
+            io.swagger.v3.oas.models.Operation operation = null;
+            if (!isHttpMethodTypeAnnotationPresented(originalMethod)) {
+                operation = pathItem.getPost();
+            } else {
+                if (originalMethod.isAnnotationPresent(GET.class)) {
+                    operation = pathItem.getGet();
+                } else if (originalMethod.isAnnotationPresent(POST.class)) {
+                    operation = pathItem.getPost();
+                } else if (originalMethod.isAnnotationPresent(PUT.class)) {
+                    operation = pathItem.getPut();
+                } else if (originalMethod.isAnnotationPresent(DELETE.class)) {
+                    operation = pathItem.getDelete();
+                } else if (originalMethod.isAnnotationPresent(PATCH.class)) {
+                    operation = pathItem.getPatch();
+                } else if (originalMethod.isAnnotationPresent(OPTIONS.class)) {
+                    operation = pathItem.getOptions();
+                } else if (originalMethod.isAnnotationPresent(HEAD.class)) {
+                    operation = pathItem.getHead();
+                }
+            }
+            return operation;
         }
 
         private boolean isHttpMethodTypeAnnotationPresented(Method originalMethod) {
@@ -769,15 +859,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     if (StringUtils.isNotBlank(operation.getDescription())) {
                         description = operation.getDescription();
                     }
-                    if (operation.getParameters() != null) {
-                        for (io.swagger.v3.oas.models.parameters.Parameter parameter : operation.getParameters()) {
-                            var parameterName = parameter.getName();
-                            var parameterDescription = parameter.getDescription();
-                            if (StringUtils.isNotBlank(parameterDescription)) {
-                                parameterDescriptions.put(parameterName, parameterDescription);
-                            }
-                        }
-                    }
+                    collectParameterDescriptions(operation, parameterDescriptions);
                 }
                 if (StringUtils.isBlank(description) && StringUtils.isNotBlank(pathItem.getDescription())) {
                     description = pathItem.getDescription();
@@ -788,6 +870,19 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 description = extractDescription(openMethod);
             }
             return new MethodDescription(description, parameterDescriptions);
+        }
+
+        private static void collectParameterDescriptions(io.swagger.v3.oas.models.Operation operation,
+                                                         Map<String, String> parameterDescriptions) {
+            if (operation.getParameters() != null) {
+                for (io.swagger.v3.oas.models.parameters.Parameter parameter : operation.getParameters()) {
+                    var parameterName = parameter.getName();
+                    var parameterDescription = parameter.getDescription();
+                    if (StringUtils.isNotBlank(parameterDescription)) {
+                        parameterDescriptions.put(parameterName, parameterDescription);
+                    }
+                }
+            }
         }
 
         private void addOpenApiResponsesMethodAnnotation(MethodVisitor mv, IOpenMember openMember, Method originalMethod) {
