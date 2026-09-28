@@ -79,20 +79,26 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
     const [error, setError] = useState<string | undefined>(undefined)
 
     // The same table can be described differently — read within the current module only, it may take other
-    // parameters — so the input starts again from what it is given. Kept as it was, it would send a value
-    // typed for a parameter that is gone, and leave a parameter that has appeared without its declared
+    // parameters — so the input starts again when the description changes. Kept as it was, it would send a
+    // value typed for a parameter that is gone, and leave a parameter that has appeared without its declared
     // default. The text is the same input in another shape, and starts again with it: what it holds is what
     // is sent while JSON is the input shown.
     //
-    // What is watched is the declarations themselves. The label of the context is taken from the
-    // translation, which may be handed out anew without a declaration having changed, and what is typed
-    // survives that.
+    // What is watched is what the description says, not the answer it arrived in. Reading the table again
+    // hands over a new list every time, and a table described twice over in the same words is the same
+    // table: starting again on that would take away what the reader had typed, which is most of what they
+    // came to do. The label of the context comes from the translation, which may be handed out anew on its
+    // own, and what is typed survives that too.
+    const described = useMemo(
+        () => JSON.stringify([parameters, runtimeContext ?? null]),
+        [parameters, runtimeContext]
+    )
     useEffect(() => {
         const restarted = initialFormValue(formParameters)
         setValue(restarted)
         setText(toInputJson(restarted))
         setError(undefined)
-    }, [parameters, runtimeContext])
+    }, [described])
 
     const parseText = useCallback((json: string): { parsed?: unknown, error?: string } => {
         if (json.trim() === '') {
