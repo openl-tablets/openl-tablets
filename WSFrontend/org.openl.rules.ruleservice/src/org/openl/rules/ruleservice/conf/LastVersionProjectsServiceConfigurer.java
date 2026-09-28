@@ -92,15 +92,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                                 .setServicePath(ruleServiceLoader.getLogicalProjectFolder(project.getFolderPath()));
                         var serviceDescription = serviceDescriptionBuilder.build();
 
-                        if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
-                            serviceDescriptions.add(serviceDescription);
-                        } else {
-                            if (serviceDescriptions.contains(serviceDescription)) {
-                                log.error(
-                                        "Service '{}' already exists in the deployment list.",
-                                        serviceDescription.getDeployPath());
-                            }
-                        }
+                        addServiceDescription(serviceDescriptions, serviceDescription, rulesDeploy);
                     }
                 } catch (Exception e) {
                     log.error(
@@ -113,6 +105,22 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
         }
 
         return serviceDescriptions;
+    }
+
+    /**
+     * Adds the service unless a service with the same deploy path is added already or the service group is not
+     * supported.
+     */
+    private void addServiceDescription(Set<ServiceDescription> serviceDescriptions,
+                                       ServiceDescription serviceDescription,
+                                       @Nullable RulesDeploy rulesDeploy) {
+        if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
+            serviceDescriptions.add(serviceDescription);
+        } else if (serviceDescriptions.contains(serviceDescription)) {
+            log.error(
+                    "Service '{}' already exists in the deployment list.",
+                    serviceDescription.getDeployPath());
+        }
     }
 
     /**
@@ -130,44 +138,50 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                 try (var content = resource.getContent()) {
                     rulesDeploy = RulesDeploy.read(content);
                     serviceDescriptionBuilder.setRulesDeploy(rulesDeploy);
-                    if (rulesDeploy
-                            .getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
-                        serviceDescriptionBuilder
-                                .setServiceClassName(rulesDeploy.getServiceClass().trim());
-                    }
-                    if (rulesDeploy.isProvideRuntimeContext() != null) {
-                        serviceDescriptionBuilder
-                                .setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
-                    }
-                    if (rulesDeploy.getPublishers() != null) {
-                        var publishers = Arrays.stream(rulesDeploy.getPublishers())
-                                .map(Enum::toString)
-                                .collect(Collectors.toSet());
-                        serviceDescriptionBuilder.setPublishers(publishers);
-                    }
-                    if (rulesDeploy.getConfiguration() != null) {
-                        serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
-                    }
-                    if (rulesDeploy.getInterceptingTemplateClassName() != null && !rulesDeploy
-                            .getInterceptingTemplateClassName()
-                            .trim()
-                            .isEmpty()) {
-                        serviceDescriptionBuilder.setAnnotationTemplateClassName(
-                                rulesDeploy.getInterceptingTemplateClassName().trim());
-                    }
-                    if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy
-                            .getAnnotationTemplateClassName()
-                            .trim()
-                            .isEmpty()) {
-                        serviceDescriptionBuilder.setAnnotationTemplateClassName(
-                                rulesDeploy.getAnnotationTemplateClassName().trim());
-                    }
+                    applyRulesDeploySettings(rulesDeploy, serviceDescriptionBuilder);
                 }
             }
         } catch (ProjectException ignored) {
             // rules-deploy.xml is optional; proceed with defaults
         }
         return rulesDeploy;
+    }
+
+    private static void applyRulesDeploySettings(
+            RulesDeploy rulesDeploy,
+            ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder) {
+        if (rulesDeploy
+                .getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
+            serviceDescriptionBuilder
+                    .setServiceClassName(rulesDeploy.getServiceClass().trim());
+        }
+        if (rulesDeploy.isProvideRuntimeContext() != null) {
+            serviceDescriptionBuilder
+                    .setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
+        }
+        if (rulesDeploy.getPublishers() != null) {
+            var publishers = Arrays.stream(rulesDeploy.getPublishers())
+                    .map(Enum::toString)
+                    .collect(Collectors.toSet());
+            serviceDescriptionBuilder.setPublishers(publishers);
+        }
+        if (rulesDeploy.getConfiguration() != null) {
+            serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
+        }
+        if (rulesDeploy.getInterceptingTemplateClassName() != null && !rulesDeploy
+                .getInterceptingTemplateClassName()
+                .trim()
+                .isEmpty()) {
+            serviceDescriptionBuilder.setAnnotationTemplateClassName(
+                    rulesDeploy.getInterceptingTemplateClassName().trim());
+        }
+        if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy
+                .getAnnotationTemplateClassName()
+                .trim()
+                .isEmpty()) {
+            serviceDescriptionBuilder.setAnnotationTemplateClassName(
+                    rulesDeploy.getAnnotationTemplateClassName().trim());
+        }
     }
 
     private Manifest readManifestFile(IProject project) {
@@ -235,11 +249,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
         if (rulesDeploy != null) {
             if (StringUtils.isNotEmpty(rulesDeploy.getUrl())) {
                 if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
-                    if (rulesDeploy.getUrl().startsWith("/")) {
-                        return "/" + rulesDeploy.getVersion() + rulesDeploy.getUrl();
-                    } else {
-                        return "/" + rulesDeploy.getVersion() + "/" + rulesDeploy.getUrl();
-                    }
+                    return buildVersionedUrl(rulesDeploy);
                 } else {
                     return rulesDeploy.getUrl();
                 }
@@ -250,6 +260,14 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             }
         }
         return deployment.getDeploymentName() + '/' + projectName;
+    }
+
+    private static String buildVersionedUrl(RulesDeploy rulesDeploy) {
+        if (rulesDeploy.getUrl().startsWith("/")) {
+            return "/" + rulesDeploy.getVersion() + rulesDeploy.getUrl();
+        } else {
+            return "/" + rulesDeploy.getVersion() + "/" + rulesDeploy.getUrl();
+        }
     }
 
     public void setDatasourceDeploymentPatterns(String deploymentPatterns) {

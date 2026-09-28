@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -396,18 +397,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     @Override
     public Object invoke(Method calledMethod, Object[] args) {
-        var methodName = calledMethod.getName();
-        var parameterTypes = calledMethod.getParameterTypes();
         Object result = null;
-        Method beanMethod = null;
-        if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
-            beanMethod = getTargetMember(calledMethod);
-            if (beanMethod == null) {
-                var msg = "Called method is not found in the service bean. Please, check that excel file contains method '%s'.".formatted(
-                        MethodUtil.printMethod(methodName, parameterTypes));
-                throw new RuleServiceWrapperException(msg, ExceptionType.SYSTEM);
-            }
-        }
+        var beanMethod = findBeanMethod(calledMethod);
         try {
             var oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
@@ -444,13 +435,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                             result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
                         }
                     } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                        var t = e.getCause();
-                        if (t instanceof Exception exception) {
-                            ex = exception;
-                            ex.addSuppressed(e);
-                        } else {
-                            ex = e;
-                        }
+                        ex = unwrapInvocationException(e);
                     } catch (Exception e) {
                         ex = e;
                     } finally {
@@ -467,13 +452,50 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         } catch (Throwable t) {
-            var error = RuleServiceWrapperException.create(t, sprBeanPropertyNamingStrategy);
-            if (error.getType().isServerError()) {
-                log.error(error.getMessage(), t);
-            }
-            throw error;
+            throw toWrapperException(t);
         }
         return result;
+    }
+
+    /**
+     * Returns the service bean method that the called method delegates to, or {@code null} for a service extra
+     * method.
+     */
+    private @Nullable Method findBeanMethod(Method calledMethod) {
+        Method beanMethod = null;
+        if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
+            beanMethod = getTargetMember(calledMethod);
+            if (beanMethod == null) {
+                var msg = "Called method is not found in the service bean. Please, check that excel file contains method '%s'.".formatted(
+                        MethodUtil.printMethod(calledMethod.getName(), calledMethod.getParameterTypes()));
+                throw new RuleServiceWrapperException(msg, ExceptionType.SYSTEM);
+            }
+        }
+        return beanMethod;
+    }
+
+    /**
+     * Returns the exception that the invoked method has thrown, with the reflection wrapper added as suppressed. The
+     * wrapper itself is returned when its cause is not an exception.
+     */
+    private static Exception unwrapInvocationException(Exception e) {
+        var t = e.getCause();
+        if (t instanceof Exception exception) {
+            exception.addSuppressed(e);
+            return exception;
+        }
+        return e;
+    }
+
+    /**
+     * Wraps the failure of a service method call, and logs it when it is a server error.
+     */
+    private RuleServiceWrapperException toWrapperException(Throwable t) {
+        var error = RuleServiceWrapperException.create(t, sprBeanPropertyNamingStrategy);
+        if (error.getType().isServerError()) {
+            log.error(error.getMessage(), t);
+        }
+        return error;
     }
 
     private Object[] processArguments(Method interfaceMethod, Method beanMethod, Object[] args) {

@@ -146,27 +146,34 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             lock.lock();
             for (List<ServiceDescription> serviceDescriptionsForDeployment : groupedServices.values()) {
                 if (hasAtLeastOneToDeploy(serviceDescriptionsForDeployment)) {
-                    for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
-                        var old = services.get(serviceDescription.getDeployPath());
-                        if (old != null) {
-                            try {
-                                undeploy(old);
-                            } catch (Exception e) {
-                                log.error(UNDEPLOY_FAILED, serviceDescription.getDeployPath(), e);
-                            }
-                        }
-                    }
-                    for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
-                        try {
-                            deploy(serviceDescription);
-                        } catch (Exception | LinkageError e) {
-                            log.error("Failed to deploy service '{}'.", serviceDescription.getDeployPath(), e);
-                        }
-                    }
+                    redeployServices(serviceDescriptionsForDeployment);
                 }
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    /**
+     * Undeploys the running versions of the services, then deploys the services.
+     */
+    private void redeployServices(List<ServiceDescription> serviceDescriptionsForDeployment) {
+        for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
+            var old = services.get(serviceDescription.getDeployPath());
+            if (old != null) {
+                try {
+                    undeploy(old);
+                } catch (Exception e) {
+                    log.error(UNDEPLOY_FAILED, serviceDescription.getDeployPath(), e);
+                }
+            }
+        }
+        for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
+            try {
+                deploy(serviceDescription);
+            } catch (Exception | LinkageError e) {
+                log.error("Failed to deploy service '{}'.", serviceDescription.getDeployPath(), e);
+            }
         }
     }
 
@@ -330,22 +337,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         Objects.requireNonNull(service, "service cannot be null");
         final var servicePath = service.getDeployPath();
 
-        Collection<String> sp = service.getPublishers();
-        var publishers = new ArrayList<RuleServicePublisher>();
-        if (supportedPublishers.size() > 1) {
-            for (String p : sp) {
-                var publisher = supportedPublishers.stream().filter(n -> n.name().equalsIgnoreCase(p)).findFirst();
-                if (publisher.isPresent()) {
-                    publishers.add(publisher.get());
-                } else {
-                    log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
-                            p,
-                            servicePath);
-                }
-            }
-        } else {
-            publishers.addAll(supportedPublishers);
-        }
+        var publishers = resolvePublishers(service.getPublishers(), servicePath);
         Exception e1 = null;
         var deployedPublishers = new ArrayList<RuleServicePublisher>();
         if (!publishers.isEmpty()) {
@@ -373,17 +365,45 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         }
         services2.put(servicePath, service);
         if (e1 != null) {
-            for (RuleServicePublisher publisher : deployedPublishers) {
-                try {
-                    publisher.undeploy(service);
-                } catch (RuleServiceUndeployException e) {
-                    log.error(UNDEPLOY_FAILED, servicePath, e);
-                }
-            }
+            undeployFromPublishers(deployedPublishers, service, servicePath);
             throw new RuleServiceDeployException("Failed to deploy service.", e1);
         }
         setUrls(service);
         fireDeployListeners(service);
+    }
+
+    /**
+     * Returns the supported publishers with the given names, or all supported publishers when only one is supported.
+     */
+    private List<RuleServicePublisher> resolvePublishers(Collection<String> sp, String servicePath) {
+        var publishers = new ArrayList<RuleServicePublisher>();
+        if (supportedPublishers.size() > 1) {
+            for (String p : sp) {
+                var publisher = supportedPublishers.stream().filter(n -> n.name().equalsIgnoreCase(p)).findFirst();
+                if (publisher.isPresent()) {
+                    publishers.add(publisher.get());
+                } else {
+                    log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
+                            p,
+                            servicePath);
+                }
+            }
+        } else {
+            publishers.addAll(supportedPublishers);
+        }
+        return publishers;
+    }
+
+    private static void undeployFromPublishers(List<RuleServicePublisher> deployedPublishers,
+                                               OpenLService service,
+                                               String servicePath) {
+        for (RuleServicePublisher publisher : deployedPublishers) {
+            try {
+                publisher.undeploy(service);
+            } catch (RuleServiceUndeployException e) {
+                log.error(UNDEPLOY_FAILED, servicePath, e);
+            }
+        }
     }
 
     private void fireDeployListeners(OpenLService service) {

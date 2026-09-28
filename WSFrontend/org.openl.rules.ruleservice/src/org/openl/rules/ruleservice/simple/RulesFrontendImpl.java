@@ -85,18 +85,8 @@ public class RulesFrontendImpl implements RulesFrontend {
                 Method serviceMethod = MethodUtil
                         .getMatchingAccessibleMethod(service.getServiceBean().getClass(), ruleName, inputParamsTypes);
                 if (serviceMethod == null) {
-                    var sb = new StringBuilder();
-                    var f = true;
-                    for (Class<?> param : inputParamsTypes) {
-                        if (!f) {
-                            sb.append(",");
-                        } else {
-                            f = false;
-                        }
-                        sb.append(param != null ? param.getTypeName() : "null-class");
-                    }
                     throw new MethodInvocationException("Method '%s(%s)' is not found in service '%s'."
-                            .formatted(ruleName, sb, serviceName));
+                            .formatted(ruleName, printTypes(inputParamsTypes), serviceName));
                 }
                 return invoke(serviceMethod, service.getServiceBean(), params);
             } else {
@@ -108,6 +98,20 @@ public class RulesFrontendImpl implements RulesFrontend {
                     "Service initialization '%s' has been failed.".formatted(serviceName),
                     e);
         }
+    }
+
+    private static String printTypes(Class<?>[] inputParamsTypes) {
+        var sb = new StringBuilder();
+        var f = true;
+        for (Class<?> param : inputParamsTypes) {
+            if (!f) {
+                sb.append(",");
+            } else {
+                f = false;
+            }
+            sb.append(param != null ? param.getTypeName() : "null-class");
+        }
+        return sb.toString();
     }
 
     private static Object invoke(Method serviceMethod,

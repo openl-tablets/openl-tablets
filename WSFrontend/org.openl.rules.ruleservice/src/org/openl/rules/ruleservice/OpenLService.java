@@ -9,9 +9,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.openl.binding.MethodUtil;
@@ -126,9 +128,19 @@ public class OpenLService {
 
         var caller = methods.getFirst();
 
-        var args = new Object[caller.getParameterCount()];
-
         var mapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
+        var args = readArguments(caller, json, mapper);
+        return new Invoker(instance, caller, args, mapper);
+    }
+
+    /**
+     * Reads the arguments of the method from JSON: the whole JSON is the only argument of a single-parameter method,
+     * otherwise each argument is the JSON property named as the parameter.
+     */
+    private static Object[] readArguments(Method caller,
+                                          @Nullable String json,
+                                          ObjectMapper mapper) throws JsonProcessingException {
+        var args = new Object[caller.getParameterCount()];
         if (json != null) {
             if (caller.getParameterCount() == 1) {
                 Class<?> type = caller.getParameterTypes()[0];
@@ -144,7 +156,7 @@ public class OpenLService {
                 }
             }
         }
-        return new Invoker(instance, caller, args, mapper);
+        return args;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
