@@ -35,6 +35,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
     private final int column;
 
     private String uri;
+    private boolean uriRead;
 
     @Getter
     @Setter
@@ -109,7 +110,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getUri() {
-        if (uri == null && table != null) {
+        if (!uriRead) {
             initUri();
         }
         return uri;
@@ -117,6 +118,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 
     private void initUri() {
         uri = table.getUri(column, row);
+        uriRead = true;
     }
 
     @Override
