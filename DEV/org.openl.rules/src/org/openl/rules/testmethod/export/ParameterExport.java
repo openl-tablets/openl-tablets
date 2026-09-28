@@ -2,12 +2,14 @@ package org.openl.rules.testmethod.export;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -53,14 +55,10 @@ class ParameterExport extends BaseParameterExport {
 
             var fields = nonEmptyFields.get(i);
 
-            if (ClassUtils.isAssignable(param.getType().getInstanceClass(), Map.class)) {
-                var map = (Map<?, ?>) param.getValue();
-                for (var entry : map.entrySet()) {
-                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
-                            param.getName() + "[\"" + entry.getKey() + "\"]:"
-                                    + entry.getValue().getClass().getSimpleName(),
-                            styles.header));
-                }
+            var keys = mapKeys(testSuite.getTests(), i);
+            if (keys != null) {
+                colNum = addMapHeaderTasks(tasks, rowNum, colNum, param.getName(), keys,
+                        testSuite.getTests(), i);
             } else if (fields == null || fields.isEmpty()) {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), param.getName(), styles.header));
             } else {
@@ -75,6 +73,95 @@ class ParameterExport extends BaseParameterExport {
         }
 
         return performWrite(sheet, start, tasks, getLastColumn(test, nonEmptyFields));
+    }
+
+    /**
+     * A column for every key the map of a parameter carries in any of the cases, named by that key and by what
+     * is held under it.
+     *
+     * <p>A key nothing is held under anywhere is named by the key alone: there is no value to take a type from.
+     */
+    private int addMapHeaderTasks(TreeSet<WriteTask> tasks,
+                                  int rowNum,
+                                  int colNum,
+                                  String name,
+                                  List<Object> keys,
+                                  TestDescription[] cases,
+                                  int paramNum) {
+        for (Object key : keys) {
+            var held = heldUnder(cases, paramNum, key);
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
+                    name + "[\"" + key + "\"]" + (held == null ? "" : ":" + held.getClass().getSimpleName()),
+                    styles.header));
+        }
+        return colNum;
+    }
+
+    /**
+     * The keys the map of the given parameter carries across all the cases, in the order they first appear, or
+     * {@code null} where the parameter is not a map, or is one that no case put anything in.
+     *
+     * <p>The columns of a map are laid out once for the whole table. Taken from the first case alone, they would
+     * be too few for a case that holds more, and that case's values would be written over the columns of the
+     * parameter standing after it.
+     *
+     * <p>A map no case put anything in — including one nothing was given for at all — is written the way any
+     * other value without fields is, under the name of the parameter alone. Laid out as a map it would take no
+     * column at all, and the parameter would go unmentioned.
+     */
+    private static @Nullable List<Object> mapKeys(TestDescription[] cases, int paramNum) {
+        if (!ClassUtils.isAssignable(cases[0].getExecutionParams()[paramNum].getType().getInstanceClass(), Map.class)) {
+            return null;
+        }
+        var keys = new LinkedHashSet<>();
+        for (TestDescription one : cases) {
+            if (mapOf(one, paramNum) instanceof Map<?, ?> map) {
+                keys.addAll(map.keySet());
+            }
+        }
+        return keys.isEmpty() ? null : List.copyOf(keys);
+    }
+
+    /**
+     * The columns of a map held in a field, taken from the object at hand.
+     *
+     * <p>Unlike the map of a parameter, a map inside an object is laid out from the case being written rather
+     * than from all of them, which is how this export has always drawn it: reaching a field means walking the
+     * fields of every case, and the sheet has no place to keep what that walk found. Two cases whose maps carry
+     * different keys are drawn one under the other all the same, which is the older shortcoming this export
+     * carries; the map of a parameter no longer does.
+     */
+    private int addFieldMapHeaderTasks(TreeSet<WriteTask> tasks, int rowNum, int colNum, String name, Map<?, ?> map) {
+        for (var entry : map.entrySet()) {
+            var held = entry.getValue();
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
+                    name + "[\"" + entry.getKey() + "\"]" + (held == null ? "" : ":" + held.getClass().getSimpleName()),
+                    styles.header));
+        }
+        return colNum;
+    }
+
+    /** @see #addFieldMapHeaderTasks */
+    private int addFieldMapValueTasks(TreeSet<WriteTask> tasks, int rowNum, int colNum, Map<?, ?> map) {
+        for (Object val : map.values()) {
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val == null ? null : val.toString(), styles.header));
+        }
+        return colNum;
+    }
+
+    /** What is held under the key by the first case that holds anything under it. */
+    private static @Nullable Object heldUnder(TestDescription[] cases, int paramNum, Object key) {
+        for (TestDescription one : cases) {
+            if (mapOf(one, paramNum) instanceof Map<?, ?> map && map.get(key) != null) {
+                return map.get(key);
+            }
+        }
+        return null;
+    }
+
+    private static @Nullable Object mapOf(TestDescription one, int paramNum) {
+        var params = one.getExecutionParams();
+        return paramNum < params.length ? params[paramNum].getValue() : null;
     }
 
     private boolean isHasPK(ParameterWithValueDeclaration param) {
@@ -97,16 +184,12 @@ class ParameterExport extends BaseParameterExport {
             if (fieldDescriptor.getChildren() == null) {
                 if (ClassUtils.isAssignable(fieldDescriptor.getField().getType().getInstanceClass(), Map.class)) {
                     var map = (Map<?, ?>) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
-                    for (var entry : map.entrySet()) {
-                        tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
-                                prefix + fieldName + "[\"" + entry.getKey() + "\"]:"
-                                        + entry.getValue().getClass().getSimpleName(),
-                                styles.header));
+                    if (map != null) {
+                        colNum = addFieldMapHeaderTasks(tasks, rowNum, colNum, prefix + fieldName, map);
+                        continue;
                     }
-                    continue;
-                } else {
-                    tasks.add(new WriteTask(new Cursor(rowNum, colNum), prefix + fieldName, styles.header));
                 }
+                tasks.add(new WriteTask(new Cursor(rowNum, colNum), prefix + fieldName, styles.header));
             } else {
                 addHeaderTasks(tasks,
                         new Cursor(rowNum, colNum),
@@ -146,8 +229,11 @@ class ParameterExport extends BaseParameterExport {
                     value = collection.toArray();
                 }
 
-                if (value instanceof Map<?, ?> map) {
-                    colNum = addMapValueTasks(tasks, rowNum, colNum, map);
+                var keys = mapKeys(descriptions, p);
+                if (keys != null) {
+                    // Under the columns the whole table was laid out with: a key this case does not carry
+                    // leaves its column empty rather than moving the values beside it.
+                    colNum = addMapValueTasks(tasks, rowNum, colNum, (Map<?, ?>) value, keys);
                     continue;
                 }
 
@@ -164,9 +250,14 @@ class ParameterExport extends BaseParameterExport {
         return rowNum;
     }
 
-    private int addMapValueTasks(TreeSet<WriteTask> tasks, int rowNum, int colNum, Map<?, ?> map) {
-        for (Object val : map.values()) {
-            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
+    private int addMapValueTasks(TreeSet<WriteTask> tasks,
+                                 int rowNum,
+                                 int colNum,
+                                 @Nullable Map<?, ?> map,
+                                 List<Object> keys) {
+        for (Object key : keys) {
+            var val = map == null ? null : map.get(key);
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val == null ? null : val.toString(), styles.header));
         }
         return colNum;
     }
@@ -231,7 +322,7 @@ class ParameterExport extends BaseParameterExport {
                 Object fieldValue = ExportUtils.fieldValue(value, fieldDescriptor.getField());
                 List<FieldDescriptor> children = fieldDescriptor.getChildren();
                 if (fieldValue instanceof Map<?, ?> map) {
-                    colNum = addMapValueTasks(tasks, rowNum, colNum, map);
+                    colNum = addFieldMapValueTasks(tasks, rowNum, colNum, map);
                     continue;
                 } else if (fieldValue instanceof Collection<?> collection) {
                     fieldValue = collection.toArray();
@@ -334,8 +425,12 @@ class ParameterExport extends BaseParameterExport {
             if (isHasPK(param)) {
                 lastColumn++; // _PK_ column
             }
+            var keys = mapKeys(testSuite.getTests(), i);
             var fields = nonEmptyFields.get(i);
-            if (fields == null) {
+            if (keys != null) {
+                // A column per key of the map, as the header lays them out.
+                lastColumn += keys.size();
+            } else if (fields == null) {
                 // Simple type
                 lastColumn++;
             } else {
