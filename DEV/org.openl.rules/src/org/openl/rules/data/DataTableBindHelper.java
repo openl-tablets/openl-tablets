@@ -1028,6 +1028,112 @@ public class DataTableBindHelper {
             }
             return fieldInChain;
         }
+
+        /**
+         * Gets the field, and if it is not <code>null</code> and isWritable, returns it. In other case processes errors and
+         * return <code>null</code>.
+         */
+        private static IOpenField getWritableField(IBindingContext bindingContext,
+                                                   IdentifierNode currentFieldNameNode,
+                                                   ITable table,
+                                                   IOpenClass loadedFieldType) {
+            String fieldName = getFieldName(currentFieldNameNode.getIdentifier());
+
+            IOpenField field = DataTableBindHelper.findField(fieldName, table, loadedFieldType);
+            // Try use object type as SpreadsheetResult
+            if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
+                field = DataTableBindHelper
+                        .findField(fieldName, table, JavaOpenClass.getOpenClass(SpreadsheetResult.class));
+            }
+            if (field == null) {
+                String errorMessage;
+                if (loadedFieldType instanceof TestMethodOpenClass class1) {
+                    var sb = new StringBuilder();
+                    MethodUtil.printMethod(class1.getTestedMethod(), sb);
+                    errorMessage = "Expected one of the parameters from the method '%s', but found '%s'."
+                            .formatted(sb, fieldName);
+                } else {
+                    errorMessage = "%s '%s' is not found in type '%s'.".formatted(
+                            loadedFieldType.isStatic() ? "Static field" : "Field",
+                            fieldName,
+                            loadedFieldType.getName());
+                }
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
+                bindingContext.addError(error);
+                return null;
+            }
+
+            if (!field.isWritable()) {
+                var message = "Field '%s' is not writable in type '%s'."
+                        .formatted(fieldName, loadedFieldType.getName());
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+                bindingContext.addError(error);
+                return null;
+            }
+
+            return field;
+        }
+
+        private static IOpenField getWritableCollectionElement(IBindingContext bindingContext,
+                                                               IdentifierNode currentFieldNameNode,
+                                                               ITable table,
+                                                               IOpenClass loadedFieldType,
+                                                               String partPathFromRoot,
+                                                               boolean multiRowElement) {
+            String name = getCollectionName(currentFieldNameNode);
+            IOpenField field = DataTableBindHelper.findField(name, table, loadedFieldType);
+            // Try find field in SpreadsheetResult type
+            if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
+                field = DataTableBindHelper
+                        .findField(name, table, JavaOpenClass.getOpenClass(SpreadsheetResult.class));
+            }
+
+            if (field == null) {
+                var message = "%s '%s' is not found."
+                        .formatted(loadedFieldType.isStatic() ? "Static field" : "Field", name);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+                bindingContext.addError(error);
+                return null;
+            }
+
+            if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
+                    field.getType().getInstanceClass(),
+                    List.class) && !field.getType().isArray() && Object.class != field.getType().getInstanceClass()) {
+                var message = "Expected a collection type for field '%s', but found type '%s'.".formatted(
+                        name,
+                        field.getType().toString());
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+                bindingContext.addError(error);
+                return null;
+            }
+
+            IOpenField collectionAccessField;
+            if (multiRowElement) {
+                collectionAccessField = createMultiRowElementField(bindingContext,
+                        currentFieldNameNode,
+                        loadedFieldType,
+                        partPathFromRoot,
+                        field);
+            } else if (ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class)) {
+                collectionAccessField = createMapElementField(bindingContext, currentFieldNameNode, loadedFieldType, field);
+            } else {
+                collectionAccessField = createIndexedElementField(bindingContext,
+                        currentFieldNameNode,
+                        loadedFieldType,
+                        field);
+            }
+            if (collectionAccessField == null) {
+                return null;
+            }
+            if (!collectionAccessField.isWritable()) {
+                var message = "Field '%s' is not writable in %s.".formatted(name, loadedFieldType.getName());
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+                bindingContext.addError(error);
+                return null;
+            }
+
+            return collectionAccessField;
+        }
     }
 
     public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
@@ -1078,51 +1184,6 @@ public class DataTableBindHelper {
         return Tokenizer.tokenize(indexRowSourceModule, INDEX_ROW_REFERENCE_DELIMITER);
     }
 
-    /**
-     * Gets the field, and if it is not <code>null</code> and isWritable, returns it. In other case processes errors and
-     * return <code>null</code>.
-     */
-    private static IOpenField getWritableField(IBindingContext bindingContext,
-                                               IdentifierNode currentFieldNameNode,
-                                               ITable table,
-                                               IOpenClass loadedFieldType) {
-        String fieldName = getFieldName(currentFieldNameNode.getIdentifier());
-
-        IOpenField field = DataTableBindHelper.findField(fieldName, table, loadedFieldType);
-        // Try use object type as SpreadsheetResult
-        if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
-            field = DataTableBindHelper
-                    .findField(fieldName, table, JavaOpenClass.getOpenClass(SpreadsheetResult.class));
-        }
-        if (field == null) {
-            String errorMessage;
-            if (loadedFieldType instanceof TestMethodOpenClass class1) {
-                var sb = new StringBuilder();
-                MethodUtil.printMethod(class1.getTestedMethod(), sb);
-                errorMessage = "Expected one of the parameters from the method '%s', but found '%s'."
-                        .formatted(sb, fieldName);
-            } else {
-                errorMessage = "%s '%s' is not found in type '%s'.".formatted(
-                        loadedFieldType.isStatic() ? "Static field" : "Field",
-                        fieldName,
-                        loadedFieldType.getName());
-            }
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
-            bindingContext.addError(error);
-            return null;
-        }
-
-        if (!field.isWritable()) {
-            var message = "Field '%s' is not writable in type '%s'."
-                    .formatted(fieldName, loadedFieldType.getName());
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            bindingContext.addError(error);
-            return null;
-        }
-
-        return field;
-    }
-
     private static String getFieldName(String identifier) {
         var fieldName = identifier.trim();
         var endIndex = fieldName.indexOf(':');
@@ -1138,67 +1199,6 @@ public class DataTableBindHelper {
         } else {
             return partPathFromRoot + "." + fieldName + "[]";
         }
-    }
-
-    private static IOpenField getWritableCollectionElement(IBindingContext bindingContext,
-                                                           IdentifierNode currentFieldNameNode,
-                                                           ITable table,
-                                                           IOpenClass loadedFieldType,
-                                                           String partPathFromRoot,
-                                                           boolean multiRowElement) {
-        String name = getCollectionName(currentFieldNameNode);
-        IOpenField field = DataTableBindHelper.findField(name, table, loadedFieldType);
-        // Try find field in SpreadsheetResult type
-        if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
-            field = DataTableBindHelper
-                    .findField(name, table, JavaOpenClass.getOpenClass(SpreadsheetResult.class));
-        }
-
-        if (field == null) {
-            var message = "%s '%s' is not found."
-                    .formatted(loadedFieldType.isStatic() ? "Static field" : "Field", name);
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            bindingContext.addError(error);
-            return null;
-        }
-
-        if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
-                field.getType().getInstanceClass(),
-                List.class) && !field.getType().isArray() && Object.class != field.getType().getInstanceClass()) {
-            var message = "Expected a collection type for field '%s', but found type '%s'.".formatted(
-                    name,
-                    field.getType().toString());
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            bindingContext.addError(error);
-            return null;
-        }
-
-        IOpenField collectionAccessField;
-        if (multiRowElement) {
-            collectionAccessField = createMultiRowElementField(bindingContext,
-                    currentFieldNameNode,
-                    loadedFieldType,
-                    partPathFromRoot,
-                    field);
-        } else if (ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class)) {
-            collectionAccessField = createMapElementField(bindingContext, currentFieldNameNode, loadedFieldType, field);
-        } else {
-            collectionAccessField = createIndexedElementField(bindingContext,
-                    currentFieldNameNode,
-                    loadedFieldType,
-                    field);
-        }
-        if (collectionAccessField == null) {
-            return null;
-        }
-        if (!collectionAccessField.isWritable()) {
-            var message = "Field '%s' is not writable in %s.".formatted(name, loadedFieldType.getName());
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            bindingContext.addError(error);
-            return null;
-        }
-
-        return collectionAccessField;
     }
 
     private static IOpenField createMultiRowElementField(IBindingContext bindingContext,

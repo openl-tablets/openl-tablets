@@ -84,71 +84,6 @@ public class RulesInFolderTestRunner {
         return file.isFile() && (name.endsWith(".xlsx") || name.endsWith(".xls")) || file.isDirectory();
     }
 
-    /**
-     * Compiles the rules of an Excel file.
-     *
-     * @return the compiled rules, or {@code null} when the file cannot be read and the failure is reported
-     */
-    private CompiledOpenClass compileWorkbook(String path, File file, long startTime) {
-        String sourceFile = file.getName();
-        try {
-            new FileInputStream(file).close();
-        } catch (Exception ex) {
-            error(0, startTime, sourceFile, "Failed to read the excel file.", ex);
-            return null;
-        }
-
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(path + sourceFile);
-        engineFactory.setExecutionMode(executionMode);
-        return engineFactory.getCompiledOpenClass();
-    }
-
-    /**
-     * Compiles the rules of a project folder, or of the project of a workspace folder that holds only projects.
-     *
-     * @return the compiled rules, or {@code null} when the compilation fails and the failure is reported
-     */
-    private CompiledOpenClass compileProject(File file, long startTime) {
-        File[] filesInFolder = file.listFiles();
-        boolean multiProject = filesInFolder != null && Arrays.stream(filesInFolder)
-                .allMatch(File::isDirectory);
-        try {
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder =
-                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
-            engineFactoryBuilder.setExecutionMode(executionMode);
-            if (multiProject) {
-                engineFactoryBuilder.setWorkspace(file.getPath());
-                for (File f : filesInFolder) {
-                    if (Objects.equals(file.getName(), f.getName())) {
-                        engineFactoryBuilder.setProject(f.getPath());
-                        break;
-                    }
-                }
-            } else {
-                engineFactoryBuilder.setProject(file.getPath());
-            }
-            SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
-            CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-            compiledOpenClass = validate(compiledOpenClass,
-                    engineFactory.getProjectDescriptor(),
-                    engineFactory.getRulesInstantiationStrategy());
-            if (!compiledOpenClass.hasErrors() && engineFactory.newInstance() == null) {
-                // To cover interface generation functionality
-                throw new IllegalStateException("Failed to create an instance of the rules engine.");
-            }
-            return compiledOpenClass;
-        } catch (Exception e) {
-            error(0, startTime, file.getName(), "Compilation fails.", e);
-            return null;
-        }
-    }
-
-    private void ok(long startTime, String sourceFile) {
-        final long ms = duration(startTime);
-        // Green ANSI color
-        log.info("\u001B[1;32mOK\u001B[2;36m {}\u001B[0m ({} ms)", sourceFile, ms);
-    }
-
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
             final long ms = duration(startTime);
@@ -310,6 +245,71 @@ public class RulesInFolderTestRunner {
 
         private void reportError(String msg, Object... args) {
             error(messagesCount++, startTime, sourceFile, msg, args);
+        }
+
+        /**
+         * Compiles the rules of an Excel file.
+         *
+         * @return the compiled rules, or {@code null} when the file cannot be read and the failure is reported
+         */
+        private CompiledOpenClass compileWorkbook(String path, File file, long startTime) {
+            String sourceFile = file.getName();
+            try {
+                new FileInputStream(file).close();
+            } catch (Exception ex) {
+                error(0, startTime, sourceFile, "Failed to read the excel file.", ex);
+                return null;
+            }
+
+            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(path + sourceFile);
+            engineFactory.setExecutionMode(executionMode);
+            return engineFactory.getCompiledOpenClass();
+        }
+
+        /**
+         * Compiles the rules of a project folder, or of the project of a workspace folder that holds only projects.
+         *
+         * @return the compiled rules, or {@code null} when the compilation fails and the failure is reported
+         */
+        private CompiledOpenClass compileProject(File file, long startTime) {
+            File[] filesInFolder = file.listFiles();
+            boolean multiProject = filesInFolder != null && Arrays.stream(filesInFolder)
+                    .allMatch(File::isDirectory);
+            try {
+                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder =
+                        new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+                engineFactoryBuilder.setExecutionMode(executionMode);
+                if (multiProject) {
+                    engineFactoryBuilder.setWorkspace(file.getPath());
+                    for (File f : filesInFolder) {
+                        if (Objects.equals(file.getName(), f.getName())) {
+                            engineFactoryBuilder.setProject(f.getPath());
+                            break;
+                        }
+                    }
+                } else {
+                    engineFactoryBuilder.setProject(file.getPath());
+                }
+                SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
+                CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
+                compiledOpenClass = validate(compiledOpenClass,
+                        engineFactory.getProjectDescriptor(),
+                        engineFactory.getRulesInstantiationStrategy());
+                if (!compiledOpenClass.hasErrors() && engineFactory.newInstance() == null) {
+                    // To cover interface generation functionality
+                    throw new IllegalStateException("Failed to create an instance of the rules engine.");
+                }
+                return compiledOpenClass;
+            } catch (Exception e) {
+                error(0, startTime, file.getName(), "Compilation fails.", e);
+                return null;
+            }
+        }
+
+        private void ok(long startTime, String sourceFile) {
+            final long ms = duration(startTime);
+            // Green ANSI color
+            log.info("\u001B[1;32mOK\u001B[2;36m {}\u001B[0m ({} ms)", sourceFile, ms);
         }
     }
 

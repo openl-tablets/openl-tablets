@@ -458,13 +458,13 @@ public final class MethodSearch {
             return allowMultiCallParams && cp.isArray() && !multiCallParams[i]
                     && (!vararg || i != callParam.length - 1);
         }
-    }
 
-    private static IOpenClass unwrapPrimitiveClassIfNeeded(IOpenClass clazz) {
-        if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass().isPrimitive()) {
-            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
+        private static IOpenClass unwrapPrimitiveClassIfNeeded(IOpenClass clazz) {
+            if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass().isPrimitive()) {
+                return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
+            }
+            return clazz;
         }
-        return clazz;
     }
 
     private static boolean isNoCastDistances(int[] m) {
@@ -474,13 +474,6 @@ public final class MethodSearch {
             }
         }
         return true;
-    }
-
-    private static int countMultiCallParams(Match match) {
-        if (match == NO_MATCH || match.multiCallParams == null) {
-            return Integer.MAX_VALUE;
-        }
-        return countTrues(match.multiCallParams);
     }
 
     private static int countTrues(boolean[] x) {
@@ -496,80 +489,11 @@ public final class MethodSearch {
         return count;
     }
 
-    private static boolean lq(Match match, Match bestMethodMatch) {
-        if (bestMethodMatch == NO_MATCH) {
-            return true;
-        }
-        if (match == NO_MATCH) {
-            return false;
-        }
-        int[] dims1 = match.getSortedDims();
-        int[] dims2 = bestMethodMatch.getSortedDims();
-        int x = Math.max(dims1.length, dims2.length);
-        for (int i = 0; i < x; i++) {
-            int p1 = getFromEnd(dims1, i, 0);
-            int p2 = getFromEnd(dims2, i, 0);
-
-            if (p1 != p2) {
-                return p1 < p2;
-            }
-        }
-
-        // FIXME REMOVE IT
-        if (match.isVararg() && !bestMethodMatch.isVararg()) {
-            return false;
-        }
-        if (bestMethodMatch.isVararg() && !match.isVararg()) {
-            return true;
-        }
-        // END FIXME
-
-        int[] d1 = match.getSortedDistances();
-        int[] d2 = bestMethodMatch.getSortedDistances();
-        x = Math.max(d1.length, d2.length);
-        for (int i = 0; i < x; i++) {
-            int p1 = getFromEnd(d1, i, CastFactory.NO_CAST_DISTANCE);
-            int p2 = getFromEnd(d2, i, CastFactory.NO_CAST_DISTANCE);
-
-            if (p1 < p2) {
-                return true;
-            }
-            if (p1 > p2) {
-                return false;
-            }
-        }
-        return false;
-    }
-
     /**
      * Returns the i-th greatest of the sorted values, or the default value when there are not so many values.
      */
     private static int getFromEnd(int[] sortedValues, int i, int defaultValue) {
         return i < sortedValues.length ? sortedValues[sortedValues.length - 1 - i] : defaultValue;
-    }
-
-    private static boolean eq(Match match1, Match match2) {
-        int[] dims1 = match1.getSortedDims();
-        int[] dims2 = match2.getSortedDims();
-        int x = Math.max(dims1.length, dims2.length);
-        for (int i = 0; i < x; i++) {
-            int p1 = i < dims1.length ? dims1[dims1.length - 1 - i] : 0;
-            int p2 = i < dims2.length ? dims2[dims2.length - 1 - i] : 0;
-            if (p1 != p2) {
-                return false;
-            }
-        }
-        int[] d1 = match1.getSortedDistances();
-        int[] d2 = match2.getSortedDistances();
-        x = Math.max(d1.length, d2.length);
-        for (int i = 0; i < x; i++) {
-            int p1 = i < d1.length ? d1[d1.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
-            int p2 = i < d2.length ? d2[d2.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
-            if (p1 != p2) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static class Match {
@@ -887,6 +811,82 @@ public final class MethodSearch {
                     f = true;
                 }
             }
+        }
+
+        private static int countMultiCallParams(Match match) {
+            if (match == NO_MATCH || match.multiCallParams == null) {
+                return Integer.MAX_VALUE;
+            }
+            return countTrues(match.multiCallParams);
+        }
+
+        private static boolean lq(Match match, Match bestMethodMatch) {
+            if (bestMethodMatch == NO_MATCH) {
+                return true;
+            }
+            if (match == NO_MATCH) {
+                return false;
+            }
+            int[] dims1 = match.getSortedDims();
+            int[] dims2 = bestMethodMatch.getSortedDims();
+            int x = Math.max(dims1.length, dims2.length);
+            for (int i = 0; i < x; i++) {
+                int p1 = getFromEnd(dims1, i, 0);
+                int p2 = getFromEnd(dims2, i, 0);
+
+                if (p1 != p2) {
+                    return p1 < p2;
+                }
+            }
+
+            // FIXME REMOVE IT
+            if (match.isVararg() && !bestMethodMatch.isVararg()) {
+                return false;
+            }
+            if (bestMethodMatch.isVararg() && !match.isVararg()) {
+                return true;
+            }
+            // END FIXME
+
+            int[] d1 = match.getSortedDistances();
+            int[] d2 = bestMethodMatch.getSortedDistances();
+            x = Math.max(d1.length, d2.length);
+            for (int i = 0; i < x; i++) {
+                int p1 = getFromEnd(d1, i, CastFactory.NO_CAST_DISTANCE);
+                int p2 = getFromEnd(d2, i, CastFactory.NO_CAST_DISTANCE);
+
+                if (p1 < p2) {
+                    return true;
+                }
+                if (p1 > p2) {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        private static boolean eq(Match match1, Match match2) {
+            int[] dims1 = match1.getSortedDims();
+            int[] dims2 = match2.getSortedDims();
+            int x = Math.max(dims1.length, dims2.length);
+            for (int i = 0; i < x; i++) {
+                int p1 = i < dims1.length ? dims1[dims1.length - 1 - i] : 0;
+                int p2 = i < dims2.length ? dims2[dims2.length - 1 - i] : 0;
+                if (p1 != p2) {
+                    return false;
+                }
+            }
+            int[] d1 = match1.getSortedDistances();
+            int[] d2 = match2.getSortedDistances();
+            x = Math.max(d1.length, d2.length);
+            for (int i = 0; i < x; i++) {
+                int p1 = i < d1.length ? d1[d1.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
+                int p2 = i < d2.length ? d2[d2.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
+                if (p1 != p2) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

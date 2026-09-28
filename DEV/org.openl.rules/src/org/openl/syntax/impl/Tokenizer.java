@@ -54,24 +54,6 @@ public final class Tokenizer {
     }
 
     /**
-     * Checks that given character (his integer code) is delimiter.
-     *
-     * @param character character to check
-     * @return <code>true</code> if character is delimiter; <code>false</code> - otherwise
-     */
-    private boolean isDelimiter(int character) {
-        return delimitersTable.contains(character);
-    }
-
-    private boolean isEscapeBegin(int character) {
-        return character == '`';
-    }
-
-    private boolean isEscapeEnd(int character) {
-        return character == '`';
-    }
-
-    /**
      * Gets first token from source.
      *
      * @param source source
@@ -257,6 +239,24 @@ public final class Tokenizer {
                     nodes.add(node);
                 }
             }
+        }
+
+        /**
+         * Checks that given character (his integer code) is delimiter.
+         *
+         * @param character character to check
+         * @return <code>true</code> if character is delimiter; <code>false</code> - otherwise
+         */
+        private boolean isDelimiter(int character) {
+            return delimitersTable.contains(character);
+        }
+
+        private boolean isEscapeBegin(int character) {
+            return character == '`';
+        }
+
+        private boolean isEscapeEnd(int character) {
+            return character == '`';
         }
     }
 }

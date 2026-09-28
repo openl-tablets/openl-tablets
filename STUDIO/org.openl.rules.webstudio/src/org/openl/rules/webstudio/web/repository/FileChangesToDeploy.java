@@ -178,13 +178,13 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
         public void remove() {
             throw new UnsupportedOperationException("Remove is not supported");
         }
-    }
 
-    private InputStream addManifestIntoArchive(InputStream in, Manifest manifest) throws IOException {
-        var out = new ByteArrayOutputStream();
-        try (in) {
-            RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
-            return new ByteArrayInputStream(out.toByteArray());
+        private InputStream addManifestIntoArchive(InputStream in, Manifest manifest) throws IOException {
+            var out = new ByteArrayOutputStream();
+            try (in) {
+                RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
+                return new ByteArrayInputStream(out.toByteArray());
+            }
         }
     }
 

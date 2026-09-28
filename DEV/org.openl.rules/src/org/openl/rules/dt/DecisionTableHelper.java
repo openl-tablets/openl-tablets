@@ -2822,66 +2822,66 @@ public final class DecisionTableHelper {
                     dtHeaders,
                     0);
         }
-    }
 
-    private static Token[] addTrueFalseTokens(int maxDistance, Token[] tokens) {
-        return ArrayUtils.addAll(tokens,
-                new PredicateToken("is true", maxDistance + 1, 2, true),
-                new PredicateToken("is false", maxDistance + 1, 2, false),
-                new PredicateToken("true", maxDistance + 1, 1, true),
-                new PredicateToken("false", maxDistance + 1, 1, false));
-    }
-
-    private static void addFuzzyDtHeader(DecisionTable decisionTable,
-                                         FuzzyContext fuzzyContext,
-                                         int w,
-                                         int h,
-                                         String title,
-                                         int sourceTableColumn,
-                                         int w0,
-                                         int widthForMerge,
-                                         List<FuzzyResult> fuzzyResults,
-                                         List<DTHeader> dtHeaders,
-                                         int horizontal) {
-        var isHorizontal = horizontal > 0;
-        var conditionColumn = isHorizontal ? sourceTableColumn + horizontal - 1 : sourceTableColumn + w;
-        var predicateColumn = isHorizontal ? sourceTableColumn + horizontal - 1 : sourceTableColumn;
-        var headerWidth = isHorizontal ? 1 : w0;
-        var headerWidthForMerge = isHorizontal ? 1 : widthForMerge;
-        for (FuzzyResult fuzzyResult : fuzzyResults) {
-            var paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
-            if (paramIndex != null) {
-                var fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
-                var conditionStatement = buildConditionStatement(decisionTable, paramIndex, fieldsChain);
-                dtHeaders.add(new FuzzyDTHeader(paramIndex,
-                        conditionStatement,
-                        title,
-                        fieldsChain,
-                        sourceTableColumn,
-                        conditionColumn,
-                        h,
-                        headerWidth,
-                        headerWidthForMerge,
-                        fuzzyResult,
-                        false,
-                        isHorizontal));
-            } else if (fuzzyResult.getToken() instanceof PredicateToken predicateToken) {
-                dtHeaders.add(new FuzzyDTHeader(predicateToken.isTrue() ? "true" : "false",
-                        title,
-                        new IOpenField[]{},
-                        sourceTableColumn,
-                        predicateColumn,
-                        h,
-                        headerWidth,
-                        headerWidthForMerge,
-                        fuzzyResult,
-                        false,
-                        isHorizontal));
-            } else if (sourceTableColumn == 0 && fuzzyResult.getToken() instanceof RuleToken) {
-                dtHeaders.add(new FuzzyRulesDTHeader(title, sourceTableColumn, h, w0, fuzzyResult));
-            }
+        private static Token[] addTrueFalseTokens(int maxDistance, Token[] tokens) {
+            return ArrayUtils.addAll(tokens,
+                    new PredicateToken("is true", maxDistance + 1, 2, true),
+                    new PredicateToken("is false", maxDistance + 1, 2, false),
+                    new PredicateToken("true", maxDistance + 1, 1, true),
+                    new PredicateToken("false", maxDistance + 1, 1, false));
         }
 
+        private static void addFuzzyDtHeader(DecisionTable decisionTable,
+                                             FuzzyContext fuzzyContext,
+                                             int w,
+                                             int h,
+                                             String title,
+                                             int sourceTableColumn,
+                                             int w0,
+                                             int widthForMerge,
+                                             List<FuzzyResult> fuzzyResults,
+                                             List<DTHeader> dtHeaders,
+                                             int horizontal) {
+            var isHorizontal = horizontal > 0;
+            var conditionColumn = isHorizontal ? sourceTableColumn + horizontal - 1 : sourceTableColumn + w;
+            var predicateColumn = isHorizontal ? sourceTableColumn + horizontal - 1 : sourceTableColumn;
+            var headerWidth = isHorizontal ? 1 : w0;
+            var headerWidthForMerge = isHorizontal ? 1 : widthForMerge;
+            for (FuzzyResult fuzzyResult : fuzzyResults) {
+                var paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
+                if (paramIndex != null) {
+                    var fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
+                    var conditionStatement = buildConditionStatement(decisionTable, paramIndex, fieldsChain);
+                    dtHeaders.add(new FuzzyDTHeader(paramIndex,
+                            conditionStatement,
+                            title,
+                            fieldsChain,
+                            sourceTableColumn,
+                            conditionColumn,
+                            h,
+                            headerWidth,
+                            headerWidthForMerge,
+                            fuzzyResult,
+                            false,
+                            isHorizontal));
+                } else if (fuzzyResult.getToken() instanceof PredicateToken predicateToken) {
+                    dtHeaders.add(new FuzzyDTHeader(predicateToken.isTrue() ? "true" : "false",
+                            title,
+                            new IOpenField[]{},
+                            sourceTableColumn,
+                            predicateColumn,
+                            h,
+                            headerWidth,
+                            headerWidthForMerge,
+                            fuzzyResult,
+                            false,
+                            isHorizontal));
+                } else if (sourceTableColumn == 0 && fuzzyResult.getToken() instanceof RuleToken) {
+                    dtHeaders.add(new FuzzyRulesDTHeader(title, sourceTableColumn, h, w0, fuzzyResult));
+                }
+            }
+
+        }
     }
 
     private static String buildConditionStatement(DecisionTable decisionTable,
@@ -3171,6 +3171,31 @@ public final class DecisionTableHelper {
 
         private static int nextFuzzyReturnsFlag(boolean isFuzzyReturn, int fuzzyReturnsFlag) {
             return isFuzzyReturn && fuzzyReturnsFlag != 1 ? fuzzyReturnsFlag + 1 : fuzzyReturnsFlag;
+        }
+
+        /**
+         * Builds the matrix of the headers that can be used together in a fit, and groups the headers by their first
+         * column.
+         */
+        private static boolean[][] buildCompatibilityMatrix(List<DTHeader> dtHeaders,
+                                                            Map<Integer, List<Integer>> columnToIndex) {
+            boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
+            for (var i = 0; i < dtHeaders.size(); i++) {
+                for (var j = 0; j < dtHeaders.size(); j++) {
+                    matrix[i][j] = true;
+                }
+            }
+            for (var i = 0; i < dtHeaders.size(); i++) {
+                List<Integer> indexes = columnToIndex.computeIfAbsent(dtHeaders.get(i).getColumn(), e -> new ArrayList<>());
+                indexes.add(i);
+                for (var j = i; j < dtHeaders.size(); j++) {
+                    if (i == j || !isCompatibleHeaders(dtHeaders.get(i), dtHeaders.get(j))) {
+                        matrix[i][j] = false;
+                        matrix[j][i] = false;
+                    }
+                }
+            }
+            return matrix;
         }
     }
 
@@ -3522,31 +3547,6 @@ public final class DecisionTableHelper {
         }
 
         return Collections.emptyList();
-    }
-
-    /**
-     * Builds the matrix of the headers that can be used together in a fit, and groups the headers by their first
-     * column.
-     */
-    private static boolean[][] buildCompatibilityMatrix(List<DTHeader> dtHeaders,
-                                                        Map<Integer, List<Integer>> columnToIndex) {
-        boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
-        for (var i = 0; i < dtHeaders.size(); i++) {
-            for (var j = 0; j < dtHeaders.size(); j++) {
-                matrix[i][j] = true;
-            }
-        }
-        for (var i = 0; i < dtHeaders.size(); i++) {
-            List<Integer> indexes = columnToIndex.computeIfAbsent(dtHeaders.get(i).getColumn(), e -> new ArrayList<>());
-            indexes.add(i);
-            for (var j = i; j < dtHeaders.size(); j++) {
-                if (i == j || !isCompatibleHeaders(dtHeaders.get(i), dtHeaders.get(j))) {
-                    matrix[i][j] = false;
-                    matrix[j][i] = false;
-                }
-            }
-        }
-        return matrix;
     }
 
     private static String buildNoMatchMessage(ILogicalTable originalTable,
@@ -4344,6 +4344,32 @@ public final class DecisionTableHelper {
             }
             return null;
         }
+
+        private static Triple<String, String, Integer> extractTokenizedVerticalTitleString(ILogicalTable originalTable,
+                                                                                           int column,
+                                                                                           int firstColumnHeight,
+                                                                                           boolean parseAsHorizontalVerticalTitle) {
+            if (parseAsHorizontalVerticalTitle) {
+                var title = originalTable.getSource().getCell(column, firstColumnHeight - 1).getStringValue();
+                if (StringUtils.isNotBlank(title) && title.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
+                    var cutTitle = title.substring(0, title.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)).trim();
+                    return Triple.of(OpenLFuzzyUtils.toTokenString(cutTitle),
+                            OpenLFuzzyUtils.toTokenString(title),
+                            firstColumnHeight - 1);
+                }
+            }
+            var title = originalTable.getSource().getCell(column, 0).getStringValue();
+            String tokenizedTitle = OpenLFuzzyUtils.toTokenString(title);
+            return Triple.of(tokenizedTitle, tokenizedTitle, 0);
+        }
+
+        private static boolean isMatchedByUnderColumns(List<IParameterDeclaration> parameters,
+                                                       int numberOfColumnsUnderTitle) {
+            var isAnyArrayTypePresented = parameters.stream()
+                    .anyMatch(e -> e != null && e.getType() != null && e.getType().isArray());
+            return isAnyArrayTypePresented ? numberOfColumnsUnderTitle >= parameters.size()
+                    : numberOfColumnsUnderTitle == parameters.size();
+        }
     }
 
     /**
@@ -4428,43 +4454,6 @@ public final class DecisionTableHelper {
         return null;
     }
 
-    private static Triple<String, String, Integer> extractTokenizedVerticalTitleString(ILogicalTable originalTable,
-                                                                                       int column,
-                                                                                       int firstColumnHeight,
-                                                                                       boolean parseAsHorizontalVerticalTitle) {
-        if (parseAsHorizontalVerticalTitle) {
-            var title = originalTable.getSource().getCell(column, firstColumnHeight - 1).getStringValue();
-            if (StringUtils.isNotBlank(title) && title.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
-                var cutTitle = title.substring(0, title.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)).trim();
-                return Triple.of(OpenLFuzzyUtils.toTokenString(cutTitle),
-                        OpenLFuzzyUtils.toTokenString(title),
-                        firstColumnHeight - 1);
-            }
-        }
-        var title = originalTable.getSource().getCell(column, 0).getStringValue();
-        String tokenizedTitle = OpenLFuzzyUtils.toTokenString(title);
-        return Triple.of(tokenizedTitle, tokenizedTitle, 0);
-    }
-
-    private static boolean isMatchedByUnderColumns(List<IParameterDeclaration> parameters,
-                                                   int numberOfColumnsUnderTitle) {
-        var isAnyArrayTypePresented = parameters.stream()
-                .anyMatch(e -> e != null && e.getType() != null && e.getType().isArray());
-        return isAnyArrayTypePresented ? numberOfColumnsUnderTitle >= parameters.size()
-                : numberOfColumnsUnderTitle == parameters.size();
-    }
-
-    private static boolean parsableAs(String[] values, Class<?> componentType, IBindingContext bindingContext) {
-        try {
-            for (String value : values) {
-                String2DataConvertorFactory.parse(componentType, value, bindingContext);
-            }
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
     public static boolean parsableAs(String src, Class<?> clazz, IBindingContext bindingContext) {
         try {
             String2DataConvertorFactory.parse(clazz, src, bindingContext);
@@ -4482,35 +4471,6 @@ public final class DecisionTableHelper {
             k++;
         }
         return k;
-    }
-
-    private static Triple<String[], IOpenClass, String> buildTripleForTypeForConditionColumn(Class<?> rangeClass,
-                                                                                             DTHeader condition,
-                                                                                             boolean isArray,
-                                                                                             boolean isMoreThanOneColumnIsUsed) {
-        int type;
-        if (isArray) {
-            type = isMoreThanOneColumnIsUsed ? 2 : 1;
-        } else {
-            type = isMoreThanOneColumnIsUsed ? 1 : 0;
-        }
-        return switch (type) {
-            case 0 -> Triple.of(new String[]{rangeClass.getSimpleName()},
-                    JavaOpenClass.getOpenClass(rangeClass),
-                    condition.getStatement());
-            case 1 -> {
-                final var paramName = "_" + condition.getStatement().replace('.', '_');
-                yield Triple.of(new String[]{rangeClass.getSimpleName() + "[]", paramName},
-                        AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 1),
-                        "contains(" + paramName + ", " + condition.statement + ")");
-            }
-            default -> {
-                final var paramName = "_" + condition.getStatement().replace('.', '_');
-                yield Triple.of(new String[]{rangeClass.getSimpleName() + "[][]", paramName},
-                        AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 2),
-                        "contains(" + paramName + ", " + condition.statement + ")");
-            }
-        };
     }
 
     private static class CellValue {
@@ -4849,7 +4809,7 @@ public final class DecisionTableHelper {
             checkParsableAsRange(value, rangeClass);
             if (isAllParsableAsArrayFlag) {
                 var arrs = ArraySplitter.split(value);
-                var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
+                var g = allParsableAs(arrs, type.getInstanceClass(), bindingContext);
                 if (g && !zeroStartedNumbersFoundFlag) { // If array element
                     // starts with 0 and
                     // can be range
@@ -4868,7 +4828,7 @@ public final class DecisionTableHelper {
         private void checkParsableAsRange(String value, Class<?> rangeClass) {
             if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                 var arrs = ArraySplitter.split(value);
-                var f = parsableAs(arrs, rangeClass, bindingContext);
+                var f = allParsableAs(arrs, rangeClass, bindingContext);
                 var parsableAsSingleRange = parsableAs(value, rangeClass, bindingContext);
                 if (!f && !parsableAsSingleRange) {
                     isAllParsableAsRangeFlag = false;
@@ -4882,7 +4842,7 @@ public final class DecisionTableHelper {
         private void checkParsableAsArray(String value) {
             if (isAllParsableAsArrayFlag) {
                 var arrs = ArraySplitter.split(value);
-                var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
+                var g = allParsableAs(arrs, type.getInstanceClass(), bindingContext);
                 if (!g) {
                     isAllParsableAsArrayFlag = false;
                 }
@@ -4916,7 +4876,7 @@ public final class DecisionTableHelper {
             String[] arrs = null;
             if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                 arrs = ArraySplitter.split(value);
-                var f = parsableAs(arrs, DateRange.class, bindingContext);
+                var f = allParsableAs(arrs, DateRange.class, bindingContext);
                 var parsableAsSingleRange = parsableAs(value, DateRange.class, bindingContext);
                 if (isAllParsableAsRangeFlag && !f && !parsableAsSingleRange) {
                     isAllParsableAsRangeFlag = false;
@@ -4947,7 +4907,7 @@ public final class DecisionTableHelper {
             String[] arrs = null;
             if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                 arrs = ArraySplitter.split(value);
-                var f = parsableAs(arrs, StringRange.class, bindingContext);
+                var f = allParsableAs(arrs, StringRange.class, bindingContext);
                 if (isAllParsableAsRangeFlag && !f && !parsableAs(value,
                         StringRange.class,
                         bindingContext)) {
@@ -5102,33 +5062,75 @@ public final class DecisionTableHelper {
                     module,
                     cache);
         }
-    }
 
-    private static Triple<String[], IOpenClass, String> buildTripleForConditionColumnWithSimpleType(DTHeader condition,
-                                                                                                    IOpenClass type,
-                                                                                                    boolean isArray,
-                                                                                                    boolean isMoreThanOneColumnIsUsed,
-                                                                                                    XlsModuleOpenClass module,
-                                                                                                    IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
-        if (type.isArray() && type.getComponentClass().isArray()) {
-            return Triple.of(new String[]{getTypeNameForCode(type, module, cache)}, type, condition.getStatement());
-        }
-        int v;
-        if (isArray) {
-            v = isMoreThanOneColumnIsUsed ? 2 : 1;
-        } else {
-            v = isMoreThanOneColumnIsUsed ? 1 : 0;
+        private static boolean allParsableAs(String[] values,
+                                             Class<?> componentType,
+                                             IBindingContext bindingContext) {
+            try {
+                for (String value : values) {
+                    String2DataConvertorFactory.parse(componentType, value, bindingContext);
+                }
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
         }
 
-        return switch (v) {
-            case 0 -> Triple.of(new String[]{getTypeNameForCode(type, module, cache)}, type, condition.getStatement());
-            case 1 -> Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[]"},
-                    AOpenClass.getArrayType(type, 1),
-                    condition.getStatement());
-            default -> Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[][]"},
-                    AOpenClass.getArrayType(type, 2),
-                    condition.getStatement());
-        };
+        private static Triple<String[], IOpenClass, String> buildTripleForTypeForConditionColumn(Class<?> rangeClass,
+                                                                                                 DTHeader condition,
+                                                                                                 boolean isArray,
+                                                                                                 boolean isMoreThanOneColumnIsUsed) {
+            int type;
+            if (isArray) {
+                type = isMoreThanOneColumnIsUsed ? 2 : 1;
+            } else {
+                type = isMoreThanOneColumnIsUsed ? 1 : 0;
+            }
+            return switch (type) {
+                case 0 -> Triple.of(new String[]{rangeClass.getSimpleName()},
+                        JavaOpenClass.getOpenClass(rangeClass),
+                        condition.getStatement());
+                case 1 -> {
+                    final var paramName = "_" + condition.getStatement().replace('.', '_');
+                    yield Triple.of(new String[]{rangeClass.getSimpleName() + "[]", paramName},
+                            AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 1),
+                            "contains(" + paramName + ", " + condition.statement + ")");
+                }
+                default -> {
+                    final var paramName = "_" + condition.getStatement().replace('.', '_');
+                    yield Triple.of(new String[]{rangeClass.getSimpleName() + "[][]", paramName},
+                            AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 2),
+                            "contains(" + paramName + ", " + condition.statement + ")");
+                }
+            };
+        }
+
+        private static Triple<String[], IOpenClass, String> buildTripleForConditionColumnWithSimpleType(DTHeader condition,
+                                                                                                        IOpenClass type,
+                                                                                                        boolean isArray,
+                                                                                                        boolean isMoreThanOneColumnIsUsed,
+                                                                                                        XlsModuleOpenClass module,
+                                                                                                        IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
+            if (type.isArray() && type.getComponentClass().isArray()) {
+                return Triple.of(new String[]{getTypeNameForCode(type, module, cache)}, type, condition.getStatement());
+            }
+            int v;
+            if (isArray) {
+                v = isMoreThanOneColumnIsUsed ? 2 : 1;
+            } else {
+                v = isMoreThanOneColumnIsUsed ? 1 : 0;
+            }
+
+            return switch (v) {
+                case 0 -> Triple.of(new String[]{getTypeNameForCode(type, module, cache)}, type, condition.getStatement());
+                case 1 -> Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[]"},
+                        AOpenClass.getArrayType(type, 1),
+                        condition.getStatement());
+                default -> Triple.of(new String[]{getTypeNameForCode(type, module, cache) + "[][]"},
+                        AOpenClass.getArrayType(type, 2),
+                        condition.getStatement());
+            };
+        }
     }
 
     private static IOpenClass getTypeForCondition(DecisionTable decisionTable, DTHeader condition) {
