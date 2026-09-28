@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { initialFormValue, SchemaForm, type SchemaFormParameter } from 'components/schemaForm/SchemaForm'
+import { keysOf, nameEntry, openNode as open } from 'testing/schemaTree'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -26,6 +27,27 @@ const policy: SchemaFormParameter = {
     },
 }
 
+/** A list whose elements say nothing about themselves, so each is written as JSON text. */
+const notes: SchemaFormParameter = {
+    name: 'notes',
+    schema: { type: 'array', items: {} },
+}
+
+/** A map of maps, and a list of structures each holding a map: what stands under a node that moves. */
+const nested: SchemaFormParameter = {
+    name: 'nested',
+    schema: {
+        type: 'object',
+        properties: {
+            outer: { type: 'object', additionalProperties: { type: 'object', additionalProperties: { type: 'integer' } } },
+            rows: {
+                type: 'array',
+                items: { type: 'object', properties: { inner: { type: 'object', additionalProperties: { type: 'integer' } } } },
+            },
+        },
+    },
+}
+
 /** A map of structures: an entry holds fields of its own, under the entry's key. */
 const quotes: SchemaFormParameter = {
     name: 'quotes',
@@ -33,27 +55,31 @@ const quotes: SchemaFormParameter = {
     schema: { type: 'object', additionalProperties: { type: 'object', properties: { b: { type: 'string' } } } },
 }
 
-const Harness: React.FC<{ parameters: SchemaFormParameter[], initial?: Record<string, unknown>, onChange: (value: unknown) => void }> = ({
-    parameters, initial, onChange,
-}) => {
+const Harness: React.FC<{
+    parameters: SchemaFormParameter[]
+    initial?: Record<string, unknown>
+    /** A value arriving from outside the form, put in by the button beside it — a run read back, or JSON text. */
+    arriving?: Record<string, unknown>
+    /** Watched only by a test that asserts on what the form emits. */
+    onChange?: ((value: unknown) => void) | undefined
+}> = ({ parameters, initial, arriving, onChange }) => {
     const [value, setValue] = useState(() => initial ?? initialFormValue(parameters))
     return (
-        <SchemaForm
-            parameters={parameters}
-            value={value}
-            onChange={next => {
-                setValue(next)
-                onChange(next)
-            }}
-        />
+        <>
+            {arriving !== undefined
+                && <button data-testid="arrives" onClick={() => setValue(arriving)} type="button">arrives</button>}
+            <SchemaForm
+                parameters={parameters}
+                value={value}
+                onChange={next => {
+                    setValue(next)
+                    onChange?.(next)
+                }}
+            />
+        </>
     )
 }
 
-/** Opens a node of the tree: a parameter starts folded, however many fields it holds. */
-const open = async (path: string) => {
-    const node = screen.getByTestId(`value-${path}`).closest('.ant-tree-treenode')
-    await userEvent.click(node?.querySelector('.ant-tree-switcher') as HTMLElement)
-}
 
 describe('SchemaForm', () => {
     it('starts every structured parameter created, so the user has its fields to fill in', () => {
@@ -154,6 +180,24 @@ describe('SchemaForm', () => {
         expect(screen.getByTestId('value-policy.drivers[0].name')).toHaveTextContent('"Bob"')
     })
 
+    it('carries an open editor with the row it belongs to when one before it is removed', async () => {
+        render(<Harness parameters={[notes]} />)
+
+        await userEvent.click(screen.getByTestId('add-notes'))
+        await open('notes')
+        await userEvent.click(screen.getByTestId('add-notes'))
+        await userEvent.click(screen.getByTestId('edit-notes[1]'))
+        // Text that does not parse keeps the editor open when the pointer leaves it, so nothing typed is lost.
+        await userEvent.type(screen.getByTestId('input-notes[1]'), '"half writ')
+
+        await userEvent.click(screen.getByTestId('remove-notes[0]'))
+
+        // The editor stands on the element it was opened on, which holds the place before it now. Left where it
+        // was, it would be writing into whatever element came to stand there — or into nothing at all.
+        expect(screen.getByTestId('input-notes[0]')).toBeInTheDocument()
+        expect(screen.queryByTestId('input-notes[1]')).toBeNull()
+    })
+
     it('grows a map entry by entry with editable keys', async () => {
         const onChange = vi.fn()
         render(<Harness onChange={onChange} parameters={[policy]} />)
@@ -197,6 +241,103 @@ describe('SchemaForm', () => {
         expect(onChange).toHaveBeenLastCalledWith({ policy: { limits: { 2: 2, 10: 1 } } })
         expect(screen.getByTestId('value-policy.limits[10]')).toHaveTextContent('1')
         expect(screen.getByTestId('value-policy.limits[2]')).toHaveTextContent('2')
+        // And they are drawn where they were put, however the map itself lists them.
+        expect(keysOf('policy.limits')).toEqual(['10', '2'])
+    })
+
+    it('draws a map that arrives with its entries in the order it holds them, and keeps that order', async () => {
+        const onChange = vi.fn()
+        // Read back from a run or written as JSON text: the form was told nothing about these, so they are
+        // drawn as the map lists them.
+        render(<Harness initial={{ policy: { limits: { 10: 1, 2: 2 } } }} onChange={onChange} parameters={[policy]} />)
+
+        await open('policy')
+        await open('policy.limits')
+        expect(keysOf('policy.limits')).toEqual(['2', '10'])
+
+        // An entry added to it goes under the rest, and the ones already there do not move.
+        await userEvent.click(screen.getByTestId('add-policy.limits'))
+        expect(keysOf('policy.limits')).toEqual(['2', '10', ''])
+        await userEvent.type(screen.getByTestId('key-policy.limits[]'), '1{enter}')
+        expect(keysOf('policy.limits')).toEqual(['2', '10', '1'])
+    })
+
+    it('leaves the rows around a removed entry where they are', async () => {
+        const onChange = vi.fn()
+        render(<Harness onChange={onChange} parameters={[policy]} />)
+
+        await open('policy')
+        await userEvent.click(screen.getByTestId('create-policy.limits'))
+        for (const key of ['30', '2', '10']) {
+            await nameEntry('policy.limits', key)
+        }
+        expect(keysOf('policy.limits')).toEqual(['30', '2', '10'])
+
+        await userEvent.click(screen.getByTestId('remove-policy.limits[2]'))
+
+        // What the map itself lists is `10, 30`; the rows are where the reader put them.
+        expect(keysOf('policy.limits')).toEqual(['30', '10'])
+    })
+
+    it('carries the arrangement of a map under an entry that is renamed', async () => {
+        const onChange = vi.fn()
+        render(<Harness onChange={onChange} parameters={[nested]} />)
+
+        await open('nested')
+        await userEvent.click(screen.getByTestId('create-nested.outer'))
+        await nameEntry('nested.outer', 'a')
+        await userEvent.click(screen.getByTestId('create-nested.outer[a]'))
+        await nameEntry('nested.outer[a]', '10')
+        await nameEntry('nested.outer[a]', '2')
+        expect(keysOf('nested.outer[a]')).toEqual(['10', '2'])
+
+        // The inner map is addressed under the entry holding it, so renaming that entry moves it.
+        await userEvent.clear(screen.getByTestId('key-nested.outer[a]'))
+        await userEvent.type(screen.getByTestId('key-nested.outer[a]'), 'b{enter}')
+
+        expect(keysOf('nested.outer[b]')).toEqual(['10', '2'])
+    })
+
+    it('carries the arrangement of a map under a list element that moves up', async () => {
+        const onChange = vi.fn()
+        render(<Harness onChange={onChange} parameters={[nested]} />)
+
+        await open('nested')
+        await userEvent.click(screen.getByTestId('create-nested.rows'))
+        await userEvent.click(screen.getByTestId('add-nested.rows'))
+        await userEvent.click(screen.getByTestId('add-nested.rows'))
+        // Creating the list opened it, so its slots are already in view.
+        await userEvent.click(screen.getByTestId('create-nested.rows[1]'))
+        await userEvent.click(screen.getByTestId('create-nested.rows[1].inner'))
+        await nameEntry('nested.rows[1].inner', '10')
+        await nameEntry('nested.rows[1].inner', '2')
+        expect(keysOf('nested.rows[1].inner')).toEqual(['10', '2'])
+
+        // The element before it goes, so this one stands one place earlier — and takes its map with it.
+        await userEvent.click(screen.getByTestId('remove-nested.rows[0]'))
+
+        expect(keysOf('nested.rows[0].inner')).toEqual(['10', '2'])
+    })
+
+    it('draws a map that arrives where a cleared one stood as it comes', async () => {
+        const onChange = vi.fn()
+        const arriving = { policy: { limits: { 2: 7, 10: 8 } } }
+        render(<Harness arriving={arriving} onChange={onChange} parameters={[policy]} />)
+
+        await open('policy')
+        await userEvent.click(screen.getByTestId('create-policy.limits'))
+        await nameEntry('policy.limits', '10')
+        await nameEntry('policy.limits', '2')
+        expect(keysOf('policy.limits')).toEqual(['10', '2'])
+
+        // Cleared away, the map takes its arrangement with it. What arrives in its place is somebody else's,
+        // and is drawn the way it comes rather than the way the reader once arranged the map that stood there.
+        await userEvent.click(screen.getByTestId('clear-policy.limits'))
+        await userEvent.click(screen.getByTestId('arrives'))
+        // Nothing of the map that stood here is remembered, down to its rows being folded again.
+        await open('policy.limits')
+
+        expect(keysOf('policy.limits')).toEqual(['2', '10'])
     })
 
     it('keeps the rows apart when a key is written with the characters a path is made of', async () => {

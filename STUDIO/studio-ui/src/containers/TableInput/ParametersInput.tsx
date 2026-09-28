@@ -137,6 +137,11 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
         setError(parseText(json).error)
     }
 
+    const form = useMemo(
+        () => <SchemaForm onChange={setValue} parameters={formParameters} value={value} />,
+        [formParameters, value]
+    )
+
     // A table that declares nothing has nothing to fill in, in either form: the choice between them would be a
     // choice of which emptiness to look at.
     if (formParameters.length === 0) {
@@ -155,9 +160,12 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
                     { label: t('input.json'), value: 'json' },
                 ]}
             />
-            {mode === 'form' ? (
-                <SchemaForm onChange={setValue} parameters={formParameters} value={value} />
-            ) : (
+            {/* The form is put away rather than taken down. What the reader has arranged in it — the nodes left
+                open, which row is being written, the order a map's rows are drawn in — lives in the form itself,
+                and a look at the JSON would otherwise put every one of them back the way the value happens to
+                list it. Nothing of the form changes while the JSON is typed, so it is kept as it was drawn. */}
+            <div hidden={mode !== 'form'}>{form}</div>
+            {mode === 'json' && (
                 <Form.Item style={{ marginBottom: 0 }} {...(error && { help: error, validateStatus: 'error' })}>
                     <div data-testid="input-json" style={{ height: 280 }}>
                         <Suspense fallback={<Skeleton active paragraph={{ rows: 6 }} title={false} />}>

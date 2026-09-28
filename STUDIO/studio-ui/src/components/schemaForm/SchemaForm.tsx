@@ -27,6 +27,13 @@ interface SchemaFormProps {
 
 const rootSchema = (parameter: SchemaFormParameter): JsonSchema => (parameter.schema ?? {}) as JsonSchema
 
+/** Held apart from the render, so that a node of the tree is not drawn again for a new object saying the same. */
+const LINES = { showLeafIcon: false }
+
+/** Whether the path names the node at `root`, or anything standing under it. */
+const isUnder = (path: string, root: string): boolean =>
+    path === root || path.startsWith(`${root}.`) || path.startsWith(`${root}[`)
+
 /**
  * The values a form starts with.
  *
@@ -55,35 +62,88 @@ export const initialFormValue = (parameters: SchemaFormParameter[]): Record<stri
  */
 export const SchemaForm: React.FC<SchemaFormProps> = ({ parameters, value, onChange }) => {
     const [editing, setEditing] = useState<string | null>(null)
-    const [expanded, setExpanded] = useState<React.Key[]>([])
+    const [expanded, setExpanded] = useState<string[]>([])
+    // A map lists a key that reads as a whole number before the others and in rising order, whatever order its
+    // entries were put in it. So the order the rows of a map are drawn in is kept here rather than read back off
+    // the map — where naming an entry `2` would move it above the `10` beside it.
+    const [entryOrders, setEntryOrders] = useState<Record<string, string[]>>({})
     const expand = useCallback((path: string) => setExpanded(keys => (keys.includes(path) ? keys : [...keys, path])), [])
-    // An element is addressed by its position, so the elements after the removed one are open under a new key.
-    const afterRemove = useCallback((path: string, index: number) => setExpanded(keys => keys.flatMap(key => {
+    const opened = useCallback((keys: React.Key[]) => setExpanded(keys.map(String)), [])
+
+    /**
+     * Rewrites the paths the form remembers things under: what is open, which row is being written, and the
+     * order a map draws its rows in.
+     *
+     * A node is addressed by where it stands, so everything under a node that moves moves with it — and all
+     * three of these are remembered by that address. One rule carries them together, told how a path becomes
+     * another one or becomes nothing at all, so that none can be left behind pointing at a row that has since
+     * become somebody else's. An editor left on a row that is now another one would write over it.
+     */
+    const pathsMoved = useCallback((moved: (path: string) => string | null) => {
+        setExpanded(keys => {
+            const next = keys.flatMap(key => {
+                const to = moved(key)
+                return to === null ? [] : [to]
+            })
+            return next.length === keys.length && next.every((key, at) => key === keys[at]) ? keys : next
+        })
+        setEditing(open => (open === null ? open : moved(open)))
+        setEntryOrders(orders => {
+            const moving = Object.keys(orders).some(map => moved(map) !== map)
+            if (!moving) {
+                return orders
+            }
+            return Object.fromEntries(Object.entries(orders).flatMap(([map, keys]) => {
+                const to = moved(map)
+                return to === null ? [] : [[to, keys] as const]
+            }))
+        })
+    }, [])
+
+    // An element is addressed by its position, so the elements after the removed one stand one place earlier.
+    const afterRemove = useCallback((path: string, index: number) => pathsMoved(key => {
         const prefix = `${path}[`
-        if (typeof key !== 'string' || !key.startsWith(prefix)) {
-            return [key]
+        if (!key.startsWith(prefix)) {
+            return key
         }
         const at = Number(key.slice(prefix.length, key.indexOf(']', prefix.length)))
         if (Number.isNaN(at) || at < index) {
-            return [key]
+            return key
         }
-        return at === index ? [] : [key.replace(`${prefix}${at}]`, `${prefix}${at - 1}]`)]
-    })), [])
+        return at === index ? null : key.replace(`${prefix}${at}]`, `${prefix}${at - 1}]`)
+    }), [pathsMoved])
 
-    // A map entry is addressed by its key, so renaming one carries what is open under it to the new key, and
-    // removing one forgets it. Nothing else moves: the other entries keep the keys they had.
-    const entryMoved = useCallback((from: string, to: string | null) => setExpanded(keys => keys.flatMap(key => {
-        const under = typeof key === 'string'
-            && (key === from || key.startsWith(`${from}.`) || key.startsWith(`${from}[`))
-        if (!under) {
-            return [key]
+    // A node carries what is remembered under it to where it stands now, and leaves it behind when it goes: a
+    // map entry renamed, one removed, a whole structure cleared away. Nothing beside it moves.
+    const nodeMoved = useCallback((from: string, to: string | null) => pathsMoved(key => {
+        if (!isUnder(key, from)) {
+            return key
         }
-        return to === null ? [] : [`${to}${(key as string).slice(from.length)}`]
-    })), [])
+        return to === null ? null : `${to}${key.slice(from.length)}`
+    }), [pathsMoved])
+
+    // The entries the form was told about, in the order it was told, then any the map holds besides them. A map
+    // the form knows nothing of — read back from a run, or written as JSON text — is drawn as it comes; once the
+    // reader has arranged the map standing here, that arrangement holds until the structure is cleared away.
+    const entryOrder = useCallback((map: string, listed: string[]): string[] => {
+        const made = entryOrders[map]
+        if (made === undefined) {
+            return listed
+        }
+        const holds = new Set(listed)
+        const arranged = new Set(made)
+        return [...made.filter(key => holds.has(key)), ...listed.filter(key => !arranged.has(key))]
+    }, [entryOrders])
+    const entriesReordered = useCallback(
+        (map: string, keys: string[]) => setEntryOrders(orders => ({ ...orders, [map]: keys })),
+        []
+    )
 
     const treeData = useMemo((): TreeDataNode[] => parameters.map(parameter => {
         const root = rootSchema(parameter)
-        const context: TreeContext = { root, editing, setEditing, expand, afterRemove, entryMoved }
+        const context: TreeContext = {
+            root, editing, setEditing, expand, afterRemove, nodeMoved, entryOrder, entriesReordered,
+        }
         return buildNode({
             name: parameter.name,
             label: parameter.label,
@@ -97,7 +157,7 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({ parameters, value, onCha
             },
             context,
         })
-    }), [parameters, value, onChange, editing, expand, afterRemove, entryMoved])
+    }), [parameters, value, onChange, editing, expand, afterRemove, nodeMoved, entryOrder, entriesReordered])
 
     return (
         // The expand animation is off. While it runs, a structure created by a click would not show its fields.
@@ -106,9 +166,9 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({ parameters, value, onCha
             blockNode
             expandedKeys={expanded}
             motion={false}
-            onExpand={keys => setExpanded(keys)}
+            onExpand={opened}
             selectable={false}
-            showLine={{ showLeafIcon: false }}
+            showLine={LINES}
             treeData={treeData}
             virtual={false}
         />

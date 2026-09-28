@@ -1,6 +1,7 @@
 package org.openl.studio.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.Option;
 import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
@@ -64,9 +65,13 @@ public class ObjectSchemaGeneratorConfiguration {
     private static SchemaGeneratorConfigBuilder configBuilder(ObjectMapper objectMapper) {
         var configBuilder = new SchemaGeneratorConfigBuilder(objectMapper, SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON)
                 .with(new JacksonModule())
-                .with(new Swagger2Module());
+                .with(new Swagger2Module())
+                // What a map holds, as the values a key may carry; see MapEntriesAttributeOverride for the
+                // maps whose values have no type of their own, and for why a map has to say this at all.
+                .with(Option.MAP_VALUES_AS_ADDITIONAL_PROPERTIES);
         configBuilder.forTypesInGeneral()
-                .withCustomDefinitionProvider(new JacksonBeanSchemaProvider(objectMapper));
+                .withCustomDefinitionProvider(new JacksonBeanSchemaProvider(objectMapper))
+                .withTypeAttributeOverride(new MapEntriesAttributeOverride());
         return configBuilder;
     }
 }
