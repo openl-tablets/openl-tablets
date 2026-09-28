@@ -194,20 +194,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         Set<Class<?>> allOverrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
                 validatePolymorphicTypes);
 
-        for (Class<?> clazz : getConfigurationClasses()) {
-            MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
-            if (mixInRulesClass != null) {
-                Arrays.stream(mixInRulesClass.types()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
-                for (String className : mixInRulesClass.value()) {
-                    try {
-                        Class<?> useForClass = loadClass(className);
-                        mapper.addMixIn(useForClass, clazz);
-                    } catch (ClassNotFoundException e) {
-                        log.warn("Class '{}' is not found.", className, e);
-                    }
-                }
-            }
-        }
+        addConfigurationMixIns(mapper);
 
         if (!DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
             ObjectMapper.DefaultTyping defaultTyping = switch (getDefaultTypingMode()) {
@@ -254,6 +241,27 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         return mapper;
+    }
+
+    /**
+     * Registers the configuration classes annotated with {@link MixInClass} as mix-ins of the types they name. A type
+     * named by a class name that cannot be loaded is skipped.
+     */
+    private void addConfigurationMixIns(ObjectMapper mapper) throws ClassNotFoundException {
+        for (Class<?> clazz : getConfigurationClasses()) {
+            MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
+            if (mixInRulesClass != null) {
+                Arrays.stream(mixInRulesClass.types()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
+                for (String className : mixInRulesClass.value()) {
+                    try {
+                        Class<?> useForClass = loadClass(className);
+                        mapper.addMixIn(useForClass, clazz);
+                    } catch (ClassNotFoundException e) {
+                        log.warn("Class '{}' is not found.", className, e);
+                    }
+                }
+            }
+        }
     }
 
     private Set<Class<?>> extractOverrideClasses(BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder,

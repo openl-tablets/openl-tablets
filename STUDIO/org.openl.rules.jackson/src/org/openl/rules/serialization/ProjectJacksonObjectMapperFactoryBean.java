@@ -367,23 +367,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             var propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
             if (propertyNamingStrategy != null) {
                 if (propertyNamingStrategy instanceof String propertyNamingStrategyClassName) {
-                    try {
-                        var propertyNamingStrategyClass = classLoader
-                                .loadClass(propertyNamingStrategyClassName);
-                        if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
-                            throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.".formatted(
-                                    JACKSON_PROPERTY_NAMING_STRATEGY,
-                                    rulesDeploy.getServiceName(),
-                                    PropertyNamingStrategy.class.getTypeName()));
-                        }
-                        return instantiatePropertyNamingStrategy(propertyNamingStrategyClass, rulesDeploy);
-                    } catch (ClassNotFoundException e) {
-                        throw new ObjectMapperConfigurationParsingException(
-                                "Failed to load property naming strategy class '%s' for service '%s'.".formatted(
-                                        JACKSON_PROPERTY_NAMING_STRATEGY,
-                                        rulesDeploy.getServiceName()),
-                                e);
-                    }
+                    return loadPropertyNamingStrategy(propertyNamingStrategyClassName, rulesDeploy, classLoader);
                 } else {
                     throw new ObjectMapperConfigurationParsingException(
                             EXPECTED_STRING_VALUE.formatted(
@@ -393,6 +377,28 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             }
         }
         return DEFAULT_STRATEGY;
+    }
+
+    private static PropertyNamingStrategy loadPropertyNamingStrategy(String propertyNamingStrategyClassName,
+                                                                     RulesDeploy rulesDeploy,
+                                                                     ClassLoader classLoader) {
+        try {
+            var propertyNamingStrategyClass = classLoader
+                    .loadClass(propertyNamingStrategyClassName);
+            if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
+                throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.".formatted(
+                        JACKSON_PROPERTY_NAMING_STRATEGY,
+                        rulesDeploy.getServiceName(),
+                        PropertyNamingStrategy.class.getTypeName()));
+            }
+            return instantiatePropertyNamingStrategy(propertyNamingStrategyClass, rulesDeploy);
+        } catch (ClassNotFoundException e) {
+            throw new ObjectMapperConfigurationParsingException(
+                    "Failed to load property naming strategy class '%s' for service '%s'.".formatted(
+                            JACKSON_PROPERTY_NAMING_STRATEGY,
+                            rulesDeploy.getServiceName()),
+                    e);
+        }
     }
 
     private static PropertyNamingStrategy instantiatePropertyNamingStrategy(Class<?> propertyNamingStrategyClass,
