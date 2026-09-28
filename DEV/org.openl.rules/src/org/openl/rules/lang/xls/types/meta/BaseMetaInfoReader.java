@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import lombok.Getter;
@@ -101,10 +102,11 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
      * @return the meta info with the links, or the given meta info when the cell value has no constants
      */
     private CellMetaInfo addConstantUsages(int row, int col, CellMetaInfo cellMetaInfo) {
-        var firstCell = getTableSyntaxNode().getTableBody().getSource().getCell(0, 0);
+        var tableBody = Objects.requireNonNull(getTableSyntaxNode().getTableBody(), "table body");
+        var firstCell = tableBody.getSource().getCell(0, 0);
         var r = row - firstCell.getAbsoluteRow();
         var c = col - firstCell.getAbsoluteColumn();
-        var theValueCell = getTableSyntaxNode().getTableBody().getSource().getCell(c, r);
+        var theValueCell = tableBody.getSource().getCell(c, r);
         String[] tokens = ArraySplitter.split(theValueCell.getStringValue());
         var cellValue = theValueCell.getStringValue();
         var startFrom = 0;

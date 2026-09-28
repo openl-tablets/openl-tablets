@@ -122,7 +122,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             } else if (indexes.containsKey(v)) {
                 result.add(indexes.get(v));
             } else {
-                addRangeIndices(result, v);
+                addRangeIndices(result, v, StringUtils.split(v, '-'));
             }
         }
         Integer[] indices = new Integer[result.size()];
@@ -132,17 +132,17 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     /**
      * Adds the indexes of the test cases from the first to the last one of a range, e.g. {@code 1 - 3}.
      *
+     * @param tokens the range split at every dash
      * @throws IllegalArgumentException when an edge of the range is not an id of a test case
      */
-    private void addRangeIndices(Set<Integer> result, String v) {
-        String[] edges = StringUtils.split(v, '-');
-        if (edges.length == 0) {
+    private void addRangeIndices(Set<Integer> result, String v, String[] tokens) {
+        if (tokens.length == 0) {
             // Dashes and nothing else: the case named by a dash alone was found above, so nothing is named.
             throw unknownCase(v);
         }
-        if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
-            edges = DASH_SEPARATOR.split(v);
-        }
+        var edges = tokens.length > 2 || tokens[tokens.length - 1].trim().isEmpty()
+                ? DASH_SEPARATOR.split(v)
+                : tokens;
         var startIndex = requireIndex(edges[0].trim());
         var endIndex = requireIndex(edges[edges.length - 1].trim());
 

@@ -109,7 +109,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getUri() {
-        if (uri == null) {
+        if (uri == null && table != null) {
             initUri();
         }
         return uri;

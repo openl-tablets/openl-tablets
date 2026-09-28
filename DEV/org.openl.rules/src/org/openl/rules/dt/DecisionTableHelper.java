@@ -778,7 +778,8 @@ public final class DecisionTableHelper {
             grid.setCellValue(c, 2, value);
             paramType = param.getType();
         } else {
-            paramType = declaredReturn.getDtColumnsDefinition().getCompositeMethod().getType();
+            var compositeMethod = declaredReturn.getDtColumnsDefinition().getCompositeMethod();
+            paramType = Objects.requireNonNull(compositeMethod, "composite method").getType();
         }
         return paramType;
     }
