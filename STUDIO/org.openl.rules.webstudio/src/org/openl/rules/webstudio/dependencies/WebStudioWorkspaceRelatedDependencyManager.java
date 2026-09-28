@@ -188,9 +188,14 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     public void pause() {
         paused = true;
-        synchronized (this) {
-            //Method should return only after all synchronized blocks have been executed
-        }
+        awaitSynchronizedBlocks();
+    }
+
+    /**
+     * Returns only after the synchronized blocks running at the moment have been executed.
+     */
+    private synchronized void awaitSynchronizedBlocks() {
+        // Taking the lock is all it needs: a block that holds it finishes first
     }
 
     public void resume() {
