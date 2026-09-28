@@ -46,72 +46,95 @@ public class CellEditorSelector {
             Class<?> instanceClass = dataType.getInstanceClass();
 
             if (domain instanceof EnumDomain<?> enumDomain) {
-                var allObjects = enumDomain.getAllObjects();
-
-                if (allObjects instanceof String[] allObjectValues) {
-                    return choiceEditor(allObjectValues, allObjectValues, meta.isMultiValue());
-                } else if (allObjects != null) {
-                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta);
-                    if (formatter instanceof ArrayFormatter arrayFormatter) {
-                        // We need a formatter for each element of an array.
-                        formatter = arrayFormatter.getElementFormat();
-                        if (formatter == null) {
-                            formatter = new DefaultFormatter();
-                        }
-                    }
-
-                    String[] allObjectValues = new String[allObjects.length];
-                    for (var i = 0; i < allObjects.length; i++) {
-                        var value = allObjects[i];
-                        allObjectValues[i] = value instanceof String s ? s : formatter.format(value);
-                    }
-
-                    return choiceEditor(allObjectValues, allObjectValues, meta.isMultiValue());
+                var editor = enumDomainEditor(cell, meta, enumDomain);
+                if (editor != null) {
+                    return editor;
                 }
             }
 
-            // Numeric
-            if (ClassUtils.isAssignable(instanceClass, Number.class)) {
-                if (domain == null) {
-                    var intOnly = IntegerValuesUtils.isIntegerValue(instanceClass);
-                    if (!meta.isMultiValue()) {
-                        Number minValue = NumberUtils.getMinValue(instanceClass);
-                        Number maxValue = NumberUtils.getMaxValue(instanceClass);
-                        result = new NumericCellEditor(minValue, maxValue, intOnly);
-                    } else {
-                        // Numeric Array
-                        return new ArrayCellEditor(ArrayCellEditor.DEFAULT_SEPARATOR, ICellEditor.CE_NUMERIC, intOnly);
-                    }
-                }
-
-                // Date
-            } else if (ClassUtils.isAssignable(instanceClass, Date.class)
-                    || ClassUtils.isAssignable(instanceClass, LocalDate.class)
-                    || ClassUtils.isAssignable(instanceClass, LocalDateTime.class)
-                    || ClassUtils.isAssignable(instanceClass, LocalTime.class)
-                    || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
-                    || ClassUtils.isAssignable(instanceClass, Instant.class)) {
-                result = new DateCellEditor();
-
-                // Boolean
-            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
-                result = new BooleanCellEditor();
-
-                // Enum
-            } else if (instanceClass.isEnum()) {
-                result = choiceEditor(EnumUtils.getNames(instanceClass),
-                        EnumUtils.getValues(instanceClass),
-                        meta.isMultiValue());
-                // Range
-            } else if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
-                    .parsableAs(initialValue, instanceClass, null)) {
-                result = new NumberRangeEditor(ICellEditor.CE_INTEGER);
-            } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
-                    .parsableAs(initialValue, instanceClass, null)) {
-                result = new NumberRangeEditor(ICellEditor.CE_DOUBLE);
-            }
+            result = typeEditor(initialValue, meta, domain, instanceClass);
         }
         return result;
+    }
+
+    /** A choice among the values of the domain, or {@code null} when the domain has no values. */
+    private static ICellEditor enumDomainEditor(ICell cell, CellMetaInfo meta, EnumDomain<?> enumDomain) {
+        var allObjects = enumDomain.getAllObjects();
+
+        if (allObjects instanceof String[] allObjectValues) {
+            return choiceEditor(allObjectValues, allObjectValues, meta.isMultiValue());
+        } else if (allObjects != null) {
+            IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta);
+            if (formatter instanceof ArrayFormatter arrayFormatter) {
+                // We need a formatter for each element of an array.
+                formatter = arrayFormatter.getElementFormat();
+                if (formatter == null) {
+                    formatter = new DefaultFormatter();
+                }
+            }
+
+            String[] allObjectValues = new String[allObjects.length];
+            for (var i = 0; i < allObjects.length; i++) {
+                var value = allObjects[i];
+                allObjectValues[i] = value instanceof String s ? s : formatter.format(value);
+            }
+
+            return choiceEditor(allObjectValues, allObjectValues, meta.isMultiValue());
+        }
+        return null;
+    }
+
+    /** The editor for the type of the cell, or {@code null} when the type has no dedicated editor. */
+    private static ICellEditor typeEditor(String initialValue,
+                                          CellMetaInfo meta,
+                                          IDomain<?> domain,
+                                          Class<?> instanceClass) {
+        ICellEditor result = null;
+        // Numeric
+        if (ClassUtils.isAssignable(instanceClass, Number.class)) {
+            if (domain == null) {
+                result = numericEditor(meta, instanceClass);
+            }
+
+            // Date
+        } else if (ClassUtils.isAssignable(instanceClass, Date.class)
+                || ClassUtils.isAssignable(instanceClass, LocalDate.class)
+                || ClassUtils.isAssignable(instanceClass, LocalDateTime.class)
+                || ClassUtils.isAssignable(instanceClass, LocalTime.class)
+                || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
+                || ClassUtils.isAssignable(instanceClass, Instant.class)) {
+            result = new DateCellEditor();
+
+            // Boolean
+        } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
+            result = new BooleanCellEditor();
+
+            // Enum
+        } else if (instanceClass.isEnum()) {
+            result = choiceEditor(EnumUtils.getNames(instanceClass),
+                    EnumUtils.getValues(instanceClass),
+                    meta.isMultiValue());
+            // Range
+        } else if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
+                .parsableAs(initialValue, instanceClass, null)) {
+            result = new NumberRangeEditor(ICellEditor.CE_INTEGER);
+        } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
+                .parsableAs(initialValue, instanceClass, null)) {
+            result = new NumberRangeEditor(ICellEditor.CE_DOUBLE);
+        }
+        return result;
+    }
+
+    private static ICellEditor numericEditor(CellMetaInfo meta, Class<?> instanceClass) {
+        var intOnly = IntegerValuesUtils.isIntegerValue(instanceClass);
+        if (!meta.isMultiValue()) {
+            Number minValue = NumberUtils.getMinValue(instanceClass);
+            Number maxValue = NumberUtils.getMaxValue(instanceClass);
+            return new NumericCellEditor(minValue, maxValue, intOnly);
+        } else {
+            // Numeric Array
+            return new ArrayCellEditor(ArrayCellEditor.DEFAULT_SEPARATOR, ICellEditor.CE_NUMERIC, intOnly);
+        }
     }
 
     /** One choice among the given values, or several of them when the cell holds many. */

@@ -233,28 +233,7 @@ class TableViewer {
 
             var bstyle = new BorderStyle(borderWidth, style, rgb);
 
-            switch (borderWidth) {
-                case 0 -> { /* No border */ }
-                case 1 -> {
-                    if (cmTop == null) {
-                        cmBottom.setBorderStyle(bstyle, ICellStyle.TOP);
-                    } else {
-                        cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
-                    }
-                }
-                case 2 -> {
-                    if (cmTop == null) {
-                        cmBottom.setBorderStyle(bstyle, ICellStyle.TOP);
-                    } else if (cmBottom == null) {
-                        cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
-                    } else {
-                        bstyle.setWidth(1);
-                        cmBottom.setBorderStyle(bstyle, ICellStyle.TOP);
-                        cmTop.setBorderStyle(bstyle, ICellStyle.BOTTOM);
-                    }
-                }
-                default -> { /* getBorderStyle gives no border wider than 2 */ }
-            }
+            setBorder(borderWidth, bstyle, cmTop, ICellStyle.BOTTOM, cmBottom, ICellStyle.TOP);
         }
 
     }
@@ -284,30 +263,46 @@ class TableViewer {
 
             var bstyle = new BorderStyle(borderWidth, style, rgb);
 
-            switch (borderWidth) {
-                case 0 -> { /* No border */ }
-                case 1 -> {
-                    if (cmLeft == null) {
-                        cmRight.setBorderStyle(bstyle, ICellStyle.LEFT);
-                    } else {
-                        cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
-                    }
-                }
-                case 2 -> {
-                    if (cmLeft == null) {
-                        cmRight.setBorderStyle(bstyle, ICellStyle.LEFT);
-                    } else if (cmRight == null) {
-                        cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
-                    } else {
-                        bstyle.setWidth(1);
-                        cmRight.setBorderStyle(bstyle, ICellStyle.LEFT);
-                        cmLeft.setBorderStyle(bstyle, ICellStyle.RIGHT);
-                    }
-                }
-                default -> { /* getBorderStyle gives no border wider than 2 */ }
-            }
+            setBorder(borderWidth, bstyle, cmLeft, ICellStyle.RIGHT, cmRight, ICellStyle.LEFT);
         }
 
+    }
+
+    /**
+     * Sets the border between two adjacent cells: the first one is above or on the left, the second one is below or
+     * on the right, and at least one of them is present. Each side is the side of its cell facing the other cell.
+     * <p>
+     * A single border goes to the first cell if it is present, otherwise to the second one. A double border goes to
+     * the only present cell; when both cells are present, each of them gets a single border.
+     */
+    private static void setBorder(int borderWidth,
+                                  BorderStyle bstyle,
+                                  CellModel first,
+                                  int firstSide,
+                                  CellModel second,
+                                  int secondSide) {
+        switch (borderWidth) {
+            case 0 -> { /* No border */ }
+            case 1 -> {
+                if (first == null) {
+                    second.setBorderStyle(bstyle, secondSide);
+                } else {
+                    first.setBorderStyle(bstyle, firstSide);
+                }
+            }
+            case 2 -> {
+                if (first == null) {
+                    second.setBorderStyle(bstyle, secondSide);
+                } else if (second == null) {
+                    first.setBorderStyle(bstyle, firstSide);
+                } else {
+                    bstyle.setWidth(1);
+                    second.setBorderStyle(bstyle, secondSide);
+                    first.setBorderStyle(bstyle, firstSide);
+                }
+            }
+            default -> { /* getBorderStyle gives no border wider than 2 */ }
+        }
     }
 
     String style(BorderStyle bs1, BorderStyle bs2) {

@@ -49,39 +49,26 @@ public final class XlsDataFormatterFactory {
 
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class)) {
-                formatter = getNumberFormatter(cell);
                 // Numeric Array
-                if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(formatter, Number.class);
-                }
+                formatter = forEachValue(getNumberFormatter(cell), Number.class, cellMetaInfo);
 
                 // Date
             } else if (ClassUtils.isAssignable(instanceClass, Date.class) || ClassUtils.isAssignable(instanceClass,
                     LocalDateTime.class) || ClassUtils.isAssignable(instanceClass, LocalDate.class) || ClassUtils
                     .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
                     ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
-                formatter = getDateFormatter(cell);
-                if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(formatter, instanceClass);
-                }
+                formatter = forEachValue(getDateFormatter(cell), instanceClass, cellMetaInfo);
                 // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
-                var booleanFormatter = new BooleanFormatter();
-                formatter = cellMetaInfo.isMultiValue() ? new ArrayFormatter(booleanFormatter, Boolean.class) : booleanFormatter;
+                formatter = forEachValue(new BooleanFormatter(), Boolean.class, cellMetaInfo);
 
                 // Enum
             } else if (instanceClass.isEnum()) {
-                formatter = new EnumFormatter(instanceClass);
                 // Enum Array
-                if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(formatter, instanceClass);
-                }
+                formatter = forEachValue(new EnumFormatter(instanceClass), instanceClass, cellMetaInfo);
 
             } else {
-                formatter = new DefaultFormatter();
-                if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(formatter, String.class);
-                }
+                formatter = forEachValue(new DefaultFormatter(), String.class, cellMetaInfo);
             }
 
             // Formula
@@ -91,6 +78,13 @@ public final class XlsDataFormatterFactory {
         }
 
         return formatter;
+    }
+
+    /**
+     * Applies the formatter of one value to each element of the array when the cell holds several values.
+     */
+    private static IFormatter forEachValue(IFormatter formatter, Class<?> elementType, CellMetaInfo cellMetaInfo) {
+        return cellMetaInfo.isMultiValue() ? new ArrayFormatter(formatter, elementType) : formatter;
     }
 
     private static IFormatter getNumberFormatter(ICell cell) {
