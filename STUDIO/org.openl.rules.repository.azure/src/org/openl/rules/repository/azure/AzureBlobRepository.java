@@ -130,21 +130,11 @@ public class AzureBlobRepository implements Repository {
             var commit = findCommit(path, null);
             if (commit != null) {
                 // Get sub-folders inside the project.
-                var subFolders = new HashSet<Path>();
                 List<FileInfo> files = commit.getFiles();
                 if (files == null) {
                     return folders;
                 }
-                for (FileInfo file : files) {
-                    Path filePath = fromNormalizedPath(file.getPath());
-                    if (filePath.startsWith(parentFolder)) {
-                        var subFolder = parentFolder.relativize(filePath).getName(0);
-                        if (!subFolders.contains(subFolder)) {
-                            folders.add(createFileData(normalizePath(parentFolder.resolve(subFolder)), commit));
-                            subFolders.add(subFolder);
-                        }
-                    }
-                }
+                addSubFolders(folders, parentFolder, files, commit);
             } else {
                 // Get folders outside of projects (folders containing projects).
                 var options = new ListBlobsOptions();
@@ -160,6 +150,20 @@ public class AzureBlobRepository implements Repository {
             return folders;
         } catch (Exception e) {
             throw new IOException(e);
+        }
+    }
+
+    private void addSubFolders(List<FileData> folders, Path parentFolder, List<FileInfo> files, AzureCommit commit) {
+        var subFolders = new HashSet<Path>();
+        for (FileInfo file : files) {
+            Path filePath = fromNormalizedPath(file.getPath());
+            if (filePath.startsWith(parentFolder)) {
+                var subFolder = parentFolder.relativize(filePath).getName(0);
+                if (!subFolders.contains(subFolder)) {
+                    folders.add(createFileData(normalizePath(parentFolder.resolve(subFolder)), commit));
+                    subFolders.add(subFolder);
+                }
+            }
         }
     }
 
@@ -192,32 +196,7 @@ public class AzureBlobRepository implements Repository {
                     commitFiles.add(fileInfo);
                 }
             } else {
-                var baseVersion = folderData.getVersion();
-                var baseCommit = getCommit(folderData.getName(), baseVersion);
-                if (baseCommit != null && baseCommit.getFiles() != null) {
-                    commitFiles.addAll(baseCommit.getFiles());
-                }
-
-                for (FileItem file : files) {
-                    final var stream = file.getStream();
-                    final var filePath = file.getData().getName();
-                    if (stream == null) {
-                        commitFiles.removeIf(f -> f.getPath().equals(filePath));
-                    } else {
-                        var response = saveFile(file);
-                        var revision = response.getValue().getVersionId();
-
-                        final Optional<FileInfo> existingFile = commitFiles.stream().filter(f -> f.getPath().equals(filePath)).findAny();
-                        if (existingFile.isPresent()) {
-                            existingFile.get().setRevision(revision);
-                        } else {
-                            final var fileInfo = new FileInfo();
-                            fileInfo.setPath(filePath);
-                            fileInfo.setRevision(revision);
-                            commitFiles.add(fileInfo);
-                        }
-                    }
-                }
+                addChangedFiles(folderData, files, commitFiles);
             }
 
             var commit = new AzureCommit();
@@ -237,6 +216,43 @@ public class AzureBlobRepository implements Repository {
         }
 
         return fileData;
+    }
+
+    /**
+     * Adds the files of the base version with the changes applied: a file without content is removed, and every other
+     * file is saved and replaces the base one.
+     */
+    private void addChangedFiles(FileData folderData,
+                                 Iterable<FileItem> files,
+                                 List<FileInfo> commitFiles) throws IOException {
+        var baseVersion = folderData.getVersion();
+        var baseCommit = getCommit(folderData.getName(), baseVersion);
+        if (baseCommit != null && baseCommit.getFiles() != null) {
+            commitFiles.addAll(baseCommit.getFiles());
+        }
+
+        for (FileItem file : files) {
+            final var stream = file.getStream();
+            final var filePath = file.getData().getName();
+            if (stream == null) {
+                commitFiles.removeIf(f -> f.getPath().equals(filePath));
+            } else {
+                var response = saveFile(file);
+                var revision = response.getValue().getVersionId();
+
+                final Optional<FileInfo> existingFile = commitFiles.stream()
+                        .filter(f -> f.getPath().equals(filePath))
+                        .findAny();
+                if (existingFile.isPresent()) {
+                    existingFile.get().setRevision(revision);
+                } else {
+                    final var fileInfo = new FileInfo();
+                    fileInfo.setPath(filePath);
+                    fileInfo.setRevision(revision);
+                    commitFiles.add(fileInfo);
+                }
+            }
+        }
     }
 
     @Override
@@ -448,25 +464,14 @@ public class AzureBlobRepository implements Repository {
                     return false;
                 }
 
-                List<FileInfo> foundFiles = null;
-                final var listIterator = history.listIterator(history.size());
-                while (listIterator.hasPrevious()) {
-                    final var fileData = listIterator.previous();
-                    if (!fileData.isDeleted()) {
-                        final var oldCommit = getCommit(path, fileData.getVersion());
-                        if (oldCommit != null) {
-                            foundFiles = oldCommit.getFiles();
-                            break;
-                        }
-                    }
-                }
+                var foundFiles = findLastExistingFiles(path, history);
 
-                if (foundFiles != null) {
+                if (foundFiles.isPresent()) {
                     var commit = new AzureCommit();
                     commit.setAuthor(data.getAuthor().getUsername());
                     commit.setComment(data.getComment());
                     commit.setModifiedAt(new Date());
-                    commit.setFiles(foundFiles);
+                    commit.setFiles(foundFiles.get());
                     saveCommit(commit, path);
                 } else {
                     return false;
@@ -480,6 +485,25 @@ public class AzureBlobRepository implements Repository {
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    /**
+     * Finds the files of the latest version that is not deleted and has a commit.
+     *
+     * @return the files of that version, or empty if there is no such version or its commit lists no files
+     */
+    private Optional<List<FileInfo>> findLastExistingFiles(String path, List<FileData> history) {
+        final var listIterator = history.listIterator(history.size());
+        while (listIterator.hasPrevious()) {
+            final var fileData = listIterator.previous();
+            if (!fileData.isDeleted()) {
+                final var oldCommit = getCommit(path, fileData.getVersion());
+                if (oldCommit != null) {
+                    return Optional.ofNullable(oldCommit.getFiles());
+                }
+            }
+        }
+        return Optional.empty();
     }
 
 
