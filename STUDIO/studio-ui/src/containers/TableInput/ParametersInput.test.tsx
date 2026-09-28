@@ -106,6 +106,20 @@ describe('ParametersInput', () => {
         expect(parsed(onChange)).toEqual({ params: { limit: 7 } })
     })
 
+    it('keeps what is typed when the table is read again and described in the same words', async () => {
+        // Ticking "Within Current Module Only" reads the table again, and the answer is a list of its own
+        // every time. Described the same way, it is the same table, and what the reader typed stays.
+        const onChange = vi.fn()
+        const { rerender } = render(<ParametersInput onChange={onChange} parameters={parameters} />)
+
+        await userEvent.click(screen.getByTestId('edit-age'))
+        await userEvent.type(screen.getByTestId('input-age'), '42{enter}')
+
+        rerender(<ParametersInput onChange={onChange} parameters={structuredClone(parameters)} />)
+
+        expect(parsed(onChange)).toEqual({ params: { age: 42, policy: {} } })
+    })
+
     it('keeps what is typed when the same parameters are described by another translation', async () => {
         const onChange = vi.fn()
         const shown = () => (
