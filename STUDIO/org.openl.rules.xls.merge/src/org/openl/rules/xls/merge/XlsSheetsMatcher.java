@@ -15,6 +15,7 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -140,51 +141,57 @@ public class XlsSheetsMatcher {
                         picture1.getShapeName());
                 return false;
             }
+            if (!equalPictureData(baseCursor, picture1, picture2)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-            var pictureData1 = picture1.getPictureData();
-            var pictureData2 = picture2.getPictureData();
+    private static boolean equalPictureData(Cursor baseCursor, XSSFPicture picture1, XSSFPicture picture2) {
+        var pictureData1 = picture1.getPictureData();
+        var pictureData2 = picture2.getPictureData();
 
-            var pictureType1 = pictureData1.getPictureType();
-            var pictureType2 = pictureData2.getPictureType();
-            if (pictureType1 != pictureType2) {
-                log.debug("Base '{}' sheet, picture '{}' PictureType={}, but another PictureType={}",
+        var pictureType1 = pictureData1.getPictureType();
+        var pictureType2 = pictureData2.getPictureType();
+        if (pictureType1 != pictureType2) {
+            log.debug("Base '{}' sheet, picture '{}' PictureType={}, but another PictureType={}",
+                    baseCursor.sheet.getSheetName(),
+                    picture1.getShapeName(),
+                    pictureType1,
+                    pictureType2);
+            return false;
+        }
+        var mimeType1 = pictureData1.getMimeType();
+        var mimeType2 = pictureData2.getMimeType();
+        if (!mimeType1.equals(mimeType2)) {
+            log.debug("Base '{}' sheet, picture '{}' MimeType={}, but another MimeType={}",
+                    baseCursor.sheet.getSheetName(),
+                    picture1.getShapeName(),
+                    mimeType1,
+                    mimeType2);
+            return false;
+        }
+        var data1 = pictureData1.getData();
+        var data2 = pictureData2.getData();
+        if (data1.length != data2.length) {
+            log.debug("Base '{}' sheet, picture '{}' data.length={}, but another data.length={}",
+                    baseCursor.sheet.getSheetName(),
+                    picture1.getShapeName(),
+                    data1.length,
+                    data2.length);
+            return false;
+        }
+        for (var i = 0; i < data1.length; i++) {
+            if (data1[i] != data2[i]) {
+                log.debug("Base '{}' sheet, picture '{}' data[{}]={}, but another data.[{}]={}",
                         baseCursor.sheet.getSheetName(),
                         picture1.getShapeName(),
-                        pictureType1,
-                        pictureType2);
+                        i,
+                        data1[i],
+                        i,
+                        data2[i]);
                 return false;
-            }
-            var mimeType1 = pictureData1.getMimeType();
-            var mimeType2 = pictureData2.getMimeType();
-            if (!mimeType1.equals(mimeType2)) {
-                log.debug("Base '{}' sheet, picture '{}' MimeType={}, but another MimeType={}",
-                        baseCursor.sheet.getSheetName(),
-                        picture1.getShapeName(),
-                        mimeType1,
-                        mimeType2);
-                return false;
-            }
-            var data1 = pictureData1.getData();
-            var data2 = pictureData2.getData();
-            if (data1.length != data2.length) {
-                log.debug("Base '{}' sheet, picture '{}' data.length={}, but another data.length={}",
-                        baseCursor.sheet.getSheetName(),
-                        picture1.getShapeName(),
-                        data1.length,
-                        data2.length);
-                return false;
-            }
-            for (var i = 0; i < data1.length; i++) {
-                if (data1[i] != data2[i]) {
-                    log.debug("Base '{}' sheet, picture '{}' data[{}]={}, but another data.[{}]={}",
-                            baseCursor.sheet.getSheetName(),
-                            picture1.getShapeName(),
-                            i,
-                            data1[i],
-                            i,
-                            data2[i]);
-                    return false;
-                }
             }
         }
         return true;
@@ -280,6 +287,30 @@ public class XlsSheetsMatcher {
             return false;
         }
 
+        if (!equalValueInCell(baseCursor, cursor)) {
+            return false;
+        }
+
+        baseCursor.comment = baseCursor.cell.getCellComment();
+        cursor.comment = cursor.cell.getCellComment();
+        if (!equalCommentInCell(baseCursor, cursor)) {
+            log.debug("Base sheet={}&cell={} cell comment doesn't equal to another",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress());
+            return false;
+        }
+
+        baseCursor.cellStyle = baseCursor.cell.getCellStyle();
+        cursor.cellStyle = cursor.cell.getCellStyle();
+        return equalStylesInCell(baseCursor, cursor);
+    }
+
+    /**
+     * Compares the values of two cells of the same type.
+     *
+     * @throws IllegalStateException if the cell type is not supported
+     */
+    private static boolean equalValueInCell(Cursor baseCursor, Cursor cursor) {
         final var baseCellType = baseCursor.cell.getCellType();
         switch (baseCellType) {
             case BLANK, STRING, ERROR -> {
@@ -303,35 +334,7 @@ public class XlsSheetsMatcher {
                 }
             }
             case NUMERIC -> {
-                if (DateUtil.isCellDateFormatted(baseCursor.cell)) {
-                    if (!DateUtil.isCellDateFormatted(cursor.cell)) {
-                        log.debug("Base sheet={}&cell={} cell is date formatted, but another cell is not",
-                                baseCursor.sheet.getSheetName(),
-                                baseCursor.cell.getAddress());
-                        return false;
-                    }
-                    var date1 = baseCursor.cell.getDateCellValue();
-                    var date2 = cursor.cell.getDateCellValue();
-                    if (!date1.equals(date2)) {
-                        log.debug("Base sheet={}&cell={} date content='{}', but second date content='{}'",
-                                baseCursor.sheet.getSheetName(),
-                                baseCursor.cell.getAddress(),
-                                date1,
-                                date2);
-                        return false;
-                    }
-                } else {
-                    var num1 = baseCursor.cell.getNumericCellValue();
-                    var num2 = cursor.cell.getNumericCellValue();
-                    if (num1 != num2) {
-                        log.debug("Base sheet={}&cell={} numeric content='{}', but second numeric content='{}'",
-                                baseCursor.sheet.getSheetName(),
-                                baseCursor.cell.getAddress(),
-                                num1,
-                                num2);
-                        return false;
-                    }
-                }
+                return equalNumericValueInCell(baseCursor, cursor);
             }
             case FORMULA -> {
                 // Trim leading/trailing spaces from formulas
@@ -351,19 +354,40 @@ public class XlsSheetsMatcher {
             }
             default -> throw new IllegalStateException("Unexpected cell type: " + baseCellType);
         }
+        return true;
+    }
 
-        baseCursor.comment = baseCursor.cell.getCellComment();
-        cursor.comment = cursor.cell.getCellComment();
-        if (!equalCommentInCell(baseCursor, cursor)) {
-            log.debug("Base sheet={}&cell={} cell comment doesn't equal to another",
-                    baseCursor.sheet.getSheetName(),
-                    baseCursor.cell.getAddress());
-            return false;
+    private static boolean equalNumericValueInCell(Cursor baseCursor, Cursor cursor) {
+        if (DateUtil.isCellDateFormatted(baseCursor.cell)) {
+            if (!DateUtil.isCellDateFormatted(cursor.cell)) {
+                log.debug("Base sheet={}&cell={} cell is date formatted, but another cell is not",
+                        baseCursor.sheet.getSheetName(),
+                        baseCursor.cell.getAddress());
+                return false;
+            }
+            var date1 = baseCursor.cell.getDateCellValue();
+            var date2 = cursor.cell.getDateCellValue();
+            if (!date1.equals(date2)) {
+                log.debug("Base sheet={}&cell={} date content='{}', but second date content='{}'",
+                        baseCursor.sheet.getSheetName(),
+                        baseCursor.cell.getAddress(),
+                        date1,
+                        date2);
+                return false;
+            }
+        } else {
+            var num1 = baseCursor.cell.getNumericCellValue();
+            var num2 = cursor.cell.getNumericCellValue();
+            if (num1 != num2) {
+                log.debug("Base sheet={}&cell={} numeric content='{}', but second numeric content='{}'",
+                        baseCursor.sheet.getSheetName(),
+                        baseCursor.cell.getAddress(),
+                        num1,
+                        num2);
+                return false;
+            }
         }
-
-        baseCursor.cellStyle = baseCursor.cell.getCellStyle();
-        cursor.cellStyle = cursor.cell.getCellStyle();
-        return equalStylesInCell(baseCursor, cursor);
+        return true;
     }
 
     /**
@@ -767,95 +791,106 @@ public class XlsSheetsMatcher {
         }
 
         if (baseCursor.cellStyle instanceof XSSFCellStyle baseCellStyle) {
-            var cellStyle = (XSSFCellStyle) cursor.cellStyle;
-
-            var bottomBorderColor1 = baseCellStyle.getBottomBorderXSSFColor();
-            var bottomBorderColor2 = cellStyle.getBottomBorderXSSFColor();
-            if (!equalColor(bottomBorderColor1, bottomBorderColor2)) {
-                log.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        toARGBHex(bottomBorderColor1),
-                        toARGBHex(bottomBorderColor2));
-                return false;
-            }
-
-            var leftBorderColor1 = baseCellStyle.getLeftBorderXSSFColor();
-            var leftBorderColor2 = cellStyle.getLeftBorderXSSFColor();
-            if (!equalColor(leftBorderColor1, leftBorderColor2)) {
-                log.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        toARGBHex(leftBorderColor1),
-                        toARGBHex(leftBorderColor2));
-                return false;
-            }
-
-            var topBorderColor1 = baseCellStyle.getTopBorderXSSFColor();
-            var topBorderColor2 = cellStyle.getTopBorderXSSFColor();
-            if (!equalColor(topBorderColor1, topBorderColor2)) {
-                log.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        toARGBHex(topBorderColor1),
-                        toARGBHex(topBorderColor2));
-                return false;
-            }
-
-            var rightBorderColor1 = baseCellStyle.getRightBorderXSSFColor();
-            var rightBorderColor2 = cellStyle.getRightBorderXSSFColor();
-            if (!equalColor(rightBorderColor1, rightBorderColor2)) {
-                log.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        toARGBHex(rightBorderColor1),
-                        toARGBHex(rightBorderColor2));
-                return false;
-            }
+            return equalXSSFBorderColorInCell(baseCursor, cursor, baseCellStyle);
         } else {
-            short bottomBorderColor1 = baseCursor.cellStyle.getBottomBorderColor();
-            short bottomBorderColor2 = cursor.cellStyle.getBottomBorderColor();
-            if (bottomBorderColor1 != bottomBorderColor2) {
-                log.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        bottomBorderColor1,
-                        bottomBorderColor2);
-                return false;
-            }
+            return equalBorderColorInCell(baseCursor, cursor);
+        }
+    }
 
-            short leftBorderColor1 = baseCursor.cellStyle.getLeftBorderColor();
-            short leftBorderColor2 = cursor.cellStyle.getLeftBorderColor();
-            if (leftBorderColor1 != leftBorderColor2) {
-                log.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        leftBorderColor1,
-                        leftBorderColor2);
-                return false;
-            }
+    private static boolean equalXSSFBorderColorInCell(Cursor baseCursor,
+                                                      Cursor cursor,
+                                                      XSSFCellStyle baseCellStyle) {
+        var cellStyle = (XSSFCellStyle) cursor.cellStyle;
 
-            short topBorderColor1 = baseCursor.cellStyle.getTopBorderColor();
-            short topBorderColor2 = cursor.cellStyle.getTopBorderColor();
-            if (topBorderColor1 != topBorderColor2) {
-                log.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        topBorderColor1,
-                        topBorderColor2);
-                return false;
-            }
+        var bottomBorderColor1 = baseCellStyle.getBottomBorderXSSFColor();
+        var bottomBorderColor2 = cellStyle.getBottomBorderXSSFColor();
+        if (!equalColor(bottomBorderColor1, bottomBorderColor2)) {
+            log.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    toARGBHex(bottomBorderColor1),
+                    toARGBHex(bottomBorderColor2));
+            return false;
+        }
 
-            short rightBorderColor1 = baseCursor.cellStyle.getRightBorderColor();
-            short rightBorderColor2 = cursor.cellStyle.getRightBorderColor();
-            if (rightBorderColor1 != rightBorderColor2) {
-                log.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
-                        baseCursor.sheet.getSheetName(),
-                        baseCursor.cell.getAddress(),
-                        rightBorderColor1,
-                        rightBorderColor2);
-                return false;
-            }
+        var leftBorderColor1 = baseCellStyle.getLeftBorderXSSFColor();
+        var leftBorderColor2 = cellStyle.getLeftBorderXSSFColor();
+        if (!equalColor(leftBorderColor1, leftBorderColor2)) {
+            log.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    toARGBHex(leftBorderColor1),
+                    toARGBHex(leftBorderColor2));
+            return false;
+        }
+
+        var topBorderColor1 = baseCellStyle.getTopBorderXSSFColor();
+        var topBorderColor2 = cellStyle.getTopBorderXSSFColor();
+        if (!equalColor(topBorderColor1, topBorderColor2)) {
+            log.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    toARGBHex(topBorderColor1),
+                    toARGBHex(topBorderColor2));
+            return false;
+        }
+
+        var rightBorderColor1 = baseCellStyle.getRightBorderXSSFColor();
+        var rightBorderColor2 = cellStyle.getRightBorderXSSFColor();
+        if (!equalColor(rightBorderColor1, rightBorderColor2)) {
+            log.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    toARGBHex(rightBorderColor1),
+                    toARGBHex(rightBorderColor2));
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean equalBorderColorInCell(Cursor baseCursor, Cursor cursor) {
+        short bottomBorderColor1 = baseCursor.cellStyle.getBottomBorderColor();
+        short bottomBorderColor2 = cursor.cellStyle.getBottomBorderColor();
+        if (bottomBorderColor1 != bottomBorderColor2) {
+            log.debug("Base sheet={}&cell={} BottomBorderColor='{}', but second BottomBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    bottomBorderColor1,
+                    bottomBorderColor2);
+            return false;
+        }
+
+        short leftBorderColor1 = baseCursor.cellStyle.getLeftBorderColor();
+        short leftBorderColor2 = cursor.cellStyle.getLeftBorderColor();
+        if (leftBorderColor1 != leftBorderColor2) {
+            log.debug("Base sheet={}&cell={} LeftBorderColor='{}', but second LeftBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    leftBorderColor1,
+                    leftBorderColor2);
+            return false;
+        }
+
+        short topBorderColor1 = baseCursor.cellStyle.getTopBorderColor();
+        short topBorderColor2 = cursor.cellStyle.getTopBorderColor();
+        if (topBorderColor1 != topBorderColor2) {
+            log.debug("Base sheet={}&cell={} TopBorderColor='{}', but second TopBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    topBorderColor1,
+                    topBorderColor2);
+            return false;
+        }
+
+        short rightBorderColor1 = baseCursor.cellStyle.getRightBorderColor();
+        short rightBorderColor2 = cursor.cellStyle.getRightBorderColor();
+        if (rightBorderColor1 != rightBorderColor2) {
+            log.debug("Base sheet={}&cell={} RightBorderColor='{}', but second RightBorderColor='{}'",
+                    baseCursor.sheet.getSheetName(),
+                    baseCursor.cell.getAddress(),
+                    rightBorderColor1,
+                    rightBorderColor2);
+            return false;
         }
         return true;
     }
@@ -968,7 +1003,21 @@ public class XlsSheetsMatcher {
         if (cell.getCellComment() != null) {
             return false;
         }
-        var cellStyle = cell.getCellStyle();
+        if (!isDefaultStyle(cell.getCellStyle())) {
+            return false;
+        }
+        for (CellRangeAddress range : cell.getSheet().getMergedRegions()) {
+            if (range.isInRange(cell)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether the cell style has the default format, alignment, rotation, borders, colors and fill.
+     */
+    private static boolean isDefaultStyle(CellStyle cellStyle) {
         if (!BuiltinFormats.getBuiltinFormat(0).equals(cellStyle.getDataFormatString())) {
             return false;
         }
@@ -996,54 +1045,51 @@ public class XlsSheetsMatcher {
         if (cellStyle.getBorderRight() != BorderStyle.NONE) {
             return false;
         }
-        if (cellStyle instanceof XSSFCellStyle xssfCellStyle) {
-            if (!isNullOrEmpty(xssfCellStyle.getBottomBorderXSSFColor())) {
-                return false;
-            }
-            if (!isNullOrEmpty(xssfCellStyle.getLeftBorderXSSFColor())) {
-                return false;
-            }
-            if (!isNullOrEmpty(xssfCellStyle.getTopBorderXSSFColor())) {
-                return false;
-            }
-            if (!isNullOrEmpty(xssfCellStyle.getRightBorderXSSFColor())) {
-                return false;
-            }
-            if (!isNullOrEmpty(xssfCellStyle.getFillBackgroundXSSFColor())) {
-                return false;
-            }
-            if (!isNullOrEmpty(xssfCellStyle.getFillForegroundXSSFColor())) {
-                return false;
-            }
-        } else {
-            if (cellStyle.getBottomBorderColor() != 0) {
-                return false;
-            }
-            if (cellStyle.getLeftBorderColor() != 0) {
-                return false;
-            }
-            if (cellStyle.getTopBorderColor() != 0) {
-                return false;
-            }
-            if (cellStyle.getRightBorderColor() != 0) {
-                return false;
-            }
-            if (cellStyle.getFillBackgroundColor() != 0) {
-                return false;
-            }
-            if (cellStyle.getFillForegroundColor() != 0) {
-                return false;
-            }
-        }
-        if (cellStyle.getFillPattern() != FillPatternType.NO_FILL) {
+        if (!hasDefaultColors(cellStyle)) {
             return false;
         }
-        for (CellRangeAddress range : cell.getSheet().getMergedRegions()) {
-            if (range.isInRange(cell)) {
-                return false;
-            }
+        return cellStyle.getFillPattern() == FillPatternType.NO_FILL;
+    }
+
+    private static boolean hasDefaultColors(CellStyle cellStyle) {
+        if (cellStyle instanceof XSSFCellStyle xssfCellStyle) {
+            return hasDefaultXSSFColors(xssfCellStyle);
         }
-        return true;
+        if (cellStyle.getBottomBorderColor() != 0) {
+            return false;
+        }
+        if (cellStyle.getLeftBorderColor() != 0) {
+            return false;
+        }
+        if (cellStyle.getTopBorderColor() != 0) {
+            return false;
+        }
+        if (cellStyle.getRightBorderColor() != 0) {
+            return false;
+        }
+        if (cellStyle.getFillBackgroundColor() != 0) {
+            return false;
+        }
+        return cellStyle.getFillForegroundColor() == 0;
+    }
+
+    private static boolean hasDefaultXSSFColors(XSSFCellStyle xssfCellStyle) {
+        if (!isNullOrEmpty(xssfCellStyle.getBottomBorderXSSFColor())) {
+            return false;
+        }
+        if (!isNullOrEmpty(xssfCellStyle.getLeftBorderXSSFColor())) {
+            return false;
+        }
+        if (!isNullOrEmpty(xssfCellStyle.getTopBorderXSSFColor())) {
+            return false;
+        }
+        if (!isNullOrEmpty(xssfCellStyle.getRightBorderXSSFColor())) {
+            return false;
+        }
+        if (!isNullOrEmpty(xssfCellStyle.getFillBackgroundXSSFColor())) {
+            return false;
+        }
+        return isNullOrEmpty(xssfCellStyle.getFillForegroundXSSFColor());
     }
 
     private static boolean equalColor(XSSFColor color1, XSSFColor color2) {

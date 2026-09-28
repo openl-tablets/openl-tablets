@@ -110,13 +110,7 @@ public class XlsWorkbookMerger implements Closeable {
                 }
                 diffDecision = DiffStatus.CONFLICT;
             } else {
-                if (ourMatchRes == XlsMatch.EQUAL) {
-                    diffDecision = DiffStatus.THEIR;
-                } else if (theirMatchRes == null || theirMatchRes == XlsMatch.EQUAL) {
-                    diffDecision = DiffStatus.OUR;
-                } else {
-                    diffDecision = DiffStatus.CONFLICT;
-                }
+                diffDecision = chooseChangedSide(ourMatchRes, theirMatchRes);
             }
             log.debug("{} resolution is chosen for '{}' sheet", diffDecision.name(), sheetName);
             diffResult.computeIfAbsent(diffDecision, initGroupValue).add(sheetName);
@@ -155,13 +149,7 @@ public class XlsWorkbookMerger implements Closeable {
                 }
                 diffDecision = DiffStatus.CONFLICT;
             } else {
-                if (ourMatchRes == XlsMatch.EQUAL) {
-                    diffDecision = DiffStatus.THEIR;
-                } else if (theirMatchRes == null || theirMatchRes == XlsMatch.EQUAL) {
-                    diffDecision = DiffStatus.OUR;
-                } else {
-                    diffDecision = DiffStatus.CONFLICT;
-                }
+                diffDecision = chooseChangedSide(ourMatchRes, theirMatchRes);
             }
             diffResult.computeIfAbsent(diffDecision, k -> new HashSet<>()).add(cIdx);
         }
@@ -173,6 +161,20 @@ public class XlsWorkbookMerger implements Closeable {
         }
 
         return new HSSFPaletteDiffResult(diffResult, theirToBase);
+    }
+
+    /**
+     * Chooses the revision to take for an item that is not changed the same way in both revisions: their revision when
+     * ours is unchanged, our revision when theirs is absent or unchanged, and a conflict otherwise.
+     */
+    private static DiffStatus chooseChangedSide(XlsMatch ourMatchRes, XlsMatch theirMatchRes) {
+        if (ourMatchRes == XlsMatch.EQUAL) {
+            return DiffStatus.THEIR;
+        } else if (theirMatchRes == null || theirMatchRes == XlsMatch.EQUAL) {
+            return DiffStatus.OUR;
+        } else {
+            return DiffStatus.CONFLICT;
+        }
     }
 
     private static HSSFWorkbook toHSSFBook(StreamWorkbook workbook) {
@@ -235,22 +237,31 @@ public class XlsWorkbookMerger implements Closeable {
                 }
             }
             if (paletteDifResult.hasChangesToMerge()) {
-                var ourHssfBook = (HSSFWorkbook) ourBook.unwrap();
-                var ourPalette = ourHssfBook.getCustomPalette();
-                var theirHssfBook = (HSSFWorkbook) theirBook.unwrap();
-                var theirPalette = theirHssfBook.getCustomPalette();
-
-                for (short i = FIRST_COLOR_INDEX; i < LAST_COLOR_INDEX; i++) {
-                    var theirMatchResult = paletteDifResult.getTheirMatchResult(i);
-                    if (theirMatchResult == XlsMatch.UPDATED || theirMatchResult == XlsMatch.CREATED) {
-                        var theirColor = theirPalette.getColor(i);
-                        var rgb = theirColor.getTriplet();
-                        ourPalette.setColorAtIndex(i, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
-                    }
-                }
+                mergePalette(ourBook, theirBook, paletteDifResult);
             }
 
             ourBook.write(output);
+        }
+    }
+
+    /**
+     * Copies the palette colors updated or created in their workbook to our workbook.
+     */
+    private static void mergePalette(StreamWorkbook ourBook,
+                                     StreamWorkbook theirBook,
+                                     HSSFPaletteDiffResult paletteDifResult) {
+        var ourHssfBook = (HSSFWorkbook) ourBook.unwrap();
+        var ourPalette = ourHssfBook.getCustomPalette();
+        var theirHssfBook = (HSSFWorkbook) theirBook.unwrap();
+        var theirPalette = theirHssfBook.getCustomPalette();
+
+        for (short i = FIRST_COLOR_INDEX; i < LAST_COLOR_INDEX; i++) {
+            var theirMatchResult = paletteDifResult.getTheirMatchResult(i);
+            if (theirMatchResult == XlsMatch.UPDATED || theirMatchResult == XlsMatch.CREATED) {
+                var theirColor = theirPalette.getColor(i);
+                var rgb = theirColor.getTriplet();
+                ourPalette.setColorAtIndex(i, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+            }
         }
     }
 

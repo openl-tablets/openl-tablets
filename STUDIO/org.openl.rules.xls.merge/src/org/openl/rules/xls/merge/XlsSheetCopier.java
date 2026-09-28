@@ -21,6 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTBlip;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTBlipFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTAbsoluteAnchor;
@@ -265,11 +266,7 @@ public final class XlsSheetCopier {
         var destDrawing = (XSSFDrawing) dest.sheet.getDrawingPatriarch();
         if (srcDrawing == null) {
             if (destDrawing != null) {
-                for (Shape shape : destDrawing.getShapes()) {
-                    if (shape instanceof XSSFPicture picture) {
-                        deletePicture(picture);
-                    }
-                }
+                deletePictures(destDrawing);
             }
             return;
         }
@@ -289,23 +286,42 @@ public final class XlsSheetCopier {
             }
         } else {
             var pictures2 = pictureGroup.apply(destDrawing);
-            for (Map.Entry<String, XSSFPicture> entry : pictures1.entrySet()) {
-                src.picture = entry.getValue();
-                var destPic = pictures2.get(entry.getKey());
-                if (destPic != null) {
-                    try (var os = destPic.getPictureData().getPackagePart().getOutputStream()) {
-                        os.write(src.picture.getPictureData().getData());
-                    }
-                } else {
-                    createPicture(src, dest);
-                }
-                src.picture = null;
-            }
+            replacePictures(src, dest, pictures1, pictures2);
+        }
+    }
 
-            for (Map.Entry<String, XSSFPicture> entry : pictures2.entrySet()) {
-                if (pictures1.get(entry.getKey()) == null) {
-                    deletePicture(entry.getValue());
+    private static void deletePictures(XSSFDrawing drawing) {
+        for (Shape shape : drawing.getShapes()) {
+            if (shape instanceof XSSFPicture picture) {
+                deletePicture(picture);
+            }
+        }
+    }
+
+    /**
+     * Makes the destination pictures match the source ones: rewrites the data of the pictures present in both, creates
+     * the missing ones and deletes the pictures the source does not have.
+     */
+    private static void replacePictures(Cursor src,
+                                        Cursor dest,
+                                        Map<String, XSSFPicture> pictures1,
+                                        Map<String, XSSFPicture> pictures2) throws IOException {
+        for (Map.Entry<String, XSSFPicture> entry : pictures1.entrySet()) {
+            src.picture = entry.getValue();
+            var destPic = pictures2.get(entry.getKey());
+            if (destPic != null) {
+                try (var os = destPic.getPictureData().getPackagePart().getOutputStream()) {
+                    os.write(src.picture.getPictureData().getData());
                 }
+            } else {
+                createPicture(src, dest);
+            }
+            src.picture = null;
+        }
+
+        for (Map.Entry<String, XSSFPicture> entry : pictures2.entrySet()) {
+            if (pictures1.get(entry.getKey()) == null) {
+                deletePicture(entry.getValue());
             }
         }
     }
@@ -332,34 +348,36 @@ public final class XlsSheetCopier {
         try (var cursor = picture.getCTPicture().newCursor()) {
             cursor.toParent();
             if (cursor.getObject() instanceof CTTwoCellAnchor) {
-                var i = 0;
-                for (CTTwoCellAnchor anchor : drawing.getCTDrawing().getTwoCellAnchorArray()) {
-                    if (cursor.getObject().equals(anchor)) {
-                        drawing.getCTDrawing().removeTwoCellAnchor(i);
-                        break;
-                    }
-                    i++;
+                var i = indexOf(drawing.getCTDrawing().getTwoCellAnchorArray(), cursor.getObject());
+                if (i >= 0) {
+                    drawing.getCTDrawing().removeTwoCellAnchor(i);
                 }
             } else if (cursor.getObject() instanceof CTOneCellAnchor) {
-                var i = 0;
-                for (CTOneCellAnchor anchor : drawing.getCTDrawing().getOneCellAnchorArray()) {
-                    if (cursor.getObject().equals(anchor)) {
-                        drawing.getCTDrawing().removeOneCellAnchor(i);
-                        break;
-                    }
-                    i++;
+                var i = indexOf(drawing.getCTDrawing().getOneCellAnchorArray(), cursor.getObject());
+                if (i >= 0) {
+                    drawing.getCTDrawing().removeOneCellAnchor(i);
                 }
             } else if (cursor.getObject() instanceof CTAbsoluteAnchor) {
-                var i = 0;
-                for (CTAbsoluteAnchor anchor : drawing.getCTDrawing().getAbsoluteAnchorArray()) {
-                    if (cursor.getObject().equals(anchor)) {
-                        drawing.getCTDrawing().removeAbsoluteAnchor(i);
-                        break;
-                    }
-                    i++;
+                var i = indexOf(drawing.getCTDrawing().getAbsoluteAnchorArray(), cursor.getObject());
+                if (i >= 0) {
+                    drawing.getCTDrawing().removeAbsoluteAnchor(i);
                 }
             }
         }
+    }
+
+    /**
+     * Finds the position of the anchor among the anchors of a drawing.
+     *
+     * @return the index of the anchor, or {@code -1} if the drawing does not hold it
+     */
+    private static int indexOf(XmlObject[] anchors, XmlObject anchor) {
+        for (var i = 0; i < anchors.length; i++) {
+            if (anchor.equals(anchors[i])) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
