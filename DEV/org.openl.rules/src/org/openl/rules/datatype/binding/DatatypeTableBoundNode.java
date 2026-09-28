@@ -507,17 +507,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     getterMethod.getName(),
                     datatypeClassName);
             BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-        } else if (instance != null && fieldEntry.getValue().getDefaultValue() != null) {
-            if (isDefaultValueMismatch(getterMethod, fieldEntry.getValue(), instance)) {
-                String errorMessage = """
-                        The default value for the '%s' field in the '%s' class \
-                        mismatches the default value used in the '%s' datatype. \
-                        Update the class so that it is compatible with the datatype.""".formatted(
-                        fieldEntry.getKey(),
-                        datatypeClassName,
-                        dataType.getName());
-                BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
-            }
+        } else if (instance != null && fieldEntry.getValue().getDefaultValue() != null
+                && isDefaultValueMismatch(getterMethod, fieldEntry.getValue(), instance)) {
+            String errorMessage = """
+                    The default value for the '%s' field in the '%s' class \
+                    mismatches the default value used in the '%s' datatype. \
+                    Update the class so that it is compatible with the datatype.""".formatted(
+                    fieldEntry.getKey(),
+                    datatypeClassName,
+                    dataType.getName());
+            BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
         }
     }
 
