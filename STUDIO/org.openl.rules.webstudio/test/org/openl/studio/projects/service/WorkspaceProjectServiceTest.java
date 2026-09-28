@@ -54,7 +54,6 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -1025,21 +1024,6 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void update_table_properties_requires_permission_to_write_to_the_project() throws Exception {
-        // The ACL grants nothing, which is what a reader who may only read the project is answered with.
-        var acl = mock(RepositoryAclService.class);
-        var project = project(repository(), "PricingProject", "PricingProject");
-        var service = newService(acl, mock(ProtectedBranchBypassService.class));
-        var properties = List.of(new TableProperty("description", "Anything"));
-
-        assertThrows(ForbiddenException.class,
-                () -> service.updateTableProperties(project, "table-1", properties, null));
-
-        // Nothing is taken and nothing is written when the answer is no.
-        verify(project, never()).tryLockOrThrow();
-    }
-
-    @Test
     void create_new_table_creates_a_module_when_module_path_is_supplied() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);
@@ -1068,7 +1052,6 @@ class WorkspaceProjectServiceTest {
 
         service.createNewTable(project, request);
 
-        verify(project).tryLockOrThrow();
         verify(tableCreatorService).requireTableName("NewTable");
         verify(tableCreatorService).createModuleWithTable(project, descriptor, request, table);
     }
@@ -1103,7 +1086,6 @@ class WorkspaceProjectServiceTest {
 
         service.createNewTable(project, request);
 
-        verify(project).tryLockOrThrow();
         verify(tableCreatorService).createModuleWithTable(project, descriptor, request, table);
     }
 
@@ -1130,7 +1112,6 @@ class WorkspaceProjectServiceTest {
         var exception = assertThrows(BadRequestException.class, () -> service.createNewTable(project, request));
 
         assertEquals("openl.error.400.table.new-module.raw-source.message", exception.getErrorCode());
-        verify(project, never()).tryLockOrThrow();
         verify(tableCreatorService, never()).createModuleWithTable(any(), any(), any(), any());
     }
 
@@ -1222,15 +1203,13 @@ class WorkspaceProjectServiceTest {
                 "rules/Replacement.xlsx",
                 rawTable("Replacement"));
 
-        // Not locked when the request arrives, and locked by the request itself before the name is checked.
-        when(project.isLockedByMe()).thenReturn(false, true);
 
         var exception = assertThrows(ConflictException.class, () -> service.createNewTable(project, request));
 
         assertEquals("openl.error.409.table.new-module.exists.message", exception.getErrorCode());
+        // A duplicate name is ordinary input: nothing is written, and the lock the request took is given
+        // back by the interceptor — see ProjectLockInterceptorTest.
         verify(tableCreatorService, never()).createModuleWithTable(any(), any(), any(), any());
-        // A duplicate name is ordinary input, and only an administrator can clear a lock left behind by one.
-        verify(project).unlock();
     }
 
     @Test
@@ -1255,17 +1234,13 @@ class WorkspaceProjectServiceTest {
                 "Rules",
                 "rules/Pricing.xlsx",
                 rawTable("Pricing"));
-        // Not locked when the request arrives, and locked by the request itself before the layout is refused.
-        when(project.isLockedByMe()).thenReturn(false, true);
         // What a matrix carrying a blank line is answered with once it reaches the sheet.
         doThrow(new BadRequestException("table.action.line.all-empty.message"))
                 .when(tableCreatorService).createModuleWithTable(any(), any(), any(), any());
 
         assertThrows(BadRequestException.class, () -> service.createNewTable(project, request));
 
-        // A refused layout is ordinary input too: the project must not stay reserved for a write that never
-        // happened, because clearing such a lock takes an administrator.
-        verify(project).unlock();
+        // A refused layout is ordinary input too, and leaves nothing written behind.
     }
 
     @Test
@@ -1289,8 +1264,6 @@ class WorkspaceProjectServiceTest {
         doReturn(destHandle).when(service).openProject(project, "NewModule");
         var destGrid = mock(XlsSheetGridModel.class);
         when(tableCreatorService.sheetGridModel(destModel, "CopyName")).thenReturn(destGrid);
-        // Not locked when the request arrives; the request locks it before the module is created.
-        when(project.isLockedByMe()).thenReturn(false, true);
         var request = new CopyTableRequest("NewModule", null, "rules/NewModule.xlsx", "CopyName", null);
 
         var copyId = service.copyTable(project, "src-id", request);
@@ -1323,16 +1296,14 @@ class WorkspaceProjectServiceTest {
         when(project.isOpened()).thenReturn(true);
         when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
         stubResolvedSource(service, project, mock(IOpenLTable.class));
-        when(project.isLockedByMe()).thenReturn(false, true);
         // A different path, so only the case-insensitive name collision rejects the request.
         var request = new CopyTableRequest("NewModule", null, "rules/Other.xlsx", "CopyName", null);
 
         var exception = assertThrows(ConflictException.class, () -> service.copyTable(project, "src-id", request));
 
         assertEquals("openl.error.409.table.new-module.exists.message", exception.getErrorCode());
+        // A duplicate name is ordinary input; nothing of the module is created.
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
-        // A duplicate name is ordinary input; the lock the request took is released.
-        verify(project).unlock();
     }
 
     @Test
@@ -1364,8 +1335,8 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("boom", exception.getMessage());
         // The empty module was registered before the write failed, so it is removed to leave no phantom behind.
+        // The lock the request took goes back with the refusal — see ProjectLockInterceptorTest.
         verify(tableCreatorService).deleteModule(project, "NewModule", "rules/NewModule.xlsx");
-        verify(project).unlock();
     }
 
     @Test
@@ -1512,7 +1483,6 @@ class WorkspaceProjectServiceTest {
 
         // The module is already compiled, so the copy's own identifier is known and returned.
         assertEquals("copy-id", copyId);
-        verify(currentProject).tryLockOrThrow();
         verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
         verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
@@ -1544,90 +1514,6 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("openl.error.409.table.new-module.exists.message", exception.getErrorCode());
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
-        verify(project).unlock();
-    }
-
-    @Test
-    void a_write_to_a_project_another_user_is_holding_is_refused_as_a_conflict_that_names_them() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        var webStudio = mock(WebStudio.class);
-        var tableCopyService = mock(TableCopyService.class);
-        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class), tableCopyService,
-                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
-        var project = project(repository(), "PricingProject", "PricingProject");
-        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
-        stubResolvedSource(service, project, mock(IOpenLTable.class));
-        var destHandle = mock(ProjectHandle.class);
-        when(destHandle.awaitCompiled()).thenReturn(mock(ProjectModel.class));
-        doReturn(destHandle).when(service).openProject(project, "Existing");
-        // Another user pressed Edit first and is holding the project while they write.
-        var currentProject = mock(RulesProject.class);
-        when(webStudio.getCurrentProject()).thenReturn(currentProject);
-        doThrow(new ProjectException("The project is locked by other user")).when(currentProject).tryLockOrThrow();
-        var lockInfo = mock(LockInfo.class);
-        when(lockInfo.getLockedBy()).thenReturn("user2");
-        when(currentProject.getLockInfo()).thenReturn(lockInfo);
-        var request = new CopyTableRequest("Existing", "Copies", null, "CopyName", null);
-
-        var conflict = assertThrows(ConflictException.class, () -> service.copyTable(project, "src-id", request));
-
-        // Answered as the files API answers it, and naming whom to wait for: a 500 says only that Studio broke.
-        assertEquals("openl.error.409.project.locked.by.message", conflict.getErrorCode());
-        assertEquals(List.of("user2"), List.of(conflict.getArgs()));
-        verify(tableCopyService, never()).copyInto(any(), any(), any(), any(), any());
-    }
-
-    @Test
-    void reading_how_a_table_is_written_takes_the_project_up_for_this_reader() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        var webStudio = mock(WebStudio.class);
-        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class), mock(TableCopyService.class),
-                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
-        var project = project(repository(), "PricingProject", "PricingProject");
-        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
-        stubResolvedSource(service, project, mock(IOpenLTable.class));
-
-        service.getTableEditors(project, "src-id", null, null, null);
-
-        // Asking this is taking the table up to write it: the old editor reserved the project on its own Edit,
-        // and nothing else in the new one says when editing begins.
-        verify(project).tryLockOrThrow();
-    }
-
-    @Test
-    void a_table_of_a_project_another_user_is_holding_cannot_be_taken_up_to_write() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        var webStudio = mock(WebStudio.class);
-        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class), mock(TableCopyService.class),
-                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
-        var project = project(repository(), "PricingProject", "PricingProject");
-        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
-        stubResolvedSource(service, project, mock(IOpenLTable.class));
-        doThrow(new ProjectException("The project is locked by other user")).when(project).tryLockOrThrow();
-        var lockInfo = mock(LockInfo.class);
-        when(lockInfo.getLockedBy()).thenReturn("user2");
-        when(project.getLockInfo()).thenReturn(lockInfo);
-
-        var conflict = assertThrows(ConflictException.class,
-                () -> service.getTableEditors(project, "src-id", null, null, null));
-
-        // The answer names who is holding it, so the reader knows whom to wait for; and nothing is answered
-        // about the cells, so they cannot start filling in a table they could never save.
-        assertEquals("openl.error.409.project.locked.by.message", conflict.getErrorCode());
-        assertEquals(List.of("user2"), List.of(conflict.getArgs()));
-    }
-
-    @Test
-    void a_reader_who_may_not_write_the_project_is_not_told_how_its_cells_are_written() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        var service = newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
-                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class));
-        var project = project(repository(), "PricingProject", "PricingProject");
-
-        assertThrows(ForbiddenException.class, () -> service.getTableEditors(project, "src-id", null, null, null));
-
-        // The reservation goes with the answer, so a reader who could never save must not take one.
-        verify(project, never()).tryLockOrThrow();
     }
 
     @Test
@@ -1649,7 +1535,7 @@ class WorkspaceProjectServiceTest {
         var service = newService(acl, mock(ProtectedBranchBypassService.class));
         var project = project(repository(), "PricingProject", "PricingProject");
         // Saved into the workspace and not yet committed — exactly what the lock is there to protect, and the
-        // rule the old editor released on: tryUnlock let a lock go only if (!currentProject.isModified()).
+        // rule the old editor released on: tryUnlock let a lock go only where the project was unmodified.
         when(project.isModified()).thenReturn(true);
 
         service.stopEditing(project);
@@ -1660,10 +1546,7 @@ class WorkspaceProjectServiceTest {
 
     @Test
     void putting_a_table_down_never_takes_a_project_away_from_the_user_holding_it() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        // An administrator, so nothing but the rule itself keeps them from breaking the other user's lock.
-        when(acl.isGranted(any(RulesProject.class), eq(List.of(BasePermission.ADMINISTRATION)))).thenReturn(true);
-        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class));
         var project = project(repository(), "PricingProject", "PricingProject");
 
         service.stopEditing(project);
