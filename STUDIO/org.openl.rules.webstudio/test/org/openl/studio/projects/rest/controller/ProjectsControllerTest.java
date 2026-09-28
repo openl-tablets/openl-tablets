@@ -311,6 +311,22 @@ class ProjectsControllerTest {
     }
 
     @Test
+    void puttingATableDownNeitherBreaksALockNorResetsTheSession() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+
+        controller.stopEditingTable(project, "table-1");
+
+        // The editor closes on every table the reader leaves, including one it was refused a moment ago. That
+        // must reach neither the lock of the user holding the project nor the session's compiled state.
+        verify(projectService).stopEditing(project);
+        verify(projectService, never()).unlockProject(project);
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
     void changingTheProjectItselfStillResetsTheSession() {
         var projectService = mock(WorkspaceProjectService.class);
         var webStudio = mock(WebStudio.class);
@@ -319,9 +335,11 @@ class ProjectsControllerTest {
 
         controller.unlockProject(project);
 
+        verify(projectService).unlockProject(project);
         verify(webStudio).reset();
         verify(webStudio, never()).recompileCurrentModule();
     }
+
 
     private static ProjectsController controller(WorkspaceProjectService projectService, WebStudio webStudio) {
         return new ProjectsController(

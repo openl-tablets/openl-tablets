@@ -1,0 +1,19 @@
+POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NzI0/tables/6caef41978986ed75f6665deb2c91e73/actions/batch HTTP/1.1
+Authorization: ${WRITER_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 5,
+        "column": 3,
+        "value": "900"
+      }
+    }
+  ]
+}
+

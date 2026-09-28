@@ -10211,8 +10211,8 @@ Content-Type: application/json
         ]
       }
     },
-    "/projects/{projectId}/migrate": {
-      "post": {
+    "/projects/{projectId}/messages/{messageId}/stacktrace": {
+      "get": {
         "description": "***",
         "operationId": "***",
         "parameters": [
@@ -10227,21 +10227,32 @@ Content-Type: application/json
           },
           {
             "description": "***",
-            "in": "query",
-            "name": "scope",
+            "in": "path",
+            "name": "messageId",
             "required": true,
             "schema": {
-              "type": "string",
-              "description": "***",
-              "enum": [
-                "rulesXml",
-                "rulesDeploy"
-              ]
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
-          "204": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "description": "***"
           },
           "400": {
@@ -10311,8 +10322,8 @@ Content-Type: application/json
         ]
       }
     },
-    "/projects/{projectId}/messages/{messageId}/stacktrace": {
-      "get": {
+    "/projects/{projectId}/migrate": {
+      "post": {
         "description": "***",
         "operationId": "***",
         "parameters": [
@@ -10327,32 +10338,21 @@ Content-Type: application/json
           },
           {
             "description": "***",
-            "in": "path",
-            "name": "messageId",
+            "in": "query",
+            "name": "scope",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "module",
-            "schema": {
-              "type": "string"
+              "type": "string",
+              "description": "***",
+              "enum": [
+                "rulesXml",
+                "rulesDeploy"
+              ]
             }
           }
         ],
         "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
+          "204": {
             "description": "***"
           },
           "400": {
@@ -12422,7 +12422,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -12577,7 +12577,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "When `true`, the answer also says whether the table can be run as it stands and how far a run of it may reach: `can-run`, `can-run-module` while only the open module is built or what is built beyond it has errors, or `cannot-run` for a table that failed to compile and for a test whose rules failed. Working it out reads what the compiler said about the table, so it is answered only when asked for.",
+            "description": "***",
             "in": "query",
             "name": "runState",
             "schema": {
@@ -12695,7 +12695,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -12836,7 +12836,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -12955,8 +12955,8 @@ Content-Type: application/json
     },
     "/projects/{projectId}/tables/{tableId}/actions/batch": {
       "post": {
-        "description": "Apply a sequence of edits to the raw source of the table in the currently opened project as one change, so a whole editing session is sent in a single request. The edits are applied in the order they are given and each one addresses the table as the previous one left it: a row inserted or deleted earlier shifts the coordinates of everything that follows. The table is written once, after the last edit; an edit that is refused ends the sequence and nothing of it reaches the table. Each edit takes the same shape as the single-edit request. If the table had no room to grow and was relocated, its ID changes and the new ID is returned in the response body together with the new table URL in the `Location` header.",
-        "operationId": "editTableSourceBatch",
+        "description": "***",
+        "operationId": "***",
         "parameters": [
           {
             "description": "***",
@@ -12968,7 +12968,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Table ID.",
+            "description": "***",
             "in": "path",
             "name": "tableId",
             "required": true,
@@ -12977,7 +12977,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -12985,7 +12985,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "description": "***",
             "in": "query",
             "name": "fields",
             "required": false,
@@ -13013,10 +13013,10 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Edit applied and the table relocated. The response body carries the new table ID and the `Location` header points to the table under its new ID.",
+            "description": "***",
             "headers": {
               "Location": {
-                "description": "URL of the table under its new ID, returned when the table was relocated and its ID changed.",
+                "description": "***",
                 "schema": {
                   "type": "string"
                 },
@@ -13025,7 +13025,7 @@ Content-Type: application/json
             }
           },
           "204": {
-            "description": "Edit applied without changing the table ID."
+            "description": "***"
           },
           "400": {
             "content": {
@@ -13035,7 +13035,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Bad Request"
+            "description": "***"
           },
           "403": {
             "content": {
@@ -13045,7 +13045,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Forbidden"
+            "description": "***"
           },
           "404": {
             "content": {
@@ -13055,7 +13055,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Not Found"
+            "description": "***"
           },
           "409": {
             "content": {
@@ -13065,7 +13065,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Conflict"
+            "description": "***"
           },
           "423": {
             "content": {
@@ -13075,7 +13075,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Locked"
+            "description": "***"
           },
           "500": {
             "content": {
@@ -13085,10 +13085,10 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Internal Server Error"
+            "description": "***"
           }
         },
-        "summary": "Edit project table source in one change",
+        "summary": "***",
         "tags": [
           "Projects (BETA)"
         ]
@@ -13335,9 +13335,9 @@ Content-Type: application/json
       }
     },
     "/projects/{projectId}/tables/{tableId}/editors": {
-      "get": {
-        "description": "Read the ways of entering a value the cells of the table ask for: the values a cell is chosen from, the bounds a number is entered within, how the entries of an array are written, how a range is entered. A screen editing a table reads this once, for the same window of rows it read the table as, and needs nothing more while the user edits. The ways of entering a value are listed once and pointed at by index, because a whole column usually asks for the same one. A cell that is not listed is written as plain text, which a screen can tell from the value itself.",
-        "operationId": "getTableEditors",
+      "delete": {
+        "description": "***",
+        "operationId": "***",
         "parameters": [
           {
             "description": "***",
@@ -13349,7 +13349,100 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Table ID.",
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      },
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
             "in": "path",
             "name": "tableId",
             "required": true,
@@ -13358,7 +13451,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Zero-based index of the first row of the raw view; omit to start at the top. Combine with `maxRows` to read a large table in slices. A window never cuts a merged cell in two: asked for from inside one, it opens on that cell's first row instead.",
+            "description": "***",
             "in": "query",
             "name": "startRow",
             "schema": {
@@ -13368,7 +13461,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "How many rows the raw view holds, counted from the row it opens on; omit to read to the end. The window runs past this count where it would otherwise cut a merged cell, so read the next slice from the end of this one rather than from `startRow` plus `maxRows`. When the window omits rows, the response carries `totalRows`.",
+            "description": "***",
             "in": "query",
             "name": "maxRows",
             "schema": {
@@ -13378,7 +13471,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -13386,7 +13479,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "description": "***",
             "in": "query",
             "name": "fields",
             "required": false,
@@ -13404,7 +13497,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "default response"
+            "description": "***"
           },
           "400": {
             "content": {
@@ -13414,7 +13507,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Bad Request"
+            "description": "***"
           },
           "403": {
             "content": {
@@ -13424,7 +13517,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Forbidden"
+            "description": "***"
           },
           "404": {
             "content": {
@@ -13434,7 +13527,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Not Found"
+            "description": "***"
           },
           "409": {
             "content": {
@@ -13444,7 +13537,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Conflict"
+            "description": "***"
           },
           "423": {
             "content": {
@@ -13454,7 +13547,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Locked"
+            "description": "***"
           },
           "500": {
             "content": {
@@ -13464,10 +13557,10 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Internal Server Error"
+            "description": "***"
           }
         },
-        "summary": "Get how a project table's cells are written",
+        "summary": "***",
         "tags": [
           "Projects (BETA)"
         ]
@@ -14043,7 +14136,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -14271,8 +14364,8 @@ Content-Type: application/json
         ]
       },
       "patch": {
-        "description": "Write properties onto the table of the currently opened project without sending its body. Only the properties named in the request are touched: one carrying a value is written, one carrying no value is removed, and a property the table declares that the request does not name is left as it stands. A removed property that the module or the category also defines applies again from there. A date value is read from ISO-8601; every other value is read the way the Table Details editor writes it. A property the kind of table does not accept is rejected, unless the table already carries it and the request is taking it away. If the table had no room to grow and was relocated, its ID changes and the new ID is returned in the response body together with the new table URL in the `Location` header.",
-        "operationId": "updateTableProperties",
+        "description": "***",
+        "operationId": "***",
         "parameters": [
           {
             "description": "***",
@@ -14284,7 +14377,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Table ID.",
+            "description": "***",
             "in": "path",
             "name": "tableId",
             "required": true,
@@ -14293,7 +14386,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -14301,7 +14394,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "description": "***",
             "in": "query",
             "name": "fields",
             "required": false,
@@ -14329,10 +14422,10 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Properties written and the table relocated. The response body carries the new table ID and the `Location` header points to the table under its new ID.",
+            "description": "***",
             "headers": {
               "Location": {
-                "description": "URL of the table under its new ID, returned when the table was relocated and its ID changed.",
+                "description": "***",
                 "schema": {
                   "type": "string"
                 },
@@ -14341,7 +14434,7 @@ Content-Type: application/json
             }
           },
           "204": {
-            "description": "Properties written without changing the table ID."
+            "description": "***"
           },
           "400": {
             "content": {
@@ -14351,7 +14444,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Bad Request"
+            "description": "***"
           },
           "403": {
             "content": {
@@ -14361,7 +14454,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Forbidden"
+            "description": "***"
           },
           "404": {
             "content": {
@@ -14371,7 +14464,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Not Found"
+            "description": "***"
           },
           "409": {
             "content": {
@@ -14381,7 +14474,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Conflict"
+            "description": "***"
           },
           "423": {
             "content": {
@@ -14391,7 +14484,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Locked"
+            "description": "***"
           },
           "500": {
             "content": {
@@ -14401,10 +14494,10 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Internal Server Error"
+            "description": "***"
           }
         },
-        "summary": "Update project table properties",
+        "summary": "***",
         "tags": [
           "Projects (BETA)"
         ]
@@ -14412,8 +14505,8 @@ Content-Type: application/json
     },
     "/projects/{projectId}/tables/{tableId}/targets": {
       "get": {
-        "description": "The tables the given test or run table exercises, each named by the id the Tables API addresses it by and by where it lives, since a test may be written against a table of another module or of a project this one depends on. A table written in several versions is tested in all of them at once, and each version is answered under the name that tells it from the others. Any other kind of table exercises nothing and is answered with an empty list.",
-        "operationId": "getTableTargets",
+        "description": "***",
+        "operationId": "***",
         "parameters": [
           {
             "description": "***",
@@ -14425,7 +14518,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Table ID.",
+            "description": "***",
             "in": "path",
             "name": "tableId",
             "required": true,
@@ -14434,7 +14527,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "description": "***",
             "in": "query",
             "name": "module",
             "schema": {
@@ -14442,7 +14535,7 @@ Content-Type: application/json
             }
           },
           {
-            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "description": "***",
             "in": "query",
             "name": "fields",
             "required": false,
@@ -14463,7 +14556,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "default response"
+            "description": "***"
           },
           "400": {
             "content": {
@@ -14473,7 +14566,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Bad Request"
+            "description": "***"
           },
           "403": {
             "content": {
@@ -14483,7 +14576,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Forbidden"
+            "description": "***"
           },
           "404": {
             "content": {
@@ -14493,7 +14586,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Not Found"
+            "description": "***"
           },
           "409": {
             "content": {
@@ -14503,7 +14596,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Conflict"
+            "description": "***"
           },
           "423": {
             "content": {
@@ -14513,7 +14606,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Locked"
+            "description": "***"
           },
           "500": {
             "content": {
@@ -14523,10 +14616,10 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Internal Server Error"
+            "description": "***"
           }
         },
-        "summary": "Get the tables a test exercises (BETA)",
+        "summary": "***",
         "tags": [
           "Projects (BETA)"
         ]
@@ -22814,7 +22907,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -23025,7 +23118,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -23343,7 +23436,7 @@ Content-Type: application/json
             "properties": {
               "areas": {
                 "type": "array",
-                "description": "Parts of the table whose every cell asks for one of the editors",
+                "description": "***",
                 "items": {
                   "$ref": "#/components/schemas/TableAreaEditorRef"
                 }
@@ -23351,7 +23444,7 @@ Content-Type: application/json
             }
           }
         ],
-        "description": "The editors the parts of a table declare, and the cells that ask for another"
+        "description": "***"
       },
       "Delete": {
         "type": "object",
@@ -24530,7 +24623,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -25555,7 +25648,7 @@ Content-Type: application/json
           },
           "canMerge": {
             "type": "boolean",
-            "description": "Whether another branch can be merged into the one the project sits on. A project carrying changes that are not saved yet cannot take a merge"
+            "description": "***"
           },
           "canOpen": {
             "type": "boolean",
@@ -25620,7 +25713,7 @@ Content-Type: application/json
           },
           "canMerge": {
             "type": "boolean",
-            "description": "Whether another branch can be merged into the one the project sits on. A project carrying changes that are not saved yet cannot take a merge"
+            "description": "***"
           },
           "canOpen": {
             "type": "boolean",
@@ -25685,7 +25778,7 @@ Content-Type: application/json
           },
           "canMerge": {
             "type": "boolean",
-            "description": "Whether another branch can be merged into the one the project sits on. A project carrying changes that are not saved yet cannot take a merge"
+            "description": "***"
           },
           "canOpen": {
             "type": "boolean",
@@ -26794,11 +26887,11 @@ Content-Type: application/json
       },
       "RawCellStyleInput": {
         "type": "object",
-        "description": "Styling to set on the cells: background, font and alignment. An attribute that is left out is not touched, so the cells keep the styling they already carry.",
+        "description": "***",
         "properties": {
           "align": {
             "type": "string",
-            "description": "Horizontal alignment; `left` puts the cells back to the default alignment.",
+            "description": "***",
             "enum": [
               "left",
               "right",
@@ -26808,32 +26901,32 @@ Content-Type: application/json
           },
           "background": {
             "type": "string",
-            "description": "Background colour as #rrggbb.",
+            "description": "***",
             "pattern": "^#[0-9a-fA-F]{6}$"
           },
           "bold": {
             "type": "boolean",
-            "description": "Whether the font is bold."
+            "description": "***"
           },
           "color": {
             "type": "string",
-            "description": "Font colour as #rrggbb.",
+            "description": "***",
             "pattern": "^#[0-9a-fA-F]{6}$"
           },
           "indent": {
             "type": "integer",
             "format": "int32",
-            "description": "Left indent in Excel indent units; 0 takes the indent away.",
+            "description": "***",
             "maximum": 15,
             "minimum": 0
           },
           "italic": {
             "type": "boolean",
-            "description": "Whether the font is italic."
+            "description": "***"
           },
           "underline": {
             "type": "boolean",
-            "description": "Whether the font is underlined."
+            "description": "***"
           }
         }
       },
@@ -26874,15 +26967,15 @@ Content-Type: application/json
             "description": "***",
             "readOnly": true
           },
-          "comment": {
-            "type": "string",
-            "description": "***",
-            "readOnly": true
-          },
           "colspan": {
             "type": "integer",
             "format": "int32",
             "description": "***"
+          },
+          "comment": {
+            "type": "string",
+            "description": "***",
+            "readOnly": true
           },
           "covered": {
             "type": "boolean",
@@ -27090,7 +27183,7 @@ Content-Type: application/json
             "$ref": "#/components/schemas/TableEditorsView"
           }
         ],
-        "description": "The editors the cells of a table hold, told one cell at a time"
+        "description": "***"
       },
       "RawTableSourceAction": {
         "type": "object",
@@ -27144,7 +27237,7 @@ Content-Type: application/json
         "properties": {
           "actions": {
             "type": "array",
-            "description": "Edits to apply, in order. Each one addresses the table as the previous one left it, so an insert or a delete shifts the coordinates of everything that follows.",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/RawTableSourceAction"
             },
@@ -27197,9 +27290,9 @@ Content-Type: application/json
                 ]
               },
               "layout": {
-            "$ref": "#/components/schemas/TableLayout"
-          },
-          "messages": {
+                "$ref": "#/components/schemas/TableLayout"
+              },
+              "messages": {
                 "type": "array",
                 "description": "***",
                 "items": {
@@ -27223,7 +27316,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -27932,7 +28025,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -28037,7 +28130,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -28187,7 +28280,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -28417,7 +28510,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -28536,7 +28629,7 @@ Content-Type: application/json
             }
           }
         ],
-        "description": "Sets the styling of a rectangular range of cells.",
+        "description": "***",
         "required": [
           "target"
         ]
@@ -28553,25 +28646,25 @@ Content-Type: application/json
               "colspan": {
                 "type": "integer",
                 "format": "int32",
-                "description": "Number of columns the range spans (>= 1).",
+                "description": "***",
                 "minimum": 1
               },
               "column": {
                 "type": "integer",
                 "format": "int32",
-                "description": "0-based column index of the top-left cell (0..width-1).",
+                "description": "***",
                 "minimum": 0
               },
               "row": {
                 "type": "integer",
                 "format": "int32",
-                "description": "0-based row index of the top-left cell (0..height-1).",
+                "description": "***",
                 "minimum": 0
               },
               "rowspan": {
                 "type": "integer",
                 "format": "int32",
-                "description": "Number of rows the range spans (>= 1).",
+                "description": "***",
                 "minimum": 1
               },
               "style": {
@@ -28580,7 +28673,7 @@ Content-Type: application/json
             }
           }
         ],
-        "description": "Sets the styling of every cell of a rectangular range. The range must stay within the table; a single cell is a range of one row by one column.",
+        "description": "***",
         "required": [
           "colspan",
           "column",
@@ -28699,7 +28792,7 @@ Content-Type: application/json
           },
           "runState": {
             "type": "string",
-            "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+            "description": "***",
             "enum": [
               "can-run",
               "can-run-module",
@@ -28744,103 +28837,103 @@ Content-Type: application/json
       },
       "TableAreaEditorRef": {
         "type": "object",
-        "description": "A part of the table and the editor its cells ask for",
+        "description": "***",
         "properties": {
           "column": {
             "type": "integer",
             "format": "int32",
-            "description": "0-based first column of the part in the matrix the raw read returns"
+            "description": "***"
           },
           "columns": {
             "type": "integer",
             "format": "int32",
-            "description": "How many columns the part covers; null where it covers the rest of the table and every column laid down after it"
+            "description": "***"
           },
           "editor": {
             "type": "integer",
             "format": "int32",
-            "description": "0-based index into `editors`"
+            "description": "***"
           },
           "row": {
             "type": "integer",
             "format": "int32",
-            "description": "0-based first row of the part in the matrix the raw read returns"
+            "description": "***"
           },
           "rows": {
             "type": "integer",
             "format": "int32",
-            "description": "How many rows the part covers; null where it covers the rest of the table and every row laid down after it"
+            "description": "***"
           }
         }
       },
       "TableCellEditorRef": {
         "type": "object",
-        "description": "A cell and the editor it asks for",
+        "description": "***",
         "properties": {
           "column": {
             "type": "integer",
             "format": "int32",
-            "description": "0-based column of the cell in the matrix the raw read returns"
+            "description": "***"
           },
           "editor": {
             "type": "integer",
             "format": "int32",
-            "description": "0-based index into `editors`"
+            "description": "***"
           },
           "row": {
             "type": "integer",
             "format": "int32",
-            "description": "0-based row of the cell in the matrix the raw read returns"
+            "description": "***"
           }
         }
       },
       "TableCellEditorView": {
         "type": "object",
-        "description": "One way of entering a value, with what that way of entering it needs",
+        "description": "***",
         "properties": {
           "choices": {
             "type": "array",
-            "description": "Values to choose from; carried by 'combo' and 'multiselect'",
+            "description": "***",
             "items": {
               "type": "string",
-              "description": "Values to choose from; carried by 'combo' and 'multiselect'"
+              "description": "***"
             }
           },
           "displayValues": {
             "type": "array",
-            "description": "What to show for each choice, in the order of `choices`",
+            "description": "***",
             "items": {
               "type": "string",
-              "description": "What to show for each choice, in the order of `choices`"
+              "description": "***"
             }
           },
           "editor": {
             "type": "string",
-            "description": "Kind of editor: 'combo', 'multiselect', 'numeric', 'array', 'range', 'date' or 'boolean'."
+            "description": "***"
           },
           "entryEditor": {
             "type": "string",
-            "description": "Editor one entry is written with; carried by 'array' and 'range'"
+            "description": "***"
           },
           "intOnly": {
             "type": "boolean",
-            "description": "true when only whole numbers are accepted; carried by 'numeric' and 'array'"
+            "description": "***"
           },
           "max": {
             "type": "number",
-            "description": "Largest value the cell's type holds; carried by 'numeric'"
+            "description": "***"
           },
           "min": {
             "type": "number",
-            "description": "Smallest value the cell's type holds; carried by 'numeric'"
+            "description": "***"
           },
           "separator": {
             "type": "string",
-            "description": "What separates the chosen values in the cell; carried by 'multiselect' and 'array'"
+            "description": "***"
           },
           "separatorEscaper": {
             "type": "string",
-            "description": "What precedes a separator that belongs to a value; carried by 'multiselect'"
+            "description": "***"
           }
         }
       },
@@ -28849,14 +28942,14 @@ Content-Type: application/json
         "properties": {
           "available": {
             "type": "array",
-            "description": "Names of the properties that may still be written on the table: the ones its kind accepts, less the ones it already carries or inherits. A value already shown is changed where it stands, which writes it onto the table.",
+            "description": "***",
             "items": {
               "type": "string"
             }
           },
           "canEditProperties": {
             "type": "boolean",
-            "description": "Whether properties may be written on this table. A table that carries no properties at all — the environment, a properties table, whatever OpenL could not name — accepts none."
+            "description": "***"
           },
           "groups": {
             "type": "array",
@@ -28895,7 +28988,7 @@ Content-Type: application/json
       },
       "TableEditorsView": {
         "type": "object",
-        "description": "The ways of entering a value a table's cells ask for",
+        "description": "***",
         "discriminator": {
           "mapping": {
             "declared": "#/components/schemas/DeclaredTableEditorsView",
@@ -28914,21 +29007,21 @@ Content-Type: application/json
         "properties": {
           "cells": {
             "type": "array",
-            "description": "Cells asking for an editor of their own; a cell that is absent takes the editor of the part of the table it stands in, or plain text where no part holds it",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/TableCellEditorRef"
             }
           },
           "editors": {
             "type": "array",
-            "description": "Ways of entering a value this table needs, pointed at by index from `cells` and `areas`",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/TableCellEditorView"
             }
           },
           "kind": {
             "type": "string",
-            "description": "How the table answers: 'raw' as the cells it holds, 'declared' by the parts it declares",
+            "description": "***",
             "enum": [
               "raw",
               "declared"
@@ -29196,7 +29289,7 @@ Content-Type: application/json
         "properties": {
           "properties": {
             "type": "array",
-            "description": "Properties to write. A property with no value is removed from the table; one the table declares and this list does not name is left as it stands.",
+            "description": "***",
             "items": {
               "$ref": "#/components/schemas/TableProperty"
             }
@@ -29312,27 +29405,27 @@ Content-Type: application/json
       },
       "TableTargetView": {
         "type": "object",
-        "description": "A table that a test or run table exercises",
+        "description": "***",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Identifier of the tested table, the one the Tables API addresses it by"
+            "description": "***"
           },
           "module": {
             "type": "string",
-            "description": "Module the tested table is written in, which need not be the one being read"
+            "description": "***"
           },
           "name": {
             "type": "string",
-            "description": "Name the tested table is known by, with the dimension properties that tell this version of it from the others"
+            "description": "***"
           },
           "project": {
             "type": "string",
-            "description": "Name of the project the tested table belongs to"
+            "description": "***"
           },
           "projectId": {
             "type": "string",
-            "description": "Identifier of that project, as the Projects API addresses it"
+            "description": "***"
           }
         }
       },
@@ -29823,7 +29916,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",
@@ -30845,7 +30938,7 @@ Content-Type: application/json
               },
               "runState": {
                 "type": "string",
-                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "description": "***",
                 "enum": [
                   "can-run",
                   "can-run-module",

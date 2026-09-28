@@ -529,6 +529,7 @@ i18next.addResourceBundle('en', 'repository', {
             related_more_one: '{{count}} more',
             related_more_other: '{{count}} more',
             edit_saving: 'Saving the table…',
+            edit_refused: 'The table cannot be edited',
             edit_leaving: 'Discard changes',
             edit_leaving_message: 'The table is not saved. If you leave this page, the cells you edited will '
                 + 'be lost. Discard them?',

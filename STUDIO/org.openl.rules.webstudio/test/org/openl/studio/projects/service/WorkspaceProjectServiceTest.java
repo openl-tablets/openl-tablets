@@ -1416,6 +1416,46 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_table_written_in_pieces_is_not_taken_up_to_be_edited_either() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
+        when(model.isTablePart("src-uri")).thenReturn(true);
+
+        var refused = assertThrows(BadRequestException.class,
+                () -> service.getTableEditors(project, "src-id", null, null, null));
+
+        // Asking how the cells are written is the start of writing them, so a table that cannot be written is
+        // refused here — rather than answered with editors, and refused the first write made through them.
+        assertEquals("openl.error.400.table.partial.message", refused.getErrorCode());
+    }
+
+    @Test
+    void a_table_of_a_project_this_one_depends_on_is_not_taken_up_here() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
+        // Resolved across dependencies, so it is there to be read — and written in no module of this project.
+        when(model.getModuleInfo().containsTable("src-uri")).thenReturn(false);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(emptyModulesDescriptor());
+
+        var refused = assertThrows(NotFoundException.class,
+                () -> service.getTableEditors(project, "src-id", null, null, null));
+
+        // The project held for editing would be this one, and the table is another project's: such a table is
+        // rendered read-only, so it is refused here rather than offered editors nothing could be written with.
+        assertEquals("openl.error.404.table.message", refused.getErrorCode());
+    }
+
+    @Test
     void table_properties_are_read_from_the_summary_and_the_properties_service() throws Exception {
         var summaryTableReader = mock(SummaryTableReader.class);
         var tablePropertiesService = mock(TablePropertiesService.class);
@@ -1535,6 +1575,128 @@ class WorkspaceProjectServiceTest {
         assertEquals("openl.error.409.project.locked.by.message", conflict.getErrorCode());
         assertEquals(List.of("user2"), List.of(conflict.getArgs()));
         verify(tableCopyService, never()).copyInto(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void reading_how_a_table_is_written_takes_the_project_up_for_this_reader() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class), mock(TableCopyService.class),
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        stubResolvedSource(service, project, mock(IOpenLTable.class));
+
+        service.getTableEditors(project, "src-id", null, null, null);
+
+        // Asking this is taking the table up to write it: the old editor reserved the project on its own Edit,
+        // and nothing else in the new one says when editing begins.
+        verify(project).tryLockOrThrow();
+    }
+
+    @Test
+    void a_table_of_a_project_another_user_is_holding_cannot_be_taken_up_to_write() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class), mock(TableCopyService.class),
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        stubResolvedSource(service, project, mock(IOpenLTable.class));
+        doThrow(new ProjectException("The project is locked by other user")).when(project).tryLockOrThrow();
+        var lockInfo = mock(LockInfo.class);
+        when(lockInfo.getLockedBy()).thenReturn("user2");
+        when(project.getLockInfo()).thenReturn(lockInfo);
+
+        var conflict = assertThrows(ConflictException.class,
+                () -> service.getTableEditors(project, "src-id", null, null, null));
+
+        // The answer names who is holding it, so the reader knows whom to wait for; and nothing is answered
+        // about the cells, so they cannot start filling in a table they could never save.
+        assertEquals("openl.error.409.project.locked.by.message", conflict.getErrorCode());
+        assertEquals(List.of("user2"), List.of(conflict.getArgs()));
+    }
+
+    @Test
+    void a_reader_who_may_not_write_the_project_is_not_told_how_its_cells_are_written() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class));
+        var project = project(repository(), "PricingProject", "PricingProject");
+
+        assertThrows(ForbiddenException.class, () -> service.getTableEditors(project, "src-id", null, null, null));
+
+        // The reservation goes with the answer, so a reader who could never save must not take one.
+        verify(project, never()).tryLockOrThrow();
+    }
+
+    @Test
+    void putting_a_table_down_gives_the_project_back_when_there_is_nothing_left_to_protect() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var project = project(repository(), "PricingProject", "PricingProject");
+
+        // The reader stopped editing and wrote nothing: this is the editor's own close, which anybody may do.
+        service.stopEditing(project);
+
+        verify(project).releaseMyLock();
+        verify(project, never()).forceUnlock();
+    }
+
+    @Test
+    void a_project_holding_changes_of_its_own_stays_locked_when_the_table_is_put_down() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        // Saved into the workspace and not yet committed — exactly what the lock is there to protect, and the
+        // rule the old editor released on: tryUnlock let a lock go only if (!currentProject.isModified()).
+        when(project.isModified()).thenReturn(true);
+
+        service.stopEditing(project);
+
+        verify(project, never()).releaseMyLock();
+        verify(project, never()).forceUnlock();
+    }
+
+    @Test
+    void putting_a_table_down_never_takes_a_project_away_from_the_user_holding_it() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        // An administrator, so nothing but the rule itself keeps them from breaking the other user's lock.
+        when(acl.isGranted(any(RulesProject.class), eq(List.of(BasePermission.ADMINISTRATION)))).thenReturn(true);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var project = project(repository(), "PricingProject", "PricingProject");
+
+        service.stopEditing(project);
+
+        // An Edit refused a moment ago still closes the editor, and that must leave the holder's reservation
+        // exactly where it is. So the release asked for is the one that lets a lock go only where it is this
+        // user's; the bare unlock beneath it deletes whosever lock stands there.
+        verify(project).releaseMyLock();
+        verify(project, never()).unlock();
+        verify(project, never()).forceUnlock();
+    }
+
+    @Test
+    void a_lock_of_another_user_is_broken_by_an_administrator() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.ADMINISTRATION))).thenReturn(true);
+
+        service.unlockProject(project);
+
+        verify(project).forceUnlock();
+    }
+
+    @Test
+    void breaking_a_lock_takes_administration_rights() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var project = project(repository(), "PricingProject", "PricingProject");
+
+        assertThrows(ForbiddenException.class, () -> service.unlockProject(project));
+
+        verify(project, never()).forceUnlock();
     }
 
     /** Stubs the source-resolution chain so {@code getOpenLTable(project, "src-id")} returns {@code source}. */

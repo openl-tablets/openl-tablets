@@ -405,6 +405,16 @@ All table APIs follow a consistent REST pattern:
 | 404 | Table/project not found |
 | 409 | Project locked by another user |
 
+### The Project Editing Lock
+
+A project is locked for one user while it is being written, so that another user cannot write over changes
+waiting in their workspace. Beginning to edit a table locks the project, and so does every write endpoint on its
+own, so a client that writes without an editor is covered too. Ending the edit releases the lock only where the
+project has nothing left to protect; saving or closing the project releases it in any case. Only an
+administrator can break a lock somebody else holds, and that exists for one case — the holder cannot save the
+project or no longer has access to it. See
+[The Project Editing Lock](../architecture/project-editing-lock.md).
+
 ### Data Type Support
 All table APIs support standard types:
 - String

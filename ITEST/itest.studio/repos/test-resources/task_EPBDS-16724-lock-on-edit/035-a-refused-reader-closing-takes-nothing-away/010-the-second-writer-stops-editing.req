@@ -1,0 +1,4 @@
+DELETE /rest/projects/ZGVzaWduOkVQQkRTLTE2NzI0/tables/6caef41978986ed75f6665deb2c91e73/editors HTTP/1.1
+Authorization: ${WRITER_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+
