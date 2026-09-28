@@ -2950,9 +2950,9 @@ public final class DecisionTableHelper {
     /**
      * Checks whether the first header is of a kind that goes before the kind of the second one in a table.
      */
-    private static boolean mustPrecede(DTHeader a, DTHeader b) {
-        return a.isRule() && b.isCondition() || a.isCondition() && b.isAction() || a.isAction() && b.isReturn() || a
-                .isCondition() && b.isReturn();
+    private static boolean mustPrecede(DTHeader first, DTHeader second) {
+        return first.isRule() && second.isCondition() || first.isCondition() && second.isAction() || first
+                .isAction() && second.isReturn() || first.isCondition() && second.isReturn();
     }
 
     private static boolean isConflictingFuzzyHeaders(FuzzyDTHeader a1, FuzzyDTHeader b1) {
