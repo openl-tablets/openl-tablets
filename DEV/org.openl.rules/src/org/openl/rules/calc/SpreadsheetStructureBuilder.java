@@ -802,17 +802,18 @@ public class SpreadsheetStructureBuilder {
             rowHeaders.keySet().stream().max(Integer::compareTo).ifPresent(e -> returnHeaderDefinition = rowHeaders.get(e));
         }
 
-        if (Boolean.FALSE
-                .equals(tableSyntaxNode.getTableProperties().getAutoType()) && returnHeaderDefinition.getType() == null) {
-            //  Spreadsheet auto type is disabled and no type is defined in the cell name like  RowName:Double
-            returnHeaderDefinition.setType(spreadsheetHeaderType);
-        } else if ((spreadsheetHeaderType
-                .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
-                .getAggregateInfo()
-                .getComponentType(spreadsheetHeaderType) == null) && hasOnlyOneEmptyCell(returnHeaderDefinition)) {
-            // No Java array in the return method signature
+        //  Spreadsheet auto type is disabled and no type is defined in the cell name like  RowName:Double,
+        //  or there is no Java array in the return method signature
+        if (Boolean.FALSE.equals(tableSyntaxNode.getTableProperties().getAutoType())
+                && returnHeaderDefinition.getType() == null
+                || isNotArray(spreadsheetHeaderType) && hasOnlyOneEmptyCell(returnHeaderDefinition)) {
             returnHeaderDefinition.setType(spreadsheetHeaderType);
         }
+    }
+
+    private static boolean isNotArray(IOpenClass type) {
+        return type.getAggregateInfo() == null || type.getAggregateInfo() != null && type.getAggregateInfo()
+                .getComponentType(type) == null;
     }
 
     /**
