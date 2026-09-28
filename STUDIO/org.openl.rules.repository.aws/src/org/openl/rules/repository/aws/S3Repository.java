@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 import software.amazon.awssdk.services.s3.model.DeleteMarkerEntry;
 import software.amazon.awssdk.services.s3.model.ListObjectVersionsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectVersionsResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.ObjectVersion;
@@ -234,12 +235,7 @@ public class S3Repository implements Repository, Closeable {
                         return createFileData(deleteMarker);
                     }
                 }
-                if (Boolean.TRUE.equals(response.isTruncated())) {
-                    request.keyMarker(response.nextKeyMarker());
-                    request.versionIdMarker(response.nextVersionIdMarker());
-                } else {
-                    request = null;
-                }
+                request = nextPage(request, response);
             } while (request != null);
 
             return null;
@@ -428,12 +424,7 @@ public class S3Repository implements Repository, Closeable {
                         return createFileData(deleteMarkers);
                     }
                 }
-                if (Boolean.TRUE.equals(response.isTruncated())) {
-                    request.keyMarker(response.nextKeyMarker());
-                    request.versionIdMarker(response.nextVersionIdMarker());
-                } else {
-                    request = null;
-                }
+                request = nextPage(request, response);
             } while (request != null);
 
             return null;
@@ -561,12 +552,22 @@ public class S3Repository implements Repository, Closeable {
                 s3.deleteObjects(it -> it.bucket(bucketName).delete(d -> d.objects(versions)));
             }
 
-            if (Boolean.TRUE.equals(response.isTruncated())) {
-                listVersionsRequest.keyMarker(response.nextKeyMarker());
-                listVersionsRequest.versionIdMarker(response.nextVersionIdMarker());
-            } else {
-                listVersionsRequest = null;
-            }
+            listVersionsRequest = nextPage(listVersionsRequest, response);
         } while (listVersionsRequest != null);
+    }
+
+    /**
+     * Continues the listing of object versions from the end of the response.
+     *
+     * @return the request for the next page, or {@code null} if the response is the last page
+     */
+    private static ListObjectVersionsRequest.Builder nextPage(ListObjectVersionsRequest.Builder request,
+                                                              ListObjectVersionsResponse response) {
+        if (Boolean.TRUE.equals(response.isTruncated())) {
+            request.keyMarker(response.nextKeyMarker());
+            request.versionIdMarker(response.nextVersionIdMarker());
+            return request;
+        }
+        return null;
     }
 }
