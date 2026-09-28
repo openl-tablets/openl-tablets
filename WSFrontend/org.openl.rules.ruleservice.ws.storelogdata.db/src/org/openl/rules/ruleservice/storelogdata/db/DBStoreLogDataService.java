@@ -6,11 +6,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -84,6 +86,23 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
         if (storeLogDataToDBAnnotation == null) {
             return;
         }
+        var entities = createEntities(storeLogData, storeLogDataToDBAnnotation, serviceMethod);
+        var entityClasses = populateEntities(storeLogData, entities, serviceMethod);
+        for (Object entity : entities) {
+            if (entity != null) {
+                try {
+                    hibernateSessionOperations.save(entityClasses.toArray(new Class<?>[0]), entity);
+                } catch (Exception e) {
+                    // Continue the loop if exception occurs
+                    throw new StoreLogDataException("Failed on database save operation.", e);
+                }
+            }
+        }
+    }
+
+    private static List<Object> createEntities(StoreLogData storeLogData,
+                                               StoreLogDataToDB storeLogDataToDBAnnotation,
+                                               @Nullable Method serviceMethod) throws StoreLogDataException {
         var entities = new ArrayList<Object>();
         if (storeLogDataToDBAnnotation.value().length == 0) {
             if (!storeLogData.isIgnorable(DefaultEntity.class)) {
@@ -92,25 +111,38 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
         } else {
             for (Class<?> entityClass : storeLogDataToDBAnnotation.value()) {
                 if (!storeLogData.isIgnorable(entityClass)) {
-                    if (StoreLogDataToDB.DEFAULT.class == entityClass) {
-                        entities.add(new DefaultEntity());
-                    } else {
-                        try {
-                            entities.add(entityClass.getDeclaredConstructor().newInstance());
-                        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
-                                 InvocationTargetException e) {
-                            throw new StoreLogDataException(
-                                    "Failed to instantiate entity class '%s'%s."
-                                            .formatted(
-                                                    entityClass.getTypeName(),
-                                                    serviceMethod != null ? (" for method '" + MethodUtil
-                                                            .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY),
-                                    e);
-                        }
-                    }
+                    entities.add(newEntity(entityClass, serviceMethod));
                 }
             }
         }
+        return entities;
+    }
+
+    private static Object newEntity(Class<?> entityClass,
+                                    @Nullable Method serviceMethod) throws StoreLogDataException {
+        if (StoreLogDataToDB.DEFAULT.class == entityClass) {
+            return new DefaultEntity();
+        }
+        try {
+            return entityClass.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                 InvocationTargetException e) {
+            throw new StoreLogDataException(
+                    "Failed to instantiate entity class '%s'%s."
+                            .formatted(
+                                    entityClass.getTypeName(),
+                                    serviceMethod != null ? (" for method '" + MethodUtil
+                                            .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY),
+                    e);
+        }
+    }
+
+    /**
+     * Fills the entities with the logged data and returns their classes.
+     */
+    private Set<Class<?>> populateEntities(StoreLogData storeLogData,
+                                           List<Object> entities,
+                                           @Nullable Method serviceMethod) throws StoreLogDataException {
         var entityClasses = new HashSet<Class<?>>();
         for (Object entity : entities) {
             try {
@@ -128,15 +160,6 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
                 }
             }
         }
-        for (Object entity : entities) {
-            if (entity != null) {
-                try {
-                    hibernateSessionOperations.save(entityClasses.toArray(new Class<?>[0]), entity);
-                } catch (Exception e) {
-                    // Continue the loop if exception occurs
-                    throw new StoreLogDataException("Failed on database save operation.", e);
-                }
-            }
-        }
+        return entityClasses;
     }
 }
