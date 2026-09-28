@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ParametersInput, type ParametersInputValue } from 'containers/TableInput/ParametersInput'
+import { keysOf, nameEntry, openNode } from 'testing/schemaTree'
 
 // CodeMirror does not take typed input under jsdom. A plain text area stands in for the editor.
 vi.mock('containers/projects/CodeEditor', () => ({
@@ -27,11 +28,6 @@ const lastValue = (onChange: ReturnType<typeof vi.fn>): ParametersInputValue =>
 
 const parsed = (onChange: ReturnType<typeof vi.fn>) => JSON.parse(lastValue(onChange).inputJson)
 
-/** Opens a node of the tree: a parameter starts folded, however many fields it holds. */
-const openNode = async (path: string) => {
-    const node = screen.getByTestId(`value-${path}`).closest('.ant-tree-treenode')
-    await userEvent.click(node?.querySelector('.ant-tree-switcher') as HTMLElement)
-}
 
 describe('ParametersInput', () => {
     it('writes the form as the structured input, with the context only when it is set', async () => {
@@ -63,6 +59,25 @@ describe('ParametersInput', () => {
         await userEvent.type(screen.getByTestId('input-runtime-context.lob'), 'Auto{enter}')
 
         expect(parsed(onChange)).toEqual({ params: { runtimeContext: 'mine' }, runtimeContext: { lob: 'Auto' } })
+    })
+
+    it('keeps what the reader arranged in the form while they look at the JSON', async () => {
+        const onChange = vi.fn()
+        const limits = { name: 'limits', description: 'Map', lazy: false, schema: { type: 'object', additionalProperties: { type: 'integer' } } }
+        render(<ParametersInput onChange={onChange} parameters={[...parameters, limits]} />)
+
+        await userEvent.click(screen.getByTestId('add-limits'))
+        await openNode('limits')
+        await userEvent.type(screen.getByTestId('key-limits[]'), '10{enter}')
+        await nameEntry('limits', '2')
+        expect(keysOf('limits')).toEqual(['10', '2'])
+
+        // The form is put away rather than taken down, so the rows come back in the order they were put in —
+        // and the map comes back open.
+        await userEvent.click(screen.getByText('input.json'))
+        await userEvent.click(screen.getByText('input.form'))
+
+        expect(keysOf('limits')).toEqual(['10', '2'])
     })
 
     it('shows the form as JSON, reports text that does not parse, and reads valid text back into the form', async () => {

@@ -16,11 +16,19 @@ const asRecord = (value: unknown): Record<string, unknown> =>
 
 const asList = (value: unknown): unknown[] => (Array.isArray(value) ? value : [])
 
-/** The map with one more entry, under the first name no entry carries yet. */
-const withEntry = (record: Record<string, unknown>): Record<string, unknown> => {
+/** The first name no entry of the map carries yet. */
+const freeEntryKey = (record: Record<string, unknown>): string => {
     const names = ['', ...Array.from({ length: Object.keys(record).length + 1 }, (_, index) => `key${index + 2}`)]
-    return { ...record, [names.find(name => !(name in record)) ?? '']: null }
+    return names.find(name => !(name in record)) ?? ''
 }
+
+/**
+ * Where the row of a map entry is written.
+ *
+ * <p>The key is the user's own text and may hold the characters a path is written with. Encoded, a key cannot be
+ * read as the path of another row.
+ */
+const entryPath = (map: string, key: string): string => `${map}[${encodeURIComponent(key)}]`
 
 /** A copy of the record with the field set in place. An unset value removes the field. */
 const withField = (record: Record<string, unknown>, name: string, next: unknown): Record<string, unknown> => {
@@ -40,8 +48,19 @@ export interface TreeContext {
     expand: (path: string) => void
     /** Keeps the open elements of a list right after the one at the given position is removed. */
     afterRemove: (path: string, index: number) => void
-    /** Follows the open nodes of a map entry when it is renamed, or forgets them when it is removed. */
-    entryMoved: (from: string, to: string | null) => void
+    /**
+     * Carries what is remembered of a node — and of everything under it — to where the node now stands, or
+     * forgets it where the node is gone: a map entry renamed, one removed, a structure cleared away.
+     */
+    nodeMoved: (from: string, to: string | null) => void
+    /**
+     * The keys of a map's entries in the order their rows are drawn, told the order the map itself lists them in.
+     *
+     * <p>A key the form has not been told about is drawn after the rest.
+     */
+    entryOrder: (map: string, listed: string[]) => string[]
+    /** Says the entries of a map are now in this order, after one was added, renamed or removed. */
+    entriesReordered: (map: string, keys: string[]) => void
 }
 
 interface NodeSpec {
@@ -135,13 +154,16 @@ const ValueText: React.FC<{ value: unknown, path: string }> = ({ value, path }) 
 }
 
 /** What a structure offers: creating it, growing it, and clearing it back to unset. */
-const structureActions = ({ kind, unset, path, value, onChange, create, t }: {
+const structureActions = ({ kind, unset, path, value, entries, onChange, create, context, t }: {
     kind: FieldKind
     unset: boolean
     path: string
     value: unknown
+    /** The keys of a map's entries as its rows are drawn, worked out once by the node itself. */
+    entries: string[]
     onChange: (value: unknown) => void
     create: () => void
+    context: TreeContext
     t: (key: string) => string
 }): React.ReactNode[] => {
     if (unset) {
@@ -149,12 +171,27 @@ const structureActions = ({ kind, unset, path, value, onChange, create, t }: {
     }
     const grow = kind === 'array'
         ? () => onChange([...asList(value), null])
-        : () => onChange(withEntry(asRecord(value)))
+        : () => {
+            const record = asRecord(value)
+            const key = freeEntryKey(record)
+            onChange(withField(record, key, null))
+            // Drawn after the entries already there, wherever the map itself ends up listing it.
+            context.entriesReordered(path, [...entries, key])
+        }
     return [
         ...(kind === 'array' || kind === 'map'
             ? [<ActionButton key="add" icon={<PlusOutlined />} label={t('input.add')} onClick={grow} testId={`add-${path}`} />]
             : []),
-        <ActionButton key="clear" icon={<CloseOutlined />} label={t('input.clear')} onClick={() => onChange(undefined)} testId={`clear-${path}`} />,
+        <ActionButton
+            key="clear"
+            icon={<CloseOutlined />}
+            label={t('input.clear')}
+            testId={`clear-${path}`}
+            onClick={() => {
+                onChange(undefined)
+                context.nodeMoved(path, null)
+            }}
+        />,
     ]
 }
 
@@ -186,9 +223,12 @@ const valueActions = ({ editing, unset, path, onChange, setEditing, t }: {
  * A structure starts unset. The plus creates it, an object with its fields and a list with its first slot. The
  * cross makes it unset again. The plus on a list adds a `null` element. The minus next to an element removes it.
  */
-const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & { kind: FieldKind, resolved: JsonSchema }> = ({
-    name, label, type, kind, resolved, value, path, onChange, onRemove, onRename, takenKeys, context,
-}) => {
+const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
+    kind: FieldKind
+    resolved: JsonSchema
+    /** The keys of a map's entries as its rows are drawn; empty for anything else. */
+    entries: string[]
+}> = ({ name, label, type, kind, resolved, entries, value, path, onChange, onRemove, onRename, takenKeys, context }) => {
     const { t } = useTranslation('execution')
     const editing = context.editing === path
     const unset = isUnset(value)
@@ -198,7 +238,7 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & { kind: FieldKind, resolved
     }
     const actions = [
         ...(isStructure(kind)
-            ? structureActions({ kind, unset, path, value, onChange, create, t })
+            ? structureActions({ kind, unset, path, value, entries, onChange, create, context, t })
             : valueActions({ editing, unset, path, onChange, setEditing: context.setEditing, t })),
         ...(onRemove
             ? [<ActionButton key="remove" danger icon={<MinusOutlined />} label={t('input.remove')} onClick={onRemove} testId={`remove-${path}`} />]
@@ -241,7 +281,13 @@ export const buildNode = (spec: NodeSpec): TreeDataNode => {
     const { schema, value, path, onChange, context } = spec
     const resolved = resolveSchema(schema, context.root)
     const kind = fieldKind(resolved)
-    const title = <NodeTitle {...spec} kind={kind} resolved={resolved} />
+    // The rows of a map in the order they are drawn — neither the order nor the address of a row is read off
+    // the map itself; see `entryOrders` in SchemaForm. Worked out once: the title adds an entry after the last
+    // of them, and the children are the rows themselves.
+    const keys = kind === 'map' && !isUnset(value)
+        ? context.entryOrder(path, Object.keys(asRecord(value)))
+        : []
+    const title = <NodeTitle {...spec} entries={keys} kind={kind} resolved={resolved} />
     let children: TreeDataNode[] = []
     if (!isUnset(value) && kind === 'object') {
         const record = asRecord(value)
@@ -271,29 +317,30 @@ export const buildNode = (spec: NodeSpec): TreeDataNode => {
         }))
     } else if (!isUnset(value) && kind === 'map') {
         const record = asRecord(value)
-        const entries = Object.entries(record)
         const valueSchema = mapValueSchema(resolved)
-        // An entry is addressed by its key. Renaming one rebuilds the map, and a map lists a key that reads
-        // as a whole number before the others: addressed by position, the rows would move under the user.
-        children = entries.map(([key, item]) => {
-            // The key is the user's own text and may hold the characters a path is written with. Encoded, a
-            // key cannot be read as the path of another row.
-            const entryPath = `${path}[${encodeURIComponent(key)}]`
+        children = keys.map(key => {
+            const row = entryPath(path, key)
             return buildNode({
                 name: key,
                 schema: valueSchema,
-                value: item,
-                path: entryPath,
+                value: record[key],
+                path: row,
                 onChange: next => onChange({ ...record, [key]: next ?? null }),
                 onRemove: () => {
                     onChange(withField(record, key, undefined))
-                    context.entryMoved(entryPath, null)
+                    // Forgotten rather than left for the order to prune: named again, the key goes last, where
+                    // a new entry goes, rather than back into the place it used to hold.
+                    context.entriesReordered(path, keys.filter(kept => kept !== key))
+                    context.nodeMoved(row, null)
                 },
                 onRename: renamed => {
-                    onChange(Object.fromEntries(entries.map(([k, v]) => [k === key ? renamed : k, v])))
-                    context.entryMoved(entryPath, `${path}[${encodeURIComponent(renamed)}]`)
+                    onChange(Object.fromEntries(keys.map(k => [k === key ? renamed : k, record[k]])))
+                    context.entriesReordered(path, keys.map(k => (k === key ? renamed : k)))
+                    context.nodeMoved(row, entryPath(path, renamed))
                 },
-                takenKeys: entries.map(([k]) => k).filter(k => k !== key),
+                // The keys of the whole map, this entry's own among them: a name is refused only where another
+                // entry carries it, and the editor already lets the entry keep the name it has.
+                takenKeys: keys,
                 context,
             })
         })
