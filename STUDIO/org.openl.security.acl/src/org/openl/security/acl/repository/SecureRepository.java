@@ -11,7 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -229,71 +231,87 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     private Iterator<FileItem> checkedChanges(FileData folderData,
                                               Iterable<FileItem> files,
                                               ChangesetType changesetType) {
-        var source = files.iterator();
-        var keptNames = new HashSet<String>();
-        return new Iterator<>() {
-            private FileItem change;
-            private boolean removalsChecked;
+        return new CheckedChanges(folderData, files.iterator(), changesetType);
+    }
 
-            @Override
-            public boolean hasNext() {
-                // The repository asks for the changes, so a refusal reaches it as the failure of a change it
-                // cannot take: it is marked to be told apart from the failures the repository has of its own.
-                try {
-                    while (change == null && source.hasNext()) {
-                        change = checked(source.next());
-                    }
-                    if (change == null && !removalsChecked) {
-                        removalsChecked = true;
-                        checkRemovals();
-                    }
-                } catch (AccessDeniedException e) {
-                    throw new Refused(e);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-                return change != null;
-            }
+    /** The changes of a changeset, each checked as the repository takes it. */
+    @RequiredArgsConstructor
+    private final class CheckedChanges implements Iterator<FileItem> {
+        private final FileData folderData;
+        private final Iterator<FileItem> source;
+        private final ChangesetType changesetType;
+        private final Set<String> keptNames = new HashSet<>();
+        private FileItem change;
+        private boolean removalsChecked;
 
-            @Override
-            public FileItem next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
+        @Override
+        public boolean hasNext() {
+            // The repository asks for the changes, so a refusal reaches it as the failure of a change it
+            // cannot take: it is marked to be told apart from the failures the repository has of its own.
+            try {
+                while (change == null && source.hasNext()) {
+                    change = checked(source.next());
                 }
-                var checked = change;
-                change = null;
-                return checked;
+                if (change == null && !removalsChecked) {
+                    removalsChecked = true;
+                    checkRemovals();
+                }
+            } catch (AccessDeniedException e) {
+                throw new Refused(e);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
+            return change != null;
+        }
 
-            /** The change to pass on, or {@code null} for a removal a full changeset does not carry itself. */
-            private FileItem checked(FileItem fileItem) throws IOException {
-                if (fileItem.getStream() == null) {
-                    // A full changeset says what the folder holds, and what it does not hold is removed by
-                    // that alone. Only a changeset of the changes themselves carries a removal of its own.
-                    if (changesetType != ChangesetType.DIFF) {
-                        return null;
-                    }
-                    if (exists(fileItem.getData().getName())) {
-                        checkDeletePermission(fileItem.getData());
-                    }
-                } else {
-                    checkSavePermissions(fileItem.getData().getName());
-                }
-                keptNames.add(fileItem.getData().getName());
-                return fileItem;
+        @Override
+        public FileItem next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
             }
+            var checked = change;
+            change = null;
+            return checked;
+        }
 
-            private void checkRemovals() throws IOException {
-                if (changesetType != ChangesetType.FULL) {
-                    return;
+        /** The change to pass on, or {@code null} for a removal a full changeset does not carry itself. */
+        private FileItem checked(FileItem fileItem) throws IOException {
+            if (fileItem.getStream() == null) {
+                // A full changeset says what the folder holds, and what it does not hold is removed by
+                // that alone. Only a changeset of the changes themselves carries a removal of its own.
+                if (changesetType != ChangesetType.DIFF) {
+                    return null;
                 }
-                for (FileData fileData : repository.list(asFolder(folderData.getName()))) {
-                    if (!keptNames.contains(fileData.getName())) {
-                        checkDeletePermission(fileData);
-                    }
+                if (exists(fileItem.getData().getName())) {
+                    checkDeletePermission(fileItem.getData());
+                }
+            } else {
+                checkSavePermissions(fileItem.getData().getName());
+            }
+            keptNames.add(fileItem.getData().getName());
+            return fileItem;
+        }
+
+        private void checkRemovals() throws IOException {
+            if (changesetType != ChangesetType.FULL) {
+                return;
+            }
+            for (FileData fileData : repository.list(asFolder(folderData.getName()))) {
+                if (!keptNames.contains(fileData.getName())) {
+                    checkDeletePermission(fileData);
                 }
             }
-        };
+        }
+
+        /** Whether the repository holds anything at that path: one file, or a folder with content. */
+        private boolean exists(String path) throws IOException {
+            return repository.check(path) != null || !repository.list(asFolder(path)).isEmpty();
+        }
+
+        /** The path as a folder is named, which is what a listing answers about. */
+        private static String asFolder(String path) {
+            return path.isEmpty() || path.endsWith("/") ? path : path + "/";
+        }
     }
 
     /**
@@ -322,16 +340,6 @@ public class SecureRepository implements Repository, RepositoryDelegate {
         public AccessDeniedException getCause() {
             return (AccessDeniedException) super.getCause();
         }
-    }
-
-    /** Whether the repository holds anything at that path: one file, or a folder with content. */
-    private boolean exists(String path) throws IOException {
-        return repository.check(path) != null || !repository.list(asFolder(path)).isEmpty();
-    }
-
-    /** The path as a folder is named, which is what a listing answers about. */
-    private static String asFolder(String path) {
-        return path.isEmpty() || path.endsWith("/") ? path : path + "/";
     }
 
     @Override

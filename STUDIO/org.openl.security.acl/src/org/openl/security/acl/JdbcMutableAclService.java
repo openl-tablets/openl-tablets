@@ -58,38 +58,46 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
             if (!allowCreate) {
                 return null;
             }
-            // SID not found — try to insert it with a savepoint to handle concurrent inserts
-            var useSavepoint = !connection.getAutoCommit();
-            Savepoint savepoint = useSavepoint ? connection.setSavepoint() : null;
-            try {
-                insertSid(connection, sidName, sidIsPrincipal);
-            } catch (SQLException e) {
-                if (!isDuplicateKey(e)) {
-                    throw e;
-                }
-                // Duplicate key — another thread inserted the same SID concurrently.
-                // Rollback to savepoint to restore the transaction state
-                // (required by PostgreSQL which aborts after constraint violations).
-                if (savepoint != null) {
-                    connection.rollback(savepoint);
-                }
-                Long existingId = selectSidId(connection, sidName, sidIsPrincipal);
-                if (existingId != null) {
-                    return existingId;
-                }
+            return insertSidId(connection, sidName, sidIsPrincipal);
+        });
+    }
+
+    /**
+     * Inserts the SID and returns its primary key. A SID inserted concurrently by another thread is taken as it is.
+     */
+    private static @Nullable Long insertSidId(Connection connection, String sidName, boolean sidIsPrincipal)
+            throws SQLException {
+        // SID not found — try to insert it with a savepoint to handle concurrent inserts
+        var useSavepoint = !connection.getAutoCommit();
+        Savepoint savepoint = useSavepoint ? connection.setSavepoint() : null;
+        try {
+            insertSid(connection, sidName, sidIsPrincipal);
+        } catch (SQLException e) {
+            if (!isDuplicateKey(e)) {
                 throw e;
-            } finally {
-                if (savepoint != null) {
-                    try {
-                        connection.releaseSavepoint(savepoint);
-                    } catch (SQLException ignored) {
-                        // Savepoint may already be released after rollback
-                    }
+            }
+            // Duplicate key — another thread inserted the same SID concurrently.
+            // Rollback to savepoint to restore the transaction state
+            // (required by PostgreSQL which aborts after constraint violations).
+            if (savepoint != null) {
+                connection.rollback(savepoint);
+            }
+            Long existingId = selectSidId(connection, sidName, sidIsPrincipal);
+            if (existingId != null) {
+                return existingId;
+            }
+            throw e;
+        } finally {
+            if (savepoint != null) {
+                try {
+                    connection.releaseSavepoint(savepoint);
+                } catch (SQLException ignored) {
+                    // Savepoint may already be released after rollback
                 }
             }
-            // Re-select to get the generated id
-            return selectSidId(connection, sidName, sidIsPrincipal);
-        });
+        }
+        // Re-select to get the generated id
+        return selectSidId(connection, sidName, sidIsPrincipal);
     }
 
     /**
