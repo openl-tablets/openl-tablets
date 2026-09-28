@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduOkVQQkRTLTE2NzI0",
+  "name": "EPBDS-16724",
+  "status": "VIEWING_VERSION",
+  "repository": "design",
+  "modifiedBy": "admin",
+  "modifiedAt": "***",
+  "lockInfo": {
+    "lockedBy": "admin",
+    "lockedAt": "***"
+  },
+  "revision": "***",
+  "comment": "Project EPBDS-16724 is created.",
+  "repositoryInfo": {
+    "id": "design",
+    "name": "H2",
+    "type": "repo-jdbc",
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
+  },
+  "capabilities": {
+    "canClose": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canCopy": true,
+    "canExport": true
+  }
+}

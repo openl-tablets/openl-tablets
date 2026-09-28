@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router-dom'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
 import type { OpenUsage } from '../../components/RawTableCellText'
-import { getTableEditors, NO_EDITORS, type TableCellEditor, type TableEditors } from '../../services/modules'
+import { notifyLoadFailure } from '../../services/apiCall'
+import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import type { RawCellStyleInput, RawTableCell, TableLayout } from 'types/tables'
 import type { EditorKind } from './CellValueEditor'
@@ -261,24 +262,65 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const switching = useRef(false)
     // The cell already closed, so a second closer of the same cell writes nothing more; see closeCell.
     const closedCell = useRef<CellAt | null>(null)
+    // Whether cells are written and unsaved, where a callback can read it without being renewed on every one
+    // of them: the asking below must not start again because the reader filled in a cell. Set beside `dirty`.
+    const unsaved = useRef(false)
 
     // How the cells take a value is read once, when the reader starts editing, and for the window the table was
     // read as — so nothing is asked while they edit, however many cells they open.
+    //
+    // Asking is also how the server is told the table has been taken up to write, and it reserves the project
+    // for this reader then. So a refusal is a refusal to edit — the project is held by somebody else, or this
+    // reader may not write to it — and the editor closes again instead of letting them fill in cells that could
+    // never be saved. A table nothing is known about is not a refusal: it answers, with nothing in it, and
+    // every cell of it is then written as plain text.
     useEffect(() => {
         if (!editing || asked !== null || loadingEditors.current) {
-            return
+            return undefined
         }
         loadingEditors.current = true
+        // The answer belongs to the table it was asked about, and this screen is kept across tables — the reader
+        // may have moved on by the time it lands. Kept anyway it would describe the cells of a table nobody is
+        // looking at, and refused it would close an editor that was never turned away.
+        let asking = true
         getTableEditors(projectId, tableId, { module: moduleName, maxRows })
-            .then(setAsked)
-            // A table nothing is known about is written as plain text, which is what an empty answer says.
-            .catch(() => setAsked(NO_EDITORS))
-            .finally(() => { loadingEditors.current = false })
-    }, [asked, editing, maxRows, moduleName, projectId, tableId])
+            .then(answer => {
+                if (asking) {
+                    setAsked(answer)
+                }
+            })
+            .catch(error => {
+                if (!asking) {
+                    return
+                }
+                notifyLoadFailure(t('browser.module.edit_refused'), error)
+                // Cells the reader has already written are theirs to save, and Save is on the editing toolbar:
+                // a window that could not be read — more rows asked for while editing — leaves editing where
+                // it is rather than taking the toolbar away with the work still on screen.
+                if (unsaved.current) {
+                    return
+                }
+                setOpen(null)
+                onEditingChange(false)
+            })
+            .finally(() => {
+                // An answer nobody is waiting for any more must not say that the table now on screen has been
+                // asked about; the next table cleared that on its way in.
+                if (asking) {
+                    loadingEditors.current = false
+                }
+            })
+        return () => {
+            asking = false
+            loadingEditors.current = false
+        }
+    }, [asked, editing, maxRows, moduleName, onEditingChange, projectId, t, tableId])
 
     // Opening another table asks again for the cells of that one, and so does reading more of this one: the
-    // rows that were not there before are described by nothing until they are asked about.
-    useEffect(() => { setAsked(null) }, [tableId, maxRows])
+    // rows that were not there before are described by nothing until they are asked about. Putting the table
+    // down asks again too: the project was let go with it, and taking it up again is what holds it — kept, the
+    // answer would let the reader fill in cells of a project somebody else may have taken in the meantime.
+    useEffect(() => { setAsked(null) }, [tableId, maxRows, editing])
 
     const edited = useMemo(() => replay(rows, buffer.steps), [rows, buffer.steps])
 
@@ -301,6 +343,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         return found === undefined ? areaAt(asked, edited, at) : asked?.editors?.[found.editor]
     }, [asked, edited])
     const dirty = buffer.steps.length > 0
+    unsaved.current = dirty
 
     // Cells written and not yet saved live on this screen alone: leaving it loses them, so the reader is asked
     // first — whether they leave by opening another table, by the Back button, or by closing the page.

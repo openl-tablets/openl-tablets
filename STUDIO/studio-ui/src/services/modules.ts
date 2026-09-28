@@ -5,6 +5,10 @@ import { toUrlSafeId } from './projectId'
 const moduleUrl = (projectId: string, moduleName: string): string =>
     `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
 
+/** Both ends of editing a table live at this one address: the GET begins it, the DELETE ends it. */
+const editorsUrl = (projectId: string, tableId: string): string =>
+    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/editors`
+
 /** A module of the project, as the project resolves it: the name it is known by and the workbook it is written in. */
 export interface ModuleInfo {
     name: string
@@ -206,11 +210,49 @@ export const getTableEditors = async (
         params.set('maxRows', String(options.maxRows))
     }
     const query = params.size > 0 ? `?${params}` : ''
-    return await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/editors${query}`,
-        undefined,
-        LOCAL_LOAD_API_OPTIONS
-    ) as TableEditors
+    return await inTurn(() =>
+        apiCall(editorsUrl(projectId, tableId) + query, undefined, LOCAL_LOAD_API_OPTIONS)) as TableEditors
+}
+
+/**
+ * Says the reader has stopped editing the table, which is the other end of asking how its cells are written.
+ *
+ * <p>The project is held from the moment a table is taken up, and this gives that back — but the server lets it
+ * go only where the project has nothing of its own left to protect: a table saved into the workspace and not yet
+ * committed keeps it, because another user must not write the project while those changes are waiting. A lock
+ * somebody else holds is left alone, so this is safe to send even where the table was never taken up, which is
+ * what a refused Edit leaves behind.
+ *
+ * <p>Sent and not waited for, and `keepalive` so a table put down as the page closes still reaches the server.
+ * The reservation goes with the session in any case, so a failure here is nothing to report.
+ */
+export const stopEditingTable = (projectId: string, tableId: string): void => {
+    void inTurn(() => apiCall(
+        editorsUrl(projectId, tableId),
+        { method: 'DELETE', keepalive: true },
+        { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
+    )).catch(() => {
+        // Nothing to say: the next reader is told who is holding the project when they try to take it up.
+    })
+}
+
+/** What the last request about editing is waiting on, so the next one goes after it. */
+let editing: Promise<unknown> = Promise.resolve()
+
+/**
+ * Sends a request about editing after the one before it has been answered.
+ *
+ * <p>Beginning to edit takes the project and ending it gives the project back, and the browser does not promise
+ * to deliver two requests in the order they were sent. Arriving the wrong way round they undo each other: a
+ * release overtaking the next table's take leaves the reader editing while holding nothing, and a take
+ * overtaking its own release leaves a project held after the reader has gone. Sending them in turn is what keeps
+ * the two ends of editing in the order the reader did them.
+ */
+const inTurn = <T>(send: () => Promise<T>): Promise<T> => {
+    const answered = editing.then(send, send)
+    // A request that failed must not hold up the next one, and its failure belongs to whoever asked for it.
+    editing = answered.catch(() => undefined)
+    return answered
 }
 
 /**

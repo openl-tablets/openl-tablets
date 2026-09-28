@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useUserStore } from '../store'
 import { ModuleWorkspace } from './ModuleWorkspace'
-import { getModuleTables, getRawTable, listModules } from '../services/modules'
+import { getModuleTables, getRawTable, listModules, stopEditingTable } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
 
@@ -35,6 +35,7 @@ vi.mock('react-router-dom', () => ({
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
     ...(await vi.importActual<typeof import('../hooks/useCanonicalProjectAddress')>('../hooks/useCanonicalProjectAddress')),
+    ...(await vi.importActual<typeof import('../hooks/useReleaseOnClose')>('../hooks/useReleaseOnClose')),
 }))
 
 vi.mock('../services/apiCall', async importOriginal => ({
@@ -53,6 +54,7 @@ vi.mock('../services/modules', () => ({
     getModuleTables: vi.fn(),
     getRawTable: vi.fn(),
     listModules: vi.fn(),
+    stopEditingTable: vi.fn(),
     TABLE_PAGE_ROWS: 2000,
 }))
 
@@ -110,10 +112,17 @@ vi.mock('./modules/TableSearchModal', () => ({
             : null
     ),
 }))
-// The band shows what it is handed, so a test can read what the screen decided.
+// The band shows what it is handed, so a test can read what the screen decided; its Edit is what starts editing.
 vi.mock('./modules/TableToolbar', () => ({
-    TableToolbar: ({ runState, projectCompiled }: { runState?: string, projectCompiled?: boolean }) => (
-        <div data-compiled={String(projectCompiled)} data-testid="table-toolbar">{runState}</div>
+    TableToolbar: ({ runState, projectCompiled, onEdit }: {
+        runState?: string
+        projectCompiled?: boolean
+        onEdit?: () => void
+    }) => (
+        <div data-compiled={String(projectCompiled)} data-testid="table-toolbar">
+            {runState}
+            <button data-testid="table-edit" onClick={() => onEdit?.()} type="button" />
+        </div>
     ),
 }))
 vi.mock('./projects/CompileProblemsPanel', () => ({ CompileProblemsPanel: () => null }))
@@ -125,14 +134,17 @@ vi.mock('./projects/BranchSwitcher', () => ({
 }))
 // The table itself is drawn and edited elsewhere; this screen is asked only what it hands over.
 vi.mock('./modules/TableEditor', () => ({
-    TableEditor: ({ testId, rows, hiddenRows, children }: {
+    TableEditor: ({ testId, rows, hiddenRows, editing, onEditingChange, children }: {
         testId?: string
         rows?: unknown[]
         hiddenRows?: number
+        editing?: boolean
+        onEditingChange?: (editing: boolean) => void
         children?: ReactNode
     }) => (
-        <div data-testid={testId}>
+        <div data-editing={String(editing)} data-testid={testId}>
             {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
+            <button data-testid="table-edit-stop" onClick={() => onEditingChange?.(false)} type="button" />
             {children}
         </div>
     ),
@@ -158,6 +170,8 @@ const project = (status: string) => ({
 describe('ModuleWorkspace', () => {
     beforeEach(() => {
         localStorage.clear()
+        // Counted per test: nothing here resets the mocks between them.
+        vi.mocked(stopEditingTable).mockClear()
         useUserStore.setState({ userProfile: undefined })
         routeParams.projectId = 'p1'
         routeParams.moduleName = 'Bank Rating'
@@ -186,6 +200,33 @@ describe('ModuleWorkspace', () => {
             name: 'BankRating',
             source: [[{ cell: 'A1', value: 'Bank' }]],
         } as never)
+    })
+
+    it('says the table is put down when the reader stops editing, and not before', async () => {
+        // Taking a table up to write it holds the project; this screen is what says the reader has put it down.
+        // What that releases is the server's to decide — it keeps the project held while changes wait to be saved.
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await screen.findByTestId('module-table')
+
+        await userEvent.click(screen.getByTestId('table-edit'))
+        expect(screen.getByTestId('module-table')).toHaveAttribute('data-editing', 'true')
+        expect(stopEditingTable).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('table-edit-stop'))
+
+        expect(stopEditingTable).toHaveBeenCalledWith('p1', 't-1')
+    })
+
+    it('says the table is put down when the reader leaves the module while still editing', async () => {
+        workspace.opened = true
+        const { unmount } = render(<ModuleWorkspace />)
+        await screen.findByTestId('module-table')
+        await userEvent.click(screen.getByTestId('table-edit'))
+
+        unmount()
+
+        expect(stopEditingTable).toHaveBeenCalledWith('p1', 't-1')
     })
 
     it('hands the table over whole with the count of header rows to keep out of sight', async () => {

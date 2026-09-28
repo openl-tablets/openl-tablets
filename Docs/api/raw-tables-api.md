@@ -534,10 +534,10 @@ Insert operations allocate the complete block before applying its inline merges.
 the insertion position are shifted together and preserved; an inline merge does not expand when another item from the
 same request is inserted.
 
-### How a Cell Is Written
+### Editing a Table
 
-An editor asks once, when it starts editing a table, how the table's cells take a value — and needs nothing more
-while the user edits:
+Editing a table begins with one request. It answers how the table's cells take a value — everything the editor
+needs for as long as the user edits — and it locks the project for the caller:
 
 ```text
 GET /rest/projects/{projectId}/tables/{tableId}/editors?startRow=0&maxRows=100
@@ -567,6 +567,31 @@ been written yet.
 Which fields an editor carries depends on its kind: `combo` and `multiselect` carry the values to choose from,
 `numeric` the bounds of the cell's type, `array` how its entries are written, and `range` the editor one bound is
 entered with.
+
+The lock is why this request and not another: an edit made on screen reaches the workbook only when it is saved,
+and nothing else says when editing begins. While the project is locked its tables are read-only to everybody
+else — their reads of it carry no `canWrite`, and beginning to edit or writing a table answers `409`:
+
+```json
+{
+  "code": "openl.error.409.project.locked.by.message",
+  "message": "The project is locked by user 'admin'."
+}
+```
+
+Editing ends with the other side of the same address:
+
+```text
+DELETE /rest/projects/{projectId}/tables/{tableId}/editors
+```
+
+It releases the lock, **but only where the project has nothing of its own left to protect** — a table saved into
+the workspace and not yet committed keeps it, because another user must not write the project while those
+changes are waiting to be saved. A lock somebody else holds is left alone, so the request is safe to repeat and
+safe to send where editing never began. Saving the project or closing it releases the lock as well.
+
+A client that writes tables without an editor needs none of this: every write endpoint locks the project by
+itself. See [The Project Editing Lock](../architecture/project-editing-lock.md).
 
 ### Styling Cells
 

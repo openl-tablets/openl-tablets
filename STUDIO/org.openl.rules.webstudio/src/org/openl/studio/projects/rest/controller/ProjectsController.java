@@ -633,6 +633,21 @@ public class ProjectsController {
         return projectService.getTableDetails(project, tableId, module);
     }
 
+    /**
+     * The end of editing the table, the other side of the GET that began it.
+     *
+     * <p>The table names the address, not the work: a project is held as one, so the table being put down is
+     * the reader's way of saying which editor closed rather than something the release is about.
+     */
+    @SuppressWarnings("unused")
+    @DeleteMapping("/{projectId}/tables/{tableId}/editors")
+    @Operation(summary = "projects.table.editors.stop.summary", description = "projects.table.editors.stop.desc")
+    public void stopEditingTable(@ProjectId @PathVariable("projectId") RulesProject project,
+                                 @PathVariable("tableId") @Parameter(description = "project.table.id.desc")
+                                 String tableId) throws ProjectException {
+        projectService.stopEditing(project);
+    }
+
     @GetMapping("/{projectId}/tables/{tableId}/editors")
     @Operation(summary = "projects.table.editors.summary", description = "projects.table.editors.desc")
     public TableEditorsView getTableEditors(@ProjectId @PathVariable("projectId") RulesProject project,

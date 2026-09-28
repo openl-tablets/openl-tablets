@@ -3,11 +3,16 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
+import { ApiHttpError, notifyLoadFailure } from '../../services/apiCall'
 import { getTableEditors, NO_EDITORS } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
+vi.mock('../../services/apiCall', async importOriginal => ({
+    ...await importOriginal<typeof import('../../services/apiCall')>(),
+    notifyLoadFailure: vi.fn(),
+}))
 vi.mock('../../services/modules', async importOriginal => ({
     ...await importOriginal<typeof import('../../services/modules')>(),
     getTableEditors: vi.fn(),
@@ -67,6 +72,118 @@ describe('TableEditor', () => {
     beforeEach(() => {
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
         vi.mocked(getTableEditors).mockResolvedValue(NO_EDITORS)
+    })
+
+    it('asks about the table now on screen even while the one before it is still answering', async () => {
+        // The screen is kept across tables, so an answer still on its way belongs to a table nobody is looking
+        // at any more — and it must not stand in the way of asking about the one that is.
+        let answerFirst: ((answer: typeof NO_EDITORS) => void) | undefined
+        vi.mocked(getTableEditors)
+            .mockImplementationOnce(() => new Promise(resolve => { answerFirst = resolve }))
+            .mockResolvedValue(NO_EDITORS)
+        const { rerender } = render(
+            <TableEditor
+                canWrite
+                editing
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-1"
+                testId="module-table"
+            />
+        )
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        rerender(
+            <TableEditor
+                canWrite
+                editing
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-2"
+                testId="module-table"
+            />
+        )
+        act(() => answerFirst?.(NO_EDITORS))
+
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(2))
+        expect(vi.mocked(getTableEditors).mock.calls[1]?.[1]).toBe('table-2')
+    })
+
+    it('asks again when the table is taken up a second time, so the project is held again', async () => {
+        // Putting the table down lets the project go. Taking it up again without asking would let the reader
+        // fill in cells of a project somebody else may have taken meanwhile, and say so only on the save.
+        const of = (editing: boolean) => (
+            <TableEditor
+                canWrite
+                editing={editing}
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-1"
+                testId="module-table"
+            />
+        )
+        const { rerender } = render(of(true))
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        rerender(of(false))
+        rerender(of(true))
+
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(2))
+    })
+
+    it('keeps editing when a window it cannot read is asked for over cells already written', async () => {
+        // Reading more rows asks about the wider window. Refused, the cells the reader has written are still
+        // theirs to save, and Save is on the editing toolbar — so editing stays where it is.
+        const onEditingChange = vi.fn()
+        const of = (maxRows: number) => (
+            <TableEditor
+                canWrite
+                editing
+                maxRows={maxRows}
+                moduleName="Claims"
+                onEditingChange={onEditingChange}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-1"
+                testId="module-table"
+            />
+        )
+        const { rerender } = render(of(2))
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+        await write('Good Morning', 'Good Day')
+
+        vi.mocked(getTableEditors).mockRejectedValue(new ApiHttpError(404, 'The table is not found.'))
+        rerender(of(4))
+
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(2))
+        expect(onEditingChange).not.toHaveBeenCalledWith(false)
+        expect(screen.getByTestId('table-edit-save')).toBeInTheDocument()
+    })
+
+    it('closes again when the table cannot be taken up, rather than editing what cannot be saved', async () => {
+        // Asking how the cells are written is what takes the table up to write it, and the server reserves the
+        // project then. Another user holding it answers 409, and there is nothing to edit.
+        vi.mocked(getTableEditors).mockRejectedValue(
+            new ApiHttpError(409, 'The project is locked by user \'user2\'.')
+        )
+
+        const { onEditingChange } = draw()
+
+        await waitFor(() => expect(onEditingChange).toHaveBeenCalledWith(false))
+        expect(notifyLoadFailure).toHaveBeenCalledWith(
+            'browser.module.edit_refused',
+            expect.objectContaining({ status: 409 })
+        )
     })
 
     it('opens a date cell on the date it holds, whichever of OpenL\'s formats it is written in', async () => {

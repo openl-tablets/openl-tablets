@@ -2185,6 +2185,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * <p>Read once, when a screen starts editing a table, rather than cell by cell as the user moves through it:
      * the answer describes the whole window the table was read as, so no further request is made while editing.
      *
+     * <p>Asking this is taking the table up to write it, and that is where the project is reserved for the
+     * reader — as the old editor reserved it on its own Edit. Nothing else says when editing begins: an edit is
+     * made on screen and reaches the workbook only when the reader saves, and until then a second reader would
+     * be offered the same table, write over it, and one of the two would lose the work they had already saved.
+     * So the project is held from here until the reader puts the table down, and while it is held its tables
+     * are read-only to everybody else.
+     *
+     * <p>Which is why the table is resolved as a write resolves it. A table that cannot be written — one
+     * gathered from several partial tables, or one belonging to a project this one depends on — is refused
+     * here, rather than answered with editors and then refused the first write made through them, having held
+     * a project that was never the one the table is written in.
+     *
      * @param project    project owning the table
      * @param tableId    table to read
      * @param startRow   zero-based index of the first row to look at, or {@code null} for the top
@@ -2192,11 +2204,40 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param moduleName module the table is asked for through, so the answer is ready once that module is
      *                   compiled
      * @return the editors the table needs and the cells that ask for them
+     * @throws ConflictException when the project is held by another user
      */
     public TableEditorsView getTableEditors(RulesProject project, String tableId, @Nullable Integer startRow,
             @Nullable Integer maxRows, @Nullable String moduleName) {
-        var context = getOpenLTableInModule(project, tableId, moduleName);
+        requireGranted(project, BasePermission.WRITE);
+        var context = getWritableTable(project, tableId, moduleName);
+        reserveForWriting(project);
         return tableEditorsReader.read(context.table(), startRow, maxRows);
+    }
+
+    /**
+     * Puts a table down again: the reader has stopped editing it.
+     *
+     * <p>The reservation the project was taken up under is given back, but only where there is nothing left to
+     * protect. A project holding changes of its own — a table saved into the workspace and not yet committed —
+     * keeps it, because that is what the lock is for: another user must not write the same project while those
+     * changes are waiting to be saved. This is the rule the old editor released on, where
+     * {@code TableBean.tryUnlock} let a lock go only {@code if (!currentProject.isModified())}.
+     *
+     * <p>Nothing else is touched. A lock another user holds is theirs, so an editor closing — whatever the
+     * reader is allowed to do elsewhere — can never take a project away from the user working in it. Breaking
+     * such a lock is the Unlock action on the project, and an administrator's.
+     *
+     * <p>Asked of a project this user never took up, or one under no lock at all, it does nothing and says
+     * nothing: the editor sends it on every close, including one that was refused a moment ago.
+     *
+     * @param project project whose table is being put down
+     */
+    public void stopEditing(RulesProject project) throws ProjectException {
+        // Whose the lock is, is the release's own business: releaseMyLock lets go of one of this user's and
+        // leaves anybody else's where it is, which the bare unlock beneath it would not.
+        if (!project.isModified()) {
+            project.releaseMyLock();
+        }
     }
 
     /**

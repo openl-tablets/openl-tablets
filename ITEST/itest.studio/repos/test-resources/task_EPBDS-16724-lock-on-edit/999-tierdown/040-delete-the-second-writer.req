@@ -1,0 +1,4 @@
+DELETE /rest/users/EPBDS-16724-writer HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+

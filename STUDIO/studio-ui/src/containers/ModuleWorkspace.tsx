@@ -13,6 +13,7 @@ import {
     getModuleTables,
     getRawTable,
     listModules,
+    stopEditingTable,
     TABLE_PAGE_ROWS,
     type ModuleInfo,
 } from '../services/modules'
@@ -22,7 +23,7 @@ import { moduleRoute, toUrlSafeId } from '../services/projectId'
 import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
-import { useCanonicalProjectAddress, useLoadGeneration } from '../hooks'
+import { useCanonicalProjectAddress, useLoadGeneration, useReleaseOnClose } from '../hooks'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
@@ -551,6 +552,18 @@ export const ModuleWorkspace = () => {
         setEditing(false)
         setEditCell(null)
     }, [moduleName, selectedId])
+
+    // Taking a table up to write it holds the project, so that nobody else is offered the same table while the
+    // edits are still on screen. This says the reader has put it down again — they closed the editor, opened
+    // another table, left the module or closed the page. The server lets the project go only where there is
+    // nothing left to protect, so a project carrying changes that are saved and not committed keeps it.
+    const heldProject = editing ? project?.id ?? null : null
+    const heldTable = editing ? selectedId : null
+    const putDown = useCallback(
+        () => (heldProject === null || heldTable === null ? undefined : stopEditingTable(heldProject, heldTable)),
+        [heldProject, heldTable]
+    )
+    useReleaseOnClose(heldProject === null || heldTable === null ? null : putDown)
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
