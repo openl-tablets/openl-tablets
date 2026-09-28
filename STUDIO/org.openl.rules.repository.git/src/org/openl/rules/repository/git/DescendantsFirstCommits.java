@@ -111,15 +111,7 @@ final class DescendantsFirstCommits implements Iterator<RevCommit> {
         for (var i = 0; i < run.size(); i++) {
             positions.put(run.get(i), i);
         }
-        var descendants = new int[run.size()];
-        for (var commit : run) {
-            for (var parent : commit.getParents()) {
-                var position = positions.get(parent);
-                if (position != null) {
-                    descendants[position]++;
-                }
-            }
-        }
+        var descendants = countDescendants(run, positions);
 
         var ready = new PriorityQueue<Integer>();
         for (var i = 0; i < run.size(); i++) {
@@ -137,5 +129,21 @@ final class DescendantsFirstCommits implements Iterator<RevCommit> {
                 }
             }
         }
+    }
+
+    /**
+     * Counts for each commit of the run the commits of the run that name it as a parent.
+     */
+    private static int[] countDescendants(List<RevCommit> run, Map<RevCommit, Integer> positions) {
+        var descendants = new int[run.size()];
+        for (var commit : run) {
+            for (var parent : commit.getParents()) {
+                var position = positions.get(parent);
+                if (position != null) {
+                    descendants[position]++;
+                }
+            }
+        }
+        return descendants;
     }
 }
