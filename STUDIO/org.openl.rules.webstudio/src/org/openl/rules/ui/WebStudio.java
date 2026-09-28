@@ -152,6 +152,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProtectedBranchBypassService bypassService;
     private final ProjectAccessService projectAccessService;
 
+    /** Lets one write at a time into the workbooks this session holds. */
+    @Getter
+    private final WorkbookWrites workbookWrites = new WorkbookWrites();
+
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
                      UserSettingManagementService userSettingManagementService,

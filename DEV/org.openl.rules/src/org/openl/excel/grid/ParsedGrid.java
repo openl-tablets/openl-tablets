@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelReaderFactory;
@@ -47,7 +49,11 @@ public class ParsedGrid extends AGrid {
     private final List<IGridRegion> regions = new ArrayList<>();
     private final RegionsPool regionsPool = new RegionsPool();
 
-    private XlsSheetGridModel writableGrid;
+    /**
+     * The sheet taken up to be written, and by whom — read by every thread that reads a cell, so held as one
+     * value that changes at once.
+     */
+    private final AtomicReference<Editing> editing = new AtomicReference<>();
 
     private IGridTable[] tables;
     private TableStyles currentTableStyles;
@@ -282,25 +288,63 @@ public class ParsedGrid extends AGrid {
         return sheetDescriptor.getFirstColNum();
     }
 
+    /**
+     * Takes this sheet up to be written, and answers with the grid that writes into the workbook itself.
+     *
+     * <p>Whoever asks last is the one writing. Writers do not meet here: Studio runs them one at a time, and
+     * asking again is how the next one takes over a sheet a failed write never said it had finished with.
+     */
     protected IWritableGrid getWritableGrid() {
-        if (writableGrid == null) {
-            sheetSource.getWorkbookSource().getWorkbookLoader().setCanUnload(false);
-            writableGrid = new XlsSheetGridModel(sheetSource);
-            // Prepare workbook for edit (load it to memory before editing starts)
-            sheetSource.getSheet();
+        var held = editing.get();
+        var mine = Thread.currentThread().threadId();
+        if (held != null && held.editor() == mine) {
+            return held.grid();
         }
-        return writableGrid;
+        var grid = held == null ? openForWriting() : held.grid();
+        editing.set(new Editing(grid, mine));
+        return grid;
     }
 
+    private XlsSheetGridModel openForWriting() {
+        sheetSource.getWorkbookSource().getWorkbookLoader().setCanUnload(false);
+        var grid = new XlsSheetGridModel(sheetSource);
+        // Prepare workbook for edit (load it to memory before editing starts)
+        sheetSource.getSheet();
+        return grid;
+    }
+
+    /**
+     * The write has finished: the workbook may be unloaded again, and the sheet is read from what was parsed.
+     *
+     * <p>Let go of whoever was writing, not only of the caller: a save of the workbook says this of every sheet
+     * in it, and a write left behind by a request that failed would otherwise keep the workbook in memory for
+     * as long as the module lives.
+     */
     protected void stopEditing() {
-        if (isEditing()) {
+        if (editing.getAndSet(null) != null) {
             sheetSource.getWorkbookSource().getWorkbookLoader().setCanUnload(true);
-            writableGrid = null;
         }
     }
 
-    protected boolean isEditing() {
-        return writableGrid != null;
+    /**
+     * The grid the thread asking is writing this sheet through, or {@code null} when it is not writing it.
+     *
+     * <p>Only the writer reads through the workbook, where its own unsaved cells are. Everybody else is answered
+     * with nothing and reads the sheet as it was parsed: what is in the workbook is half of somebody's write,
+     * and a POI workbook read while it is being written into corrupts the store both of them are on.
+     */
+    protected @Nullable IWritableGrid writableGridIfWriting() {
+        var held = editing.get();
+        return held != null && held.editor() == Thread.currentThread().threadId() ? held.grid() : null;
+    }
+
+    /**
+     * A sheet taken up to be written, and the thread writing it.
+     *
+     * <p>The writer is named by its id rather than by the thread itself, so that a write which never said it had
+     * finished keeps nothing alive.
+     */
+    private record Editing(XlsSheetGridModel grid, long editor) {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

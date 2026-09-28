@@ -80,6 +80,13 @@ write changes lives only in that workbook until it is saved, so it must not be c
 `XlsWorkbookSourceCodeModule.save()` clears the mark. Reading through `getSheet()` and writing into what it
 returned loses the change whenever the workbook is collected in between.
 
+**One thread at a time**: a `Workbook` is an Apache POI object over an XmlBeans store, and neither is safe to
+touch from two threads. A write racing a save leaves the store's cursor list with a broken link — which spins at
+a whole core until the server is restarted — fails the store's own assertion halfway through the save, or writes
+a cell at index -1. `ParsedGrid` hands the writable grid to the thread that took the sheet up and answers
+everybody else with the sheet as it was parsed; Studio queues the writes of one session behind one another
+(`WorkbookWrites`). Anything new that changes a workbook belongs inside that queue.
+
 ## Rule Utility Libraries (`org.openl.rules.util`)
 
 **Registration**: every new class must be added to `org.openl.conf.LibrariesRegistry` via `DEFAULT.addJavalib(YourClass.class)` in its `static` initializer. Forgetting this leaves the methods invisible to rules.

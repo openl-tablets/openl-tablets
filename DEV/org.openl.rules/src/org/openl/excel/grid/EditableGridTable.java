@@ -14,7 +14,8 @@ public class EditableGridTable extends GridTable {
 
     @Override
     public IGrid getGrid() {
-        return grid.isEditing() ? grid.getWritableGrid() : super.getGrid();
+        var written = grid.writableGridIfWriting();
+        return written == null ? super.getGrid() : written;
     }
 
     @Override
