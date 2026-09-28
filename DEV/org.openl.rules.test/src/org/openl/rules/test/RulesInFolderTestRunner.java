@@ -240,15 +240,15 @@ public class RulesInFolderTestRunner {
          * @return the compiled rules, or {@code null} when the file cannot be read and the failure is reported
          */
         private CompiledOpenClass compileWorkbook(String path, File file, long startTime) {
-            String sourceFile = file.getName();
+            String fileName = file.getName();
             try {
                 new FileInputStream(file).close();
             } catch (Exception ex) {
-                error(0, startTime, sourceFile, "Failed to read the excel file.", ex);
+                error(0, startTime, fileName, "Failed to read the excel file.", ex);
                 return null;
             }
 
-            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(path + sourceFile);
+            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(path + fileName);
             engineFactory.setExecutionMode(executionMode);
             return engineFactory.getCompiledOpenClass();
         }
