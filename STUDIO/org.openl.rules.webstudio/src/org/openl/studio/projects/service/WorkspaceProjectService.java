@@ -75,6 +75,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.WorkbookWrites;
 import org.openl.rules.webstudio.web.CellValueSelector;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TableHeaderSelector;
@@ -2371,6 +2372,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Runs a write of a table, and has the module built from its workbook again when the write is refused.
      *
+     * <p>Runs on its own: a write waits here for the one before it to have written its file, because two of
+     * them inside one workbook tear it apart — see {@link WorkbookWrites}.
+     *
      * <p>A refused write stops part-way. Nothing of it reaches the disk, but what it had already changed stays in
      * the workbook the session holds, where every request that follows would read it — and be judged against it:
      * a cell cleared by a write that was then refused makes the next write look as if it emptied the line.
@@ -2380,14 +2384,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return whatever the write answers
      */
     private <T> T writing(Supplier<T> write) {
-        try {
-            return write.get();
-        } catch (RuntimeException refused) {
-            // Read again now, not when the reader next asks for it: what the session holds is a workbook no
-            // author wrote, and every request that follows would be judged against it.
-            getWebStudio().rebuildCurrentModule();
-            throw refused;
-        }
+        var studio = getWebStudio();
+        return studio.getWorkbookWrites().writing(() -> {
+            try {
+                return write.get();
+            } catch (RuntimeException refused) {
+                // Read again now, not when the reader next asks for it: what the session holds is a workbook no
+                // author wrote, and every request that follows would be judged against it.
+                studio.rebuildCurrentModule();
+                throw refused;
+            }
+        });
     }
 
     /**
@@ -2611,7 +2618,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             // Recompile so the empty module carries a sheet to write into, then rebuild the copy there.
             getWebStudio().reset();
             var projectModel = openProject(project, request.moduleName()).awaitCompiled();
-            writeCopy(projectModel, source, request, sheetName);
+            // Through the queue like every other write: the copy is read out of the source table's workbook,
+            // which is one this session already holds and another request may be writing.
+            writing(() -> writeCopy(projectModel, source, request, sheetName));
             return null;
         } catch (RuntimeException | ProjectException e) {
             // The write can fail after the empty module is registered — unlike the atomic create path. Remove

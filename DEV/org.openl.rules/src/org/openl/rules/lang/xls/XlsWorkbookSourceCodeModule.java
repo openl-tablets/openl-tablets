@@ -9,11 +9,11 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +44,16 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     private final Set<Short> wbColors = new TreeSet<>();
 
+    /**
+     * What is told when this workbook is saved.
+     *
+     * <p>Added to while the workbook is being parsed and walked while it is being saved, and those are two
+     * threads: a sheet parsed during a save of another sheet's write would otherwise leave the save walking a
+     * list that has grown under it. Bought by an iterator that removes nothing, so a listener is taken away
+     * with {@code removeIf} rather than through one.
+     */
     @Getter
-    private final Collection<XlsWorkbookListener> listeners = new ArrayList<>();
+    private final Collection<XlsWorkbookListener> listeners = new CopyOnWriteArrayList<>();
 
     @Getter
     @Setter

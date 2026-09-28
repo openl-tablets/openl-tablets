@@ -3,9 +3,7 @@ package org.openl.rules.lang.xls.load;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,11 +13,11 @@ import java.util.concurrent.Executors;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.lang.xls.TestWorkbooks;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -38,11 +36,7 @@ class UnloadableLazyWorkbookLoaderTest {
 
     @BeforeEach
     void writeWorkbook() throws IOException {
-        file = folder.resolve("Test.xlsx");
-        try (var workbook = new XSSFWorkbook(); OutputStream out = Files.newOutputStream(file)) {
-            workbook.createSheet("Sheet1").createRow(0).createCell(0).setCellValue("read from the file");
-            workbook.write(out);
-        }
+        file = TestWorkbooks.writeOneCell(folder);
     }
 
     @Test

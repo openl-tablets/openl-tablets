@@ -30,11 +30,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -77,6 +84,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.WorkbookWrites;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -1365,6 +1373,50 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void two_writes_of_one_session_never_reach_the_workbook_at_the_same_time() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(webStudio.getCurrentProject()).thenReturn(mock(RulesProject.class));
+        stubResolvedSource(service, project, mock(IOpenLTable.class));
+        var properties = List.of(new TableProperty("state", "AL"));
+        var writing = new AtomicInteger();
+        var atOnce = new AtomicBoolean();
+        when(tablePropertiesService.write(any(), eq(properties))).thenAnswer(write -> {
+            if (writing.incrementAndGet() > 1) {
+                atOnce.set(true);
+            }
+            // Long enough that a second write let through would still be here.
+            Thread.sleep(50);
+            writing.decrementAndGet();
+            return "src-id";
+        });
+
+        var together = new CyclicBarrier(2);
+        var pool = Executors.newFixedThreadPool(2);
+        try {
+            var answers = pool.invokeAll(Collections.nCopies(2, (Callable<String>) () -> {
+                // Waited for with a limit: one of the two failing before the barrier must not hang the build.
+                together.await(30, TimeUnit.SECONDS);
+                return service.updateTableProperties(project, "src-id", properties, null);
+            }));
+            for (var answer : answers) {
+                answer.get();
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+
+        // Both wrote, one after the other — see WorkbookWrites for what two writes meeting inside one workbook
+        // do to it.
+        assertFalse(atOnce.get(), "two writes reached the workbook at the same time");
+    }
+
+    @Test
     void a_table_written_in_pieces_is_not_written_to() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);
@@ -2475,6 +2527,9 @@ class WorkspaceProjectServiceTest {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
         doReturn(List.of()).when(dependencyResolver).getDependsOnProject(any(RulesProject.class));
+        // Writes run through the session's queue, so the studio a test is given has a real one: stubbed away,
+        // it would answer a write without running it.
+        when(webStudio.getWorkbookWrites()).thenReturn(new WorkbookWrites());
 
         return new WorkspaceProjectService(
                 acl,
