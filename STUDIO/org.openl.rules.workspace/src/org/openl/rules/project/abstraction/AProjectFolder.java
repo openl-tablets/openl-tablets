@@ -139,14 +139,11 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         if (subFolderNameEnd > -1) {
             // Has subfolder
             var name = artefactPath.substring(subFolderNameStart, subFolderNameEnd);
-            var folder = (AProjectFolder) artefactsInternal.get(name);
-            if (folder == null) {
-                folder = new AProjectFolder(new HashMap<>(),
-                        artefact.getProject(),
-                        artefact.getRepository(),
-                        path + "/" + name);
-                artefactsInternal.put(name, folder);
-            }
+            var folder = (AProjectFolder) artefactsInternal.computeIfAbsent(name,
+                    k -> new AProjectFolder(new HashMap<>(),
+                            artefact.getProject(),
+                            artefact.getRepository(),
+                            path + "/" + name));
             folder.addArtefact(artefact);
         } else {
             artefactsInternal.put(artefact.getName(), artefact);
