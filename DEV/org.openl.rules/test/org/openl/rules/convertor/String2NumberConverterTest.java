@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class String2NumberConverterTest {
 
@@ -71,36 +72,12 @@ class String2NumberConverterTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test
-    void testParseNotNumber() {
+    // Not a number, empty, a percent sign alone, a lower case exponent and a trailing space
+    @ParameterizedTest
+    @ValueSource(strings = {"3.1415d", "", "%", "1e1", "1 "})
+    void testParseInvalid(String text) {
         String2NumberConverter<Number> converter = getNumberConverter();
-        assertThrows(NumberFormatException.class, () -> converter.parse("3.1415d", null));
-    }
-
-    @Test
-    void testParseEmpty() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        // skip using a String Pool in runtime
-        assertThrows(NumberFormatException.class, () -> converter.parse("", null));
-    }
-
-    @Test
-    void testParsePercentSign() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        // skip using a String Pool in runtime
-        assertThrows(NumberFormatException.class, () -> converter.parse("%", null));
-    }
-
-    @Test
-    void testParseNotENumber() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        assertThrows(NumberFormatException.class, () -> converter.parse("1e1", null));
-    }
-
-    @Test
-    void testParseWithSpaces() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        assertThrows(NumberFormatException.class, () -> converter.parse("1 ", null));
+        assertThrows(NumberFormatException.class, () -> converter.parse(text, null));
     }
 
     private String2NumberConverter<Number> getNumberConverter() {

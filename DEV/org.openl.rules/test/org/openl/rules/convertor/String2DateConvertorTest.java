@@ -13,6 +13,8 @@ import java.util.TimeZone;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class String2DateConvertorTest {
 
@@ -46,28 +48,12 @@ class String2DateConvertorTest {
         assertEquals(new Date(114, 5, 17), result);
     }
 
-    @Test
-    void testParseEmpty() {
+    // Empty, not a date, an extra symbol and a misprint
+    @ParameterizedTest
+    @ValueSource(strings = {"", "Kin-Dza-Dza", "2021-01-01T", "10/13/20 17"})
+    void testParseInvalid(String value) {
         var converter = new String2DateConvertor();
-        assertThrows(IllegalArgumentException.class, () -> converter.parse("", null));
-    }
-
-    @Test
-    void testParseWrongValue() {
-        var converter = new String2DateConvertor();
-        assertThrows(IllegalArgumentException.class, () -> converter.parse("Kin-Dza-Dza", null));
-    }
-
-    @Test
-    void testParseExtraSymbol() {
-        var converter = new String2DateConvertor();
-        assertThrows(IllegalArgumentException.class, () -> converter.parse("2021-01-01T", null));
-    }
-
-    @Test
-    void testParseMissprint() {
-        var converter = new String2DateConvertor();
-        assertThrows(IllegalArgumentException.class, () -> converter.parse("10/13/20 17", null));
+        assertThrows(IllegalArgumentException.class, () -> converter.parse(value, null));
     }
 
     @Test
