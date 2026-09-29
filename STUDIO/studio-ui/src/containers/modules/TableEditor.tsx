@@ -263,7 +263,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // The cell already closed, so a second closer of the same cell writes nothing more; see closeCell.
     const closedCell = useRef<CellAt | null>(null)
     // Whether cells are written and unsaved, where a callback can read it without being renewed on every one
-    // of them: the asking below must not start again because the reader filled in a cell. Set beside `dirty`.
+    // of them: the asking below must not start again because the reader filled in a cell. Set beside `dirty`,
+    // and cleared the moment the cells are saved or dropped.
     const unsaved = useRef(false)
 
     // How the cells take a value is read once, when the reader starts editing, and for the window the table was
@@ -347,7 +348,11 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     // Cells written and not yet saved live on this screen alone: leaving it loses them, so the reader is asked
     // first — whether they leave by opening another table, by the Back button, or by closing the page.
-    const leaving = useBlocker(dirty)
+    //
+    // The router asks at the moment the reader leaves, not as of the last drawing. A save opens the table it has
+    // written at once, before the editor is drawn again without the cells it saved.
+    const holdsBack = useCallback(() => unsaved.current, [])
+    const leaving = useBlocker(holdsBack)
     useEffect(() => {
         if (!dirty) {
             return undefined
@@ -537,6 +542,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     /** Leaves the table as it was read, dropping whatever was written into it. */
     const discard = () => {
+        // Nothing is left to lose from here on, even before the editor is drawn again.
+        unsaved.current = false
         setOpen(null)
         setBuffer(NO_EDITS)
         setClosing(false)

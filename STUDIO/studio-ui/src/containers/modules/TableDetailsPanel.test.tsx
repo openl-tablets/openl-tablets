@@ -6,6 +6,7 @@ import { getTableDetails, type TableDetails } from '../../services/modules'
 import { getProjectProperties } from '../../services/projects'
 import { updateTableProperties } from '../../services/tables'
 import { TableDetailsPanel } from './TableDetailsPanel'
+import type { Written } from './TableEditor'
 
 vi.mock('../../services/modules', () => ({ getTableDetails: vi.fn() }))
 vi.mock('../../services/projects', () => ({ getProjectProperties: vi.fn() }))
@@ -68,7 +69,7 @@ interface DrawProps {
     canWrite?: boolean
     onSaved?: (tableId: string) => void
     listed?: boolean
-    beforeSave?: () => Promise<string | null>
+    beforeSave?: () => Promise<Written | null>
 }
 
 const panel = (props: DrawProps) => (
@@ -210,7 +211,7 @@ describe('TableDetailsPanel', () => {
     it('writes what the table holds before its properties, and writes them to the table that leaves', async () => {
         // The reader has cells of their own on screen; writing them may move the table, so the properties
         // are written to the table as it stands afterwards.
-        const beforeSave = vi.fn().mockResolvedValue('table-2')
+        const beforeSave = vi.fn().mockResolvedValue({ tableId: 'table-2', changed: true })
         const onSaved = vi.fn()
         await edit({ beforeSave, onSaved })
 
@@ -222,6 +223,60 @@ describe('TableDetailsPanel', () => {
         expect(updateTableProperties).toHaveBeenCalledWith('p1', 'table-2',
             [{ name: 'description', value: 'Greets by the hour' }], 'Claims')
         expect(onSaved).toHaveBeenCalledWith('table-1')
+    })
+
+    it('has the screen read the table again under the id its cells moved it to when its properties are refused',
+        async () => {
+            vi.mocked(updateTableProperties).mockResolvedValue(null)
+            const beforeSave = vi.fn().mockResolvedValue({ tableId: 'table-2', changed: true })
+            const onSaved = vi.fn()
+            await edit({ beforeSave, onSaved })
+
+            await userEvent.clear(screen.getByTestId('table-details-input-description'))
+            await userEvent.type(screen.getByTestId('table-details-input-description'), 'Greets by the hour')
+            await userEvent.click(screen.getByTestId('table-details-save'))
+
+            // The cells stay written though the properties are not, and the table stands under another id now.
+            expect(onSaved).toHaveBeenCalledWith('table-2')
+        })
+
+    it('keeps what the reader wrote while the screen follows the table its refused save moved', async () => {
+        vi.mocked(updateTableProperties).mockResolvedValue(null)
+        const beforeSave = vi.fn().mockResolvedValue({ tableId: 'table-2', changed: true })
+        const onSaved = vi.fn()
+        const view = await edit({ beforeSave, onSaved })
+        // The screen opens the table under the id its cells moved it to.
+        onSaved.mockImplementation((moved: string) =>
+            view.rerender(panel({ canWrite: true, beforeSave, onSaved, tableId: moved })))
+
+        await userEvent.clear(screen.getByTestId('table-details-input-description'))
+        await userEvent.type(screen.getByTestId('table-details-input-description'), 'Greets by the hour')
+        await userEvent.click(screen.getByTestId('table-details-save'))
+        await settle()
+
+        // It is the same table, so what the reader wrote stays to be saved again.
+        expect(onSaved).toHaveBeenCalledWith('table-2')
+        expect(screen.getByTestId('table-details-input-description')).toHaveValue('Greets by the hour')
+
+        // Another table still starts afresh.
+        view.rerender(panel({ canWrite: true, beforeSave, onSaved, tableId: 'table-3' }))
+        await settle()
+        expect(screen.queryByTestId('table-details-input-description')).not.toBeInTheDocument()
+    })
+
+    it('tells the screen nothing when its properties are refused and no cell was written', async () => {
+        vi.mocked(updateTableProperties).mockResolvedValue(null)
+        const beforeSave = vi.fn().mockResolvedValue({ tableId: 'table-1', changed: false })
+        const onSaved = vi.fn()
+        await edit({ beforeSave, onSaved })
+
+        await userEvent.clear(screen.getByTestId('table-details-input-description'))
+        await userEvent.type(screen.getByTestId('table-details-input-description'), 'Greets by the hour')
+        await userEvent.click(screen.getByTestId('table-details-save'))
+
+        // Nothing of the table changed, so the reader keeps what they wrote here to save it again.
+        expect(onSaved).not.toHaveBeenCalled()
+        expect(screen.getByTestId('table-details-save')).toBeInTheDocument()
     })
 
     it('writes no properties where what the table holds cannot be written', async () => {

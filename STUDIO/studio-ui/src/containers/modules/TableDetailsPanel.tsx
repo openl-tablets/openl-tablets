@@ -18,6 +18,7 @@ import { readJson, writeJson } from '../../utils/localStore'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { toPropertyGroups } from '../tableModals/shared'
+import type { Written } from './TableEditor'
 import type { ConfirmWrite } from './useOverwriteConfirm'
 
 /** The name takes a fixed share of the panel, so a value is not squeezed into a column of its own. */
@@ -132,14 +133,19 @@ interface TableDetailsPanelProps {
     /** Runs a write after asking whatever has to be asked first; absent where nothing has to be. */
     confirmWrite?: ConfirmWrite | undefined
     /**
-     * Written before the properties are, answering the id they are then written to.
+     * Written before the properties are, answering the table they are then written to.
      *
      * <p>The properties are rows of the table itself, so whatever else of the table is waiting to be written
      * goes in first — and the table may stand under another id once it has. Answering null calls the whole
      * write off. Absent where nothing else of the table can be waiting.
      */
-    beforeSave?: (() => Promise<string | null>) | undefined
-    /** The table after its properties were written — under a new id when it had to be moved to grow. */
+    beforeSave?: (() => Promise<Written | null>) | undefined
+    /**
+     * The table after a write — under a new id when it had to be moved to grow.
+     *
+     * <p>Told of the cells written before the properties too, when the properties are then refused: the cells
+     * stay written, and the table may stand under another id.
+     */
     onSaved?: ((tableId: string) => void) | undefined
 }
 
@@ -177,6 +183,8 @@ export const TableDetailsPanel = ({
     const [saving, setSaving] = useState(false)
     // Only what the reader touched: a value they wrote, or nothing at all for a property they took away.
     const [draft, setDraft] = useState<PropertyDraft>({})
+    // The id a save whose properties were refused sent the screen to; see the effect that clears the draft.
+    const following = useRef<string | null>(null)
     // The dictionary says how each property is written — a date, a flag, one or several values of an
     // enumeration — so it is read the first time a reader writes anything. It is the dictionary of the table's own
     // kind, which the details name: a Rules table and a Spreadsheet may be given different properties. Held by
@@ -236,10 +244,15 @@ export const TableDetailsPanel = ({
         }
     }, [projectId, tableId, moduleName, open, listed])
 
-    // What is being written belongs to the table it was written on: another table is read afresh.
+    // What is being written belongs to the table it was written on: another table is read afresh. The id a refused
+    // save sent the screen to is the same table, moved by its cells, so what the reader wrote stays there.
     useEffect(() => {
-        setEditing(false)
-        setDraft({})
+        const moved = following.current === tableId
+        following.current = null
+        if (!moved) {
+            setEditing(false)
+            setDraft({})
+        }
     }, [tableId])
 
     useEffect(() => {
@@ -309,15 +322,20 @@ export const TableDetailsPanel = ({
         try {
             // Whatever else of the table is waiting to be written goes first, and says where to write these:
             // the properties are rows of the same table, and writing them may move it.
-            const writeTo = beforeSave === undefined ? tableId : await beforeSave()
-            if (writeTo === null) {
+            const cells = beforeSave === undefined ? { tableId, changed: false } : await beforeSave()
+            if (cells === null) {
                 return
             }
-            const table = await updateTableProperties(projectId, writeTo, written, moduleName)
+            const table = await updateTableProperties(projectId, cells.tableId, written, moduleName)
             if (table !== null) {
                 setEditing(false)
                 setDraft({})
                 onSaved?.(table)
+            } else if (cells.changed) {
+                // The properties were refused, but the cells are written and may have moved the table. The screen
+                // reads it again, under the id it now has, and the properties stay here to be saved again.
+                following.current = cells.tableId
+                onSaved?.(cells.tableId)
             }
         } finally {
             setSaving(false)
