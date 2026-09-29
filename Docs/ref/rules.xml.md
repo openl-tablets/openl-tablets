@@ -113,6 +113,8 @@ editor, or a direct call — and the one the OpenAPI tables generation writes. T
 - a module declares no path, or a path naming no file of the project, its letter case included;
 - a path is read by another module already: another module declares it, or a pattern reads it under the same name —
   a module declared without a name, or under the name of its workbook;
+- `openapi` generates the tables in `GENERATION` mode into two modules whose names differ only in letter case, or not
+  at all;
 - `properties-file-name-processor` names a class the project cannot provide, or one that is not a
   `PropertiesFileNameProcessor`;
 - `properties-file-name-pattern` names an unknown property, repeats a property, groups properties of different types,

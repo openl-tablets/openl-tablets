@@ -659,6 +659,7 @@ i18next.addResourceBundle('en', 'repository', {
             openapi_path_required: 'Enter the workbook the module is written to',
             openapi_path_not_excel: 'A module is written to an Excel workbook: .xlsx, .xls or .xlsm',
             openapi_path_same: 'The two modules cannot be written to one workbook',
+            openapi_names_same: 'Module names cannot be the same.',
             openapi_generated: 'The tables were generated from the OpenAPI specification',
             openapi_generate_failed: 'Failed to generate the tables',
             properties_processor: 'Properties processor',

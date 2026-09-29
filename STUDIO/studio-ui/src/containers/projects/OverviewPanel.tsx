@@ -41,10 +41,12 @@ import {
 import { getProjectIndex } from '../../services/projectIndex'
 import { MigrateButton, useDescriptorMigration } from './projectMigration'
 import { OpenApiActions, useOpenApiActions } from './openApiActions'
+import { makesOneModule } from './openApiModules'
 import { getProjectFiles } from '../../services/repositories'
 import { errorMessage } from '../../utils/errorMessage'
 import { EditableList, EditableStringList } from './EditableList'
 import { EditToolbar } from './EditToolbar'
+import { FieldError } from '../../components/FieldError'
 import { PropertiesPatternHelpModal } from './PropertiesPatternHelpModal'
 import { formatDateTime } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
@@ -739,10 +741,16 @@ const FilterPanel = ({ filter, compact }: { filter: MethodFilter, compact?: bool
 const declarationsByPath = (declarations: ModuleDeclaration[]): Record<string, ModuleDeclaration> =>
     Object.fromEntries(declarations.filter(module => module.path).map(module => [module.path, module]))
 
-/** What a descriptor section reads and edits: the working copy shown, and how a change lands in the draft. */
+/**
+ * What a descriptor section reads and edits: the working copy shown, and how a change lands in the draft.
+ *
+ * <p>`namesClash` tells that the edit generates the rules and the data types into modules of one name, which the
+ * save refuses.
+ */
 interface DescriptorEditor {
     editing: boolean
     shown: RulesDescriptor
+    namesClash: boolean
     editDraft: (change: Partial<RulesDescriptor>) => void
 }
 
@@ -886,7 +894,9 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     // than in the resolved module, so it is indexed by path and shown on the row it belongs to.
     const declaredModules = useMemo(() => declarationsByPath(rules.moduleDeclarations), [rules.moduleDeclarations])
 
-    const editor: DescriptorEditor = { editing, shown: editing ? draft : rules, editDraft }
+    const shown = editing ? draft : rules
+    // Refused only where the edit makes the names one, as the server refuses them: names saved so stay editable.
+    const editor: DescriptorEditor = { editing, shown, namesClash: makesOneModule(rules.openapi, shown.openapi), editDraft }
     return {
         state, refreshing, editing, saving, fileExists, projectNames, declaredModules, editor,
         startEditing, cancelEditing: endEditing, saveEditing,
@@ -1355,8 +1365,16 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
             <dd className={styles.openapiEditValue}>{value}</dd>
         </div>
     )
+    // The rules and the data types are generated into a module each, so one name for both is refused where it is
+    // entered, under both fields, as the Editor refused it.
+    const namesFault = editor.namesClash ? t('browser.overview.openapi_names_same') : null
     const moduleRow = (testId: string, label: string, value: string, onChange: (value: string) => void) =>
-        editRow(label, <Input data-testid={testId} onChange={event => onChange(event.target.value)} size="small" value={value} />)
+        editRow(label, (
+            <>
+                <Input data-testid={testId} onChange={event => onChange(event.target.value)} size="small" value={value} />
+                <FieldError message={namesFault} testId={`${testId}-error`} />
+            </>
+        ))
 
     const actions = canWrite && !editing
         ? (
@@ -1605,6 +1623,8 @@ export const OverviewPanel = ({
                             <EditToolbar
                                 disabled={migration.migrating}
                                 disabledEdit={descriptor.refreshing}
+                                // A draft generating into one module for both is refused under the names, not saved.
+                                disabledSave={descriptor.editor.namesClash}
                                 editing={descriptor.editing}
                                 labels={{ edit: t('browser.overview.edit'), save: t('browser.overview.save'), cancel: t('browser.overview.cancel') }}
                                 onCancel={descriptor.cancelEditing}

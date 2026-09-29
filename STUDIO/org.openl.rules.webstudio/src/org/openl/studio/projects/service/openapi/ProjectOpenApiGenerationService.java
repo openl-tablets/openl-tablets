@@ -242,13 +242,18 @@ public class ProjectOpenApiGenerationService {
         }
     }
 
-    /** The names have to be ones a repository can hold, and the two modules have to be two. */
+    /**
+     * The names have to be ones a repository can hold, and the two modules have to be two, letter case aside.
+     *
+     * <p>Names that differ only in letter case give workbooks that are one file wherever letter case is not told
+     * apart, as the Editor's form and the creation of a project from a specification refuse them.
+     */
     private static void requireWritableNames(OpenApiGenerationRequest request) {
         if (!NameChecker.checkName(request.algorithmModuleName()) || !NameChecker.checkName(request.modelModuleName())) {
             throw new ConflictException("projects.openapi.module-name.invalid.message",
                     NameChecker.getForbiddenCharacters());
         }
-        if (request.algorithmModuleName().equals(request.modelModuleName())) {
+        if (request.algorithmModuleName().equalsIgnoreCase(request.modelModuleName())) {
             throw new ConflictException("projects.openapi.module-name.same.message");
         }
     }

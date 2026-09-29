@@ -18,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
 import org.openl.rules.table.properties.ITableProperties;
@@ -239,6 +240,33 @@ class ProjectDescriptorValidatorTest {
     }
 
     @Test
+    void generatedModulesOfOneNameAreRejected() {
+        var errors = validate(withOpenApi(OpenAPI.Mode.GENERATION, "Models", "models"));
+
+        // Letter case aside the names are one, and so would be the workbooks named after them.
+        var error = errors.getFieldError("openapi.modelModuleName");
+        assertNotNull(error);
+        assertEquals("file.descriptor.openapi.module-name.same.message", error.getCode());
+    }
+
+    @Test
+    void moduleNamesOfASpecificationNothingIsGeneratedFromAreLeftAlone() {
+        // A project reconciled against its specification, or naming no mode, generates nothing from it: its names
+        // name no module to write.
+        assertFalse(validate(withOpenApi(OpenAPI.Mode.RECONCILIATION, "Models", "Models")).hasErrors());
+        assertFalse(validate(withOpenApi(null, "Models", "Models")).hasErrors());
+    }
+
+    @Test
+    void generatedModulesOfOneNameTheProjectAlreadyStoresAreLeftAlone() {
+        var stored = withOpenApi(OpenAPI.Mode.GENERATION, "Models", "Models");
+
+        // The write did not make the names the same, so the project stays writable.
+        assertFalse(validate(withOpenApi(OpenAPI.Mode.GENERATION, "Models", "Models"), projectFolder, stored)
+                .hasErrors());
+    }
+
+    @Test
     void pathLeadingOutOfTheProjectIsRejected() throws Exception {
         var project = Files.createDirectory(projectFolder.resolve("project"));
         Files.createFile(projectFolder.resolve("Rates.xlsx"));
@@ -441,6 +469,12 @@ class ProjectDescriptorValidatorTest {
     private static ProjectDescriptor withModules(Module... modules) {
         var descriptor = named();
         descriptor.setModules(List.of(modules));
+        return descriptor;
+    }
+
+    private static ProjectDescriptor withOpenApi(OpenAPI.Mode mode, String algorithmModule, String modelModule) {
+        var descriptor = named();
+        descriptor.setOpenapi(new OpenAPI("openapi.json", mode, modelModule, algorithmModule));
         return descriptor;
     }
 

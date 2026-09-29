@@ -7,6 +7,7 @@ import { FieldRow } from '../../components/FieldRow'
 import { isWorkbookPath } from '../../utils/workbooks'
 import type { OpenApiGenerationPlan, OpenApiModule, OpenApiTargets } from '../../services/openapi'
 import { CompactField } from './CompactField'
+import { namesOneModule } from './openApiModules'
 import { normalizeProjectPath } from './projectPaths'
 
 const LABEL_WIDTH = 150
@@ -108,8 +109,11 @@ export const OpenApiGenerationModal = ({ plan, busy, onCancel, onGenerate }: {
     }
     const algorithmFault = faultOf(t, targets.algorithmModulePath)
     const modelFault = faultOf(t, targets.modelModulePath)
+    // Names saved as one before they were refused where they are entered: that is what the reader is told, since
+    // no workbook either module is given makes one module into two.
+    const namesClash = namesOneModule(plan.algorithm.name, plan.model.name)
     const sharesOneWorkbook = targets.algorithmModulePath.toLowerCase() === targets.modelModulePath.toLowerCase()
-    const settled = !sharesOneWorkbook && algorithmFault === undefined && modelFault === undefined
+    const settled = !namesClash && !sharesOneWorkbook && algorithmFault === undefined && modelFault === undefined
 
     return (
         <Modal
@@ -139,7 +143,11 @@ export const OpenApiGenerationModal = ({ plan, busy, onCancel, onGenerate }: {
                 testId="openapi-plan-model"
             />
             <FieldError
-                message={sharesOneWorkbook ? t('browser.overview.openapi_path_same') : null}
+                message={namesClash ? t('browser.overview.openapi_names_same') : null}
+                testId="openapi-plan-same-name"
+            />
+            <FieldError
+                message={!namesClash && sharesOneWorkbook ? t('browser.overview.openapi_path_same') : null}
                 testId="openapi-plan-same-path"
             />
         </Modal>

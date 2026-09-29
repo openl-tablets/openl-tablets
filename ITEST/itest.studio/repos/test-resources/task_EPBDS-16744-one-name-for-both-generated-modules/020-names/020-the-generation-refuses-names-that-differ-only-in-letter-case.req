@@ -1,0 +1,12 @@
+POST /rest/projects/EPBDS-16744/openapi/generation HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "path": "openapi.json",
+  "algorithmModuleName": "Models",
+  "algorithmModulePath": "rules/Models.xlsx",
+  "modelModuleName": "models",
+  "modelModulePath": "rules/types/models.xlsx"
+}
+

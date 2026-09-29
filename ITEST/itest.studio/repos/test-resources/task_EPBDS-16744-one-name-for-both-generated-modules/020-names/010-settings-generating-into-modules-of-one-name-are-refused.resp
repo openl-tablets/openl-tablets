@@ -1,0 +1,15 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "*",
+  "fields": [
+    {
+      "code": "openl.error.file.descriptor.openapi.module-name.same.message",
+      "message": "Module names cannot be the same.",
+      "field": "openapi.modelModuleName",
+      "rejectedValue": "models"
+    }
+  ]
+}
+

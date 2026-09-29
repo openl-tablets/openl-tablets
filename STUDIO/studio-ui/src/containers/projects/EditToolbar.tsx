@@ -18,18 +18,23 @@ interface EditToolbarProps {
      * An edit already under way is untouched: it ends by its own Save or Cancel.
      */
     disabledEdit?: boolean | undefined
+    /**
+     * Disables the Save button alone — used while the draft holds what cannot be saved. The reader can still
+     * cancel, or correct the draft.
+     */
+    disabledSave?: boolean | undefined
 }
 
 /**
  * The small Edit / Save + Cancel control the editable panels share. One affordance, one look, so the
  * Overview, Publish and other tabs of a project never drift into a zoo of button sizes or orders.
  */
-export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId, labels, disabled = false, disabledEdit = false }: EditToolbarProps) => (
+export const EditToolbar = ({ editing, saving, onEdit, onSave, onCancel, testId, labels, disabled = false, disabledEdit = false, disabledSave = false }: EditToolbarProps) => (
     <Space size={8}>
         {editing
             ? (
                 <>
-                    <Button data-testid={`${testId}-save`} disabled={disabled} icon={<CheckOutlined />} loading={saving} onClick={onSave} size="small" type="primary">
+                    <Button data-testid={`${testId}-save`} disabled={disabled || disabledSave} icon={<CheckOutlined />} loading={saving} onClick={onSave} size="small" type="primary">
                         {labels.save}
                     </Button>
                     <Button data-testid={`${testId}-cancel`} disabled={saving || disabled} icon={<CloseOutlined />} onClick={onCancel} size="small">
