@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -19,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.enumeration.CaRegionsEnum;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
@@ -87,11 +90,9 @@ class RunExecutionResultMapperTest {
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(5_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
-        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(42);
         when(testUnit.getTest()).thenReturn(testDescription);
-        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
@@ -117,11 +118,9 @@ class RunExecutionResultMapperTest {
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
-        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("error"));
         when(testUnit.getTest()).thenReturn(testDescription);
-        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
@@ -139,11 +138,9 @@ class RunExecutionResultMapperTest {
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
-        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(null);
         when(testUnit.getTest()).thenReturn(testDescription);
-        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
@@ -168,11 +165,9 @@ class RunExecutionResultMapperTest {
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[]{"Age"});
-        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
         when(testUnit.getTest()).thenReturn(testDescription);
-        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(new ParameterWithValueDeclaration[]{param});
         when(paramType.getInstanceClass()).thenReturn((Class) Integer.class);
@@ -188,32 +183,31 @@ class RunExecutionResultMapperTest {
         assertNotNull(p.schema());
     }
 
+    /** A run shows the runtime context it was given, with only the fields that were entered. */
     @Test
-    void mapResult_withContextParameters() {
-        var testUnit = mock(ITestUnit.class);
-        var testDescription = mock(TestDescription.class);
-        var ctxParam = mock(ParameterWithValueDeclaration.class);
-        when(ctxParam.getName()).thenReturn("currentDate");
-        when(ctxParam.getValue()).thenReturn("2025-01-01");
-
-        when(results.getTestUnits()).thenReturn(List.of(testUnit));
-        when(results.getExecutionTime()).thenReturn(1_000_000L);
-        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
-        when(results.getContextColumnDisplayNames()).thenReturn(new String[]{"Current Date"});
-
-        when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
-        when(testUnit.getTest()).thenReturn(testDescription);
-        when(testUnit.getContextParams(results)).thenReturn(new ParameterWithValueDeclaration[]{ctxParam});
-        when(testUnit.getErrors()).thenReturn(List.of());
-        when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+    void mapResult_writesTheEnteredRuntimeContext() {
+        var context = new DefaultRulesRuntimeContext();
+        context.setCaRegion(CaRegionsEnum.QC);
+        context.setLocale(Locale.CANADA_FRENCH);
+        mockSingleUnit(context);
 
         var result = mapper.mapResult(results, true);
 
         assertEquals(1, result.contextParameters().size());
-        var cp = result.contextParameters().getFirst();
-        assertEquals("currentDate", cp.name());
-        assertEquals("Current Date", cp.description());
-        assertEquals("2025-01-01", cp.value().textValue());
+        var entered = result.contextParameters().getFirst();
+        assertEquals("runtimeContext", entered.name());
+        assertNull(entered.description());
+        assertEquals(objectMapper.createObjectNode().put("caRegion", "QC").put("locale", "fr_CA"), entered.value());
+    }
+
+    /** A context with no field set says nothing about the run, so it is not shown. */
+    @Test
+    void mapResult_leavesOutAContextWithNoFieldSet() {
+        mockSingleUnit(new DefaultRulesRuntimeContext());
+
+        var result = mapper.mapResult(results, true);
+
+        assertTrue(result.contextParameters().isEmpty());
     }
 
     @Test
@@ -228,11 +222,9 @@ class RunExecutionResultMapperTest {
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
-        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
         when(testUnit.getTest()).thenReturn(testDescription);
-        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of(error1, error2, warning));
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
@@ -260,20 +252,28 @@ class RunExecutionResultMapperTest {
 
     /**
      * Mocks a single failed test unit, so that only the result metadata is mapped.
+     *
+     * @return the description of the unit, which is run with no runtime context unless a test says otherwise
      */
-    private void mockSingleUnit() {
+    private TestDescription mockSingleUnit() {
         var testUnit = mock(ITestUnit.class);
         var testDescription = mock(TestDescription.class);
 
         when(results.getTestUnits()).thenReturn(List.of(testUnit));
         when(results.getExecutionTime()).thenReturn(1_000_000L);
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
-        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
 
         when(testUnit.getActualResult()).thenReturn(new RuntimeException("skip"));
         when(testUnit.getTest()).thenReturn(testDescription);
-        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        return testDescription;
+    }
+
+    /** Mocks a single failed test unit that was run with the given runtime context. */
+    private void mockSingleUnit(DefaultRulesRuntimeContext context) {
+        var testDescription = mockSingleUnit();
+        when(testDescription.isRuntimeContextDefined()).thenReturn(true);
+        when(testDescription.getRuntimeContext()).thenReturn(context);
     }
 }

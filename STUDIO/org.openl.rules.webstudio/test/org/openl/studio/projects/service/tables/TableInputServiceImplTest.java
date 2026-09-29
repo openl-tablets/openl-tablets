@@ -37,6 +37,7 @@ import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.trace.TableInputParserService;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
@@ -112,7 +113,7 @@ class TableInputServiceImplTest {
 
         var context = view.runtimeContext();
         assertNotNull(context);
-        assertEquals(TableInputServiceImpl.RUNTIME_CONTEXT, context.name());
+        assertEquals(TableInputParserService.RUNTIME_CONTEXT, context.name());
         assertTrue(context.schema().get("properties").has("lob"));
         assertTrue(context.schema().get("properties").has("currentDate"));
     }

@@ -36,7 +36,7 @@ public record RunExecutionResult(
         @Parameter(description = "Input parameters")
         List<ParameterValue> parameters,
 
-        @Parameter(description = "Runtime context parameters")
+        @Parameter(description = "Runtime context the table was run with, holding the fields that were set")
         List<ParameterValue> contextParameters,
 
         @Parameter(description = "Execution errors")

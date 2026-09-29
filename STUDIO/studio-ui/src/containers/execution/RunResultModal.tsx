@@ -30,15 +30,16 @@ interface RunRow {
 const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
     const { t } = useTranslation('execution')
     const valueStyles = useValueStyles()
-    const inputs = useMemo(
-        () => [...(result.contextParameters ?? []), ...(result.parameters ?? [])],
-        [result.contextParameters, result.parameters]
-    )
+    // The runtime context the table was run with goes first, under the name the input form gives it.
+    const inputs = useMemo(() => [
+        ...(result.contextParameters ?? []).map(context => ({ title: t('input.runtimeContext'), value: context.value })),
+        ...(result.parameters ?? []).map(parameter => ({ title: nameOf(parameter), value: parameter.value })),
+    ], [result.contextParameters, result.parameters, t])
 
     const columns: ListTableColumn<RunRow>[] = [
         ...inputs.map((input, index): ListTableColumn<RunRow> => ({
             key: `input-${index}`,
-            title: nameOf(input),
+            title: input.title,
             render: () => <ValueCell path={`run-input-${index}`} styles={valueStyles} value={input.value} />,
         })),
         {
