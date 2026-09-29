@@ -28,6 +28,9 @@ import org.openl.types.IOpenMethod;
  */
 public interface TableInputParserService {
 
+    /** Key the structured input carries the runtime context under. A run writes the context back under it. */
+    String RUNTIME_CONTEXT = "runtimeContext";
+
     /**
      * Result of parsing input JSON containing method parameters and optional runtime context.
      *

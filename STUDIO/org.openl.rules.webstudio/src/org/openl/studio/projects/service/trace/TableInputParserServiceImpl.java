@@ -34,7 +34,6 @@ import org.openl.util.StringUtils;
 public class TableInputParserServiceImpl implements TableInputParserService {
 
     private static final String PARAMS_FIELD = "params";
-    private static final String RUNTIME_CONTEXT_FIELD = "runtimeContext";
 
     /**
      * {@inheritDoc}
@@ -102,7 +101,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
             }
         }
 
-        var contextNode = rootNode.get(RUNTIME_CONTEXT_FIELD);
+        var contextNode = rootNode.get(RUNTIME_CONTEXT);
         if (contextNode != null && !contextNode.isNull()) {
             runtimeContext = mapper.treeToValue(contextNode, IRulesRuntimeContext.class);
         }
@@ -161,7 +160,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         // deserialized as the parameter type (which would yield an empty object).
         if (paramCount == 1
                 && !fieldMap.containsKey(signature.getParameterName(0))
-                && !fieldMap.containsKey(RUNTIME_CONTEXT_FIELD)) {
+                && !fieldMap.containsKey(RUNTIME_CONTEXT)) {
             params[0] = parseParameter(rootNode, signature.getParameterType(0), mapper, beanClasses);
             return new ParseResult(params, null);
         }
@@ -186,7 +185,7 @@ public class TableInputParserServiceImpl implements TableInputParserService {
                                                                      ObjectMapper mapper) throws IOException {
         // Check for explicit runtimeContext field first
         IRulesRuntimeContext runtimeContext = null;
-        var contextNode = fieldMap.remove(RUNTIME_CONTEXT_FIELD);
+        var contextNode = fieldMap.remove(RUNTIME_CONTEXT);
         if (contextNode != null) {
             runtimeContext = mapper.treeToValue(contextNode, IRulesRuntimeContext.class);
         } else if (!fieldMap.isEmpty()) {

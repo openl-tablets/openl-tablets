@@ -13,10 +13,12 @@ import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
+import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.model.SpreadsheetResultView;
+import org.openl.studio.projects.service.trace.TableInputParserService;
 
 public class RunExecutionResultMapper {
 
@@ -38,6 +40,9 @@ public class RunExecutionResultMapper {
      * <p>The value is written the way OpenL Rule Services publishes it, with the schema that describes it. A
      * spreadsheet result can also be laid out by its rows and columns, for a caller that shows it as the table
      * it comes from; that layout repeats the values, so it is written only when it is asked for.
+     *
+     * <p>The runtime context the table was run with is written next to the parameters, with the fields that were
+     * entered.
      *
      * @param results         what the run produced
      * @param withSpreadsheet whether to lay a spreadsheet result out by its rows and columns
@@ -76,18 +81,6 @@ public class RunExecutionResultMapper {
                 .mapToObj(i -> valueMapper.writeParameter(executionParams[i], executionParamNames[i]))
                 .toList();
 
-        // Map context parameters
-        var contextParams = firstUnit.getContextParams(results);
-        var contextParamNames = results.getContextColumnDisplayNames();
-        var contextParameters = IntStream.range(0, contextParams.length).mapToObj(i -> {
-            var param = contextParams[i];
-            return ParameterValue.builder()
-                    .name(param.getName())
-                    .value(objectMapper.valueToTree(param.getValue()))
-                    .description(contextParamNames[i])
-                    .build();
-        }).toList();
-
         // Map errors
         var errors = new ArrayList<MessageDescription>();
         firstUnit.getErrors().stream()
@@ -100,9 +93,28 @@ public class RunExecutionResultMapper {
                 .resultSchema(resultSchema)
                 .resultSpreadsheet(resultSpreadsheet)
                 .parameters(parameters)
-                .contextParameters(contextParameters)
+                .contextParameters(enteredContext(firstUnit.getTest()))
                 .errors(errors)
                 .build();
+    }
+
+    /**
+     * The runtime context the table was run with.
+     *
+     * <p>The context is one value, written under the key the input carries it under. It holds only the fields that
+     * were set, so it reads as what was entered.
+     *
+     * <p>A run given no context, or a context with no field set, has none.
+     */
+    private List<ParameterValue> enteredContext(TestDescription test) {
+        if (!test.isRuntimeContextDefined()) {
+            return List.of();
+        }
+        ObjectNode fields = objectMapper.valueToTree(test.getRuntimeContext());
+        fields.properties().removeIf(field -> field.getValue().isNull());
+        return fields.isEmpty()
+                ? List.of()
+                : List.of(ParameterValue.builder().name(TableInputParserService.RUNTIME_CONTEXT).value(fields).build());
     }
 
     /**

@@ -24,7 +24,7 @@ export interface RunResult {
     resultSpreadsheet?: SpreadsheetResultView | null
     /** The parameters the table was run with. */
     parameters?: TraceParameterValue[]
-    /** The runtime context the rules received, when the project provides one. */
+    /** The runtime context the table was run with, as one value holding the fields that were entered. */
     contextParameters?: TraceParameterValue[]
     errors?: MessageDescription[]
 }

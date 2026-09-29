@@ -30,6 +30,7 @@ import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.service.AbstractMethodExecutorService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.trace.TableInputParserService;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
@@ -44,9 +45,6 @@ import org.openl.types.java.JavaOpenClass;
 @Service
 @RequiredArgsConstructor
 public class TableInputServiceImpl extends AbstractMethodExecutorService implements TableInputService {
-
-    /** Name the runtime context is described under. The run and trace input JSON carry it under the same key. */
-    static final String RUNTIME_CONTEXT = "runtimeContext";
 
     private final WorkspaceProjectService projectService;
 
@@ -129,7 +127,7 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
         return builder
                 .parameters(parameters)
                 .runtimeContext(providesRuntimeContext()
-                        ? valueMapper.describeParameter(RUNTIME_CONTEXT,
+                        ? valueMapper.describeParameter(TableInputParserService.RUNTIME_CONTEXT,
                                 JavaOpenClass.getOpenClass(DefaultRulesRuntimeContext.class), null)
                         : null)
                 .build();

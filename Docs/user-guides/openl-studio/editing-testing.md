@@ -312,7 +312,8 @@ A rule table can be run on its own, without a test table for it.
     *Running a table with the input it takes*
 
 1.  Click **Run**. The result opens in a window over the table: one row of what the table was given and what it
-    returned, a column each, with the runtime context first when the project provides one.
+    returned, a column each, with the runtime context first when one was entered. The runtime context shows the
+    fields that were set, the way the rules received them.
 
     ![The result of running a table](images/run-result.png "Reading a run result")
 

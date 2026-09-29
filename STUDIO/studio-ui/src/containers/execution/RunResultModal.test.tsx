@@ -113,13 +113,14 @@ describe('RunResultModal', () => {
             ...value,
             result: 1200,
             parameters: [{ name: 'vehicle', description: 'Vehicle', lazy: false, value: 'Toyota' }],
-            contextParameters: [{ name: 'currentDate', description: 'Current Date', lazy: false, value: '2026-01-01' }],
+            contextParameters: [{ name: 'runtimeContext', lazy: false, value: { caRegion: 'QC', locale: 'fr_CA' } }],
         })
 
         const table = screen.getByTestId('run-result-table')
-        expect(table).toHaveTextContent('Current Date')
-        expect(table).toHaveTextContent('Vehicle')
-        expect(table).toHaveTextContent('run.result')
+        // The runtime context comes first, named the way the input form names it.
+        const headers = [...table.querySelectorAll('th')].map(header => header.textContent)
+        expect(headers).toEqual(['input.runtimeContext', 'Vehicle', 'run.result'])
+        expect(table).toHaveTextContent('{2 fields}')
         expect(table).toHaveTextContent('"Toyota"')
         expect(table).toHaveTextContent('1200')
     })
