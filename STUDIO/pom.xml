@@ -25,7 +25,6 @@
         <module>org.openl.rules.jackson</module>
         <module>org.openl.rules.project.openapi</module>
         <module>org.openl.rules.project.validation.openapi</module>
-        <module>org.openl.rules.webstudio.web</module>
         <module>org.openl.rules.webstudio</module>
         <module>org.openl.rules.demo</module>
         <module>org.openl.security</module>

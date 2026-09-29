@@ -29,7 +29,6 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 
 **Core application**:
 - **org.openl.rules.webstudio** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`)
-- **org.openl.rules.webstudio.web** — Web layer components
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
 
 **Repository & storage**:

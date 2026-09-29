@@ -257,16 +257,6 @@ webstudio.history.count = 100
 webstudio.concurrent.builds = 4
 ```
 
-### 2. org.openl.rules.webstudio.web - Web Utilities
-
-**Purpose**: Shared web utilities and servlets
-
-**Key Classes**:
-- `OpenLFilter` - Request filtering
-- `ServletUtils` - HTTP utilities
-- `WebContext` - Request context holder
-- `ExceptionHandler` - Global exception handling
-
 ---
 
 ## BATCH 5: Studio Frontend (React/TypeScript)
