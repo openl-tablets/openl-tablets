@@ -571,6 +571,47 @@ describe('OverviewPanel', () => {
         expect(saved).toContain('<algorithm-module-name>Algorithms</algorithm-module-name>')
     })
 
+    it('refuses one name for both generated modules where the names are entered', async () => {
+        setRulesXml('<project><name>P</name></project>')
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByText('browser.overview.openapi_generation'))
+
+        await user.type(screen.getByTestId('edit-openapi-algorithm'), 'Models')
+        await user.type(screen.getByTestId('edit-openapi-model'), 'models')
+
+        // Letter case aside the two names are one, as the Editor judged them: said under both, and not saved.
+        expect(screen.getByTestId('edit-openapi-algorithm-error')).toHaveTextContent('browser.overview.openapi_names_same')
+        expect(screen.getByTestId('edit-openapi-model-error')).toHaveTextContent('browser.overview.openapi_names_same')
+        expect(screen.getByTestId('overview-save')).toBeDisabled()
+
+        await user.type(screen.getByTestId('edit-openapi-model'), 'Types')
+
+        expect(screen.queryByTestId('edit-openapi-model-error')).toBeNull()
+        expect(screen.getByTestId('overview-save')).toBeEnabled()
+    })
+
+    it('keeps a project that already saved one name for both generated modules editable', async () => {
+        setRulesXml(`
+            <project>
+                <name>P</name>
+                <openapi>
+                    <path>openapi.json</path>
+                    <mode>GENERATION</mode>
+                    <model-module-name>models</model-module-name>
+                    <algorithm-module-name>Models</algorithm-module-name>
+                </openapi>
+            </project>
+        `)
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+        await user.click(screen.getByTestId('overview-edit'))
+
+        // The server takes the names as they were saved, so only an edit that makes them one is refused here.
+        expect(screen.getByTestId('edit-openapi-algorithm')).toHaveValue('Models')
+        expect(screen.queryByTestId('edit-openapi-algorithm-error')).toBeNull()
+        expect(screen.getByTestId('overview-save')).toBeEnabled()
+    })
+
     it('names the specification the engine reads, which rules.xml need not declare', async () => {
         // A descriptor naming openapi.json for reconciliation says no more than the engine does by itself,
         // so the model drops the block on save — and the project would read as having no specification.

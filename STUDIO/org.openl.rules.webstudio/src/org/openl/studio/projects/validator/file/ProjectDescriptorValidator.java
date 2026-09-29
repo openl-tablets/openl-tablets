@@ -21,6 +21,7 @@ import org.springframework.validation.Validator;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
@@ -35,8 +36,9 @@ import org.openl.util.formatters.FileNameFormatter;
  * Validator for a project descriptor ({@code rules.xml}) written to a project.
  *
  * <p>What the Editor checked field by field is checked here on the file itself: the project's name, every
- * module's name and path, and the properties file name settings. The descriptor is written as text and sent
- * as a file, so this is the only place left that can tell the author what the engine will not read.
+ * module's name and path, the two modules the OpenAPI tables are generated into, and the properties file name
+ * settings. The descriptor is written as text and sent as a file, so this is the only place left that can tell
+ * the author what the engine will not read.
  *
  * <p>The settings are checked with the engine itself: the processor class must be loadable from the
  * project, and every pattern must name existing properties in a form the engine can compile. Invalid
@@ -61,6 +63,7 @@ public class ProjectDescriptorValidator implements Validator {
     private static final String MODULES_FIELD = "modules";
     private static final String PROCESSOR_FIELD = "propertiesFileNameProcessor";
     private static final String PATTERNS_FIELD = "propertiesFileNamePatterns";
+    private static final String OPENAPI_MODEL_FIELD = "openapi.modelModuleName";
 
     /**
      * The folder of the project's working copy, or {@code null} when the project is not checked out.
@@ -112,7 +115,34 @@ public class ProjectDescriptorValidator implements Validator {
         var descriptor = (ProjectDescriptor) target;
         validateName(descriptor, errors);
         validateModules(descriptor, errors);
+        validateOpenApiModules(descriptor, errors);
         validateFileNameSettings(descriptor, errors);
+    }
+
+    /**
+     * The two modules the tables are generated into from the project's specification.
+     *
+     * <p>The rules and the data types are generated into a module each, so the two names differ, letter case
+     * aside: a workbook named after one module would be the workbook of the other wherever letter case is not
+     * told apart. The names are asked only where the settings generate the tables: a specification the project
+     * is reconciled against, or one that names no mode, generates nothing.
+     *
+     * <p>Checked only where the write makes the two names the same: a project already storing them so stays
+     * writable.
+     */
+    private void validateOpenApiModules(ProjectDescriptor descriptor, Errors errors) {
+        if (namesOneModule(descriptor.getOpenapi()) && (stored == null || !namesOneModule(stored.getOpenapi()))) {
+            errors.rejectValue(OPENAPI_MODEL_FIELD, "file.descriptor.openapi.module-name.same.message", null, null);
+        }
+    }
+
+    /** Whether the settings generate the rules and the data types into modules of one name. */
+    private static boolean namesOneModule(@Nullable OpenAPI openapi) {
+        return openapi != null
+                && openapi.getMode() == OpenAPI.Mode.GENERATION
+                && StringUtils.isNotBlank(openapi.getAlgorithmModuleName())
+                && openapi.getAlgorithmModuleName().trim().equalsIgnoreCase(
+                        StringUtils.trimToEmpty(openapi.getModelModuleName()));
     }
 
     /**

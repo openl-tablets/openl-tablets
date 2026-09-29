@@ -285,6 +285,18 @@ class ProjectOpenApiGenerationServiceTest {
     }
 
     @Test
+    void refusesNamesThatDifferOnlyInLetterCase() {
+        var request = new OpenApiGenerationRequest("openapi.json", "Models", "rules/Models.xlsx",
+                "models", "rules/types/models.xlsx");
+
+        var refused = assertThrows(ConflictException.class,
+                () -> service.generateTables(mock(RulesProject.class), request));
+
+        // Workbooks named after them would be one file wherever letter case is not told apart.
+        assertEquals("openl.error.409.projects.openapi.module-name.same.message", refused.getErrorCode());
+    }
+
+    @Test
     void doesNotCallAWorkbookNobodyWroteYetReplaced() {
         // The project declares the module, so the generation writes where it reads and the workbook is not
         // the reader's to choose — but no file stands there, so nothing is taken away.

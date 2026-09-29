@@ -842,6 +842,12 @@ If a project is not generated from the OpenAPI file, but it is required to add t
     *Selecting the generation mode*
 
 1.  If necessary, modify the default names of the **Services module** and the **Data types module**, and click **Save** above the sections.
+
+    The services and the data types are generated into a module each, so the two names must differ, letter case
+    aside. Names that do not are refused under both fields with the **Module names cannot be the same** message,
+    and the settings are not saved. Names saved that way before stay as they are, and the **Generate tables**
+    dialog refuses them with the same message until they differ.
+
 2.  In the **OpenAPI** section, click **Generate tables** and review what the generation will write.
 
     ![](images/openapi-import-dialog.jpeg)

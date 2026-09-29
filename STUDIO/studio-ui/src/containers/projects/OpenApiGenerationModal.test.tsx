@@ -138,6 +138,21 @@ describe('OpenApiGenerationModal', () => {
             expect.objectContaining({ modelModulePath: 'rules/Types.xlsx' }))
     })
 
+    it('says the two modules are named as one, rather than that they share a workbook', async () => {
+        // Names saved as one before the settings refused them: the plan proposes one workbook for both.
+        await show(planOf({ name: 'Models', path: 'rules/Models.xlsx' }, { name: 'models', path: 'rules/models.xlsx' }))
+
+        expect(screen.getByTestId('openapi-plan-same-name')).toHaveTextContent('browser.overview.openapi_names_same')
+        expect(screen.queryByTestId('openapi-plan-same-path')).toBeNull()
+        expect(submit()).toBeDisabled()
+
+        // No workbook makes one module into two.
+        await userEvent.clear(screen.getByTestId('openapi-plan-model-path'))
+        await userEvent.type(screen.getByTestId('openapi-plan-model-path'), 'rules/types/models.xlsx')
+
+        expect(submit()).toBeDisabled()
+    })
+
     it('refuses one workbook for both modules', async () => {
         await show(planOf())
 

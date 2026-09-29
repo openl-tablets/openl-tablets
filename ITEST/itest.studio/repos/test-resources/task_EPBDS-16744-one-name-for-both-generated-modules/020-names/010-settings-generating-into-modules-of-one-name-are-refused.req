@@ -1,0 +1,14 @@
+PUT /rest/projects/EPBDS-16744/files/rules.xml HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: text/plain
+
+<project>
+    <name>EPBDS-16744</name>
+    <openapi>
+        <path>openapi.json</path>
+        <model-module-name>models</model-module-name>
+        <algorithm-module-name>Models</algorithm-module-name>
+        <mode>GENERATION</mode>
+    </openapi>
+</project>
+
