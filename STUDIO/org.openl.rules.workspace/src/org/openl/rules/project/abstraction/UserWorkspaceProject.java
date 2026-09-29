@@ -63,6 +63,16 @@ public abstract class UserWorkspaceProject extends AProject {
         return isOpened() && !isLastVersion();
     }
 
+    /**
+     * Whether the project is an older revision opened to be read, with nothing written into it yet.
+     *
+     * <p>The first write into it saves the project over the revisions that came after, so the reader is asked
+     * before it.
+     */
+    public boolean isReadingOtherVersion() {
+        return isOpenedOtherVersion() && !isModified();
+    }
+
     public void open() throws ProjectException {
         openVersion(null);
     }

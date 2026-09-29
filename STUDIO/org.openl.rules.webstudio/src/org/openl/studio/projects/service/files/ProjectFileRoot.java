@@ -152,7 +152,10 @@ public class ProjectFileRoot implements FileRoot {
             try {
                 project.getRepository().save(folderData, repoItems, changesetType);
             } catch (IOException e) {
-                throw new ConflictException("file.archive.upload.failed.message");
+                // The cause says why the repository refused the commit, for a caller that logs the conflict.
+                var conflict = new ConflictException("file.archive.upload.failed.message");
+                conflict.initCause(e);
+                throw conflict;
             }
             // The save bypasses the artefact tree, so drop its cached state.
             project.refresh();

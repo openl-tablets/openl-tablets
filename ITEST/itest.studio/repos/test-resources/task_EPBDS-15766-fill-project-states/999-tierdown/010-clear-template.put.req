@@ -1,0 +1,6 @@
+PUT /rest/admin/tag-config/templates HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+[]

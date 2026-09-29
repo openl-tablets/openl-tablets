@@ -1,0 +1,4 @@
+GET /rest/projects/{SHARED_ID}?fields=status,overwritesNewerRevision HTTP/1.1
+Authorization: ${USER2_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+

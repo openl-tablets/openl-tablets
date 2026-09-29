@@ -1,0 +1,10 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "CLOSED",
+  "lockInfo": {
+    "lockedBy": "user15766",
+    "lockedAt": "***"
+  }
+}

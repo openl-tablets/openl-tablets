@@ -1,0 +1,4 @@
+GET /rest/projects/{ARCHIVE_ID}?fields=status,tags HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+

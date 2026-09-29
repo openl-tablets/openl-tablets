@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "***",
+      "shortRevisionNo": "***",
+      "createdAt": "***",
+      "fullComment": "Fill tags from the project name templates",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "***",
+      "shortRevisionNo": "***",
+      "createdAt": "***",
+      "fullComment": "***",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2
+}

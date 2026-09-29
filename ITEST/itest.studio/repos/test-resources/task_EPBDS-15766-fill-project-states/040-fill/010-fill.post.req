@@ -1,0 +1,13 @@
+POST /rest/admin/tag-config/fill HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+[
+  "Archive-EPBDS-15766",
+  "Closed-EPBDS-15766",
+  "Opened-EPBDS-15766",
+  "Revision-EPBDS-15766",
+  "Shared-EPBDS-15766",
+  "Locked-EPBDS-15766"
+]

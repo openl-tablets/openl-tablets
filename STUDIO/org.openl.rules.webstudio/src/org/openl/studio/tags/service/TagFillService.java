@@ -1,43 +1,55 @@
 package org.openl.studio.tags.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
+import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.tags.model.TagFillPreview;
 import org.openl.studio.tags.model.TagFillPreview.TagFillItem;
 import org.openl.studio.tags.model.TagFillState;
+import org.openl.util.PropertiesUtils;
 
 /**
  * Assigns tags derived from the project name templates to the projects that are missing them.
  *
  * <p>The same reading of a template answers both questions: what filling would do to a project, and what
  * it does when the user asks for it.
+ *
+ * <p>The tags file is written the way the project files are. A closed project gets it in a commit to the
+ * design repository on behalf of the current user. An opened project gets it in its working copy, where it
+ * waits to be saved.
  */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TagFillService {
 
+    /** The commit message of the tags file a closed project gets. */
+    static final String FILL_COMMENT = "Fill tags from the project name templates";
+
     private final TagTemplateService tagTemplateService;
     private final TagCatalogProvider tagCatalogProvider;
     private final TagAssignmentValidator tagAssignmentValidator;
-    private final AclProjectsHelper aclProjectsHelper;
+    private final ProjectFileRootFactory projectFileRootFactory;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -70,6 +82,9 @@ public class TagFillService {
      * <p>A value the templates derived for a tag type that does not take it is left out, so one tag that
      * cannot be assigned does not cost the project the others.
      *
+     * <p>A project the current user cannot change now is left alone, and no tag value is created for it. A
+     * project that would not change is left alone too.
+     *
      * @param projectNames business names of the projects to fill, empty for all of them
      * @return how many projects were updated and how many were left alone
      */
@@ -78,32 +93,54 @@ public class TagFillService {
         var updated = 0;
         var skipped = 0;
         for (RulesProject project : workspace.getProjects()) {
-            try {
-                var tags = requestedTags(project, projectNames);
-                if (tags.isEmpty()) {
-                    skipped++;
-                    continue;
-                }
-                // Template tags take priority over what the project carries.
-                var currentTags = new HashMap<String, String>(project.getLocalTags());
-                currentTags.putAll(tags);
-                project.saveTags(currentTags);
+            if (fillProject(project, projectNames)) {
                 updated++;
-            } catch (Exception e) {
-                log.warn("Failed to fill tags for project '{}'", project.getBusinessName(), e);
+            } else {
                 skipped++;
             }
         }
-        workspace.refresh();
+        if (updated > 0) {
+            workspace.refresh();
+        }
         return Map.of("updated", updated, "skipped", skipped);
     }
 
-    /** The tags to assign to the project, empty when it was not asked for or nothing can be assigned. */
-    private Map<String, String> requestedTags(RulesProject project, @Nullable Collection<String> projectNames) {
-        if (projectNames != null && !projectNames.isEmpty() && !projectNames.contains(project.getBusinessName())) {
+    /** Writes the derived tags into the tags file of the project, and answers whether it did. */
+    private boolean fillProject(RulesProject project, @Nullable Collection<String> projectNames) {
+        try {
+            var tags = tagsToWrite(project, projectNames);
+            if (tags.isEmpty()) {
+                return false;
+            }
+            projectFileRootFactory.of(project)
+                    .writeBatch("", List.of(tagsFile(tags)), ChangesetType.DIFF, FILL_COMMENT);
+            return true;
+        } catch (Exception e) {
+            log.warn("Failed to fill tags for project '{}'", project.getBusinessName(), e);
+            return false;
+        }
+    }
+
+    /**
+     * The tags the tags file of the project gets: the ones it carries, with the derived values assigned.
+     *
+     * <p>Empty when the project was not asked for, cannot be changed now, or would not change.
+     */
+    private Map<String, String> tagsToWrite(RulesProject project, @Nullable Collection<String> projectNames) {
+        var derived = isRequested(project, projectNames) ? derivedTags(project) : Map.<String, String>of();
+        if (derived.isEmpty() || !isFillable(project)) {
             return Map.of();
         }
-        return tagAssignmentValidator.applicable(derivedTags(project));
+        var assigned = project.getLocalTags();
+        // Template tags take priority over what the project carries. New values are created in the catalog
+        // only for a project that takes them.
+        var tags = new LinkedHashMap<String, String>(assigned);
+        tags.putAll(tagAssignmentValidator.applicable(derived));
+        return tags.equals(assigned) ? Map.of() : tags;
+    }
+
+    private static boolean isRequested(RulesProject project, @Nullable Collection<String> projectNames) {
+        return projectNames == null || projectNames.isEmpty() || projectNames.contains(project.getBusinessName());
     }
 
     private Optional<TagFillPreview> previewOf(RulesProject project, TagCatalog catalog) {
@@ -118,10 +155,29 @@ public class TagFillService {
         if (items.stream().allMatch(item -> item.state() == TagFillState.KEEP)) {
             return Optional.empty();
         }
-        // Filling writes the tags file whether the project is opened or not, so only the write
-        // permission decides whether the row can be picked.
-        var modifiable = aclProjectsHelper.hasPermission(project, BasePermission.WRITE);
-        return Optional.of(new TagFillPreview(project.getBusinessName(), modifiable, items));
+        return Optional.of(new TagFillPreview(project.getBusinessName(), isFillable(project), items));
+    }
+
+    /**
+     * Whether filling can write the tags file of the project now.
+     *
+     * <p>The current user must be able to change the project now, as for any write into its files.
+     *
+     * <p>A closed project is written straight to its repository. A repository that keeps each project as an
+     * archive cannot take a single file, so such a project takes the tags only once it is opened. An older
+     * revision opened to be read is left alone as well: the first write into it is the reader's decision.
+     */
+    private boolean isFillable(RulesProject project) {
+        // The state of the project is weighed first; the files mount asks for the write permission last.
+        return project.isFolder() && !project.isReadingOtherVersion()
+                && projectFileRootFactory.of(project).isModifiable();
+    }
+
+    /** The tags file of a project carrying the given tags. */
+    private static FileItem tagsFile(Map<String, String> tags) throws IOException {
+        var content = new ByteArrayOutputStream();
+        PropertiesUtils.store(content, tags.entrySet());
+        return new FileItem(ProjectTags.TAGS_FILE_NAME, new ByteArrayInputStream(content.toByteArray()));
     }
 
     private TagFillItem item(TagCatalog catalog, Map<String, String> assigned, String typeName, String derived) {
@@ -150,8 +206,7 @@ public class TagFillService {
     }
 
     /** The value assigned for that tag type, whatever case the project spelled the type in. */
-    @Nullable
-    private static String valueOf(Map<String, String> tags, String typeName) {
+    private static @Nullable String valueOf(Map<String, String> tags, String typeName) {
         return tags.entrySet().stream()
                 .filter(entry -> entry.getKey().equalsIgnoreCase(typeName))
                 .map(Map.Entry::getValue)

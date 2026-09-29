@@ -94,7 +94,7 @@ const previews: TagFillPreview[] = [
             { type: 'Team', current: 'Payroll', derived: 'Payroll', state: 'keep' },
         ],
     },
-    { projectName: 'Closed-rules', modifiable: false, tags: [{ type: 'Domain', derived: 'Closed', state: 'assign' }]},
+    { projectName: 'Locked-rules', modifiable: false, tags: [{ type: 'Domain', derived: 'Locked', state: 'assign' }]},
 ]
 
 const renderModal = async (onFilled = vi.fn()) => {
@@ -126,7 +126,7 @@ describe('FillTagsModal', () => {
     it('cannot pick a project that is not modifiable', async () => {
         await renderModal()
 
-        expect(screen.getByTestId('fill-project-Closed-rules')).toBeDisabled()
+        expect(screen.getByTestId('fill-project-Locked-rules')).toBeDisabled()
         expect(screen.getByTestId('fill-project-Policy-rules')).toBeChecked()
     })
 

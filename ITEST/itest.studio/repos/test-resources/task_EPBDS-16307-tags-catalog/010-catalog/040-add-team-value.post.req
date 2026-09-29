@@ -1,4 +1,4 @@
-POST /rest/admin/tag-config/types/3/tags HTTP/1.1
+POST /rest/admin/tag-config/types/{TEAM_ID}/tags HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: text/plain
 
