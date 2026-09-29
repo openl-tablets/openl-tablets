@@ -27,7 +27,8 @@
             </webstudioConfiguration>
         </module>
         <!-- Explicit module with a single file. Paths are relative to the project root and use '/';
-             a backslash is read as '/' -->
+             a backslash is read as '/'. A workbook a pattern also matches is read once, by this module
+             and under its name, so the name must differ from the one the pattern gives the workbook -->
         <module>
             <name>Main Algorithm</name>
             <rules-root path="rules/SharedRules.xlsx"/>
@@ -103,17 +104,26 @@
 
 ## Validation on Save
 
-OpenL Studio checks the properties file name settings when a `rules.xml` is written to a project through the project
-files API — the project overview, the file editor, or a direct call. The descriptor is rejected when
+OpenL Studio checks a `rules.xml` written to a project through the project files API — the project overview, the file
+editor, or a direct call — and the one the OpenAPI tables generation writes. The descriptor is rejected when
 
+- `name` is blank, cannot name a folder, or is a reserved word;
+- a module `name` cannot name a file, or is the name of another module — a workbook a pattern reads is a module named
+  after the file;
+- a module declares no path, or a path naming no file of the project, its letter case included;
+- a path is read by another module already: another module declares it, or a pattern reads it under the same name —
+  a module declared without a name, or under the name of its workbook;
 - `properties-file-name-processor` names a class the project cannot provide, or one that is not a
   `PropertiesFileNameProcessor`;
 - `properties-file-name-pattern` names an unknown property, repeats a property, groups properties of different types,
   or carries a date format the engine cannot use.
 
-Only the settings a write changes are checked, so a descriptor rewritten for another reason — a module registered, a
-project migrated — is never rejected for settings it inherited. An upload of several files or of an archive brings
-its own libraries with it, and its descriptor is written unchecked for the same reason.
+Only what a write changes is checked, so a descriptor rewritten for another reason — a module registered, a project
+migrated — is never rejected for a module or a setting it inherited. An upload of several files or of an archive
+brings its own libraries with it, and its descriptor is written unchecked for the same reason.
+
+The files module paths name, and the workbooks patterns read, are looked for in the project's working copy. A project
+that is not open in the workspace has no working copy, so they are left unchecked.
 
 A pattern that carries no `%property%` is a plain file name mask and is accepted — it assigns no properties to the
 modules it matches.

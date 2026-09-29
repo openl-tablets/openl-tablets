@@ -1,0 +1,15 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "*",
+  "fields": [
+    {
+      "code": "openl.error.file.descriptor.module.name.duplicate.message",
+      "message": "More than one module is named 'Mod'.",
+      "field": "modules[2].name",
+      "rejectedValue": "Mod"
+    }
+  ]
+}
+

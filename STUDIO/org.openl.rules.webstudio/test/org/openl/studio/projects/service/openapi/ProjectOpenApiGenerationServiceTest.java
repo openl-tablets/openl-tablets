@@ -4,26 +4,45 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.validation.BeanPropertyBindingResult;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ValidationException;
 import org.openl.studio.projects.model.openapi.OpenApiGenerationRequest;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -37,15 +56,23 @@ import org.openl.studio.projects.service.history.ProjectHistoryService;
  */
 class ProjectOpenApiGenerationServiceTest {
 
+    /** Rules into a workbook named apart from its module, data types into one named after theirs. */
+    private static final OpenApiGenerationRequest APART = new OpenApiGenerationRequest("openapi.json",
+            "Alg", "rules/Alg12.xlsx", "Mod", "rules/Mod.xlsx");
+
     private final WorkspaceProjectService projects = mock(WorkspaceProjectService.class);
+    private final ProjectFilesService files = mock(ProjectFilesService.class);
+    private final ProjectFileRootFactory roots = mock(ProjectFileRootFactory.class);
+    private final FileRoot root = mock(FileRoot.class);
+    private final ProjectHistoryService history = mock(ProjectHistoryService.class);
     private final ProjectOpenApiGenerationService service = new ProjectOpenApiGenerationService(
-            projects, mock(ProjectFilesService.class), mock(ProjectFileRootFactory.class),
-            mock(ProjectHistoryService.class));
+            projects, files, roots, history);
 
     private Environment previousEnvironment;
 
     @BeforeEach
     void namesTheDefaultsTheEditorOffered() {
+        when(roots.of(any())).thenReturn(root);
         previousEnvironment = Props.getEnvironment();
         var environment = new MockEnvironment();
         environment.setProperty("openapi.default.algorithm.module.name", "Algorithms");
@@ -213,6 +240,51 @@ class ProjectOpenApiGenerationServiceTest {
     }
 
     @Test
+    void writesEverythingItGeneratesAsOneChange(@TempDir Path workspace) throws Exception {
+        var project = checkedOut(projectReading(), workspace);
+        var studio = studioOf();
+        service.generateTables(project, APART);
+
+        // One write carries the workbooks, the deployment descriptor and rules.xml, and drops what a previous
+        // generation left of the classes: a refusal of any of them leaves the project as it was.
+        var written = writtenAtOnce();
+        assertTrue(written.keySet().containsAll(
+                List.of("rules/Mod.xlsx", "rules/Alg12.xlsx", RulesDeploy.FILE_NAME, ProjectDescriptor.FILE_NAME)));
+        verify(files, never()).createResource(any(), any(), any(), anyBoolean());
+        verify(files, never()).updateResource(any(), any(), any());
+        verify(files, never()).deleteResource(any(), any());
+        verify(history).recordWritten(project, "rules/Alg12.xlsx");
+        verify(history).recordWritten(project, "rules/Mod.xlsx");
+        verify(studio).reset();
+    }
+
+    @Test
+    void recordsNothingWhenTheWriteIsRefused(@TempDir Path workspace) throws Exception {
+        var project = checkedOut(projectReading(), workspace);
+        var studio = studioOf();
+        doThrow(new ValidationException(new BeanPropertyBindingResult(new ProjectDescriptor(), "descriptor")))
+                .when(files).writeFiles(any(), any(), any(), any());
+
+        assertThrows(ValidationException.class, () -> service.generateTables(project, APART));
+
+        // Nothing was written, so no version of either workbook is recorded, and the session keeps what it compiled.
+        verify(history, never()).recordWritten(any(), any());
+        verify(studio, never()).reset();
+    }
+
+    @Test
+    void refusesAProjectItCannotChangeBeforeGeneratingAnything() {
+        var project = projectReading();
+        doThrow(new ConflictException("project.status.update.failed.message")).when(root).requireModifiable();
+
+        assertThrows(ConflictException.class, () -> service.generateTables(project, APART));
+
+        // Refused before the specification is read and its tables are made, not when the files are written.
+        verify(projects, never()).getProjectDescriptor(any());
+        verifyNoInteractions(files, history);
+    }
+
+    @Test
     void doesNotCallAWorkbookNobodyWroteYetReplaced() {
         // The project declares the module, so the generation writes where it reads and the workbook is not
         // the reader's to choose — but no file stands there, so nothing is taken away.
@@ -248,6 +320,33 @@ class ProjectOpenApiGenerationServiceTest {
         resolved.setModules(List.of(modules));
         when(projects.getProjectDescriptor(project)).thenReturn(resolved);
         return project;
+    }
+
+    /** The same project, checked out into the given folder with the specification the tests are generated from. */
+    private static RulesProject checkedOut(RulesProject project, Path workspace) throws IOException {
+        var folder = Files.createDirectories(workspace.resolve("Rating"));
+        Files.copy(Path.of("test-resources/openapi-import/no-descriptor/openapi.json"), folder.resolve("openapi.json"));
+        var repository = mock(LocalRepository.class);
+        when(repository.getRoot()).thenReturn(workspace);
+        when(project.getLocalRepository()).thenReturn(repository);
+        when(project.getLocalFolderName()).thenReturn("Rating");
+        return project;
+    }
+
+    /** The session a generation is held and reset through. */
+    private WebStudio studioOf() {
+        var studio = mock(WebStudio.class);
+        when(projects.getWebStudio()).thenReturn(studio);
+        return studio;
+    }
+
+    /** What the one write of the generation carried, by the path each file is written to. */
+    @SuppressWarnings("unchecked")
+    private Map<String, byte[]> writtenAtOnce() {
+        ArgumentCaptor<Map<String, byte[]>> written = ArgumentCaptor.forClass(Map.class);
+        verify(files).writeFiles(any(), written.capture(), eq(List.of("classes/org/openl/generated/services")),
+                any());
+        return written.getValue();
     }
 
     /** The same project, with a file standing at the given path. */

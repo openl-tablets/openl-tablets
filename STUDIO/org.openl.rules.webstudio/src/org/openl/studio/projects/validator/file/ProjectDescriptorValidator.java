@@ -1,12 +1,18 @@
 package org.openl.studio.projects.validator.file;
 
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -23,6 +29,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.formatters.FileNameFormatter;
 
 /**
  * Validator for a project descriptor ({@code rules.xml}) written to a project.
@@ -66,11 +73,24 @@ public class ProjectDescriptorValidator implements Validator {
     private final @Nullable ProjectDescriptor stored;
 
     /**
+     * The files written together with the descriptor, which the working copy does not hold yet.
+     */
+    private final Set<String> writtenWith;
+
+    /**
      * Builds a validator for a descriptor written to the project, checking it against the descriptor
      * the project stores now.
+     *
+     * <p>The descriptor may be written together with files of its own. A module it declares at one of those
+     * files reads a file the write adds, so it is not refused for a file the working copy does not hold yet.
+     *
+     * @param writtenWith the paths of the files written with the descriptor
      */
-    public static ProjectDescriptorValidator forProject(RulesProject project, @Nullable ProjectDescriptor stored) {
-        return new ProjectDescriptorValidator(localProjectFolder(project), stored);
+    public static ProjectDescriptorValidator forProject(RulesProject project,
+                                                        @Nullable ProjectDescriptor stored,
+                                                        Collection<String> writtenWith) {
+        var written = writtenWith.stream().map(FileNameFormatter::normalizePath).collect(Collectors.toSet());
+        return new ProjectDescriptorValidator(localProjectFolder(project), stored, written);
     }
 
     private static @Nullable Path localProjectFolder(RulesProject project) {
@@ -132,12 +152,13 @@ public class ProjectDescriptorValidator implements Validator {
         if (CollectionUtils.isEmpty(modules)) {
             return;
         }
+        var takenByPatterns = namesTakenByPatterns(modules);
         for (var index = 0; index < modules.size(); index++) {
             var module = modules.get(index);
             if (isStored(module)) {
                 continue;
             }
-            validateModuleName(module, modules, index, errors);
+            validateModuleName(module, modules, index, takenByPatterns, errors);
             validateModulePath(module, modules, index, errors);
         }
     }
@@ -149,8 +170,15 @@ public class ProjectDescriptorValidator implements Validator {
      * and the modules a pattern stands for after the files it matched. A name that is declared has to be one a
      * repository can hold, and has to be the module's own — two modules of one name are one module to the
      * engine, and the second would quietly replace the first.
+     *
+     * <p>A workbook a pattern reads is a module named after the file, so a module naming one file cannot be
+     * called by the name of such a workbook either.
      */
-    private void validateModuleName(Module module, List<Module> modules, int index, Errors errors) {
+    private void validateModuleName(Module module,
+                                    List<Module> modules,
+                                    int index,
+                                    Set<String> takenByPatterns,
+                                    Errors errors) {
         var name = module.getName();
         if (StringUtils.isBlank(name)) {
             return;
@@ -158,27 +186,83 @@ public class ProjectDescriptorValidator implements Validator {
         if (!NameChecker.checkName(name)) {
             errors.rejectValue(field(index, NAME_FIELD), "file.descriptor.module.name.invalid.message",
                     new Object[]{name, NameChecker.getForbiddenCharacters()}, null);
-        } else if (repeated(modules, index, other -> name.equals(other.getName()))) {
+        } else if (repeated(modules, index, other -> name.equals(other.getName()))
+                || !module.isModuleWithWildcard() && takenByPatterns.contains(name)) {
             errors.rejectValue(field(index, NAME_FIELD), "file.descriptor.module.name.duplicate.message",
                     new Object[]{name}, null);
         }
     }
 
     /**
+     * The names the write declares modules by that a pattern of the descriptor gives another workbook.
+     *
+     * <p>A pattern reads every file it matches as a module named after the file, except a file a module is
+     * declared at: the engine reads that one once, for the declared module. The files are the ones the working
+     * copy holds and the ones written with the descriptor, so a project that is not checked out gives no names.
+     *
+     * <p>Asked only of the modules the write declares at one file by a name of its own.
+     */
+    private Set<String> namesTakenByPatterns(List<Module> modules) {
+        var named = modules.stream().filter(this::isNamedByTheWrite).map(Module::getName).collect(Collectors.toSet());
+        var patterns = modules.stream().filter(Module::isModuleWithWildcard).toList();
+        if (projectFolder == null || named.isEmpty() || patterns.isEmpty()) {
+            return Set.of();
+        }
+        var declared = modules.stream()
+                .filter(module -> !module.isModuleWithWildcard() && module.getRulesRootPath() != null)
+                .map(module -> FileNameFormatter.normalizePath(module.getRulesRootPath()))
+                .collect(Collectors.toSet());
+        var workingCopy = new ProjectDescriptor();
+        workingCopy.setProjectFolder(projectFolder);
+        return patterns.stream()
+                .flatMap(pattern -> Stream.concat(matchedIn(workingCopy, pattern), writtenWith.stream()
+                        .filter(path -> FileUtils.pathMatches(pattern.getRulesRootPath(), path))))
+                .filter(path -> !declared.contains(path))
+                .map(FileUtils::getBaseName)
+                .filter(named::contains)
+                .collect(Collectors.toSet());
+    }
+
+    /** Whether the write declares the module at one file, by a name of its own. */
+    private boolean isNamedByTheWrite(Module module) {
+        return !module.isModuleWithWildcard() && StringUtils.isNotBlank(module.getName()) && !isStored(module);
+    }
+
+    /** The paths of the files of the working copy the pattern matches, as the engine finds them. */
+    private static Stream<String> matchedIn(ProjectDescriptor workingCopy, Module pattern) {
+        try {
+            return workingCopy.getAllModulesMatchingPathPattern(pattern, pattern.getRulesRootPath())
+                    .stream()
+                    .map(Module::getRulesRootPath);
+        } catch (IOException e) {
+            // A working copy that cannot be read tells no names, as one that is not there.
+            return Stream.empty();
+        }
+    }
+
+    /**
      * Where a module reads its rules from.
      *
-     * <p>A path naming one file is looked for in the working copy: a module pointing at a file the project does
-     * not hold compiles into nothing. A pattern names no file to look for, and is checked only against the
-     * other modules — a path already read by another module, or falling under another module's pattern, is the
-     * same rules read twice, whichever of the two is declared first.
+     * <p>A path naming one file is looked for in the working copy, or among the files written with the
+     * descriptor: a module pointing at a file the project does not hold compiles into nothing, and so does one
+     * spelling the name of the file in another letter case where letter case is told apart. A pattern names no
+     * file to look for, and is checked only against the other modules — a path already read by another module,
+     * or one another module's pattern already reads under the same name, is the same rules read twice, whichever
+     * of the two is declared first.
      */
     private void validateModulePath(Module module, List<Module> modules, int index, Errors errors) {
         var path = module.getRulesRootPath();
         if (StringUtils.isBlank(path)) {
             rejectMissingPath(module, index, errors);
-        } else if (!module.isModuleWithWildcard() && !isHeldByProject(path)) {
+            return;
+        }
+        var held = module.isModuleWithWildcard() ? path : heldAs(path);
+        if (held == null) {
             errors.rejectValue(field(index, PATH_FIELD), "file.descriptor.module.path.not-found.message",
                     new Object[]{path}, null);
+        } else if (!held.equals(path)) {
+            errors.rejectValue(field(index, PATH_FIELD), "file.descriptor.module.path.letter-case.message",
+                    new Object[]{path, held}, null);
         } else if (repeated(modules, index, other -> readTheSame(module, other))) {
             errors.rejectValue(field(index, PATH_FIELD), "file.descriptor.module.path.duplicate.message",
                     new Object[]{path}, null);
@@ -208,19 +292,35 @@ public class ProjectDescriptorValidator implements Validator {
     }
 
     /**
-     * Whether the working copy holds the file the path names.
+     * The path the working copy holds the named file at.
      *
-     * <p>A project that is not checked out has nothing to look in, and a path is not wrong for that. A path
-     * leading out of the project — up through its parent, or from the root of the disk — names a file the
-     * project does not hold, whatever stands there.
+     * <p>The answer is the path itself where it spells the file as the working copy does, and {@code null} where
+     * the working copy holds no such file. A project that is not checked out has nothing to look in, and a path
+     * is not wrong for that; neither is the path of a file written with the descriptor. A path leading out of
+     * the project — up through its parent, or from the root of the disk — names a file the project does not
+     * hold, whatever stands there.
+     *
+     * <p>Where letter case is not told apart, the file is found by any spelling of its name. A server telling
+     * letter case apart finds no file at such a path, and the engine may take it for another file than the one a
+     * pattern reads, reading the workbook twice.
      */
-    private boolean isHeldByProject(String path) {
-        if (projectFolder == null) {
-            return true;
+    private @Nullable String heldAs(String path) {
+        if (projectFolder == null || writtenWith.contains(FileNameFormatter.normalizePath(path))) {
+            return path;
         }
         var folder = projectFolder.normalize();
-        var file = folder.resolve(path.replace('\\', '/')).normalize();
-        return file.startsWith(folder) && Files.exists(file);
+        var file = folder.resolve(FileNameFormatter.normalizePath(path)).normalize();
+        if (!file.startsWith(folder) || !Files.exists(file)) {
+            return null;
+        }
+        try {
+            var held = FileNameFormatter.normalizePath(folder.toRealPath(LinkOption.NOFOLLOW_LINKS)
+                    .relativize(file.toRealPath(LinkOption.NOFOLLOW_LINKS)));
+            return held.equals(FileNameFormatter.normalizePath(folder.relativize(file))) ? path : held;
+        } catch (IOException e) {
+            // The file is there, and a spelling that cannot be told is not held against the path.
+            return path;
+        }
     }
 
     /**
@@ -236,20 +336,35 @@ public class ProjectDescriptorValidator implements Validator {
                 .anyMatch(other -> other < index || isStored(modules.get(other)));
     }
 
-    /** Whether two modules read the same rules — the same path, or one module's pattern over the other's. */
+    /**
+     * Whether two modules read the same rules: the same path, or a pattern that already reads the other module.
+     */
     private static boolean readTheSame(Module one, Module other) {
         var onePath = one.getRulesRootPath();
         var otherPath = other.getRulesRootPath();
         if (onePath == null || otherPath == null) {
             return false;
         }
-        return Objects.equals(onePath, otherPath) || matches(one, otherPath) || matches(other, onePath);
+        return Objects.equals(onePath, otherPath) || covers(one, other) || covers(other, one);
     }
 
-    /** Whether the module stands for a pattern the path falls under. */
-    private static boolean matches(Module pattern, String path) {
+    /**
+     * Whether the pattern already reads the module: the module's path falls under it, and the pattern gives the
+     * module the name it has.
+     *
+     * <p>A pattern names each module after its workbook, so a module declared without a name, or under the name
+     * of its workbook, is one the pattern stands for already. A pattern within a pattern stands for nothing of
+     * its own.
+     *
+     * <p>A module declared under another name renames the module of its workbook. The engine reads that workbook
+     * once, for the declared module, and leaves it out of the pattern — as a module is registered by the rest of
+     * Studio.
+     */
+    private static boolean covers(Module pattern, Module module) {
+        var path = module.getRulesRootPath();
         return pattern.isModuleWithWildcard()
-                && FileUtils.pathMatches(pattern.getRulesRootPath(), path.replace('\\', '/'));
+                && FileUtils.pathMatches(pattern.getRulesRootPath(), path)
+                && (module.isModuleWithWildcard() || FileUtils.getBaseName(path).equals(module.getResolvedName()));
     }
 
     /** Whether the project already stores this module as it is written, so the write leaves it alone. */

@@ -169,7 +169,7 @@ public class ProjectOpenApiService {
         openapi.setPath(path);
         openapi.setMode(OpenAPI.Mode.RECONCILIATION);
         descriptor.setOpenapi(openapi);
-        writeDescriptor(project, root, filesService, descriptor);
+        writeDescriptor(project, root, descriptor);
     }
 
     /**
@@ -219,25 +219,37 @@ public class ProjectOpenApiService {
     }
 
     /**
-     * Writes the descriptor, adding {@code rules.xml} to a project that has none.
+     * Writes the descriptor where it changes {@code rules.xml}, adding the file to a project that has none.
+     */
+    private void writeDescriptor(RulesProject project, FileRoot root, ProjectDescriptor descriptor) {
+        var written = changedDescriptor(project, root, filesService, descriptor);
+        if (written == null) {
+            return;
+        }
+        if (project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
+            filesService.updateResource(root, ProjectDescriptor.FILE_NAME, new ByteArrayInputStream(written));
+        } else {
+            filesService.createResource(root, ProjectDescriptor.FILE_NAME, new ByteArrayInputStream(written), false);
+        }
+    }
+
+    /**
+     * What {@code rules.xml} is to hold for the descriptor to be stored, or {@code null} where it holds that
+     * already.
      *
      * <p>A descriptor that comes to exactly what the file already holds is not written: the model drops a
      * block that only restates what the engine does anyway — a specification named {@code openapi.json} and
      * reconciled against, say — so asking for one of those a second time would otherwise leave the project
      * modified with nothing to show for it.
      */
-    static void writeDescriptor(RulesProject project,
-                                FileRoot root,
-                                ProjectFilesService files,
-                                ProjectDescriptor descriptor) {
+    static byte @Nullable [] changedDescriptor(RulesProject project,
+                                               FileRoot root,
+                                               ProjectFilesService files,
+                                               ProjectDescriptor descriptor) {
         var written = descriptor.toBytes();
-        if (!project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
-            files.createResource(root, ProjectDescriptor.FILE_NAME, new ByteArrayInputStream(written), false);
-            return;
-        }
-        if (!Arrays.equals(written, storedDescriptor(root, files))) {
-            files.updateResource(root, ProjectDescriptor.FILE_NAME, new ByteArrayInputStream(written));
-        }
+        return project.hasArtefact(ProjectDescriptor.FILE_NAME) && Arrays.equals(written, storedDescriptor(root, files))
+                ? null
+                : written;
     }
 
     /** The bytes {@code rules.xml} holds now, or none where they cannot be read. */
