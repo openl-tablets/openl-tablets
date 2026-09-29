@@ -11,6 +11,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -277,6 +278,11 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
+    void testEditUserProfile_withoutPasswordChange_valid() {
+        assertNull(validateAndGetResult(getValidUserProfileEditModel().setChangePassword(null)));
+    }
+
+    @Test
     void testEditUserProfile_password_notValid() {
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
         when(currentUserInfo.getUserName()).thenReturn("jsmith");
@@ -312,6 +318,24 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
         bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("changePassword",
                 "Incorrect current password.",
+                changePasswordModel,
+                bindingResult.getFieldError("changePassword"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({",", "'',''", "' ',' '", ",pass2"})
+    void testEditUserProfile_blankNewPassword_notValid(String newPassword, String confirmPassword) {
+        when(currentUserInfo.getUserName()).thenReturn("jsmith");
+        var existedUser = new SimpleUser();
+        existedUser.setPassword("passHash");
+        when(userManagementService.getUser(anyString())).thenReturn(existedUser);
+
+        var changePasswordModel = new ChangePasswordModel().setCurrentPassword("pass")
+                .setNewPassword(newPassword)
+                .setConfirmPassword(confirmPassword);
+        var bindingResult = validateAndGetResult(getValidUserProfileEditModel().setChangePassword(changePasswordModel));
+        assertFieldError("changePassword",
+                "Enter a new password.",
                 changePasswordModel,
                 bindingResult.getFieldError("changePassword"));
     }

@@ -80,6 +80,8 @@ To manage profile details, proceed as follows:
 
 5.  To change the password, in the **Change Password** section, enter the **Current Password**, **New Password**, and **Confirm Password** values.
 
+    Once any of these fields is filled in, all three are required, and the new password cannot consist of spaces only. To keep the current password, leave all three fields empty.
+
     The **Change Password** section is shown only in multi-user mode, where user credentials are stored in OpenL Studio. Single-user mode has no login form, and in the external authentication modes, credentials are managed by the identity provider.
 
 6.  Click **Save**.
