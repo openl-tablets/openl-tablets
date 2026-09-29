@@ -217,7 +217,7 @@ OpenL Tablets uses **Flyway** for database version control:
 
 **Migration Scripts Location**:
 ```
-STUDIO/org.openl.security.standalone/resources/db/flyway/
+STUDIO/org.openl.rules.webstudio/resources/db/flyway/
 ├── common/           # Database-agnostic migrations
 ├── postgresql/       # PostgreSQL-specific migrations
 ├── mysql/            # MySQL-specific migrations

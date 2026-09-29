@@ -19,7 +19,7 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   applies in the large: never ask per branch, per file or per artefact what one question about the project
   answers, and never repeat a question a pass over the same set has already answered.
 - **New features** → React in `studio-ui/`
-- **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/`
+- **DB migrations**: Flyway scripts in `org.openl.rules.webstudio/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
 - **REST API / OpenAPI**: Externalized descriptions, `@Parameter` vs `@Schema`, enum wire codes, and request
   validation follow strict rules — see [`org.openl.rules.webstudio/AGENTS.md`](org.openl.rules.webstudio/AGENTS.md)
@@ -37,10 +37,10 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - **org.openl.rules.repository.aws** — AWS S3 storage
 - **org.openl.rules.repository.azure** — Azure Blob storage
 
-**Security** (package: `org.openl.studio.security`):
-- **org.openl.security** — Security abstractions
-- **org.openl.security.standalone** — Standalone auth (form-based, DB-backed, Flyway migrations in `resources/db/flyway/`)
-- **org.openl.security.acl** — Access Control Lists
+**Security** (inside `org.openl.rules.webstudio`):
+- `org.openl.rules.security` — Security abstractions
+- `org.openl.rules.security.standalone` — Standalone auth (form-based, DB-backed, Flyway migrations in `resources/db/flyway/`)
+- `org.openl.security.acl` — Access Control Lists
 
 **Supporting modules**:
 - **org.openl.rules.workspace** — Workspace management

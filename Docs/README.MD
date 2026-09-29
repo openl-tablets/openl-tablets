@@ -156,7 +156,7 @@ OpenL Tablets is organized into 5 major module groups:
 - `org.openl.rules.webstudio` - Main OpenL Studio application (WAR)
 - `studio-ui` - React/TypeScript frontend
 - `org.openl.rules.repository*` - Repository backends (Git, AWS, Azure)
-- `org.openl.security*` - Security framework
+- `org.openl.rules.security*`, `org.openl.security.acl` - Security framework (packages of `org.openl.rules.webstudio`)
 
 ### 3. WSFrontend - Rule Services
 **Location**: `/WSFrontend/`

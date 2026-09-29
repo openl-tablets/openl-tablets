@@ -20,22 +20,22 @@ This document provides comprehensive coverage of the upper layers of OpenL Table
 
 ---
 
-## BATCH 3: Security & Authentication (3 Modules)
+## BATCH 3: Security & Authentication (3 Packages)
 
 ### Overview
 
-**Location**: `/home/user/openl-tablets/STUDIO/org.openl.security*/`
+**Location**: packages `org.openl.rules.security*` and `org.openl.security.acl` of `/home/user/openl-tablets/STUDIO/org.openl.rules.webstudio/`
 **Purpose**: Authentication, authorization, and access control for OpenL Studio and RuleService
 
-### Module Structure
+### Package Structure
 
 ```
-org.openl.security (Base)
-  ├─ org.openl.security.standalone (Built-in user management)
+org.openl.rules.security (Base)
+  ├─ org.openl.rules.security.standalone (Built-in user management)
   └─ org.openl.security.acl (ACL-based permissions)
 ```
 
-### 1. org.openl.security - Base Security Framework
+### 1. org.openl.rules.security - Base Security Framework
 
 **Purpose**: Core security abstractions and Spring Security integration
 
@@ -75,7 +75,7 @@ security.session.timeout = 1800
 security.password.encoder = bcrypt
 ```
 
-### 2. org.openl.security.standalone - Standalone Security
+### 2. org.openl.rules.security.standalone - Standalone Security
 
 **Purpose**: Built-in user and group management with file-based storage
 

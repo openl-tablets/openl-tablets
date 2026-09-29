@@ -23,7 +23,6 @@
 │   ├─ studio-ui            ├─ ruleservice.ws             │
 │   ├─ repository*          ├─ ruleservice.kafka          │
 │   ├─ workspace            └─ ruleservice.deployer       │
-│   ├─ security*                                          │
 │   ├─ jackson*                                           │
 │   ├─ diff                                               │
 │   └─ xls.merge                                          │
@@ -86,9 +85,6 @@
 | **org.openl.rules.xls.merge** | commons | POI |
 | **org.openl.rules.jackson** | commons | Jackson |
 | **org.openl.rules.jackson.configuration** | None | None |
-| **org.openl.security** | None | Spring Security |
-| **org.openl.security.standalone** | security | None |
-| **org.openl.security.acl** | security | Spring Security ACL |
 | **org.openl.rules.project.openapi** | rules.project | Swagger |
 | **org.openl.rules.webstudio** | All STUDIO modules | Spring Boot |
 | **studio-ui** | None (frontend) | React, TypeScript, Ant Design |
