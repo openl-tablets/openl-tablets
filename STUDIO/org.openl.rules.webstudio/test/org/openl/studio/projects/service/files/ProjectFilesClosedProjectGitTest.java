@@ -234,6 +234,20 @@ class ProjectFilesClosedProjectGitTest {
         }
     }
 
+    @Test
+    void moduleDeletedFromAProjectInABaseFolderIsDroppedFromTheDescriptor() throws Exception {
+        // The repository keeps its projects in a base folder, as a design repository does.
+        try (var mapped = MappedRepository.create(design, "DESIGN/")) {
+            var mappedProject = closedProject(mapped, mapped.listFolders("DESIGN/").getFirst());
+
+            service.deleteResource(rootOf(mappedProject), "Rules.xlsx");
+
+            assertEquals(List.of(CURRENT_USER + "Delete Rules.xlsx", CURRENT_USER + "Save rules.xml"), newCommits());
+            assertFalse(read("rules.xml").contains("Rules.xlsx"));
+            assertLeftClosedAndUnlocked(mappedProject);
+        }
+    }
+
     private void seed(String path, String text) throws IOException {
         var file = remoteRoot.toPath().resolve(PROJECT).resolve(path);
         Files.createDirectories(file.getParent());
