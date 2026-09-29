@@ -39,11 +39,10 @@ openl-tablets/
 │   ├── org.openl.spring/        # Spring integration
 │   └── ...                      # 5 other support modules
 │
-├── STUDIO/                       # OpenL Studio (22 modules)
+├── STUDIO/                       # OpenL Studio (16 modules)
 │   ├── org.openl.rules.webstudio/   # ⭐ Main WAR application
 │   ├── studio-ui/                    # ⭐ React/TypeScript frontend
 │   ├── org.openl.rules.repository*/  # Repository backends (Git, AWS, Azure)
-│   ├── org.openl.security*/          # Security framework
 │   └── ...                           # OpenAPI, Jackson, table editor
 │
 ├── WSFrontend/                   # Rule Services (12 modules)
@@ -169,9 +168,9 @@ constrainer, annotations, util, gen, test
 - `org.openl.rules.repository.aws` - AWS S3 backend
 - `org.openl.rules.repository.azure` - Azure Blob backend
 
-**`org.openl.security*`** - Security Framework
-- `org.openl.security` - Base framework
-- `org.openl.security.standalone` - Built-in user management
+**Security Framework** (packages of `org.openl.rules.webstudio`)
+- `org.openl.rules.security` - Base framework
+- `org.openl.rules.security.standalone` - Built-in user management
 - `org.openl.security.acl` - Access Control Lists
 
 **Other Important Modules**:
@@ -510,9 +509,9 @@ mvn verify
 
 ### Task: Extend Security
 
-**Modules**: `org.openl.security*`
+**Packages**: `org.openl.rules.security*`, `org.openl.security.acl`
 **Steps**:
-1. Extend `org.openl.security` base classes
+1. Extend `org.openl.rules.security` base classes
 2. Implement authentication provider
 3. Configure in Spring Security
 4. Test with integration tests
