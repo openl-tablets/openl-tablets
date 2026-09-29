@@ -1,0 +1,6 @@
+PUT /rest/projects/{PROJECT_ID}/files/data.txt HTTP/1.1
+Authorization: ${USER_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: text/plain
+
+New content

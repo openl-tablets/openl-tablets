@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "***",
+      "shortRevisionNo": "***",
+      "createdAt": "***",
+      "fullComment": "Delete Algorithm.xlsx",
+      "author": {
+        "email": "user16778@email",
+        "displayName": "User 16778"
+      },
+      "deleted": true,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "***",
+      "shortRevisionNo": "***",
+      "createdAt": "***",
+      "fullComment": "Add the project",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2
+}

@@ -140,8 +140,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
             requirePermission(found, BasePermission.DELETE);
             lockForEditing(root, path);
-            if (root instanceof ProjectFileRoot projectRoot) {
-                descriptorCleaner.unregisterModules(projectRoot.getProject(), found);
+            if (root instanceof ProjectFileRoot) {
+                descriptorCleaner.unregisterModules(root, found);
             }
             found.delete();
             awaitIndexIfClosed(root);

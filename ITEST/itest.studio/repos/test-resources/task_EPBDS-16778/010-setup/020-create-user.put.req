@@ -1,0 +1,16 @@
+PUT /rest/users HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{
+  "displayName": "User 16778",
+  "groups": [],
+  "username": "user16778",
+  "internalPassword": {
+    "password": "user16778"
+  },
+  "firstName": "User",
+  "lastName": "16778",
+  "email": "user16778@email"
+}

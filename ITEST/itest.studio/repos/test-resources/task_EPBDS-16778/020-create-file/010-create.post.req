@@ -1,0 +1,6 @@
+POST /rest/projects/{PROJECT_ID}/files/notes/readme.txt?createFolders=true HTTP/1.1
+Authorization: ${USER_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: text/plain
+
+Hello
