@@ -92,13 +92,18 @@ EPBDS-NNNNN <subject>
 
 - **One logical change per commit** — one small piece of functionality or one refactoring step, with its tests and
   documentation, buildable and green on its own.
-- **Fix issues in the commit that introduced them.** On an unpushed branch, fold fixes (bugs, failing tests,
-  documentation, review findings) into the originating commit instead of stacking follow-up commits:
+- **Fix issues in the commit that introduced them.** On the working branch — the branch checked out for the current
+  task, even when it is already pushed or has an open pull request — fold fixes (bugs, failing tests, documentation,
+  review findings) into the originating commit instead of stacking follow-up commits:
     - for the latest commit, use `git commit --amend`;
     - for an earlier commit, use `git commit --fixup=<sha>` and squash with
       `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash --autostash <base>`;
     - when a fix interacts with code changed by later commits (for example, an import they removed), adjust those
-      commits in the same rebase so that every commit in the history stays buildable.
+      commits in the same rebase so that every commit in the history stays buildable;
+    - publish a folded branch that was already pushed with `git push --force-with-lease`, never with a plain
+      `--force`.
+- **Never rewrite shared history.** `main`, release branches and branches other developers work on only take new
+  commits.
 - **Prefix with the Jira ticket** (`EPBDS-NNNNN`), usually equal to the branch name.
 - **The subject explains _why_ or _what_, not the mechanical move** already visible in the diff. Start it with an
   imperative verb.
