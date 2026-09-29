@@ -21,9 +21,8 @@
 ├──────────────────────────────────────────────────────────┤
 │ OpenL Studio                RuleService                    │
 │   ├─ studio-ui            ├─ ruleservice.ws             │
-│   ├─ tableeditor          ├─ ruleservice.kafka          │
-│   ├─ repository*         └─ ruleservice.deployer       │
-│   ├─ workspace                                          │
+│   ├─ repository*          ├─ ruleservice.kafka          │
+│   ├─ workspace            └─ ruleservice.deployer       │
 │   ├─ security*                                          │
 │   ├─ jackson*                                           │
 │   ├─ diff                                               │
@@ -90,7 +89,6 @@
 | **org.openl.security** | None | Spring Security |
 | **org.openl.security.standalone** | security | None |
 | **org.openl.security.acl** | security | Spring Security ACL |
-| **org.openl.rules.tableeditor** | rules | None |
 | **org.openl.rules.project.openapi** | rules.project | Swagger |
 | **org.openl.rules.webstudio** | All STUDIO modules | Spring Boot |
 | **studio-ui** | None (frontend) | React, TypeScript, Ant Design |

@@ -175,7 +175,6 @@ constrainer, annotations, util, gen, test
 - `org.openl.security.acl` - Access Control Lists
 
 **Other Important Modules**:
-- `org.openl.rules.tableeditor` - Table editing component
 - `org.openl.rules.workspace` - Workspace management
 - `org.openl.rules.jackson*` - JSON serialization
 - `org.openl.rules.project.openapi*` - OpenAPI generation
@@ -307,7 +306,7 @@ constrainer, annotations, util, gen, test
 **Answer**:
 1. **The UI**: `/STUDIO/studio-ui/src/`
 2. **Table layout and cell editor model** (read by the table REST API):
-   `/STUDIO/org.openl.rules.tableeditor/src/`
+   `/STUDIO/org.openl.rules.webstudio/src/org/openl/rules/tableeditor/`
 
 ### Finding REST API Code
 

@@ -44,7 +44,6 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - **org.openl.security.acl** — Access Control Lists
 
 **Supporting modules**:
-- **org.openl.rules.tableeditor** — Table layout and cell editor model read by the table REST API
 - **org.openl.rules.workspace** — Workspace management
 - **org.openl.rules.diff** — Rule diff/comparison
 - **org.openl.rules.demo** — Demo projects
