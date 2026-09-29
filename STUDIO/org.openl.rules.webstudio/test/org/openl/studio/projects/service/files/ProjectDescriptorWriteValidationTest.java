@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyIterable;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,6 +39,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -144,6 +148,43 @@ class ProjectDescriptorWriteValidationTest {
                 List.of(new UploadedFile(ProjectDescriptor.FILE_NAME,
                         INVALID_PROCESSOR.getBytes(StandardCharsets.UTF_8))),
                 ConflictPolicy.OVERWRITE));
+    }
+
+    /**
+     * A descriptor written with other files is checked as it is when written alone, and a refused one takes
+     * the other files down with it.
+     */
+    @Test
+    void descriptorWrittenWithOtherFilesIsValidated() throws Exception {
+        projectWithDescriptor();
+        var files = new LinkedHashMap<String, byte[]>();
+        files.put("rules/Rates.xlsx", FileRootWriteBatchTest.zip("[Content_Types].xml", "<Types/>"));
+        files.put(ProjectDescriptor.FILE_NAME, INVALID_PROCESSOR.getBytes(StandardCharsets.UTF_8));
+        List<String> nothing = List.of();
+
+        assertThrows(ValidationException.class, () -> service.writeFiles(root, files, nothing, "Generate tables"));
+
+        verify(repository, never()).save(any(FileData.class), anyIterable(), any(ChangesetType.class));
+    }
+
+    /**
+     * A module the descriptor declares at a file written with it reads a file the same write adds, which the
+     * working copy does not hold yet.
+     */
+    @Test
+    void descriptorMayDeclareAModuleAtAFileWrittenWithIt() throws Exception {
+        projectWithDescriptor();
+        var files = new LinkedHashMap<String, byte[]>();
+        files.put("rules/Rates12.xlsx", FileRootWriteBatchTest.zip("[Content_Types].xml", "<Types/>"));
+        files.put(ProjectDescriptor.FILE_NAME, """
+                <project>
+                    <name>Project1</name>
+                    <modules><module><name>Rates</name><rules-root path="rules/Rates12.xlsx"/></module></modules>
+                </project>""".getBytes(StandardCharsets.UTF_8));
+
+        service.writeFiles(root, files, List.of(), "Generate tables");
+
+        verify(repository).save(any(FileData.class), anyIterable(), eq(ChangesetType.DIFF));
     }
 
     /**

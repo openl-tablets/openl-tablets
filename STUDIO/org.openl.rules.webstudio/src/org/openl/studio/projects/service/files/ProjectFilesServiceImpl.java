@@ -6,9 +6,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -377,21 +380,127 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             return;
         }
         Set<String> kept = entries.stream().map(FileEntry::fullPath).collect(Collectors.toSet());
+        filesUnder(folder).stream()
+                .filter(file -> !kept.contains(file.getInternalPath()))
+                .forEach(file -> requirePermission(file, BasePermission.DELETE));
+    }
+
+    /** Every file under the folder, however deep. */
+    private static List<AProjectArtefact> filesUnder(AProjectFolder folder) {
+        List<AProjectArtefact> files = new ArrayList<>();
         Deque<AProjectFolder> queue = new ArrayDeque<>();
         queue.add(folder);
         while (!queue.isEmpty()) {
             for (AProjectArtefact artefact : queue.poll().getArtefacts()) {
                 if (artefact.isFolder()) {
                     queue.add((AProjectFolder) artefact);
-                } else if (!kept.contains(artefact.getInternalPath())) {
-                    requirePermission(artefact, BasePermission.DELETE);
+                } else {
+                    files.add(artefact);
                 }
             }
         }
+        return files;
     }
 
     private static String uploadComment(String action, String path) {
         return action + (path.isEmpty() ? "repository root" : path);
+    }
+
+    @Override
+    public void writeFiles(@NotNull FileRoot root,
+                           @NotNull Map<String, byte[]> written,
+                           @NotNull Collection<String> deleted,
+                           @NotBlank String comment) {
+        root.requireModifiable();
+        lockIfClosed(root);
+        try {
+            var current = root.readFolder(null);
+            written.keySet().forEach(this::validateResourcePath);
+            requireWritable(current, written.keySet());
+            List<FileItem> items = new ArrayList<>();
+            written.forEach((path, content) -> {
+                validateContent(root, path, content, written.keySet());
+                items.add(new FileItem(path, new ByteArrayInputStream(content)));
+            });
+            for (var path : deleted) {
+                items.addAll(checkedDeletes(current, path, written.keySet()));
+            }
+            if (!items.isEmpty()) {
+                root.writeBatch("", items, ChangesetType.DIFF, comment);
+            }
+        } finally {
+            unlockIfClosed(root);
+        }
+    }
+
+    /**
+     * Verifies the user may write the files at the paths: replace a file standing at one, or add one to the
+     * deepest folder of its path the mount holds. A folder receiving several files is asked about once.
+     *
+     * <p>A folder standing at a path cannot be written as a file.
+     */
+    private void requireWritable(AProjectFolder current, Collection<String> paths) {
+        Set<AProjectFolder> receiving = new LinkedHashSet<>();
+        for (var path : paths) {
+            var found = findArtefactByPath(current, path);
+            if (found == null) {
+                receiving.add(deepestFolder(current, path.split("/"), "file.path.not.folder.message").folder());
+            } else if (found.isFolder()) {
+                throw new ConflictException("file.create.failed.message");
+            } else {
+                requirePermission(found, BasePermission.WRITE);
+            }
+        }
+        receiving.forEach(folder -> requirePermission(folder, BasePermission.CREATE));
+    }
+
+    /**
+     * The deepest folder of a path the mount holds, and how many folders of the path lead to it.
+     *
+     * <p>The last segment names the file and is not walked. A file standing where the path needs a folder is
+     * refused.
+     */
+    private Reached deepestFolder(AProjectFolder current, String[] segments, String conflictMessageKey) {
+        var folder = current;
+        var depth = 0;
+        while (depth < segments.length - 1) {
+            var artefact = findArtefactByPath(folder, segments[depth]);
+            if (artefact == null) {
+                break;
+            }
+            if (!artefact.isFolder()) {
+                throw new ConflictException(conflictMessageKey, artefact.getInternalPath());
+            }
+            folder = (AProjectFolder) artefact;
+            depth++;
+        }
+        return new Reached(folder, depth);
+    }
+
+    /** Where a walk down a path stopped: the folder it reached, and how many folders of the path lead to it. */
+    private record Reached(AProjectFolder folder, int depth) {
+    }
+
+    /**
+     * The files a batch deletes at the path, each checked for the user's permission to delete it: the file
+     * there, or every file under the folder there that the same batch does not write again. A path that holds
+     * nothing deletes nothing.
+     */
+    private List<FileItem> checkedDeletes(AProjectFolder current, String path, Collection<String> written) {
+        validateResourcePath(path);
+        List<AProjectArtefact> removed = switch (findArtefactByPath(current, path)) {
+            case null -> List.of();
+            case AProjectFolder folder -> filesUnder(folder);
+            case AProjectArtefact file -> List.of(file);
+        };
+        List<FileItem> items = new ArrayList<>();
+        for (var file : removed) {
+            if (!written.contains(file.getInternalPath())) {
+                requirePermission(file, BasePermission.DELETE);
+                items.add(new FileItem(file.getInternalPath(), null));
+            }
+        }
+        return items;
     }
 
     @Override
@@ -556,28 +665,15 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                                   boolean createMissing,
                                                   String conflictMessageKey) throws ProjectException {
         String[] segments = fullPath.split("/");
-        AProjectFolder targetFolder = rootFolder;
-        int firstMissing = segments.length - 1;
-
-        for (int i = 0; i < segments.length - 1; i++) {
-            String segment = segments[i];
-            if (!targetFolder.hasArtefact(segment)) {
-                if (!createMissing) {
-                    throw new NotFoundException("file.parent.not.found.message", segment);
-                }
-                firstMissing = i;
-                break;
-            }
-            AProjectArtefact artefact = targetFolder.getArtefact(segment);
-            if (!artefact.isFolder()) {
-                throw new ConflictException(conflictMessageKey, artefact.getInternalPath());
-            }
-            targetFolder = (AProjectFolder) artefact;
+        var reached = deepestFolder(rootFolder, segments, conflictMessageKey);
+        if (!createMissing && reached.depth() < segments.length - 1) {
+            throw new NotFoundException("file.parent.not.found.message", segments[reached.depth()]);
         }
 
-        requirePermission(targetFolder, BasePermission.CREATE);
+        requirePermission(reached.folder(), BasePermission.CREATE);
 
-        for (int i = firstMissing; i < segments.length - 1; i++) {
+        var targetFolder = reached.folder();
+        for (int i = reached.depth(); i < segments.length - 1; i++) {
             targetFolder = targetFolder.addFolder(segments[i]);
         }
 
@@ -593,20 +689,39 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * @return a stream positioned at the beginning (after validation), to be closed by the caller
      */
     private InputStream validateContent(FileRoot root, String path, InputStream content) {
-        // The path arrives as the request wrote it, so the surrounding slashes go before it names a file.
-        var filePath = FilePaths.trimSlashes(path);
-        if (root instanceof ProjectFileRoot projectRoot && ProjectDescriptor.FILE_NAME.equals(filePath)) {
-            return validateDescriptor(projectRoot, content);
+        var project = descriptorOwner(root, path);
+        if (project != null) {
+            return validateDescriptor(project, content);
         }
-        return verifyFileContent(FilePaths.name(filePath), content);
+        return verifyFileContent(fileName(path), content);
     }
 
     /**
-     * Validates the project descriptor written to a project against the one the project stores.
-     *
-     * <p>A descriptor that is not well-formed XML is written as it is, so a broken file can always be
-     * replaced by a fixed one. One larger than a descriptor can be is refused instead of written
-     * unchecked.
+     * Validates the content a batch writes to a path, as a write of that file alone validates it, with the other
+     * files of the batch taken as held by the project.
+     */
+    private void validateContent(FileRoot root, String path, byte[] content, Collection<String> writtenWith) {
+        var project = descriptorOwner(root, path);
+        if (project != null) {
+            checkDescriptor(project, content, writtenWith);
+        } else {
+            verifyFileContent(fileName(path), content);
+        }
+    }
+
+    /** The project whose descriptor the path names, or {@code null} where it names any other file. */
+    private static @Nullable ProjectFileRoot descriptorOwner(FileRoot root, String path) {
+        return root instanceof ProjectFileRoot projectRoot
+                && ProjectDescriptor.FILE_NAME.equals(FilePaths.trimSlashes(path)) ? projectRoot : null;
+    }
+
+    /** The name of the file the path names. The path arrives as the request wrote it, surrounding slashes and all. */
+    private static String fileName(String path) {
+        return FilePaths.name(FilePaths.trimSlashes(path));
+    }
+
+    /**
+     * Reads the project descriptor written to a project in full, and checks it.
      *
      * @return a stream positioned at the beginning (after validation)
      */
@@ -618,15 +733,28 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         } catch (IOException e) {
             throw new BadRequestException("file.content.invalid.message");
         }
+        checkDescriptor(root, declared, List.of());
+        return new ByteArrayInputStream(declared);
+    }
+
+    /**
+     * Validates the project descriptor written to a project against the one the project stores.
+     *
+     * <p>A descriptor that is not well-formed XML is written as it is, so a broken file can always be
+     * replaced by a fixed one. One larger than a descriptor can be is refused instead of written
+     * unchecked.
+     *
+     * @param writtenWith mount-relative paths of the files written together with the descriptor
+     */
+    private void checkDescriptor(ProjectFileRoot root, byte[] declared, Collection<String> writtenWith) {
         if (declared.length > MAX_DESCRIPTOR_SIZE) {
             throw new BadRequestException("file.descriptor.too-large.message");
         }
         var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(declared));
         if (descriptor != null) {
             validationProvider.validate(descriptor,
-                    ProjectDescriptorValidator.forProject(root.getProject(), storedDescriptor(root)));
+                    ProjectDescriptorValidator.forProject(root.getProject(), storedDescriptor(root), writtenWith));
         }
-        return new ByteArrayInputStream(declared);
     }
 
     /**

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -191,6 +193,28 @@ public interface ProjectFilesService {
             return "UploadedFile[name=%s, content=%d bytes]".formatted(name, content == null ? 0 : content.length);
         }
     }
+
+    /**
+     * Writes several files to the mount as one changeset, and deletes others with them.
+     *
+     * <p>Every file is checked before the first one is written, the way a write of that file alone is checked:
+     * its path, the user's permission to write it, and its content. A project descriptor is checked against the
+     * one the project stores, with the files of the same write taken as held by the project. A refused file
+     * leaves the mount as it was.
+     *
+     * <p>A deleted folder loses every file under it that the same write does not write again. A path that holds
+     * nothing is left as it is. A module reading a deleted file stays declared in {@code rules.xml}, unless the
+     * same write carries a descriptor without it.
+     *
+     * @param root    the file root
+     * @param written the content of each file to create or replace, by its mount-relative path
+     * @param deleted mount-relative paths of the files and folders to delete
+     * @param comment the commit message
+     */
+    void writeFiles(@NotNull FileRoot root,
+                    @NotNull Map<String, byte[]> written,
+                    @NotNull Collection<String> deleted,
+                    @NotBlank String comment);
 
     /**
      * Search files and folders. {@code SUBTREE} scope matches entries within the mount by ant-glob

@@ -1,0 +1,16 @@
+PUT /rest/repos/design-flat/projects/EPBDS-16743?comment=EPBDS-16743%20Create%20a%20project%20reading%20its%20workbooks%20by%20the%20default%20patterns HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="EPBDS-16743.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&EPBDS-16743.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+OPENED
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

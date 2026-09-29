@@ -1,0 +1,20 @@
+PUT /rest/projects/EPBDS-16743/files/rules.xml HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: text/plain
+
+<project>
+    <name>EPBDS-16743</name>
+    <modules>
+        <module>
+            <rules-root path="rules/**/*.xlsx"/>
+        </module>
+        <module>
+            <rules-root path="tests/**/*.xlsx"/>
+        </module>
+        <module>
+            <name>Mod</name>
+            <rules-root path="rules/Alg12.xlsx"/>
+        </module>
+    </modules>
+</project>
+

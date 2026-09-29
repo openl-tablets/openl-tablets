@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Alg",
+    "path": "rules/Alg12.xlsx"
+  },
+  {
+    "name": "Mod",
+    "path": "rules/Mod.xlsx"
+  }
+]
+

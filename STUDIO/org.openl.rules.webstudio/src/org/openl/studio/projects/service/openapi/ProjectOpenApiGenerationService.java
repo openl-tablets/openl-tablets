@@ -1,14 +1,16 @@
 package org.openl.studio.projects.service.openapi;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
-import org.openl.rules.openapi.impl.GroovyScriptFile;
 import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -32,7 +33,6 @@ import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.openapi.OpenApiGenerationPlanView;
 import org.openl.studio.projects.model.openapi.OpenApiGenerationRequest;
 import org.openl.studio.projects.model.openapi.OpenApiModuleView;
@@ -66,6 +66,9 @@ public class ProjectOpenApiGenerationService {
     /** Where a generated module is written when the caller says nothing, as the Editor offered it. */
     private static final String DEFAULT_FOLDER = "rules/";
     private static final String DEFAULT_EXTENSION = ".xlsx";
+    /** The folder the generated classes are written to. */
+    private static final String GENERATED_CLASSES = OpenAPIHelper.DEF_JAVA_CLASS_PATH + "/"
+            + OpenAPIJavaClassGenerator.DEFAULT_OPEN_API_PATH.replace(".", "/");
 
     private final WorkspaceProjectService projectService;
     private final ProjectFilesService filesService;
@@ -138,6 +141,10 @@ public class ProjectOpenApiGenerationService {
     /**
      * Writes the project's tables from the specification it names.
      *
+     * <p>Everything the generation writes is made first, and written as one change: the two workbooks, the
+     * classes the engine publishes them with, the deployment descriptor and {@code rules.xml}. A refused file —
+     * a descriptor the project cannot store, a file the user may not write — leaves the project as it was.
+     *
      * <p>The compilation is held for the whole write: the workbooks the modules read are replaced under it,
      * and a compilation reading them half-written answers for neither the old tables nor the new.
      *
@@ -147,11 +154,14 @@ public class ProjectOpenApiGenerationService {
     public void generateTables(RulesProject project, OpenApiGenerationRequest request) {
         requireWritableNames(request);
         var root = fileRootFactory.of(project);
+        // Asked again when the files are written, and first here: a project that cannot be changed is refused
+        // before its tables are generated for nothing.
+        root.requireModifiable();
         var resolved = projectService.getProjectDescriptor(project);
         var algorithm = targetOf(resolved, request.algorithmModuleName(), request.algorithmModulePath());
         var model = targetOf(resolved, request.modelModuleName(), request.modelModulePath());
-        // Asked before anything is written: a workbook standing where a new module would go is the author's,
-        // and a refusal halfway through would leave one module generated and the other not.
+        // Asked of the two modules before anything is made, so a refusal names the module it is about. A workbook
+        // standing where a new module would go is the author's, and is not written over.
         requireWritablePath(algorithm);
         requireWritablePath(model);
         requireWorkbook(algorithm);
@@ -161,6 +171,19 @@ public class ProjectOpenApiGenerationService {
         requireFree(project, model);
         var descriptor = ProjectOpenApiService.descriptorToWrite(project, root, filesService, resolved);
         var specification = readSpecification(project, request.path());
+        var generated = new OpenAPIJavaClassGenerator(specification).generate();
+        declareGeneration(descriptor, request, algorithm, model, specification, generated.hasAnnotationTemplateClass());
+        var written = new LinkedHashMap<String, byte[]>();
+        written.put(model.path(), contentOf(model.path(), () -> openApiHelper.generateDataTypesFile(specification)));
+        written.put(algorithm.path(), contentOf(algorithm.path(), () -> openApiHelper.generateAlgorithmsModule(
+                specification.getSpreadsheetResultModels(), specification.getDataModels(),
+                dependingOn(request.modelModuleName()))));
+        written.putAll(classesOf(generated));
+        written.put(RulesDeploy.FILE_NAME, rulesDeploy(project, root, specification, generated));
+        var declared = ProjectOpenApiService.changedDescriptor(project, root, filesService, descriptor);
+        if (declared != null) {
+            written.put(ProjectDescriptor.FILE_NAME, declared);
+        }
 
         // What the two modules read before the write is kept, so a generation over an existing module can be
         // taken back from the project's own history. Kept for these two workbooks rather than through the
@@ -168,15 +191,9 @@ public class ProjectOpenApiGenerationService {
         // another project would have snapshotted instead.
         history.keepBeforeWrite(project, algorithm.path());
         history.keepBeforeWrite(project, model.path());
-        var generated = new OpenAPIJavaClassGenerator(specification).generate();
-        write(project, root, model, () -> openApiHelper.generateDataTypesFile(specification));
-        write(project, root, algorithm, () -> openApiHelper.generateAlgorithmsModule(
-                specification.getSpreadsheetResultModels(), specification.getDataModels(),
-                dependingOn(request.modelModuleName())));
-        writeGeneratedClasses(root, generated);
-        writeRulesDeploy(project, root, specification, generated);
-        declareGeneration(project, root, descriptor, request, algorithm, model, specification,
-                generated.hasAnnotationTemplateClass());
+        // What a previous generation left of the classes is dropped with the write: a class nobody generates
+        // any more would otherwise stay on the classpath, naming operations the specification no longer has.
+        filesService.writeFiles(root, written, List.of(GENERATED_CLASSES), "Generate tables from " + request.path());
         history.recordWritten(project, algorithm.path());
         history.recordWritten(project, model.path());
         // The session resolved and compiled the project as it stood before the generation: its module list,
@@ -187,9 +204,8 @@ public class ProjectOpenApiGenerationService {
     /**
      * A generated module is written to a path a repository can hold, to a workbook with a name.
      *
-     * <p>Asked before anything is written, as the Editor's dialog asked it. The repository refuses such a
-     * path when the write reaches it, which is one module too late: the other is written by then, and the
-     * generation would leave the project with one of its two modules replaced.
+     * <p>Asked as the Editor's dialog asked it, so the refusal names the characters a path cannot hold. The
+     * write would refuse such a path too, but only as a file it cannot hold.
      */
     private static void requireWritablePath(Target target) {
         try {
@@ -281,21 +297,12 @@ public class ProjectOpenApiGenerationService {
         return Files.isDirectory(folder) ? folder : null;
     }
 
-    /**
-     * Writes one generated workbook, over the one standing there or beside nothing at all.
-     *
-     * <p>A module the project already reads has its workbook replaced where it reads it, so a generation run
-     * again leaves one workbook rather than two.
-     */
-    private void write(RulesProject project, FileRoot root, Target target, Generator content) {
-        try (var workbook = content.open()) {
-            if (project.hasArtefact(target.path())) {
-                filesService.updateResource(root, target.path(), workbook);
-            } else {
-                filesService.createResource(root, target.path(), workbook, true);
-            }
+    /** A generated file, made in full before anything is written. */
+    private static byte[] contentOf(String path, Generator content) {
+        try (var made = content.open()) {
+            return made.readAllBytes();
         } catch (IOException e) {
-            throw new ConflictException("projects.openapi.write-failed.message", target.path());
+            throw new ConflictException("projects.openapi.write-failed.message", path);
         }
     }
 
@@ -307,49 +314,28 @@ public class ProjectOpenApiGenerationService {
     }
 
     /**
-     * The classes the engine needs to publish the generated rules under the names the specification uses.
-     *
-     * <p>What a previous generation left is dropped first: a class nobody generates any more would otherwise
-     * stay on the classpath, naming operations the specification no longer has.
+     * The classes the engine needs to publish the generated rules under the names the specification uses, by
+     * the path each is written to.
      */
-    private void writeGeneratedClasses(FileRoot root, OpenAPIGeneratedClasses generated) {
-        var folder = OpenAPIHelper.DEF_JAVA_CLASS_PATH + "/"
-                + OpenAPIJavaClassGenerator.DEFAULT_OPEN_API_PATH.replace(".", "/");
-        try {
-            filesService.deleteResource(root, folder);
-        } catch (NotFoundException gone) {
-            // Nothing was generated before, so there is nothing to drop. Anything else — a folder that
-            // cannot be written to — is the caller's to hear about: a class left there names operations the
-            // specification no longer has.
-        }
+    private Map<String, byte[]> classesOf(OpenAPIGeneratedClasses generated) {
+        var scripts = new ArrayList<>(generated.getGroovyCommonClasses());
         if (generated.hasAnnotationTemplateClass()) {
-            writeScript(root, generated.getAnnotationTemplateGroovyFile());
+            scripts.add(generated.getAnnotationTemplateGroovyFile());
         }
-        generated.getGroovyCommonClasses().forEach(script -> writeScript(root, script));
-    }
-
-    private void writeScript(FileRoot root, GroovyScriptFile script) {
-        var path = openApiHelper.makePathToTheGeneratedFile(script.getPath());
-        filesService.createResource(root, path,
-                new ByteArrayInputStream(script.getScriptText().getBytes(java.nio.charset.StandardCharsets.UTF_8)),
-                true);
+        var classes = new LinkedHashMap<String, byte[]>();
+        scripts.forEach(script -> classes.put(openApiHelper.makePathToTheGeneratedFile(script.getPath()),
+                script.getScriptText().getBytes(StandardCharsets.UTF_8)));
+        return classes;
     }
 
     /** The deployment descriptor, which names the interface the generated rules are published under. */
-    private void writeRulesDeploy(RulesProject project,
-                                  FileRoot root,
-                                  ProjectModel specification,
-                                  OpenAPIGeneratedClasses generated) {
+    private byte[] rulesDeploy(RulesProject project,
+                               FileRoot root,
+                               ProjectModel specification,
+                               OpenAPIGeneratedClasses generated) {
         var kept = project.hasArtefact(RulesDeploy.FILE_NAME) ? readRulesDeploy(root) : null;
-        try (var written = openApiHelper.editOrCreateRulesDeploy(specification, generated, kept)) {
-            if (kept == null) {
-                filesService.createResource(root, RulesDeploy.FILE_NAME, written, false);
-            } else {
-                filesService.updateResource(root, RulesDeploy.FILE_NAME, written);
-            }
-        } catch (IOException e) {
-            throw new ConflictException("projects.openapi.write-failed.message", RulesDeploy.FILE_NAME);
-        }
+        return contentOf(RulesDeploy.FILE_NAME,
+                () -> openApiHelper.editOrCreateRulesDeploy(specification, generated, kept));
     }
 
     private @Nullable RulesDeploy readRulesDeploy(FileRoot root) {
@@ -361,12 +347,12 @@ public class ProjectOpenApiGenerationService {
     }
 
     /**
-     * Leaves {@code rules.xml} declaring what the generation wrote: the specification it is generated from,
-     * the two modules, the methods the specification exposes, and the classpath the generated classes need.
+     * Declares what the generation writes: the specification it is generated from, the two modules, the methods
+     * the specification exposes, and the classpath the generated classes need.
+     *
+     * <p>Only the descriptor is changed here. It is checked and written with the rest of the generation.
      */
-    private void declareGeneration(RulesProject project,
-                                   FileRoot root,
-                                   ProjectDescriptor descriptor,
+    private void declareGeneration(ProjectDescriptor descriptor,
                                    OpenApiGenerationRequest request,
                                    Target algorithm,
                                    Target model,
@@ -388,7 +374,6 @@ public class ProjectOpenApiGenerationService {
             descriptor.setExposedMethods(exposed);
         }
         declareClassPath(descriptor, hasGeneratedClasses);
-        ProjectOpenApiService.writeDescriptor(project, root, filesService, descriptor);
     }
 
     /**
@@ -422,7 +407,7 @@ public class ProjectOpenApiGenerationService {
         return CollectionUtils.isEmpty(modules) ? List.of() : modules;
     }
 
-    /** Opens a generated workbook, which is written as it is read. */
+    /** Opens the content of a generated file. */
     @FunctionalInterface
     private interface Generator {
         InputStream open() throws IOException;

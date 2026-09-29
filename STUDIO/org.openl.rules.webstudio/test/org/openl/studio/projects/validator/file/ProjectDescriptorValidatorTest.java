@@ -1,13 +1,16 @@
 package org.openl.studio.projects.validator.file;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -157,6 +160,85 @@ class ProjectDescriptorValidatorTest {
     }
 
     @Test
+    void moduleDeclaredUnderAPatternWithANameOfItsOwnIsAccepted() throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/Alg12.xlsx"));
+
+        // The pattern would call the workbook's module Alg12. Declared as Alg it is renamed: the engine reads the
+        // workbook once, for Alg, and leaves it out of the pattern, whichever of the two is written first.
+        assertFalse(validate(withModules(module(null, "rules/**/*.xlsx"), module("Alg", "rules/Alg12.xlsx")))
+                .hasErrors());
+        assertFalse(validate(withModules(module("Alg", "rules/Alg12.xlsx"), module(null, "rules/**/*.xlsx")))
+                .hasErrors());
+    }
+
+    @Test
+    void moduleDeclaredUnderAPatternWithoutANameIsRejected() throws Exception {
+        Files.createFile(projectFolder.resolve("Rates.xlsx"));
+
+        // Named after its file by the engine, it is the module the pattern already stands for.
+        var errors = validate(withModules(module(null, "*.xlsx"), module(null, "Rates.xlsx")));
+
+        assertTrue(errors.hasFieldErrors("modules[1].rulesRootPath"));
+    }
+
+    @Test
+    void moduleAtAFileWrittenWithTheDescriptorIsAccepted() {
+        // The working copy holds no such file yet: the same write adds it.
+        assertFalse(validate(withModules(module("Alg", "rules/Alg12.xlsx")), Set.of("rules/Alg12.xlsx")).hasErrors());
+    }
+
+    @Test
+    void moduleNamedLikeAWorkbookAPatternReadsIsRejected() throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/Alg12.xlsx"));
+        Files.createFile(projectFolder.resolve("rules/Alg.xlsx"));
+
+        // The pattern reads rules/Alg.xlsx as a module named Alg, so a second module of that name would replace it.
+        var error = validate(withModules(module(null, "rules/**/*.xlsx"), module("Alg", "rules/Alg12.xlsx")))
+                .getFieldError("modules[1].name");
+
+        assertNotNull(error);
+        assertEquals("file.descriptor.module.name.duplicate.message", error.getCode());
+    }
+
+    @Test
+    void workbookAModuleIsDeclaredAtGivesThePatternNoName() throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/Alg12.xlsx"));
+        Files.createFile(projectFolder.resolve("rules/Alg.xlsx"));
+
+        // rules/Alg.xlsx is read once, as Main, so the name Alg is free for the other workbook.
+        assertFalse(validate(withModules(module(null, "rules/**/*.xlsx"), module("Main", "rules/Alg.xlsx"),
+                module("Alg", "rules/Alg12.xlsx"))).hasErrors());
+    }
+
+    @Test
+    void workbookWrittenWithTheDescriptorGetsItsNameFromThePattern() throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/Alg12.xlsx"));
+        var descriptor = withModules(module(null, "rules/**/*.xlsx"), module("Alg", "rules/Alg12.xlsx"));
+
+        // The same write adds rules/Alg.xlsx, which the pattern reads under the name Alg.
+        assertTrue(validate(descriptor, Set.of("rules/Alg.xlsx")).hasFieldErrors("modules[1].name"));
+    }
+
+    @Test
+    void pathSpellingTheFileInAnotherLetterCaseIsRejected() throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/Alg12.xlsx"));
+        // Only where letter case is not told apart is the file found by another spelling of its name.
+        assumeTrue(Files.exists(projectFolder.resolve("rules/alg12.xlsx")));
+
+        var error = validate(withModules(module("Alg", "rules/alg12.xlsx"))).getFieldError("modules[0].rulesRootPath");
+
+        // A server telling letter case apart would find no file there, and the engine may read the workbook twice.
+        assertNotNull(error);
+        assertEquals("file.descriptor.module.path.letter-case.message", error.getCode());
+        assertArrayEquals(new Object[]{"rules/alg12.xlsx", "rules/Alg12.xlsx"}, error.getArguments());
+    }
+
+    @Test
     void pathLeadingOutOfTheProjectIsRejected() throws Exception {
         var project = Files.createDirectory(projectFolder.resolve("project"));
         Files.createFile(projectFolder.resolve("Rates.xlsx"));
@@ -187,7 +269,7 @@ class ProjectDescriptorValidatorTest {
 
     @Test
     void supportsProjectDescriptor() {
-        assertTrue(new ProjectDescriptorValidator(null, null).supports(ProjectDescriptor.class));
+        assertTrue(new ProjectDescriptorValidator(null, null, Set.of()).supports(ProjectDescriptor.class));
     }
 
     @Test
@@ -320,8 +402,20 @@ class ProjectDescriptorValidatorTest {
     }
 
     private static Errors validate(ProjectDescriptor descriptor, Path folder, ProjectDescriptor stored) {
+        return validate(descriptor, folder, stored, Set.of());
+    }
+
+    /** Checks the descriptor written together with the files at the given paths. */
+    private Errors validate(ProjectDescriptor descriptor, Set<String> writtenWith) {
+        return validate(descriptor, projectFolder, null, writtenWith);
+    }
+
+    private static Errors validate(ProjectDescriptor descriptor,
+                                   Path folder,
+                                   ProjectDescriptor stored,
+                                   Set<String> writtenWith) {
         var errors = new BeanPropertyBindingResult(descriptor, "descriptor");
-        new ProjectDescriptorValidator(folder, stored).validate(descriptor, errors);
+        new ProjectDescriptorValidator(folder, stored, writtenWith).validate(descriptor, errors);
         return errors;
     }
 
