@@ -1,10 +1,12 @@
 package org.openl.studio.config;
 
 import java.util.Locale;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.CustomDefinition;
+import com.github.victools.jsonschema.generator.FieldScope;
 import com.github.victools.jsonschema.generator.Option;
 import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerationContext;
@@ -28,7 +30,8 @@ import org.springframework.context.annotation.Scope;
  * <p>
  * Two generators are offered. {@link #schemaGenerator} describes the values the run, tests and trace APIs
  * publish. {@link #inputSchemaGenerator} describes the input a table takes and also records the defaults a
- * datatype declares, see {@link DeclaredDefaultsAttributeOverride}.
+ * datatype declares, see {@link DeclaredDefaultsAttributeOverride}. A field whose default can be replaced by null
+ * accepts null in that schema.
  * <p>
  * Both describe a {@link Locale} as text, the way it is written in JSON and the way the OpenAPI schema of
  * OpenL Rule Services describes it.
@@ -57,6 +60,9 @@ public class ObjectSchemaGeneratorConfiguration {
      * <p>
      * The schema also carries the defaults a datatype declares as the {@code default} of each property.
      * <p>
+     * A field with such a default that is not a primitive accepts {@code null}. A missing field takes the default,
+     * so {@code null} is how a caller asks for no value there.
+     * <p>
      * This is a prototype bean - a new instance is created for each injection/lookup.
      *
      * @param objectMapper the ObjectMapper to use for introspection and to write the defaults
@@ -68,7 +74,19 @@ public class ObjectSchemaGeneratorConfiguration {
         var configBuilder = configBuilder(objectMapper);
         configBuilder.forTypesInGeneral()
                 .withTypeAttributeOverride(new DeclaredDefaultsAttributeOverride(objectMapper));
+        configBuilder.forFields()
+                .withNullableCheck(ObjectSchemaGeneratorConfiguration::isNillable);
         return new SchemaGenerator(configBuilder.build());
+    }
+
+    /**
+     * Whether a field can be sent as {@code null} to replace its default.
+     * <p>
+     * The bean of an OpenL datatype marks such a field as nillable: it declares a default and is not a primitive.
+     */
+    private static boolean isNillable(FieldScope field) {
+        var element = field.getAnnotation(XmlElement.class);
+        return element != null && element.nillable();
     }
 
     private static SchemaGeneratorConfigBuilder configBuilder(ObjectMapper objectMapper) {

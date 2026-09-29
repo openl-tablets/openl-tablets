@@ -1,4 +1,13 @@
-import { createValue, fieldKind, mapValueSchema, primaryType, resolveRef, resolveSchema, withoutNulls } from 'components/schemaForm/schema'
+import {
+    clearedValue,
+    createValue,
+    fieldKind,
+    mapValueSchema,
+    primaryType,
+    resolveRef,
+    resolveSchema,
+    withoutNulls,
+} from 'components/schemaForm/schema'
 
 describe('resolveRef', () => {
     const root = { $defs: { 'Driver~1Info': { type: 'object' } }, definitions: { Car: { type: 'string' } } }
@@ -83,6 +92,17 @@ describe('withoutNulls', () => {
         expect(withoutNulls({ code: 'DE', name: null, ratings: [null, { agency: null, rating: 'A' }]}))
             .toEqual({ code: 'DE', ratings: [null, { rating: 'A' }]})
         expect(withoutNulls(5)).toBe(5)
+    })
+})
+
+describe('clearedValue', () => {
+    it('clears to null a field that accepts it, and any other field to its default or to nothing', () => {
+        const root = { $defs: { Holder: { type: 'object', properties: { name: { type: 'string' } } } } }
+        expect(clearedValue({ type: ['string', 'null'], default: 'A' }, root)).toBeNull()
+        expect(clearedValue({ type: 'null' }, root)).toBeNull()
+        expect(clearedValue({ anyOf: [{ type: 'null' }, { $ref: '#/$defs/Holder' }], default: { name: 'Ann' } }, root)).toBeNull()
+        expect(clearedValue({ type: 'integer', default: 30 }, root)).toBe(30)
+        expect(clearedValue({ type: 'string' }, root)).toBeUndefined()
     })
 })
 

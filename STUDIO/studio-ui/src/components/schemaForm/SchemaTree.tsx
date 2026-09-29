@@ -5,7 +5,15 @@ import type { TreeDataNode } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { complexValueSummary, describeSimpleValue, isComplexValue } from 'components/values/valueTree'
 import { labelOf, ScalarEditor } from './ScalarEditor'
-import { createValue, fieldKind, mapValueSchema, resolveSchema, type FieldKind, type JsonSchema } from './schema'
+import {
+    clearedValue,
+    createValue,
+    fieldKind,
+    mapValueSchema,
+    resolveSchema,
+    type FieldKind,
+    type JsonSchema,
+} from './schema'
 
 const { Text } = Typography
 
@@ -75,6 +83,8 @@ interface NodeSpec {
     value: unknown
     path: string
     onChange: (value: unknown) => void
+    /** The value a field of an object takes when it is cleared, see `clearedValue`. */
+    clearsTo?: unknown
     /** Removes the node from the list it is an element of. */
     onRemove?: (() => void) | undefined
     /** The key of a map entry, edited in place. */
@@ -209,9 +219,10 @@ const structureActions = ({ kind, unset, path, value, entries, onChange, create,
 }
 
 /** What a plain value offers while it is not being edited: editing it, and clearing it. */
-const valueActions = ({ editing, unset, path, onChange, setEditing, t }: {
+const valueActions = ({ editing, clearable, path, onChange, setEditing, t }: {
     editing: boolean
-    unset: boolean
+    /** Whether the cross would change the value. */
+    clearable: boolean
     path: string
     onChange: (value: unknown) => void
     setEditing: (path: string | null) => void
@@ -222,16 +233,17 @@ const valueActions = ({ editing, unset, path, onChange, setEditing, t }: {
     }
     return [
         <ActionButton key="edit" icon={<EditOutlined />} label={t('input.edit')} onClick={() => setEditing(path)} testId={`edit-${path}`} />,
-        ...(unset
-            ? []
-            : [<ActionButton key="clear" icon={<CloseOutlined />} label={t('input.clear')} onClick={() => onChange(undefined)} testId={`clear-${path}`} />]),
+        ...(clearable
+            ? [<ActionButton key="clear" icon={<CloseOutlined />} label={t('input.clear')} onClick={() => onChange(undefined)} testId={`clear-${path}`} />]
+            : []),
     ]
 }
 
 /**
  * The title of one node, `name (type) = value`, with the actions the node takes.
  *
- * A plain value is edited in place behind the pencil and cleared with the cross.
+ * A plain value is edited in place behind the pencil and cleared with the cross. The cross is left out when
+ * clearing would change nothing, such as for an `int` that holds its default.
  *
  * A structure starts unset. The plus creates it, an object with its fields and a list with its first slot. The
  * cross makes it unset again. The plus on a list adds a `null` element. The minus next to an element removes it.
@@ -241,7 +253,9 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
     resolved: JsonSchema
     /** The keys of a map's entries as its rows are drawn; empty for anything else. */
     entries: string[]
-}> = ({ name, label, type, kind, resolved, entries, value, path, onChange, onRemove, onRename, takenKeys, context }) => {
+}> = ({
+    name, label, type, kind, resolved, entries, value, path, onChange, clearsTo, onRemove, onRename, takenKeys, context,
+}) => {
     const { t } = useTranslation('execution')
     const editing = context.editing === path
     const unset = isUnset(value)
@@ -253,7 +267,9 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
     const actions = [
         ...(isStructure(kind)
             ? structureActions({ kind, unset, path, value, entries, onChange, create, context, t })
-            : valueActions({ editing, unset, path, onChange, setEditing: context.setEditing, t })),
+            : valueActions({
+                editing, clearable: !unset && value !== clearsTo, path, onChange, setEditing: context.setEditing, t,
+            })),
         ...(onRemove
             ? [<ActionButton key="remove" danger icon={<MinusOutlined />} label={t('input.remove')} onClick={onRemove} testId={`remove-${path}`} />]
             : []),
@@ -291,6 +307,8 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
  *
  * A created object lists the fields of its schema, so an unset field shows as `null`. A created list shows its
  * elements, a created map its entries.
+ *
+ * A cleared field of an object becomes `null` when it accepts `null`, and otherwise goes back to its default.
  */
 export const buildNode = (spec: NodeSpec): TreeDataNode => {
     const { schema, value, path, onChange, context } = spec
@@ -306,14 +324,18 @@ export const buildNode = (spec: NodeSpec): TreeDataNode => {
     let children: TreeDataNode[] = []
     if (!isUnset(value) && kind === 'object') {
         const record = asRecord(value)
-        children = Object.entries(resolved.properties ?? {}).map(([field, fieldSchema]) => buildNode({
-            name: field,
-            schema: fieldSchema,
-            value: record[field],
-            path: `${path}.${field}`,
-            onChange: next => onChange(withField(record, field, next)),
-            context,
-        }))
+        children = Object.entries(resolved.properties ?? {}).map(([field, fieldSchema]) => {
+            const clearsTo = clearedValue(fieldSchema, context.root)
+            return buildNode({
+                name: field,
+                schema: fieldSchema,
+                value: record[field],
+                path: `${path}.${field}`,
+                clearsTo,
+                onChange: next => onChange(withField(record, field, next === undefined ? clearsTo : next)),
+                context,
+            })
+        })
     } else if (!isUnset(value) && kind === 'array') {
         const list = asList(value)
         const itemSchema = resolved.items ?? {}
