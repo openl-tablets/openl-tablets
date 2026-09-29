@@ -13,10 +13,5 @@ Content-Type: application/json
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
   "showRealNumbers": false,
-  "treeView": "excelSheet",
-  "changePassword": {
-    "newPassword": "",
-    "currentPassword": "",
-    "confirmPassword": ""
-  }
+  "treeView": "excelSheet"
 }

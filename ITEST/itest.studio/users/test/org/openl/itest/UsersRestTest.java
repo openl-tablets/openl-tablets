@@ -100,6 +100,7 @@ class UsersRestTest {
         client.send("users-service/users-user.get");
 
         client.send("users-service/users-profile-1.get");
+        client.send("users-service/users-profile-no-new-password.put");
         client.send("users-service/users-profile-update.put");
         client.send("users-service/users-profile-2.get");
 
