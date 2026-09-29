@@ -73,7 +73,6 @@ class ProjectFilesIndexWaitTest {
         when(acl.hasPermission(any(AProject.class), any())).thenReturn(true);
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
         var stateValidator = mock(ProjectStateValidator.class);
-        when(stateValidator.canModify(project)).thenReturn(true);
         root = new ProjectFileRoot(project, acl, stateValidator, mock(ProjectFileLookupService.class),
                 () -> new UserInfo("user1"), designTimeRepository);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),

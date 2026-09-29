@@ -1,7 +1,48 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{
-  "updated": 3,
-  "skipped": "***"
-}
+[
+  {
+    "projectName": "Archive-EPBDS-15766",
+    "outcome": "notModifiable",
+    "blocker": {
+      "reason": "archive"
+    }
+  },
+  {
+    "projectName": "Closed-EPBDS-15766",
+    "outcome": "updated",
+    "tags": {
+      "FillState": "Closed"
+    }
+  },
+  {
+    "projectName": "Locked-EPBDS-15766",
+    "outcome": "notModifiable",
+    "blocker": {
+      "reason": "locked",
+      "lockedBy": "user15766"
+    }
+  },
+  {
+    "projectName": "Opened-EPBDS-15766",
+    "outcome": "updated",
+    "tags": {
+      "FillState": "Opened"
+    }
+  },
+  {
+    "projectName": "Revision-EPBDS-15766",
+    "outcome": "notModifiable",
+    "blocker": {
+      "reason": "olderRevision"
+    }
+  },
+  {
+    "projectName": "Shared-EPBDS-15766",
+    "outcome": "updated",
+    "tags": {
+      "FillState": "Shared"
+    }
+  }
+]

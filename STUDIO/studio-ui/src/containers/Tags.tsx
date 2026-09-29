@@ -277,12 +277,11 @@ export const Tags: React.FC = () => {
                     {t('tags:fill_tags_for_project')}
                 </Button>
             </Row>
+            {/* Filling may create tag values, so the catalog is read again. */}
             <FillTagsModal
                 onClose={() => setIsPreviewOpen(false)}
+                onFilled={() => void fetchTagTypes()}
                 open={isPreviewOpen}
-                onFilled={updated => notification.success({
-                    title: t('tags:fill_tags_success', { count: updated }),
-                })}
             />
         </>
     )

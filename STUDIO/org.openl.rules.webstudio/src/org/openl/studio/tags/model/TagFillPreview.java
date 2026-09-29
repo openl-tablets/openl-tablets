@@ -1,26 +1,36 @@
 package org.openl.studio.tags.model;
 
 import java.util.List;
-import jakarta.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.jspecify.annotations.Nullable;
 
 /**
  * What filling tags from the project name templates would do to one project, before anything is written.
  *
  * @param projectName the project's business name, as the templates match it
- * @param modifiable  whether the project can be changed by the current user
+ * @param modifiable  whether the project can be changed by the current user, which is when it has no blocker
+ * @param blocker     why the project cannot be changed now, absent when it can
  * @param tags        one entry per tag type the template derived a value for
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "What filling tags from the project name templates would do to one project")
 public record TagFillPreview(
-        @Schema(description = "Project business name")
+        @Parameter(description = "Project business name")
         String projectName,
-        @Schema(description = "Whether the current user can change this project")
+        @Parameter(description = "Whether the current user can change this project")
         boolean modifiable,
-        @Schema(description = "What happens to each tag the templates derived")
+        @Parameter(description = "Why the current user cannot change this project now")
+        @Nullable TagFillBlocker blocker,
+        @Parameter(description = "What happens to each tag the templates derived")
         List<TagFillItem> tags) {
+
+    /** The preview of a project that can be changed now exactly when nothing blocks it. */
+    public static TagFillPreview of(String projectName, @Nullable TagFillBlocker blocker, List<TagFillItem> tags) {
+        return new TagFillPreview(projectName, blocker == null, blocker, tags);
+    }
 
     /**
      * One tag of the project: the value it carries now, the value the template derived, and what happens
@@ -34,13 +44,13 @@ public record TagFillPreview(
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "What filling does with one tag of a project")
     public record TagFillItem(
-            @Schema(description = "Tag type name")
+            @Parameter(description = "Tag type name")
             String type,
-            @Schema(description = "The value the project carries now")
+            @Parameter(description = "The value the project carries now")
             @Nullable String current,
-            @Schema(description = "The value the project name template derived")
+            @Parameter(description = "The value the project name template derived")
             String derived,
-            @Schema(description = "What happens to the derived value")
+            @Parameter(description = "What happens to the derived value")
             TagFillState state) {
     }
 }

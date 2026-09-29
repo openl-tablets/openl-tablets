@@ -5,9 +5,9 @@ import java.util.List;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.validator.ModifyRestrictedException;
 
 /**
  * A mount the files service operates on — a project's working copy or a repository subtree.
@@ -38,22 +38,13 @@ public interface FileRoot {
 
     /**
      * Verifies the mount can be modified now and the current user may write to it.
+     *
+     * <p>The state of the mount is weighed first, the permission last.
+     *
+     * @throws ModifyRestrictedException when the mount cannot be modified now
+     * @throws ForbiddenException         when the current user may not write to it
      */
     void requireModifiable();
-
-    /**
-     * Whether the mount can be modified now and the current user may write to it.
-     *
-     * <p>It answers what {@link #requireModifiable()} verifies, instead of refusing.
-     */
-    default boolean isModifiable() {
-        try {
-            requireModifiable();
-            return true;
-        } catch (ConflictException | ForbiddenException e) {
-            return false;
-        }
-    }
 
     /**
      * Finds files named like the trailing segment of {@code lookupPath} by walking up from the anchor

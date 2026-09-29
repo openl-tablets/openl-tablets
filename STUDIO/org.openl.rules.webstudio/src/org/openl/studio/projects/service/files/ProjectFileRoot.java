@@ -31,6 +31,7 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.service.ProjectIndex;
+import org.openl.studio.projects.validator.ModifyRestrictedException;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
 
@@ -121,10 +122,17 @@ public class ProjectFileRoot implements FileRoot {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A project whose state does not let it be changed now is refused with a {@link ModifyRestrictedException}
+     * that says why, and one the user may not write to with a {@link ForbiddenException}.
+     */
     @Override
     public void requireModifiable() {
-        if (!projectStateValidator.canModify(project)) {
-            throw new ConflictException("project.status.update.failed.message");
+        var restriction = projectStateValidator.modifyRestriction(project);
+        if (restriction.isPresent()) {
+            throw new ModifyRestrictedException(project, restriction.get());
         }
         if (!aclProjectsHelper.hasPermission(project, BasePermission.WRITE)) {
             throw new ForbiddenException("default.message");

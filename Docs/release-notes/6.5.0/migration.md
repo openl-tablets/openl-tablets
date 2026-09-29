@@ -57,6 +57,16 @@ browser.
 * **In `oauth2` mode an unauthenticated API call now answers `401` with `WWW-Authenticate: Bearer`** instead
   of a bare `401`. A `Bearer` challenge raises no browser credential dialog, so a browser client is
   unaffected; a scripted client that inspects the header should expect it.
+* **`POST /rest/admin/tag-config/fill` answers what the fill did to each project.** It used to answer
+  `{"updated": N, "skipped": M}`. It now answers a list with one entry for every project it was asked for that a
+  project name template derives a missing tag value for: the project name, the outcome, the tag values the
+  project got and the ones it could not get, and why a project was left alone. A script that reads the two
+  counters has to count the entries by their `outcome` instead.
+* **A files-API write into a project that cannot be changed now names the reason.** A write under
+  `/rest/projects/{id}/files` into a project locked by a user, or on a protected branch, used to answer `409`
+  with the code `openl.error.409.project.status.update.failed.message`. It now answers `409` with
+  `openl.error.409.file.project.locked.message`, naming the project and the user, or with
+  `openl.error.409.file.project.branch.protected.message`, naming the project and the branch.
 
 ## Administrators
 

@@ -1,6 +1,7 @@
 package org.openl.studio.projects.validator;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,13 +30,6 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
                 && !isCurrentBranchProtectionEnforced(project);
     }
 
-    private boolean isEditableProject(UserWorkspaceProject project) {
-        if (isCurrentBranchProtectionEnforced(project)) {
-            return false;
-        }
-        return project.isLocalOnly() || !project.isLocked() || project.isOpenedForEditing();
-    }
-
     private boolean isCurrentBranchProtectionEnforced(UserWorkspaceProject project) {
         if (project != null && !project.isLocalOnly()) {
             var repo = project.getDesignRepository();
@@ -49,7 +43,18 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     @Override
     public boolean canModify(UserWorkspaceProject project) {
-        return project != null && isEditableProject(project);
+        return project != null && modifyRestriction(project).isEmpty();
+    }
+
+    @Override
+    public Optional<ModifyRestriction> modifyRestriction(UserWorkspaceProject project) {
+        if (isCurrentBranchProtectionEnforced(project)) {
+            return Optional.of(ModifyRestriction.BRANCH_PROTECTED);
+        }
+        if (project.isLocalOnly() || !project.isLocked() || project.isOpenedForEditing()) {
+            return Optional.empty();
+        }
+        return Optional.of(ModifyRestriction.LOCKED);
     }
 
     @Override

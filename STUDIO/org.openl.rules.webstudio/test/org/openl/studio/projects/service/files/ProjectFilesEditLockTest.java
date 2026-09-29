@@ -65,7 +65,6 @@ class ProjectFilesEditLockTest {
         when(acl.hasPermission(any(AProject.class), any())).thenReturn(true);
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
         ProjectStateValidator stateValidator = mock(ProjectStateValidator.class);
-        when(stateValidator.canModify(project)).thenReturn(true);
         root = new ProjectFileRoot(project, acl, stateValidator, mock(ProjectFileLookupService.class),
                 () -> new UserInfo("user1"), mock(DesignTimeRepository.class));
 

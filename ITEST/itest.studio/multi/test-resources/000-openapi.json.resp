@@ -4080,6 +4080,17 @@ Content-Type: application/json
       "post": {
         "description": "***",
         "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4098,10 +4109,9 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "integer",
-                    "format": "int32"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TagFillResult"
                   }
                 }
               }
@@ -30287,14 +30297,39 @@ Content-Type: application/json
           }
         }
       },
+      "TagFillBlocker": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "lockedBy": {
+            "type": "string",
+            "description": "***"
+          },
+          "reason": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "locked",
+              "lockedByYou",
+              "branchProtected",
+              "noPermission",
+              "olderRevision",
+              "archive"
+            ]
+          }
+        }
+      },
       "TagFillItem": {
         "type": "object",
         "description": "***",
         "properties": {
           "current": {
             "type": "string",
-            "description": "***",
-            "nullable": true
+            "description": "***"
           },
           "derived": {
             "type": "string",
@@ -30320,6 +30355,9 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "blocker": {
+            "$ref": "#/components/schemas/TagFillBlocker"
+          },
           "modifiable": {
             "type": "boolean",
             "description": "***"
@@ -30334,6 +30372,43 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/TagFillItem"
             }
+          }
+        }
+      },
+      "TagFillResult": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "blocker": {
+            "$ref": "#/components/schemas/TagFillBlocker"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "updated",
+              "notModifiable",
+              "nothingToAssign",
+              "failed"
+            ]
+          },
+          "projectName": {
+            "type": "string",
+            "description": "***"
+          },
+          "rejected": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "***"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "***"
           }
         }
       },

@@ -1,5 +1,6 @@
 package org.openl.studio.projects.validator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -131,6 +133,37 @@ class ProjectStateValidatorImplTest {
     void canModify_protectedBranch_returnsFalse() {
         var project = projectWith().protectedBranch(true).build();
         assertFalse(validator.canModify(project));
+    }
+
+    // --- modifyRestriction ---
+
+    @Test
+    void modifyRestriction_notLocked_isEmpty() {
+        assertEquals(Optional.empty(), validator.modifyRestriction(projectWith().build()));
+    }
+
+    @Test
+    void modifyRestriction_lockedNotOpenedForEditing_isLocked() {
+        var project = projectWith().locked(true).build();
+        assertEquals(Optional.of(ModifyRestriction.LOCKED), validator.modifyRestriction(project));
+    }
+
+    @Test
+    void modifyRestriction_lockedAndOpenedForEditing_isEmpty() {
+        var project = projectWith().locked(true).openedForEditing(true).build();
+        assertEquals(Optional.empty(), validator.modifyRestriction(project));
+    }
+
+    @Test
+    void modifyRestriction_localOnlyLocked_isEmpty() {
+        var project = projectWith().localOnly(true).locked(true).build();
+        assertEquals(Optional.empty(), validator.modifyRestriction(project));
+    }
+
+    @Test
+    void modifyRestriction_lockedOnProtectedBranch_namesTheBranchFirst() {
+        var project = projectWith().protectedBranch(true).locked(true).build();
+        assertEquals(Optional.of(ModifyRestriction.BRANCH_PROTECTED), validator.modifyRestriction(project));
     }
 
     // --- canClose ---

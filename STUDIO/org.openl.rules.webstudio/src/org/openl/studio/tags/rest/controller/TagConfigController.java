@@ -3,7 +3,6 @@ package org.openl.studio.tags.rest.controller;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -34,6 +33,7 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.tags.model.TagFillPreview;
+import org.openl.studio.tags.model.TagFillResult;
 import org.openl.studio.tags.model.TagTypeDTO;
 import org.openl.studio.tags.service.TagFillService;
 import org.openl.studio.tags.service.TagService;
@@ -247,7 +247,7 @@ public class TagConfigController {
 
     @Operation(summary = "tags.fill-tags.summary", description = "tags.fill-tags.desc")
     @PostMapping(value = "/fill", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Integer> fillTagsForProjects(
+    public List<TagFillResult> fillTagsForProjects(
             @Parameter(description = "tags.fill-tags.request.desc")
             @RequestBody(required = false) List<String> projectNames) {
         return tagFillService.fill(projectNames);
