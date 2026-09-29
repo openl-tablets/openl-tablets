@@ -53,6 +53,11 @@ export interface Project {
     /** Whether the project's current branch is the repository main branch. */
     branchDefault?: boolean
     /**
+     * Whether the repository main branch contains the project, whichever branch the project is on. Absent for a
+     * project of a repository without branches.
+     */
+    inDefaultBranch?: boolean
+    /**
      * Whether the copy open in the workspace is an older revision carrying no changes yet, so the first write
      * to it would save it over the revisions that came after.
      */

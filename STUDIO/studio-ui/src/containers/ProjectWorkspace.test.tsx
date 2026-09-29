@@ -124,10 +124,18 @@ vi.mock('../services/files', () => ({
     downloadFile: vi.fn(),
 }))
 
-// The rail beside the project has its own tests; here it only has to be out of the way.
+// The rail beside the project has its own tests; here it only shows the picks it is handed, and clears them.
 vi.mock('./projects/ProjectsRail', () => ({
-    ProjectsRail: ({ reloadToken }: { reloadToken?: number }) =>
-        <aside data-reload-token={reloadToken} data-testid="projects-rail" />,
+    ProjectsRail: ({ reloadToken, filters, onClearFilters }: {
+        reloadToken?: number
+        filters: { repositories: Set<string> }
+        onClearFilters: () => void
+    }) => (
+        <aside data-reload-token={reloadToken} data-testid="projects-rail">
+            <span data-testid="rail-picked-repositories">{[...filters.repositories].join(',')}</span>
+            <button data-testid="rail-clear-filters" onClick={onClearFilters} type="button" />
+        </aside>
+    ),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -337,6 +345,23 @@ describe('ProjectWorkspace', () => {
         )
         // The breadcrumb links back to the Projects home.
         expect(screen.getByText('home.title').closest('a')?.getAttribute('href')).toBe('/projects')
+    })
+
+    it('filters the tree by the picks the list was left with, and clears them for the list too', async () => {
+        localStorage.setItem('openl.projects.filters', 'q=rates&repo=design&sort=name')
+        try {
+            await renderWorkspace()
+
+            expect(screen.getByTestId('rail-picked-repositories')).toHaveTextContent('design')
+
+            await userEvent.click(screen.getByTestId('rail-clear-filters'))
+
+            expect(screen.getByTestId('rail-picked-repositories')).toBeEmptyDOMElement()
+            // The search and the sort of the list stay as they were.
+            expect(localStorage.getItem('openl.projects.filters')).toBe('q=rates&sort=name')
+        } finally {
+            localStorage.removeItem('openl.projects.filters')
+        }
     })
 
     it('re-reads the project when the backend pings that it changed elsewhere', async () => {

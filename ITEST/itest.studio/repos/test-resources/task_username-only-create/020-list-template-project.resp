@@ -15,6 +15,7 @@ Content-Type: application/json
       "path": "UsernameOnlyTemplate",
       "comment": "EPBDS-16200 Create UsernameOnlyTemplate from template",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",

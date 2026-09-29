@@ -380,6 +380,22 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void get_projects_tells_whether_the_default_branch_holds_each_project() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var held = projectWithSimpleExcelModule();
+        var outside = project(repository(), "Outside", "Outside");
+        when(held.isInDefaultBranch()).thenReturn(true);
+        when(acl.isGranted(any(RulesProject.class), eq(List.of(BasePermission.READ)))).thenReturn(true);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), workspaceFor(held, outside));
+
+        var response = service.getProjects(ProjectCriteriaQuery.builder().build(), Pageable.unpaged());
+
+        var byName = response.getContent().stream().collect(Collectors.toMap(project -> project.name,
+                project -> project.inDefaultBranch));
+        assertEquals(Map.of("PricingProject", true, "Outside", false), byName);
+    }
+
+    @Test
     void get_projects_reports_cross_branch_index_health() throws Exception {
         var workspace = workspaceFor();
         var repository = repository();

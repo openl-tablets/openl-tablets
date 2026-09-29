@@ -428,6 +428,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 selectedProject.getRepository(),
                 selectedProject.getFileData(),
                 projectsLockEngine);
+        // Read from the membership the listing resolved, so telling it asks no branch and no permission again.
+        project.setInDefaultBranch(designProject.inDefaultBranch());
 
         // Clean ups after session activation (should be done only once).
         if (isAbsentInHistoryOnActivation(project)) {

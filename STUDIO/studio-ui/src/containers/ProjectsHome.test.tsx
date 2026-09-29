@@ -9,10 +9,12 @@ import { getProjectIndex, invalidateProjectIndex } from '../services/projectInde
 import { notification } from 'antd'
 import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
 import { openCompareWindow } from './projects/compare'
+import { saveProjectFilters } from './projects/filterStorage'
 
-const { copyModalMock, navigateMock, liveHandlers } = vi.hoisted(() => ({
+const { copyModalMock, navigateMock, treeMock, liveHandlers } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
     navigateMock: vi.fn(),
+    treeMock: vi.fn(),
     // The pings, the focus revalidation and the status stream captured from the screen, to fire by hand.
     liveHandlers: {
         workspaceChange: undefined as (() => void) | undefined,
@@ -123,6 +125,14 @@ vi.mock('./projects/branchDialogs', () => ({
 }))
 
 vi.mock('./projects/compare', () => ({ openCompareWindow: vi.fn() }))
+
+// The tree has its own tests; here it only shows what the screen hands it.
+vi.mock('./projects/ProjectsTree', () => ({
+    ProjectsTree: (props: Record<string, unknown>) => {
+        treeMock(props)
+        return <div data-testid="tree-stub" />
+    },
+}))
 
 // The compile dot fetches project status; stub it out so the list test stays offline.
 vi.mock('./projects/CompileIndicator', () => ({
@@ -301,6 +311,7 @@ const projects = [
         repositoryInfo: { id: 'design', name: 'Design', type: 'repo-git', features: { branches: true, searchable: true, mappedFolders: false } },
         status: ProjectStatus.Closed,
         branch: 'main',
+        inDefaultBranch: true,
         modifiedBy: 'jane',
         modifiedAt: '2026-01-01T00:00:00Z',
         comment: '',
@@ -680,6 +691,83 @@ describe('ProjectsHome', () => {
 
         expect(screen.getByTestId('project-row-loc1')).toBeTruthy()
         expect(screen.queryByTestId('project-row-p1')).toBeNull()
+    })
+
+    it('keeps to the default branches until a branch is picked', async () => {
+        mockProjectSearch([
+            ...projects,
+            // Lives only in a feature branch.
+            { ...projects[0]!, id: 'p3', name: 'Gamma', branch: 'feature/rates', inDefaultBranch: false },
+            // The default branch holds it; the user switched it to the feature branch.
+            { ...projects[0]!, id: 'p4', name: 'Delta', branch: 'feature/rates' },
+            // Open in the workspace, though it lives only in an old branch.
+            { ...projects[0]!, id: 'p5', name: 'Epsilon', branch: 'old', inDefaultBranch: false, status: ProjectStatus.Opened },
+        ])
+        await renderHome()
+
+        expect(rowOrder()).toEqual(['project-row-p1', 'project-row-p2', 'project-row-p4', 'project-row-p5'])
+        // The counts follow the default view, while the branches stay pickable with every project counted.
+        expect(screen.getByTestId('filter-repo-design').parentElement).toHaveTextContent(/3$/)
+        expect(screen.getByTestId('filter-branch-feature/rates').parentElement).toHaveTextContent(/2$/)
+
+        await userEvent.click(screen.getByTestId('filter-branch-feature/rates'))
+
+        await waitFor(() => expect(rowOrder()).toEqual(['project-row-p4', 'project-row-p3']))
+    })
+
+    it('clears the picks from the Filters view, keeping the search', async () => {
+        await renderHome()
+        expect(screen.queryByTestId('projects-filter-clear')).toBeNull()
+
+        await userEvent.type(screen.getByTestId('projects-search'), 'a')
+        await flushSearch()
+        await userEvent.click(screen.getByTestId('filter-repo-ro'))
+        await waitFor(() => expect(screen.queryByTestId('project-row-p1')).toBeNull())
+
+        await userEvent.click(screen.getByTestId('projects-filter-clear'))
+
+        await screen.findByTestId('project-row-p1')
+        expect(screen.getByTestId('project-row-p2')).toBeTruthy()
+        expect(screen.getByTestId('projects-search')).toHaveValue('a')
+        expect(screen.queryByTestId('projects-filter-clear')).toBeNull()
+    })
+
+    it('saves the picks before it opens a project, so the tree beside the project follows them', async () => {
+        await renderHome()
+        vi.mocked(saveProjectFilters).mockClear()
+        // What the storage held when the project page was drawn.
+        let stored: string | null | undefined
+        navigateMock.mockImplementationOnce(() => {
+            stored = vi.mocked(saveProjectFilters).mock.lastCall?.[0].get('repo')
+        })
+
+        // The project is opened before the save that waits for the typing to settle could run.
+        await userEvent.click(screen.getByTestId('filter-repo-ro'))
+        await userEvent.click(screen.getByTestId('project-row-p2'))
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p2')
+        expect(stored).toBe('ro')
+    })
+
+    it('hands the tree beside the list the picks of the Filters view, and clears them from it', async () => {
+        await renderHome()
+        await userEvent.click(screen.getByTestId('filter-repo-ro'))
+
+        try {
+            await userEvent.click(screen.getByText('tree'))
+
+            const props = treeMock.mock.lastCall![0] as { filters: { repositories: Set<string> }, projects: Project[], onClearFilters: () => void }
+            expect([...props.filters.repositories]).toEqual(['ro'])
+            // The whole snapshot: the tree selects from it what the filters pick, as the list does.
+            expect(props.projects).toHaveLength(projects.length)
+
+            await act(async () => props.onClearFilters())
+
+            const cleared = treeMock.mock.lastCall![0] as { filters: { repositories: Set<string> } }
+            expect(cleared.filters.repositories.size).toBe(0)
+        } finally {
+            localStorage.removeItem('openl.projects.rail')
+        }
     })
 
     it('offers a reset button that clears all filters when they hide every project', async () => {

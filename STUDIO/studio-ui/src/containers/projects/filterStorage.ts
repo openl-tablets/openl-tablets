@@ -1,4 +1,5 @@
 import { readStored, writeStored } from '../../utils/localStore'
+import { FILTER_PARAMS, listingQueryOf, type ListingQuery } from './projectListing'
 
 /** Where the browser keeps the last state of the projects screen. */
 const STORAGE_KEY = 'openl.projects.filters'
@@ -27,4 +28,19 @@ export const loadProjectFilters = (): URLSearchParams | null => {
     const stored = readStored(STORAGE_KEY)
     // An empty entry is a memory too: the user cleared the filters, and that is how they should return.
     return stored === null ? null : new URLSearchParams(stored)
+}
+
+/** The picks of the Filters view the list was last left with — what the tree beside a project follows. */
+export const loadStoredPicks = (): ListingQuery => listingQueryOf(loadProjectFilters() ?? new URLSearchParams())
+
+/**
+ * Forgets the picks of the Filters view, so the list comes back in its default view. Its search, sort and layout
+ * are kept.
+ */
+export const clearStoredPicks = (): void => {
+    const stored = loadProjectFilters()
+    if (stored) {
+        FILTER_PARAMS.forEach(key => stored.delete(key))
+        saveProjectFilters(stored)
+    }
 }

@@ -8,6 +8,7 @@ import { listModules } from '../../services/modules'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 import type { Repository } from '../../types/repositories'
+import { listingQueryOf } from './projectListing'
 
 vi.mock('../../services/repositories', () => ({ getProjectFiles: vi.fn() }))
 vi.mock('../../services/modules', () => ({ listModules: vi.fn() }))
@@ -32,6 +33,7 @@ vi.mock('@ant-design/icons', () => {
     const icon = (name: string) => (props: Record<string, unknown>) => <span {...props}>{name}</span>
     return {
         BranchesOutlined: icon('branches'),
+        ClearOutlined: icon('clear'),
         SafetyOutlined: icon('safety'),
         CloudUploadOutlined: icon('cloud-upload'),
         DatabaseOutlined: icon('database'),
@@ -151,14 +153,20 @@ const projects = [
     { id: 'p2', name: 'Beta', repository: 'flat', status: ProjectStatus.Closed, tags: { lob: 'Auto' } },
 ] as unknown as Project[]
 
+/** The picks of the Filters view, written the way the list carries them in its address. */
+const picks = (query = '') => listingQueryOf(new URLSearchParams(query))
+
 const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {}) => {
     const onOpenProject = vi.fn()
     const onOpenGroup = vi.fn()
     const onShowAll = vi.fn()
+    const onClearFilters = vi.fn()
     const onOpenModule = vi.fn()
     const onOpenFile = vi.fn()
-    render(
+    const result = render(
         <ProjectsTree
+            filters={picks()}
+            onClearFilters={onClearFilters}
             onOpenFile={onOpenFile}
             onOpenGroup={onOpenGroup}
             onOpenModule={onOpenModule}
@@ -172,7 +180,7 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     await act(async () => {
         await new Promise(resolve => setTimeout(resolve, 0))
     })
-    return { onOpenProject, onOpenGroup, onShowAll, onOpenModule, onOpenFile }
+    return { onOpenProject, onOpenGroup, onShowAll, onClearFilters, onOpenModule, onOpenFile, rerender: result.rerender }
 }
 
 /** The grouping is remembered in the browser; each test starts from its own, empty memory. */
@@ -229,6 +237,8 @@ describe('ProjectsTree', () => {
         const onRefresh = vi.fn()
         render(
             <ProjectsTree
+                filters={picks()}
+                onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onRefresh={onRefresh}
@@ -251,7 +261,8 @@ describe('ProjectsTree', () => {
         localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
         localStorage.setItem('openl.projects.tree.selected', 'grp/[Repository]=design')
 
-        await renderTree({ repositories: undefined })
+        // The group was picked, so its filters stand.
+        await renderTree({ repositories: undefined, filters: picks('repo=design') })
 
         expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
     })
@@ -423,10 +434,106 @@ describe('ProjectsTree', () => {
         expect(localStorage.getItem('openl.projects.tree.selected')).toBe('grp/[Repository]=design')
 
         cleanup()
-        await renderTree()
+        // Picking the group set its filters, which the tree comes back with.
+        await renderTree({ filters: picks('repo=design') })
 
         // The remembered group is unfolded, so the user lands where they left off.
         expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
+    })
+
+    it('forgets the picked group once the filters are cleared, wherever they were cleared', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['[Repository]', '', '']))
+        localStorage.setItem('openl.projects.tree.selected', 'grp/[Repository]=design')
+        const props = {
+            onClearFilters: vi.fn(),
+            onOpenGroup: vi.fn(),
+            onOpenProject: vi.fn(),
+            onShowAll: vi.fn(),
+            projects,
+            onRefresh: vi.fn(),
+            repositories,
+        }
+        const { rerender } = render(<ProjectsTree {...props} filters={picks('repo=design')} />)
+        expect(localStorage.getItem('openl.projects.tree.selected')).toBe('grp/[Repository]=design')
+
+        rerender(<ProjectsTree {...props} filters={picks()} />)
+
+        expect(localStorage.getItem('openl.projects.tree.selected')).toBeNull()
+    })
+
+    it('shows the projects the filters select, and the project the screen shows whatever they say', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const { rerender } = await renderTree({ projects, onRefresh: vi.fn(), filters: picks('repo=flat') })
+
+        expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
+
+        rerender(
+            <ProjectsTree
+                currentProjectId="p1"
+                filters={picks('repo=flat')}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onRefresh={vi.fn()}
+                onShowAll={vi.fn()}
+                projects={projects}
+                repositories={repositories}
+            />
+        )
+
+        // The reader is on that project: it stays in the tree, which leads on to the rest.
+        expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
+        expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
+    })
+
+    it('keeps to the default branches until a branch is picked', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const git = { id: 'design', name: 'Design', features: { branches: true, searchable: true, mappedFolders: false } }
+        const branched = [
+            { id: 'p1', name: 'Alpha', repository: 'design', status: ProjectStatus.Closed, branch: 'main', inDefaultBranch: true, repositoryInfo: git },
+            { id: 'p3', name: 'Gamma', repository: 'design', status: ProjectStatus.Closed, branch: 'feature/x', repositoryInfo: git },
+        ] as unknown as Project[]
+
+        const { rerender } = await renderTree({ projects: branched, onRefresh: vi.fn() })
+
+        expect(screen.getByTestId('tree-project-p1')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-project-p3')).not.toBeInTheDocument()
+
+        rerender(
+            <ProjectsTree
+                filters={picks('branch=feature/x')}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onRefresh={vi.fn()}
+                onShowAll={vi.fn()}
+                projects={branched}
+                repositories={repositories}
+            />
+        )
+
+        expect(screen.getByTestId('tree-project-p3')).toBeInTheDocument()
+        expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
+    })
+
+    it('offers to clear the filters only while a value is picked', async () => {
+        const { onClearFilters } = await renderTree({ filters: picks('status=EDITING') })
+
+        await userEvent.click(screen.getByTestId('projects-tree-clear-filters'))
+
+        expect(onClearFilters).toHaveBeenCalledTimes(1)
+
+        cleanup()
+        await renderTree()
+
+        expect(screen.queryByTestId('projects-tree-clear-filters')).not.toBeInTheDocument()
+    })
+
+    it('says so when the filters select no project', async () => {
+        await renderTree({ filters: picks('status=OPENED') })
+
+        expect(screen.getByTestId('projects-tree-filtered-out')).toHaveTextContent('home.no_match')
     })
 
     it('leads back to every project by its title, forgetting the pick', async () => {

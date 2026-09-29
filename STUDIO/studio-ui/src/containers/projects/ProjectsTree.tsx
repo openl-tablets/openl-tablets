@@ -35,6 +35,8 @@ import {
     type NodeFilters,
 } from './projectGrouping'
 import { GroupProjectsModal } from './GroupProjectsModal'
+import { isFiltered, selectProjects, type ListingQuery } from './projectListing'
+import { ClearFiltersRow } from './ClearFiltersRow'
 
 const SELECTED_STORAGE_KEY = 'openl.projects.tree.selected'
 
@@ -68,6 +70,15 @@ const loadSelectedNode = (): string | null => readStored(SELECTED_STORAGE_KEY)
 
 const saveSelectedNode = (key: string | null): void =>
     key === null ? removeStored(SELECTED_STORAGE_KEY) : writeStored(SELECTED_STORAGE_KEY, key)
+
+/**
+ * The projects the tree shows: those the filters select, as the list shows them, and the project the screen is
+ * showing whatever the filters say — it is where the reader is. The order of the projects is kept.
+ */
+const treeProjects = (projects: Project[], filters: ListingQuery, currentProjectId: string | undefined): Project[] => {
+    const selected = new Set(selectProjects(projects, filters))
+    return projects.filter(project => selected.has(project) || project.id === currentProjectId)
+}
 
 const useStyles = createStyles(({ css, token }) => ({
     /**
@@ -141,8 +152,12 @@ interface ProjectsTreeBaseProps {
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A group was picked: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
-    /** The title of the tree was picked: show every project again. */
+    /** The title of the tree was picked: show the list without filters. */
     onShowAll: () => void
+    /** The picks of the Filters view: the tree shows the projects they select, as the list does. */
+    filters: ListingQuery
+    /** The picks were cleared from the tree. */
+    onClearFilters: () => void
     /** Bumped by the screen when it changed the workspace, so the tree reads it again. */
     reloadToken?: number | undefined
     /** What the rail hangs on the header row, beside the actions of the tree itself. */
@@ -160,6 +175,10 @@ const NO_REPOSITORIES: Repository[] = []
 /**
  * The projects as a tree, grouped by up to three levels the user picks — a repository or a tag type.
  *
+ * The tree shows the projects the Filters view selects, the same ones the list shows, without the list's search
+ * and paging; its own search narrows them further. While a value is picked, a row under its title offers to clear
+ * the filters.
+ *
  * The tree reads one lightweight list of projects the first time it is opened and groups it in the
  * browser, so expanding a node costs nothing and the screen around it never waits for the tree.
  */
@@ -171,6 +190,8 @@ export const ProjectsTree = ({
     onOpenFile,
     onOpenGroup,
     onShowAll,
+    filters,
+    onClearFilters,
     reloadToken,
     headerActions,
     projects: providedProjects,
@@ -185,10 +206,11 @@ export const ProjectsTree = ({
     const [error, setError] = useState<string | null>(null)
     const [grouping, setGrouping] = useState(false)
     const [expanded, setExpanded] = useState<string[]>([])
+    const filtered = isFiltered(filters)
     // The group the user picked last is remembered, so stepping into a project and back shows where
-    // they were in the tree.
+    // they were in the tree. A group is picked by setting its filters, so without them none is.
     const [selected, setSelected] = useState<string[]>(() => {
-        const remembered = loadSelectedNode()
+        const remembered = filtered ? loadSelectedNode() : null
         return remembered ? [remembered] : []
     })
     const [search, setSearch] = useState('')
@@ -200,6 +222,19 @@ export const ProjectsTree = ({
     // itself, so the list screen no longer pulls the same /projects snapshot a second time.
     const controlled = providedProjects !== undefined
     const projects = controlled ? providedProjects : selfProjects
+    const visible = useMemo(
+        () => treeProjects(projects ?? [], filters, currentProjectId),
+        [currentProjectId, filters, projects]
+    )
+
+    // Once the filters are cleared — from the tree, the Filters view or the list — the group they came from is no
+    // longer picked, and the tree does not open on it next time.
+    useEffect(() => {
+        if (!filtered) {
+            setSelected(previous => (previous.length === 0 ? previous : []))
+            saveSelectedNode(null)
+        }
+    }, [filtered])
 
     const load = useCallback(() => {
         setError(null)
@@ -253,8 +288,8 @@ export const ProjectsTree = ({
     }, [projects])
 
     const grouped = useMemo(
-        () => buildGroupTree(projects ?? [], activeLevels(levels), repositoryName),
-        [levels, projects, repositoryName]
+        () => buildGroupTree(visible, activeLevels(levels), repositoryName),
+        [levels, repositoryName, visible]
     )
     // What the search found, with everything under a group that matched by its own name.
     const nodes = useMemo(() => searchTree(grouped, search), [grouped, search])
@@ -538,6 +573,17 @@ export const ProjectsTree = ({
                 </div>
             )
         }
+        if (visible.length === 0) {
+            return (
+                <div className={styles.state}>
+                    <Empty
+                        data-testid="projects-tree-filtered-out"
+                        description={t('home.no_match')}
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
+                </div>
+            )
+        }
         if (nodes.length === 0) {
             return (
                 <div className={styles.state}>
@@ -633,6 +679,13 @@ export const ProjectsTree = ({
                     {headerActions}
                 </span>
             </div>
+            {filtered && (
+                <ClearFiltersRow
+                    data-testid="projects-tree-clear-filters"
+                    hint={t('home.tree.filtered')}
+                    onClick={onClearFilters}
+                />
+            )}
             <div className={styles.search}>
                 <SearchInput
                     data-testid="projects-tree-search"

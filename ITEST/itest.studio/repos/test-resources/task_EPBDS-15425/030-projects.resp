@@ -14,6 +14,7 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-13931",
       "comment": "Save changes",
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -84,6 +85,7 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-14376",
       "comment": "Project EPBDS-14376 is created.",
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -149,6 +151,7 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-15409",
       "comment": "Project EPBDS-15409 is created.",
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -195,6 +198,7 @@ Content-Type: application/json
         }
       ],
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -230,6 +234,7 @@ Content-Type: application/json
       "path": "EPBDS-15425_Project2",
       "comment": "Project EPBDS-15425_Project2 is created.",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -295,6 +300,7 @@ Content-Type: application/json
       "path": "Project",
       "comment": "Project Project is created.",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -330,6 +336,7 @@ Content-Type: application/json
       "path": "Project",
       "comment": "EPBDS-10682 Create project via rest",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",
@@ -395,6 +402,7 @@ Content-Type: application/json
       "path": "Project2",
       "comment": "Project is created.",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -430,6 +438,7 @@ Content-Type: application/json
       "path": "Project2",
       "comment": "EPBDS-10682 Create project via rest",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",
@@ -465,6 +474,7 @@ Content-Type: application/json
       "path": "foo/bar/Project4",
       "comment": "EPBDS-10682 Create project via rest",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",
@@ -500,6 +510,7 @@ Content-Type: application/json
       "path": "foo/bar/project-custom-name",
       "comment": "EPBDS-10682 Update project via rest",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",

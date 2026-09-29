@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsRail } from './ProjectsRail'
 import { getTagTypes } from '../../services/repositories'
 import type { Repository } from '../../types/repositories'
+import { listingQueryOf } from './projectListing'
 
 vi.mock('../../services/repositories', () => ({ getTagTypes: vi.fn() }))
 
@@ -16,7 +17,13 @@ vi.mock('antd-style', () => ({
     }),
 }))
 
-vi.mock('./ProjectsTree', () => ({ ProjectsTree: () => <div data-testid="tree" /> }))
+const { treeMock } = vi.hoisted(() => ({ treeMock: vi.fn() }))
+vi.mock('./ProjectsTree', () => ({
+    ProjectsTree: (props: Record<string, unknown>) => {
+        treeMock(props)
+        return <div data-testid="tree" />
+    },
+}))
 
 vi.mock('antd', () => {
     interface Option { label: string, value: string }
@@ -60,9 +67,13 @@ const stubStorage = () => {
 
 const repositories = [{ id: 'design', name: 'Design' }] as unknown as Repository[]
 
-const renderRail = () => render(
+const picked = listingQueryOf(new URLSearchParams('repo=design'))
+
+const renderRail = (onClearFilters = vi.fn()) => render(
     <ProjectsRail
-        filters={headerActions => <div data-testid="filters">{headerActions}</div>}
+        filters={picked}
+        filterView={headerActions => <div data-testid="filters">{headerActions}</div>}
+        onClearFilters={onClearFilters}
         onOpenGroup={vi.fn()}
         onOpenProject={vi.fn()}
         onShowAll={vi.fn()}
@@ -88,6 +99,15 @@ describe('ProjectsRail', () => {
         expect(localStorage.getItem('openl.projects.rail')).toBe('tree')
     })
 
+    it('hands the tree the picks of the Filters view and the way to clear them', async () => {
+        const onClearFilters = vi.fn()
+        renderRail(onClearFilters)
+
+        await userEvent.click(screen.getByText('home.tree.mode_tree'))
+
+        expect(treeMock).toHaveBeenLastCalledWith(expect.objectContaining({ filters: picked, onClearFilters }))
+    })
+
     it('is put away and brought back by the handle of the panel itself', async () => {
         renderRail()
 
@@ -107,6 +127,8 @@ describe('ProjectsRail', () => {
     it('shows the tree alone when the screen has no filters to offer', () => {
         render(
             <ProjectsRail
+                filters={picked}
+                onClearFilters={vi.fn()}
                 onOpenGroup={vi.fn()}
                 onOpenProject={vi.fn()}
                 onShowAll={vi.fn()}

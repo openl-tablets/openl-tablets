@@ -12,6 +12,7 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15439",
   "comment": "EPBDS-15439 Save changes in branch two",
+  "inDefaultBranch": true,
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",

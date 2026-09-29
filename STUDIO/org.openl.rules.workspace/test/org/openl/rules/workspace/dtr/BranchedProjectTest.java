@@ -71,6 +71,18 @@ class BranchedProjectTest {
         assertFalse(shared.heldOnlyBy("feature/rates"));
     }
 
+    @Test
+    void tellsWhetherTheBaseBranchHoldsTheProject() {
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        entries.put("feature/rates", entry(Instant.parse("2026-07-29T11:00:00Z")));
+        entries.put("main", entry(Instant.parse("2026-07-29T10:00:00Z")));
+        var project = BranchedProject.create("Rates", "MAIN", entries);
+
+        assertTrue(project.inBaseBranch(), "The base branch must be matched whatever casing configures it.");
+        assertFalse(project.filter(entry -> entry != entries.get("main")).orElseThrow().inBaseBranch(),
+                "A caller who cannot read the base branch must not learn that it holds the project.");
+    }
+
     private static BranchEntry entry(Instant lastCommitAt) {
         return entry(lastCommitAt, false);
     }

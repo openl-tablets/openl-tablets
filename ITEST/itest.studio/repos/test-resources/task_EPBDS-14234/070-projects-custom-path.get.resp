@@ -15,6 +15,7 @@ Content-Type: application/json
       "path": "foo/bar/project-custom-name",
       "comment": "EPBDS-10682 Update project via rest",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",

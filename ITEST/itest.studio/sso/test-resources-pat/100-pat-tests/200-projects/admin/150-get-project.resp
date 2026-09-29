@@ -12,6 +12,7 @@ Content-Type: application/json
   "status": "EDITING",
   "comment": "Project Project is created.",
   "repository": "design-flat",
+  "inDefaultBranch": true,
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",

@@ -41,6 +41,7 @@ Content-Type: application/json
     "sourcesDefault": true
   },
   "branchDefault": true,
+  "inDefaultBranch": true,
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",
