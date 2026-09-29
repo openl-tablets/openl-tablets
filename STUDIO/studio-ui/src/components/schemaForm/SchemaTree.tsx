@@ -4,7 +4,7 @@ import { Button, Input, Space, Typography } from 'antd'
 import type { TreeDataNode } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { complexValueSummary, describeSimpleValue, isComplexValue } from 'components/values/valueTree'
-import { ScalarEditor } from './ScalarEditor'
+import { labelOf, ScalarEditor } from './ScalarEditor'
 import { createValue, fieldKind, mapValueSchema, resolveSchema, type FieldKind, type JsonSchema } from './schema'
 
 const { Text } = Typography
@@ -41,6 +41,8 @@ const isStructure = (kind: FieldKind): boolean => kind === 'object' || kind === 
 /** What every node of the tree shares. The schema the tree is rendered by and its editing state. */
 export interface TreeContext {
     root: JsonSchema
+    /** Names shown for the codes of an enumeration, keyed by the path of the field that takes them. */
+    labels: Record<string, Record<string, string>>
     /** Path of the field whose inline editor is open, if any. */
     editing: string | null
     setEditing: (path: string | null) => void
@@ -141,8 +143,19 @@ const KeyEditor: React.FC<{
     )
 }
 
-/** The text of a value next to its name. A plain value reads as the debugger shows it, a structure by its size. */
-const ValueText: React.FC<{ value: unknown, path: string }> = ({ value, path }) => {
+/**
+ * The text of a value next to its name.
+ *
+ * A plain value reads as the debugger shows it, a structure by its size. A code with a name is shown by its name.
+ */
+const ValueText: React.FC<{ value: unknown, path: string, labels?: Record<string, string> | undefined }> = ({
+    value, path, labels,
+}) => {
+    // A code is text or a number, and its name is listed under its text, the way the choice lists it.
+    const label = typeof value === 'string' || typeof value === 'number' ? labelOf(labels, String(value)) : undefined
+    if (label !== undefined) {
+        return <Text code data-testid={`value-${path}`}>{label}</Text>
+    }
     if (isComplexValue(value)) {
         return <Text italic data-testid={`value-${path}`} type="secondary">{complexValueSummary(value)}</Text>
     }
@@ -232,6 +245,7 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
     const { t } = useTranslation('execution')
     const editing = context.editing === path
     const unset = isUnset(value)
+    const labels = context.labels[path]
     const create = () => {
         onChange(createValue(resolved, context.root))
         context.expand(path)
@@ -258,6 +272,7 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
                 ? (
                     <ScalarEditor
                         kind={kind}
+                        labels={labels}
                         onChange={onChange}
                         onDone={() => context.setEditing(null)}
                         path={path}
@@ -265,7 +280,7 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
                         value={value}
                     />
                 )
-                : <ValueText path={path} value={value} />}
+                : <ValueText labels={labels} path={path} value={value} />}
             {actions}
         </Space>
     )

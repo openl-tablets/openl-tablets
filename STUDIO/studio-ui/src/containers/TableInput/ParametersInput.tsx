@@ -3,6 +3,7 @@ import { Form, Radio, Skeleton, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { initialFormValue, SchemaForm, type SchemaFormParameter } from 'components/schemaForm/SchemaForm'
 import type { TraceParameterValue } from 'types/trace'
+import { RUNTIME_CONTEXT_LABELS } from './runtimeContextLabels'
 
 // The editor the Projects tab opens a file with. It is loaded on first use, as CodeMirror is heavy.
 const CodeEditor = lazy(() => import('containers/projects/CodeEditor').then(module => ({ default: module.CodeEditor })))
@@ -51,7 +52,7 @@ const toInputJson = (value: Record<string, unknown>): string => {
  * request copied from a service log.
  *
  * The runtime context, when the project provides one, is the last line of the form, under the parameters the
- * rule declares.
+ * rule declares. Its fields show the names of their codes, such as `Québec` for `QC`. The code is what is sent.
  *
  * Switching to JSON shows what the form holds. Switching back reads the text into the form when it parses.
  */
@@ -70,6 +71,7 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
                 label: t('input.runtimeContext'),
                 type: runtimeContext.description,
                 schema: runtimeContext.schema,
+                labels: RUNTIME_CONTEXT_LABELS,
             }]
             : []),
     ], [parameters, runtimeContext, t])

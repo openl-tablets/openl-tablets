@@ -48,6 +48,13 @@ const nested: SchemaFormParameter = {
     },
 }
 
+/** A field of codes with names listed for some of them. */
+const region: SchemaFormParameter = {
+    name: 'region',
+    schema: { type: 'object', properties: { code: { type: 'string', enum: ['QC', 'HQ', 'constructor']} } },
+    labels: { code: { QC: 'Québec', HQ: 'Hors Québec' } },
+}
+
 /** A map of structures: an entry holds fields of its own, under the entry's key. */
 const quotes: SchemaFormParameter = {
     name: 'quotes',
@@ -130,6 +137,58 @@ describe('SchemaForm', () => {
         await userEvent.click(screen.getByTestId('edit-policy.active'))
         await userEvent.click(await screen.findByTitle('input.no'))
         expect(onChange).toHaveBeenLastCalledWith({ policy: { state: 'NY', active: false } })
+    })
+
+    it('shows the names given for the codes of an enumeration, finds them by name or code, and writes the code', async () => {
+        const onChange = vi.fn()
+        const named = { ...policy, labels: { state: { AL: 'Alabama', NY: 'New York' } } }
+        render(<Harness onChange={onChange} parameters={[named]} />)
+
+        await open('policy')
+        await userEvent.click(screen.getByTestId('edit-policy.state'))
+        await userEvent.type(screen.getByRole('combobox'), 'york')
+        expect(screen.queryByTitle('Alabama')).toBeNull()
+        await userEvent.click(await screen.findByTitle('New York'))
+        expect(onChange).toHaveBeenLastCalledWith({ policy: { state: 'NY' } })
+        expect(screen.getByTestId('value-policy.state')).toHaveTextContent(/^New York$/)
+
+        await userEvent.click(screen.getByTestId('edit-policy.state'))
+        await userEvent.type(screen.getByRole('combobox'), 'AL')
+        await userEvent.click(await screen.findByTitle('Alabama'))
+        expect(onChange).toHaveBeenLastCalledWith({ policy: { state: 'AL' } })
+    })
+
+    it('finds a name whatever its case and accents', async () => {
+        const onChange = vi.fn()
+        render(<Harness onChange={onChange} parameters={[region]} />)
+
+        await open('region')
+        await userEvent.click(screen.getByTestId('edit-region.code'))
+        await userEvent.type(screen.getByRole('combobox'), 'HORS QUEBEC')
+        expect(screen.queryByTitle('Québec')).toBeNull()
+        await userEvent.click(await screen.findByTitle('Hors Québec'))
+        expect(onChange).toHaveBeenLastCalledWith({ region: { code: 'HQ' } })
+    })
+
+    it('shows a code with no name listed for it as it is, even one every object has as a property', async () => {
+        render(<Harness initial={{ region: { code: '__proto__' } }} onChange={vi.fn()} parameters={[region]} />)
+
+        await open('region')
+        expect(screen.getByTestId('value-region.code')).toHaveTextContent(/^"__proto__"$/)
+        await userEvent.click(screen.getByTestId('edit-region.code'))
+        expect(await screen.findByTitle('constructor')).toBeInTheDocument()
+    })
+
+    it('shows the name of a code written as a number', async () => {
+        const tier: SchemaFormParameter = {
+            name: 'tier',
+            schema: { type: 'object', properties: { grade: { type: 'integer', enum: [1, 2]} } },
+            labels: { grade: { 1: 'Gold', 2: 'Silver' } },
+        }
+        render(<Harness initial={{ tier: { grade: 2 } }} onChange={vi.fn()} parameters={[tier]} />)
+
+        await open('tier')
+        expect(screen.getByTestId('value-tier.grade')).toHaveTextContent(/^Silver$/)
     })
 
     it('writes a date as the ISO text the rules read', async () => {

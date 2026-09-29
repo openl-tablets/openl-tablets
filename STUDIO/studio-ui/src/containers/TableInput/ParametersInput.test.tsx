@@ -47,6 +47,19 @@ describe('ParametersInput', () => {
         expect(parsed(onChange)).toEqual({ params: { age: 7, policy: {} }, runtimeContext: { lob: 'Auto' } })
     })
 
+    it('shows the names of the codes the context takes and sends the code', async () => {
+        const onChange = vi.fn()
+        const context = { ...runtimeContext, schema: { type: 'object', properties: { caRegion: { type: 'string', enum: ['QC', 'HQ']} } } }
+        render(<ParametersInput onChange={onChange} parameters={[]} runtimeContext={context} />)
+
+        await openNode('runtime-context')
+        await userEvent.click(await screen.findByTestId('edit-runtime-context.caRegion'))
+        expect(await screen.findByTitle('Hors Québec')).toBeInTheDocument()
+        await userEvent.click(screen.getByTitle('Québec'))
+        expect(parsed(onChange)).toEqual({ params: {}, runtimeContext: { caRegion: 'QC' } })
+        expect(screen.getByTestId('value-runtime-context.caRegion')).toHaveTextContent(/^Québec$/)
+    })
+
     it('keeps a parameter of its own named runtimeContext apart from the context', async () => {
         const onChange = vi.fn()
         const named = { name: 'runtimeContext', description: 'String', lazy: false, schema: { type: 'string' } }

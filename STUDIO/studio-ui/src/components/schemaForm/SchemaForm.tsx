@@ -16,6 +16,8 @@ export interface SchemaFormParameter {
     schema?: object | null | undefined
     /** Value the parameter starts with. It holds the defaults its type declares. */
     value?: unknown
+    /** Names shown for the codes of an enumeration, keyed by the field of the parameter that takes them. */
+    labels?: Record<string, Record<string, string>> | undefined
 }
 
 interface SchemaFormProps {
@@ -141,8 +143,10 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({ parameters, value, onCha
 
     const treeData = useMemo((): TreeDataNode[] => parameters.map(parameter => {
         const root = rootSchema(parameter)
+        const labels = Object.fromEntries(Object.entries(parameter.labels ?? {})
+            .map(([field, names]) => [`${parameter.name}.${field}`, names]))
         const context: TreeContext = {
-            root, editing, setEditing, expand, afterRemove, nodeMoved, entryOrder, entriesReordered,
+            root, labels, editing, setEditing, expand, afterRemove, nodeMoved, entryOrder, entriesReordered,
         }
         return buildNode({
             name: parameter.name,

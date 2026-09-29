@@ -15,12 +15,31 @@ const asText = (value: unknown): string => {
     return ''
 }
 
+/**
+ * The name given for a code, when one is.
+ *
+ * Only the codes the names are listed for have one. A code that reads like a property every object has, such as
+ * `constructor`, has none.
+ */
+export const labelOf = (labels: Record<string, string> | undefined, code: string): string | undefined =>
+    (labels && Object.hasOwn(labels, code) ? labels[code] : undefined)
+
+/** The text a search compares, without case and accents, so `quebec` finds `Québec`. */
+const folded = (text: string): string => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+
+/** Whether a choice is found by what was typed: by its name or by its code. */
+const matchesChoice = (input: string, option?: { label?: unknown, value?: unknown }): boolean =>
+    [option?.label, option?.value].some(text => (typeof text === 'string' || typeof text === 'number')
+        && folded(String(text)).includes(folded(input)))
+
 const DATE_FORMAT = 'YYYY-MM-DD'
 const DATE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm:ss'
 
 interface ScalarEditorProps {
     kind: FieldKind
     schema: JsonSchema
+    /** Names shown for the codes of an enumeration. A code without a name is shown as it is. */
+    labels?: Record<string, string> | undefined
     value: unknown
     /** Path of the field inside the parameter. Tests find the control by it. */
     path: string
@@ -36,7 +55,7 @@ interface ScalarEditorProps {
  * Text that is not JSON is not a value, so the field stays open until it reads as one or is cleared. Closing
  * on it would take the reason away and leave the value the field held before, as though nothing was typed.
  */
-const JsonEditor: React.FC<Omit<ScalarEditorProps, 'kind' | 'schema'>> = ({ value, path, onChange, onDone }) => {
+const JsonEditor: React.FC<Omit<ScalarEditorProps, 'kind' | 'schema' | 'labels'>> = ({ value, path, onChange, onDone }) => {
     const { t } = useTranslation('execution')
     const [text, setText] = useState(value === undefined || value === null ? '' : JSON.stringify(value))
     const [error, setError] = useState<string | null>(null)
@@ -111,12 +130,13 @@ const DateEditor: React.FC<{
  * The inline control a field is edited with.
  *
  * The control is chosen by the kind of value the schema describes. A text or number box, a choice for an
- * enumeration or a boolean, a calendar for a date, and JSON text for anything else.
+ * enumeration or a boolean, a calendar for a date, and JSON text for anything else. A choice of codes shows the
+ * names given for them, and is searched by name and by code, whatever the case and the accents.
  *
  * The control opens focused. A choice ends the editing at once. A typed value ends it when the control loses
  * focus or Enter is pressed.
  */
-export const ScalarEditor: React.FC<ScalarEditorProps> = ({ kind, schema, value, path, onChange, onDone }) => {
+export const ScalarEditor: React.FC<ScalarEditorProps> = ({ kind, schema, labels, value, path, onChange, onDone }) => {
     const { t } = useTranslation('execution')
     const testId = `input-${path}`
     const choose = (next: unknown) => {
@@ -130,14 +150,17 @@ export const ScalarEditor: React.FC<ScalarEditorProps> = ({ kind, schema, value,
                     allowClear
                     autoFocus
                     defaultOpen
-                    showSearch
                     data-testid={testId}
                     onBlur={onDone}
                     onChange={choose}
-                    options={(schema.enum ?? []).map(option => ({ value: option as string | number, label: String(option) }))}
+                    showSearch={{ filterOption: matchesChoice }}
                     size="small"
                     style={{ minWidth: 160 }}
                     value={value === undefined || value === null ? undefined : value as string | number}
+                    options={(schema.enum ?? []).map(option => ({
+                        value: option as string | number,
+                        label: labelOf(labels, String(option)) ?? String(option),
+                    }))}
                 />
             )
         case 'boolean':
