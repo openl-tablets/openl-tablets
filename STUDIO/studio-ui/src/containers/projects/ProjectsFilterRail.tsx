@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Checkbox, Tooltip } from 'antd'
+import { Button, Checkbox } from 'antd'
 import {
     DownOutlined,
     EyeInvisibleOutlined,
@@ -17,16 +17,21 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    type Active,
+    type Announcements,
     type DragEndEvent,
+    type Over,
 } from '@dnd-kit/core'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import {
+    hasSortableData,
     SortableContext,
     sortableKeyboardCoordinates,
     useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { IconAction } from '../../components/IconAction'
 import { ProjectStatus } from '../../constants/project'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import type { FacetCount, ProjectStatusSummary, TagFacetSummary } from '../../types/projects'
@@ -81,6 +86,21 @@ const useStyles = createStyles(({ css, token }) => ({
 
         .anticon {
             font-size: ${token.fontSizeIcon - 2}px;
+        }
+    `,
+    /** The drag handle of a group being arranged; a touch on it drags the group instead of scrolling the rail. */
+    handle: css`
+        display: flex;
+        flex: 1;
+        align-items: center;
+        align-self: stretch;
+        gap: ${token.marginXXS}px;
+        min-width: 0;
+        cursor: grab;
+        touch-action: none;
+
+        &:active {
+            cursor: grabbing;
         }
     `,
     divider: css`
@@ -141,12 +161,13 @@ interface ProjectsFilterRailProps {
 interface FilterGroup {
     id: string
     title: string
-    rows: ReactNode
+    /** Draws the values of the group; called only while they are shown. */
+    renderRows: () => ReactNode
 }
 
 /**
- * Left facet rail for the projects list: the repositories, then a group per tag type, then the project
- * states — the order they are asked for in, and one the user can change.
+ * Left facet rail for the projects list: the repositories, the branches, then a group per tag type, then
+ * the project states — the order they are asked for in, and one the user can change.
  *
  * Every group folds on its own. Rearranging the rail — dragging a group elsewhere, putting one away or
  * bringing it back — is a mode of its own, entered from the head of the rail, so the plain rail stays
@@ -178,6 +199,30 @@ export const ProjectsFilterRail = ({
         useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     )
+    // What a screen reader hears while a group is moved: the group by its title, and the place it takes.
+    const accessibility = useMemo(() => {
+        const name = ({ data, id }: Active | Over): string => {
+            const title: unknown = data.current?.['title']
+            return typeof title === 'string' ? title : String(id)
+        }
+        // The place a group is over, counted from one, or nothing while it is over none.
+        const placeOf = (over: Over | null) => (hasSortableData(over)
+            ? { place: over.data.current.sortable.index + 1, count: over.data.current.sortable.items.length }
+            : undefined)
+        const announcements: Announcements = {
+            onDragStart: ({ active }) => t('home.filter_group.picked_up', { name: name(active) }),
+            onDragOver: ({ active, over }) => {
+                const place = placeOf(over)
+                return place && t('home.filter_group.moved', { name: name(active), ...place })
+            },
+            onDragEnd: ({ active, over }) => {
+                const place = placeOf(over)
+                return place && t('home.filter_group.dropped', { name: name(active), ...place })
+            },
+            onDragCancel: ({ active }) => t('home.filter_group.cancelled', { name: name(active) }),
+        }
+        return { announcements, screenReaderInstructions: { draggable: t('home.filter_group.instructions') } }
+    }, [t])
 
     const apply = useCallback((next: FilterLayout) => {
         setLayout(next)
@@ -203,13 +248,13 @@ export const ProjectsFilterRail = ({
         </label>
     )
 
-    // Repositories first, a group per tag type next, the states last; a stored arrangement rearranges
-    // them from here, and a tag type added since falls in at its place instead of being lost.
+    // The groups in the order asked for; a stored arrangement rearranges them from here, and a tag type
+    // added since falls in at its place instead of being lost.
     const groups: FilterGroup[] = [
         {
             id: REPOSITORY_GROUP,
             title: t('home.facet_repository'),
-            rows: (
+            renderRows: () => (
                 <>
                     {repositories.map(repo =>
                         renderRow(
@@ -233,7 +278,7 @@ export const ProjectsFilterRail = ({
         {
             id: BRANCH_GROUP,
             title: t('home.facet_branch'),
-            rows: (
+            renderRows: () => (
                 <>
                     {(branchCounts ?? []).map(({ id, count, isDefault, isProtected }) =>
                         renderRow(
@@ -253,7 +298,7 @@ export const ProjectsFilterRail = ({
         ...(tagCounts ?? []).map(facet => ({
             id: tagGroupId(facet.type),
             title: facet.type,
-            rows: (
+            renderRows: () => (
                 <>
                     {facet.values.map(({ id, count }) => {
                         const key = `${facet.type}:${id}`
@@ -265,7 +310,7 @@ export const ProjectsFilterRail = ({
         {
             id: STATUS_GROUP,
             title: t('home.facet_status'),
-            rows: (
+            renderRows: () => (
                 <>
                     {STATUS_ORDER
                         // A state no project is in is noise and is not offered. A ticked one stays even at
@@ -314,16 +359,13 @@ export const ProjectsFilterRail = ({
                             {t('home.filter_group.done')}
                         </Button>
                     ) : (
-                        <Tooltip title={t('home.filter_group.customize')}>
-                            <Button
-                                aria-label={t('home.filter_group.customize')}
-                                data-testid="projects-filter-arrange"
-                                icon={<SettingOutlined />}
-                                onClick={() => setArranging(true)}
-                                size="small"
-                                type="text"
-                            />
-                        </Tooltip>
+                        <IconAction
+                            data-testid="projects-filter-arrange"
+                            icon={<SettingOutlined />}
+                            onClick={() => setArranging(true)}
+                            size="small"
+                            title={t('home.filter_group.customize')}
+                        />
                     )}
                     {headerActions}
                 </span>
@@ -331,30 +373,36 @@ export const ProjectsFilterRail = ({
             {hasFilters && !arranging && (
                 <ClearFiltersRow data-testid="projects-filter-clear" onClick={onClearFilters} />
             )}
-            <div className={shared.railScroll}>
+            <div className={shared.railScroll} data-testid="projects-filter-scroll">
+                {/* A dragged group stays within the list of groups, however little of it the rail shows, and lands
+                    by its centre: a group reaches any place only while all of them are short, so an arranged group
+                    shows its head alone. */}
                 <DndContext
+                    accessibility={accessibility}
                     collisionDetection={closestCenter}
                     modifiers={[restrictToVerticalAxis, restrictToParentElement]}
                     onDragEnd={onDragEnd}
                     sensors={sensors}
                 >
                     <SortableContext items={shown.map(group => group.id)} strategy={verticalListSortingStrategy}>
-                        {shown.map((group, index) => (
-                            <SortableGroup
-                                key={group.id}
-                                arranging={arranging}
-                                collapsed={layout.collapsed.includes(group.id)}
-                                first={index === 0}
-                                group={group}
-                                onHide={() => apply({ ...layout, hidden: [...layout.hidden, group.id]})}
-                                onToggle={() => apply({
-                                    ...layout,
-                                    collapsed: layout.collapsed.includes(group.id)
-                                        ? layout.collapsed.filter(id => id !== group.id)
-                                        : [...layout.collapsed, group.id],
-                                })}
-                            />
-                        ))}
+                        <div>
+                            {shown.map((group, index) => (
+                                <SortableGroup
+                                    key={group.id}
+                                    arranging={arranging}
+                                    collapsed={layout.collapsed.includes(group.id)}
+                                    first={index === 0}
+                                    group={group}
+                                    onHide={() => apply({ ...layout, hidden: [...layout.hidden, group.id]})}
+                                    onToggle={() => apply({
+                                        ...layout,
+                                        collapsed: layout.collapsed.includes(group.id)
+                                            ? layout.collapsed.filter(id => id !== group.id)
+                                            : [...layout.collapsed, group.id],
+                                    })}
+                                />
+                            ))}
+                        </div>
                     </SortableContext>
                 </DndContext>
                 {arranging && hidden.length > 0 && (
@@ -365,19 +413,16 @@ export const ProjectsFilterRail = ({
                         {hidden.map(group => (
                             <div key={group.id} className={styles.hiddenRow}>
                                 <span className={shared.ellipsis}>{group.title}</span>
-                                <Tooltip title={t('home.filter_group.show')}>
-                                    <Button
-                                        aria-label={t('home.filter_group.show')}
-                                        data-testid={`filter-show-${group.id}`}
-                                        icon={<PlusOutlined />}
-                                        size="small"
-                                        type="text"
-                                        onClick={() => apply({
-                                            ...layout,
-                                            hidden: layout.hidden.filter(id => id !== group.id),
-                                        })}
-                                    />
-                                </Tooltip>
+                                <IconAction
+                                    data-testid={`filter-show-${group.id}`}
+                                    icon={<PlusOutlined />}
+                                    size="small"
+                                    title={t('home.filter_group.show')}
+                                    onClick={() => apply({
+                                        ...layout,
+                                        hidden: layout.hidden.filter(id => id !== group.id),
+                                    })}
+                                />
                             </div>
                         ))}
                     </div>
@@ -398,15 +443,23 @@ interface SortableGroupProps {
     onHide: () => void
 }
 
-/** One group of the rail: folds by its head, and while the rail is arranged moves by its grip. */
+/**
+ * One group of the rail: folds by its head.
+ *
+ * While the rail is arranged, the group shows its head alone and keeps its fold for later. The whole head
+ * picks the group up, except the button that puts the group away.
+ */
 const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide }: SortableGroupProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
         id: group.id,
         disabled: !arranging,
+        // What a screen reader calls the group while it is being moved.
+        data: { title: group.title },
     })
+    const title = <span className={shared.ellipsis}>{group.title}</span>
 
     return (
         <div
@@ -418,41 +471,42 @@ const SortableGroup = ({ group, collapsed, first, arranging, onToggle, onHide }:
             {!first && <div className={styles.divider} />}
             <div className={styles.section}>
                 <div className={cx(shared.microLabel, styles.sectionHead)}>
-                    {arranging && (
-                        <span
-                            {...attributes}
-                            {...listeners}
-                            aria-label={t('home.filter_group.move')}
-                            className={shared.dragHandle}
-                            data-testid={`filter-drag-${group.id}`}
-                        >
-                            <HolderOutlined />
-                        </span>
-                    )}
-                    <button
-                        aria-expanded={!collapsed}
-                        className={cx(shared.microLabel, shared.sectionToggle, styles.sectionToggle)}
-                        data-testid={`filter-toggle-${group.id}`}
-                        onClick={onToggle}
-                        type="button"
-                    >
-                        <span className={shared.ellipsis}>{group.title}</span>
-                        {collapsed ? <RightOutlined /> : <DownOutlined />}
-                    </button>
-                    {arranging && (
-                        <Tooltip title={t('home.filter_group.hide')}>
-                            <Button
-                                aria-label={t('home.filter_group.hide')}
+                    {arranging ? (
+                        <>
+                            <div
+                                ref={setActivatorNodeRef}
+                                {...attributes}
+                                {...listeners}
+                                className={styles.handle}
+                                data-testid={`filter-drag-${group.id}`}
+                            >
+                                <span aria-hidden className={shared.dragHandle}>
+                                    <HolderOutlined />
+                                </span>
+                                {title}
+                            </div>
+                            <IconAction
                                 data-testid={`filter-hide-${group.id}`}
                                 icon={<EyeInvisibleOutlined />}
                                 onClick={onHide}
                                 size="small"
-                                type="text"
+                                title={t('home.filter_group.hide')}
                             />
-                        </Tooltip>
+                        </>
+                    ) : (
+                        <button
+                            aria-expanded={!collapsed}
+                            className={cx(shared.microLabel, shared.sectionToggle, styles.sectionToggle)}
+                            data-testid={`filter-toggle-${group.id}`}
+                            onClick={onToggle}
+                            type="button"
+                        >
+                            {title}
+                            {collapsed ? <RightOutlined /> : <DownOutlined />}
+                        </button>
                     )}
                 </div>
-                {!collapsed && group.rows}
+                {!arranging && !collapsed && group.renderRows()}
             </div>
         </div>
     )
