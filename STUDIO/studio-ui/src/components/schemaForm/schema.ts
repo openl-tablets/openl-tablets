@@ -52,6 +52,12 @@ export const resolveRef = (ref: string, root: JsonSchema): JsonSchema | undefine
 
 const isNullSchema = (schema: JsonSchema): boolean => schema.type === 'null'
 
+/** Whether a field accepts `null`: its type is `null` or lists it, or its union has a `null` branch. */
+export const acceptsNull = (schema: JsonSchema): boolean =>
+    isNullSchema(schema)
+    || (Array.isArray(schema.type) && schema.type.includes('null'))
+    || [...(schema.anyOf ?? []), ...(schema.oneOf ?? [])].some(isNullSchema)
+
 /**
  * The schema a node is rendered by.
  *
@@ -128,8 +134,9 @@ export const mapValueSchema = (schema: JsonSchema): JsonSchema =>
 /**
  * A value without its `null` leaves.
  *
- * A null field is left out, as an unset field is. The form shows both the same way and neither travels to the
- * rules. A `null` element of a list stays, as it keeps the list's slots.
+ * It is used for a value the server writes, such as the starting value of a parameter. A field there is `null`
+ * only when it has no value, and a field left out gets no value either, so the rules receive the same. A `null`
+ * element of a list stays, as it keeps the list's slots.
  */
 export const withoutNulls = (value: unknown): unknown => {
     if (Array.isArray(value)) {
@@ -142,6 +149,18 @@ export const withoutNulls = (value: unknown): unknown => {
     }
     return value
 }
+
+/**
+ * The value a field of an object takes when it is cleared.
+ *
+ * A field that accepts `null` takes `null`, and the rules receive `null`. Its datatype declares a default for it,
+ * which a field left out would get instead.
+ *
+ * A field that cannot be `null`, such as an `int`, goes back to its default. A field with no default is left out,
+ * and the rules receive `null`.
+ */
+export const clearedValue = (schema: JsonSchema, root: JsonSchema): unknown =>
+    (acceptsNull(schema) ? null : resolveSchema(schema, root).default)
 
 /**
  * The value a field starts with when it is created.

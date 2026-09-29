@@ -125,6 +125,37 @@ describe('SchemaForm', () => {
         expect(onChange).toHaveBeenLastCalledWith({ policy: { age: 42 } })
     })
 
+    it('clears to null a field that replaces a default, and an int back to its default', async () => {
+        const onChange = vi.fn()
+        const terms: SchemaFormParameter = {
+            name: 'terms',
+            schema: {
+                type: 'object',
+                properties: {
+                    grade: { type: ['string', 'null'], default: 'A' },
+                    holder: { anyOf: [{ type: 'null' }, { $ref: '#/$defs/Holder' }], default: { name: 'Ann' } },
+                    age: { type: 'integer', default: 30 },
+                },
+                $defs: { Holder: { type: 'object', properties: { name: { type: 'string' } } } },
+            },
+        }
+        render(<Harness initial={{ terms: { grade: 'B', holder: { name: 'Bob' }, age: 5 } }} onChange={onChange} parameters={[terms]} />)
+
+        await open('terms')
+        await userEvent.click(screen.getByTestId('clear-terms.grade'))
+        await userEvent.click(screen.getByTestId('clear-terms.holder'))
+        await userEvent.click(screen.getByTestId('clear-terms.age'))
+
+        // A field left out would get its default, so a cleared one is sent as null. An int cannot be null.
+        expect(onChange).toHaveBeenLastCalledWith({ terms: { grade: null, holder: null, age: 30 } })
+        expect(screen.getByTestId('value-terms.grade')).toHaveTextContent('null')
+        expect(screen.getByTestId('value-terms.holder')).toHaveTextContent('null')
+        expect(screen.getByTestId('value-terms.age')).toHaveTextContent('30')
+        // Held at its default, the int has nothing left to clear.
+        expect(screen.queryByTestId('clear-terms.age')).toBeNull()
+        expect(screen.getByTestId('edit-terms.age')).toBeInTheDocument()
+    })
+
     it('offers the values of an enumeration and true or false for a boolean', async () => {
         const onChange = vi.fn()
         render(<Harness onChange={onChange} parameters={[policy]} />)

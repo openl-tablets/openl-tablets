@@ -31,63 +31,108 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "capital": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "claimsOnBanks": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "claimsOnCustomers": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "claimsOnDemand": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "claimsSecuredByPropertyCharges": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "claimsUpTo3Months": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "consolidatedProfit": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "equity": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "liabilities": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "liabilitiesOnDemand": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "liabilitiesToBanks": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "liabilitiesToCustomers": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "liabilitiesToCustomersOnDemand": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "loanLossProvisionsForClaimsOnCustomers": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "otherAssets": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "reportDate": {
@@ -95,7 +140,10 @@ Content-Type: application/json
             "format": "date-time"
           },
           "totalAssets": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           }
         }
@@ -127,63 +175,108 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "capital": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "claimsOnBanks": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "claimsOnCustomers": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "claimsOnDemand": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "claimsSecuredByPropertyCharges": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "claimsUpTo3Months": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "consolidatedProfit": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "equity": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "liabilities": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "liabilitiesOnDemand": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "liabilitiesToBanks": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "liabilitiesToCustomers": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           },
           "liabilitiesToCustomersOnDemand": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "loanLossProvisionsForClaimsOnCustomers": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "otherAssets": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0
           },
           "reportDate": {
@@ -191,7 +284,10 @@ Content-Type: application/json
             "format": "date-time"
           },
           "totalAssets": {
-            "type": "number",
+            "type": [
+              "number",
+              "null"
+            ],
             "default": 0.0001
           }
         }
