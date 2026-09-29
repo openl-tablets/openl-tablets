@@ -1,3 +1,4 @@
+import type { DefaultOptionType, SearchConfig } from 'antd/es/select'
 import type { ProjectModule } from 'types/projects'
 import type { ProjectProperty } from 'types/tables'
 
@@ -53,6 +54,13 @@ export const toPropertyGroups = (properties: ProjectProperty[]) => {
         .sort(([left], [right]) => rank(left) - rank(right) || left.localeCompare(right))
         .map(([label, options]) => ({ label, options }))
 }
+
+/**
+ * How a list of properties built by {@link toPropertyGroups} is searched: by the display name it shows.
+ *
+ * <p>The technical name each option carries as its value is not what the reader sees, so it is not what they type.
+ */
+export const PROPERTY_SEARCH: SearchConfig<DefaultOptionType> = { optionFilterProp: 'label' }
 
 /** Characters Excel rejects in a worksheet name; sending one makes the workbook write fail. */
 const SHEET_NAME_FORBIDDEN = /[/\\*?[\]:]/

@@ -18,6 +18,7 @@ import {
     isValidPropertyValue,
     isValidSheetName,
     type ModuleOption,
+    PROPERTY_SEARCH,
     sheetNameFrom,
     toModuleOptions,
     toPropertyGroups,
@@ -349,7 +350,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                                                 onChange={value => updatePropertyName(index, value ?? '')}
                                                 options={propertyOptionsFor(index)}
                                                 placeholder={t('project:copy_table_modal.property_name')}
-                                                showSearch={{ optionFilterProp: 'label' }}
+                                                showSearch={PROPERTY_SEARCH}
                                                 value={property.name || undefined}
                                             />
                                             <PropertyValueInput

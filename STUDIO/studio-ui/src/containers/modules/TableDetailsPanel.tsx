@@ -17,7 +17,7 @@ import { updateTableProperties } from '../../services/tables'
 import { readJson, writeJson } from '../../utils/localStore'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
-import { toPropertyGroups } from '../tableModals/shared'
+import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import type { Written } from './TableEditor'
 import type { ConfirmWrite } from './useOverwriteConfirm'
 
@@ -473,11 +473,11 @@ export const TableDetailsPanel = ({
                 ))}
                 {editing && (
                     <Select
-                        showSearch
                         className={styles.add}
                         data-testid="table-details-add"
                         options={offered}
                         placeholder={t('browser.module.details_add')}
+                        showSearch={PROPERTY_SEARCH}
                         size="small"
                         value={null}
                         onChange={(name: string) => setDraft(current => ({

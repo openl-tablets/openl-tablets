@@ -15,7 +15,7 @@ import {
 import { getProjectProperties } from '../../services/projects'
 import { errorMessage } from '../../utils/errorMessage'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
-import { toPropertyGroups } from '../tableModals/shared'
+import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import { tableIcon } from './tableIcons'
 
 /** The families of table the search can narrow to, as the Tables API names them. */
@@ -378,7 +378,7 @@ const TableSearchForm = ({
                                 data-testid={`table-search-property-${index}`}
                                 options={propertyOptions}
                                 placeholder={t('browser.module.search_property_name')}
-                                showSearch={{ optionFilterProp: 'label' }}
+                                showSearch={PROPERTY_SEARCH}
                                 style={{ width: 260 }}
                                 value={filter.name === '' ? null : filter.name}
                                 onChange={(picked: string) => setFilters(rows => rows.map((row, at) => at === index
