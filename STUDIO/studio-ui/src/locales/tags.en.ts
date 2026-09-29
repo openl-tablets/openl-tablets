@@ -27,8 +27,37 @@ i18next.addResourceBundle('en', 'tags', {
     fill_tags_for_project: 'Fill Tags for Project',
     templates_saved: 'Templates saved successfully',
     templates_save_error: 'Failed to save templates',
-    fill_tags_success: 'Tags filled successfully for {{count}} project(s)',
     fill_tags_error: 'Failed to fill tags for projects',
+    fill_result: {
+        title: 'Filled tags',
+        summary: '{{updated}} project(s) updated, {{skipped}} left alone.',
+        result_column: 'Result',
+        close: 'Close',
+        left_alone: 'Left alone: {{reason}}',
+        not_assigned: 'The project did not get this value: it is not in the list of tags, and its tag type '
+            + 'does not take new values, or the value is not a valid tag name.',
+        reason: {
+            nothingToAssign: 'None of the missing values can be assigned. Add them to their tag types, or make '
+                + 'the tag types extensible, then fill the project again. A value that is not a valid tag name, '
+                + 'such as one that ends with a dot, needs another project name or template.',
+            failed: 'The tags could not be written. The OpenL Studio log names the reason.',
+        },
+    },
+    fill_blocker: {
+        locked: 'The project is being edited by {{lockedBy}}. Fill it again after they save or close it.',
+        lockedByYou: 'You still hold a lock on the project from an earlier change. Open the project and close it '
+            + 'to release the lock, then fill it again.',
+        another_user: 'another user',
+        branchProtected: 'The branch "{{branch}}" of the project is protected, so its changes go through a merge. '
+            + 'Fill the project in another branch, then merge that branch.',
+        noPermission: 'You do not have permission to change the project. Ask for write access to it, then fill '
+            + 'it again.',
+        olderRevision: 'You opened an older revision of the project. Open the latest revision or close the '
+            + 'project, then fill it again.',
+        archive: 'The project is closed, and its repository keeps projects as archives. Open the project, then '
+            + 'fill it again.',
+        unknown: 'The project cannot be changed now.',
+    },
     fill_preview: {
         title: 'Projects without tags',
         project_column: 'Project',
@@ -37,15 +66,12 @@ i18next.addResourceBundle('en', 'tags', {
         legend: 'A white tag is assigned as it is, a green one is created for its extensible tag type, '
             + 'a red one cannot be assigned, and a grey one is what the project carries now.',
         nothing_to_fill: 'Every project that matches a template already carries its tags.',
-        not_modifiable: 'This project cannot be changed now: another user is editing it, its branch is protected, '
-            + 'you do not have permission to change it, or you opened an older revision of it. A closed project '
-            + 'of a repository that keeps projects as archives must be opened first.',
         state: {
             assign: 'The value exists in the list of tags and is assigned to the project.',
             create: 'The value does not exist in the list of tags, and the tag type is extensible, '
                 + 'so it is created and assigned to the project.',
-            rejected: 'The value does not exist in the list of tags, and the tag type is not extensible, '
-                + 'so it is neither created nor assigned, and the tag remains None.',
+            rejected: 'The value does not exist in the list of tags, and the tag type is not extensible or the '
+                + 'value is not a valid tag name, so it is neither created nor assigned, and the tag remains None.',
             keep: 'The project already carries this value.',
         },
     },

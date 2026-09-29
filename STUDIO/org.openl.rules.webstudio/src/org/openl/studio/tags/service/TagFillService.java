@@ -20,11 +20,16 @@ import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
+import org.openl.studio.projects.validator.ModifyRestrictedException;
+import org.openl.studio.projects.validator.ModifyRestriction;
+import org.openl.studio.tags.model.TagFillBlocker;
+import org.openl.studio.tags.model.TagFillOutcome;
 import org.openl.studio.tags.model.TagFillPreview;
 import org.openl.studio.tags.model.TagFillPreview.TagFillItem;
+import org.openl.studio.tags.model.TagFillResult;
 import org.openl.studio.tags.model.TagFillState;
 import org.openl.util.PropertiesUtils;
 
@@ -77,70 +82,86 @@ public class TagFillService {
     }
 
     /**
-     * Assigns the derived tags to the given projects, or to every project when no name is given.
+     * Assigns the derived tags to the given projects, or to every project when no name is given, and answers
+     * what it did to each of them.
      *
      * <p>A value the templates derived for a tag type that does not take it is left out, so one tag that
      * cannot be assigned does not cost the project the others.
      *
-     * <p>A project the current user cannot change now is left alone, and no tag value is created for it. A
-     * project that would not change is left alone too.
+     * <p>A project the current user cannot change now is left alone, and no tag value is created for it. So
+     * is a project none of whose missing values can be assigned. Each project left alone is reported with the
+     * reason, and so is every missing value a project could not get.
+     *
+     * <p>A project that already carries every value the templates derive for it is not reported: there is
+     * nothing to fill in it, as in {@link #preview()}.
      *
      * @param projectNames business names of the projects to fill, empty for all of them
-     * @return how many projects were updated and how many were left alone
+     * @return what filling did to each project it was asked for that a template derives a missing value for
      */
-    public Map<String, Integer> fill(@Nullable Collection<String> projectNames) {
+    public List<TagFillResult> fill(@Nullable Collection<String> projectNames) {
         var workspace = getUserWorkspace();
-        var updated = 0;
-        var skipped = 0;
+        var results = new ArrayList<TagFillResult>();
         for (RulesProject project : workspace.getProjects()) {
-            if (fillProject(project, projectNames)) {
-                updated++;
-            } else {
-                skipped++;
+            if (isRequested(project, projectNames)) {
+                fillProject(project).ifPresent(results::add);
             }
         }
-        if (updated > 0) {
+        if (results.stream().anyMatch(result -> result.outcome() == TagFillOutcome.UPDATED)) {
             workspace.refresh();
         }
-        return Map.of("updated", updated, "skipped", skipped);
-    }
-
-    /** Writes the derived tags into the tags file of the project, and answers whether it did. */
-    private boolean fillProject(RulesProject project, @Nullable Collection<String> projectNames) {
-        try {
-            var tags = tagsToWrite(project, projectNames);
-            if (tags.isEmpty()) {
-                return false;
-            }
-            projectFileRootFactory.of(project)
-                    .writeBatch("", List.of(tagsFile(tags)), ChangesetType.DIFF, FILL_COMMENT);
-            return true;
-        } catch (Exception e) {
-            log.warn("Failed to fill tags for project '{}'", project.getBusinessName(), e);
-            return false;
-        }
-    }
-
-    /**
-     * The tags the tags file of the project gets: the ones it carries, with the derived values assigned.
-     *
-     * <p>Empty when the project was not asked for, cannot be changed now, or would not change.
-     */
-    private Map<String, String> tagsToWrite(RulesProject project, @Nullable Collection<String> projectNames) {
-        var derived = isRequested(project, projectNames) ? derivedTags(project) : Map.<String, String>of();
-        if (derived.isEmpty() || !isFillable(project)) {
-            return Map.of();
-        }
-        var assigned = project.getLocalTags();
-        // Template tags take priority over what the project carries. New values are created in the catalog
-        // only for a project that takes them.
-        var tags = new LinkedHashMap<String, String>(assigned);
-        tags.putAll(tagAssignmentValidator.applicable(derived));
-        return tags.equals(assigned) ? Map.of() : tags;
+        return results;
     }
 
     private static boolean isRequested(RulesProject project, @Nullable Collection<String> projectNames) {
         return projectNames == null || projectNames.isEmpty() || projectNames.contains(project.getBusinessName());
+    }
+
+    /** What filling does to the project, empty when the project carries every value the templates derive. */
+    private Optional<TagFillResult> fillProject(RulesProject project) {
+        try {
+            var derived = derivedTags(project);
+            // The tags of a project no template matches are not read at all.
+            var assigned = derived.isEmpty() ? Map.<String, String>of() : project.getLocalTags();
+            var missing = changes(assigned, derived);
+            return missing.isEmpty() ? Optional.empty() : Optional.of(resultOf(project, assigned, missing));
+        } catch (Exception e) {
+            log.warn("Failed to fill tags for project '{}'", project.getBusinessName(), e);
+            return Optional.of(TagFillResult.failed(project.getBusinessName()));
+        }
+    }
+
+    /** Writes the missing values the project can take into its tags file, when it can be changed now. */
+    private TagFillResult resultOf(RulesProject project,
+                                   Map<String, String> assigned,
+                                   Map<String, String> missing) throws IOException {
+        var blocker = blockerOf(project);
+        if (blocker.isPresent()) {
+            return TagFillResult.notModifiable(project.getBusinessName(), blocker.get());
+        }
+        // New values are created in the catalog only for a project that takes them.
+        var changes = tagAssignmentValidator.applicable(missing);
+        var rejected = new LinkedHashMap<>(missing);
+        rejected.keySet().removeAll(changes.keySet());
+        if (changes.isEmpty()) {
+            return TagFillResult.nothingToAssign(project.getBusinessName(), rejected);
+        }
+        write(project, assigned, changes);
+        return TagFillResult.updated(project.getBusinessName(), changes, rejected);
+    }
+
+    private void write(RulesProject project, Map<String, String> assigned, Map<String, String> changes)
+            throws IOException {
+        // Template tags take priority over what the project carries, whatever case it spelled their types in: a
+        // value is replaced where it stands, under the spelling of its tag type.
+        var tags = new LinkedHashMap<String, String>();
+        assigned.forEach((type, value) -> tags.put(spellingIn(changes, type), value));
+        tags.putAll(changes);
+        projectFileRootFactory.of(project).writeBatch("", List.of(tagsFile(tags)), ChangesetType.DIFF, FILL_COMMENT);
+    }
+
+    /** How the changes spell the tag type, or the given spelling when they do not change that tag type. */
+    private static String spellingIn(Map<String, String> changes, String type) {
+        return changes.keySet().stream().filter(type::equalsIgnoreCase).findFirst().orElse(type);
     }
 
     private Optional<TagFillPreview> previewOf(RulesProject project, TagCatalog catalog) {
@@ -149,17 +170,33 @@ public class TagFillService {
             return Optional.empty();
         }
         var assigned = project.getLocalTags();
+        if (carries(assigned, derived)) {
+            return Optional.empty();
+        }
         var items = derived.entrySet().stream()
                 .map(entry -> item(catalog, assigned, entry.getKey(), entry.getValue()))
                 .toList();
-        if (items.stream().allMatch(item -> item.state() == TagFillState.KEEP)) {
-            return Optional.empty();
-        }
-        return Optional.of(new TagFillPreview(project.getBusinessName(), isFillable(project), items));
+        return Optional.of(TagFillPreview.of(project.getBusinessName(), blockerOf(project).orElse(null), items));
+    }
+
+    /** Whether the project carries every value the templates derive for it, whatever case it spelled them in. */
+    private static boolean carries(Map<String, String> assigned, Map<String, String> derived) {
+        return changes(assigned, derived).isEmpty();
+    }
+
+    /** The values the project does not carry yet, whatever case it spelled them in. */
+    private static Map<String, String> changes(Map<String, String> assigned, Map<String, String> values) {
+        var changes = new LinkedHashMap<String, String>();
+        values.forEach((type, value) -> {
+            if (!value.equalsIgnoreCase(valueOf(assigned, type))) {
+                changes.put(type, value);
+            }
+        });
+        return changes;
     }
 
     /**
-     * Whether filling can write the tags file of the project now.
+     * Why filling cannot write the tags file of the project now, empty when it can.
      *
      * <p>The current user must be able to change the project now, as for any write into its files.
      *
@@ -167,10 +204,36 @@ public class TagFillService {
      * archive cannot take a single file, so such a project takes the tags only once it is opened. An older
      * revision opened to be read is left alone as well: the first write into it is the reader's decision.
      */
-    private boolean isFillable(RulesProject project) {
-        // The state of the project is weighed first; the files mount asks for the write permission last.
-        return project.isFolder() && !project.isReadingOtherVersion()
-                && projectFileRootFactory.of(project).isModifiable();
+    private Optional<TagFillBlocker> blockerOf(RulesProject project) {
+        if (!project.isFolder()) {
+            return Optional.of(TagFillBlocker.of(TagFillBlocker.Reason.ARCHIVE));
+        }
+        if (project.isReadingOtherVersion()) {
+            return Optional.of(TagFillBlocker.of(TagFillBlocker.Reason.OLDER_REVISION));
+        }
+        try {
+            projectFileRootFactory.of(project).requireModifiable();
+            return Optional.empty();
+        } catch (ModifyRestrictedException e) {
+            return Optional.of(blockerOf(project, e.getRestriction()));
+        } catch (ForbiddenException e) {
+            return Optional.of(TagFillBlocker.of(TagFillBlocker.Reason.NO_PERMISSION));
+        }
+    }
+
+    private static TagFillBlocker blockerOf(RulesProject project, ModifyRestriction restriction) {
+        return switch (restriction) {
+            case BRANCH_PROTECTED -> TagFillBlocker.branchProtected(project.getBranch());
+            case LOCKED -> lockBlocker(project);
+        };
+    }
+
+    /** A lock of the current user that outlived their editing is theirs to release, unlike a lock of another user. */
+    private static TagFillBlocker lockBlocker(RulesProject project) {
+        var lock = project.getLockInfo();
+        return project.isLockedByMe(lock)
+                ? TagFillBlocker.of(TagFillBlocker.Reason.LOCKED_BY_YOU)
+                : TagFillBlocker.locked(lock.getLockedBy());
     }
 
     /** The tags file of a project carrying the given tags. */
@@ -192,7 +255,8 @@ public class TagFillService {
         if (catalog.configuredValue(typeName, derived).isPresent()) {
             return TagFillState.ASSIGN;
         }
-        return catalog.type(typeName).filter(TagType::isExtensible).isPresent()
+        // A new value is created as filling creates it: for an extensible tag type, and only as a valid tag name.
+        return catalog.type(typeName).filter(type -> TagAssignmentValidator.isCreatable(type, derived)).isPresent()
                 ? TagFillState.CREATE
                 : TagFillState.REJECTED;
     }

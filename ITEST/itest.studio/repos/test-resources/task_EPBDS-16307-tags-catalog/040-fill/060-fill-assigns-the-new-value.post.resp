@@ -1,7 +1,12 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-{
-  "updated": 1,
-  "skipped": "*"
-}
+[
+  {
+    "projectName": "EPBDS_Tags",
+    "outcome": "updated",
+    "tags": {
+      "Team": "EPBDS"
+    }
+  }
+]

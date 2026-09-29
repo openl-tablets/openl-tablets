@@ -1,8 +1,10 @@
 package org.openl.studio.projects.service.files;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,11 +12,13 @@ import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -24,6 +28,9 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.projects.validator.ModifyRestrictedException;
+import org.openl.studio.projects.validator.ModifyRestriction;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
@@ -32,12 +39,15 @@ import org.openl.studio.projects.validator.ProjectStateValidator;
  * <p>A project kept in folders commits each written file as the current user. A project kept as an archive
  * reads and writes its files through the archive.
  *
+ * <p>A project that cannot be changed now is refused with the reason.
+ *
  * @author Yury Molchan
  */
 class ProjectFileRootTest {
 
     private BranchRepository design;
     private RulesProject project;
+    private ProjectStateValidator validator;
     private ProjectFileRoot root;
 
     @BeforeEach
@@ -46,8 +56,44 @@ class ProjectFileRootTest {
         project = mock(RulesProject.class);
         when(project.getRepository()).thenReturn(design);
         when(project.getFolderPath()).thenReturn("Project1");
-        root = new ProjectFileRoot(project, mock(AclProjectsHelper.class), mock(ProjectStateValidator.class),
+        when(project.getBusinessName()).thenReturn("Project1");
+        validator = mock(ProjectStateValidator.class);
+        root = new ProjectFileRoot(project, mock(AclProjectsHelper.class), validator,
                 mock(ProjectFileLookupService.class), () -> new UserInfo("user1"), mock(DesignTimeRepository.class));
+    }
+
+    @Test
+    void lockedProjectIsRefusedNamingWhoHoldsIt() {
+        var lock = mock(LockInfo.class);
+        when(lock.getLockedBy()).thenReturn("jdoe");
+        when(project.getLockInfo()).thenReturn(lock);
+        when(validator.modifyRestriction(project)).thenReturn(Optional.of(ModifyRestriction.LOCKED));
+
+        var refusal = assertThrows(ModifyRestrictedException.class, root::requireModifiable);
+
+        assertEquals(ModifyRestriction.LOCKED, refusal.getRestriction());
+        assertEquals("openl.error.409.file.project.locked.message", refusal.getErrorCode());
+        assertArrayEquals(new Object[] {"Project1", "jdoe"}, refusal.getArgs());
+    }
+
+    @Test
+    void projectOnAProtectedBranchIsRefusedNamingTheBranch() {
+        when(project.getBranch()).thenReturn("main");
+        when(validator.modifyRestriction(project)).thenReturn(Optional.of(ModifyRestriction.BRANCH_PROTECTED));
+
+        var refusal = assertThrows(ModifyRestrictedException.class, root::requireModifiable);
+
+        assertEquals(ModifyRestriction.BRANCH_PROTECTED, refusal.getRestriction());
+        assertEquals("openl.error.409.file.project.branch.protected.message", refusal.getErrorCode());
+        assertArrayEquals(new Object[] {"Project1", "main"}, refusal.getArgs());
+    }
+
+    @Test
+    void projectTheUserMayNotWriteToIsForbidden() {
+        when(validator.modifyRestriction(project)).thenReturn(Optional.empty());
+
+        // The access control denies what it was not told to allow.
+        assertThrows(ForbiddenException.class, root::requireModifiable);
     }
 
     @Test

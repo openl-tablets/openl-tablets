@@ -1,5 +1,7 @@
 package org.openl.studio.projects.validator;
 
+import java.util.Optional;
+
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 
@@ -26,6 +28,17 @@ public interface ProjectStateValidator {
      * @return true or false
      */
     boolean canModify(UserWorkspaceProject project);
+
+    /**
+     * Why the current user cannot modify the project now.
+     *
+     * <p>A protected branch is named first, then a lock. A project that exists only in the local workspace is
+     * never restricted by a lock.
+     *
+     * @param project project
+     * @return the restriction, empty when {@link #canModify(UserWorkspaceProject)} allows the project to be modified
+     */
+    Optional<ModifyRestriction> modifyRestriction(UserWorkspaceProject project);
 
     /**
      * Check if project can be closed

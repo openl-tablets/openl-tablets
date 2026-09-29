@@ -50,6 +50,8 @@ import org.openl.studio.projects.service.files.ProjectFileLookupService;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.validator.ProjectStateValidatorImpl;
+import org.openl.studio.tags.model.TagFillBlocker;
+import org.openl.studio.tags.model.TagFillResult;
 import org.openl.util.IOUtils;
 
 /**
@@ -159,6 +161,14 @@ class TagFillServiceGitTest {
         design.save(data, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
     }
 
+    private static TagFillResult filled() {
+        return TagFillResult.updated(PROJECT, Map.of("Domain", "Policy"), Map.of());
+    }
+
+    private static TagFillResult leftAlone(TagFillBlocker blocker) {
+        return TagFillResult.notModifiable(PROJECT, blocker);
+    }
+
     /** The tags file was last committed on behalf of the admin, with the comment of the fill. */
     private void assertFilledByTheAdmin() throws IOException {
         var commit = design.check(TAGS_PATH);
@@ -178,7 +188,7 @@ class TagFillServiceGitTest {
         workspaceHolds(project);
 
         assertTrue(service.preview().getFirst().modifiable());
-        assertEquals(Map.of("updated", 1, "skipped", 0), service.fill(null));
+        assertEquals(List.of(filled()), service.fill(null));
 
         assertEquals("Domain=Policy\n", read(TAGS_PATH));
         assertFilledByTheAdmin();
@@ -193,7 +203,7 @@ class TagFillServiceGitTest {
         var project = project("admin");
         workspaceHolds(project);
 
-        assertEquals(Map.of("updated", 1, "skipped", 0), service.fill(null));
+        assertEquals(List.of(filled()), service.fill(null));
 
         assertEquals("Team=Payroll\nDomain=Policy\n", read(TAGS_PATH));
         // The commit is the current user's, not a repetition of the one that wrote the file before.
@@ -207,11 +217,29 @@ class TagFillServiceGitTest {
         var project = project("admin");
         workspaceHolds(project);
 
-        assertFalse(service.preview().getFirst().modifiable());
-        assertEquals(Map.of("updated", 0, "skipped", 1), service.fill(null));
+        // The admin learns who holds the project.
+        var locked = TagFillBlocker.locked("jdoe");
+        assertEquals(locked, service.preview().getFirst().blocker());
+        assertEquals(List.of(leftAlone(locked)), service.fill(null));
 
         assertNull(design.check(TAGS_PATH));
         assertEquals("jdoe", project.getLockInfo().getLockedBy());
+    }
+
+    @Test
+    void closedProjectTheAdminStillHoldsALockOnIsLeftAloneForTheAdminToRelease() throws Exception {
+        // A lock that outlived an earlier change of the admin, as a failed write used to leave behind.
+        assertTrue(project("admin").tryLock());
+        var project = project("admin");
+        workspaceHolds(project);
+
+        // The admin is told the lock is theirs to release, not that somebody is editing the project.
+        var ownLock = TagFillBlocker.of(TagFillBlocker.Reason.LOCKED_BY_YOU);
+        assertEquals(ownLock, service.preview().getFirst().blocker());
+        assertEquals(List.of(leftAlone(ownLock)), service.fill(null));
+
+        assertNull(design.check(TAGS_PATH));
+        assertTrue(project.isLockedByMe());
     }
 
     @Test
@@ -222,8 +250,9 @@ class TagFillServiceGitTest {
         project.openVersion(firstRevision);
         workspaceHolds(project);
 
-        assertFalse(service.preview().getFirst().modifiable());
-        assertEquals(Map.of("updated", 0, "skipped", 1), service.fill(null));
+        var olderRevision = TagFillBlocker.of(TagFillBlocker.Reason.OLDER_REVISION);
+        assertEquals(olderRevision, service.preview().getFirst().blocker());
+        assertEquals(List.of(leftAlone(olderRevision)), service.fill(null));
 
         // The revision stays as it was read: nothing is written into it or into the repository.
         assertFalse(Files.exists(userDir.resolve(TAGS_PATH)));
@@ -237,7 +266,7 @@ class TagFillServiceGitTest {
         project.open();
         workspaceHolds(project);
 
-        assertEquals(Map.of("updated", 1, "skipped", 0), service.fill(null));
+        assertEquals(List.of(filled()), service.fill(null));
 
         // Nothing reaches the design repository until the project is saved.
         assertNull(design.check(TAGS_PATH));

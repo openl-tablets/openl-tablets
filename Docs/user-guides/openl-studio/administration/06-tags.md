@@ -63,11 +63,12 @@ Tag values can be derived from project names. Proceed as follows:
 
 The **Projects without tags** window appears. It contains all projects that have **None** selected for one or multiple tag types, or do not have tags defined at all, and which name matches the project name template.
 
-Both opened and closed projects can be selected. A project is grayed out and cannot be selected when the current user cannot change it now:
+Both opened and closed projects can be selected. A project is grayed out and cannot be selected when the current user cannot change it now. Hover over the project to see the reason and what to do:
 
-- another user is editing the project;
-- the branch of the project is protected;
-- the user does not have permission to change the project;
+- another user is editing the project. Fill it again after they save or close it;
+- the user still holds a lock on the project from an earlier change, for example, one that failed. Open the project and close it to release the lock;
+- the branch of the project is protected, so its changes go through a merge. Fill the project in another branch, then merge that branch;
+- the user does not have permission to change the project. Ask for write access to it;
 - the user opened an older revision of the project and has not changed it yet. Open the latest revision or close the project to fill its tags;
 - the project is closed, and its repository keeps projects as archives, such as a database or AWS S3 repository. Open such a project to fill its tags.
 
@@ -79,10 +80,28 @@ In this window, tags are marked with colors as follows:
 
 - **White** — A tag exists in the list of tags and will be assigned to a project.
 - **Green** — A tag does not exist in the list of tags, but the tag type is defined as extensible, so the tag will be created and assigned to the project.
-- **Red** — A tag does not exist in the list of tags, and the tag type is not defined as extensible, so the tag will not be created, neither it will be assigned to the project. The tag for a project will remain **None.**
+- **Red** — A tag does not exist in the list of tags, and the tag type is not defined as extensible or the derived value is not a valid tag name, for example, it ends with a dot, so the tag will not be created, neither it will be assigned to the project. The tag for a project will remain **None.**
 - **Grey** — A tag is already assigned to the project. The project still appears on the list because it has other tag types with the **None** values. If the tag is already assigned, but a different tag value is derived from the project name according to the template, the existing value will be replaced with the derived value. The replacement is identified with the arrow. The derived value can be created if the tag type is extensible. In this case, a new value will be marked green. If the derived tag value does not exist and the tag type is not extensible, no replacement happens, and the old value appears in grey with no arrow.
 
 This logic is explained in the tooltips for each tag color type.
+
+To fill the selected projects, click **Fill Tags**. The window then shows what the fill did to each of them.
+
+![](../images/filled-tags-window.png "Result of filling tags for the selected projects")
+
+*Result of filling tags for the selected projects.*
+
+In this window, each project shows one of the following results:
+
+- **Tag values** — the project got these values. A value marked red is one the project could not get: it is not in the list of tags, and its tag type is not extensible or the value is not a valid tag name.
+- **Left alone** — the project was not changed. The message says why and what to do:
+    - the project cannot be changed now, for one of the reasons that gray out a project in the previous window. This happens when the project changed after the window opened, for example, another user started editing it;
+    - none of the missing values can be assigned. They are marked red: add them to their tag types, or make the tag types extensible. A value that is not a valid tag name needs another project name or template;
+    - the tags could not be written, because the repository refused the change. The OpenL Studio log names the reason.
+
+Once the reason is fixed, fill the project again.
+
+Click **Close** to close the window. New values of extensible tag types appear in the **Tag Types and Values** section.
 
 How the filled tags are saved depends on the project status:
 

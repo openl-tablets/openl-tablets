@@ -2,6 +2,7 @@ package org.openl.studio.tags.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -23,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.ChangesetType;
@@ -31,9 +33,14 @@ import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
+import org.openl.studio.projects.validator.ModifyRestrictedException;
+import org.openl.studio.projects.validator.ModifyRestriction;
+import org.openl.studio.tags.model.TagFillBlocker;
 import org.openl.studio.tags.model.TagFillPreview.TagFillItem;
+import org.openl.studio.tags.model.TagFillResult;
 import org.openl.studio.tags.model.TagFillState;
 import org.openl.util.PropertiesUtils;
 
@@ -66,31 +73,75 @@ class TagFillServiceTest {
         };
     }
 
-    /** What keeps filling from writing a project now. */
+    /** What keeps filling from writing a project now, and the reason the project is reported with. */
     enum Blocker {
-        /** The files of the project cannot be written: another user is editing it, or the user may not. */
-        NOT_MODIFIABLE {
+        /** Another user is editing the project. */
+        LOCKED(TagFillBlocker.locked("jdoe")) {
             @Override
             void block(RulesProject project, FileRoot files) {
-                when(files.isModifiable()).thenReturn(false);
+                lockedBy(project, "jdoe");
+                refuse(files, new ModifyRestrictedException(project, ModifyRestriction.LOCKED));
+            }
+        },
+        /** A lock of the current user outlived their editing. */
+        LOCKED_BY_YOU(TagFillBlocker.of(TagFillBlocker.Reason.LOCKED_BY_YOU)) {
+            @Override
+            void block(RulesProject project, FileRoot files) {
+                var lock = lockedBy(project, "admin");
+                when(project.isLockedByMe(lock)).thenReturn(true);
+                refuse(files, new ModifyRestrictedException(project, ModifyRestriction.LOCKED));
+            }
+        },
+        /** The branch of the project is protected. */
+        BRANCH_PROTECTED(TagFillBlocker.branchProtected("main")) {
+            @Override
+            void block(RulesProject project, FileRoot files) {
+                when(project.getBranch()).thenReturn("main");
+                refuse(files, new ModifyRestrictedException(project, ModifyRestriction.BRANCH_PROTECTED));
+            }
+        },
+        /** The project could be changed, but the user may not write to it. */
+        NO_PERMISSION(TagFillBlocker.of(TagFillBlocker.Reason.NO_PERMISSION)) {
+            @Override
+            void block(RulesProject project, FileRoot files) {
+                refuse(files, new ForbiddenException("default.message"));
             }
         },
         /** A closed project kept as an archive. */
-        ARCHIVE {
+        ARCHIVE(TagFillBlocker.of(TagFillBlocker.Reason.ARCHIVE)) {
             @Override
             void block(RulesProject project, FileRoot files) {
                 when(project.isFolder()).thenReturn(false);
             }
         },
         /** An older revision opened to be read. */
-        OLDER_REVISION {
+        OLDER_REVISION(TagFillBlocker.of(TagFillBlocker.Reason.OLDER_REVISION)) {
             @Override
             void block(RulesProject project, FileRoot files) {
                 when(project.isReadingOtherVersion()).thenReturn(true);
             }
         };
 
+        private final TagFillBlocker reported;
+
+        Blocker(TagFillBlocker reported) {
+            this.reported = reported;
+        }
+
         abstract void block(RulesProject project, FileRoot files);
+    }
+
+    /** The project is locked by the given user. */
+    private static LockInfo lockedBy(RulesProject project, String userName) {
+        var lock = mock(LockInfo.class);
+        when(lock.getLockedBy()).thenReturn(userName);
+        when(project.getLockInfo()).thenReturn(lock);
+        return lock;
+    }
+
+    /** The files mount refuses the change the way it refuses a write into the project. */
+    private static void refuse(FileRoot files, RuntimeException refusal) {
+        doThrow(refusal).when(files).requireModifiable();
     }
 
     private static TagType type(String name, boolean extensible) {
@@ -119,7 +170,6 @@ class TagFillServiceTest {
         when(project.getLocalTags()).thenReturn(tags);
         when(project.isFolder()).thenReturn(true);
         var files = mock(FileRoot.class);
-        when(files.isModifiable()).thenReturn(true);
         when(projectFileRootFactory.of(project)).thenReturn(files);
         return project;
     }
@@ -146,6 +196,10 @@ class TagFillServiceTest {
         return tags;
     }
 
+    private static TagFillResult updated(String projectName, Map<String, String> tags) {
+        return TagFillResult.updated(projectName, tags, Map.of());
+    }
+
     private void verifyNothingWritten(RulesProject project) {
         verify(filesOf(project), never()).writeBatch(any(), any(), any(), any());
     }
@@ -167,6 +221,7 @@ class TagFillServiceTest {
         assertEquals(1, preview.size());
         assertEquals("Policy-rules", preview.getFirst().projectName());
         assertTrue(preview.getFirst().modifiable());
+        assertNull(preview.getFirst().blocker());
         var states = preview.getFirst().tags().stream()
                 .collect(Collectors.toMap(TagFillItem::type, TagFillItem::state));
         // Configured value; new value of an extensible type; value no fixed-value type has; already assigned.
@@ -200,12 +255,30 @@ class TagFillServiceTest {
         when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
         workspaceHolds(project);
 
-        assertFalse(service.preview().getFirst().modifiable());
-        assertEquals(Map.of("updated", 0, "skipped", 1), service.fill(List.of("Policy-rules")));
+        // The preview and the fill both say why the project cannot be changed now.
+        var preview = service.preview().getFirst();
+        assertFalse(preview.modifiable());
+        assertEquals(blocker.reported, preview.blocker());
+        assertEquals(List.of(TagFillResult.notModifiable("Policy-rules", blocker.reported)),
+                service.fill(List.of("Policy-rules")));
         verifyNothingWritten(project);
         // A value derived for a project that does not take it is not created either.
         verify(tagService, never()).save(any());
         verify(workspace, never()).refresh();
+    }
+
+    @Test
+    void aLockOfSomeoneUnknownNamesNobody() {
+        var domain = type("Domain", true);
+        configured(List.of(domain), List.of());
+        var project = project("Policy-rules", Map.of());
+        lockedBy(project, "");
+        refuse(filesOf(project), new ModifyRestrictedException(project, ModifyRestriction.LOCKED));
+        when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
+        workspaceHolds(project);
+
+        assertEquals(new TagFillBlocker(TagFillBlocker.Reason.LOCKED, null, null),
+                service.preview().getFirst().blocker());
     }
 
     @Test
@@ -218,7 +291,7 @@ class TagFillServiceTest {
 
         var result = service.fill(null);
 
-        assertEquals(Map.of("updated", 1, "skipped", 0), result);
+        assertEquals(List.of(updated("Policy-rules", Map.of("Domain", "Policy"))), result);
         // The template tag is added to what the project carries.
         assertEquals(Map.of("LOB", "Auto", "Domain", "Policy"), writtenTags(project));
         verify(workspace).refresh();
@@ -232,9 +305,96 @@ class TagFillServiceTest {
         when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
         workspaceHolds(project);
 
-        service.fill(null);
-
+        assertEquals(List.of(updated("Policy-rules", Map.of("Domain", "Policy"))), service.fill(null));
         assertEquals(Map.of("Domain", "Policy"), writtenTags(project));
+    }
+
+    @Test
+    void fillReportsOnlyTheValuesTheProjectGot() throws Exception {
+        var domain = type("Domain", false);
+        var lob = type("LOB", false);
+        configured(List.of(domain, lob), List.of(tag(domain, "Policy"), tag(lob, "Auto")));
+        var project = project("Policy-rules", Map.of("Domain", "policy"));
+        when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy"), tag(lob, "Auto")));
+        workspaceHolds(project);
+
+        // The project already carries the domain, whatever case it spelled it in.
+        assertEquals(List.of(updated("Policy-rules", Map.of("LOB", "Auto"))), service.fill(null));
+        assertEquals(Map.of("Domain", "policy", "LOB", "Auto"), writtenTags(project));
+    }
+
+    @Test
+    void fillReportsNothingForAProjectThatAlreadyCarriesItsTags() {
+        var domain = type("Domain", false);
+        configured(List.of(domain), List.of(tag(domain, "Policy")));
+        var project = project("Policy-rules", Map.of("Domain", "Policy"));
+        when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
+        workspaceHolds(project);
+
+        assertEquals(List.of(), service.fill(null));
+        verifyNothingWritten(project);
+        verify(workspace, never()).refresh();
+    }
+
+    @Test
+    void fillReplacesAValueWhateverCaseTheProjectSpelledItsTagTypeIn() throws Exception {
+        var domain = type("Domain", false);
+        configured(List.of(domain), List.of(tag(domain, "Policy")));
+        var project = project("Policy-rules", new LinkedHashMap<>(Map.of("domain", "Claims")));
+        when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
+        workspaceHolds(project);
+
+        assertEquals(List.of(updated("Policy-rules", Map.of("Domain", "Policy"))), service.fill(null));
+        // The value is replaced, not added under a second spelling of its tag type.
+        assertEquals(Map.of("Domain", "Policy"), writtenTags(project));
+    }
+
+    @Test
+    void aValueThatIsNotAValidTagNameIsNeitherOfferedForCreationNorCreated() {
+        var lob = type("LOB", true);
+        configured(List.of(lob), List.of());
+        var project = project("Policy-Auto.-rules", Map.of());
+        when(tagTemplateService.getTags("Policy-Auto.-rules")).thenReturn(List.of(tag(lob, "Auto.")));
+        workspaceHolds(project);
+
+        // A value that ends with a dot is no tag name, so the preview does not promise it and the fill reports it.
+        assertEquals(TagFillState.REJECTED, service.preview().getFirst().tags().getFirst().state());
+        assertEquals(List.of(TagFillResult.nothingToAssign("Policy-Auto.-rules", Map.of("LOB", "Auto."))),
+                service.fill(null));
+        verify(tagService, never()).save(any());
+        verifyNothingWritten(project);
+    }
+
+    @Test
+    void fillReportsTheMissingValuesTheProjectCouldNotGet() throws Exception {
+        var domain = type("Domain", false);
+        var region = type("Region", false);
+        configured(List.of(domain, region), List.of(tag(domain, "Policy")));
+        var project = project("Policy-rules", Map.of());
+        when(tagTemplateService.getTags("Policy-rules"))
+                .thenReturn(List.of(tag(domain, "Policy"), tag(region, "Mars")));
+        workspaceHolds(project);
+
+        // The region has no such value and takes no new ones, so the project gets the domain alone.
+        var expected = TagFillResult.updated("Policy-rules", Map.of("Domain", "Policy"), Map.of("Region", "Mars"));
+        assertEquals(List.of(expected), service.fill(null));
+        assertEquals(Map.of("Domain", "Policy"), writtenTags(project));
+    }
+
+    @Test
+    void fillCreatesNoValueForATagTheProjectAlreadyCarries() throws Exception {
+        var domain = type("Domain", false);
+        var lob = type("LOB", true);
+        configured(List.of(domain, lob), List.of(tag(domain, "Policy")));
+        // The project carries a value its extensible tag type does not list.
+        var project = project("Policy-Home-rules", Map.of("LOB", "Home"));
+        when(tagTemplateService.getTags("Policy-Home-rules"))
+                .thenReturn(List.of(tag(domain, "Policy"), tag(lob, "Home")));
+        workspaceHolds(project);
+
+        assertEquals(List.of(updated("Policy-Home-rules", Map.of("Domain", "Policy"))), service.fill(null));
+        assertEquals(Map.of("LOB", "Home", "Domain", "Policy"), writtenTags(project));
+        verify(tagService, never()).save(any());
     }
 
     @Test
@@ -247,7 +407,7 @@ class TagFillServiceTest {
 
         var result = service.fill(null);
 
-        assertEquals(Map.of("updated", 1, "skipped", 0), result);
+        assertEquals(List.of(updated("Policy-rules", Map.of("Domain", "Policy"))), result);
         assertEquals(Map.of("Domain", "Policy"), writtenTags(project));
         verify(tagService).save(any(Tag.class));
     }
@@ -262,7 +422,7 @@ class TagFillServiceTest {
 
         var result = service.fill(null);
 
-        assertEquals(Map.of("updated", 0, "skipped", 1), result);
+        assertEquals(List.of(TagFillResult.nothingToAssign("Policy-rules", Map.of("Domain", "Policy"))), result);
         verifyNothingWritten(project);
     }
 
@@ -277,7 +437,8 @@ class TagFillServiceTest {
                 .thenReturn(List.of(tag(domain, "Policy"), tag(region, "Mars")));
         workspaceHolds(project);
 
-        assertEquals(Map.of("updated", 0, "skipped", 1), service.fill(null));
+        assertEquals(List.of(TagFillResult.nothingToAssign("Policy-rules", Map.of("Region", "Mars"))),
+                service.fill(null));
         verifyNothingWritten(project);
         verify(workspace, never()).refresh();
     }
@@ -294,7 +455,7 @@ class TagFillServiceTest {
 
         var result = service.fill(List.of("Policy-rules"));
 
-        assertEquals(Map.of("updated", 1, "skipped", 1), result);
+        assertEquals(List.of(updated("Policy-rules", Map.of("Domain", "Policy"))), result);
         assertEquals(Map.of("Domain", "Policy"), writtenTags(picked));
         verifyNothingWritten(other);
     }
@@ -314,7 +475,8 @@ class TagFillServiceTest {
 
         var result = service.fill(null);
 
-        assertEquals(Map.of("updated", 1, "skipped", 1), result);
+        assertEquals(List.of(TagFillResult.failed("Policy-broken"),
+                updated("Policy-rules", Map.of("Domain", "Policy"))), result);
         assertEquals(Map.of("Domain", "Policy"), writtenTags(healthy));
         verify(workspace).refresh();
     }

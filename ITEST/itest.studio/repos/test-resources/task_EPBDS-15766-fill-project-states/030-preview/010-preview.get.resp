@@ -5,6 +5,9 @@ Content-Type: application/json
   {
     "projectName": "Archive-EPBDS-15766",
     "modifiable": false,
+    "blocker": {
+      "reason": "archive"
+    },
     "tags": [
       {
         "type": "FillState",
@@ -27,6 +30,10 @@ Content-Type: application/json
   {
     "projectName": "Locked-EPBDS-15766",
     "modifiable": false,
+    "blocker": {
+      "reason": "locked",
+      "lockedBy": "user15766"
+    },
     "tags": [
       {
         "type": "FillState",
@@ -49,6 +56,9 @@ Content-Type: application/json
   {
     "projectName": "Revision-EPBDS-15766",
     "modifiable": false,
+    "blocker": {
+      "reason": "olderRevision"
+    },
     "tags": [
       {
         "type": "FillState",

@@ -56,6 +56,20 @@ public class TagAssignmentValidator {
     }
 
     /**
+     * Whether a value the tag type does not have yet can be created for it.
+     *
+     * <p>The tag type must be extensible, and the value a valid tag name: an empty value, one that ends with a dot or
+     * one that holds a character a name cannot have is never created.
+     *
+     * @param type  the tag type to create the value for
+     * @param value the value the tag type does not have yet
+     * @return {@code true} when filling or registering tags would create the value
+     */
+    public static boolean isCreatable(TagType type, String value) {
+        return type.isExtensible() && NameChecker.checkName(value);
+    }
+
+    /**
      * The value to store, or empty when the tag type is not extensible and does not have that value.
      *
      * <p>A new value of an extensible tag type is created here, so that a project that names it is no
@@ -68,7 +82,7 @@ public class TagAssignmentValidator {
         if (configured.isPresent() || !type.isExtensible()) {
             return configured;
         }
-        if (!NameChecker.checkName(value)) {
+        if (!isCreatable(type, value)) {
             log.warn("Tag value '{}' of type '{}' is not a valid name and was not registered.", value, type.getName());
             return Optional.empty();
         }

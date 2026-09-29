@@ -161,7 +161,7 @@ describe('Tags', () => {
         )
     })
 
-    it('fills the picked projects and closes the preview, reporting how many changed', async () => {
+    it('fills the picked projects, shows what each got, and reads the tag types again', async () => {
         mockApiCall
             .mockResolvedValueOnce(undefined) // saveTemplatesRequest (PUT) — the templates decide the preview
             .mockResolvedValueOnce([{
@@ -169,7 +169,7 @@ describe('Tags', () => {
                 modifiable: true,
                 tags: [{ type: 'Domain', derived: 'Policy', state: 'assign' }],
             }]) // the preview the modal loads
-            .mockResolvedValueOnce({ updated: 1, skipped: 0 }) // the fill itself
+            .mockResolvedValueOnce([{ projectName: 'Policy-rules', outcome: 'updated', tags: { Domain: 'Policy' } }])
 
         render(<Tags />)
         await waitFor(() => {
@@ -188,11 +188,13 @@ describe('Tags', () => {
                 { throwError: true }
             )
         })
-        // The success toast names how many projects were updated.
+        // The window now says what the project got, and only closes.
+        expect(await screen.findByTestId('fill-result-Policy-rules-Domain')).toHaveTextContent('Policy')
+        expect(screen.getByRole('button', { name: 'fill_result.close' })).toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: /cancel/i })).not.toBeInTheDocument()
+        // Filling may have created tag values, so the catalog is read again.
         await waitFor(() => {
-            expect(notification.success).toHaveBeenCalledWith(
-                expect.objectContaining({ title: expect.stringContaining('fill_tags_success') })
-            )
+            expect(mockApiCall.mock.calls.filter(([url]) => url === '/admin/tag-config/types')).toHaveLength(2)
         })
     })
 
