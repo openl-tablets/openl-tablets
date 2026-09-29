@@ -66,9 +66,19 @@ The **Filters** view lists the filter values in groups: **Repository**, **Branch
 -   The **Branch** group lists every branch with its count, including a branch whose projects the default view hides.
     While no branch is picked, the counts of the other groups cover only the projects the default view shows.
 
-To reorder the groups, hide a group or show it again, click the gear icon in the header of the view.
-
 ![The Filters view with a tag value picked and Clear filters under its title](images/projects-filters-view.png "Filtering projects in the Filters view")
+
+To reorder the groups or hide some of them, click **Arrange the filters**, the gear icon in the header of the view.
+While the filters are arranged, each group shows only its title:
+
+-   To move a group, drag it by its title to another place. To move it with the keyboard, focus its title, press
+    Space, move it with the arrow keys, and press Space again.
+-   To hide a group, click **Hide this filter** next to its title. The hidden groups are listed below the others, and
+    **Show this filter** returns a group to the view.
+-   To finish, click **Done**. The groups list their values again, each folded or unfolded as before. The browser
+    remembers the arrangement for the next visit.
+
+![The Filters view being arranged: every group shows only its title, and the LOB group is hidden](images/projects-filters-arrange.png "Arranging the filters")
 
 #### Browsing the Project Tree
 
