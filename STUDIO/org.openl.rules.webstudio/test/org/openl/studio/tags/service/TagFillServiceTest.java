@@ -1,28 +1,41 @@
 package org.openl.studio.tags.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.acls.domain.BasePermission;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentCaptor;
 
+import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.projects.service.files.FileRoot;
+import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.tags.model.TagFillPreview.TagFillItem;
 import org.openl.studio.tags.model.TagFillState;
+import org.openl.util.PropertiesUtils;
 
 /**
  * Filling tags from the project name templates: what it would do to each project, and what it does.
@@ -33,7 +46,7 @@ class TagFillServiceTest {
     private TagTypeService tagTypeService;
     private TagService tagService;
     private UserWorkspace workspace;
-    private AclProjectsHelper aclProjectsHelper;
+    private ProjectFileRootFactory projectFileRootFactory;
     private TagFillService service;
 
     @BeforeEach
@@ -42,15 +55,42 @@ class TagFillServiceTest {
         tagTypeService = mock(TagTypeService.class);
         tagService = mock(TagService.class);
         workspace = mock(UserWorkspace.class);
-        aclProjectsHelper = mock(AclProjectsHelper.class);
-        when(aclProjectsHelper.hasPermission(any(RulesProject.class), any())).thenReturn(true);
+        projectFileRootFactory = mock(ProjectFileRootFactory.class);
         var provider = new TagCatalogProvider(tagTypeService, tagService);
-        service = new TagFillService(tagTemplateService, provider, new TagAssignmentValidator(provider, tagService), aclProjectsHelper) {
+        service = new TagFillService(tagTemplateService, provider, new TagAssignmentValidator(provider, tagService),
+                projectFileRootFactory) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return workspace;
             }
         };
+    }
+
+    /** What keeps filling from writing a project now. */
+    enum Blocker {
+        /** The files of the project cannot be written: another user is editing it, or the user may not. */
+        NOT_MODIFIABLE {
+            @Override
+            void block(RulesProject project, FileRoot files) {
+                when(files.isModifiable()).thenReturn(false);
+            }
+        },
+        /** A closed project kept as an archive. */
+        ARCHIVE {
+            @Override
+            void block(RulesProject project, FileRoot files) {
+                when(project.isFolder()).thenReturn(false);
+            }
+        },
+        /** An older revision opened to be read. */
+        OLDER_REVISION {
+            @Override
+            void block(RulesProject project, FileRoot files) {
+                when(project.isReadingOtherVersion()).thenReturn(true);
+            }
+        };
+
+        abstract void block(RulesProject project, FileRoot files);
     }
 
     private static TagType type(String name, boolean extensible) {
@@ -72,18 +112,42 @@ class TagFillServiceTest {
         when(tagService.getAll()).thenReturn(tags);
     }
 
+    /** A project kept as a folder, whose files are written through a mount that takes the write. */
     private RulesProject project(String name, Map<String, String> tags) {
         var project = mock(RulesProject.class);
         when(project.getBusinessName()).thenReturn(name);
         when(project.getLocalTags()).thenReturn(tags);
+        when(project.isFolder()).thenReturn(true);
+        var files = mock(FileRoot.class);
+        when(files.isModifiable()).thenReturn(true);
+        when(projectFileRootFactory.of(project)).thenReturn(files);
         return project;
     }
 
+    private FileRoot filesOf(RulesProject project) {
+        return projectFileRootFactory.of(project);
+    }
+
     private void workspaceHolds(RulesProject... projects) {
+        when(workspace.getProjects()).thenReturn(List.of(projects));
+    }
+
+    /** The tags the fill wrote into the tags file of the project, as one change committed with its comment. */
+    private Map<String, String> writtenTags(RulesProject project) throws IOException {
         @SuppressWarnings("unchecked")
-        var collection = (Collection<RulesProject>) mock(Collection.class);
-        when(collection.iterator()).thenReturn(List.of(projects).iterator());
-        when(workspace.getProjects()).thenReturn(collection);
+        ArgumentCaptor<List<FileItem>> files = ArgumentCaptor.forClass(List.class);
+        verify(filesOf(project)).writeBatch(eq(""), files.capture(), eq(ChangesetType.DIFF),
+                eq(TagFillService.FILL_COMMENT));
+        assertEquals(1, files.getValue().size());
+        var file = files.getValue().getFirst();
+        assertEquals(ProjectTags.TAGS_FILE_NAME, file.getData().getName());
+        var tags = new LinkedHashMap<String, String>();
+        PropertiesUtils.load(file.getStream(), tags::put);
+        return tags;
+    }
+
+    private void verifyNothingWritten(RulesProject project) {
+        verify(filesOf(project), never()).writeBatch(any(), any(), any(), any());
     }
 
     @Test
@@ -104,7 +168,7 @@ class TagFillServiceTest {
         assertEquals("Policy-rules", preview.getFirst().projectName());
         assertTrue(preview.getFirst().modifiable());
         var states = preview.getFirst().tags().stream()
-                .collect(java.util.stream.Collectors.toMap(TagFillItem::type, TagFillItem::state));
+                .collect(Collectors.toMap(TagFillItem::type, TagFillItem::state));
         // Configured value; new value of an extensible type; value no fixed-value type has; already assigned.
         assertEquals(TagFillState.ASSIGN, states.get("Domain"));
         assertEquals(TagFillState.CREATE, states.get("LOB"));
@@ -112,6 +176,7 @@ class TagFillServiceTest {
         assertEquals(TagFillState.KEEP, states.get("Team"));
         // Nothing is written by a preview.
         verify(tagService, never()).save(any());
+        verifyNothingWritten(project);
     }
 
     @Test
@@ -125,17 +190,22 @@ class TagFillServiceTest {
         assertTrue(service.preview().isEmpty());
     }
 
-    @Test
-    void previewMarksAProjectTheUserMayNotWrite() {
-        // A closed project is still fillable — only the missing write permission blocks the row.
-        var domain = type("Domain", false);
-        configured(List.of(domain), List.of(tag(domain, "Policy")));
+    @ParameterizedTest
+    @EnumSource(Blocker.class)
+    void aProjectThatCannotBeWrittenNowIsNeitherOfferedNorFilled(Blocker blocker) {
+        var domain = type("Domain", true);
+        configured(List.of(domain), List.of());
         var project = project("Policy-rules", Map.of());
-        when(aclProjectsHelper.hasPermission(project, BasePermission.WRITE)).thenReturn(false);
+        blocker.block(project, filesOf(project));
         when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
         workspaceHolds(project);
 
-        assertEquals(false, service.preview().getFirst().modifiable());
+        assertFalse(service.preview().getFirst().modifiable());
+        assertEquals(Map.of("updated", 0, "skipped", 1), service.fill(List.of("Policy-rules")));
+        verifyNothingWritten(project);
+        // A value derived for a project that does not take it is not created either.
+        verify(tagService, never()).save(any());
+        verify(workspace, never()).refresh();
     }
 
     @Test
@@ -150,8 +220,21 @@ class TagFillServiceTest {
 
         assertEquals(Map.of("updated", 1, "skipped", 0), result);
         // The template tag is added to what the project carries.
-        verify(project).saveTags(Map.of("Domain", "Policy", "LOB", "Auto"));
+        assertEquals(Map.of("LOB", "Auto", "Domain", "Policy"), writtenTags(project));
         verify(workspace).refresh();
+    }
+
+    @Test
+    void fillReplacesTheValueTheTemplateDerivesAnotherOneFor() throws Exception {
+        var domain = type("Domain", false);
+        configured(List.of(domain), List.of(tag(domain, "Policy")));
+        var project = project("Policy-rules", Map.of("Domain", "Claims"));
+        when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
+        workspaceHolds(project);
+
+        service.fill(null);
+
+        assertEquals(Map.of("Domain", "Policy"), writtenTags(project));
     }
 
     @Test
@@ -165,12 +248,12 @@ class TagFillServiceTest {
         var result = service.fill(null);
 
         assertEquals(Map.of("updated", 1, "skipped", 0), result);
-        verify(project).saveTags(Map.of("Domain", "Policy"));
+        assertEquals(Map.of("Domain", "Policy"), writtenTags(project));
         verify(tagService).save(any(Tag.class));
     }
 
     @Test
-    void fillSkipsAValueThatCannotBeAssigned() throws Exception {
+    void fillSkipsAValueThatCannotBeAssigned() {
         var domain = type("Domain", false);
         configured(List.of(domain), List.of());
         var project = project("Policy-rules", Map.of());
@@ -180,7 +263,23 @@ class TagFillServiceTest {
         var result = service.fill(null);
 
         assertEquals(Map.of("updated", 0, "skipped", 1), result);
-        verify(project, never()).saveTags(any());
+        verifyNothingWritten(project);
+    }
+
+    @Test
+    void fillWritesNothingWhenTheProjectWouldNotChange() {
+        // The project carries the one value that can be assigned; the other one cannot be.
+        var domain = type("Domain", false);
+        var region = type("Region", false);
+        configured(List.of(domain, region), List.of(tag(domain, "Policy")));
+        var project = project("Policy-rules", Map.of("Domain", "Policy"));
+        when(tagTemplateService.getTags("Policy-rules"))
+                .thenReturn(List.of(tag(domain, "Policy"), tag(region, "Mars")));
+        workspaceHolds(project);
+
+        assertEquals(Map.of("updated", 0, "skipped", 1), service.fill(null));
+        verifyNothingWritten(project);
+        verify(workspace, never()).refresh();
     }
 
     @Test
@@ -196,23 +295,27 @@ class TagFillServiceTest {
         var result = service.fill(List.of("Policy-rules"));
 
         assertEquals(Map.of("updated", 1, "skipped", 1), result);
-        verify(picked).saveTags(Map.of("Domain", "Policy"));
-        verify(other, never()).saveTags(any());
+        assertEquals(Map.of("Domain", "Policy"), writtenTags(picked));
+        verifyNothingWritten(other);
     }
 
     @Test
-    void fillKeepsGoingWhenOneProjectFails() {
+    void fillKeepsGoingWhenOneProjectFails() throws Exception {
         var domain = type("Domain", false);
         configured(List.of(domain), List.of(tag(domain, "Policy")));
-        var broken = mock(RulesProject.class);
-        when(broken.getBusinessName()).thenReturn("broken-project");
-        when(broken.getLocalTags()).thenThrow(new RuntimeException("broken"));
-        when(tagTemplateService.getTags("broken-project")).thenReturn(List.of(tag(domain, "Policy")));
-        workspaceHolds(broken);
+        var broken = project("Policy-broken", Map.of());
+        var brokenFiles = filesOf(broken);
+        doThrow(new ConflictException("file.archive.upload.failed.message"))
+                .when(brokenFiles).writeBatch(any(), any(), any(), any());
+        var healthy = project("Policy-rules", Map.of());
+        when(tagTemplateService.getTags("Policy-broken")).thenReturn(List.of(tag(domain, "Policy")));
+        when(tagTemplateService.getTags("Policy-rules")).thenReturn(List.of(tag(domain, "Policy")));
+        workspaceHolds(broken, healthy);
 
         var result = service.fill(null);
 
-        assertEquals(Map.of("updated", 0, "skipped", 1), result);
+        assertEquals(Map.of("updated", 1, "skipped", 1), result);
+        assertEquals(Map.of("Domain", "Policy"), writtenTags(healthy));
         verify(workspace).refresh();
     }
 }

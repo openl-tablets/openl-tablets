@@ -1,0 +1,71 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "projectName": "Archive-EPBDS-15766",
+    "modifiable": false,
+    "tags": [
+      {
+        "type": "FillState",
+        "derived": "Archive",
+        "state": "create"
+      }
+    ]
+  },
+  {
+    "projectName": "Closed-EPBDS-15766",
+    "modifiable": true,
+    "tags": [
+      {
+        "type": "FillState",
+        "derived": "Closed",
+        "state": "create"
+      }
+    ]
+  },
+  {
+    "projectName": "Locked-EPBDS-15766",
+    "modifiable": false,
+    "tags": [
+      {
+        "type": "FillState",
+        "derived": "Locked",
+        "state": "create"
+      }
+    ]
+  },
+  {
+    "projectName": "Opened-EPBDS-15766",
+    "modifiable": true,
+    "tags": [
+      {
+        "type": "FillState",
+        "derived": "Opened",
+        "state": "create"
+      }
+    ]
+  },
+  {
+    "projectName": "Revision-EPBDS-15766",
+    "modifiable": false,
+    "tags": [
+      {
+        "type": "FillState",
+        "derived": "Revision",
+        "state": "create"
+      }
+    ]
+  },
+  {
+    "projectName": "Shared-EPBDS-15766",
+    "modifiable": true,
+    "tags": [
+      {
+        "type": "FillState",
+        "derived": "Shared",
+        "state": "create"
+      }
+    ]
+  }
+]

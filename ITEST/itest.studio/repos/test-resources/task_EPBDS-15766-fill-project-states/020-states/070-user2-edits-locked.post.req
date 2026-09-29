@@ -1,0 +1,11 @@
+POST /rest/projects/{LOCKED_ID}/files/ HTTP/1.1
+Authorization: ${USER2_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: multipart/form-data; boundary=FILLBOUNDARY
+
+--FILLBOUNDARY
+Content-Disposition: form-data; name="file"; filename="draft.txt"
+Content-Type: text/plain
+
+&draft.txt
+--FILLBOUNDARY--

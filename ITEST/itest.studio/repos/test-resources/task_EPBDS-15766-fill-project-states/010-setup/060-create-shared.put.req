@@ -1,0 +1,16 @@
+PUT /rest/repos/design-flat/projects/Shared-EPBDS-15766 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: multipart/form-data; boundary=FILLBOUNDARY
+
+--FILLBOUNDARY
+Content-Disposition: form-data; name="template"; filename="EPBDS-15766.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&../EPBDS-15766.zip
+--FILLBOUNDARY
+Content-Disposition: form-data; name="comment"
+
+Create Shared-EPBDS-15766
+--FILLBOUNDARY--

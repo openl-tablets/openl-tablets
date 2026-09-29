@@ -63,7 +63,13 @@ Tag values can be derived from project names. Proceed as follows:
 
 The **Projects without tags** window appears. It contains all projects that have **None** selected for one or multiple tag types, or do not have tags defined at all, and which name matches the project name template.
 
-Please note that only projects currently opened by the user can be modified. If a project exists in the repository but is not opened for the current user, it will appear in the pop-up but will be grayed out and cannot be selected.
+Both opened and closed projects can be selected. A project is grayed out and cannot be selected when the current user cannot change it now:
+
+- another user is editing the project;
+- the branch of the project is protected;
+- the user does not have permission to change the project;
+- the user opened an older revision of the project and has not changed it yet. Open the latest revision or close the project to fill its tags;
+- the project is closed, and its repository keeps projects as archives, such as a database or AWS S3 repository. Open such a project to fill its tags.
 
 ![](../images/apply-tags-window.png "Applying tags for projects matching project name templates")
 
@@ -78,4 +84,7 @@ In this window, tags are marked with colors as follows:
 
 This logic is explained in the tooltips for each tag color type.
 
-Note that if project tags are successfully modified, the project status changes to **In Editing**, unless it is already in this status. Because tags are stored within the project, they must be saved (committed) before the changes become visible to other users. The tag changes are then included in the project's version history.
+How the filled tags are saved depends on the project status:
+
+- **Closed project** — the tags are committed to the design repository at once, in a separate commit for each project, made on behalf of the current user. The project stays closed, and the commit appears in the project's version history.
+- **Opened project** — the tags are written to the project in the user workspace, and the project status changes to **In Editing**, unless it is already in this status. The project must be saved (committed) before the changes become visible to other users and appear in the project's version history.

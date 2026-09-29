@@ -37,7 +37,9 @@ i18next.addResourceBundle('en', 'tags', {
         legend: 'A white tag is assigned as it is, a green one is created for its extensible tag type, '
             + 'a red one cannot be assigned, and a grey one is what the project carries now.',
         nothing_to_fill: 'Every project that matches a template already carries its tags.',
-        not_modifiable: 'You do not have permission to change this project.',
+        not_modifiable: 'This project cannot be changed now: another user is editing it, its branch is protected, '
+            + 'you do not have permission to change it, or you opened an older revision of it. A closed project '
+            + 'of a repository that keeps projects as archives must be opened first.',
         state: {
             assign: 'The value exists in the list of tags and is assigned to the project.',
             create: 'The value does not exist in the list of tags, and the tag type is extensible, '

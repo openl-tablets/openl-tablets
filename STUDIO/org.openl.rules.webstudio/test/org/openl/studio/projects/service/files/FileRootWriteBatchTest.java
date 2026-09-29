@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -74,13 +75,9 @@ class FileRootWriteBatchTest {
     @Test
     void projectMountCommitsBatchThroughProjectRepository() throws Exception {
         BranchRepository repository = mock(BranchRepository.class);
-        RulesProject project = mock(RulesProject.class);
-        when(project.getRepository()).thenReturn(repository);
-        when(project.getFolderPath()).thenReturn("Project1");
+        RulesProject project = projectIn(repository);
         var author = new UserInfo("user1");
-        var root = new ProjectFileRoot(project, mock(AclProjectsHelper.class),
-                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class), () -> author,
-                mock(DesignTimeRepository.class));
+        var root = projectMount(project, author);
 
         root.writeBatch("data", List.of(item("data/a.txt")), ChangesetType.FULL, "Replace data");
 
@@ -99,12 +96,7 @@ class FileRootWriteBatchTest {
     @Test
     void projectMountRootBatchTargetsTheProjectFolder() throws Exception {
         BranchRepository repository = mock(BranchRepository.class);
-        RulesProject project = mock(RulesProject.class);
-        when(project.getRepository()).thenReturn(repository);
-        when(project.getFolderPath()).thenReturn("Project1");
-        var root = new ProjectFileRoot(project, mock(AclProjectsHelper.class),
-                mock(ProjectStateValidator.class), mock(ProjectFileLookupService.class),
-                () -> new UserInfo("user1"), mock(DesignTimeRepository.class));
+        var root = projectMount(projectIn(repository), new UserInfo("user1"));
 
         root.writeBatch("", List.of(item("a.txt")), ChangesetType.DIFF, "Upload files");
 
@@ -114,6 +106,21 @@ class FileRootWriteBatchTest {
         verify(repository).save(folder.capture(), items.capture(), eq(ChangesetType.DIFF));
         assertEquals("Project1", folder.getValue().getName());
         assertEquals("Project1/a.txt", ((List<FileItem>) items.getValue()).getFirst().getData().getName());
+    }
+
+    @Test
+    void projectMountKeepsWhyTheRepositoryRefusedTheBatch() throws Exception {
+        BranchRepository repository = mock(BranchRepository.class);
+        var refusal = new IOException("Commit author name is blank.");
+        when(repository.save(any(FileData.class), any(), any())).thenThrow(refusal);
+        var root = projectMount(projectIn(repository), new UserInfo("user1"));
+        var items = List.of(item("a.txt"));
+
+        var conflict = assertThrows(ConflictException.class,
+                () -> root.writeBatch("", items, ChangesetType.DIFF, "Upload files"));
+
+        assertEquals("openl.error.409.file.archive.upload.failed.message", conflict.getErrorCode());
+        assertSame(refusal, conflict.getCause());
     }
 
     @Test
@@ -219,6 +226,19 @@ class FileRootWriteBatchTest {
                 () -> service.uploadArchive(root, "data", content, true, ConflictPolicy.REPLACE));
 
         verify(root, never()).writeBatch(any(), any(), any(), any());
+    }
+
+    /** A project named Project1 kept in the given repository. */
+    private static RulesProject projectIn(BranchRepository repository) {
+        RulesProject project = mock(RulesProject.class);
+        when(project.getRepository()).thenReturn(repository);
+        when(project.getFolderPath()).thenReturn("Project1");
+        return project;
+    }
+
+    private static ProjectFileRoot projectMount(RulesProject project, UserInfo author) {
+        return new ProjectFileRoot(project, mock(AclProjectsHelper.class), mock(ProjectStateValidator.class),
+                mock(ProjectFileLookupService.class), () -> author, mock(DesignTimeRepository.class));
     }
 
     private static ProjectFilesServiceImpl service(AclProjectsHelper acl) {
