@@ -10,5 +10,6 @@ changed the file before:
 - `030-overwrite` — an overwritten file (`PUT`) is committed as `Save data.txt`, not as the admin with the message of
   the admin's commit;
 - `040-copy-and-move` — a copy, and a move (a copy and a deletion), are committed the same way;
-- `050-delete-module` — deleting a module is committed the same way;
+- `050-delete-module` — deleting a module is committed the same way, and so is the `rules.xml` that no longer
+  declares it;
 - `060-project` — the project stays closed and nobody holds it.

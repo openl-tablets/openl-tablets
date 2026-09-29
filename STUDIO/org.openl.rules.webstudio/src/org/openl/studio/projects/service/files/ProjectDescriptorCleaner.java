@@ -64,7 +64,7 @@ public class ProjectDescriptorCleaner {
         if (!(descriptorArtefact instanceof AProjectResource descriptorResource)) {
             return;
         }
-        if (inProjectPath(descriptorArtefact).equals(inProjectPath(artefact))) {
+        if (descriptorArtefact.getInternalPath().equals(artefact.getInternalPath())) {
             // The descriptor itself is being deleted, there is no need to unregister it
             return;
         }
@@ -145,15 +145,8 @@ public class ProjectDescriptorCleaner {
                 findModulePaths(child, modulePaths);
             }
         } else if (FileTypeHelper.isExcelFile(artefact.getName())) {
-            String modulePath = inProjectPath(artefact);
-            while (modulePath.startsWith("/")) {
-                modulePath = modulePath.substring(1);
-            }
-            modulePaths.add(modulePath);
+            // The path inside the project, wherever the repository keeps the project.
+            modulePaths.add(artefact.getInternalPath());
         }
-    }
-
-    private static String inProjectPath(AProjectArtefact artefact) {
-        return artefact.getArtefactPath().withoutFirstSegment().getStringValue();
     }
 }

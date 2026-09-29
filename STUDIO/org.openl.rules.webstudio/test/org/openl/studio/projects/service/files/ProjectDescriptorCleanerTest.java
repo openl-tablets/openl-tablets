@@ -21,7 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -52,8 +51,7 @@ class ProjectDescriptorCleanerTest {
         project = mock(UserWorkspaceProject.class);
         when(project.getName()).thenReturn(PROJECT_NAME);
         descriptorResource = mock(AProjectResource.class);
-        when(descriptorResource.getArtefactPath())
-                .thenReturn(new ArtefactPathImpl(PROJECT_NAME + "/" + ProjectDescriptor.FILE_NAME));
+        when(descriptorResource.getInternalPath()).thenReturn(ProjectDescriptor.FILE_NAME);
         when(project.getArtefact(ProjectDescriptor.FILE_NAME)).thenReturn(descriptorResource);
         root = mock(FileRoot.class);
         when(root.readFolder(null)).thenReturn(project);
@@ -77,7 +75,7 @@ class ProjectDescriptorCleanerTest {
         List<AProjectArtefact> children = List.of(excelFile("rules/Main.xlsx"), excelFile("rules/Other.xlsx"));
         AProjectFolder folder = mock(AProjectFolder.class);
         when(folder.isFolder()).thenReturn(true);
-        when(folder.getArtefactPath()).thenReturn(new ArtefactPathImpl(PROJECT_NAME + "/rules"));
+        when(folder.getInternalPath()).thenReturn("rules");
         when(folder.getArtefacts()).thenReturn(children);
 
         cleaner.unregisterModules(root, folder);
@@ -186,7 +184,7 @@ class ProjectDescriptorCleanerTest {
         AProjectResource resource = mock(AProjectResource.class);
         when(resource.isFolder()).thenReturn(false);
         when(resource.getName()).thenReturn(inProjectPath.substring(inProjectPath.lastIndexOf('/') + 1));
-        when(resource.getArtefactPath()).thenReturn(new ArtefactPathImpl(PROJECT_NAME + "/" + inProjectPath));
+        when(resource.getInternalPath()).thenReturn(inProjectPath);
         return resource;
     }
 }
