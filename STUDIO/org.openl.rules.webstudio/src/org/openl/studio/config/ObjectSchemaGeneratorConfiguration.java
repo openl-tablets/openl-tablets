@@ -1,13 +1,19 @@
 package org.openl.studio.config;
 
+import java.util.Locale;
+
+import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.CustomDefinition;
 import com.github.victools.jsonschema.generator.Option;
 import com.github.victools.jsonschema.generator.OptionPreset;
+import com.github.victools.jsonschema.generator.SchemaGenerationContext;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,6 +29,9 @@ import org.springframework.context.annotation.Scope;
  * Two generators are offered. {@link #schemaGenerator} describes the values the run, tests and trace APIs
  * publish. {@link #inputSchemaGenerator} describes the input a table takes and also records the defaults a
  * datatype declares, see {@link DeclaredDefaultsAttributeOverride}.
+ * <p>
+ * Both describe a {@link Locale} as text, the way it is written in JSON and the way the OpenAPI schema of
+ * OpenL Rule Services describes it.
  */
 @Configuration
 public class ObjectSchemaGeneratorConfiguration {
@@ -71,7 +80,17 @@ public class ObjectSchemaGeneratorConfiguration {
                 .with(Option.MAP_VALUES_AS_ADDITIONAL_PROPERTIES);
         configBuilder.forTypesInGeneral()
                 .withCustomDefinitionProvider(new JacksonBeanSchemaProvider(objectMapper))
+                .withCustomDefinitionProvider(ObjectSchemaGeneratorConfiguration::localeAsText)
                 .withTypeAttributeOverride(new MapEntriesAttributeOverride());
         return configBuilder;
+    }
+
+    /** Describes a locale as the text it is written as, such as {@code en_US}. Other types are left as they are. */
+    private static @Nullable CustomDefinition localeAsText(ResolvedType javaType, SchemaGenerationContext context) {
+        if (javaType.getErasedType() != Locale.class) {
+            return null;
+        }
+        return new CustomDefinition(
+                context.createStandardDefinition(context.getTypeContext().resolve(String.class), null));
     }
 }

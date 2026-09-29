@@ -465,7 +465,7 @@ Content-Type: application/json
           "type": "string"
         },
         "locale": {
-          "type": "object"
+          "type": "string"
         },
         "nature": {
           "type": "string"

@@ -8,11 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
@@ -87,6 +90,23 @@ class TableInputParserServiceImplTest {
         var result = parser.parseInput("{\"params\":{\"policy\":{\"policyID\":\"F900\"}}}", method, mapper);
 
         assertEquals("F900", ((Policy) result.params()[0]).policyID);
+    }
+
+    /** The locale is typed as text, and either way of writing it is read, then written back as {@code en_US}. */
+    @ParameterizedTest
+    @ValueSource(strings = {"en_US", "en-US"})
+    void structuredFormatReadsTheLocaleOfTheRuntimeContextFromText(String locale) throws Exception {
+        var method = method(new String[]{"policy"}, new Class<?>[]{Policy.class});
+        var openlMapper = new JacksonObjectMapperFactoryBean().createJacksonObjectMapper();
+        var input = """
+                {"params": {}, "runtimeContext": {"locale": "%s"}}
+                """.formatted(locale);
+
+        var context = parser.parseInput(input, method, openlMapper).runtimeContext();
+
+        assertNotNull(context);
+        assertEquals(Locale.US, context.getLocale());
+        assertEquals("en_US", openlMapper.valueToTree(context).get("locale").asText());
     }
 
     @Test
