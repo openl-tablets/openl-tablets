@@ -402,7 +402,10 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     switching the branch, opening a revision, restoring a local version, refreshing the module — asks
     whether to discard them first, so none of them is lost without a word. Saving the table's properties in
     **Table Details** writes them along with the properties, since the properties are rows of the table
-    itself.
+    itself. The cells are written first, so they stay saved even when the properties are refused.
+
+    A table that has no room to grow where it stands, such as one given a row at its end right above another
+    table, is moved to an empty area of its sheet when it is saved. The table stays open at its new place.
 
     If a table contains an error, the appropriate message is displayed.
 

@@ -38,7 +38,7 @@ import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { loadShowOther, saveShowOther } from './modules/tableGrouping'
 import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
-import type { TableEditorHandle } from './modules/TableEditor'
+import type { TableEditorHandle, Written } from './modules/TableEditor'
 import { TableProblems } from './modules/TableProblems'
 import { TableSearchModal } from './modules/TableSearchModal'
 import { TableEditor } from './modules/TableEditor'
@@ -526,15 +526,18 @@ export const ModuleWorkspace = () => {
     const hiddenRows = showHeader ? 0 : table?.headerHeight ?? 0
 
     /**
-     * Writes what the reader has done to the table's cells, and answers the id to write its properties to.
+     * Writes what the reader has done to the table's cells, and answers the table to write its properties to.
      *
      * <p>The properties of a table are rows of the table itself: written on their own they would be written
      * over what the reader has on screen, and a table grown by them stands under another id. Answers null
      * where the cells cannot be written as they stand, so nothing else of the table is written either.
      */
-    const writeCellsFirst = useCallback(async (): Promise<string | null> => {
+    const writeCellsFirst = useCallback(async (): Promise<Written | null> => {
         const written = await editor.current?.write()
-        return written === undefined ? selectedId : written?.tableId ?? null
+        if (written !== undefined) {
+            return written
+        }
+        return selectedId === null ? null : { tableId: selectedId, changed: false }
     }, [selectedId])
 
     const openTableById = useCallback((picked: string) => {

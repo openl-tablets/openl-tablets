@@ -19,7 +19,19 @@ vi.mock('../../services/modules', async importOriginal => ({
 }))
 
 const blocker = vi.hoisted(() => ({ state: 'unblocked', proceed: vi.fn(), reset: vi.fn() }))
-vi.mock('react-router-dom', () => ({ useBlocker: () => blocker }))
+// What the editor asks the router to hold a leaving reader back by.
+const holdBack = vi.hoisted(() => ({ when: undefined as unknown }))
+vi.mock('react-router-dom', () => ({
+    useBlocker: (when: unknown) => {
+        holdBack.when = when
+        return blocker
+    },
+}))
+
+/** Whether the router would hold the reader back if they left now, asked the way the router asks it. */
+const holdsBack = (): boolean => (typeof holdBack.when === 'function'
+    ? Boolean((holdBack.when as (leaving: unknown) => boolean)({}))
+    : Boolean(holdBack.when))
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -363,6 +375,21 @@ describe('TableEditor', () => {
             // address the table that leaves rather than the one it started from.
             expect(applyTableActions).toHaveBeenCalled()
             expect(written).toEqual({ tableId: 'table-2', changed: true })
+        })
+
+        it('lets the screen open the table a save has moved, without holding the reader back', async () => {
+            vi.mocked(applyTableActions).mockResolvedValue('table-2')
+            // The screen opens the table under its new id as soon as the save answers, before the editor is
+            // drawn again, and the router asks then whether leaving would lose anything.
+            const heldBackOnSave: boolean[] = []
+            draw({ onSaved: () => heldBackOnSave.push(holdsBack()) })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+            await write('Good Morning', 'Buenos Dias')
+            expect(holdsBack()).toBe(true)
+
+            await userEvent.click(screen.getByTestId('table-edit-save'))
+
+            await waitFor(() => expect(heldBackOnSave).toEqual([false]))
         })
 
         it('answers the table unchanged when it holds nothing to write', async () => {

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import type { ModuleTable } from 'types/tables'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -19,6 +19,10 @@ const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace 
     // what the compilation of its module came to.
     workspace: { opened: false, state: 'ok', branch: 'master' },
 }))
+
+// What the details panel is handed to write the cells before the properties, and what the editor answers it with.
+const detailsPanel = vi.hoisted(() => ({ beforeSave: undefined as (() => Promise<unknown>) | undefined }))
+const editorHandle = vi.hoisted(() => ({ current: null as { write: () => Promise<unknown> } | null }))
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -102,7 +106,12 @@ vi.mock('./modules/ModuleTablesTree', () => ({
     ),
 }))
 vi.mock('./modules/ModuleActionBar', () => ({ ModuleActionBar: () => null }))
-vi.mock('./modules/TableDetailsPanel', () => ({ TableDetailsPanel: () => <div data-testid="table-details" /> }))
+vi.mock('./modules/TableDetailsPanel', () => ({
+    TableDetailsPanel: ({ beforeSave }: { beforeSave?: () => Promise<unknown> }) => {
+        detailsPanel.beforeSave = beforeSave
+        return <div data-testid="table-details" />
+    },
+}))
 vi.mock('./modules/TableProblems', () => ({ TableProblems: () => null }))
 // The search itself is tested elsewhere; here it only hands over the note it found.
 vi.mock('./modules/TableSearchModal', () => ({
@@ -133,22 +142,30 @@ vi.mock('./projects/BranchSwitcher', () => ({
     ),
 }))
 // The table itself is drawn and edited elsewhere; this screen is asked only what it hands over.
-vi.mock('./modules/TableEditor', () => ({
-    TableEditor: ({ testId, rows, hiddenRows, editing, onEditingChange, children }: {
-        testId?: string
-        rows?: unknown[]
-        hiddenRows?: number
-        editing?: boolean
-        onEditingChange?: (editing: boolean) => void
-        children?: ReactNode
-    }) => (
-        <div data-editing={String(editing)} data-testid={testId}>
-            {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
-            <button data-testid="table-edit-stop" onClick={() => onEditingChange?.(false)} type="button" />
-            {children}
-        </div>
-    ),
-}))
+vi.mock('./modules/TableEditor', async () => {
+    const { useImperativeHandle } = await import('react')
+    return {
+        TableEditor: ({ ref, testId, rows, hiddenRows, editing, onEditingChange, children }: {
+            ref?: Ref<unknown>
+            testId?: string
+            rows?: unknown[]
+            hiddenRows?: number
+            editing?: boolean
+            onEditingChange?: (editing: boolean) => void
+            children?: ReactNode
+        }) => {
+            // What the screen asks the editor to write before the properties of the table are written.
+            useImperativeHandle(ref, () => editorHandle.current)
+            return (
+                <div data-editing={String(editing)} data-testid={testId}>
+                    {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
+                    <button data-testid="table-edit-stop" onClick={() => onEditingChange?.(false)} type="button" />
+                    {children}
+                </div>
+            )
+        },
+    }
+})
 
 // The rules table the module is read with, and the note OpenL does not recognize, listed only when asked for.
 const bankRating = { id: 't-1', name: 'BankRating', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
@@ -172,6 +189,8 @@ describe('ModuleWorkspace', () => {
         localStorage.clear()
         // Counted per test: nothing here resets the mocks between them.
         vi.mocked(stopEditingTable).mockClear()
+        detailsPanel.beforeSave = undefined
+        editorHandle.current = null
         useUserStore.setState({ userProfile: undefined })
         routeParams.projectId = 'p1'
         routeParams.moduleName = 'Bank Rating'
@@ -200,6 +219,38 @@ describe('ModuleWorkspace', () => {
             name: 'BankRating',
             source: [[{ cell: 'A1', value: 'Bank' }]],
         } as never)
+    })
+
+    it('writes the cells before the properties, and answers the table that write leaves', async () => {
+        workspace.opened = true
+        const write = vi.fn().mockResolvedValue({ tableId: 't-2', changed: true })
+        editorHandle.current = { write }
+        render(<ModuleWorkspace />)
+        await screen.findByTestId('module-table')
+        await screen.findByTestId('table-details')
+
+        // Writing the cells may move the table, so the properties go to the table as it stands afterwards.
+        await expect(detailsPanel.beforeSave?.()).resolves.toEqual({ tableId: 't-2', changed: true })
+        expect(write).toHaveBeenCalled()
+    })
+
+    it('answers the table on screen, with nothing written, when no editor holds cells of it', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await screen.findByTestId('module-table')
+        await screen.findByTestId('table-details')
+
+        await expect(detailsPanel.beforeSave?.()).resolves.toEqual({ tableId: 't-1', changed: false })
+    })
+
+    it('calls the properties off when no table is on screen', async () => {
+        workspace.opened = true
+        searchParams.delete('table')
+        vi.mocked(getModuleTables).mockResolvedValue([])
+        render(<ModuleWorkspace />)
+        await screen.findByTestId('table-details')
+
+        await expect(detailsPanel.beforeSave?.()).resolves.toBeNull()
     })
 
     it('says the table is put down when the reader stops editing, and not before', async () => {
