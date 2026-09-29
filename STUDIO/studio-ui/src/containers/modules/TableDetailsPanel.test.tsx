@@ -330,6 +330,24 @@ describe('TableDetailsPanel', () => {
         expect(screen.getByTestId('table-details-input-category')).toBeInTheDocument()
     })
 
+    it('finds a property by the name the list shows it under', async () => {
+        vi.mocked(getTableDetails).mockResolvedValue({ ...DETAILS, available: [...DETAILS.available, 'effectiveDate']})
+        vi.mocked(getProjectProperties).mockResolvedValue([...DICTIONARY,
+            property({ name: 'effectiveDate', displayName: 'Effective Date', group: 'Business Dimension' })])
+        await edit()
+
+        await userEvent.click(screen.getByTestId('table-details-add'))
+        await userEvent.keyboard('Effective Date')
+
+        // The reader types what the list shows, not the name a table declares the property by.
+        expect(await screen.findByTitle('Effective Date')).toBeInTheDocument()
+        expect(screen.queryByTitle('Category')).not.toBeInTheDocument()
+
+        // Picked, it is added under that technical name.
+        await userEvent.click(screen.getByTitle('Effective Date'))
+        expect(screen.getByTestId('table-details-input-effectiveDate')).toBeInTheDocument()
+    })
+
     it('offers a property a table alone may carry, which no Properties table declares', async () => {
         await edit()
 
