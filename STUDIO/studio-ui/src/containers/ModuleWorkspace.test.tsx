@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useUserStore } from '../store'
 import { ModuleWorkspace } from './ModuleWorkspace'
-import { getModuleTables, getRawTable, listModules, stopEditingTable } from '../services/modules'
+import { getMessageStacktrace, getModuleTables, getRawTable, listModules, stopEditingTable } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
 
@@ -23,6 +23,11 @@ const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace 
 // What the details panel is handed to write the cells before the properties, and what the editor answers it with.
 const detailsPanel = vi.hoisted(() => ({ beforeSave: undefined as (() => Promise<unknown>) | undefined }))
 const editorHandle = vi.hoisted(() => ({ current: null as { write: () => Promise<unknown> } | null }))
+// What the search hands over as the table it found, and the editor as the table a cell names.
+const handed = vi.hoisted(() => ({
+    found: undefined as ModuleTable | undefined,
+    usage: {} as { tableId?: string, module?: string, projectId?: string },
+}))
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -55,6 +60,7 @@ vi.mock('../services/repositories', () => ({
 
 vi.mock('../services/modules', () => ({
     cancelModuleCompilation: vi.fn(),
+    getMessageStacktrace: vi.fn(),
     getModuleTables: vi.fn(),
     getRawTable: vi.fn(),
     listModules: vi.fn(),
@@ -112,25 +118,34 @@ vi.mock('./modules/TableDetailsPanel', () => ({
         return <div data-testid="table-details" />
     },
 }))
-vi.mock('./modules/TableProblems', () => ({ TableProblems: () => null }))
+// The problems are listed elsewhere; here a message only asks for the trace behind it.
+vi.mock('./modules/TableProblems', () => ({
+    TableProblems: ({ onStacktrace }: { onStacktrace?: (message: { id: string }) => unknown }) => (
+        <button data-testid="table-stacktrace" onClick={() => onStacktrace?.({ id: 'm-1' })} type="button" />
+    ),
+}))
 // The search itself is tested elsewhere; here it only hands over the note it found.
 vi.mock('./modules/TableSearchModal', () => ({
     TableSearchModal: ({ open, onOpen }: { open?: boolean, onOpen?: (found: ModuleTable) => void }) => (
         open
-            ? <button data-testid="search-found" onClick={() => onOpen?.(notes)} type="button" />
+            ? <button data-testid="search-found" onClick={() => onOpen?.(handed.found ?? notes)} type="button" />
             : null
     ),
 }))
 // The band shows what it is handed, so a test can read what the screen decided; its Edit is what starts editing.
 vi.mock('./modules/TableToolbar', () => ({
-    TableToolbar: ({ runState, projectCompiled, onEdit }: {
+    TableToolbar: ({ runState, projectCompiled, onEdit, onWritten, onRemoved }: {
         runState?: string
         projectCompiled?: boolean
         onEdit?: () => void
+        onWritten?: (written: { id: string, kind: string }, module: string) => void
+        onRemoved?: () => void
     }) => (
         <div data-compiled={String(projectCompiled)} data-testid="table-toolbar">
             {runState}
             <button data-testid="table-edit" onClick={() => onEdit?.()} type="button" />
+            <button data-testid="table-written" onClick={() => onWritten?.({ id: 't-5', kind: 'Rules' }, 'Pricing')} type="button" />
+            <button data-testid="table-removed" onClick={() => onRemoved?.()} type="button" />
         </div>
     ),
 }))
@@ -145,13 +160,15 @@ vi.mock('./projects/BranchSwitcher', () => ({
 vi.mock('./modules/TableEditor', async () => {
     const { useImperativeHandle } = await import('react')
     return {
-        TableEditor: ({ ref, testId, rows, hiddenRows, editing, onEditingChange, children }: {
+        TableEditor: ({ ref, testId, rows, hiddenRows, editing, onEditingChange, onOpenUsage, onSaved, children }: {
             ref?: Ref<unknown>
             testId?: string
             rows?: unknown[]
             hiddenRows?: number
             editing?: boolean
             onEditingChange?: (editing: boolean) => void
+            onOpenUsage?: (usage: typeof handed.usage) => void
+            onSaved?: (written: string) => void
             children?: ReactNode
         }) => {
             // What the screen asks the editor to write before the properties of the table are written.
@@ -160,6 +177,8 @@ vi.mock('./modules/TableEditor', async () => {
                 <div data-editing={String(editing)} data-testid={testId}>
                     {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
                     <button data-testid="table-edit-stop" onClick={() => onEditingChange?.(false)} type="button" />
+                    <button data-testid="table-open-usage" onClick={() => onOpenUsage?.(handed.usage)} type="button" />
+                    <button data-testid="table-saved" onClick={() => onSaved?.('t-3')} type="button" />
                     {children}
                 </div>
             )
@@ -191,6 +210,8 @@ describe('ModuleWorkspace', () => {
         vi.mocked(stopEditingTable).mockClear()
         detailsPanel.beforeSave = undefined
         editorHandle.current = null
+        handed.found = undefined
+        handed.usage = {}
         useUserStore.setState({ userProfile: undefined })
         routeParams.projectId = 'p1'
         routeParams.moduleName = 'Bank Rating'
@@ -338,6 +359,70 @@ describe('ModuleWorkspace', () => {
 
         // Which of its modules to read is the reader's to say, and the project screen is where they are listed.
         expect(navigateMock).toHaveBeenCalledWith('/projects/p2')
+    })
+
+    it('opens a table written from the toolbar in the module it landed in', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+
+        await userEvent.click(await screen.findByTestId('table-written'))
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Pricing?table=t-5')
+    })
+
+    it('draws the table again under the id its write left it with', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+
+        await userEvent.click(await screen.findByTestId('table-saved'))
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Bank%20Rating?table=t-3', { replace: true })
+    })
+
+    it('leaves a removed table for the first table of its module', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+
+        await userEvent.click(await screen.findByTestId('table-removed'))
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Bank%20Rating', { replace: true })
+    })
+
+    it.each([
+        ['this project', { tableId: 't-7', module: 'Pricing' }, '/projects/p1/modules/Pricing?table=t-7'],
+        ['a project it depends on', { tableId: 't-8', module: 'Rates', projectId: 'p2' }, '/projects/p2/modules/Rates?table=t-8'],
+    ])('opens a table a cell names in another module of %s, on that module', async (_, usage, route) => {
+        workspace.opened = true
+        handed.usage = usage
+        render(<ModuleWorkspace />)
+
+        await userEvent.click(await screen.findByTestId('table-open-usage'))
+
+        expect(navigateMock).toHaveBeenCalledWith(route)
+    })
+
+    it.each([
+        ['this project', { module: 'Pricing' }, '/projects/p1/modules/Pricing?table=t-6'],
+        ['another project', { module: 'Rates', projectId: 'p2' }, '/projects/p2/modules/Rates?table=t-6'],
+    ])('opens a table the search found in another module of %s, on that module', async (_, where, route) => {
+        workspace.opened = true
+        handed.found = { ...bankRating, id: 't-6', ...where } as ModuleTable
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByTestId('tables-search'))
+        await userEvent.click(await screen.findByTestId('search-found'))
+
+        expect(navigateMock).toHaveBeenCalledWith(route)
+    })
+
+    it('reads the trace behind a message through the module the table was read through', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+
+        await userEvent.click(await screen.findByTestId('table-stacktrace'))
+
+        expect(getMessageStacktrace).toHaveBeenCalledWith('p1', 'm-1', 'Bank Rating')
     })
 
     it('opens another module of the project from the name in the header', async () => {
