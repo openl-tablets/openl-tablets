@@ -267,20 +267,6 @@ webstudio.concurrent.builds = 4
 - `WebContext` - Request context holder
 - `ExceptionHandler` - Global exception handling
 
-### 3. org.openl.rules.tableeditor - Table Layout and Cell Editor Model
-
-**Purpose**: Server-side model behind the table REST API; the table itself is drawn by the React UI
-
-**Technology**: Java
-
-**Features**:
-- Table layout: cell spans, alignment, background and borders as Excel styles them
-- Cell editor selection from the compiled type of a cell (number bounds, choices, dates, ranges)
-- Excel number and date formats applied to displayed values
-- Writing a table's properties section
-
-**Consumers**: the raw table, table editors and table properties services of `org.openl.rules.webstudio`
-
 ---
 
 ## BATCH 5: Studio Frontend (React/TypeScript)
