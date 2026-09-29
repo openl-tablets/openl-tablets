@@ -24,10 +24,13 @@ Proceed as follows:
 1.  Complete the remaining fields and click **Create**.
 
 If the entered branch does not exist, OpenL Studio creates it from the repository default branch and writes the new
-project there. A project created only in that branch uses it as the home branch and is listed for other authorized
-users without a manual refresh. If the repository is empty, the first project commit creates the selected branch,
-including a valid non-default branch. Invalid Git names and names that do not match the configured branch-name pattern
-are reported below the **Branch** field before the request is sent.
+project there. A project created only in that branch uses it as the home branch. After the project is created, its
+page opens, and the project tree beside it shows the project. The project list shows it while it is open in the
+workspace, or once its branch is picked in the **Branch** filter; other authorized users find it the same way,
+without a manual refresh. For more information, see [Filtering and Grouping the Project
+Tree](repository-editor.md#filtering-and-grouping-the-project-tree). If the repository is empty, the first project
+commit creates the selected branch, including a valid non-default branch. Invalid Git names and names that do not
+match the configured branch-name pattern are reported below the **Branch** field before the request is sent.
 
 > [!Note]
 > To copy an existing project, select **Copy Project** as the creation method. The copy has its own project name and
@@ -40,10 +43,11 @@ inspect project membership, and delete branches. OpenL Studio discovers projects
 of every readable branch. A folder with `rules.xml` is always a project. A folder without the descriptor is also
 treated as a project when it has an Excel file in its root and the global
 `project.detect-by-excel-files` setting is enabled. This setting is disabled by default. A project that
-exists only outside the default branch therefore appears in the
-project list, represented by a protected branch when one contains it and by the branch with the newest commit
-otherwise. Its **Branch** field shows the current branch and loads the branches that contain the project when
-the branch menu is opened. Proceed as follows:
+exists only outside the default branch is represented by a protected branch when one contains it and by the branch
+with the newest commit otherwise. While no branch is picked in the **Branch** filter, the project list and the
+project tree keep to the default branch of each repository, so such a project is listed once its branch is picked,
+or while it is open in the workspace. Its **Branch** field shows the current branch and loads the branches that
+contain the project when the branch menu is opened. Proceed as follows:
 
 1.  To display a current project branch, in OpenL Studio, in the editor or repository, open a project.
 
@@ -88,8 +92,9 @@ the branch menu is opened. Proceed as follows:
 1.  To delete a project from its current branch, in the repository, select the required project branch and click
     **Delete**.
 
-    The project is deleted from the current branch of Design repository. It disappears from the project list only when
-    it does not exist in another branch. This change is recorded in repository history.
+    The project is deleted from the current branch of Design repository. A project that another branch still holds
+    stays in the repository on that branch; while no branch is picked in the **Branch** filter, the project list keeps
+    showing it only when the default branch holds it. This change is recorded in repository history.
 
 1.  To merge two branches, click **Sync** and select one of the following options:
 

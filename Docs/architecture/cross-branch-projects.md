@@ -336,6 +336,16 @@ generic name-conflict response, but the response must not reveal the hidden bran
 `ProjectViewModel.branch` must carry only the effective branch. Project-list and project-detail responses must not
 repeat the complete membership set.
 
+`ProjectViewModel.inDefaultBranch` must tell whether the base branch holds the project, whichever branch is effective:
+
+- It must be read from the published snapshot that the workspace listing already resolved. The request must not
+  enumerate branches, scan Git trees or ask for permissions a second time.
+- Like every membership, it must count readable entries only: a caller who cannot read the base-branch entry is told
+  that the base branch does not hold the project.
+- A project served from the configured branch before the first snapshot is published is held by the base branch,
+  since the configured branch is the base one.
+- A project of a repository without branches, and a local project, must not carry it.
+
 `GET /projects/{projectId}/branches` must read the project's published snapshot and return only readable
 memberships. Each `ProjectBranchInfo` must carry the branch name and true-valued base or protected marks; false marks
 must be omitted. The endpoint must not enumerate repository-wide refs or resolve lazy audit metadata.
@@ -348,6 +358,25 @@ from the project branch endpoint only when opened.
 
 Manage Branches must display actual project membership as read-only data. Project copy, project deletion, branch
 creation and branch deletion must remain explicit operations with separate permission checks.
+
+### Default view of the Projects tab
+
+`GET /projects` must keep returning every readable project. The Projects tab applies its default view in the
+browser, so the projects of other branches stay one filter pick away without another request.
+
+While no branch is picked in the **Branch** filter, the project list and the project tree must show only:
+
+- projects that the base branch holds (`inDefaultBranch`), on whichever branch is effective;
+- projects open in the user's workspace — opened, edited or viewed at a revision — even when they exist only outside
+  the base branch;
+- projects of repositories without branches, and local projects.
+
+Picking one or more branches must replace the rule: the list shows the projects whose effective branch is picked.
+The **Branch** filter must count every searched project, so a branch that holds only hidden projects can still be
+picked. While no branch is picked, the other filter counts must cover the projects the rule keeps.
+
+The **Tree** view must show the projects the **Filters** view selects, without the list's search and paging. On a
+project page, the tree must apply the filters the list was last left with and must always show the viewed project.
 
 ### Filtering, merge and deployment
 
@@ -486,7 +515,8 @@ Entries at disjoint mapped paths retain distinct ACL identities.
 
 ## Required Outcomes
 
-- A project that exists in one non-base branch must appear as one logical project to every authorized user.
+- A project that exists in one non-base branch must appear as one logical project to every authorized user. The
+  Projects tab lists it once its branch is picked, or while it is open in the user's workspace.
 - A project that exists in several branches must expose only readable memberships.
 - The base branch must be home when it contains the project.
 - A project without base-branch membership must use the deterministic home selection.

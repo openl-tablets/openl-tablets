@@ -35,6 +35,8 @@ import { DiscardChangesModal } from './DiscardChangesModal'
 import { ProjectsRail } from './projects/ProjectsRail'
 import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
 import type { NodeFilters } from './projects/projectGrouping'
+import { clearStoredPicks, loadStoredPicks } from './projects/filterStorage'
+import { listingQueryOf } from './projects/projectListing'
 import { moduleRoute, projectFileRoute, toUrlSafeId } from '../services/projectId'
 
 
@@ -109,6 +111,8 @@ export const ProjectWorkspace = () => {
     const [reloadToken, setReloadToken] = useState(0)
     // What the reload behind the current token knows it touched; null means anything may have changed.
     const [changedFiles, setChangedFiles] = useState<string[] | null>(null)
+    // The tree beside the project follows the filters the Projects list was last left with.
+    const [treeFilters, setTreeFilters] = useState(loadStoredPicks)
     // Bumped on every project-detail load so stale navigation responses cannot overwrite the current page.
     const loads = useLoadGeneration()
     // Its own counter, so a stale files response never overwrites a fresh one.
@@ -397,6 +401,12 @@ export const ProjectWorkspace = () => {
         }
     }, [busyWhile, closeProject, load, navigate, project, runAction])
 
+    // Clearing the picks beside a project clears them for the list too, so it comes back in its default view.
+    const clearTreeFilters = () => {
+        clearStoredPicks()
+        setTreeFilters(listingQueryOf(new URLSearchParams()))
+    }
+
     // Nothing to show yet: the first read is on its way, or the address is moving on to the id it answered with.
     if (!project && !error && !linkProblem) {
         return (
@@ -413,7 +423,9 @@ export const ProjectWorkspace = () => {
             <div className={shared.workspaceBody}>
                 <ProjectsRail
                     currentProjectId={project?.id}
+                    filters={treeFilters}
                     initialMode="tree"
+                    onClearFilters={clearTreeFilters}
                     // A group leads back to the list, showing exactly the projects it holds.
                     onOpenFile={(other, path) => navigate(projectFileRoute(other.id, path))}
                     onOpenGroup={filters => navigate(`/projects?${groupQuery(filters)}`)}

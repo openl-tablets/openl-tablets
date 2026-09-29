@@ -14,6 +14,7 @@ Content-Type: application/json
       "revision": "*",
       "path": "EPBDS-13931",
       "comment": "Project EPBDS-13931 is created.",
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",

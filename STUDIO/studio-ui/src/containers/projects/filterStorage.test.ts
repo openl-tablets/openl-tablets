@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { loadProjectFilters, saveProjectFilters } from './filterStorage'
+import { clearStoredPicks, loadProjectFilters, loadStoredPicks, saveProjectFilters } from './filterStorage'
 
 // jsdom ships no Web Storage, so the tests bring their own — per test, so it never outlives this file.
 const memory = new Map<string, string>()
@@ -49,6 +49,33 @@ describe('project filter storage', () => {
     })
 
     it('has nothing to restore on a first visit', () => {
+        expect(loadProjectFilters()).toBeNull()
+    })
+
+    it('hands the tree beside a project the picks the list was left with', () => {
+        expect(loadStoredPicks().repositories.size).toBe(0)
+
+        saveProjectFilters(new URLSearchParams('q=rates&repo=design&branch=main&sort=name'))
+
+        expect(loadStoredPicks()).toEqual({
+            statuses: new Set(),
+            repositories: new Set(['design']),
+            tags: new Set(),
+            branches: new Set(['main']),
+        })
+    })
+
+    it('clears the picks, keeping the search, the sort and the layout', () => {
+        saveProjectFilters(new URLSearchParams('q=rates&status=EDITING&repo=design&tags=x&branch=main&sort=name&view=grid'))
+
+        clearStoredPicks()
+
+        expect(loadProjectFilters()!.toString()).toBe('q=rates&sort=name&view=grid')
+    })
+
+    it('leaves a first visit without a memory when there is nothing to clear', () => {
+        clearStoredPicks()
+
         expect(loadProjectFilters()).toBeNull()
     })
 })

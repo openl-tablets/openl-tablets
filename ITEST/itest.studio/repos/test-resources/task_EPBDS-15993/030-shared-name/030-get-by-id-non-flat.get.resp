@@ -13,6 +13,7 @@ Content-Type: application/json
   "path": "EPBDS-15993-shared",
   "comment": "EPBDS-15993 Create shared project in non-flat repo",
   "branchDefault": true,
+  "inDefaultBranch": true,
   "repositoryInfo": {
     "id": "design-non-flat",
     "name": "Git Non Flat",

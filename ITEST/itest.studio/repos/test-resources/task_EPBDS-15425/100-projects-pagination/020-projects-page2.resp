@@ -25,6 +25,7 @@ Content-Type: application/json
         }
       ],
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -60,6 +61,7 @@ Content-Type: application/json
       "path": "EPBDS-15425_Project2",
       "comment": "Project EPBDS-15425_Project2 is created.",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -125,6 +127,7 @@ Content-Type: application/json
       "path": "Project",
       "comment": "Project Project is created.",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -160,6 +163,7 @@ Content-Type: application/json
       "path": "Project",
       "comment": "EPBDS-10682 Create project via rest",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",

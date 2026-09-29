@@ -45,7 +45,8 @@ import {
     tagGroupId,
     type FilterLayout,
 } from './filterLayout'
-import { LOCAL_REPO_KEY, statusCount, type BranchFacetCount } from './projectListing'
+import { isFiltered, LOCAL_REPO_KEY, statusCount, type BranchFacetCount } from './projectListing'
+import { ClearFiltersRow } from './ClearFiltersRow'
 
 const STATUS_ORDER: ProjectStatus[] = [
     ProjectStatus.Local,
@@ -131,8 +132,9 @@ interface ProjectsFilterRailProps {
     onToggleRepo: (repoId: string) => void
     onToggleTag: (key: string) => void
     onToggleBranch: (branch: string) => void
-    onReset: () => void
-    /** What the rail hangs on the header row, beside the reset of the filters. */
+    /** Clears every pick, bringing the list back to its default view. */
+    onClearFilters: () => void
+    /** What the rail hangs on the header row, beside the actions of the filters themselves. */
     headerActions?: ReactNode
 }
 
@@ -164,7 +166,7 @@ export const ProjectsFilterRail = ({
     onToggleRepo,
     onToggleTag,
     onToggleBranch,
-    onReset,
+    onClearFilters,
     headerActions,
 }: ProjectsFilterRailProps) => {
     const { t } = useTranslation('repository')
@@ -191,7 +193,7 @@ export const ProjectsFilterRail = ({
     }, [repositoryCounts])
 
     const hasLocal = repoCounts.has(LOCAL_REPO_KEY)
-    const hasFilters = statuses.size > 0 || repos.size > 0 || tags.size > 0 || branches.size > 0
+    const hasFilters = isFiltered({ statuses, repositories: repos, tags, branches })
 
     const renderRow = (testId: string, checked: boolean, onChange: () => void, label: ReactNode, count?: number) => (
         <label key={testId} className={shared.railRow}>
@@ -302,11 +304,6 @@ export const ProjectsFilterRail = ({
             <div className={shared.railHead}>
                 <span>{t('home.filters')}</span>
                 <span className={styles.headActions}>
-                    {hasFilters && !arranging && (
-                        <Button data-testid="projects-filter-reset" onClick={onReset} size="small" type="link">
-                            {t('home.reset')}
-                        </Button>
-                    )}
                     {arranging ? (
                         <Button
                             data-testid="projects-filter-arrange-done"
@@ -331,6 +328,9 @@ export const ProjectsFilterRail = ({
                     {headerActions}
                 </span>
             </div>
+            {hasFilters && !arranging && (
+                <ClearFiltersRow data-testid="projects-filter-clear" onClick={onClearFilters} />
+            )}
             <div className={shared.railScroll}>
                 <DndContext
                     collisionDetection={closestCenter}

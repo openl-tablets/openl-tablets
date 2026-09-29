@@ -479,6 +479,87 @@ class UserWorkspaceRefreshTest {
     }
 
     @Test
+    void projectHeldByTheDefaultBranchIsMarkedWhicheverBranchItIsOn() throws IOException, ProjectException {
+        var main = branchProjectRepository("main");
+        var feature = branchProjectRepository("feature/rates");
+        var mainData = new FileData();
+        mainData.setName(DESIGN_PATH);
+        var featureData = new FileData();
+        featureData.setName(DESIGN_PATH);
+        featureData.setVersion("feature-revision");
+        when(feature.check(DESIGN_PATH)).thenReturn(featureData);
+        var mainProject = new AProject(main, mainData);
+        var featureProject = new AProject(feature, featureData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(
+                        branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
+
+        var project = userWorkspace.getProject("design", PROJECT);
+        assertTrue(project.isInDefaultBranch());
+
+        userWorkspace.setProjectBranch(project, "feature/rates");
+        var switched = userWorkspace.getProject("design", PROJECT);
+
+        assertEquals("feature/rates", switched.getBranch());
+        assertTrue(switched.isInDefaultBranch(), "Switching a project to another branch keeps it in the default one.");
+    }
+
+    @Test
+    void projectOutsideTheDefaultBranchIsNotMarked() {
+        mockDesignWithProjectInBranch("feature");
+
+        var projects = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
+
+        assertEquals(1, projects.size());
+        assertFalse(projects.getFirst().isInDefaultBranch());
+    }
+
+    @Test
+    void projectServedBeforeTheIndexIsPublishedIsHeldByTheDefaultBranch() throws ProjectException {
+        // Until the index publishes, the projects come from the configured branch, which is the default one.
+        var main = branchProjectRepository("main");
+        var mainData = new FileData();
+        mainData.setName(DESIGN_PATH);
+        var mainProject = new AProject(main, mainData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+
+        assertTrue(userWorkspace.getProject("design", PROJECT).isInDefaultBranch());
+    }
+
+    @Test
+    void projectListedFromAnotherBranchWithoutTheIndexIsNotMarked() throws ProjectException {
+        // Nothing tells which branches hold the project, so the branch it was listed on is all there is to go by.
+        var feature = branchProjectRepository("feature/rates");
+        var data = new FileData();
+        data.setName(DESIGN_PATH);
+        var project = new AProject(feature, data);
+        when(designTimeRepository.getRepository("design")).thenReturn(feature);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
+
+        assertFalse(userWorkspace.getProject("design", PROJECT).isInDefaultBranch());
+    }
+
+    @Test
+    void projectOfRepositoryWithoutBranchesIsNotMarked() throws ProjectException {
+        // A mapped repository over a store without branches is a BranchRepository that has no branch to tell.
+        BranchRepository flat = mock(BranchRepository.class);
+        lenient().when(flat.getId()).thenReturn("design");
+        lenient().when(flat.supports())
+                .thenReturn(new FeaturesBuilder(flat).setVersions(true).setBranches(false).build());
+        lenient().when(flat.getBranch()).thenThrow(new ClassCastException("The store has no branches."));
+        var data = new FileData();
+        data.setName(DESIGN_PATH);
+        var project = new AProject(flat, data);
+        when(designTimeRepository.getRepository("design")).thenReturn(flat);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
+
+        assertFalse(userWorkspace.getProject("design", PROJECT).isInDefaultBranch());
+    }
+
+    @Test
     void syncRenamesTheFolderTogetherWithItsRecord() throws IOException {
         mockMappedDesign();
         seedOpenedCopy("design", null, false);

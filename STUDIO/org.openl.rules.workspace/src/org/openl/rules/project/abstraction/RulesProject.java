@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
@@ -44,6 +45,13 @@ public class RulesProject extends UserWorkspaceProject {
     private final LockEngine lockEngine;
     private final RulesProjectTags localTags;
     private final ProjectTags designTags;
+    /**
+     * Whether the default branch of the design repository holds the project, whichever branch it is shown on.
+     * The workspace tells it each time it lists its projects; a project it has not listed answers {@code false}.
+     */
+    @Getter
+    @Setter
+    private boolean inDefaultBranch;
 
     public RulesProject(WorkspaceUser user,
                         LocalRepository localRepository,

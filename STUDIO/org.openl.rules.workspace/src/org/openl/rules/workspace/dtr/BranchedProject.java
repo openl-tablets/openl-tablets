@@ -58,6 +58,15 @@ public record BranchedProject(String name,
     }
 
     /**
+     * Whether the repository base branch holds the project.
+     *
+     * <p>The base branch is matched the way the home branch matches it, whatever casing the configuration used.
+     */
+    public boolean inBaseBranch() {
+        return Branches.actual(entries.keySet(), baseBranch).isPresent();
+    }
+
+    /**
      * Whether the given branch is the only one holding the project, so removing that branch removes the project.
      *
      * <p>Branch names are compared exactly: Git tells apart two branches that differ only in case, and so

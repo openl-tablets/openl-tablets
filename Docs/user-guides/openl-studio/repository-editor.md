@@ -23,7 +23,7 @@ The following topics are included in this chapter:
 
 ### Browsing Design Repository
 
-Repository editor displays all projects in user's workspace and Design repository. The project tree is organized into the following categories:
+Repository editor displays the projects in user's workspace and Design repository. While no branch is picked in the **Branch** filter, it keeps to the default branch of each repository, as described in [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree). The project tree is organized into the following categories:
 
 | Category                  | Description                                                                                                                                                                         |
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -44,17 +44,60 @@ The status of each project in the tree is identified by a specific icon. The fol
 
 ### Filtering and Grouping the Project Tree
 
-Projects in the repository editor are filtered the same way as in Rules Editor.
+The panel on the left of the **Projects** tab has two views, switched at its top: **Filters** and **Tree**. Both work
+on the projects of the list beside them.
 
-To filter projects by name, enter the name in the filter text box. All projects matching the name are displayed in the **Projects** list.
+While no branch is picked in the **Branch** filter, the list and the tree show the following projects:
 
-To group projects by repository or tag types, click the **Group Projects** icon ![](images/group-projects-icon.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](administration/06-tags.md#managing-tags).
+-   projects that the default branch of their repository contains, on whichever branch the user switched them to;
+-   projects open in the user's workspace, even when they exist only outside the default branch;
+-   projects of repositories without branches, and local projects.
 
-![](images/projects-grouped-by-tags.jpeg)
+A project that exists only in another branch appears once its branch is picked in the **Branch** filter. Picking one or
+more branches shows the projects on these branches instead.
 
-*Grouping projects by tags*
+#### Filtering Projects
 
-To expand or collapse the repository tree, use the expand and collapse icons ![](images/expand-collapse-tree-icon.png).
+The **Filters** view lists the filter values in groups: **Repository**, **Branch**, one group per tag type, and
+**Status**. Each value shows how many projects it covers.
+
+-   Several values of one group show the projects that match any of them.
+-   Values of different groups show the projects that match all of them.
+-   The **Branch** group lists every branch with its count, including a branch whose projects the default view hides.
+    While no branch is picked, the counts of the other groups cover only the projects the default view shows.
+
+To reorder the groups, hide a group or show it again, click the gear icon in the header of the view.
+
+![The Filters view with a tag value picked and Clear filters under its title](images/projects-filters-view.png "Filtering projects in the Filters view")
+
+#### Browsing the Project Tree
+
+The **Tree** view shows the projects that the **Filters** view selects, the same ones the list shows, as a tree. Its own
+search box narrows the tree by name and leaves the list as it is.
+
+-   Selecting a group, such as a repository or a tag value, sets its filters: the list shows the projects of the group,
+    and the tree narrows to it until the filters are cleared.
+-   Selecting a project opens it, and expanding a project lists its files.
+-   On a project page, the panel shows the **Tree** view only. The tree applies the filters last used on the Projects
+    list and always shows the project being viewed.
+
+To group projects by repository, branch or tag types, click **Group projects** ![](images/group-projects-icon.png) and
+select up to three levels. Tag values used for grouping are taken from the most recent version of a project, so after
+changing the tags of an opened project, save the project for the tree to show the change. For more information on tag
+definition for a project, see [Managing Tags](administration/06-tags.md#managing-tags).
+
+![The Group Projects dialog grouping by repository and then by two tag types](images/group-projects-dialog.png "Grouping projects in the tree")
+
+#### Clearing Filters
+
+While any filter is picked, the **Filters** and **Tree** views show **Clear filters** at their top, under the title.
+In the **Tree** view, the button also tells that the tree is filtered.
+
+-   **Clear filters** removes the status, repository, branch and tag picks and forgets the group selected in the tree,
+    returning both views to the default-branch view. The search boxes keep their text.
+-   When the filters hide every project, the list offers **Clear all filters**, which clears the search as well.
+
+![The Tree view narrowed to a picked group, with Clear filters under its title](images/projects-tree-filtered.png "Clearing the filters of the project tree")
 
 ### Creating Projects in Design Repository
 
@@ -73,9 +116,10 @@ Whatever the way used, new projects are created in the **No Changes** status tha
 For a Git Design repository that supports branches, every creation method displays one **Branch** field after a
 repository is selected. Select an existing branch from the suggestions, or type a valid new branch name in the same
 field. When the name does not exist, OpenL Studio creates the branch from the repository default branch and then
-creates the project there. The project is immediately visible to other authorized users, and its **Branch** value is
-the branch where it was created. In an empty repository, the first project creates the selected valid branch,
-including a non-default branch.
+creates the project there. Its **Branch** value is the branch where it was created. A project created in another
+branch than the default one is listed once that branch is picked in the **Branch** filter, or while it is open in the
+workspace; see [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree). In an empty
+repository, the first project creates the selected valid branch, including a non-default branch.
 Names that violate Git naming rules or the repository branch-name pattern are shown as errors below the field and
 are not submitted.
 
@@ -550,16 +594,16 @@ To copy the selected project, proceed as follows:
 6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
 7.  Click **Copy**.
 
-The new project appears immediately in the project list. The selected branch is its home branch when no other branch
-contains the project.
+A copy in the default branch appears in the project list at once; a copy in another branch is listed once that branch
+is picked in the **Branch** filter. The selected branch is its home branch when no other branch contains the project.
 
 ### Removing a Project
 
 Deleting a project removes it from the user's workspace and from the current state of Design repository. For Git
 repositories, OpenL Studio stores this change as a regular delete commit, so repository history keeps the deletion
 event. If the project is opened by any user on the deleted branch, OpenL Studio closes it before removal and
-discards unsaved changes. If the project also exists in another branch, it remains in the project list and copies
-opened from those other branches are not removed.
+discards unsaved changes. If the project also exists in another branch, it remains available in that branch, and
+copies opened from those other branches are not removed.
 
 **Note:** Projects in the **Local** status that were not uploaded to Design repository will be removed physically and cannot be restored.
 

@@ -44,6 +44,7 @@ Content-Type: application/json
       "revision": "*",
       "path": "Project",
       "comment": "Admin saved the project",
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",
@@ -81,6 +82,7 @@ Content-Type: application/json
       "path": "ProjectUser1",
       "comment": "Project ProjectUser1 is created.",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",

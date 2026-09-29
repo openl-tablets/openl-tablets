@@ -31,7 +31,19 @@ import { ProjectsTable } from './projects/ProjectsTable'
 import { ProjectsGrid } from './projects/ProjectsGrid'
 import type { ProjectListHandlers } from './projects/ProjectRowActions'
 import type { RowBusyId } from './projects/projectActions'
-import { countFacets, refineProjects, searchProjects, sortProjects, type BranchFacetCount, type ProjectSort, type SortDirection } from './projects/projectListing'
+import {
+    countBranches,
+    countFacets,
+    FILTER_PARAMS,
+    listingQueryOf,
+    listingScope,
+    refineProjects,
+    searchProjects,
+    sortProjects,
+    type BranchFacetCount,
+    type ProjectSort,
+    type SortDirection,
+} from './projects/projectListing'
 import { getProjectIndex, hasProjectIndex, invalidateProjectIndex, isProjectIndexStale, projectSignature } from '../services/projectIndex'
 import { useLoadGeneration, useWindowFocus, useWorkspaceChanges } from '../hooks'
 import { COMPILE_COLORS } from './projects/projectsTheme'
@@ -176,10 +188,13 @@ const useDebouncedValue = (value: string, delay: number): string => {
 const renderFilterRail = (props: ComponentProps<typeof ProjectsFilterRail>) => <ProjectsFilterRail {...props} />
 
 /**
- * The Projects tab home: every project the user can see, as one flat, filterable list. A left rail carries
- * repository, status and tag-type facets; repositories are a facet, not a hierarchy. Search, facets, sort
+ * The Projects tab home: the projects the user can see, as one flat, filterable list. A left rail carries
+ * repository, branch, status and tag-type facets; repositories are a facet, not a hierarchy. Search, facets, sort
  * and view live in the URL, so a filtered view survives reloads and can be shared. Selecting a row opens
  * the project's workspace page.
+ *
+ * Until a branch is picked, the list keeps to the default branch of each repository, as described by
+ * {@link listingScope}; picking a branch shows the projects on it.
  */
 export const ProjectsHome = () => {
     const { notification } = App.useApp()
@@ -236,19 +251,17 @@ export const ProjectsHome = () => {
     const sort: ProjectSort | null = sortParam === 'updated' || sortParam === 'branch' || sortParam === 'name' ? sortParam : null
     const direction: SortDirection = params.get('dir') === 'desc' ? 'desc' : 'asc'
     const view: ProjectView = params.get('view') === 'grid' ? 'grid' : 'list'
-    const statusParam = params.get('status') ?? ''
-    const repoParam = params.get('repo') ?? ''
-    const tagParam = params.get('tags') ?? ''
     const pageSize = parsePositiveInt(params.get('size'), DEFAULT_PAGE_SIZE)
     const requestedPage = parsePositiveInt(params.get('page'), 1)
     const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS)
 
-    const statuses = useMemo(() => new Set(statusParam.split(',').filter(Boolean)), [statusParam])
-    const repos = useMemo(() => new Set(repoParam.split(',').filter(Boolean)), [repoParam])
-    const tags = useMemo(() => new Set(tagParam.split(',').filter(Boolean)), [tagParam])
-    // Branch names may legally contain a comma, so branch filters ride as repeated params (branch=a&branch=b)
-    // rather than one comma-joined value like the other facets, which can never collide with their values.
-    const branches = useMemo(() => new Set(params.getAll('branch').filter(Boolean)), [params])
+    // The picks are read from their own parameters alone, so typing in the search box keeps the same picks — and
+    // the tree beside the list, which follows them, keeps its shape.
+    const pickedParams = new URLSearchParams()
+    FILTER_PARAMS.forEach(key => params.getAll(key).forEach(value => pickedParams.append(key, value)))
+    const picked = pickedParams.toString()
+    const query = useMemo(() => listingQueryOf(new URLSearchParams(picked)), [picked])
+    const { statuses, repositories: repos, tags, branches } = query
     const repositoryName = useCallback(
         (id: string) => repositories.find(repo => repo.id === id)?.name ?? id,
         [repositories]
@@ -274,11 +287,18 @@ export const ProjectsHome = () => {
 
     // The search scope, shared by the facet counts and the list so the text search runs only once.
     const searched = useMemo(() => searchProjects(allProjects, debouncedSearch), [allProjects, debouncedSearch])
-    // What the rail counts: the search scope, with the picked facets ignored — the way the API counted it.
-    const facets = useMemo<ProjectFacets>(() => countFacets(searched, repositoryName), [searched, repositoryName])
+    // Without a picked branch the list keeps to the default view, and so do the counts of the rail. The branch
+    // counts cover every searched project instead, so a branch whose projects the default view leaves out can
+    // still be picked.
+    const scope = useMemo(() => listingScope(searched, branches), [branches, searched])
+    // What the rail counts: the scope, with the picked facets ignored — the way the API counted it.
+    const facets = useMemo<ProjectFacets>(
+        () => ({ ...countFacets(scope, repositoryName), branchCounts: countBranches(searched) }),
+        [repositoryName, scope, searched]
+    )
     const matched = useMemo(
-        () => sortProjects(refineProjects(searched, { statuses, repositories: repos, tags, branches }), sort ?? 'name', direction),
-        [branches, direction, repos, searched, sort, statuses, tags]
+        () => sortProjects(refineProjects(scope, query), sort ?? 'name', direction),
+        [direction, query, scope, sort]
     )
 
     const totalProjects = matched.length
@@ -489,19 +509,27 @@ export const ProjectsHome = () => {
         [localRepositoryInfo]
     )
 
-    const openProject = useCallback((project: Project) => {
-        navigate(`/projects/${encodeURIComponent(project.id)}`)
-    }, [navigate])
+    // Leaving for another page saves the filters at once. The save that waits for the typing to settle is cancelled
+    // with this screen, while the tree beside a project reads them as soon as the project page is drawn.
+    const leaveTo = useCallback((path: string) => {
+        saveProjectFilters(params)
+        navigate(path)
+    }, [navigate, params])
+
+    const openProject = useCallback(
+        (project: Project) => leaveTo(`/projects/${encodeURIComponent(project.id)}`),
+        [leaveTo]
+    )
 
     // A file picked in the tree is followed to where it is read: a module to the editor, anything else
     // to the Files tab of the project it belongs to.
     const openModule = useCallback(
-        (project: Project, moduleName: string) => navigate(moduleRoute(project.id, moduleName)),
-        [navigate]
+        (project: Project, moduleName: string) => leaveTo(moduleRoute(project.id, moduleName)),
+        [leaveTo]
     )
     const openFile = useCallback(
-        (project: Project, path: string) => navigate(projectFileRoute(project.id, path)),
-        [navigate]
+        (project: Project, path: string) => leaveTo(projectFileRoute(project.id, path)),
+        [leaveTo]
     )
 
     // After a create, land on the new project's page. Its server id is not known here (the create
@@ -518,16 +546,17 @@ export const ProjectsHome = () => {
                     && (created.branch === undefined || project.branch === created.branch)
             )
             if (match) {
-                navigate(`/projects/${encodeURIComponent(match.id)}`)
+                leaveTo(`/projects/${encodeURIComponent(match.id)}`)
                 return
             }
         } catch {
             // Fall back to refreshing the list below.
         }
         void load(true)
-    }, [load, navigate])
+    }, [leaveTo, load])
 
-    // A group picked in the tree is the same thing as ticking its facets: the list shows its projects.
+    // A group picked in the tree is the same thing as ticking its facets: the list shows its projects, and the
+    // tree, which follows the facets, narrows to the group.
     const openGroup = useCallback((filters: NodeFilters) => {
         setParams(prev => {
             const next = new URLSearchParams(prev)
@@ -695,10 +724,11 @@ export const ProjectsHome = () => {
         }, { replace: true })
     }, [setParams])
 
-    const resetFilters = useCallback(() => deleteParams('status', 'repo', 'tags', 'branch', 'page'), [deleteParams])
+    // Clearing the picks brings both views of the rail back to the default view; the search keeps its text.
+    const resetFilters = useCallback(() => deleteParams(...FILTER_PARAMS, 'page'), [deleteParams])
 
     // The no-match state clears the search too, not just the facets.
-    const clearAll = useCallback(() => deleteParams('q', 'status', 'repo', 'tags', 'branch', 'page'), [deleteParams])
+    const clearAll = useCallback(() => deleteParams('q', ...FILTER_PARAMS, 'page'), [deleteParams])
 
     const content = () => {
         if (loading && projects.length === 0 && !error) {
@@ -717,7 +747,7 @@ export const ProjectsHome = () => {
                     <div className={shared.stateBox}>
                         <Empty data-testid="projects-no-match" description={t('home.no_match')} image={Empty.PRESENTED_IMAGE_SIMPLE}>
                             <Button data-testid="projects-clear-filters" icon={<ClearOutlined />} onClick={clearAll} type="primary">
-                                {t('home.clear_filters')}
+                                {t('home.clear_all_filters')}
                             </Button>
                         </Empty>
                     </div>
@@ -787,6 +817,8 @@ export const ProjectsHome = () => {
     return (
         <div className={cx(shared.page, shared.listPageRoot)} data-testid="projects-home">
             <ProjectsRail
+                filters={query}
+                onClearFilters={resetFilters}
                 onOpenFile={openFile}
                 onOpenGroup={openGroup}
                 onOpenModule={openModule}
@@ -798,9 +830,9 @@ export const ProjectsHome = () => {
                 projects={loading && allProjects.length === 0 ? null : allProjects}
                 reloadToken={reloadToken}
                 repositories={repositories}
-                filters={headerActions => renderFilterRail({
+                filterView={headerActions => renderFilterRail({
                     headerActions,
-                    onReset: resetFilters,
+                    onClearFilters: resetFilters,
                     onToggleBranch: toggleBranch,
                     onToggleRepo: value => toggleInParam('repo', repos, value),
                     onToggleStatus: value => toggleInParam('status', statuses, value),

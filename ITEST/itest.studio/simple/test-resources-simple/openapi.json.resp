@@ -26409,6 +26409,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "inDefaultBranch": {
+            "type": "boolean",
+            "description": "***"
+          },
           "lockInfo": {
             "$ref": "#/components/schemas/ProjectLockInfo"
           },
@@ -26534,6 +26538,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "inDefaultBranch": {
+            "type": "boolean",
+            "description": "***"
+          },
           "lockInfo": {
             "$ref": "#/components/schemas/ProjectLockInfo_Detailed"
           },
@@ -26641,6 +26649,10 @@ Content-Type: application/json
           },
           "id": {
             "type": "string",
+            "description": "***"
+          },
+          "inDefaultBranch": {
+            "type": "boolean",
             "description": "***"
           },
           "lockInfo": {

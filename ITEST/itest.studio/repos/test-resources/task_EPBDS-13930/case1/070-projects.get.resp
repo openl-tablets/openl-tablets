@@ -15,6 +15,7 @@ Content-Type: application/json
       "path": "Project",
       "comment": "EPBDS-10682 Create project via rest",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-non-flat",
         "name": "Git Non Flat",
@@ -50,6 +51,7 @@ Content-Type: application/json
       "revision": "*",
       "path": "Project2",
       "comment": "Project is created.",
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",

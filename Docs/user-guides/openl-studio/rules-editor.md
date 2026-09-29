@@ -131,7 +131,8 @@ To create a copy of a project, proceed as follows:
 6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
 7.  Click **Copy**.
 
-The new project appears in the project list with the selected branch as its home branch.
+The new project uses the selected branch as its home branch. A copy in the default branch appears in the project
+list at once; a copy in another branch is listed once that branch is picked in the **Branch** filter.
 
 #### Exporting, Updating, and Editing a Module
 

@@ -12,6 +12,7 @@ Content-Type: application/json
   "status": "OPENED",
   "comment": "Admin saved the project",
   "repository": "design-flat",
+  "inDefaultBranch": true,
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",

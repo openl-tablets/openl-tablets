@@ -6,6 +6,7 @@ import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import type { Project } from '../../types/projects'
 import type { NodeFilters } from './projectGrouping'
+import type { ListingQuery } from './projectListing'
 import type { Repository } from '../../types/repositories'
 import { useSharedStyles } from './sharedStyles'
 import { ProjectsTree, type ProjectsSource } from './ProjectsTree'
@@ -89,10 +90,14 @@ interface ProjectsRailBaseProps {
     onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A repository or tag group was picked in the tree: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
-    /** The title of the tree was picked: show every project again. */
+    /** The title of the tree was picked: show the list without filters. */
     onShowAll: () => void
-    /** The filter facets, rendered when the rail is in its filter mode, with the rail's own actions. */
-    filters?: (headerActions: React.ReactNode) => React.ReactNode
+    /** The picks of the Filters view, which the tree follows. */
+    filters: ListingQuery
+    /** The picks were cleared from the tree. */
+    onClearFilters: () => void
+    /** The Filters view, rendered when the rail is in its filter mode, with the rail's own actions. */
+    filterView?: (headerActions: React.ReactNode) => React.ReactNode
     /** Which mode the rail starts in; the rail remembers what the user picks afterwards. */
     initialMode?: RailMode
     /** Bumped by the screen when it changed the workspace, so the tree reads it again. */
@@ -108,8 +113,8 @@ type ProjectsRailProps = ProjectsRailBaseProps & ProjectsSource
 
 /**
  * The left rail of the project screens. It carries the filters of the list, and — for a user who thinks
- * in folders rather than facets — the same projects as a grouped tree, which is also the quickest way to
- * step from one project to another while looking at one.
+ * in folders rather than facets — the projects they select as a grouped tree, which is also the quickest way
+ * to step from one project to another while looking at one.
  *
  * The tree is only built once the user asks for it, and it never holds up the screen beside it.
  */
@@ -123,6 +128,8 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
         onOpenGroup,
         onShowAll,
         filters,
+        onClearFilters,
+        filterView,
         initialMode,
         reloadToken,
     } = props
@@ -200,7 +207,7 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
 
     return (
         <aside ref={railRef} className={cx(shared.rail, styles.rail)} data-testid="projects-rail" style={{ width }}>
-            {filters && (
+            {filterView && (
                 <div className={styles.top}>
                     <Segmented
                         block
@@ -216,12 +223,14 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
                     />
                 </div>
             )}
-            {mode === 'tree' || !filters
+            {mode === 'tree' || !filterView
                 ? (
                     <ProjectsTree
                         {...treeSource}
                         currentProjectId={currentProjectId}
+                        filters={filters}
                         headerActions={foldHandle}
+                        onClearFilters={onClearFilters}
                         onOpenFile={onOpenFile}
                         onOpenGroup={onOpenGroup}
                         onOpenModule={onOpenModule}
@@ -231,7 +240,7 @@ export const ProjectsRail = (props: ProjectsRailProps) => {
                         repositories={repositories}
                     />
                 )
-                : filters(foldHandle)}
+                : filterView(foldHandle)}
             {/* A real hr: the native separator, so no role is needed for what it is. */}
             <hr
                 aria-label={t('home.tree.resize')}

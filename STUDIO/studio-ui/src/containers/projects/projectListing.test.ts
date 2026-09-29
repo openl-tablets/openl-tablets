@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { countFacets, refineProjects, searchProjects, sortProjects } from './projectListing'
+import {
+    countBranches,
+    countFacets,
+    isFiltered,
+    isInDefaultView,
+    listingQueryOf,
+    listingScope,
+    refineProjects,
+    searchProjects,
+    selectProjects,
+    sortProjects,
+} from './projectListing'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 
@@ -68,6 +79,47 @@ describe('refineProjects', () => {
     })
 })
 
+describe('the default view', () => {
+    const branched = { id: 'design', name: 'Design', features: { branches: true, searchable: true, mappedFolders: false } }
+    const flat = { id: 'flat', name: 'Flat', features: { branches: false, searchable: false, mappedFolders: false } }
+    const mainline = project({ id: 'm', branch: 'main', inDefaultBranch: true, repositoryInfo: branched })
+    const switched = project({ id: 's', branch: 'feature/rates', inDefaultBranch: true, repositoryInfo: branched })
+    const branchOnly = project({ id: 'b', branch: 'feature/rates', repositoryInfo: branched })
+    const opened = project({ id: 'o', branch: 'old', status: ProjectStatus.Editing, repositoryInfo: branched })
+    const viewed = project({ id: 'v', branch: 'old', status: ProjectStatus.ViewingVersion, repositoryInfo: branched })
+    const inFlat = project({ id: 'f', repository: 'flat', repositoryInfo: flat })
+    const scope = [mainline, switched, branchOnly, opened, viewed, inFlat, local]
+
+    it('keeps the projects of the default branches, the open ones, and those of repositories without branches', () => {
+        expect(scope.filter(isInDefaultView).map(p => p.id)).toEqual(['m', 's', 'o', 'v', 'f', 'p3'])
+        expect(listingScope(scope, new Set()).map(p => p.id)).toEqual(['m', 's', 'o', 'v', 'f', 'p3'])
+    })
+
+    it('gives way to the branches once one is picked', () => {
+        expect(listingScope(scope, new Set(['feature/rates']))).toBe(scope)
+        expect(selectProjects(scope, { ...noFilters, branches: new Set(['feature/rates']) }).map(p => p.id))
+            .toEqual(['s', 'b'])
+        expect(selectProjects(scope, { ...noFilters, repositories: new Set(['design']) }).map(p => p.id))
+            .toEqual(['m', 's', 'o', 'v'])
+    })
+})
+
+describe('listingQueryOf', () => {
+    it('reads the picks from the parameters of the list, a branch name with a comma included', () => {
+        const query = listingQueryOf(new URLSearchParams('q=rates&status=OPENED,CLOSED&repo=design&tags=LOB:Auto'
+            + '&branch=main&branch=release%2C2026&sort=name'))
+
+        expect(query).toEqual({
+            statuses: new Set(['OPENED', 'CLOSED']),
+            repositories: new Set(['design']),
+            tags: new Set(['LOB:Auto']),
+            branches: new Set(['main', 'release,2026']),
+        })
+        expect(isFiltered(query)).toBe(true)
+        expect(isFiltered(listingQueryOf(new URLSearchParams('q=rates&sort=name')))).toBe(false)
+    })
+})
+
 describe('sortProjects', () => {
     it('sorts by name, branch or date, in either direction', () => {
         expect(sortProjects([beta, alpha], 'name').map(p => p.id)).toEqual(['p1', 'p2'])
@@ -104,9 +156,7 @@ describe('countFacets', () => {
     })
 
     it('counts each branch and carries its default and protected marks', () => {
-        const counts = countFacets(all, id => id)
-
-        expect(counts.branchCounts).toEqual([
+        expect(countBranches(all)).toEqual([
             { id: 'feature/rates', name: 'feature/rates', count: 1, isDefault: false, isProtected: true },
             { id: 'main', name: 'main', count: 1, isDefault: true, isProtected: false },
         ])

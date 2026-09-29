@@ -42,6 +42,7 @@ Content-Type: application/json
       "path": "EPBDS_15595",
       "comment": "Project EPBDS_15595 is created.",
       "branchDefault": true,
+      "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
         "name": "Git Flat",

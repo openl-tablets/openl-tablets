@@ -12,6 +12,7 @@ Content-Type: application/json
   "revision": "*",
   "path": "EPBDS-15439",
   "comment": "Merge with commit *\nConflicts:\n\tEPBDS-15439/Main.xlsx (EPBDS-15439_MergeWithManualConflictResolvingUseOurs_two)",
+  "inDefaultBranch": true,
   "repositoryInfo": {
     "id": "design-flat",
     "name": "Git Flat",
