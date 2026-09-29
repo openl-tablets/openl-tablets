@@ -134,7 +134,7 @@ export const ModuleWorkspace = () => {
     const { styles } = useStyles()
     const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
-    const { projectId, moduleName = '' } = useParams()
+    const { projectId = '', moduleName = '' } = useParams()
     const [search, setSearch] = useSearchParams()
     // What the extended search was opened with, and whether it stands open at all.
     const [searchFor, setSearchFor] = useState<string | null>(null)
@@ -416,7 +416,7 @@ export const ModuleWorkspace = () => {
             return
         }
         if (tables.length > 0) {
-            navigate(moduleRoute(projectId ?? '', moduleName, (tables[0] as ModuleTable).id), { replace: true })
+            void navigate(moduleRoute(projectId, moduleName, (tables[0] as ModuleTable).id), { replace: true })
         }
     }, [tables, tablesReloading, showOther, selectedId, here, moduleName, navigate, projectId, tableAddress, reloadToken])
 
@@ -455,7 +455,7 @@ export const ModuleWorkspace = () => {
         load()
         refresh(false)
         showIfOther(written.kind)
-        navigate(moduleRoute(projectId ?? '', module, written.id))
+        void navigate(moduleRoute(projectId, module, written.id))
     }, [load, navigate, projectId, refresh, showIfOther])
 
     // The properties of a table are rows of the table itself, so writing them rewrites it: the module is
@@ -467,7 +467,7 @@ export const ModuleWorkspace = () => {
         load()
         refresh(false)
         if (written !== selectedId) {
-            navigate(moduleRoute(projectId ?? '', moduleName, written), { replace: true })
+            void navigate(moduleRoute(projectId, moduleName, written), { replace: true })
         }
     }, [load, moduleName, navigate, projectId, refresh, selectedId])
 
@@ -493,7 +493,7 @@ export const ModuleWorkspace = () => {
     // A table that is gone leaves the screen on the module it was written in, which opens on its first table.
     const tableRemoved = useCallback(() => {
         reopenRevision()
-        navigate(moduleRoute(projectId ?? '', moduleName), { replace: true })
+        void navigate(moduleRoute(projectId, moduleName), { replace: true })
     }, [moduleName, navigate, projectId, reopenRevision])
 
     // Another module of the same project opens in the same screen, on its own first table.
@@ -504,7 +504,7 @@ export const ModuleWorkspace = () => {
      * would be the wrong one as often as not, and the project screen is where its modules are listed.
      */
     const openProject = useCallback((picked: string) => {
-        navigate(`/projects/${toUrlSafeId(picked)}`)
+        void navigate(`/projects/${toUrlSafeId(picked)}`)
     }, [navigate])
 
     /** The modules of this project, which the name in the header opens one of. */
@@ -515,7 +515,7 @@ export const ModuleWorkspace = () => {
 
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
-            navigate(moduleRoute(projectId ?? '', picked))
+            void navigate(moduleRoute(projectId, picked))
         }
     }, [moduleName, navigate, projectId])
 
@@ -580,13 +580,13 @@ export const ModuleWorkspace = () => {
         }
         // A table this one uses may be written in a project this one depends on, and is read through that
         // project's own screen — the module it names belongs to it, not to the project being read.
-        navigate(moduleRoute(usage.projectId ?? projectId ?? '', usage.module, usage.tableId))
+        void navigate(moduleRoute(usage.projectId ?? projectId, usage.module, usage.tableId))
     }, [moduleName, navigate, openTableById, projectId])
 
     // The trace behind a message, read through the module the table was read through — the one whose
     // compilation raised it.
     const readStacktrace = useCallback(
-        (message: ProjectStatusDetailedMessage) => getMessageStacktrace(projectId ?? '', message.id, moduleName),
+        (message: ProjectStatusDetailedMessage) => getMessageStacktrace(projectId, message.id, moduleName),
         [moduleName, projectId]
     )
 
@@ -598,7 +598,7 @@ export const ModuleWorkspace = () => {
             openTableById(found.id)
             return
         }
-        navigate(moduleRoute(found.projectId ?? projectId ?? '', found.module, found.id))
+        void navigate(moduleRoute(found.projectId ?? projectId, found.module, found.id))
     }, [moduleName, navigate, openTableById, projectId, showIfOther])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
@@ -702,7 +702,7 @@ export const ModuleWorkspace = () => {
         return (
             <div className={shared.workspacePage}>
                 <div className={styles.centered}>
-                    <UnresolvedProjectLink addressed={projectId ?? ''} problem={linkProblem} routeOf={routeOf} />
+                    <UnresolvedProjectLink addressed={projectId} problem={linkProblem} routeOf={routeOf} />
                 </div>
             </div>
         )
@@ -964,7 +964,7 @@ export const ModuleWorkspace = () => {
                     moduleName={moduleName}
                     onClose={() => setSearchFor(null)}
                     open={searchFor !== null}
-                    projectId={projectId ?? ''}
+                    projectId={projectId}
                     onOpen={found => {
                         setSearchFor(null)
                         openFound(found)
