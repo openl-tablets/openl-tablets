@@ -13,20 +13,26 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.webstudio.service.UserManagementService;
 
 /**
- * Verifies that {@link AuthoringRepository} stamps the configured author on every write and leaves
- * non-write operations untouched.
+ * Verifies that {@link AuthoringRepository} stamps the configured author on every write, names every
+ * single-file write itself, and leaves non-write operations untouched.
  *
  * @author Yury Molchan
  */
@@ -40,12 +46,25 @@ class AuthoringRepositoryTest {
     void setUp() {
         delegate = mock(BranchRepository.class);
         author = new UserInfo("tester", "tester@example.com", "Tester");
-        repository = new AuthoringRepository(delegate, author);
+        repository = new AuthoringRepository(delegate, () -> author);
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     private static FileData named(String name) {
         var data = new FileData();
         data.setName(name);
+        return data;
+    }
+
+    /** The data a file is read back with: it names the author and the message of the last commit of the file. */
+    private static FileData readBack(String name) {
+        var data = named(name);
+        data.setAuthor(new UserInfo("previous", "previous@example.com", "Previous Author"));
+        data.setComment("Add the project");
         return data;
     }
 
@@ -55,7 +74,7 @@ class AuthoringRepositoryTest {
 
     @Test
     void saveSingleFileStampsAuthorAndPassesStreamThrough() throws Exception {
-        var data = named("rules/file.txt");
+        var data = readBack("rules/file.txt");
         var stream = emptyStream();
 
         repository.save(data, stream);
@@ -68,15 +87,64 @@ class AuthoringRepositoryTest {
     }
 
     @Test
-    void existingCommentIsPreserved() throws Exception {
-        var data = named("rules/file.txt");
-        data.setComment("Custom message");
+    void folderSaveKeepsTheMessageItsCallerSet() throws Exception {
+        var folder = named("folder");
+        folder.setComment("Upload files to folder");
 
-        repository.save(data, emptyStream());
+        repository.save(folder, List.of(), ChangesetType.DIFF);
 
-        var captor = ArgumentCaptor.forClass(FileData.class);
-        verify(delegate).save(captor.capture(), any());
-        assertEquals("Custom message", captor.getValue().getComment());
+        assertEquals("Upload files to folder", folder.getComment());
+    }
+
+    @Test
+    void unnamedFolderSaveGetsADefaultMessage() throws Exception {
+        var folder = named("folder");
+
+        repository.save(folder, List.of(), ChangesetType.DIFF);
+
+        assertEquals("Update files", folder.getComment());
+    }
+
+    @Test
+    void authorIsLookedUpOnlyWhenAChangeIsWritten() throws Exception {
+        var lookups = new AtomicInteger();
+        var counting = new AuthoringRepository(delegate, () -> {
+            lookups.incrementAndGet();
+            return author;
+        });
+
+        counting.getId();
+        counting.check("rules/file.txt");
+        assertEquals(0, lookups.get());
+
+        counting.save(named("folder"), List.of(new FileItem(named("folder/a.txt"), emptyStream()),
+                new FileItem(named("folder/b.txt"), emptyStream())), ChangesetType.DIFF);
+
+        // One lookup answers for the folder and every file in it.
+        assertEquals(1, lookups.get());
+    }
+
+    @Test
+    void currentUserIsLookedUpOnceAndRemembered() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("jdoe", "n/a"));
+        var users = mock(UserManagementService.class);
+        when(users.getUser("jdoe")).thenReturn(SimpleUser.builder()
+                .setUsername("jdoe")
+                .setEmail("jdoe@example.com")
+                .setDisplayName("John Doe")
+                .build());
+        var currentAuthor = AuthoringRepository.currentAuthor(users);
+
+        assertEquals(new UserInfo("jdoe", "jdoe@example.com", "John Doe"), currentAuthor.get());
+        assertSame(currentAuthor.get(), currentAuthor.get());
+        verify(users).getUser("jdoe");
+    }
+
+    @Test
+    void currentUserUnknownToTheUserStoreIsNamedByTheLogin() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("guest", "n/a"));
+
+        assertEquals(new UserInfo("guest"), AuthoringRepository.currentAuthor(mock(UserManagementService.class)).get());
     }
 
     @Test
@@ -104,7 +172,7 @@ class AuthoringRepositoryTest {
 
     @Test
     void deleteSingleStampsAuthor() throws Exception {
-        var data = named("rules/file.txt");
+        var data = readBack("rules/file.txt");
 
         repository.delete(data);
 

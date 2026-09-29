@@ -3,20 +3,26 @@ package org.openl.studio.projects.service.files;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -39,6 +45,9 @@ import org.openl.util.StringUtils;
  * directly to the design repository: it is reserved before its state is resolved and the lock is
  * released as soon as the modification ends.
  *
+ * <p>Every commit a modification makes to a closed project kept in folders is the current user's and
+ * carries a message naming the modification, whoever changed the file before.
+ *
  * <p>A modification of a closed project answers only once the project index publishes the commit, so
  * the next read of the project sees it.
  *
@@ -53,15 +62,20 @@ public class ProjectFileRoot implements FileRoot {
     private final ProjectStateValidator projectStateValidator;
     private final ProjectFileLookupService fileLookupService;
     /**
-     * Resolved lazily: only a batch write needs the author, while the mount is built for reads too.
+     * Resolved lazily: only a write needs the author, while the mount is built for reads too.
      */
     private final Supplier<UserInfo> author;
     private final DesignTimeRepository designTimeRepository;
+    /**
+     * The current state of the project, which the mount both reads and writes, so a file it writes is read
+     * back by it. Built on first use.
+     */
+    private @Nullable AProject current;
 
     @Override
     public AProjectFolder readFolder(String version) {
         if (StringUtils.isBlank(version)) {
-            return wrap(project);
+            return wrap(current());
         }
         var historical = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
         try {
@@ -78,7 +92,26 @@ public class ProjectFileRoot implements FileRoot {
 
     @Override
     public AProjectFolder writeFolder() {
-        return project;
+        return current();
+    }
+
+    /**
+     * The current state of the project, as it is read and written, built on first use.
+     *
+     * <p>An opened project is written to its working copy, and the user names the change when the project
+     * is saved. A closed project kept in folders is committed straight to the design repository, so each of
+     * its writes becomes a commit of the current user, with a message naming the write.
+     *
+     * <p>A project kept as an archive is written through its archive, as it always is.
+     */
+    private synchronized AProject current() {
+        if (current == null) {
+            var repository = project.getRepository();
+            current = !project.isOpened() && project.isFolder() && repository instanceof BranchRepository design
+                    ? new AuthoredProject(project, new AuthoringRepository(design, author))
+                    : project;
+        }
+        return current;
     }
 
     @Override
@@ -224,5 +257,43 @@ public class ProjectFileRoot implements FileRoot {
                 source.getProject(), source.getRepository(), source.getFolderPath());
         source.getArtefacts().forEach(folder::addArtefact);
         return folder;
+    }
+
+    /**
+     * A closed project written through another repository, over the files the project has already read.
+     *
+     * <p>The files keep the data they were read with, so the project is not read again. The project is known by
+     * the data of the source, so permissions are asked about the same project.
+     */
+    private static final class AuthoredProject extends AProject {
+
+        private final AProject source;
+
+        AuthoredProject(AProject source, Repository repository) {
+            super(repository, source.getFolderPath());
+            this.source = source;
+        }
+
+        @Override
+        public FileData getFileData() {
+            return source.getFileData();
+        }
+
+        @Override
+        protected Map<String, AProjectArtefact> createInternalArtefacts() {
+            var artefacts = new HashMap<String, AProjectArtefact>();
+            var start = getFolderPath().length() + 1;
+            for (var artefact : source.getArtefacts()) {
+                if (artefact instanceof AProjectFolder folder) {
+                    // A folder held only in memory is listed anew, so its files are written the same way.
+                    artefacts.put(folder.getName(),
+                            new AProjectFolder(this, getRepository(), folder.getFolderPath(), null));
+                } else {
+                    var data = artefact.getFileData();
+                    artefacts.put(data.getName().substring(start), new AProjectResource(this, getRepository(), data));
+                }
+            }
+            return artefacts;
+        }
     }
 }

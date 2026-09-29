@@ -17,7 +17,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -47,9 +46,14 @@ public class ProjectDescriptorCleaner {
      * Removes module entries matching the artefact (all Excel files under it) from the project descriptor.
      * Must be called before the artefact is deleted, while its content is still listable.
      *
+     * <p>The rewritten descriptor is saved through the mount, the way the mount writes the deleted file.
+     *
+     * @param root     the mount of the project the artefact is deleted from
+     * @param artefact the file or folder being deleted
      * @throws ForbiddenException when the caller has no permission to modify the descriptor
      */
-    public void unregisterModules(UserWorkspaceProject project, AProjectArtefact artefact) throws ProjectException, IOException {
+    public void unregisterModules(FileRoot root, AProjectArtefact artefact) throws ProjectException, IOException {
+        var project = root.readFolder(null);
         AProjectArtefact descriptorArtefact;
         try {
             descriptorArtefact = project.getArtefact(ProjectDescriptor.FILE_NAME);
@@ -104,7 +108,7 @@ public class ProjectDescriptorCleaner {
      * Clears OpenAPI reconciliation settings referencing removed modules or a removed OpenAPI file.
      * Returns whether the descriptor was changed.
      */
-    private static boolean cleanOpenApi(UserWorkspaceProject project,
+    private static boolean cleanOpenApi(AProjectFolder project,
                                         ProjectDescriptor descriptor,
                                         AProjectArtefact artefact,
                                         List<String> removedModuleNames) {

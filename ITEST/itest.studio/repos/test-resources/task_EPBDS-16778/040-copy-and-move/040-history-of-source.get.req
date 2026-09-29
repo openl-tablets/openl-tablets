@@ -1,0 +1,4 @@
+GET /rest/projects/{PROJECT_ID}/file-history/copy.txt HTTP/1.1
+Authorization: ${USER_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+

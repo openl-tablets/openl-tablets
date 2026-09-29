@@ -26,6 +26,6 @@ public class ProjectFileRootFactory {
 
     public FileRoot of(RulesProject project) {
         return new ProjectFileRoot(project, aclProjectsHelper, projectStateValidator, fileLookupService,
-                () -> AuthoringRepository.currentAuthor(userManagementService), designTimeRepository);
+                AuthoringRepository.currentAuthor(userManagementService), designTimeRepository);
     }
 }

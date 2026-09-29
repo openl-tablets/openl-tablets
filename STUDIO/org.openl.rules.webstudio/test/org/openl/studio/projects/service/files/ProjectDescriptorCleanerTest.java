@@ -40,6 +40,7 @@ class ProjectDescriptorCleanerTest {
     private ProjectDescriptorCleaner cleaner;
     private AclProjectsHelper aclProjectsHelper;
     private UserWorkspaceProject project;
+    private FileRoot root;
     private AProjectResource descriptorResource;
 
     @BeforeEach
@@ -54,13 +55,15 @@ class ProjectDescriptorCleanerTest {
         when(descriptorResource.getArtefactPath())
                 .thenReturn(new ArtefactPathImpl(PROJECT_NAME + "/" + ProjectDescriptor.FILE_NAME));
         when(project.getArtefact(ProjectDescriptor.FILE_NAME)).thenReturn(descriptorResource);
+        root = mock(FileRoot.class);
+        when(root.readFolder(null)).thenReturn(project);
     }
 
     @Test
     void deletingModuleFile_removesItsEntryFromDescriptor() throws Exception {
         givenDescriptor(descriptor(module("Main", "rules/Main.xlsx"), module("Other", "rules/Other.xlsx")));
 
-        cleaner.unregisterModules(project, excelFile("rules/Main.xlsx"));
+        cleaner.unregisterModules(root, excelFile("rules/Main.xlsx"));
 
         var updated = writtenDescriptor();
         assertEquals(1, updated.getModules().size());
@@ -77,7 +80,7 @@ class ProjectDescriptorCleanerTest {
         when(folder.getArtefactPath()).thenReturn(new ArtefactPathImpl(PROJECT_NAME + "/rules"));
         when(folder.getArtefacts()).thenReturn(children);
 
-        cleaner.unregisterModules(project, folder);
+        cleaner.unregisterModules(root, folder);
 
         assertEquals(0, writtenDescriptor().getModules().size());
     }
@@ -86,7 +89,7 @@ class ProjectDescriptorCleanerTest {
     void deletingUnmatchedFile_keepsDescriptorUntouched() throws Exception {
         givenDescriptor(descriptor(module("Main", "rules/Main.xlsx")));
 
-        cleaner.unregisterModules(project, excelFile("rules/Unknown.xlsx"));
+        cleaner.unregisterModules(root, excelFile("rules/Unknown.xlsx"));
 
         verify(descriptorResource, never()).setContent(any());
     }
@@ -96,14 +99,14 @@ class ProjectDescriptorCleanerTest {
         when(project.getArtefact(ProjectDescriptor.FILE_NAME))
                 .thenThrow(new ProjectException("Project has no rules.xml"));
 
-        cleaner.unregisterModules(project, excelFile("rules/Main.xlsx"));
+        cleaner.unregisterModules(root, excelFile("rules/Main.xlsx"));
 
         verify(descriptorResource, never()).getContent();
     }
 
     @Test
     void deletingDescriptorItself_isIgnored() throws Exception {
-        cleaner.unregisterModules(project, file(ProjectDescriptor.FILE_NAME));
+        cleaner.unregisterModules(root, file(ProjectDescriptor.FILE_NAME));
 
         verify(descriptorResource, never()).getContent();
     }
@@ -115,7 +118,7 @@ class ProjectDescriptorCleanerTest {
         descriptor.setOpenapi(new OpenAPI("api/spec.json", OpenAPI.Mode.RECONCILIATION, "Other", "Main"));
         givenDescriptor(descriptor);
 
-        cleaner.unregisterModules(project, excelFile("rules/Main.xlsx"));
+        cleaner.unregisterModules(root, excelFile("rules/Main.xlsx"));
 
         var updated = writtenDescriptor().getOpenapi();
         assertNull(updated.getAlgorithmModuleName());
@@ -133,7 +136,7 @@ class ProjectDescriptorCleanerTest {
         fileData.setName("design/" + PROJECT_NAME + "/api/spec.json");
         when(openApiFile.getFileData()).thenReturn(fileData);
 
-        cleaner.unregisterModules(project, openApiFile);
+        cleaner.unregisterModules(root, openApiFile);
 
         assertNull(writtenDescriptor().getOpenapi());
     }
@@ -144,7 +147,7 @@ class ProjectDescriptorCleanerTest {
         when(aclProjectsHelper.hasPermission(descriptorResource, BasePermission.WRITE)).thenReturn(false);
 
         var mainFile = excelFile("rules/Main.xlsx");
-        assertThrows(ForbiddenException.class, () -> cleaner.unregisterModules(project, mainFile));
+        assertThrows(ForbiddenException.class, () -> cleaner.unregisterModules(root, mainFile));
 
         verify(descriptorResource, never()).setContent(any());
     }

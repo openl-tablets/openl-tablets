@@ -12,11 +12,13 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -60,6 +62,8 @@ class ProjectFilesIndexWaitTest {
         when(project.getBranch()).thenReturn("feature");
         when(project.isSupportsBranches()).thenReturn(true);
         when(project.isLockedByMe()).thenReturn(true);
+        // A closed project kept in folders is committed through the repository that names the current user.
+        when(project.isFolder()).thenReturn(true);
 
         designTimeRepository = mock(DesignTimeRepository.class);
         when(designTimeRepository.refreshBranch(anyString(), anyString()))
@@ -82,10 +86,25 @@ class ProjectFilesIndexWaitTest {
 
         service.deleteResource(root, "data.txt");
 
+        var deleted = ArgumentCaptor.forClass(FileData.class);
         var order = inOrder(repository, designTimeRepository, project);
-        order.verify(repository).delete(any(FileData.class));
+        order.verify(repository).delete(deleted.capture());
         order.verify(designTimeRepository).refreshBranch("design", "feature");
         order.verify(project).unlock();
+        assertEquals("user1", deleted.getValue().getAuthor().getName());
+        assertEquals("Delete data.txt", deleted.getValue().getComment());
+    }
+
+    @Test
+    void failedDeletionInClosedProjectReleasesTheLockWithoutWaiting() throws Exception {
+        projectWithFile("data.txt");
+        when(repository.delete(any(FileData.class))).thenThrow(new IOException("The commit is refused"));
+
+        var ex = assertThrows(ConflictException.class, () -> service.deleteResource(root, "data.txt"));
+
+        assertEquals("openl.error.409.file.delete.failed.message", ex.getErrorCode());
+        verify(project).unlock();
+        verify(designTimeRepository, never()).refreshBranch(anyString(), anyString());
     }
 
     @Test
