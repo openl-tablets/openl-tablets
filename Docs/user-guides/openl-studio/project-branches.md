@@ -18,14 +18,14 @@ Repository](administration/01-repository-settings/02-git-repository-settings.md#
 
 Proceed as follows:
 
-1.  In the repository, click **Create Project** and select a creation method.
+1.  On the **Projects** page, click **New Project** and select a creation method.
 1.  Select a branch-capable Design repository.
 1.  In the single **Branch** field, select an existing branch from the suggestions or enter a valid new branch name.
 1.  Complete the remaining fields and click **Create**.
 
 If the entered branch does not exist, OpenL Studio creates it from the repository default branch and writes the new
 project there. A project created only in that branch uses it as the home branch. After the project is created, its
-page opens, and the project tree beside it shows the project. The project list shows it while it is open in the
+page opens. The project list shows it while it is open in the
 workspace, or once its branch is picked in the **Branch** filter; other authorized users find it the same way,
 without a manual refresh. For more information, see [Filtering and Grouping the Project
 Tree](repository-editor.md#filtering-and-grouping-the-project-tree). If the repository is empty, the first project
@@ -33,12 +33,29 @@ commit creates the selected branch, including a valid non-default branch. Invali
 match the configured branch-name pattern are reported below the **Branch** field before the request is sent.
 
 > [!Note]
-> To copy an existing project, select **Copy Project** as the creation method. The copy has its own project name and
+> To copy an existing project, select **Copy project** as the creation method. The copy has its own project name and
 > target branch.
+
+#### Creating a Branch of an Existing Project
+
+A branch of an existing project starts from the last commit of the branch the project is on. To create it, proceed as follows:
+
+1.  Click the **Copy** icon in the row of the project on the **Projects** page, or click **Copy** on the page of the project.
+
+    The **Copy project** window shows the **Current Branch** and suggests a name in the **New Branch Name** field. The name follows the pattern configured for the repository.
+
+    ![The Copy project window offering a new branch](images/copy-project-branch-dialog.png "Creating a branch of a project")
+
+    *Creating a branch of a project*
+
+1.  Enter another name if necessary. Invalid Git names and names that do not match the configured branch-name pattern are reported below the field.
+1.  Click **Copy**.
+
+The project moves to the new branch. If the project has unsaved changes, the window warns that the new branch starts from the last commit and moving the project onto it discards them, and asks for the confirmation **I understand the consequences, move to the new branch**. When the project cannot move, OpenL Studio creates the branch and leaves the project on its current branch. Save or discard the changes, and then switch the project to the new branch.
 
 ### Working with Branches
 
-This section describes how to view existing branches, switch between them in the editor and repository,
+This section describes how to view existing branches, switch between them on the project page and in the editor,
 inspect project membership, and delete branches. OpenL Studio discovers projects from the current Git tree
 of every readable branch. A folder with `rules.xml` is always a project. A folder without the descriptor is also
 treated as a project when it has an Excel file in its root and the global
@@ -46,31 +63,28 @@ treated as a project when it has an Excel file in its root and the global
 exists only outside the default branch is represented by a protected branch when one contains it and by the branch
 with the newest commit otherwise. While no branch is picked in the **Branch** filter, the project list and the
 project tree keep to the default branch of each repository, so such a project is listed once its branch is picked,
-or while it is open in the workspace. Its **Branch** field shows the current branch and loads the branches that
-contain the project when the branch menu is opened. Proceed as follows:
+or while it is open in the workspace. The branch menu loads the branches that
+contain the project when it is opened. Proceed as follows:
 
-1.  To display a current project branch, in OpenL Studio, in the editor or repository, open a project.
+1.  To display a current project branch, open a project.
 
-    The current project branch is displayed.
+    The current project branch is displayed in the path above the project name, in the **Branch** field of the **Overview** tab, and in the **Branch** column of the **Projects** page. The default branch is marked **Default**, and a protected branch is marked with a shield icon.
 
-1.  To switch between branches in the editor, click the last link in the address bar identifying the branch name and in the list that appears, select the required branch.
+1.  To switch between branches, click the branch in the path above the project name, in the **Branch** field of the **Overview** tab or in the row of the project on the **Projects** page. The editor offers the same branch menu above the modules. In the list that appears, select the required branch.
 
-    ![](images/switching-branches-in-editor.jpeg)
+    ![Switching a project between its branches](images/switching-project-branch.png "Switching between branches")
 
-    *Switching between branches in the editor*
+    *Switching between branches*
 
-1.  To switch between branches in the repository, for a project, in the **Branch** field, select the required branch.
-2.  To inspect which repository branches contain the project, click the dots next to the **Branch** field.
+    The menu lists only the branches whose current content contains the project. Membership is read-only
+    because it is discovered from Git content. The **Filter branches** field narrows a long list down.
 
-    **Manage Branches** lists only the branches whose current content contains the project. Membership is read-only
-    because it is discovered from Git content.
+    If the project has unsaved changes, switching the branch asks to confirm that they are lost.
 
-    ![Viewing the Git branches that contain a project](images/view-project-branches.png "Viewing project branch membership")
-
-    To create a copy in another branch, use **Create Project** > **Copy Project** and select the target branch.
+    To create a copy in another branch, use **New Project** > **Copy project** and select the target branch.
     To remove a project from a branch, switch the project to that branch and use **Delete**.
 
-1.  To delete a non-default branch, switch to this branch in the project properties and click **Delete Branch.**
+1.  To delete a non-default branch, switch to this branch and click **Delete Branch** on the page of the project, or click the **Delete Branch** icon in its row on the **Projects** page.
 
     The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage
     branches** list. The project in the branch is deleted. If the non-default branch contains commits not merged to the
@@ -89,8 +103,8 @@ contain the project when the branch menu is opened. Proceed as follows:
 
     *Deleting a non-default branch with unmerged commits*
 
-1.  To delete a project from its current branch, in the repository, select the required project branch and click
-    **Delete**.
+1.  To delete a project from its current branch, switch the project to the required branch and click
+    **Delete** on the page of the project.
 
     The project is deleted from the current branch of Design repository. A project that another branch still holds
     stays in the repository on that branch; while no branch is picked in the **Branch** filter, the project list keeps
@@ -167,7 +181,7 @@ window of its own.
 
 OpenL Tablets allows defining a list of protected branches for Git design repository to avoid pushing erroneous changes into main or release branches.
 
-If a branch is marked as protected, all actions that can impact Git history, such as deleting a project or module or synchronizing to a protected branch, are forbidden. In this case, separate branches are modified and then merged into the protected branch only via the Git CI process.
+If a branch is marked as protected, all actions that can impact Git history, such as deleting a project or synchronizing to a protected branch, are forbidden. In this case, separate branches are modified and then merged into the protected branch only via the Git CI process.
 
 Branches can be defined as protected using the following property:
 

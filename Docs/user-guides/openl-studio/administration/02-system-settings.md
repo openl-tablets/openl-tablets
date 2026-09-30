@@ -22,7 +22,7 @@ After making changes, click **Apply** to save.
 To clear all history files for all projects, click the **Clear All History** button and confirm deletion.
 
 > [!Note]
-> Enabling **Detect projects by Excel files** slows down the **Repository** tab because OpenL Studio must inspect
+> Enabling **Detect projects by Excel files** slows down the **Projects** page because OpenL Studio must inspect
 > Excel files while discovering projects.
 
 > **WARNING!** To restore all settings to their default values, in the **Reset Settings** group, click **Restore Defaults and Restart**. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.

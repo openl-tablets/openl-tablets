@@ -158,7 +158,7 @@ OpenL Studio is pre-configured in single-user mode. A user is automatically sign
 The following topics are included:
 
 -   [Rules Editor](#rules-editor)
--   [Repository Editor](#repository-editor)
+-   [Projects Page](#projects-page)
 -   [Administration](#administration)
 
 #### Rules Editor
@@ -169,9 +169,9 @@ Several examples and tutorials are already in the **No Changes** status, therefo
 
 *Projects in Rules Editor available for editing*
 
-#### Repository Editor
+#### Projects Page
 
-Users can work with projects loaded in Repository in the Demo package and create their own new projects. For more information on how to manage projects in Repository, see [OpenL Studio Guide > Using Repository Editor](../../openl-studio/repository-editor.md#using-repository-editor).
+Users can work with projects loaded in Repository in the Demo package and create their own new projects on the **Projects** page. For more information on how to manage projects in Repository, see [OpenL Studio Guide > Using the Projects Page](../../openl-studio/repository-editor.md#using-the-projects-page).
 
 The “Example 3 – Auto Policy Calculation” project is already deployed and can be used in two ways: directly via OpenL Tablets Rule Services, as described in [OpenL Tablets Rule Services in a Demo Project](#openl-rule-services-in-a-demo-project), or through the Rule Services Demo Client, as described in [OpenL Tablets Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package).
 

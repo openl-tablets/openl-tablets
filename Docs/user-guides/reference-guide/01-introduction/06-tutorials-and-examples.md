@@ -50,7 +50,7 @@ To create a tutorial project, proceed as follows:
 
 For more information on the other ways to create a project, see [OpenL Studio Guide > Creating a Project from Template](../../openl-studio/repository-editor.md#creating-a-project-from-template).
 
-To open the project, in the top line menu, click **Editor**. It is highly recommended to start from reading Excel files for examples and tutorials which provide clear explanations for every step involved.
+To view the rules of the project, click the name of a module on the **Overview** tab of the project page. It is highly recommended to start from reading Excel files for examples and tutorials which provide clear explanations for every step involved.
 
 ![Tutorial project listed in the OpenL Studio Editor](../ref-guide-images/tutorialProjectOpenlStudio.png)
 
