@@ -15,7 +15,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * attributes, so it can be replayed on every STOMP frame by the inbound channel interceptor.
  * <p>
  * This covers the case that is not persisted in the HTTP session: a third-party client authenticated by an
- * {@code Authorization} header on the {@code /rest/ws} handshake (PAT/Bearer/Basic), resolved statelessly by
+ * {@code Authorization} header on the {@code /ws} handshake (PAT/Bearer/Basic), resolved statelessly by
  * the {@code org.openl.studio.security} filter chains and therefore absent from the session.
  * <p>
  * When the context already comes from the HTTP session (cookie-authenticated UI), it is left untouched.

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.mail.config.MailSenderProperties;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
+import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
 import org.openl.util.IOUtils;
 
 
@@ -28,9 +29,6 @@ import org.openl.util.IOUtils;
 public class MailSender {
 
     private static final String MAIL_VERIFICATION_TEMPLATE = "/templates/email-verification.eml";
-
-    /** The one prefix every API endpoint is served under, and therefore where the application root ends. */
-    private static final String API_PREFIX = "/rest";
 
     private final MailSenderProperties settings;
     private final UserSettingManagementService userSettingManagementService;
@@ -103,12 +101,15 @@ public class MailSender {
      * prefix and everything after it dropped. A deployment context path is kept: only the last occurrence of
      * the prefix is cut, so a context path that itself ends in {@code /rest} survives.
      *
+     * <p>The prefix is a whole path segment. A user name that starts with {@code rest}, the last segment of some
+     * request addresses, is not taken for it.
+     *
      * @param requestUrl the full address the request arrived at
      * @param token      the verification token to carry
      * @return the verification address
      */
     static String createVerificationLink(String requestUrl, String token) {
-        var prefixAt = requestUrl.lastIndexOf(API_PREFIX);
+        var prefixAt = requestUrl.lastIndexOf(StudioDispatcherServlet.REST_PATH + "/");
         var root = prefixAt < 0 ? requestUrl : requestUrl.substring(0, prefixAt);
         return root + "/email?token=" + token;
     }

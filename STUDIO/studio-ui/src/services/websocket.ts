@@ -1,5 +1,4 @@
 import { Client, IMessage, StompConfig } from '@stomp/stompjs'
-import { API_PREFIX } from './config'
 
 export interface WebSocketMessage {
     body: string
@@ -43,8 +42,8 @@ class WebSocketService {
     private initializeClient() {
         const url = new URL(document.baseURI)
         const proto = url.protocol === 'https:' ? 'wss:' : 'ws:'
-        // The handshake goes to the API prefix, like every other call; url.pathname already ends in a slash.
-        const wsUrl = `${proto}//${url.host}${url.pathname}${API_PREFIX.slice(1)}/ws`
+        // The handshake has an address of its own, apart from the REST API; url.pathname already ends in a slash.
+        const wsUrl = `${proto}//${url.host}${url.pathname}ws`
 
         const stompConfig: StompConfig = {
             brokerURL: wsUrl,

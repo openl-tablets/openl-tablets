@@ -111,7 +111,7 @@ public class SamlSecurityConfig {
             @Qualifier("webExceptionTranslationFilter") ExceptionTranslationFilter webExceptionTranslationFilter,
             @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
 
-        return new DefaultSecurityFilterChain(RequestMatchers.matcher("/rest/**"),
+        return new DefaultSecurityFilterChain(RequestMatchers.api(),
                 restSecurityContextFilter,
                 patAuthenticationFilter,
                 webExceptionTranslationFilter,

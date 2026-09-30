@@ -7,6 +7,8 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
+
 public final class RequestMatchers {
 
     private RequestMatchers() {
@@ -24,6 +26,16 @@ public final class RequestMatchers {
             return matchers.getFirst();
         }
         return new OrRequestMatcher(matchers);
+    }
+
+    /** The patterns of the addresses that answer a caller with data, not a page: the REST API and the handshake. */
+    public static String[] apiPatterns() {
+        return new String[]{StudioDispatcherServlet.REST_PATH + "/**", StudioDispatcherServlet.WEB_SOCKET_PATH};
+    }
+
+    /** Matches the addresses that answer a caller with data, not a page: the REST API and the WebSocket handshake. */
+    public static RequestMatcher api() {
+        return anyOf(apiPatterns());
     }
 
     public static RequestMatcher matcher(String pattern) {

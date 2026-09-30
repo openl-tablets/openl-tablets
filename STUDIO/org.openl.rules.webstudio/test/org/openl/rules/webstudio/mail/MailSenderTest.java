@@ -34,6 +34,18 @@ class MailSenderTest {
     }
 
     @Test
+    void linkIgnoresAUserNameThatStartsWithTheApiPrefix() {
+        // The user name is the last segment of the address, and "/restore" starts with "/rest".
+        assertEquals("http://openl.example.com:8080/webstudio/email?token=" + TOKEN,
+                MailSender.createVerificationLink("http://openl.example.com:8080/webstudio/rest/mail/send/restore",
+                        TOKEN));
+        assertEquals("http://openl.example.com/email?token=" + TOKEN,
+                MailSender.createVerificationLink("http://openl.example.com/rest/users/rest", TOKEN));
+        assertEquals("http://openl.example.com/rest/email?token=" + TOKEN,
+                MailSender.createVerificationLink("http://openl.example.com/rest/rest/mail/send/rest", TOKEN));
+    }
+
+    @Test
     void addressWithoutTheApiPrefixIsTakenAsTheRoot() {
         assertEquals("http://openl.example.com/email?token=" + TOKEN,
                 MailSender.createVerificationLink("http://openl.example.com", TOKEN));

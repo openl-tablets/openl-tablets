@@ -85,7 +85,7 @@ public class OAuth2SecurityConfig {
                 oauth2RedirectFilter);
     }
 
-    // REST endpoints
+    // REST endpoints and the WebSocket handshake
     @Bean
     @Order(4)
     public SecurityFilterChain restEndpointsFilterChain(
@@ -95,7 +95,7 @@ public class OAuth2SecurityConfig {
             @Qualifier("bearerExceptionTranslationFilter") ExceptionTranslationFilter bearerExceptionTranslationFilter,
             @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
 
-        return new DefaultSecurityFilterChain(RequestMatchers.matcher("/rest/**"),
+        return new DefaultSecurityFilterChain(RequestMatchers.api(),
                 restSecurityContextFilter,
                 patAuthenticationFilter,
                 bearerTokenAuthenticationFilter,

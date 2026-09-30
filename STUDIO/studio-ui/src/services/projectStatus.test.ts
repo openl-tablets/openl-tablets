@@ -6,7 +6,6 @@ import type {
 
 vi.mock('services/config', () => ({
     __esModule: true,
-    API_PREFIX: '/rest',
     default: { CONTEXT: '/ctx', API_ROOT: '/ctx/rest' },
 }))
 

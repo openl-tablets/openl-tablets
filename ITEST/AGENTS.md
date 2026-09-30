@@ -213,7 +213,7 @@ Response content encoding is decoded before evaluating JSONPath, including layer
 Cookies persist **within each subdirectory** and reset when entering a new subdirectory.
 
 Requests authenticate themselves: every request that needs a user carries `Authorization: Basic <base64(user:pass)>`,
-and a WebSocket handshake connects to `/rest/ws` with the same header. The login form (`POST /login` followed by
+and a WebSocket handshake connects to `/ws` with the same header. The login form (`POST /login` followed by
 requests riding on the session cookie) is exercised in exactly one place — the `003`–`008` sequence at the root of
 `itest.studio/multi/test-resources`, which proves the form works — and is not a way to sign a scenario in. Nor is a
 `GET /` before a scenario: the root serves a static page and prepares nothing.
@@ -386,15 +386,15 @@ closes it: the JDK sends a request again on a connection the server has just clo
 
 `StompTester` (in `server-core`) wraps a STOMP-over-WebSocket client:
 
-- There is **one** endpoint, `/rest/ws`, and it is authenticated — by the session cookie or by an
-  `Authorization` header, whichever the `/rest/**` chain finds. An anonymous handshake is refused in every
-  multi-user mode.
+- There is **one** endpoint, `/ws`, and it is authenticated — by the session cookie or by an
+  `Authorization` header, whichever the API chain finds (`/rest/**` and `/ws` share it). An anonymous handshake
+  is refused in every multi-user mode.
 - `new StompTester(client, client.getWebSocketBaseURL(), Map.of("Authorization", basic))` — the way a multi-user suite connects: the handshake carries its own header, like any API client.
 - `new StompTester(client)` — connects to the same endpoint with whatever session cookie the client already
   holds. Enough in single-user mode, where every request is the one user; in multi-user mode sign in first
   (`client.send("005-login-admin")`) or pass an `Authorization` header, or the handshake is rejected.
 - `awaitMatching(topic, Type.class, predicate)` returns a future completing on the first matching frame (`awaitFirst` takes any frame). Subscribe **before** triggering the action that publishes, so the terminal frame isn't missed.
-- A rejected handshake (e.g. `401` on `/rest/ws` without credentials) makes the constructor throw — assert it with `assertThrows(AssertionError.class, ...)`.
+- A rejected handshake (e.g. `401` on `/ws` without credentials) makes the constructor throw — assert it with `assertThrows(AssertionError.class, ...)`.
 
 Only OpenL Studio opens a WebSocket, so the Jetty container that serves the handshake is declared once in
 `ITEST/itest.studio/pom.xml` rather than in `server-core` — every Rule Services suite would otherwise carry it for

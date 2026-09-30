@@ -11,8 +11,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * Pins where a visitor is sent after signing in.
  *
  * <p>The API is served by a servlet mapped at {@code /rest/*}, so a call to it arrives with {@code /rest} as
- * the servlet path and the rest as the path info — which is what the matcher reads. A screen is served by the
- * catch-all page servlet, so it arrives as a servlet path of its own.
+ * the servlet path and the rest as the path info — which is what the matcher reads. The WebSocket handshake is
+ * mapped exactly at {@code /ws}, so it arrives as a servlet path alone. A screen is served by the catch-all page
+ * servlet, so it arrives as a servlet path of its own.
  *
  * @author Yury Molchan
  */
@@ -30,7 +31,7 @@ class CommonAuthenticationConfigTest {
         // Answering an expired session on an API call must not make the sign-in land on JSON
         // instead of a screen.
         assertNull(savedRequestFor("/rest", "/projects"), "an API call must not be remembered");
-        assertNull(savedRequestFor("/rest", "/ws"), "a WebSocket handshake must not be remembered");
+        assertNull(savedRequestFor("/ws", null), "a WebSocket handshake must not be remembered");
     }
 
     private Object savedRequestFor(String servletPath, String pathInfo) {

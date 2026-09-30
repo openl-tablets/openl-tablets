@@ -21,9 +21,9 @@ Studio installation, so both always ship and version as one unit.
 #### OpenL Studio
 
 - **Bootstrap** — `SpringInitializer`, a `ServletContextListener` declared in `web.xml`, builds an
-  `XmlWebApplicationContext` from `/WEB-INF/spring/webstudio.xml` and registers the Spring `DispatcherServlet` at
-  `/rest/*`. Studio is not a Spring Boot application: it borrows only condition annotations such as
-  `@ConditionalOnExpression`.
+  `XmlWebApplicationContext` from `/WEB-INF/spring/webstudio.xml` and registers `StudioDispatcherServlet`, a Spring
+  `DispatcherServlet`, at `/rest/*` and at the exact `/ws`. Studio is not a Spring Boot application: it borrows only
+  condition annotations such as `@ConditionalOnExpression`.
 - **Configuration refresh** — `SpringInitializer` checks the dynamic properties every 10 seconds and refreshes the
   whole context in place when they change, for example after an administrator saves the authentication settings.
   The refresh invalidates every HTTP session. A component that caches configuration must follow the context
@@ -55,7 +55,7 @@ Studio installation, so both always ship and version as one unit.
     external groups included;
   - it is sent as `Authorization: Token <pat>` and `PatAuthenticationFilter` validates it on every request;
   - tokens are managed at `/rest/users/personal-access-tokens`, and `@NotPatAuth` keeps a PAT from managing PATs.
-- **REST and WebSocket** — REST lives under `/rest/**`. STOMP over WebSocket has a single endpoint, `/rest/ws`, for the
+- **REST and WebSocket** — REST lives under `/rest/**`. STOMP over WebSocket has a single endpoint, `/ws`, for the
   UI and for third-party clients; the REST chain authenticates its handshake by the session cookie or the
   `Authorization` header.
 - **Client state** — `RulesUserSession`, `WebStudio`, the compilation job registry, debug sessions, test, run
@@ -97,7 +97,7 @@ Studio installation, so both always ship and version as one unit.
     `OPENL_MCP_PRESERVE_AUTH_SCHEME` forwards `Bearer` unchanged — token passthrough, off by default;
   - browser origins pass only through the `MCP_ALLOWED_ORIGINS` allow-list; `Host` is not checked, and the server
     listens on every interface.
-- **Talks to Studio** — REST under `<base-url>/rest` (the base URL may carry a context path), STOMP at `/rest/ws` to
+- **Talks to Studio** — REST under `<base-url>/rest` (the base URL may carry a context path), STOMP at `/ws` to
   wait for compilations, and the `JSESSIONID` cookie captured and replayed per `OpenLClient`.
 - **Open items of its own plan** (`docs/development/mcp-spec-alignment.md`):
   - P1.2 — the trace, test-result and merge-conflict flows keep state in the Studio session, so they work only over
@@ -159,7 +159,7 @@ flowchart LR
         subgraph WAR["ee10: webapps/ROOT — OpenL Studio"]
             SF["SecurityFilter → filterChainProxy"]
             AS["Spring Authorization Server<br/>/oauth2/*, AS metadata, JWKS"]
-            REST["REST /rest/** and STOMP /rest/ws"]
+            REST["REST /rest/** and STOMP /ws"]
             UI["React UI and login<br/>form, OIDC, SAML"]
             PAT["PAT management<br/>/rest/users/personal-access-tokens"]
             L["McpServerProcess<br/>SmartLifecycle"]
@@ -492,7 +492,7 @@ flowchart TB
     R["request into the Studio webapp"] --> F{"SecurityFilter → filterChainProxy"}
     F -->|"SAS endpoints, user.mode ≠ single"| C0["Authorization Server chain<br/>ordered before the static chain"]
     F -->|"/assets/**, /.well-known/**, /rest/public/**, …"| C1["@Order(0) static chain<br/>no security"]
-    F -->|"/rest/**"| C2["REST chain of the mode<br/>session, Basic, PAT, IdP or embedded-AS Bearer"]
+    F -->|"/rest/**, /ws"| C2["REST chain of the mode<br/>session, Basic, PAT, IdP or embedded-AS Bearer"]
     F -->|"login, logout, SSO endpoints"| C3["login chains of the mode<br/>form, OIDC, SAML"]
     F -->|"anything else"| C4["catch-all chain of the mode"]
 ```
@@ -507,8 +507,8 @@ What the existing security code dictates:
 - **Entry points** — the AS chain sends an unauthenticated browser to the login entry of the mode: `/login` in
   `multi` and `ad`, the existing `loginUrl` bean in `oauth2` and `saml`.
 - **Saved request** — the AS chain saves `/oauth2/authorize` in the HTTP session, and the
-  `SavedRequestAwareAuthenticationSuccessHandler` of the mode replays it after login. Studio excludes only `/rest/**`
-  from its `httpSessionRequestCache`, so the authorize request is kept.
+  `SavedRequestAwareAuthenticationSuccessHandler` of the mode replays it after login. Studio excludes only the API
+  addresses, `/rest/**` and `/ws`, from its `httpSessionRequestCache`, so the authorize request is kept.
 - **Consent screen** — SAS renders its default consent page on the server, and Studio renders no server page. The
   `consentPage` points at a React route backed by a REST endpoint that names the client (the host of its `client_id`
   URL) and the requested scopes.
@@ -649,7 +649,8 @@ The consent screen shows the **host of the client_id URL**: users approve a doma
 
 #### 4.3.4 REST chains accept the exchanged token
 
-Every mode except `single` gets a bearer provider for the tokens of the embedded AS in its `/rest/**` chain:
+Every mode except `single` gets a bearer provider for the tokens of the embedded AS in its REST chain, the one that
+matches `/rest/**` and `/ws`:
 
 - **`multi`, `ad`** — the `HttpSecurity` chain of `FormBasedAuthenticationConfig` adds `oauth2ResourceServer` with the
   decoder below.
@@ -824,7 +825,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
   refresh included, and is never written to disk.
 - `/rest` sees the **real user** (`sub`) with `aud` = `https://studio.example.com/rest`, and the audit trail carries
   `act.sub=mcp-server`.
-- The exchanged token authenticates the STOMP handshake at `/rest/ws` too, since the handshake runs through the same
+- The exchanged token authenticates the STOMP handshake at `/ws` too, since the handshake runs through the same
   REST chain.
 - Studio has no public-URL setting today. The issuer, the MCP resource and the REST audience derive from a new
   `mcp.public-url` setting (§8).
