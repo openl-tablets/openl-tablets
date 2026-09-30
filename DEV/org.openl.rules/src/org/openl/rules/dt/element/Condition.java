@@ -318,18 +318,17 @@ public class Condition extends FunctionalRow implements ICondition {
                                                 IParameterDeclaration param,
                                                 ConditionCasts conditionCasts,
                                                 IBindingContext bindingContext) {
-        if (Objects.equals(param.getType().getComponentClass(), methodType)) {
+        // The values are compared as the index compares them: an alias is compared in the Java type it stands for.
+        var comparedType = ConditionHelper.comparedType(param.getType().getComponentClass(), methodType);
+        if (Objects.equals(comparedType, methodType)) {
             return "contains(%s, %s)".formatted(param.getName(), source.getCode());
         }
         if (conditionCasts.isCastToConditionTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(CAST_PERFORMANCE_WARNING.formatted(
                     getName(),
                     methodType.getName(),
-                    param.getType().getComponentClass().getName()), tableSyntaxNode));
-            return "contains(%s, (%s) %s)".formatted(
-                    param.getName(),
-                    param.getType().getComponentClass().getName(),
-                    source.getCode());
+                    comparedType.getName()), tableSyntaxNode));
+            return "contains(%s, (%s) %s)".formatted(param.getName(), comparedType.getName(), source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(CAST_PERFORMANCE_WARNING.formatted(
                     getName(),
