@@ -173,7 +173,6 @@ public class ProjectModel {
     @Getter
     private String historyStoragePath;
 
-    private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
 
     /**
@@ -928,8 +927,6 @@ public class ProjectModel {
                     xlsModuleSyntaxNodes.clear();
                 }
                 webStudioWorkspaceDependencyManager = null;
-                recentlyVisitedTables.clear();
-
                 break;
             case SINGLE:
                 // The session may hold nothing compiled at all - the module was cleared when its project was
