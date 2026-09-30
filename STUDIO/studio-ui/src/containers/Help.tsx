@@ -1,16 +1,17 @@
 import React, { useContext } from 'react'
-import { Card, Col, List, Row, Typography } from 'antd'
+import { Card, Col, Row, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
 import { Link } from 'react-router-dom'
 import { CompressOutlined, FileTextOutlined, GlobalOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
+// Each guide is a folder of `Docs/user-guides`, which the documentation site publishes at `user-guides/<path>`.
 const documentationItems = [
-    'Installation Guide',
-    'Reference Guide',
-    'Developer Guide',
-    'OpenL Studio User Guide',
-    'Rule Services Usage and Customization Guide'
+    { path: 'getting-started', title: 'Getting Started' },
+    { path: 'installation-guide', title: 'Installation Guide' },
+    { path: 'reference-guide', title: 'Reference Guide' },
+    { path: 'openl-studio', title: 'OpenL Studio User Guide' },
+    { path: 'rule-services', title: 'Rule Services Usage and Customization Guide' }
 ]
 
 export const Help: React.FC = () => {
@@ -20,7 +21,9 @@ export const Help: React.FC = () => {
     const openlVersion = openlInfo?.['openl.version'] || 'unknown'
     const openlUrl = openlInfo?.['openl.site'] || 'https://openl-tablets.org'
 
-    const baseLink = `${openlUrl}/files/openl-tablets/${openlVersion}/OpenL Tablets - `
+    // The documentation of a snapshot build is the one of the next release.
+    const docsVersion = openlVersion.endsWith('SNAPSHOT') ? 'next' : openlVersion
+    const guidesLink = `${openlUrl}/openl-tablets/${docsVersion}/user-guides`
 
     return (
         <>
@@ -45,15 +48,12 @@ export const Help: React.FC = () => {
                             </>
                         )}
                     >
-                        <List
-                            dataSource={documentationItems}
-                            renderItem={(item) => (
-                                <>
-                                    <Link rel="noopener noreferrer" target="_blank" to={`${baseLink}${item}.pdf`}>{item}</Link>
-                                    <br />
-                                </>
-                            )}
-                        />
+                        {documentationItems.map((item) => (
+                            <React.Fragment key={item.path}>
+                                <Link rel="noopener noreferrer" target="_blank" to={`${guidesLink}/${item.path}`}>{item.title}</Link>
+                                <br />
+                            </React.Fragment>
+                        ))}
                     </Card>
                 </Col>
                 <Col md={8} sm={12} xs={24}>
