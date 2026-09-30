@@ -61,7 +61,7 @@ describe('webSocketService', () => {
     it('builds websocket URL from base URI', async () => {
         const { latestConfig } = await loadService()
 
-        expect(latestConfig().brokerURL).toBe('wss://localhost:8080/webstudio/rest/ws')
+        expect(latestConfig().brokerURL).toBe('wss://localhost:8080/webstudio/ws')
     })
 
     it('rejects connect with timeout error when never connected', async () => {
@@ -112,7 +112,7 @@ describe('webSocketService', () => {
             value: 'https://example.com/app/',
         })
         const { latestConfig } = await loadService()
-        expect(latestConfig().brokerURL).toBe('wss://example.com/app/rest/ws')
+        expect(latestConfig().brokerURL).toBe('wss://example.com/app/ws')
     })
 
     it('resolves connect immediately when already connected', async () => {

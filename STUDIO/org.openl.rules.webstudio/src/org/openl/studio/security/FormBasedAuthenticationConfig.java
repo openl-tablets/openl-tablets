@@ -18,13 +18,13 @@ import org.openl.studio.security.pat.filter.PatAuthenticationFilter;
 @ConditionalOnExpression("'${user.mode}' == 'ad' || '${user.mode}' == 'multi'")
 public class FormBasedAuthenticationConfig {
 
-    // REST endpoints - also accept Personal Access Tokens
+    // REST endpoints and the WebSocket handshake - also accept Personal Access Tokens
     @Bean
     @Order(1)
     public SecurityFilterChain restEndpointsFilterChain(HttpSecurity http,
                                                         PatAuthenticationFilter patAuthenticationFilter) throws Exception {
         return http
-                .securityMatcher("/rest/**")
+                .securityMatcher(RequestMatchers.apiPatterns())
                 .csrf(AbstractHttpConfigurer::disable)
                 .requestCache(AbstractHttpConfigurer::disable)
                 .httpBasic(basic -> basic.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

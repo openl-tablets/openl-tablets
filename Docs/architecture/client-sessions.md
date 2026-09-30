@@ -55,10 +55,10 @@ Controllers and services get the beans as before; the scope finds the right inst
 
 ## No Session for a Stateless Request
 
-- **OAuth2 and SAML** — the `/rest/**` chain reads the signed-in user from an existing session
+- **OAuth2 and SAML** — the `/rest/**` and `/ws` chain reads the signed-in user from an existing session
   (`restSecurityContextFilter`, a `SecurityContextHolderFilter` over `HttpSessionSecurityContextRepository`) and
   never saves one. The bearer and PAT filters authenticate the request alone.
-- **Database and Active Directory** — the `/rest/**` chain is built by `HttpSecurity`, whose Basic and PAT
+- **Database and Active Directory** — the `/rest/**` and `/ws` chain is built by `HttpSecurity`, whose Basic and PAT
   authentication already hold for the request alone.
 
 ## The User Workspace

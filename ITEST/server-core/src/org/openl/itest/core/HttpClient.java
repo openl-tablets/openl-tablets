@@ -37,8 +37,8 @@ public class HttpClient implements AutoCloseable {
     public static final String ANSI_GREEN_BOLD = "\u001B[1;32m";
     public static final String ANSI_BLUE_BOLD = "\u001B[1;34m";
 
-    /** The one STOMP endpoint OpenL Studio serves, under the same prefix as the rest of the API. */
-    private static final String WEB_SOCKET_PATH = "/rest/ws";
+    /** The one STOMP endpoint OpenL Studio serves. It has an address of its own, apart from the REST API. */
+    private static final String WEB_SOCKET_PATH = "/ws";
 
     private final JettyServer server;
     private final URI baseURL;

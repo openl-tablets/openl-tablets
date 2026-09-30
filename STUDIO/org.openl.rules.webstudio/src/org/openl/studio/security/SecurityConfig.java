@@ -12,6 +12,8 @@ import org.springframework.security.config.web.PathPatternRequestMatcherBuilderF
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -40,10 +42,10 @@ public class SecurityConfig {
                         "/icons/**",
                         "/assets/**",
                         "/.well-known/**",
-                        "/rest/public/**",
-                        "/rest/settings",
-                        "/rest/api-docs",
-                        "/rest/openapi.json"
+                        StudioDispatcherServlet.REST_PATH + "/public/**",
+                        StudioDispatcherServlet.REST_PATH + "/settings",
+                        StudioDispatcherServlet.REST_PATH + "/api-docs",
+                        StudioDispatcherServlet.REST_PATH + "/openapi.json"
                 )
                 // Disable any configurers and authentications for the static-like resources.
                 .csrf(AbstractHttpConfigurer::disable)

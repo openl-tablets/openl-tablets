@@ -26,7 +26,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import org.openl.info.OpenLInfoLogger;
 import org.openl.rules.openapi.OpenAPIConfiguration;
@@ -140,19 +139,20 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     }
 
     /**
-     * Register Spring Dispatcher Servlet
+     * Registers the Spring dispatcher. It answers the REST API under {@code /rest} and the WebSocket handshake at
+     * {@code /ws}.
      *
      * @param sc servlet context
      */
     private void registerDispatcherServlet(ServletContext sc) {
-        var dispatcherServlet = new DispatcherServlet();
+        var dispatcherServlet = new StudioDispatcherServlet();
         dispatcherServlet.setApplicationContext(applicationContext);
         var eventListener = (ApplicationListener<ContextRefreshedEvent>) dispatcherServlet::onApplicationEvent;
         applicationContext.addApplicationListener(eventListener);
 
         var registration = sc.addServlet("springDispatcher", dispatcherServlet);
         registration.setLoadOnStartup(1);
-        registration.addMapping("/rest/*");
+        registration.addMapping(StudioDispatcherServlet.REST_PATH + "/*", StudioDispatcherServlet.WEB_SOCKET_PATH);
 
         var multipartConfigElement = new MultipartConfigElement("", -1L, -1L, MULTIPART_FILE_SIZE_THRESHOLD);
         registration.setMultipartConfig(multipartConfigElement);

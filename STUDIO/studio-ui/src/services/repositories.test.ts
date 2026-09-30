@@ -40,7 +40,7 @@ vi.mock('./apiCall', () => ({
     },
 }))
 
-vi.mock('./config', () => ({ API_PREFIX: '/rest', default: { CONTEXT: '/studio', API_ROOT: '/studio/rest' } }))
+vi.mock('./config', () => ({ default: { CONTEXT: '/studio', API_ROOT: '/studio/rest' } }))
 
 vi.mock('../utils/download', () => ({
     triggerDownload: vi.fn(),

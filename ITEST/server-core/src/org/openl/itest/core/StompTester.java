@@ -59,7 +59,7 @@ public final class StompTester implements AutoCloseable {
     /**
      * Connects to a specific STOMP endpoint with extra handshake headers.
      *
-     * <p>The {@code /rest/ws} handshake is authenticated by the {@code /rest/**} security chain, which
+     * <p>The {@code /ws} handshake is authenticated by the same security chain as the {@code /rest/**} calls, which
      * accepts either credential. The session cookie established by previous HTTP calls is always sent when
      * present, so a scenario that signed in through the form needs nothing else; {@code handshakeHeaders}
      * adds headers on top of it — e.g. {@code Authorization: Basic ...} for a client that carries no session.

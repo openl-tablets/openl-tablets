@@ -24,7 +24,7 @@ import org.openl.itest.core.StompTester;
  *     <li>OpenL Studio starts in multi-user mode.</li>
  *     <li>A project is created in the design repository (see {@code test-resources-socket/projects-multi}).</li>
  *     <li>{@code GET /projects/{id}/status} reports {@code idle} — nothing compiled yet.</li>
- *     <li>The client subscribes to the per-user status topic over {@code /rest/ws}, authenticated by an
+ *     <li>The client subscribes to the per-user status topic over {@code /ws}, authenticated by an
  *     {@code Authorization: Basic} header the way any API client is.</li>
  *     <li>{@code GET /projects/{id}/tables} initializes project compilation.</li>
  *     <li>Compilation progress is pushed to the subscriber over the WebSocket.</li>

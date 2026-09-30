@@ -7,10 +7,12 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - **The server renders no page.** Every address answers with the one page the frontend build wrote
   (`AppPageServlet`), and the screen is drawn in the browser; everything else the server answers is REST or
   a WebSocket message. A feature therefore lands as an endpoint plus a React screen — never as a server-rendered
-  page or a fragment of HTML. Only three addresses answer differently, each through a servlet of its own:
+  page or a fragment of HTML. Only a few addresses answer differently, each through a servlet mapping of its own:
   `ApiDocsServlet` answers `/api-docs` with the page the API documentation is drawn on, `StaticResourcesServlet`
-  hands a built file (`/assets`, `/icons`, the favicons) to the container, and the Spring `DispatcherServlet`
-  serves `/rest`.
+  hands a built file (`/assets`, `/icons`, the favicons) to the container, and the Spring `StudioDispatcherServlet`
+  serves the REST API under `/rest` and the WebSocket handshake at `/ws`. The two are different protocols, so the
+  handshake is not under `/rest`: a proxy and a timeout treat a long-lived connection differently from a request.
+  Both addresses share one security chain. The dispatcher lets a handler answer at its own address only.
 - **ACL checks are the last thing a condition evaluates.** A permission probe reaches the ACL database
   through a transaction of its own, while the project state it is weighed against is already at hand, so a
   condition tests the state first and asks for the permission only when the answer still depends on it.

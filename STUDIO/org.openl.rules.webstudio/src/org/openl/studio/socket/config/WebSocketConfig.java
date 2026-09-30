@@ -35,6 +35,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
+import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
 import org.openl.studio.socket.handler.AnonymousSupportHandshakeHandler;
 import org.openl.studio.socket.handler.SecurityContextHandshakeInterceptor;
 
@@ -49,10 +50,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Servlet-relative endpoint, so it is served at /rest/ws - the one address, for the UI and for
-        // third-party clients alike. The /rest/** chain in org.openl.studio.security authenticates the
-        // handshake by the session cookie or by an Authorization header (PAT/Bearer/Basic).
-        registry.addEndpoint("/ws")
+        // The one address of the handshake, for the UI and for third-party clients alike. The dispatcher maps it
+        // exactly, so the endpoint path is the address itself. The API chains in org.openl.studio.security
+        // authenticate the handshake by the session cookie or by an Authorization header (PAT/Bearer/Basic).
+        registry.addEndpoint(StudioDispatcherServlet.WEB_SOCKET_PATH)
                 .setHandshakeHandler(new AnonymousSupportHandshakeHandler())
                 .addInterceptors(new HttpSessionHandshakeInterceptor(),  // pass the HTTP Session to the WebSocket
                         new SecurityContextHandshakeInterceptor());
