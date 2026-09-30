@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { App, Button, Divider, Form, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
@@ -6,18 +6,20 @@ import { apiCall } from '../services'
 import { UserProfileFormFields } from '../types/user'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { useUserStore } from 'store'
+import { changedValues } from 'utils/userProfile'
 
 export const UserSettings: React.FC = () => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
     const { userProfile, fetchUserProfile } = useUserStore()
+    const [form] = Form.useForm()
 
-    const treeViewOptions = useMemo(() =>
-        userProfile?.profiles?.map((profile) => ({
-            value: profile.name,
-            label: profile.displayName,
-        })) || [],
-    [userProfile])
+    // The fields follow every read of the profile, so they show what a save compares them with.
+    useEffect(() => {
+        if (userProfile) {
+            form.setFieldsValue(userProfile)
+        }
+    }, [form, userProfile])
 
     const testsPerPageOptions = [
         {
@@ -41,19 +43,10 @@ export const UserSettings: React.FC = () => {
     const [saving, setSaving] = useState(false)
 
     const handleSubmit = async (values: UserProfileFormFields) => {
-        const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
-
         try {
             setSaving(true)
-            const body = {
-                ...restUserProfile,
-                ...values,
-                changePassword: {
-                    newPassword: '',
-                    currentPassword: '',
-                    confirmPassword: '',
-                }
-            }
+            // Only what was changed here: the rest of the profile keeps what is stored, whatever was saved meanwhile.
+            const body = changedValues(values, userProfile)
             await apiCall('/users/profile', {
                 method: 'PUT',
                 headers: {
@@ -73,6 +66,7 @@ export const UserSettings: React.FC = () => {
     return (
         <Form
             labelWrap
+            form={form}
             {...(userProfile && { initialValues: userProfile })}
             labelAlign="right"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
@@ -82,7 +76,6 @@ export const UserSettings: React.FC = () => {
             <Divider titlePlacement="start">{t('users:settings.table_settings')}</Divider>
             <Checkbox label={t('users:settings.show_header')} name="showHeader" />
             <Checkbox label={t('users:settings.show_formulas')} name="showFormulas" />
-            <Select label={t('users:settings.default_order')} name="treeView" options={treeViewOptions} />
             <Divider titlePlacement="start">{t('users:settings.testing_settings')}</Divider>
             <Select label={t('users:settings.tests_per_page')} name="testsPerPage" options={testsPerPageOptions} />
             <Checkbox label={t('users:settings.failures_only')} name="testsFailuresOnly" />

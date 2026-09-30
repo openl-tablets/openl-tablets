@@ -38,6 +38,9 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
     const { token } = theme.useToken()
     const { styles } = useStyles()
     const form = Form.useFormInstance()
+    // A detail an external system manages cannot be edited here, so it cannot be required either.
+    const requireEmail = requireEmailAndDisplayName && !externalFlags?.emailExternal
+    const requireDisplayName = requireEmailAndDisplayName && !externalFlags?.displayNameExternal
     const { isExternalAuthSystem, systemSettings } = useContext(SystemContext)
     const firstName = Form.useWatch('firstName', form)
     const lastName = Form.useWatch('lastName', form)
@@ -139,7 +142,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
             />
             <Form.Item
                 label={t('users:edit_modal.email')}
-                required={requireEmailAndDisplayName}
+                required={requireEmail}
                 style={displayPasswordField ? { marginBottom: 24 } : {}}
             >
                 <Row align="top" className={styles.emailRow} gutter={8} style={{ width: '100%', height: 32 }}>
@@ -149,8 +152,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
                             name="email"
                             rules={[
                                 {
-                                    required: requireEmailAndDisplayName,
-                                    whitespace: requireEmailAndDisplayName,
+                                    required: requireEmail,
+                                    whitespace: requireEmail,
                                     message: t('users:edit_modal.email_required'),
                                 },
                                 {
@@ -223,7 +226,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
             />
             <Form.Item
                 label={t('users:edit_modal.display_name')}
-                required={requireEmailAndDisplayName}
+                required={requireDisplayName}
             >
                 <Space.Compact>
                     <Select
@@ -239,8 +242,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
                         style={{ width: 248 }}
                         rules={[
                             {
-                                required: requireEmailAndDisplayName,
-                                whitespace: requireEmailAndDisplayName,
+                                required: requireDisplayName,
+                                whitespace: requireDisplayName,
                                 message: t('users:edit_modal.display_name_required'),
                             },
                             {

@@ -14,6 +14,9 @@ browser.
 * **The OpenL Studio screens need nothing from you for the API prefix change.** They call the new address
   on their own.
 
+* **The Default Order is gone from My Settings.** The module tree opens on the view last picked in the browser, and on
+  **By Excel Sheet** until one is picked. A Default Order saved before the upgrade is not used.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
@@ -67,6 +70,15 @@ browser.
   with the code `openl.error.409.project.status.update.failed.message`. It now answers `409` with
   `openl.error.409.file.project.locked.message`, naming the project and the user, or with
   `openl.error.409.file.project.branch.protected.message`, naming the project and the branch.
+* **`treeView` and `profiles` are gone from `/rest/users/profile`.** `GET` no longer returns them, and a `PUT` that
+  still sends `treeView` answers `400` with `Unknown field 'treeView'`. Drop the field from the body.
+* **A `PUT /rest/users/profile` that leaves a field out keeps the stored value**, for a name, the e-mail and the display
+  name as for a setting. It used to clear a missing name, refuse a missing e-mail or display name, save a missing flag
+  as `false` and a missing `testsPerPage` or `testsFailuresPerTest` as `0`, and answer `500` on a missing `treeView`
+  after the names and the e-mail were already saved. An e-mail or a display name that is sent still cannot be empty,
+  and a request that fails now changes nothing.
+* **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
+  `400`.
 
 ## Administrators
 
@@ -83,6 +95,9 @@ browser.
   leak of GROOVY-12142; the `soft` mode added by GROOVY-12281 keeps `ClassValue` but lets its entries be reclaimed.
   Groovy 5 ignored the property altogether, so a deployment that set it while passing through 5.x on its own should
   confirm the value again.
+
+* **`rules.tree.view.default` and `rules.tree.view` are no longer read.** A default order set for all users in the
+  application properties has no effect; remove it.
 
 * **Repoint anything that routes or allows `/web`.** Check reverse-proxy location blocks, ingress rules, API
   gateway routes, WAF path rules and the `cors.allowed.origins` consumers for `/web`, and change them to

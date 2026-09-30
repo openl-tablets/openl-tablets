@@ -1,11 +1,13 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.security.standalone.dao.UserSettingDao;
+import org.openl.rules.security.standalone.persistence.UserSetting;
 import org.openl.util.StringUtils;
 
 @RequiredArgsConstructor
@@ -28,24 +30,14 @@ public class UserSettingManagementService {
         return setting.getSettingValue();
     }
 
-    public boolean getBooleanProperty(String login, String key) {
-        var value = getStringProperty(login, key);
-        if (value == null) {
-            throw new IllegalArgumentException(
-                    "Cannot cast null to Boolean. The default value for the \" + key + \" property might be missing.");
-        }
-
-        return Boolean.parseBoolean(value);
-    }
-
-    public int getIntegerProperty(String login, String key) {
-        var value = getStringProperty(login, key);
-        if (value == null) {
-            throw new IllegalArgumentException(
-                    "Cannot cast null to int. Probably default value for property " + key + " is absent.");
-        }
-
-        return Integer.parseInt(value);
+    /**
+     * The settings of a user, read in one query.
+     */
+    public UserSettings getSettings(String login) {
+        var stored = userSettingDao.getProperties(login)
+                .stream()
+                .collect(Collectors.toMap(setting -> setting.getId().getSettingKey(), UserSetting::getSettingValue));
+        return new UserSettings(stored, propertyResolver);
     }
 
     public void setProperty(String login, String key, String value) {

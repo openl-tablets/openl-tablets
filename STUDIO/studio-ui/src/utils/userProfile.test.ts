@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isUserProfileComplete } from './userProfile'
+import { changedValues, isUserProfileComplete } from './userProfile'
 
 const completeProfile = {
     email: 'jane@example.com',
@@ -7,6 +7,19 @@ const completeProfile = {
     lastName: 'Doe',
     displayName: 'Jane Doe',
 }
+
+describe('changedValues', () => {
+    it('keeps only the fields that differ from the values the form opened with', () => {
+        const opened = { ...completeProfile, showHeader: false, testsPerPage: 5 }
+        const values = { ...completeProfile, firstName: 'Janet', showHeader: true, testsPerPage: 5 }
+
+        expect(changedValues(values, opened)).toEqual({ firstName: 'Janet', showHeader: true })
+    })
+
+    it('keeps every field of a form that opened without values', () => {
+        expect(changedValues(completeProfile, undefined)).toEqual(completeProfile)
+    })
+})
 
 describe('isUserProfileComplete', () => {
     it('requires only email and display name', () => {

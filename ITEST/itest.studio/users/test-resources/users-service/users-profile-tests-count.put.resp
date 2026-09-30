@@ -1,0 +1,14 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.TestsCountConstraint",
+      "message": "Must be a positive number, or -1 for all.",
+      "field": "testsPerPage",
+      "rejectedValue": 0
+    }
+  ]
+}

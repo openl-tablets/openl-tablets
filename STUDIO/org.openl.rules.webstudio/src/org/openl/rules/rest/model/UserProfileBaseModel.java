@@ -2,40 +2,37 @@ package org.openl.rules.rest.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 public class UserProfileBaseModel extends UserInfoModel {
 
     @Getter
     @Parameter(description = "Show table headers")
-    private boolean showHeader;
+    private @Nullable Boolean showHeader;
 
     @Getter
     @Parameter(description = "Show formulas")
-    private boolean showFormulas;
+    private @Nullable Boolean showFormulas;
 
     @Getter
-    @Parameter(description = "Test results per page")
-    private int testsPerPage;
+    @Parameter(description = "Test results per page, or -1 for all")
+    private @Nullable Integer testsPerPage;
 
     @Getter
     @Parameter(description = "Test failures only")
-    private boolean testsFailuresOnly;
+    private @Nullable Boolean testsFailuresOnly;
 
     @Getter
-    @Parameter(description = "Number of failures per test")
-    private int testsFailuresPerTest;
+    @Parameter(description = "Number of failures per test, or -1 for all")
+    private @Nullable Integer testsFailuresPerTest;
 
     @Getter
     @Parameter(description = "Show complex result")
-    private boolean showComplexResult;
+    private @Nullable Boolean showComplexResult;
 
     @Getter
     @Parameter(description = "trace.field.showRealNumbers")
-    private boolean showRealNumbers;
-
-    @Getter
-    @Parameter(description = "Default order")
-    private String treeView;
+    private @Nullable Boolean showRealNumbers;
 
     @Override
     public UserProfileBaseModel setEmail(String email) {
@@ -57,43 +54,38 @@ public class UserProfileBaseModel extends UserInfoModel {
         return (UserProfileBaseModel) super.setLastName(lastName);
     }
 
-    public UserProfileBaseModel setShowHeader(boolean showHeader) {
+    public UserProfileBaseModel setShowHeader(@Nullable Boolean showHeader) {
         this.showHeader = showHeader;
         return this;
     }
 
-    public UserProfileBaseModel setShowFormulas(boolean showFormulas) {
+    public UserProfileBaseModel setShowFormulas(@Nullable Boolean showFormulas) {
         this.showFormulas = showFormulas;
         return this;
     }
 
-    public UserProfileBaseModel setTestsPerPage(int testsPerPage) {
+    public UserProfileBaseModel setTestsPerPage(@Nullable Integer testsPerPage) {
         this.testsPerPage = testsPerPage;
         return this;
     }
 
-    public UserProfileBaseModel setTestsFailuresOnly(boolean testsFailuresOnly) {
+    public UserProfileBaseModel setTestsFailuresOnly(@Nullable Boolean testsFailuresOnly) {
         this.testsFailuresOnly = testsFailuresOnly;
         return this;
     }
 
-    public UserProfileBaseModel setTestsFailuresPerTest(int testsFailuresPerTest) {
+    public UserProfileBaseModel setTestsFailuresPerTest(@Nullable Integer testsFailuresPerTest) {
         this.testsFailuresPerTest = testsFailuresPerTest;
         return this;
     }
 
-    public UserProfileBaseModel setShowComplexResult(boolean showComplexResult) {
+    public UserProfileBaseModel setShowComplexResult(@Nullable Boolean showComplexResult) {
         this.showComplexResult = showComplexResult;
         return this;
     }
 
-    public UserProfileBaseModel setShowRealNumbers(boolean showRealNumbers) {
+    public UserProfileBaseModel setShowRealNumbers(@Nullable Boolean showRealNumbers) {
         this.showRealNumbers = showRealNumbers;
-        return this;
-    }
-
-    public UserProfileBaseModel setTreeView(String treeView) {
-        this.treeView = treeView;
         return this;
     }
 }

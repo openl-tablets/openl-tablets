@@ -4,25 +4,21 @@ import { readJson, writeJson } from '../../utils/localStore'
 /**
  * How the tree gathers the tables, named as the Editor has always named its views.
  *
- * The engine's own default is `excelSheet` (`rules.tree.view.default`), so that is what the tree opens as.
+ * Until this browser has chosen a view, the tree opens as `excelSheet`.
  */
 export type TableView = 'excelSheet' | 'type' | 'category' | 'categoryDetailed' | 'categoryInversed'
 
 export const TABLE_VIEWS: TableView[] = ['type', 'excelSheet', 'category', 'categoryDetailed', 'categoryInversed']
 
-export const DEFAULT_VIEW: TableView = 'excelSheet'
+const DEFAULT_VIEW: TableView = 'excelSheet'
 
 const STORAGE_KEY = 'openl.module.tableView'
 
 const isView = (value: unknown): value is TableView =>
     typeof value === 'string' && (TABLE_VIEWS as string[]).includes(value)
 
-/**
- * The view the tree opens on: the one this browser last chose, or — having chosen none — the Default Order of
- * the user's own settings, which is what the Editor has always obeyed.
- */
-export const loadView = (preferred?: string): TableView =>
-    readJson(STORAGE_KEY, isView(preferred) ? preferred : DEFAULT_VIEW, isView)
+/** The view the tree opens on: the one this browser last chose, or `excelSheet` while it has chosen none. */
+export const loadView = (): TableView => readJson(STORAGE_KEY, DEFAULT_VIEW, isView)
 
 export const saveView = (view: TableView): void => writeJson(STORAGE_KEY, view)
 

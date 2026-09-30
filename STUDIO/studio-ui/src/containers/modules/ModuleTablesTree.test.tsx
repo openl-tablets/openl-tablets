@@ -10,8 +10,6 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
 })
 
-vi.mock('../../store', () => ({ useUserStore: () => undefined }))
-
 const tables: ModuleTable[] = [
     { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' } as ModuleTable,
 ]

@@ -27,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -42,9 +41,6 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.ui.tree.view.Profile;
-import org.openl.rules.ui.tree.view.RulesProfile;
-import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
@@ -66,8 +62,7 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
 /**
- * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings
- * class
+ * TODO Separate user session from app session
  *
  * @author snshor
  */
@@ -80,33 +75,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private static final Comparator<ProjectDescriptor> PROJECT_DESCRIPTOR_COMPARATOR = Comparator
             .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
 
-    public static final String RULES_TREE_VIEW_DEFAULT = "rules.tree.view.default";
-    public static final String TABLE_VIEW = "table.view";
-    public static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
-    public static final String TEST_TESTS_PERPAGE = "test.tests.perpage";
-    public static final String TEST_FAILURES_ONLY = "test.failures.only";
-    public static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
-    public static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
-    public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
-
     private final ProjectModel model;
     private final ProjectResolver projectResolver;
     private Map<String, List<ProjectDescriptor>> projects;
 
-    private RulesProfile defaultTreeView;
-    private String tableView;
-    private boolean showRealNumbers;
-    private boolean showFormulas;
-    private int testsPerPage;
-    private boolean testsFailuresOnly;
-    private int testsFailuresPerTest;
-    private boolean showComplexResult;
-
     private String currentRepositoryId;
     private ProjectDescriptor currentProject;
     private Module currentModule;
-
-    private final UserSettingManagementService userSettingsManager;
 
     private boolean forcedCompile = true;
     private boolean needCompile = true;
@@ -158,7 +133,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
-                     UserSettingManagementService userSettingManagementService,
                      RepositoryAclService designRepositoryAclService,
                      SimpleRepositoryAclService productionRepositoryAclService,
                      ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
@@ -169,7 +143,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
-        this.userSettingsManager = userSettingManagementService;
         this.designRepositoryAclService = designRepositoryAclService;
         this.productionRepositoryAclService = productionRepositoryAclService;
         this.pdArtefactResolver = projectDescriptorArtefactResolver;
@@ -180,7 +153,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.projectAccessService = projectAccessService;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
-        initUserSettings();
         projectResolver = ProjectResolver.getInstance();
         externalProperties = new HashMap<>();
         copyExternalProperty(OpenLSystemProperties.DISPATCHING_VALIDATION);
@@ -205,19 +177,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         userWorkspace.getDesignTimeRepository().addListener(this);
-    }
-
-    private void initUserSettings() {
-        String userName = rulesUserSession.getUserName();
-
-        defaultTreeView = getTreeView(userSettingsManager.getStringProperty(userName, RULES_TREE_VIEW_DEFAULT));
-        tableView = userSettingsManager.getStringProperty(userName, TABLE_VIEW);
-        showFormulas = userSettingsManager.getBooleanProperty(userName, TABLE_FORMULAS_SHOW);
-        testsPerPage = userSettingsManager.getIntegerProperty(userName, TEST_TESTS_PERPAGE);
-        testsFailuresOnly = userSettingsManager.getBooleanProperty(userName, TEST_FAILURES_ONLY);
-        testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, TEST_FAILURES_PERTEST);
-        showComplexResult = userSettingsManager.getBooleanProperty(userName, TEST_RESULT_COMPLEX_SHOW);
-        showRealNumbers = userSettingsManager.getBooleanProperty(userName, TRACE_REALNUMBERS_SHOW);
     }
 
     public String getLogicalName(RulesProject project) {
@@ -382,19 +341,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
      */
     public ProjectResolver getProjectResolver() {
         return projectResolver;
-    }
-
-    public void setTableView(String tableView) {
-        this.tableView = tableView;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), TABLE_VIEW, tableView);
-    }
-
-    public boolean isShowHeader() {
-        return tableView.equals(IXlsTableNames.VIEW_DEVELOPER);
-    }
-
-    public void setShowHeader(boolean showHeader) {
-        setTableView(showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
     }
 
     public ProjectModel getModel() {
@@ -693,77 +639,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return CollectionUtils.findFirst(getProjects().get(repositoryId), project -> project.getName().equals(name));
     }
 
-    private void setDefaultTreeView(RulesProfile treeView) {
-        this.defaultTreeView = treeView;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW_DEFAULT, treeView.getName());
-    }
-
     public String getCurrentUsername() {
         return rulesUserSession.getUserName();
-    }
-
-    private RulesProfile getTreeView(String name) {
-        for (RulesProfile mode : Profile.PROFILES) {
-            if (name.equals(mode.getName())) {
-                return mode;
-            }
-        }
-        return null;
-    }
-
-    public void setDefaultTreeView(String name) {
-        var mode = getTreeView(name);
-        if (mode != null) {
-            setDefaultTreeView(mode);
-        } else {
-            log.error("Cannot find a rules tree view named {}", name);
-        }
-    }
-
-    public boolean isShowFormulas() {
-        return showFormulas;
-    }
-
-    public void setShowFormulas(boolean showFormulas) {
-        this.showFormulas = showFormulas;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), TABLE_FORMULAS_SHOW, showFormulas);
-    }
-
-    @Deprecated(forRemoval = true)
-    public int getTestsPerPage() {
-        return testsPerPage;
-    }
-
-    public void setTestsPerPage(int testsPerPage) {
-        this.testsPerPage = testsPerPage;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_TESTS_PERPAGE, testsPerPage);
-    }
-
-    public boolean isTestsFailuresOnly() {
-        return testsFailuresOnly;
-    }
-
-    public void setTestsFailuresOnly(boolean testsFailuresOnly) {
-        this.testsFailuresOnly = testsFailuresOnly;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_FAILURES_ONLY, testsFailuresOnly);
-    }
-
-    public int getTestsFailuresPerTest() {
-        return testsFailuresPerTest;
-    }
-
-    public void setTestsFailuresPerTest(int testsFailuresPerTest) {
-        this.testsFailuresPerTest = testsFailuresPerTest;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_FAILURES_PERTEST, testsFailuresPerTest);
-    }
-
-    public boolean isShowComplexResult() {
-        return showComplexResult;
-    }
-
-    public void setShowComplexResult(boolean showComplexResult) {
-        this.showComplexResult = showComplexResult;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_RESULT_COMPLEX_SHOW, showComplexResult);
     }
 
     public void destroy() {
@@ -992,14 +869,5 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             }
         });
-    }
-
-    public void setShowRealNumbers(boolean showRealNumbers) {
-        this.showRealNumbers = showRealNumbers;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), TRACE_REALNUMBERS_SHOW, showRealNumbers);
-    }
-
-    public boolean isShowRealNumbers() {
-        return showRealNumbers;
     }
 }

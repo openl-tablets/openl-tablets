@@ -69,7 +69,7 @@ To manage profile details, proceed as follows:
 3.  In the **Account** section, update the **Email** field as needed. The **Username** field is read-only.
 4.  In the **Name** section, update **First Name**, **Last Name**, and **Display Name** as needed.
 
-    **Email** and **Display Name** are required and cannot be empty. **First Name** and **Last Name** are optional.
+    **Email** and **Display Name** are required and cannot be empty, unless an external system manages them. **First Name** and **Last Name** are optional.
 
     If user data is synchronized from an external system such as Active Directory, the email, first name, last name, and display name fields are locked from editing, which is indicated by a tooltip icon next to the field label.
 
@@ -124,7 +124,7 @@ To manage personal settings, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **My Settings**.
 
-    ![](images/user-settings-form.png)
+    ![My Settings page with the Table Settings, Testing Settings and Trace Settings sections](images/user-settings-form.png "My Settings page")
 
     *My Settings page*
 
@@ -132,7 +132,6 @@ To manage personal settings, proceed as follows:
 
     -   **Show Header** — display the table header row.
     -   **Show Formulas** — display MS Excel formulas in table cells.
-    -   **Default Order** — set the default sort order for tables.
 
 4.  In the **Testing Settings** section, configure the following options:
 
@@ -295,7 +294,7 @@ Rule tables can be organized, or sorted, and displayed in the module tree in dif
 
 *Modes for sorting tables in the module tree*
 
-By default, tables are sorted by their location in Excel sheets.
+By default, tables are sorted by their location in Excel sheets. The mode selected last is remembered by the browser.
 
 Whatever the mode, the utility tables — the tables that do not belong to any known OpenL type, such as comments left beside the rules — are not listed unless asked for: they take no part in the rules, so they are hidden by default. To list them, click the filter button next to the mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. The choice is remembered by the browser.
 

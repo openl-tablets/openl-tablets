@@ -27697,20 +27697,6 @@ Content-Type: application/json
           }
         }
       },
-      "RulesProfile": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
       "RulesXmlSection": {
         "type": "object",
         "description": "***",
@@ -30697,7 +30683,8 @@ Content-Type: application/json
             "description": "***",
             "example": "John Doe",
             "maxLength": 64,
-            "minLength": 0
+            "minLength": 0,
+            "pattern": "(?s).*\\S.*"
           },
           "email": {
             "type": "string",
@@ -30705,7 +30692,8 @@ Content-Type: application/json
             "description": "***",
             "example": "test@test",
             "maxLength": 254,
-            "minLength": 0
+            "minLength": 0,
+            "pattern": "(?s).*\\S.*"
           },
           "firstName": {
             "type": "string",
@@ -30750,16 +30738,8 @@ Content-Type: application/json
             "type": "integer",
             "format": "int32",
             "description": "***"
-          },
-          "treeView": {
-            "type": "string",
-            "description": "***"
           }
-        },
-        "required": [
-          "displayName",
-          "email"
-        ]
+        }
       },
       "UserProfileModel": {
         "type": "object",
@@ -30799,12 +30779,6 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           },
-          "profiles": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RulesProfile"
-            }
-          },
           "showComplexResult": {
             "type": "boolean",
             "description": "***"
@@ -30833,10 +30807,6 @@ Content-Type: application/json
           "testsPerPage": {
             "type": "integer",
             "format": "int32",
-            "description": "***"
-          },
-          "treeView": {
-            "type": "string",
             "description": "***"
           },
           "username": {
