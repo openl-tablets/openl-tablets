@@ -685,26 +685,12 @@ Kafka Publisher supports Spring Kafka headers to work with Spring Kafka Request 
 
 Rules behavior in OpenL Tablets can be extended using one of the following options:
 
--   [Dispatching Table Properties](#dispatching-table-properties)
 -   [Table Dispatching Validation Mode](#table-dispatching-validation-mode)
 -   [Configuring a Number of Threads to Rules Compilation](#configuring-a-number-of-threads-to-rules-compilation)
 -   [Enabling Logging to Console](#enabling-logging-to-console)
 -   [Configuring the Instantiation Strategy](#configuring-the-instantiation-strategy)
 
 These settings are defined in the `application.properties` configuration file.
-
-##### Dispatching Table Properties
-
-Previously selecting tables that correspond to the current runtime context was processed by Java code. Now rules dispatching is the responsibility of the generated Dispatcher decision table. Such table is generated for each group of methods overloaded by dimension properties. The Dispatcher table works like all decision tables, so the first rule matched by properties is executed even if there are several tables matched by properties. Previously, in Java code dispatching, AmbiguousMethodException would be thrown in such case.
-
-To support both functionalities, the dispatching.mode system property is introduced. It has the following possible values:
-
-| **Value** | **Description**                                                                                                                                                               |
-|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **java**  | Dispatching is processed by Java code. <br/>The benefit of such approach is stricter dispatching: if several tables are matched by properties, AmbiguousMethodException is thrown. |
-| **dt**    | Deprecated. Dispatching is processed by the Dispatcher decision table.                                                                                                        |
-
-If the system property is not specified or if the dispatching.mode property has an incorrect value, the Java approach is used by default.
 
 ##### Table Dispatching Validation Mode
 

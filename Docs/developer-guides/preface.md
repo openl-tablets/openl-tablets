@@ -10,7 +10,7 @@ The following topics are included in this preface:
 ### Audience
 This guide is mainly intended for developers who create applications employing the table based decision making mechanisms offered by the OpenL Tablets technology. However, business analysts and other users can also benefit from this guide by learning the basic OpenL Tablets concepts described herein.
 
-Basic knowledge of Java, Ant, and Microsoft Excel is required to use this guide effectively.
+Basic knowledge of Java and Microsoft Excel is required to use this guide effectively.
 
 ### Related Information
 The following table lists sources of information related to contents of this guide:

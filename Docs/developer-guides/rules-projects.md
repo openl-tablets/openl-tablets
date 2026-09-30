@@ -402,7 +402,6 @@ Some rules require complex data models as input parameters. Developers have to g
 To generate datatype classes, proceed as follows:
 
 1.  For Maven, configure the OpenL Maven plugin as described in [Configuring the OpenL Maven Plugin](#configuring-the-openl-maven-plugin) and run the Maven script.
-2.  For Ant, configure the Ant task file as described in [Configuring the Ant Task File](#configuring-the-ant-task-file) and execute the Ant task file.
 
 ###### Configuring the OpenL Maven Plugin
 To generate an interface for rules and datatype classes defined in the MS Excel file, add the following Maven configuration to the `pom.xml` file:
@@ -453,57 +452,8 @@ Each `<generateInterface>` section has a number of parameters described in the f
 | `openlName`            | `String`  | `false`  | OpenL Tablets configuration to be used. For OpenL Tablets, the org.openl.xls value must always be used.<br/>The default value is org.openl.xls.                                                                                                                   |
 | `userHome`             | `String`  | `false`  | Location of user-defined resources relative to the current OpenL Tablets project. The default value is ..                                                                                                                                                         |
 | `userClassPath`        | `String`  | `false`  | Reference to the folder with additional compiled classes imported by the module when the interface is generated. <br/>The default value is null.                                                                                                                  |
-| `ignoreTestMethods`    | `boolean` | `false`  | If true, test methods are not added to interface class. It is used only in JavaInterfaceAntTask. <br/>The default value is true.                                                                                                                                  |
-| `generateUnitTests`    | `boolean` | `false`  | Parameter that overwrites the base generateUnitTests value.                                                                                                                                                                                                       |
-| `unitTestTemplatePath` | `String`  | `false`  | Parameter that overwrites the base unitTestTemplatePath value.                                                                                                                                                                                                    |
-| `overwriteUnitTests`   | `boolean` | `false`  | Parameter that overwrites the base overwriteUnitTests value.                                                                                                                                                                                                      |
 
 For more configuration options, see [OpenL Tablets Maven Plugin Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/maven_plugin_guide/).
-
-###### Configuring the Ant Task File
-An example of the build file is as follows:
-
-```
-<project name="GenJavaWrapper" default="generate" basedir="../">
-<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
-
-<target name="generate">
-<echo message="Generating wrapper classes..."/>
-
-<openlgen openlName="org.openl.xls" userHome="."
-srcFile="rules/Rules.xls"
-targetClass="com.exigen.claims.RulesWrapper"
-displayName="Rule datatypes"
-targetSrcDir="gen"
->
-</openlgen>
-
-<openlgen openlName="org.openl.xls" userHome="."
-srcFile="rules/Data.xls"
-targetClass=" com.exigen.claims.DataWrapper"
-displayName="Data datatypes"
-targetSrcDir="gen"
->
-</openlgen>
-
-</target>
-</project>
-```
-
-When the file is executed, it automatically creates Java classes for datatypes for specified Excel files. The Ant task file must be adjusted to match contents of the specific project.
-
-For each Excel file, an individual `<openlgen>` section must be added between the `<target>` and `</target>` tags.
-
-Each `<openlgen>` section has a number of parameters that must be adjusted as described in the following table:
-
-| Parameter      | Description                                                                                               |
-|----------------|-----------------------------------------------------------------------------------------------------------|
-| `openlName`    | OpenL Tablets configuration to be used. For OpenL Tablets, the `org.openl.xls` value must always be used. |
-| `userHome`     | Location of user-defined resources relative to the current OpenL Tablets project.                         |
-| `srcFile`      | Reference to the Excel file for which a wrapper class must be generated.                                  |
-| `targetClass`  | Full name of the wrapper class to be generated.                                                           |
-| `displayName`  | End user-oriented title of the file that appears in OpenL Studio.                              |
-| `targetSrcDir` | Folder where the generated wrapper class must be placed.                                                  |
 
 #### Handling Data and Data Types in OpenL Tablets
 This section includes the following `topics` about data and data types handling in OpenL Tablets:

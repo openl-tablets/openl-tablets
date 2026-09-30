@@ -1472,10 +1472,6 @@ spring.task.execution.pool.queue-capacity=100
 ### Rule Compilation Caching
 
 ```properties
-# Cache compiled rules
-ruleservice.instantiation.strategy.lazy=true
-ruleservice.datasource.deploy.clean.datasource=false
-
 # Parallel compilation
 openl.parallel.compilation.enabled=true
 openl.parallel.compilation.threads=4

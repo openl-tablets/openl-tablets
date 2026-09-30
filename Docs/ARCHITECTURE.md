@@ -212,8 +212,6 @@ Source Layer (Excel, Files)
 **Purpose**: Developer tools and utilities
 
 - **org.openl.rules.maven.plugin**: Maven plugin for rule compilation
-- **org.openl.rules.eclipse**: Eclipse IDE integration (deprecated)
-- **org.openl.conf.ant**: Ant tasks for rule deployment
 
 ### ITEST Module Group
 
