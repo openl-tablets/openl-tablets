@@ -246,6 +246,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
     const [buffer, setBuffer] = useState(NO_EDITS)
     const [picked, setPicked] = useState<CellAt | null>(null)
+    // The table the picked cell belongs to; see where the picked cell is fitted to the table.
+    const [pickedIn, setPickedIn] = useState(tableId)
     // The colour the reader is holding the pointer over in a palette, shown on the picked cell until they
     // take the pointer away or choose it.
     const [preview, setPreview] = useState<RawCellStyleInput | null>(null)
@@ -364,6 +366,50 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const written = edited.rows
 
     /**
+     * Where the cell covering a place sits.
+     *
+     * <p>A merged cell is drawn once and covers the places around it; a move that lands on one of those places
+     * lands on the cell that owns it. Worked out once per table rather than searched for on every key.
+     */
+    const ownerOf = useMemo(() => {
+        const owners = new Map<string, CellAt>()
+        written.forEach((cells, row) => cells.forEach((cell, column) => {
+            if (cell.covered) {
+                return
+            }
+            for (let down = 0; down < (cell.rowspan ?? 1); down++) {
+                for (let along = 0; along < (cell.colspan ?? 1); along++) {
+                    owners.set(`${row + down}:${column + along}`, { row, column })
+                }
+            }
+        }))
+        return owners
+    }, [written])
+
+    /** The cell covering a place the reader may be on, or null where nothing drawn covers it. */
+    const ownerAt = (row: number, column: number): CellAt | null => {
+        const owner = ownerOf.get(`${row}:${column}`)
+        // The rows kept out of sight are not the reader's to be on: they are not drawn.
+        return owner === undefined || owner.row < hidden ? null : owner
+    }
+
+    // The picked cell is kept on the table as it is now, and settled before anything is drawn from it.
+    //
+    // Taking a row or a column away leaves the reader where they were, so they land on the line that moved up
+    // or along into its place and can take that one away next. Past the last line of the table they land on
+    // the last one; on a merged cell, on the cell it belongs to. Nothing is picked once only the rows kept out
+    // of sight are left, nor in another table until the reader picks a cell of it.
+    const fit = (at: CellAt): CellAt | null => {
+        const row = Math.min(at.row, written.length - 1)
+        return ownerAt(row, Math.min(at.column, (written[row]?.length ?? 0) - 1))
+    }
+    const fitted = picked === null || pickedIn !== tableId ? null : fit(picked)
+    if (pickedIn !== tableId || (picked !== null && !sameCell(fitted, picked))) {
+        setPickedIn(tableId)
+        setPicked(fitted)
+    }
+
+    /**
      * The table as the screen draws it, which is the table the reader has plus whatever colour they are
      * holding the pointer over in the palette.
      *
@@ -414,27 +460,6 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
     }, [open])
 
-    /**
-     * Where the cell covering a place sits.
-     *
-     * <p>A merged cell is drawn once and covers the places around it; a move that lands on one of those places
-     * lands on the cell that owns it. Worked out once per table rather than searched for on every key.
-     */
-    const ownerOf = useMemo(() => {
-        const owners = new Map<string, CellAt>()
-        written.forEach((cells, row) => cells.forEach((cell, column) => {
-            if (cell.covered) {
-                return
-            }
-            for (let down = 0; down < (cell.rowspan ?? 1); down++) {
-                for (let along = 0; along < (cell.colspan ?? 1); along++) {
-                    owners.set(`${row + down}:${column + along}`, { row, column })
-                }
-            }
-        }))
-        return owners
-    }, [written])
-
     /** The rows the grid is given: the ones the reader sees, with the header left off where it is hidden. */
     const drawn = useMemo(() => (hidden === 0 ? shown : shown.slice(hidden)), [hidden, shown])
 
@@ -443,9 +468,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         const cell = written[from.row]?.[from.column]
         const down = stride(key, 'ArrowDown', 'ArrowUp', cell?.rowspan)
         const along = stride(key, 'ArrowRight', 'ArrowLeft', cell?.colspan)
-        const owner = ownerOf.get(`${from.row + down}:${from.column + along}`)
-        // The rows kept out of sight are not the reader's to move into: they are not drawn.
-        return owner === undefined || owner.row < hidden ? null : owner
+        return ownerAt(from.row + down, from.column + along)
     }
 
     /** What the keyboard does with the table, as the old editor did it. */
@@ -709,13 +732,16 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     picked={picked}
                     saving={saving}
                     whole={whole}
+                    // The reader stays where they were, on the line that takes the place of the one gone, so
+                    // several lines are taken away one after another without picking a cell each time. Picking
+                    // it again hands the keys back to the table, which the click on the button took away.
                     onRemoveColumn={() => {
                         step({ kind: 'removeColumn', at: at.column, lines: columnsOfChosen })
-                        setPicked(null)
+                        pick(at.row, at.column)
                     }}
                     onRemoveRow={() => {
                         step({ kind: 'removeRow', at: at.row, lines: rowsOfChosen })
-                        setPicked(null)
+                        pick(at.row, at.column)
                     }}
                 />
             )}
