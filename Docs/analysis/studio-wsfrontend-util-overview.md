@@ -13,7 +13,7 @@ This document provides comprehensive coverage of the upper layers of OpenL Table
 **Total Coverage**:
 - **Security**: 3 modules (authentication, authorization, ACL)
 - **OpenL Studio**: 4 core modules + React UI
-- **OpenAPI**: 3 modules (generation, validation, integration)
+- **OpenAPI**: 2 modules (generation, validation) and the Spring integration package
 - **Rule Services**: 12 modules (deployment, web services, Kafka)
 - **Utilities**: 9 modules (Maven plugin, OpenTelemetry)
 - **Integration Tests**: 18+ modules + Demo application
@@ -389,7 +389,7 @@ const MyComponent: React.FC = () => {
 
 ---
 
-## BATCH 6: OpenAPI & Code Generation (3 Modules)
+## BATCH 6: OpenAPI & Code Generation (2 Modules, 1 Package)
 
 ### Overview
 
@@ -459,6 +459,7 @@ components:
 
 ### 3. org.openl.rules.spring.openapi - Spring Integration
 
+**Location**: package `org.openl.rules.spring.openapi` of `/home/user/openl-tablets/STUDIO/org.openl.rules.webstudio/`
 **Purpose**: Integrate OpenAPI generation with Spring Boot
 
 **Auto-configuration**:

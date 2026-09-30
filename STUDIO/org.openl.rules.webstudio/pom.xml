@@ -95,6 +95,10 @@
             <artifactId>swagger-annotations-jakarta</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core-jakarta</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
@@ -221,8 +225,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.spring.openapi</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

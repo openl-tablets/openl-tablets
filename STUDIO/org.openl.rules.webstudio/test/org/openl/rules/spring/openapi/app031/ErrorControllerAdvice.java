@@ -9,6 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.rest.exception.RestException;
 
 @ControllerAdvice
 public class ErrorControllerAdvice extends ResponseEntityExceptionHandler {
@@ -19,7 +20,7 @@ public class ErrorControllerAdvice extends ResponseEntityExceptionHandler {
         return null;
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(RestException.class)
     @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<ErrorDto> handleBadRequestException(Exception e, WebRequest request) {
         return null;
