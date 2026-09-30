@@ -38,4 +38,4 @@ The **Allow Managers to bypass protected branches** check box (`security.allow-b
 
 For more information on protected branches, see [Using Protected Branches](../../project-branches.md#using-protected-branches). For more information on roles, see [Understanding Roles](../04-user-information/01-groups.md#understanding-roles).
 
-**Note:** The **Manager** role also grants permission to manage access rights for other users and groups on the resource. It is not currently possible to grant merge-bypass authority without also granting role management rights.
+**Note:** The **Manager** role also grants permission to manage access rights for other users and groups on the resource, as described in [Managing Project Access](../../repository-editor.md#managing-project-access). It is not currently possible to grant merge-bypass authority without also granting role management rights.

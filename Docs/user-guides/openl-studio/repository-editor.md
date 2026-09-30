@@ -11,6 +11,7 @@ The following topics are included in this chapter:
 -   [Closing a Project](#closing-a-project)
 -   [Saving a Project](#saving-a-project)
 -   [Viewing Project Properties](#viewing-project-properties)
+-   [Managing Project Access](#managing-project-access)
 -   [Modifying Project Contents](#modifying-project-contents)
 -   [Copying a Project](#copying-a-project)
 -   [Removing a Project](#removing-a-project)
@@ -478,6 +479,65 @@ If a tag contains a value that is not permitted, the user can only update it to 
 If a tag is used for grouping in a project tree, its value in a tree gets updated only when the project is saved.
 
 Note that in case of the Git repository, in the Modified By field, the user’s display name is used, not the username, and the tooltip for this field displays the user’s email.
+
+### Managing Project Access
+
+A user gets access to a project through a role, as described in
+[Understanding Roles](administration/04-user-information/01-groups.md#understanding-roles). An Administrator assigns
+roles in the **Administration** panel. A user with the **Manager** role can also grant, change, and revoke the roles
+other users have on the projects the user manages, without involving an Administrator.
+
+A Manager does it in the **Management** tab of a project. The tab is shown to:
+
+-   Administrators.
+-   Users with the **Manager** role on the project or on its repository.
+
+The tab is not shown for a project in the **Local** status, which is not shared with anyone, or in the single-user
+mode, where there are no other users to grant access to.
+
+To manage the access to a project, proceed as follows:
+
+1.  In the project tree, select the project and click the **Management** tab.
+
+    ![Management tab with the roles assigned on a project](images/project-management-tab.png "Roles on a project")
+
+    *Roles on a project*
+
+    The tab lists everyone who has a role on the project:
+
+    -   **Subject** and **Type** — the name of the user or group. Groups are listed only where OpenL Studio is
+        integrated with an external user management system, such as Active Directory, LDAP, or an SSO provider.
+    -   **Role** — **Viewer**, **Contributor**, or **Manager**.
+    -   **Source** — **Project** for a role assigned on the project itself, and **Repository** for a role held on
+        the whole repository.
+
+1.  Do any of the following:
+
+    -   To grant a role, click **Add access**. Start typing the username and select the user from the suggestions,
+        which appear from the second character. Choose the **Role**, **Viewer** at first, and click **Grant access**.
+        Where groups are supported, the dialog also asks for the **Subject Type**, **User** or **Group**. A name that
+        does not exist in OpenL Studio is refused with an error in the dialog, and a user who already has a role on
+        the project gets the new role instead of the old one.
+
+        ![Add access dialog with a user and a role selected](images/add-access-dialog.png "Granting a role on a project")
+
+        *Granting a role on a project*
+
+    -   To change a role, select another one in the **Role** column. The change is saved at once.
+    -   To revoke a role, click the trash icon at the end of the row and click **OK** to confirm.
+
+A change takes effect at once: the next request of the user is checked against the new role, and the user does not
+need to sign in again.
+
+Keep in mind:
+
+-   Revoking removes only the role assigned on the project. The user keeps the access that comes from a role on the
+    repository, from a group, or from the Default Group. A role assigned on the project takes precedence over the
+    one inherited from the repository, as described in
+    [Role Inheritance and Conflict Resolution](administration/04-user-information/01-groups.md#role-inheritance-and-conflict-resolution).
+-   A role from the **Repository** is listed only to a Manager of that repository. It applies to every project of the
+    repository, so it is read-only here and is changed by an Administrator in the **Administration** panel.
+-   A Manager cannot revoke their own role on the project: the row has no trash icon.
 
 ### Modifying Project Contents
 

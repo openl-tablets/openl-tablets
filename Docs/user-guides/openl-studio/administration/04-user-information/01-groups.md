@@ -40,7 +40,7 @@ Where the individual permissions that make up each role:
 - **Delete** — Allows removing a **lower-level** resource from within the resource. The resource is deleted from the
   system. For example, when granted on a repository, this permission allows deleting projects
   from that repository, but does not affect the repository itself.
-- **Manage** — Allows assigning roles to users and groups on the resources the user manages.
+- **Manage** — Allows assigning roles to users and groups on the resources the user manages. A Manager does it for a project in the **Management** tab, as described in [Managing Project Access](../../repository-editor.md#managing-project-access).
 
 **Note:** The **Create** and **Delete** permissions are only effective when the **Permit creating and deleting projects** option is enabled in the **Security** tab. When this option is disabled, users cannot create or delete projects
 regardless of their assigned role.
