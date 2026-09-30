@@ -4,7 +4,7 @@ This chapter describes basic tasks that can be performed in Rules Editor. For mo
 
 The following topics are included in this chapter:
 
--   [Filtering Projects](#filtering-projects)
+-   [Switching to Another Project or Module](#switching-to-another-project-or-module)
 -   [Viewing a Project](#viewing-a-project)
 -   [Viewing a Module](#viewing-a-module)
 -   [Managing Projects and Modules](#managing-projects-and-modules)
@@ -14,38 +14,43 @@ The following topics are included in this chapter:
 -   [Referring to Tables](#referring-to-tables)
 -   [Managing Range Data Types](#managing-range-data-types)
 -   [Copying a Table](#copying-a-table)
--   [Performing a Search](#performing-a-search)
+-   [Searching for Tables](#searching-for-tables)
 -   [Creating Tables](#creating-tables)
 -   [Comparing Excel Files](#comparing-excel-files)
 -   [Viewing and Editing Project-Related OpenAPI Details](#viewing-and-editing-project-related-openapi-details)
 -   [Reconciling an OpenAPI Project](#reconciling-an-openapi-project)
 
-### Filtering Projects
+### Switching to Another Project or Module
 
-To limit a list of projects displayed in the **Projects** list, start typing a project name in the field located above the list of projects.
+The breadcrumb above the module name shows the project and the branch the module belongs to and switches the editor to another project or module:
 
-![](images/filter-projects-by-name.png)
+-   To switch to another project, click the arrow next to the project name, start typing the project name in the **Find a project** field to narrow the list down, and select the project.
+-   To switch to another module of the current project, click the arrow next to the module name, start typing the module name in the **Find a module** field, and select the module.
 
-*Filtering projects by Name*
+![](images/rules-editor-breadcrumb-navigation.png)
 
-To get a full list of projects, delete filter text value in the field.
+*Rules Editor breadcrumb navigation*
+
+To get a full list of projects or modules, delete the filter text in the field.
 
 ### Viewing a Project
 
-Rules Editor allows a user to work with one project at a time. To select a project, in the **Projects** tree, select the blue hyperlink of the required project name. The project page with general information about the project and configuration details appears in the middle pane of the editor.
+Rules Editor allows a user to work with one project at a time. To view a project, select it on the **Projects** page. The project page with general information about the project and configuration details appears on its **Overview** tab, as described in [Viewing the Project Overview](repository-editor.md#viewing-the-project-overview).
 
 ![](images/project-page-rules-editor.png)
 
-*A project page in Rules Editor*
+*A project page*
 
-If a particular project is not available, it must be opened as described in [Opening a Project](repository-editor.md#opening-a-project).
+If a particular project is not available in Rules Editor, it must be opened as described in [Opening a Project](repository-editor.md#opening-a-project).
 
 ### Viewing a Module
 
-Rules Editor allows a user to work with one module at a time. To select a module, in the **Projects** tree, select the black hyperlink of the module name. The following module information is displayed:
+Rules Editor allows a user to work with one module at a time. To open a module, click its name in the **Modules** section of the **Overview** tab of an open project, or select it in the module switcher of the breadcrumb. The following module information is displayed:
 
 -   tree in the left pane displaying module tables
--   general module information displayed in the middle pane, including project and module names, associated Excel file, number of tables, and module dependencies
+-   contents of the table selected in the tree in the middle pane
+-   properties of the selected table in the right pane
+-   project and branch names, module name, and the actions for the module above the panes
 
 If a particular module is not available, the project in which it is defined must be opened as described in [Opening a Project](repository-editor.md#opening-a-project).
 
@@ -53,34 +58,32 @@ By default, a project is opened in the multi-module mode. This is a common produ
 
 For more information on project and module dependencies, see [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
 
-The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The loading progress bar is displayed in the **Problems** section. Errors and warnings are displayed dynamically while more modules are compiled.
+The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The **Compiling N of M** indicator beside the module name shows how many modules are compiled, and the tree shows a skeleton until the tables of the module are read. The compilation problems panel at the bottom of the page lists errors and warnings as more modules are compiled, and the number of errors is shown in the tree next to the tables that have them.
 
 ![](images/loading-progress-bar.jpeg)
 
-*Loading progress bar*
+*Loading progress indicator*
 
-If a module is modified during loading, this module is re-compiled and project loading continues. When the loading is complete, the progress bar is displayed for ten more seconds and then disappears.
+If a module is modified during loading, this module is re-compiled and project loading continues.
 
-The loading progress bar is not displayed for newly opened projects if a project has only one module or multiple small modules which loading takes less than one second. The loading progress bar is also not displayed if the project is already opened and fully compiled and the following actions happen:
+The loading indicator is not displayed for newly opened projects if a project has only one module or multiple small modules which loading takes less than one second. The loading indicator is also not displayed if the project is already opened and fully compiled and the following actions happen:
 
 -   A page is refreshed using the browser refresh button.
--   A user leaves the project by switching to the main Editor or Repository page and then returns to the project without opening other projects in the meantime.
+-   A user leaves the project by switching to the **Projects** page and then returns to the project without opening other projects in the meantime.
 -   A user switches between modules of the same project.
 
-If a user clicks the refresh button in OpenL Studio, loading restarts and progress bar appears again. While loading in process, the **Run, Trace, Test,** and **Benchmark** actions work only for currently opened module. That is why the **Within Current Module Only** check box is selected and cannot be edited in the menu of these actions while loading is in progress.
+If a user clicks the **Refresh** button next to the module name, loading restarts and the indicator appears again. While loading is in process, or while other modules have errors, the **Run, Trace, Test,** and **Benchmark** actions work only for the currently opened module. That is why the **Within Current Module Only** check box is selected and cannot be edited in the menu of these actions in such a case.
 
-When loading is completed, the **Within Current Module Only** check box is cleared and becomes editable.
+When loading is completed and the other modules have no errors, the **Within Current Module Only** check box is cleared and becomes editable.
 
 ### Managing Projects and Modules
 
-This section explains the following tasks that can be performed on projects in Rules Editor:
+This section explains the following tasks that can be performed on projects and modules in Rules Editor:
 
 -   [Editing and Saving a Project](#editing-and-saving-a-project)
--   [Updating and Exporting a Project](#updating-and-exporting-a-project)
--   [Copying a Project](#copying-a-project)
+-   [Exporting and Copying a Project](#exporting-and-copying-a-project)
 -   [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module)
 -   [Comparing and Reverting Module Changes](#comparing-and-reverting-module-changes)
--   [Copying a Module](#copying-a-module)
 
 #### Editing and Saving a Project
 
@@ -88,78 +91,63 @@ A project can be opened for editing and saved directly in Rules Editor.
 
 1.  To save the edited project, click **Save** ![](images/toolbar-save-icon.png).
 
-    **Note:** If a project is in the **Local** status, this option is not available in Rules Editor.
+    > [!Note]
+    > If a project is in the **Local** status, this option is not available in Rules Editor.
 
-2.  To modify the project in the **Project** page, modify the values as described in the following table:
+2.  To modify the project configuration, open the project page, click **Edit** in its **Overview** tab and modify the values as described in the following table. The **Edit** button is shown while the project is open and not locked by another user.
 
-| Project details                                                                                                                               | Available actions                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|-----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| General project information <br/>and configuration, <br/>such as OpenL version compatibility, <br/>description, project name, <br/>and custom file name processor | Put the mouse cursor over the project name and click **Edit** ![](images/edit-icon.png) . <br/>Project name can be edited only for projects in a non-flat Git repository. <br/>The project name will be changed in OpenL Studio only, while the folder name remains unchanged. <br/>For more information on properties pattern for the file name, see <br/>[OpenL Tablets Reference Guide > Properties Defined in the File Name](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-defined-in-the-file-name). |
-| Project sources                                                                                                                               | Put the mouse cursor over the **Sources** label and click **Manage Sources** ![](images/edit-icon.png) .                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Modules configuration                                                                                                                         | Put the mouse cursor over the **Modules** label or a particular module name and click **Add Module** ![](images/add-module-icon.png) or **Edit Module** ![](images/edit-icon.png) <br/>or **Remove Module** ![](images/remove-module-icon.png).                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Project dependencies                                                                                                                          | Manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Project details                                                                   | Available actions                                                                                                                                                                                                                                                                                                                          |
+|-----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Project description                                                               | Enter the text in the **Description** section.                                                                                                                                                                                                                                                                                             |
+| Modules configuration                                                             | In the **Modules** section, enter the name and the rules root path of every module, select **Compile this module only** to compile the module without the modules it does not depend on, drag a module to reorder it, click **Add** to add a module, or click the trash icon to remove it. |
+| Custom file name processor and properties defined in the file name                | In the **Version patterns** section, click **Add** to enter a file name pattern. The question mark next to the section name opens the description of patterns. In **Properties processor**, enter the class of the custom file name processor. For more information on properties pattern for the file name, see [OpenL Tablets Reference Guide > Properties Defined in the File Name](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-defined-in-the-file-name). |
+| Methods exposed by the project                                                    | In the **Exposed methods** section, enter one pattern per line in **Includes** and **Excludes**. The patterns support the `*` wildcard for any characters and the `?` wildcard for one character. When both are empty, every method of the project is exposed.                                                                      |
+| Project dependencies                                                              | Manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).                                                                                                                                                                                                                                       |
+| Project sources                                                                   | In the **Sources** section, click **Add** to enter a path to the folder or library that holds the source code, or click the trash icon to remove a path.                                                                                                                                                                                 |
+| OpenAPI specification                                                             | Manage the OpenAPI specification as described in [Viewing and Editing Project-Related OpenAPI Details](#viewing-and-editing-project-related-openapi-details).                                                                                                                                                                             |
 
-All changes are saved in the project `rules.xml` file. For more information on this XML file, see the [OpenL Tablets Developers Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide).
+Click **Save** above the sections to keep the changes, or **Cancel** to discard them. All changes are saved in the project `rules.xml` file, and the project status changes to **In Editing**. For more information on this XML file, see the [OpenL Tablets Developers Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide).
 
-#### Updating and Exporting a Project
+Modules and sources that the standard `rules/`, `tests/`, `lib/` and `groovy/` folders provide are found automatically. They are listed in the sections but cannot be edited while `rules.xml` does not declare them: to add a module, put its Excel file in the `rules/` or `tests/` folder, and to add a library, put its JAR file in the `lib/` folder.
 
-To update or export a project, proceed as follows:
+The **Migrate** button is offered for a project that keeps its workbooks in the project root, or whose `rules.xml` keeps settings in a legacy form. For a project with workbooks in the root, it moves them into the `rules/` folder and creates `rules.xml`, so that the project configuration can be edited. If the move would turn another Excel file into a module, OpenL Studio names these workbooks and blocks the migration until they are declared in `rules.xml` or removed. For `rules.xml`, **Migrate** rewrites the file to its minimal form, so its comments and layout are not kept.
 
-1.  To update a project directly in Rules Editor, in the top line menu, click **Update**.
+#### Exporting and Copying a Project
 
-    The **Update** button is available for projects in the **In Editing** status.
+The project actions of the editor are the ones described for the **Projects** page:
 
-    In the dialog that appears, upload a `.zip` archive with the project content, or switch to **Folder** and select a folder with the project files. The upload replaces the project content: files with the same path are overwritten, new files are added, and project files absent from the upload are deleted.
+-   To export the project to the user’s local machine, see [Exporting a Project or a File](repository-editor.md#exporting-a-project-or-a-file).
+-   To copy the project, click **Copy** above the module and see [Copying a Project](repository-editor.md#copying-a-project).
+-   To synchronize the project with another branch, click **Sync** and see [Working with Project Branches](project-branches.md#working-with-branches).
+-   To deploy the project, click **Deploy** and see [Deploying a Project](repository-editor.md#deploying-a-project).
 
-1.  To export the project to the user’s local machine, for a project, in the top line menu, click **Export** and select a project revision.
-
-The default project version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing.**
-
-The most recent revisions are offered first; older ones are loaded on demand through **Load older revisions**.
-
-Exported project is downloaded as a `.zip` archive.
-
-#### Copying a Project
-
-To create a copy of a project, proceed as follows:
-
-1.  In the top line menu, click **Copy**.
-2.  Select **Create a New Project** if the dialog initially offers to create a project branch.
-3.  Enter the new project name and select the target repository.
-4.  In **Branch**, select an existing target-repository branch or enter a valid new branch name.
-5.  Modify **Path** and **Comment** if needed.
-6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
-7.  Click **Copy**.
-
-The new project uses the selected branch as its home branch. A copy in the default branch appears in the project
-list at once; a copy in another branch is listed once that branch is picked in the **Branch** filter.
+The content of a project is replaced by the content of a ZIP archive by creating a project from the archive, as described in [Creating a Project from ZIP Archive](repository-editor.md#creating-a-project-from-zip-archive), or file by file on the **Files** tab, as described in [Modifying Project Contents](repository-editor.md#modifying-project-contents).
 
 #### Exporting, Updating, and Editing a Module
 
 A user can export, update, or edit a module directly in Rules Editor. Proceed as follows:
 
-1.  To upload a changed module file, for a module, in the top line menu, click **Update** and select an Excel file. The uploaded file replaces the module file. When the selected file name differs from the current module file name, a warning is displayed.
-2.  To export the module to the user’s local machine, for a module, in the top line menu, click **Export** and select a module revision.
+1.  To upload a changed module file, for a module, above the table click **Update** and select an Excel file. The uploaded file replaces the module file. When the selected file name differs from the current module file name, a warning is displayed.
+
+    ![](images/toolbar-update-icon.png)
+
+    The button is shown while the project can be modified.
+2.  To export the module to the user’s local machine, for a module, click **Export** and select a module revision.
 
     The default module version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.
 
     The list offers the revisions of the module file itself, so a project revision that did not change the
     module is not proposed. Older revisions are loaded on demand through **Load older revisions**.
 
-1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](images/edit-icon.png).
-
-    ![](images/initiate-module-editing.png)
-
-    *Initiating module editing*
+1.  To modify module configuration, such as module name and path, open the **Overview** tab of the project page, click **Edit** and change the module in the **Modules** section.
 
     ![](images/edit-module-information-form.png)
 
     *Editing module information*
 
-1.  To save the changes, click **Save** ![](images/toolbar-save-icon.png).
+1.  To save the changes, click **Save** above the sections.
 
-**Notes:** The 'Included Methods' and 'Excluded Methods' on this UI has been deprecated and kept for backward
-compatibility. The new fields for filterring exposed methods are located on the project info UI.
+The **Exposed methods** section of the project filters the methods of the whole project. The **Included Methods** and **Excluded Methods** of a single module are deprecated and kept for backward compatibility only: the module form does not edit them.
 For more information, refer to the [Rule Services and Customization Guide > Dynamic Interface Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#dynamic-interface-support)
 
 #### Comparing and Reverting Module Changes
@@ -167,9 +155,9 @@ For more information, refer to the [Rule Services and Customization Guide > Dyna
 OpenL Studio allows comparing module versions and rolling back module changes against the specific date.
 To compare module versions, proceed as follows:
 
-1.  In the **Projects** tree, select the module.
-2.  In the top line menu, select **More** **\>** **Local** **Changes**.
-    The **Local** **Changes** page appears displaying the selected module's local versions, with the latest
+1.  Open the module.
+2.  Above the table, select **More** **\>** **Local** **Changes**.
+    The **Local** **Changes** window appears displaying the selected module's local versions, with the latest
     versions on the top. In a multi-module project, switching modules shows the local history stored for that
     module only.
 
@@ -207,81 +195,31 @@ To compare module versions, proceed as follows:
 
     When **Restore** is clicked, the corresponding changes are restored but this action is not added to the history as a change.
 
-#### Copying a Module
-
-OpenL Studio allows creating a copy of the existing module, in Editor, in either **Project** page, or in the **Module** page. The following topics are included in this section:
-
--   [Copying a Simple Module](#copying-a-simple-module)
--   [Copying a Module Defined Using the File Path Pattern](#copying-a-module-defined-using-the-file-path-pattern)
-
-##### Copying a Simple Module
-
-To create a copy of a module, proceed as follows:
-
-1.  Do one of the following:
-    -   To create a copy of a module using the **Project** page, in the project tree, select a project which module must be copied, in the modules list, put the mouse cursor over the selected module name, and click **Copy Module** ![](images/copy-module-icon.png).
-    -   To create a copy of a module using the **Module** page, in the project tree, select a module to be copied, put the mouse cursor over the module name, and click **Copy Module** ![](images/copy-module-icon.png).
-1.  In the window that appears, enter the new module name.
-
-    When the new module name is entered, the **Copy** button becomes enabled.
-
-1.  Optionally, edit the **New File Name** field value.
-
-    The file name can differ from the module name.
-
-1.  Optionally, to copy the module to the specific folder, in the **New File Name** field, enter the file name and its location.
-
-    The original path cannot be modified other than by entering the specific path in the **New File Name** field. For example, if the original module is located in `folder1`, the new module will be copied to `folder1`. `Folder1` cannot be changed, but a user can define a new file name, such as `folder2/Bank Rating ver2.xlsx,` and then the new module will be created in `folder1/folder2/Bank Rating ver2.xlsx`.
-
-1.  Click **Copy**.
-
-A new simple module is displayed in the modules list.
-
-![](images/copy-module-result.png)
-
-*Creating a copy of a module*
-
-##### Copying a Module Defined Using the File Path Pattern
-
-If the module is defined using **File Path Pattern**, to copy such module, proceed as follows:
-
-1.  Do one of the following:
-    -   To create a copy of a module using the **Project** page, put the mouse cursor over multiple modules, click **Copy Module** ![](images/copy-module-icon.png), in the window that appears, click **Select module,** and in the **File Path** drop-down list, select the name of the module to copy.
-    -   To create a copy of a module using the **Module** page, in the project tree, select a module to copy, put the mouse cursor over the module name, and click **Copy Module** ![](images/copy-module-icon.png).
-1.  Click **Select module** and in the **File Path** drop-down list, select the name of the module to copy.
-2.  Enter the new module name.
-3.  Click **Copy**.
-
-The new module is displayed in the modules list.
-
-![](images/copy-module-with-file-path-pattern.png)
-
-*Copying a module with the defined file path and properties patterns*
-
-If the new module name does not match the properties pattern for the file name, no business dimension properties will be applied to the rules inside the module.
-
 ### Defining Project Dependencies
 
 A project dependency can be defined when a particular rule project, or **root project**, depends on contents of another project, or **dependency project**. Project dependencies are checked when projects are deployed to the deployment repository. OpenL Studio displays warning messages when a user deploys projects with conflicting dependencies.
 
 To define a dependency on another project, proceed as follows:
 
-1.  In Rules Editor, in the project tree, select a project name.
+1.  Open the **Overview** tab of the page of the project.
 2.  If the project is not editable, make it editable as described in [Editing and Saving a Project](#editing-and-saving-a-project).
-3.  Put the mouse cursor over the **Dependencies** label and click **Manage Dependencies** ![](images/edit-icon.png) .
-4.  In the window that appears, update information as required and click **Save**.
+3.  Click **Edit**.
+4.  In the **Dependencies** section, click **Add**, select the dependency project in the **Project name** field, and select **Auto-included** if required. To remove a dependency, click the trash icon next to it.
+5.  Click **Save** above the sections.
 
 ![](images/manage-project-dependencies.png)
 
 *Managing project dependencies*
 
-If the **All Modules** option is selected in the multi-module mode, tables of all modules of the dependency project are accessible from any module of the root project.
+If **Auto-included** is selected in the multi-module mode, tables of all modules of the dependency project are accessible from any module of the root project.
 
-If the **All Modules** option is cleared or the single module mode is selected, the root project module has access to the particular module of the dependency project only if an appropriate dependency is added in the **Environment** table of the root module.
+If **Auto-included** is cleared or the single module mode is selected, the root project module has access to the particular module of the dependency project only if an appropriate dependency is added in the **Environment** table of the root module.
 
-**Note:** Module names of the root and dependency projects must be unique.
+> [!Note]
+> Module names of the root and dependency projects must be unique.
 
-**Note:** Dependency projects must be available in Rules Editor to make dependency work.
+> [!Note]
+> Dependency projects must be open to make dependency work. When a project with dependencies is opened, OpenL Studio offers to open its dependencies too, as described in [Opening a Project](repository-editor.md#opening-a-project).
 
 For more information on project and module dependencies, see the [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
 
@@ -307,11 +245,11 @@ OpenL Tablets module tables are listed in the module tree. Table types are repre
 | ![](images/table-type-comment-icon.png) | Table not corresponding to any preceding types. Such tables are considered comments. |
 | ![](images/table-type-spreadsheet-icon.png) | Spreadsheet table, Constants table.                                                  |
 
-For more information on table types, see [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/). If a table contains an error, a small red cross is displayed in the corner of the icon.
+For more information on table types, see [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/). The number of errors that a table or a group of tables contains is displayed as a red badge next to its name in the tree.
 
 The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Details** pane offers none for it.
 
-To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is not in the **In Editing** status, the table can be viewed but cannot be modified.
+To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is closed or locked by another user, the table can be viewed but cannot be modified. Modifying a table of an open project changes its status to **In Editing**.
 
 ### Modifying Tables
 
@@ -328,10 +266,9 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 1.  To switch between simple and extended view, in **My Settings**, select or clear the **Show Header** and **Show Formula** options as required.
 2.  To switch the table to the edit mode, perform one of the following steps:
     -   Above the table, click **Edit**.
-    -   Right-click anywhere in the table and click **Edit**.
     -   Double click the cell to edit.
 
-    Alternatively, the file can be edited in Excel. Clicking the **Export** button initiates file download. After editing the file locally, it can be uploaded back to the project in Rules Editor as described in [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module) or via the repository.
+    Alternatively, the file can be edited in Excel. Clicking the **Export** button initiates file download. After editing the file locally, it can be uploaded back to the project in Rules Editor as described in [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module) or on the **Files** tab of the project.
 
     The following table is switched to the edit mode:
 
@@ -360,6 +297,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-font-color-icon.png) | Sets the font color.                                    |
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
+
+    The **Close** button at the end of the toolbar leaves the edit mode. When the table has unsaved changes, OpenL Studio asks whether to discard them.
 
     A merged cell grows over the line laid down beside it, the way it does in Excel. A row inserted inside a
     merged group therefore has a cell only in the columns the group leaves free, and a row inserted under a
@@ -392,9 +331,9 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     Elsewhere — in a Spreadsheet, in a Datatype, in a table written as a plain grid — a cell of a line just
     added is written as plain text: nothing is known about it until the table is saved and read again.
-2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
+2.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
 
-    Now a user can enter formulas in the selected cell.
+    Now a user can enter formulas in the selected cell. The same list offers **Text Editor** and **Multiline Editor** to write the value in another way.
 
 1.  To save changes, click **Save** ![](images/edit-save-icon.png).
 
@@ -413,7 +352,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     *Example of an error in a table*
 
-    The arrow under the message allows viewing all stack trace for this error.
+    The **Show stack trace** link under the message allows viewing all stack trace for this error.
 
     ![](images/error-stack-trace.png)
 
@@ -485,7 +424,7 @@ To create a range, proceed as follows:
 
 1.  Double click the cell to be edited.
 
-    For example, edit the cell containing 18-21. The table is extended by the pop-up window with a set of controls for editing the range.
+    For example, edit the cell containing 18-21, and click the field of the cell. The table is extended by the pop-up window with a set of controls for editing the range.
 
     ![](images/range-editor-create-range.png)
 
@@ -528,8 +467,8 @@ A range can also be modified using ‘\>’, ‘\<’ and ‘=’ controls as de
 
 To create a table as a copy of the existing table, proceed as follows:
 
-1.  In the module list, select a table to copy.
-2.  Click the **Copy Table** icon ![](images/copy-table-icon.png).
+1.  In the module tree, select a table to copy.
+2.  Above the table, click **Copy**.
     OpenL Studio displays the **Copy table "TableName"** window.
 
     ![Copy table window with destination and properties](images/copy-table-dialog.png "Copy table window")
@@ -564,69 +503,57 @@ created from scratch, provided **Update table properties** is selected in the sy
 
 The table appears in the module list.
 
-### Performing a Search
+### Searching for Tables
 
-OpenL Studio provides search functionality available both from the module level and the project-level. When opened from the project level screen, the search covers the entire project without requiring a specific module to be open.
+The search field above the module tree narrows the tree down by table name, and **Extended search** looks for tables by several criteria in the current module, in the current project, or in all compiled projects, dependencies included.
 
-The following topics describe search modes in OpenL Studio:
+#### Searching by Table Name
 
--   [Performing a Simple Search](#performing-a-simple-search)
--   [Performing an Advanced Search](#performing-an-advanced-search)
-
-#### Performing a Simple Search
-
-In the **simple search** mode, the system searches for a specific word or phrase across all tables within the current module, the current project, or the current project and its dependency projects depending on the selected option.
-To perform a simple search, in the **Search** field, enter a word or phrase and press **Enter**.
+To find a table in the module tree, start typing its name in the **Search tables by name** field above the tree. The tree shows only the tables with the typed text in their names. To get a full list of tables, delete the text in the field.
 
 ![](images/simple-search-field.png)
 
-*Starting a simple search*
+*Searching by table name*
 
-OpenL Studio displays all tables containing the entered text. The **View Table** link opens the table in Rules Editor.
+#### Performing an Extended Search
 
-![](images/search-results.png)
+Extended search allows specifying criteria to narrow the search through tables. To limit the search, specify the table type, text from the table name, header or cells, and table properties as described further in this section.
 
-*Search results*
-
-To search for any cell contents, right click the cell and in the context menu, select **Search**. The table is opened in the read mode.
-
-#### Performing an Advanced Search
-
-Advanced search allows specifying criteria to narrow the search through tables. To limit the search, specify the table type, text from the table header, and table properties as described further in this section.
-
-1.  To launch an advanced search, click the arrow to the right of the search window.
+1.  To launch an extended search, click **Extended search**, the filter icon at the end of the search field.
 
     ![](images/advanced-search-initiate.png)
 
-    *Initiating the advanced search*
+    *Initiating the extended search*
 
-1.  In the **Search** field on the top, select whether search must be performed within the current module, or within the project, or within the current project and its dependent projects.
+1.  In the **Scope** field, select whether search must be performed within the current module, within the current project, or within everything compiled, dependencies included.
 
     ![](images/advanced-search-area-selection.png)
 
     *Specifying search area*
 
-1.  In the filter form, click the **Table Types** field and select the required table type or select **Select All** to search in all table types. The utility tables, of the type **Other**, are found only when that type is selected.
-2.  In the **Header contains** field, enter the word or phrase to search for.
-3.  Expand the **Table Properties** list, select the required table property, and then click the **Add** button on the right.
+    A search that is wider than the open module waits until the project is compiled.
 
-    The text field for entering the property name appears.
-
-1.  Enter the property name.
-2.  In the similar way, add as many table properties as required.
-3.  To remove a property, click the cross icon to the right of the property.
+1.  In the **Table Type** field, select one or more table types to search in. Leave the field empty to search in all table types. The utility tables, of the type **Other**, are found only when that type is selected.
+2.  In the **Name contains**, **Header contains** and **Text in cells** fields, enter the words or phrases to search for.
+3.  In **Table Properties**, click **Add a property**, select the required table property and enter its value.
+4.  In the similar way, add as many table properties as required.
+5.  To remove a property, click the trash icon to the right of the property.
 
     ![](images/advanced-search-form.png)
 
-    *A filled form for advanced search*
+    *A filled form for extended search*
 
 1.  Click **Search** to run the search.
 
-As a result, the system displays the tables matching the search criteria along with links to the relevant Excel files and the **View Table** links leading to the table editing page.
+As a result, the system displays the tables matching the search criteria with the name of the Excel file they are written in. The **View table** link opens the table in Rules Editor. The **Show body** link shows the first rows of the table right in the list, and **Hide body** folds them back.
 
 ![](images/advanced-search-results.png)
 
-*Advanced search result*
+*Extended search result*
+
+![](images/search-results.png)
+
+*Search results with the bodies of some tables shown*
 
 ### Creating Tables
 
@@ -799,7 +726,7 @@ also be changed in the window.
 
 OpenL Studio compares two Excel files and shows the tables and other elements that differ. To compare two Excel files, proceed as follows:
 
-1.  In OpenL Studio Rules Editor, in the top line menu, select **More \> Compare Excel Files.**
+1.  In Rules Editor, above the table, select **More \> Compare Excel files.**
 
     ![Initiating Excel comparison](images/excel-comparison-initiate.png)
 
@@ -849,8 +776,10 @@ When a project is created from an imported OpenAPI file, the normalized file in 
 reconciliation by default. The generated `rules.xml` does not store OpenAPI generation settings, so OpenL Studio does
 not regenerate the workbooks automatically and overwrite later edits.
 
+The **OpenAPI** section of the **Overview** tab of the project page shows the specification of the project. A project that declares no specification shows the note **The project declares no OpenAPI specification**. A specification that is stored in the project root under the default name `openapi.yaml`, `openapi.yml` or `openapi.json` is found automatically and used for reconciliation even if `rules.xml` does not declare it.
+
 After an explicit OpenAPI import or generation operation stores its settings in `rules.xml`, the OpenAPI section shows
-the last file import date, OpenAPI file name, mode, and module names.
+the OpenAPI file name, mode, and module names.
 
 ![OpenAPI project after explicitly running Tables generation](images/openapi-project-rules-editor.png)
 
@@ -860,11 +789,12 @@ It contains the following information:
 
 | Field          | Description                                                                                                                                                                                                                                                                                                                                                                                   |
 |----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Last Import At | Date of the last upload of the OpenAPI file. <br/>The OpenAPI file can be replaced in the Repository tab or generated or regenerated from rules tables and datatype tables.                                                                                                                                                                                                                        |
-| OpenAPI File   | Location and name of the OpenAPI file, such as openAPI.json and files/example.json.                                                                                                                                                                                                                                                                                                           |
-| Mode           | Last operation performed with this OpenAPI project. <br/>**- Tables generation** mode means that the last performed operation is generation or regeneration of the project based on the OpenAPI file. <br/>For the **Tables generation** option, project reconciliation is done, too. <br/>**- Reconciliation** mode is set to validate the project against the newly uploaded OpenAPI file with a new name. |
-| Rules Module   | Name of the module that contains rules.                                                                                                                                                                                                                                                                                                                                                       |
-| Data Module    | Name of the module that contains data types.                                                                                                                                                                                                                                                                                                                                                  |
+| File           | Location and name of the OpenAPI file in the project, such as openapi.json and files/example.json.                                                                                                                                                                                                                                                                                            |
+| Mode           | Last operation performed with this OpenAPI project. <br/>**- Tables generation** mode is used for generation or regeneration of the rules and data type modules based on the OpenAPI file. <br/>For the **Tables generation** option, project reconciliation is done, too. <br/>**- Reconciliation** mode is set to validate the project against the OpenAPI file. To revalidate the project, change the path to the OpenAPI file. |
+| Services module | Name of the module that contains rules. It is shown for the **Tables generation** mode.                                                                                                                                                                                                                                                                                                      |
+| Data types module | Name of the module that contains data types. It is shown for the **Tables generation** mode.                                                                                                                                                                                                                                                                                              |
+
+The OpenAPI file and the mode are changed in the edit mode of the **Overview** tab: click **Edit** and change the **OpenAPI** section, as described further in this section. Like any other configuration change, it is written to `rules.xml`, and the project must be saved to store it in Design repository.
 
 The following topics are described in this section:
 
@@ -875,26 +805,18 @@ The following topics are described in this section:
 
 #### Generating an OpenAPI File from Rules and Datatype Tables for Reconciliation
 
-If a project is not generated from an OpenAPI file and it is necessary to add the OpenAPI file, this file can be generated in Rules Editor from the existing rules and datatypes tables. Proceed as follows:
+If a project is not generated from an OpenAPI file and it is necessary to add the OpenAPI file, this file can be generated from the existing rules and datatypes tables. Proceed as follows:
 
-1.  In Rules Editor, open the project overview page.
-2.  Click the **OpenAPI** section.
+1.  Open the project page and its **Overview** tab.
+2.  In the **OpenAPI** section, click **Generate specification**.
 
     ![](images/openapi-file-generation-initiate.png)
 
     *Initiating OpenAPI file generation*
 
-1.  If an OpenAPI file does not exist, ensure that the **Generate from Rules and Datatype tables** and **Reconciliation** options are selected.
+    The button is shown while the project can be modified and does not use the **Tables generation** mode.
 
-    ![](images/openapi-generation-settings.jpeg)
-
-    *Reviewing settings for the OpenAPI file generation*
-
-    If the OpenAPI file already exists, the **Uploaded in the Repository** option is selected by default and the file name is displayed in the field. If the file must be regenerated according to the current project tables, the **Generate from Rules and Datatype tables** and **Reconciliation** options must be selected.
-
-1.  Click **Import.**
-
-The file creation confirmation message is displayed. The OpenAPI file is added to the project and appears in the OpenAPI section.
+The file is written to the project right away, without a window to confirm. The message with the file name is displayed, the project is pointed at the file in the **Reconciliation** mode, and the file appears in the **OpenAPI** section. When the file already exists, it is updated according to the current project tables.
 
 ![](images/openapi-file-added-to-section.png)
 
@@ -906,39 +828,42 @@ Note that successful generation of the OpenAPI file requires that the project ha
 
 If a project is not generated from the OpenAPI file, but it is required to add the OpenAPI file and generate modules from it, proceed as follows:
 
-1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
-2.  In Rules Editor, click **Click to Import OpenAPI File.**
+1.  Open the **Overview** tab of the project page and click **Edit**.
+2.  In the **OpenAPI** section, select the OpenAPI file in the **File** field. The list offers the `.json`, `.yaml` and `.yml` files of the project. To use a file from the user's computer, click the upload icon ![](images/openapi-import-icon.png) and select the file. The file is added to the project when the changes are saved.
 
-    ![](images/openapi-import-initiate.png)
+    ![](images/openapi-generation-settings.jpeg)
 
-    *Initiating OpenAPI file import*
+    *Choosing the OpenAPI file and the mode*
 
-1.  Enter the name of the OpenAPI imported file, such as example.json.
-2.  Select the **Tables generation** mode.
+3.  Select the **Tables generation** mode.
 
     ![](images/openapi-select-generation-mode.png)
 
     *Selecting the generation mode*
 
-1.  If necessary, modify the default values for the rules and data modules and save the settings.
-2.  Click **Generate tables** and review what the generation will write.
+1.  If necessary, modify the default names of the **Services module** and the **Data types module**, and click **Save** above the sections.
+2.  In the **OpenAPI** section, click **Generate tables** and review what the generation will write.
+
+    ![](images/openapi-import-dialog.jpeg)
+
+    *The OpenAPI section with the Tables generation mode*
 
     If no module with the entered name is found, the workbook it is written to can be edited, and the reset
     icon beside the field puts back the proposed path.
 
     ![](images/openapi-module-settings-new.png)
 
-    *Module settings window, both modules are new*
+    *Generate tables window, both modules are new*
 
     If the project already reads a module of that name, it is written wherever the project reads it, so there is no option to define a file name. When a workbook stands there, it is overwritten and the corresponding warning message is displayed.
 
     ![](images/openapi-module-settings-existing.png)
 
-    *Module settings window, one of modules already exists*
+    *Generate tables window, one of modules already exists*
 
 1.  Click **Generate tables**, or **Generate and overwrite** when the window says a workbook is replaced.
 
-The rules and model modules are created or updated. The OpenAPI data is updated.
+The rules and model modules are created or updated, and the message **The tables were generated from the OpenAPI specification** is displayed.
 
 #### Regenerating a Project from Another OpenAPI File
 
@@ -949,24 +874,19 @@ select **Tables generation**, and choose the OpenAPI file. Regeneration overwrit
 
 #### Updating the OpenAPI File
 
-When the project is generated from the OpenAPI file and reconciliation is done, the system automatically validates the generated OpenL Tablets rules and data types. If the file is updated in the **Repository** tab and the name is not changed, reconciliation is completed immediately.
+When the project is generated from the OpenAPI file and reconciliation is done, the system automatically validates the generated OpenL Tablets rules and data types. If the file is updated in the **Files** tab, as described in [Updating a File](repository-editor.md#updating-a-file), and the name is not changed, reconciliation is completed immediately.
 
 To reconcile a project using an OpenAPI file with a different name, proceed as follows:
 
-1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
-2.  In Rules Editor, click **OpenAPI Import icon ![](images/openapi-import-icon.png).**
-
-    ![](images/openapi-import-dialog.jpeg)
-
-    *Initiating OpenAPI import*
-
-1.  In the Import OpenAPI File window, enter the OpenAPI file location, select **Reconciliation,** and click **Import**.
+1.  Ensure that the OpenAPI file is uploaded to the project via the **Files** tab, or pick it from the computer with the upload icon in the next step.
+2.  Open the **Overview** tab of the project page and click **Edit**.
+3.  In the **File** field of the **OpenAPI** section, select the OpenAPI file, select **Reconciliation,** and click **Save**.
 
     ![](images/openapi-select-file-for-reconciliation.png)
 
     *Selecting an OpenAPI file for reconciliation*
 
-The project is validated using the newly imported file.
+The project is validated using the newly selected file.
 
 ![](images/openapi-reconciliation-results.png)
 

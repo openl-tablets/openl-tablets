@@ -32,25 +32,26 @@ OpenL Studio allows editing comma separated arrays of values. A multi selection 
 
 This section describes table properties available in OpenL Studio. For more information on table properties, see [OpenL Tablets Reference Guide > Table Properties](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/table-properties).
 
-If default property values are defined for a table, they appear only in the right hand **Properties** section, but not in the table. In the following example, there are **Active = true** and **Fail On Miss = false** default properties.
+The properties of a table are shown in the **Table Details** pane on the right of the table. The pane lists only the properties that the table declares or inherits, grouped as **Info**, **Business Dimension**, **Version** and **Dev**. The default value of a property that the table does not declare is not listed, though it applies to the table. In the following example, the table declares only its description, so the default properties, such as **Active = true** and **Fail On Miss = false**, are not shown.
 
 ![](images/default-table-properties.png)
 
-*Default table properties example*
+*Table properties example*
 
-Default properties can be overridden at the table level; in other words, they can be changed as follows:
+Default properties can be overridden at the table level; in other words, a default property can be set for the table as follows:
 
-1.  In the **Properties** section, click the default property to be changed.
+1.  In the **Table Details** pane, click **Edit the properties**, the pencil icon.
+1.  Open the **Add a property** list, start typing the name of the property, such as **Fail On Miss**, and select it.
 
-    lnstead of the property value, a checkbox appears:
+    A field for the value appears. For a property with the values **true** and **false**, it is a check box:
 
     ![](images/updating-default-property.png)
 
     *Updating a default property*
 
-1.  Select or deselect the checkbox as needed and click the **Save** button.
+1.  Select or deselect the check box as needed and click the **Save** button.
 
-    The property appears in the table with its new value.
+    The property appears in the **Table Details** pane with its new value and is written to the table.
 
     ![](images/default-property-updated.png)
 
@@ -58,7 +59,7 @@ Default properties can be overridden at the table level; in other words, they ca
 
 #### Editing Inherited Table Properties
 
-Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-table). In the **Properties** section of the given table, inherited properties appear in a different color and are accompanied with a link to the **Properties** table where they are defined. The values of the inherited properties are not stored in the table, they are displayed in the **Properties** section, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
+Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-table). In the **Table Details** pane of the given table, inherited properties appear in a different color and are marked with an arrow icon. Resting the pointer on the icon tells where the property is inherited from, for example, **Inherited from the module properties table** or **Inherited from the category properties table**. The values of the inherited properties are not stored in the table, they are displayed in the **Table Details** pane, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
 
 ![](images/inherited-category-level-properties.png)
 
@@ -66,7 +67,7 @@ Module or category level properties are those inherited from a **Properties** ta
 
 To change an inherited property, perform the following steps:
 
-1.  In the **Properties** section, click the inherited property to be changed.
+1.  In the **Table Details** pane, click **Edit the properties**, the pencil icon.
 2.  Enter or select the required values from the drop-down list and click **Save**.
 
     ![](images/updating-inherited-property.png)
@@ -86,7 +87,7 @@ The following topics are included in this section:
 
 ##### Editing System Properties
 
-By default, OpenL Studio applies system properties to each created or edited table. The values of the System properties are provided in the table and in the Properties section.
+By default, OpenL Studio applies system properties to each created or edited table. The values of the System properties are provided in the table and in the **Table Details** pane.
 
 The **modifiedBy** property value is set using the name of the currently logged in user. The **modifiedOn** property is set according to the current date. These properties are applied upon each save.
 
@@ -102,15 +103,15 @@ System properties cannot be edited in UI. The OpenL Studio users can delete thos
 
 ##### Editing Properties for a Particular Table Type
 
-Some properties are only applicable to particular types of tables. When opening a table in OpenL Studio, the properties section displays properties depending on the type of the table.
+Some properties are only applicable to particular types of tables. When opening a table in OpenL Studio, the **Table Details** pane offers properties depending on the type of the table.
 
-For example, such property as **Validate DT** is available for Decision Tables. That means it can be selected in the drop-down list after clicking the **Add** link at the bottom of the **Properties** section. The following figure shows properties applied to a Decision Table:
+For example, such property as **Validate DT** is available for Decision Tables. That means it can be selected in the **Add a property** list of the **Table Details** pane while the properties are edited. The following figure shows properties applied to a Decision Table:
 
 ![](images/decision-table-properties.png)
 
 *Properties for the Decision table type*
 
-When opening a Data Table in the same project, these properties are not available for selecting from the drop-down list in the **Properties** section.
+When opening a Data Table in the same project, these properties are not available for selecting from the **Add a property** list.
 
 ![](images/decision-table-properties-not-available.png)
 
@@ -134,19 +135,19 @@ the copy becomes the version the rule runs.
 
 To add a new property for the selected table, perform the following steps:
 
-1.  In the **Properties** pane, click the **Add Property** link.
+1.  In the **Table Details** pane, click **Edit the properties**, the pencil icon. The **Add a property** list appears under the properties of the table.
 
     ![](images/add-new-property-link.png)
 
     *Add new property for the current table*
 
-1.  Enter the required property or select it from the drop-down list and click the **Add** button.
+1.  Enter the required property or select it from the list. The properties are grouped by their purpose, and a property that the table already declares is not offered again.
 
     ![](images/select-table-property-to-add.png)
 
     *Selected table property to be added*
 
-1.  Specify the property value and then click the **Save** button to complete.
+1.  Specify the property value and then click the **Save** button to complete. To discard the changes, click **Cancel**.
 
     All steps are collected in the following figure:
 
@@ -165,7 +166,7 @@ A new table version has the same identity, that is, signature and dimensional pr
 
 *An inactive table version*
 
-Versions of the same table are grouped in the module tree under the table name. Clicking the table name displays the active version. If all tables are set to inactive, the latest created version is displayed.
+Versions of the same table appear in the module tree next to each other under the same name, and the inactive versions are greyed out. Select a version in the tree to display it.
 
 ![](images/table-versions-in-module-tree.png)
 
