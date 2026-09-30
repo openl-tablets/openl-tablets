@@ -58,9 +58,10 @@ Studio installation, so both always ship and version as one unit.
 - **REST and WebSocket** — REST lives under `/rest/**`. STOMP over WebSocket has a single endpoint, `/rest/ws`, for the
   UI and for third-party clients; the REST chain authenticates its handshake by the session cookie or the
   `Authorization` header.
-- **Session-scoped state** — `RulesUserSession`, `WebStudio`, the compilation job registry, debug sessions, test, run
-  and benchmark results, merge conflicts and comparisons are `@SessionScope` beans. A REST client without the
-  `JSESSIONID` cookie gets a new HTTP session, kept for 30 minutes, at its first call that touches one of them.
+- **Client state** — `RulesUserSession`, `WebStudio`, the compilation job registry, debug sessions, test, run
+  and benchmark results, merge conflicts and comparisons are `@ClientSessionScope` beans. A browser keeps them in
+  its HTTP session; a REST client with its own credentials opens no session and finds them kept for the
+  credential — see [Client Sessions](client-sessions.md).
 - **No server-rendered pages** — `AppPageServlet` answers every UI address with the React page; a new screen is a
   React screen backed by REST.
 - **Distributions**:
@@ -1177,11 +1178,10 @@ void authorizationServerMetadataConformance() throws Exception {
 - **Context path** — `DEMO` serves Studio at `/webstudio`: an extra core context for RFC 8414, OIDC discovery appended
   to the issuer path, or Studio deployed as `ROOT` (A1).
 - **Public URL** — Studio has no public-URL setting; `mcp.public-url` is new, and the issuer must stay fixed.
-- **Session-bound Studio state** — every stateless MCP request gets a new Studio HTTP session with its
-  `RulesUserSession` and `WebStudio`, kept for 30 minutes. The trace, test and merge flows need legacy sessions or
-  handle-based Studio APIs (openl-mcp P1.2). Mitigations to weigh: a short lifetime for the sessions that exchanged
-  MCP tokens open, or one Studio session per legacy MCP session.
-- **One debug session per user** — every MCP client of a user shares that user's trace (openl-mcp P1.1).
+- **Client-bound Studio state** — Studio keeps a stateless client's state for its credential
+  ([Client Sessions](client-sessions.md)), so every MCP request with one token reaches one `WebStudio`. Tokens
+  exchanged per MCP session would each get state of their own; whether that is wanted is open.
+- **One debug session per client** — every MCP call with one token shares that token's trace (openl-mcp P1.1).
 - **bcrypt per PAT call** — stage 1 costs a bcrypt check for every REST call a tool makes, until token exchange lands.
 - **`@NotPatAuth`** — must refuse tokens minted for MCP before the REST chains accept them (§4.3.4).
 - **SAS schema** — Flyway scripts for PostgreSQL, MariaDB, MySQL, SQL Server, Azure SQL, Oracle and H2, and persisted

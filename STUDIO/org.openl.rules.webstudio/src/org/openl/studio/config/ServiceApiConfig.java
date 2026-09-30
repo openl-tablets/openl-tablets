@@ -7,8 +7,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.web.context.WebApplicationContext;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.Repository;
@@ -25,6 +25,7 @@ import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.service.HistoryRepositoryMapper;
 import org.openl.studio.security.CurrentUserInfo;
+import org.openl.studio.session.ClientSessionScope;
 
 /**
  * REST services configuration
@@ -48,7 +49,7 @@ public class ServiceApiConfig {
     }
 
     @Bean
-    @Scope(WebApplicationContext.SCOPE_SESSION)
+    @ClientSessionScope(proxyMode = ScopedProxyMode.NO)
     public RulesUserSession rulesUserSession(CurrentUserInfo currentUserInfo,
                                              MultiUserWorkspaceManager workspaceManager,
                                              UserManagementService userManagementService,
@@ -79,13 +80,13 @@ public class ServiceApiConfig {
     }
 
     @Bean
-    @Scope(WebApplicationContext.SCOPE_SESSION)
+    @ClientSessionScope(proxyMode = ScopedProxyMode.NO)
     public UserWorkspace userWorkspace(RulesUserSession rulesUserSession) {
         return rulesUserSession.getUserWorkspace();
     }
 
     @Bean
-    @Scope(WebApplicationContext.SCOPE_SESSION)
+    @ClientSessionScope(proxyMode = ScopedProxyMode.NO)
     public WebStudio webstudio(RulesUserSession rulesUserSession) {
         return rulesUserSession.getWebStudio();
     }

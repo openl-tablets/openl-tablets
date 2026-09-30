@@ -8,13 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.WorkspaceResetEvent;
+import org.openl.studio.session.ClientSessionScope;
 
 /**
- * Session-scoped registry for storing trace parameters for lazy loading.
+ * Client-scoped registry for storing trace parameters for lazy loading.
  * <p>
  * This registry stores large parameter values that are not included in the initial
  * trace response to reduce payload size. Parameters are registered during trace
@@ -22,14 +22,14 @@ import org.openl.rules.ui.WorkspaceResetEvent;
  * requests the full value.
  * </p>
  * <p>
- * The registry is session-scoped, meaning each user session has its own isolated
- * parameter storage. Parameters are cleared when a new trace execution starts or
+ * The registry is client-scoped, meaning each client — a browser session or the credentials of a stateless
+ * client — has its own isolated parameter storage. Parameters are cleared when a new trace execution starts or
  * when the trace is explicitly released.
  * </p>
  */
 @Slf4j
 @Component
-@SessionScope
+@ClientSessionScope
 public class TraceParameterRegistry {
 
     private final AtomicInteger counter = new AtomicInteger(0);

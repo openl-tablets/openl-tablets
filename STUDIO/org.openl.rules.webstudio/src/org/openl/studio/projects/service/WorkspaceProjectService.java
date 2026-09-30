@@ -1894,7 +1894,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .filter(declared -> moduleName.equals(declared.getName()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
-        // The work runs on a thread of its own, where a session-scoped bean cannot be resolved. The studio is
+        // The work runs on a thread of its own, where a client-scoped bean cannot be resolved. The studio is
         // looked up here, while the request still holds the session, and the work carries it along. The
         // compilation job is not carried at all: asking the session's registry for one from such a thread fails,
         // and the status endpoint adopts a compilation started this way the moment it is asked about it.

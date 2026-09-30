@@ -7,16 +7,15 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.jspecify.annotations.Nullable;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
+import org.openl.studio.session.ClientSessionScope;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
- * Session-scoped registry of the benchmarks a user has taken.
+ * Client-scoped registry of the benchmarks a user has taken.
  * <p>
  * At most one benchmark is kept at a time: starting another one abandons the one before it, and what an
  * abandoned benchmark measured is dropped when it ends. The measurements of every benchmark that ended are
@@ -29,7 +28,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  * </p>
  */
 @Component
-@SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
+@ClientSessionScope
 public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultRegistry<List<BenchmarkMeasurement>> {
 
     private final List<BenchmarkMeasurement> measurements = new ArrayList<>();

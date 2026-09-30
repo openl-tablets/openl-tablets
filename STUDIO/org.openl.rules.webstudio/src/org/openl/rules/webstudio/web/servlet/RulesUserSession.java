@@ -17,13 +17,15 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 /**
- * The state OpenL Studio keeps for a user in the HTTP session.
+ * The state OpenL Studio keeps for one client of a user: a browser's HTTP session, or the credentials a
+ * stateless request carries.
  *
  * Only the user name is serializable state. The workspace, the studio and the services behind them are transient:
  * the session is never persisted or replicated, and a session that has no holder gets a fresh one from the
  * application context.
  *
- * <p>The holder ends with the session: the workspace is released and the studio torn down.
+ * <p>The holder ends with the client: the workspace is handed back and the studio torn down. The workspace is
+ * shared by every client of the user and is released only when the last of them ends.
  */
 public class RulesUserSession implements Serializable {
 
@@ -49,7 +51,7 @@ public class RulesUserSession implements Serializable {
     public synchronized UserWorkspace getUserWorkspace() {
         if (userWorkspace == null) {
             userWorkspace = Objects.requireNonNull(workspaceManager, "workspaceManager is not set")
-                    .getUserWorkspace(getWorkspaceUser());
+                    .acquireUserWorkspace(getWorkspaceUser());
             userWorkspace.activate();
         }
 
@@ -64,15 +66,15 @@ public class RulesUserSession implements Serializable {
     }
 
     /**
-     * Lets go of what the session held.
+     * Lets go of what the client held.
      *
-     * <p>Called when the session is invalidated or expires. The workspace is released, then the studio is torn
-     * down.
+     * <p>Called when the session is invalidated or expires, or the credentials of a stateless client have been
+     * idle for as long. The workspace is handed back, then the studio is torn down.
      */
     @PreDestroy
     void sessionDestroyed() {
         if (userWorkspace != null) {
-            userWorkspace.release();
+            workspaceManager.releaseUserWorkspace(userWorkspace);
         }
         if (webStudio != null) {
             webStudio.destroy();

@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
  * Reclaims abandoned debug sessions.
  *
  * <p>A suspended session keeps a worker thread parked on its live continuation, holding the frozen
- * object graph. The session-scoped registry releases it when a new session starts, on cancel, or when
- * the HTTP session is destroyed. None of those fire when the user simply walks away from a breakpoint,
+ * object graph. The client-scoped registry releases it when a new session starts, on cancel, or when
+ * the client ends. None of those fire when the user simply walks away from a breakpoint,
  * closes the tab, or the launch popup was blocked.
  *
  * <p>This singleton is the safety net: it periodically terminates sessions that have not been accessed
@@ -69,7 +69,7 @@ public class DebugSessionReaper {
     /**
      * Bound the number of concurrently tracked sessions across the whole application.
      *
-     * <p>The per-HTTP-session registry keeps only one active session per browser session, but a single
+     * <p>The client-scoped registry keeps only one active session per client, but a single
      * user can open several (multiple browsers, API clients) and each holds a worker thread and its frozen
      * object graph. This global limit reclaims the least-recently-accessed sessions once the total exceeds
      * the cap, so an actively used session survives while stale or abandoned ones are dropped first.

@@ -34,6 +34,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
@@ -105,13 +106,13 @@ public class SamlSecurityConfig {
     @Bean
     @Order(5)
     public SecurityFilterChain restEndpointsFilterChain(
-            @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
+            @Qualifier("restSecurityContextFilter") SecurityContextHolderFilter restSecurityContextFilter,
             PatAuthenticationFilter patAuthenticationFilter,
             @Qualifier("webExceptionTranslationFilter") ExceptionTranslationFilter webExceptionTranslationFilter,
             @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
 
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/rest/**"),
-                securityContextPersistenceFilter,
+                restSecurityContextFilter,
                 patAuthenticationFilter,
                 webExceptionTranslationFilter,
                 filterSecurityInterceptor);

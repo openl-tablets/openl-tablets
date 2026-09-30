@@ -103,6 +103,18 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   folders. Studio's project and module screens show that choice for a link by name (EPBDS-16702); a name that
   resolves moves the address on to the project's id.
 
+## State Kept Between Requests
+
+- **State of one client is `@ClientSessionScope`, never `@SessionScope`.** A browser keeps it in its HTTP session; a
+  request with its own credentials (bearer token, personal access token, Basic authentication) opens no session and
+  finds it kept for the credential. A `@SessionScope` bean would open an HTTP session for every such request and
+  lose its state between them. See [`Docs/architecture/client-sessions.md`](../../Docs/architecture/client-sessions.md).
+- **Never open an HTTP session in a REST path.** No `request.getSession()` / `getSession(true)` and no saving of the
+  security context: the `/rest/**` chains only read a browser's sign-in (`restSecurityContextFilter`).
+- **A holder of the user workspace hands it back.** Take it with `MultiUserWorkspaceManager.acquireUserWorkspace` and
+  return it with `releaseUserWorkspace`; never call `UserWorkspace.release()` directly — other clients of the user
+  still work in it.
+
 ## Request Validation
 
 - **A `@RequestBody` needs `@Valid`** for its bean constraints to run. Without it, `@ProjectNameConstraint`, `@NotBlank`,

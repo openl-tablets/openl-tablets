@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
@@ -88,14 +89,14 @@ public class OAuth2SecurityConfig {
     @Bean
     @Order(4)
     public SecurityFilterChain restEndpointsFilterChain(
-            @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
+            @Qualifier("restSecurityContextFilter") SecurityContextHolderFilter restSecurityContextFilter,
             PatAuthenticationFilter patAuthenticationFilter,
             @Qualifier("bearerTokenAuthenticationFilter") Filter bearerTokenAuthenticationFilter,
             @Qualifier("bearerExceptionTranslationFilter") ExceptionTranslationFilter bearerExceptionTranslationFilter,
             @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
 
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/rest/**"),
-                securityContextPersistenceFilter,
+                restSecurityContextFilter,
                 patAuthenticationFilter,
                 bearerTokenAuthenticationFilter,
                 bearerExceptionTranslationFilter,

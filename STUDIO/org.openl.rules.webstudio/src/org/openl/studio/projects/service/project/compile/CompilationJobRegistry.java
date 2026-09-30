@@ -8,7 +8,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.ProjectIdModel;
 
 /**
- * Session-scoped registry that owns the current {@link CompilationJob} for a
+ * Client-scoped registry that owns the current {@link CompilationJob} for a
  * WebStudio session and ensures repeated open requests for the same project
  * reuse the existing job.
  *

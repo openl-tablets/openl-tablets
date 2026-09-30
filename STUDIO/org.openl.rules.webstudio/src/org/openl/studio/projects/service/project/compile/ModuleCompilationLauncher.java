@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * work is handed over and follows the compilation on the project's status channel, instead of holding a request
  * open for the whole of it.
  *
- * <p>The work arrives as a task rather than as a module to open, because the session-scoped collaborators it needs
+ * <p>The work arrives as a task rather than as a module to open, because the client-scoped collaborators it needs
  * can only be resolved by the request thread.
  */
 @Slf4j

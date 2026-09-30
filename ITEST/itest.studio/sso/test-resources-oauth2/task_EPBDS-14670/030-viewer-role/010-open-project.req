@@ -1,5 +1,6 @@
 PATCH /rest/projects/{PROJECT_ID} HTTP/1.1
 Authorization: Bearer ${EPBDS14670_VIEWER_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
 Content-Type: application/json
 
 {

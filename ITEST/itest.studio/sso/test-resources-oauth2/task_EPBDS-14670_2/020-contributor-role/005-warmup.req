@@ -1,3 +1,4 @@
 GET /rest/users/profile HTTP/1.1
 Authorization: Bearer ${EPBDS14670R_CONTRIBUTOR_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
 
