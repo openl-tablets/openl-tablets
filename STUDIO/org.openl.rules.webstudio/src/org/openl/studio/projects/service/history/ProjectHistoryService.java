@@ -37,8 +37,8 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -103,7 +103,7 @@ public class ProjectHistoryService {
     public void restore(RulesProject project,
                         @Nullable String moduleName,
                         String versionToRestore,
-                        @Nullable WebStudio webStudio) throws Exception {
+                        WebStudio webStudio) throws Exception {
         var location = resolveHistoryLocation(project, moduleName);
         requireWriteAccess(project.getArtefact(location.module().getRulesRootPath()));
         var fileToRestore = getHistoryVersion(location.historyFolder(), versionToRestore);
@@ -124,10 +124,7 @@ public class ProjectHistoryService {
         removeCurrentVersion(currentVersion);
     }
 
-    private static void reloadOpenedModule(@Nullable WebStudio webStudio, File restoredSource) throws Exception {
-        if (webStudio == null) {
-            return;
-        }
+    private static void reloadOpenedModule(WebStudio webStudio, File restoredSource) throws Exception {
         var currentModule = webStudio.getCurrentModule();
         if (currentModule == null || !Files.isSameFile(currentModule.getRulesPath(), restoredSource.toPath())) {
             return;
@@ -257,16 +254,20 @@ public class ProjectHistoryService {
         }
     }
 
-    public static void deleteHistory(String projectName) throws IOException {
-        var userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                .getLocalWorkspace()
-                .getLocation();
-        var projectHistoryPath = Path.of(userWorkspace.getPath(), FolderHelper.HISTORY_FOLDER, projectName)
-                .toString();
-        var dir = new File(projectHistoryPath);
-        // Project can contain no history
-        if (dir.exists()) {
-            FileUtils.delete(dir.toPath());
+    /**
+     * Deletes the edit history the given workspace keeps for a project.
+     *
+     * <p>A project with no history is left as it is.
+     *
+     * @param workspace   workspace of the user the history belongs to
+     * @param projectName project whose history is deleted
+     */
+    public static void deleteHistory(UserWorkspace workspace, String projectName) throws IOException {
+        var history = workspace.getLocalWorkspace().getLocation().toPath()
+                .resolve(FolderHelper.HISTORY_FOLDER)
+                .resolve(projectName);
+        if (Files.exists(history)) {
+            FileUtils.delete(history);
         }
     }
 

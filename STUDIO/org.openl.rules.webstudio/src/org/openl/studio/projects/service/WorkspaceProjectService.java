@@ -1025,14 +1025,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.close.conflict.message");
         }
         requireDiscardForModifiedProject(project, discardChanges);
-        try {
-            ProjectHistoryService.deleteHistory(project.getBusinessName());
-        } catch (IOException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
-            throw new ProjectException("Failed to delete project history", e);
-        }
+        deleteProjectHistory(project.getBusinessName());
         // We must release module info because it can hold jars.
         // We cannot rely on studio.getProject() to determine if closing project is compiled inside
         // studio.getModel()
@@ -1146,7 +1139,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var repoId = project.getRepository().getId();
 
         try {
-            ProjectHistoryService.deleteHistory(businessName);
+            ProjectHistoryService.deleteHistory(getUserWorkspace(), businessName);
             if (project.isOpened()) {
                 project.close();
             }
@@ -1311,9 +1304,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         publishStateChanged(project);
     }
 
-    private static void deleteProjectHistory(String businessName) throws ProjectException {
+    private void deleteProjectHistory(String businessName) throws ProjectException {
         try {
-            ProjectHistoryService.deleteHistory(businessName);
+            ProjectHistoryService.deleteHistory(getUserWorkspace(), businessName);
         } catch (IOException e) {
             if (log.isDebugEnabled()) {
                 log.debug(e.getMessage(), e);
@@ -1592,7 +1585,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!Objects.equals(project.getBranch(), branchName)) {
             return false;
         }
-        ProjectHistoryService.deleteHistory(project.getBusinessName());
+        ProjectHistoryService.deleteHistory(getUserWorkspace(), project.getBusinessName());
         getWebStudio().getModel().clearModuleInfo();
         var wasOpened = project.isOpened();
         if (wasOpened) {

@@ -207,7 +207,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     }
                 }
             }
-            ProjectHistoryService.deleteHistory(projectName);
+            ProjectHistoryService.deleteHistory(userWorkspace, projectName);
             project.save();
             Repository repository = project.getDesignRepository();
             if (repository.supports().branches()) {

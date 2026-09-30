@@ -3,7 +3,6 @@ package org.openl.studio.projects.rest.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.ui.WebStudio;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.projects.model.history.CompareProjectHistoryRequest;
@@ -43,6 +43,12 @@ public class ProjectHistoryController {
     private final ProjectHistoryService projectHistoryService;
     private final ComparisonLauncher comparisonLauncher;
 
+    @Lookup
+    protected WebStudio getWebStudio() {
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
+    }
+
     @Operation(summary = "history.get-local-history.summary", description = "history.get-local-history.desc")
     @GetMapping(value = "/projects/{projectId}/local-history", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ProjectHistoryItem> getLocalHistory(
@@ -59,13 +65,11 @@ public class ProjectHistoryController {
             @Parameter(description = "history.get-local-history.param.module.desc")
             @RequestParam(value = "module", required = false) @Nullable String module,
             @Parameter(description = "history.restore.req-body.desc")
-            @Valid @RequestBody RestoreProjectHistoryRequest request,
-            HttpSession session) throws Exception {
-        var webStudio = WebStudioUtils.getWebStudio(session);
+            @Valid @RequestBody RestoreProjectHistoryRequest request) throws Exception {
         projectHistoryService.restore(project,
                 StringUtils.trimToNull(module),
                 request.version().strip(),
-                webStudio);
+                getWebStudio());
     }
 
     @Operation(summary = "history.compare.summary", description = "history.compare.desc")

@@ -14,20 +14,12 @@ import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.security.web.session.HttpSessionIdChangedEvent;
 
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-
 @Slf4j
 public class SessionListener implements HttpSessionListener, HttpSessionIdListener {
 
 
     private static ApplicationContext getContext(ServletContext servletContext) {
         return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
-    }
-
-    private RulesUserSession getUserRules(HttpSession session) {
-        return (RulesUserSession) session.getAttribute(Constants.RULES_USER_SESSION);
     }
 
     private void printSession(HttpSession session) {
@@ -52,14 +44,12 @@ public class SessionListener implements HttpSessionListener, HttpSessionIdListen
                       id           : {}
                       creation time: {}
                       accessed time: {}
-                      max inactive : {}
-                      has rulesUserSession? {}\
+                      max inactive : {}\
                     """,
                     session.getId(),
                     creationTime,
                     lastAccessedTime,
-                    session.getMaxInactiveInterval(),
-                    getUserRules(session) != null);
+                    session.getMaxInactiveInterval());
         }
     }
 
@@ -79,21 +69,6 @@ public class SessionListener implements HttpSessionListener, HttpSessionIdListen
         printSession(session);
         SpringInitializer.removeSessionCache(session, session.getId());
         publishSessionEvent(session, new HttpSessionDestroyedEvent(session));
-
-        var obj = getUserRules(session);
-        if (obj == null) {
-            log.debug("!!! no rulesUserSession");
-        } else {
-            log.debug("removing rulesUserSession");
-
-            obj.sessionDestroyed();
-            log.debug("session was destroyed");
-        }
-
-        WebStudio webStudio = WebStudioUtils.getWebStudio(session);
-        if (webStudio != null) {
-            webStudio.destroy();
-        }
     }
 
     @Override
