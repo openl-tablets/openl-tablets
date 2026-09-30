@@ -349,7 +349,6 @@ i18next.addResourceBundle('en', 'repository', {
             hide_stacktrace: 'Hide stack trace',
             stacktrace_failed: 'Failed to read the stack trace',
         },
-        live: 'live',
         commit: {
             show_more: 'Show more',
             show_less: 'Show less',
