@@ -4,8 +4,8 @@ Content-Type: application/json
 {
   "username": "jsmith",
   "email": "mjohnson@email",
-  "displayName": "MJ",
-  "firstName": "Mike",
+  "displayName": "Michael Johnson",
+  "firstName": "Michael",
   "lastName": "Johnson",
   "showHeader": false,
   "showFormulas": true,

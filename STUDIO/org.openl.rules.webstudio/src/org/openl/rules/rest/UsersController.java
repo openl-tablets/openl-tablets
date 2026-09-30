@@ -1,14 +1,5 @@
 package org.openl.rules.rest;
 
-import static org.openl.rules.ui.WebStudio.RULES_TREE_VIEW_DEFAULT;
-import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
-import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
-import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
-import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
-import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.PropertyResolver;
@@ -27,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,14 +46,11 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.User;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -76,6 +68,14 @@ import org.openl.util.StringUtils;
 @Tag(name = "Users")
 public class UsersController {
 
+    private static final String TABLE_VIEW = "table.view";
+    private static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
+    private static final String TEST_TESTS_PERPAGE = "test.tests.perpage";
+    private static final String TEST_FAILURES_ONLY = "test.failures.only";
+    private static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
+    private static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
+    private static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
+
     private final UserManagementService userManagementService;
     private final boolean canCreateInternalUsers;
     private final AdminUsers adminUsersInitializer;
@@ -87,6 +87,7 @@ public class UsersController {
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
     private final JdbcMutableAclService aclService;
+    private final TransactionTemplate txTemplate;
     private final boolean groupsDisabled;
 
     @Autowired
@@ -100,6 +101,7 @@ public class UsersController {
                            UserSettingManagementService userSettingsManager,
                            ExternalGroupService extGroupService,
                            MailSender mailSender,
+                           PlatformTransactionManager txManager,
                            @Autowired(required = false) JdbcMutableAclService aclService,
                            @Value("${user.mode}") String userMode) {
         this.userManagementService = userManagementService;
@@ -113,6 +115,7 @@ public class UsersController {
         this.extGroupService = extGroupService;
         this.mailSender = mailSender;
         this.aclService = aclService;
+        this.txTemplate = new TransactionTemplate(txManager);
         this.groupsDisabled = "multi".equals(userMode) || "single".equals(userMode);
     }
 
@@ -192,31 +195,38 @@ public class UsersController {
     @PutMapping("/info")
     public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoEditModel userModel) {
         validationProvider.validate(userModel);
-        updateCurrentUserData(request, userModel, null);
+        var dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+        if (updateCurrentUserData(dbUser, userModel, null)) {
+            sendVerificationMail(request);
+        }
     }
 
     @Operation(description = "users.edit-user-profile.desc", summary = "users.edit-user-profile.summary")
     @PutMapping("/profile")
     public void editUserProfile(HttpServletRequest request, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
-        updateCurrentUserData(request,
-                userModel,
-                Optional.ofNullable(userModel.getChangePassword())
-                        .map(ChangePasswordModel::getNewPassword)
-                        .orElse(null));
-
-        updateUserSettings(userModel.isShowFormulas(),
-                userModel.isShowHeader(),
-                userModel.isShowRealNumbers(),
-                userModel.getTestsFailuresPerTest(),
-                userModel.isShowComplexResult(),
-                userModel.getTestsPerPage(),
-                userModel.isTestsFailuresOnly(),
-                userModel.getTreeView());
+        var newPassword = Optional.ofNullable(userModel.getChangePassword())
+                .map(ChangePasswordModel::getNewPassword)
+                .orElse(null);
+        // The details and the settings are saved together, so a failure leaves the profile as it was, and the
+        // verification link is mailed only once the new e-mail is saved.
+        var verifyEmail = txTemplate.execute(status -> {
+            var dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+            var emailChanged = updateCurrentUserData(dbUser, withStoredDetails(userModel, dbUser), newPassword);
+            updateUserSettings(userModel);
+            return emailChanged;
+        });
+        if (Boolean.TRUE.equals(verifyEmail)) {
+            sendVerificationMail(request);
+        }
     }
 
-    private void updateCurrentUserData(HttpServletRequest request, UserInfoModel userModel, String newPassword) {
-        var dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+    /**
+     * Saves the details of the current user.
+     *
+     * @return whether the e-mail has changed and has to be verified
+     */
+    private boolean updateCurrentUserData(User dbUser, UserInfoModel userModel, @Nullable String newPassword) {
         var emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
                 .isEmailExternal();
         userManagementService.updateUserData(dbUser.getUsername(),
@@ -226,42 +236,45 @@ public class UsersController {
                 userModel.getEmail(),
                 userModel.getDisplayName(),
                 !emailChanged && dbUser.getExternalFlags().isEmailVerified());
-
-        if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
-        }
+        return emailChanged && StringUtils.isNotBlank(userModel.getEmail());
     }
 
-    private void updateUserSettings(boolean showFormulas,
-                                    boolean showHeader,
-                                    boolean showRealNumbers,
-                                    int testsFailuresPerTest,
-                                    boolean showComplexResult,
-                                    int testsPerPage,
-                                    boolean testsFailuresOnly,
-                                    String treeView) {
-        WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+    private void sendVerificationMail(HttpServletRequest request) {
+        mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
+    }
+
+    /**
+     * The details that the request sends, with the stored ones in place of those it leaves out.
+     */
+    private static UserInfoModel withStoredDetails(UserInfoModel sent, User stored) {
+        return new UserInfoModel().setEmail(ObjectUtils.firstNonNull(sent.getEmail(), stored.getEmail()))
+                .setFirstName(ObjectUtils.firstNonNull(sent.getFirstName(), stored.getFirstName()))
+                .setLastName(ObjectUtils.firstNonNull(sent.getLastName(), stored.getLastName()))
+                .setDisplayName(ObjectUtils.firstNonNull(sent.getDisplayName(), stored.getDisplayName()));
+    }
+
+    private void updateUserSettings(UserProfileEditModel settings) {
         var username = currentUserInfo.getUserName();
-        if (studio != null) {
-            studio.setShowFormulas(showFormulas);
-            studio.setShowHeader(showHeader);
-            studio.setShowRealNumbers(showRealNumbers);
-            studio.setTestsFailuresPerTest(testsFailuresPerTest);
-            studio.setShowComplexResult(showComplexResult);
-            studio.setTestsPerPage(testsPerPage);
-            studio.setTestsFailuresOnly(testsFailuresOnly);
-            studio.setDefaultTreeView(treeView);
-        } else {
-            userSettingsManager.setProperty(username, TRACE_REALNUMBERS_SHOW, showRealNumbers);
-            userSettingsManager.setProperty(username, TEST_FAILURES_PERTEST, testsFailuresPerTest);
-            userSettingsManager.setProperty(username, TEST_RESULT_COMPLEX_SHOW, showComplexResult);
-            userSettingsManager.setProperty(username, TEST_TESTS_PERPAGE, testsPerPage);
-            userSettingsManager.setProperty(username, TABLE_FORMULAS_SHOW, showFormulas);
-            userSettingsManager.setProperty(username,
+        var showHeader = settings.getShowHeader();
+        if (showHeader != null) {
+            saveSetting(username,
                     TABLE_VIEW,
                     showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
-            userSettingsManager.setProperty(username, TEST_FAILURES_ONLY, testsFailuresOnly);
-            userSettingsManager.setProperty(username, RULES_TREE_VIEW_DEFAULT, treeView);
+        }
+        saveSetting(username, TABLE_FORMULAS_SHOW, settings.getShowFormulas());
+        saveSetting(username, TEST_TESTS_PERPAGE, settings.getTestsPerPage());
+        saveSetting(username, TEST_FAILURES_ONLY, settings.getTestsFailuresOnly());
+        saveSetting(username, TEST_FAILURES_PERTEST, settings.getTestsFailuresPerTest());
+        saveSetting(username, TEST_RESULT_COMPLEX_SHOW, settings.getShowComplexResult());
+        saveSetting(username, TRACE_REALNUMBERS_SHOW, settings.getShowRealNumbers());
+    }
+
+    /**
+     * Saves a setting that the request carries. A setting left out keeps its stored value.
+     */
+    private void saveSetting(String username, String key, @Nullable Object value) {
+        if (value != null) {
+            userSettingsManager.setProperty(username, key, value.toString());
         }
     }
 
@@ -273,25 +286,22 @@ public class UsersController {
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var isAdmin = SecurityUtils.hasAuthority(authentication, Privileges.ADMIN.getAuthority());
+        var settings = userSettingsManager.getSettings(user.getUsername());
 
         return new UserProfileModel().setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setEmail(user.getEmail())
-                .setShowHeader(IXlsTableNames.VIEW_DEVELOPER
-                        .equals(userSettingsManager.getStringProperty(user.getUsername(), TABLE_VIEW)))
-                .setShowFormulas(userSettingsManager.getBooleanProperty(user.getUsername(), TABLE_FORMULAS_SHOW))
-                .setTestsPerPage(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_TESTS_PERPAGE))
-                .setTestsFailuresOnly(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_FAILURES_ONLY))
-                .setTestsFailuresPerTest(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_FAILURES_PERTEST))
-                .setShowComplexResult(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_RESULT_COMPLEX_SHOW))
-                .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
-                .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW_DEFAULT))
+                .setShowHeader(IXlsTableNames.VIEW_DEVELOPER.equals(settings.getString(TABLE_VIEW)))
+                .setShowFormulas(settings.getBoolean(TABLE_FORMULAS_SHOW))
+                .setTestsPerPage(settings.getInteger(TEST_TESTS_PERPAGE))
+                .setTestsFailuresOnly(settings.getBoolean(TEST_FAILURES_ONLY))
+                .setTestsFailuresPerTest(settings.getInteger(TEST_FAILURES_PERTEST))
+                .setShowComplexResult(settings.getBoolean(TEST_RESULT_COMPLEX_SHOW))
+                .setShowRealNumbers(settings.getBoolean(TRACE_REALNUMBERS_SHOW))
                 .setDisplayName(user.getDisplayName())
                 .setUsername(user.getUsername())
                 .setExternalFlags(user.getExternalFlags())
-                .setAdministrator(isAdmin)
-                .setProfiles(Profile.PROFILES);
-
+                .setAdministrator(isAdmin);
     }
 
     @Operation(description = "users.delete-user.desc", summary = "users.delete-user.summary")

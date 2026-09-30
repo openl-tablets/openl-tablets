@@ -12,6 +12,5 @@ Content-Type: application/json
   "testsFailuresOnly": false,
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
-  "showRealNumbers": false,
-  "treeView": "excelSheet"
+  "showRealNumbers": false
 }

@@ -1,0 +1,8 @@
+PUT /rest/users/profile HTTP/1.1
+Authorization: Basic anNtaXRoOnBhc3Mz
+Content-Type: application/json
+
+{
+  "firstName": "Mike",
+  "testsPerPage": 0
+}

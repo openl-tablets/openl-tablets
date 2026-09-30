@@ -9,10 +9,23 @@ import org.openl.rules.security.standalone.persistence.UserSettingId;
 
 public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> implements UserSettingDao {
 
+    private static final String LOGIN_NAME = "loginName";
+    private static final String SETTING_KEY = "settingKey";
+
     @Override
     @Transactional
     public UserSetting getProperty(String login, String key) {
         return findProperty(login, key);
+    }
+
+    @Override
+    @Transactional
+    public List<UserSetting> getProperties(String login) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(UserSetting.class);
+        var setting = criteria.from(UserSetting.class);
+        criteria.select(setting).where(builder.equal(setting.get("id").get(LOGIN_NAME), login));
+        return getSession().createQuery(criteria).getResultList();
     }
 
     @Override
@@ -38,8 +51,8 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
         var criteria = builder.createQuery(UserSetting.class);
         var u = criteria.from(UserSetting.class);
         criteria.select(u)
-                .where(builder.and(builder.equal(u.get("id").get("loginName"), login),
-                        builder.equal(u.get("id").get("settingKey"), key)))
+                .where(builder.and(builder.equal(u.get("id").get(LOGIN_NAME), login),
+                        builder.equal(u.get("id").get(SETTING_KEY), key)))
                 .distinct(true);
         List<UserSetting> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.getFirst();
@@ -53,8 +66,8 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
         var delete = cb.createCriteriaDelete(UserSetting.class);
         var root = delete.from(UserSetting.class);
         delete.where(cb.and(
-                cb.equal(root.get("id").get("loginName"), login),
-                cb.equal(root.get("id").get("settingKey"), key)));
+                cb.equal(root.get("id").get(LOGIN_NAME), login),
+                cb.equal(root.get("id").get(SETTING_KEY), key)));
         session.createMutationQuery(delete).executeUpdate();
     }
 }

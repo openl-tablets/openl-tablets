@@ -2,9 +2,9 @@ package org.openl.rules.rest.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.security.UserExternalFlags;
-import org.openl.rules.ui.tree.view.RulesProfile;
 
 public class UserProfileModel extends UserProfileBaseModel {
 
@@ -14,9 +14,6 @@ public class UserProfileModel extends UserProfileBaseModel {
 
     @Getter
     private UserExternalFlags externalFlags;
-
-    @Getter
-    private RulesProfile[] profiles;
 
     @Getter
     private boolean administrator;
@@ -52,48 +49,38 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
-    public UserProfileModel setShowHeader(boolean showHeader) {
+    public UserProfileModel setShowHeader(@Nullable Boolean showHeader) {
         return (UserProfileModel) super.setShowHeader(showHeader);
     }
 
     @Override
-    public UserProfileModel setShowFormulas(boolean showFormulas) {
+    public UserProfileModel setShowFormulas(@Nullable Boolean showFormulas) {
         return (UserProfileModel) super.setShowFormulas(showFormulas);
     }
 
     @Override
-    public UserProfileModel setTestsPerPage(int testsPerPage) {
+    public UserProfileModel setTestsPerPage(@Nullable Integer testsPerPage) {
         return (UserProfileModel) super.setTestsPerPage(testsPerPage);
     }
 
     @Override
-    public UserProfileModel setTestsFailuresOnly(boolean testsFailuresOnly) {
+    public UserProfileModel setTestsFailuresOnly(@Nullable Boolean testsFailuresOnly) {
         return (UserProfileModel) super.setTestsFailuresOnly(testsFailuresOnly);
     }
 
     @Override
-    public UserProfileModel setTestsFailuresPerTest(int testsFailuresPerTest) {
+    public UserProfileModel setTestsFailuresPerTest(@Nullable Integer testsFailuresPerTest) {
         return (UserProfileModel) super.setTestsFailuresPerTest(testsFailuresPerTest);
     }
 
     @Override
-    public UserProfileModel setShowComplexResult(boolean showComplexResult) {
+    public UserProfileModel setShowComplexResult(@Nullable Boolean showComplexResult) {
         return (UserProfileModel) super.setShowComplexResult(showComplexResult);
     }
 
     @Override
-    public UserProfileModel setShowRealNumbers(boolean showRealNumbers) {
+    public UserProfileModel setShowRealNumbers(@Nullable Boolean showRealNumbers) {
         return (UserProfileModel) super.setShowRealNumbers(showRealNumbers);
-    }
-
-    @Override
-    public UserProfileModel setTreeView(String treeView) {
-        return (UserProfileModel) super.setTreeView(treeView);
-    }
-
-    public UserProfileModel setProfiles(RulesProfile[] profiles) {
-        this.profiles = profiles;
-        return this;
     }
 
     public UserProfileModel setAdministrator(boolean administrator) {

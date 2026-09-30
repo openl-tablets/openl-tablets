@@ -61,11 +61,6 @@ export interface UserProfile {
     }
     firstName: string
     lastName: string
-    profiles: [{
-        description: string
-        displayName: string
-        name: string
-    }]
     showComplexResult: boolean
     showFormulas: boolean
     showHeader: boolean
@@ -73,7 +68,6 @@ export interface UserProfile {
     testsFailuresOnly: boolean
     testsFailuresPerTest: number
     testsPerPage: number
-    treeView: string
     username: string
 }
 

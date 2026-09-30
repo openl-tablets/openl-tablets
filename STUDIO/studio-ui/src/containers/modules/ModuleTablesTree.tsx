@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useUserStore } from '../../store'
 import { useTranslation } from 'react-i18next'
 import { Button, Checkbox, Empty, Input, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
 import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
@@ -10,7 +9,6 @@ import { useSharedStyles } from '../projects/sharedStyles'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
-    DEFAULT_VIEW,
     loadView,
     saveView,
     TABLE_VIEWS,
@@ -208,7 +206,7 @@ interface ModuleTablesTreeProps {
  *
  * The tables are grouped here rather than by the server: the list arrives flat, carrying what every view groups
  * by, so changing the view rearranges what the browser already holds and costs no request. The chosen view is
- * remembered, and the tree opens on the one the engine itself defaults to — by Excel sheet.
+ * remembered in this browser; until one is chosen, the tree opens by Excel sheet.
  *
  * The tree stands closed except along the way down to the table being read, so a module of hundreds of tables
  * opens as a short list rather than as everything at once.
@@ -230,9 +228,7 @@ export const ModuleTablesTree = ({
     const { styles, cx } = useStyles()
     const { styles: shared } = useSharedStyles()
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', WIDTH)
-    const [view, setView] = useState<TableView>(DEFAULT_VIEW)
-    // The Default Order of the user's own settings decides what the tree opens on.
-    const preferredView = useUserStore(state => state.userProfile?.treeView)
+    const [view, setView] = useState<TableView>(loadView)
     const [expanded, setExpanded] = useState<string[]>([])
     const [search, setSearch] = useState('')
     // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
@@ -254,9 +250,6 @@ export const ModuleTablesTree = ({
         observer.observe(measured)
         return () => observer.disconnect()
     }, [])
-
-    // Read once the settings are known: this browser's last choice, or the user's Default Order.
-    useEffect(() => setView(loadView(preferredView)), [preferredView])
 
     // The rail searches what it shows, by name: the tables of this module are already in the browser, so the
     // search costs no request. Everything wider than a name — a header, the text in the cells, another module —

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { ModuleTable } from 'types/tables'
-import { DEFAULT_VIEW, loadView, saveView, TABLE_VIEWS, treeOf, widthOf } from './tableGrouping'
+import { loadView, saveView, TABLE_VIEWS, treeOf, widthOf } from './tableGrouping'
 
 /** Reads a label as its key, so a test can name the groups by what they are called. */
 const key = (name: string): string => name
@@ -15,12 +15,6 @@ const table = (name: string, extra: Partial<ModuleTable> = {}): ModuleTable => (
 })
 
 describe('tableGrouping', () => {
-    it('opens on the view the engine itself defaults to', () => {
-        // rules.tree.view.default = excelSheet
-        expect(DEFAULT_VIEW).toEqual('excelSheet')
-        expect(TABLE_VIEWS).toContain('excelSheet')
-    })
-
     it('gathers the tables by the sheet they are written on, in the order they were given', () => {
         const nodes = treeOf(
             [table('Premium'), table('Policy', { sheet: 'Data' }), table('Rate')], 'excelSheet', key)
@@ -205,19 +199,21 @@ describe('tableGrouping', () => {
     describe('the view the tree opens on', () => {
         beforeEach(() => localStorage.clear())
 
-        it('follows the Default Order of the user\'s own settings when this browser has chosen none', () => {
-            expect(loadView('type')).toEqual('type')
+        it('opens by Excel sheet while this browser has chosen no view', () => {
+            expect(loadView()).toEqual('excelSheet')
+            expect(TABLE_VIEWS).toContain(loadView())
         })
 
-        it('falls back to the engine\'s own default when the settings name no view it knows', () => {
-            expect(loadView(undefined)).toEqual(DEFAULT_VIEW)
-            expect(loadView('whatever the settings hold')).toEqual(DEFAULT_VIEW)
-        })
-
-        it('keeps what this browser chose, which was chosen later than the settings were written', () => {
+        it('keeps what this browser chose', () => {
             saveView('category')
 
-            expect(loadView('type')).toEqual('category')
+            expect(loadView()).toEqual('category')
+        })
+
+        it('opens by Excel sheet when what this browser holds names no view it knows', () => {
+            localStorage.setItem('openl.module.tableView', JSON.stringify('whatever was stored'))
+
+            expect(loadView()).toEqual('excelSheet')
         })
     })
 

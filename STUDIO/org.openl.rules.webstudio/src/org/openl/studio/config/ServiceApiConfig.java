@@ -18,7 +18,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -58,7 +57,6 @@ public class ServiceApiConfig {
                                              MultiUserWorkspaceManager workspaceManager,
                                              UserManagementService userManagementService,
                                              TestSuiteExecutor testSuiteExecutor,
-                                             UserSettingManagementService userSettingManagementService,
                                              RepositoryAclService designRepositoryAclService,
                                              @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
@@ -74,7 +72,6 @@ public class ServiceApiConfig {
 
         var webStudio = new WebStudio(rulesUserSession,
                 testSuiteExecutor,
-                userSettingManagementService,
                 designRepositoryAclService,
                 productionRepositoryAclService,
                 projectDescriptorArtefactResolver,

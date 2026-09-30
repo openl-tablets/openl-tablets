@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { App, Button, Divider, Form, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
 import { WIDTH_OF_FORM_LABEL } from 'constants/'
 import { deriveDisplayNameMode } from 'utils/displayName'
+import { changedValues } from 'utils/userProfile'
 import { SystemUserMode } from '../constants/system'
 import { SystemContext } from '../contexts'
 import { UserDetailsTab } from './users/UserDatailsTab'
@@ -27,8 +28,31 @@ export const UserProfile: React.FC = () => {
         fetchUserProfile()
     }, [])
 
+    const initialValues = useMemo(() => {
+        return {
+            username: userProfile?.username,
+            email: userProfile?.email,
+            firstName: userProfile?.firstName || '',
+            lastName: userProfile?.lastName || '',
+            displayName: userProfile?.displayName,
+            displayNameSelect: deriveDisplayNameMode(userProfile ?? {}),
+        }
+    }, [userProfile])
+
+    // Set before a save reads the profile back, when every field has to follow the profile read.
+    const followAllFields = useRef(false)
+
+    // The fields follow every read of the profile, so they show what a save compares them with. The read made on
+    // opening the page reaches only the fields not edited yet, so it cannot undo what the user typed meanwhile.
+    useEffect(() => {
+        const followAll = followAllFields.current
+        followAllFields.current = false
+        form.setFields(Object.entries(initialValues)
+            .filter(([name]) => followAll || !form.isFieldTouched(name))
+            .map(([name, value]) => ({ name, value, touched: false })))
+    }, [form, initialValues])
+
     const handleSubmit = async (values: UserProfileFormFields) => {
-        const { administrator, profiles, externalFlags, username, ...restUserProfile } = { ...userProfile }
         const { username: _, displayNameSelect, changePassword, ...restFormValues } = values
         const { newPassword = '', currentPassword = '', confirmPassword = '' } = changePassword || {}
 
@@ -39,9 +63,10 @@ export const UserProfile: React.FC = () => {
 
         try {
             setSaving(true)
+            // Only the details changed here: the rest of the profile, the settings included, keeps what is stored,
+            // whatever was saved meanwhile.
             const body = {
-                ...restUserProfile,
-                ...restFormValues,
+                ...changedValues(restFormValues, initialValues),
                 changePassword: {
                     newPassword,
                     currentPassword,
@@ -60,6 +85,7 @@ export const UserProfile: React.FC = () => {
                 },
                 { throwError: true }
             )
+            followAllFields.current = true
             await fetchUserProfile()
             notification.success({ title: t('users:user_profile_updated_successfully') })
             if (emailChanged && newEmailNonEmpty && hadEmailBefore && systemSettings?.supportedFeatures?.emailVerification) {
@@ -75,17 +101,6 @@ export const UserProfile: React.FC = () => {
             setSaving(false)
         }
     }
-
-    const initialValues = useMemo(() => {
-        return {
-            username: userProfile?.username,
-            email: userProfile?.email,
-            firstName: userProfile?.firstName || '',
-            lastName: userProfile?.lastName || '',
-            displayName: userProfile?.displayName,
-            displayNameSelect: deriveDisplayNameMode(userProfile ?? {}),
-        }
-    }, [userProfile])
 
     const isFormChanged = useIsFormChanged({ form, initialValues })
 

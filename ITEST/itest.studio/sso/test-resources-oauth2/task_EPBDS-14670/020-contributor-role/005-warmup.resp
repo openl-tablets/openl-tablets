@@ -13,7 +13,6 @@ Content-Type: application/json
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
   "showRealNumbers": false,
-  "treeView": "excelSheet",
   "username": "epbds14670_contributor",
   "externalFlags": {
     "emailExternal": true,
@@ -22,32 +21,5 @@ Content-Type: application/json
     "firstNameExternal": true,
     "lastNameExternal": true
   },
-  "profiles": [
-    {
-      "displayName": "By Type",
-      "description": "Organize projects by component type",
-      "name": "type"
-    },
-    {
-      "displayName": "By Excel Sheet",
-      "description": "Organize projects by physical file structure",
-      "name": "excelSheet"
-    },
-    {
-      "displayName": "By Category",
-      "description": "Provides categorized view",
-      "name": "category"
-    },
-    {
-      "displayName": "By Category Detailed",
-      "description": "Provides more detailed categorized view",
-      "name": "categoryDetailed"
-    },
-    {
-      "displayName": "By Category Inversed",
-      "description": "Provides inversed categorized view",
-      "name": "categoryInversed"
-    }
-  ],
   "administrator": false
 }

@@ -18,10 +18,7 @@ import org.springframework.mock.env.MockEnvironment;
 import org.springframework.mock.web.MockHttpSession;
 
 import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -60,7 +57,6 @@ class ServiceApiConfigTest {
         var workspace = workspace();
         var workspaceManager = mock(MultiUserWorkspaceManager.class);
         when(workspaceManager.getUserWorkspace(any(WorkspaceUser.class))).thenReturn(workspace);
-        var userSettings = userSettings();
         var currentUserInfo = mock(CurrentUserInfo.class);
         when(currentUserInfo.getUserName()).thenReturn("admin");
 
@@ -68,7 +64,6 @@ class ServiceApiConfigTest {
                 workspaceManager,
                 mock(UserManagementService.class),
                 mock(TestSuiteExecutor.class),
-                userSettings,
                 mock(RepositoryAclService.class),
                 mock(SimpleRepositoryAclService.class),
                 mock(ProjectDescriptorArtefactResolver.class),
@@ -90,12 +85,5 @@ class ServiceApiConfigTest {
         when(localWorkspace.getLocation()).thenReturn(workspaceRoot.toFile());
         when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         return workspace;
-    }
-
-    private UserSettingManagementService userSettings() {
-        var userSettings = mock(UserSettingManagementService.class);
-        when(userSettings.getStringProperty("admin", WebStudio.RULES_TREE_VIEW_DEFAULT))
-                .thenReturn(Profile.PROFILES[0].getName());
-        return userSettings;
     }
 }
