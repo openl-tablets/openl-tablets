@@ -28,7 +28,6 @@
         <module>org.openl.rules.webstudio</module>
         <module>org.openl.rules.demo</module>
         <module>org.openl.rules.diff</module>
-        <module>org.openl.rules.spring.openapi</module>
         <module>org.openl.rules.xls.merge</module>
     </modules>
 </project>

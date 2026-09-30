@@ -42,13 +42,15 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - `org.openl.rules.security.standalone` — Standalone auth (form-based, DB-backed, Flyway migrations in `resources/db/flyway/`)
 - `org.openl.security.acl` — Access Control Lists
 
+**OpenAPI** (inside `org.openl.rules.webstudio`):
+- `org.openl.rules.spring.openapi` — Spring OpenAPI integration
+
 **Supporting modules**:
 - **org.openl.rules.workspace** — Workspace management
 - **org.openl.rules.diff** — Rule diff/comparison
 - **org.openl.rules.demo** — Demo projects
 - **org.openl.rules.jackson** / **org.openl.rules.jackson.configuration** — JSON serialization
 - **org.openl.rules.project.openapi** / **org.openl.rules.project.validation.openapi** — OpenAPI generation and validation
-- **org.openl.rules.spring.openapi** — Spring OpenAPI integration
 - **org.openl.rules.xls.merge** — Excel merge utilities
 
 ## Backend Package Structure

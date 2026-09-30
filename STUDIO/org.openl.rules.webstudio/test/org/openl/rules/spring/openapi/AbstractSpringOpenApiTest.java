@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebAppConfiguration
 public abstract class AbstractSpringOpenApiTest {
 
-    private static final String TEST_RESOURCE = "functionality/%s.json";
+    private static final String TEST_RESOURCE = "spring-openapi/functionality/%s.json";
     private static final ObjectMapper OBJECT_MAPPER = Jackson2ObjectMapperBuilder.json().build();
 
     @Autowired
