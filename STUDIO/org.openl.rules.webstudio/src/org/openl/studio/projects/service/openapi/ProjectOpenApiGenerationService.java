@@ -162,32 +162,26 @@ public class ProjectOpenApiGenerationService {
         var descriptor = ProjectOpenApiService.descriptorToWrite(project, root, filesService, resolved);
         var specification = readSpecification(project, request.path());
 
-        var studio = projectService.getWebStudio();
         // What the two modules read before the write is kept, so a generation over an existing module can be
         // taken back from the project's own history. Kept for these two workbooks rather than through the
         // session's own history calls: those work on the project the session has open, which a request about
         // another project would have snapshotted instead.
         history.keepBeforeWrite(project, algorithm.path());
         history.keepBeforeWrite(project, model.path());
-        studio.freezeProject(project.getName());
-        try {
-            var generated = new OpenAPIJavaClassGenerator(specification).generate();
-            write(project, root, model, () -> openApiHelper.generateDataTypesFile(specification));
-            write(project, root, algorithm, () -> openApiHelper.generateAlgorithmsModule(
-                    specification.getSpreadsheetResultModels(), specification.getDataModels(),
-                    dependingOn(request.modelModuleName())));
-            writeGeneratedClasses(root, generated);
-            writeRulesDeploy(project, root, specification, generated);
-            declareGeneration(project, root, descriptor, request, algorithm, model, specification,
-                    generated.hasAnnotationTemplateClass());
-            history.recordWritten(project, algorithm.path());
-            history.recordWritten(project, model.path());
-        } finally {
-            studio.releaseProject(project.getName());
-        }
+        var generated = new OpenAPIJavaClassGenerator(specification).generate();
+        write(project, root, model, () -> openApiHelper.generateDataTypesFile(specification));
+        write(project, root, algorithm, () -> openApiHelper.generateAlgorithmsModule(
+                specification.getSpreadsheetResultModels(), specification.getDataModels(),
+                dependingOn(request.modelModuleName())));
+        writeGeneratedClasses(root, generated);
+        writeRulesDeploy(project, root, specification, generated);
+        declareGeneration(project, root, descriptor, request, algorithm, model, specification,
+                generated.hasAnnotationTemplateClass());
+        history.recordWritten(project, algorithm.path());
+        history.recordWritten(project, model.path());
         // The session resolved and compiled the project as it stood before the generation: its module list,
         // its descriptor and its compiled tables all answer for workbooks that are no longer there.
-        studio.reset();
+        projectService.getWebStudio().reset();
     }
 
     /**

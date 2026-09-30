@@ -517,23 +517,6 @@ public class ProjectModel {
         return getXlsModuleNode().getWorkbookSyntaxNodes();
     }
 
-    public boolean isSourceModified() {
-        RulesProject project = getProject();
-        if (project == null || !project.isOpened()) {
-            return false;
-        }
-        if (studio.isProjectFrozen(project.getName())) {
-            log.debug("Project is saving currently. Ignore it's intermediate state.");
-            return false;
-        }
-
-        if (isModified()) {
-            getLocalRepository().getProjectState(moduleInfo.getRulesPath().toString()).notifyModified();
-            return true;
-        }
-        return false;
-    }
-
     public void resetSourceModified() {
         isModified();
     }

@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
@@ -116,12 +114,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final Authentication authentication;
     private final ProjectDescriptorArtefactResolver pdArtefactResolver;
 
-    /**
-     * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
-     * can affect their modified status.
-     */
-    private final Set<String> frozenProjects = Collections.synchronizedSet(new HashSet<>());
-
     @Getter
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
@@ -186,7 +178,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void saveProject(RulesProject project) throws ProjectException {
         try {
             String projectName = project.getName();
-            freezeProject(projectName);
             String logicalName = getLogicalName(project);
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             boolean renameProject = !logicalName.equals(project.getName());
@@ -247,8 +238,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
-        } finally {
-            releaseProject(project.getName());
         }
     }
 
@@ -822,18 +811,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             log.warn("Cannot tell whether project '{}' can be copied: {}", project.getName(), e.getMessage());
             return false;
         }
-    }
-
-    public void freezeProject(String name) {
-        frozenProjects.add(name);
-    }
-
-    public void releaseProject(String name) {
-        frozenProjects.remove(name);
-    }
-
-    boolean isProjectFrozen(String name) {
-        return frozenProjects.contains(name);
     }
 
     public String getCurrentRepositoryId() {

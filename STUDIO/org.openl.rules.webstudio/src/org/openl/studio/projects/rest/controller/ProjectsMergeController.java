@@ -184,7 +184,6 @@ public class ProjectsMergeController {
         // the merge that succeeded leaves it paused, because it drops the dependency manager altogether.
         var shouldResumeDependencies = true;
         try {
-            studio.freezeProject(nameBeforeMerge);
             var mergeResult = mergeService.merge(project, request.otherBranch(), request.mode(), force);
             if (mergeResult.status() == MergeResultStatus.SUCCESS) {
                 var workspace = projectService.getUserWorkspace();
@@ -228,7 +227,6 @@ public class ProjectsMergeController {
             if (shouldResumeDependencies && dependencyManager != null) {
                 dependencyManager.resume();
             }
-            studio.releaseProject(nameBeforeMerge);
         }
     }
 
@@ -271,9 +269,6 @@ public class ProjectsMergeController {
         var shouldResumeDependencies = true;
         // Delegate to service for resolution
         try {
-            if (!mergeOperation) {
-                studio.freezeProject(project.getName());
-            }
             var result = mergeConflictsService.resolveConflicts(mergeConflictInfo, resolutions, customFiles, request.message());
             if (result.status() == ConflictResolutionStatus.SUCCESS) {
                 // Clear conflict info from session if resolved successfully
@@ -308,9 +303,6 @@ public class ProjectsMergeController {
         } finally {
             if (shouldResumeDependencies && dependencyManager != null) {
                 dependencyManager.resume();
-            }
-            if (!mergeOperation) {
-                studio.releaseProject(project.getName());
             }
         }
     }
