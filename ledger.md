@@ -2,15 +2,14 @@
 
 ## Resume point
 
-- PR #2212 is open with both change types it needs; drive it to green before anything else. Next new work goes on a
-  fresh branch cut from a freshly fetched `origin/main`.
+- PR #2212 is open, green and waiting on reviewers; new work goes on a fresh branch off a re-fetched `origin/main`.
 - All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect near zero),
-  spend the rest on a NEW vein. Only documentation, build config, i18n keys and dead TS imports have ever paid. A
-  Sonar-cleanup wave PRE-HARVESTS the Java vein first, so a LARGE Java delta yields less, not more.
-- The RELEASE-NOTE vein is the best one found and is NOT exhausted — re-run it every time guides or release notes
-  change (Method rules). A module-merge wave leaves the poms and resources clean but strands package names in Docs.
+  spend the rest on a NEW vein. Only documentation, build config, i18n keys and dead TS imports have ever paid, and
+  a Sonar-cleanup wave pre-harvests the Java vein, so a LARGE Java delta yields less, not more.
+- The RELEASE-NOTE vein is the best one found and is NOT exhausted — re-run it whenever guides or release notes
+  change. A module-merge wave leaves poms and resources clean but strands package names in Docs.
 - Start the reactor build detached in the FIRST minute (~27 min even from a cold `~/.m2`) and mine read-only veins
-  beside it; before every push, list open `dead-code/*` PRs and re-fetch main — parallel runs share the branch.
+  beside it; before every push, list open `dead-code/*` PRs and re-fetch main.
 
 ## Change-type queue
 
@@ -36,14 +35,14 @@
 - #2212 `dead-code/docs-and-locales`, head 26a2291741, opened on main at 95db26cd49.
   - a9db2af2a5 Remove documentation of settings, classes and modules the code no longer has (type 14, 5 Docs files).
   - 26a2291741 Remove the repository locale key no screen looks up (type 10, `browser.live`).
-- Its 'Deliberately kept' names the stale plugin parameter table and the parallel-compilation settings.
+- GREEN on 26a2291741 (21 checks, Sonar 0 new, CodeRabbit clean); `blocked` is human review alone, so nothing is ours.
 
 ## Merged PRs
 
 - #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7) — each merged
-  the day it opened, no review comment, on the PR body's evidence alone; a removal proven by unreachable behaviour
-  rather than non-reference is accepted. The maintainer never merges a sweep PR red: rebase onto new main, wait for
-  green, rebase-merge; the head branch auto-deletes.
+  the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour rather than
+  non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
+  auto-deletes.
 
 ## Module coverage
 
@@ -51,10 +50,9 @@
 
 ## Deferred findings
 
-- ~599 public members and ~35 public types are bytecode-unreferenced, write-only Lombok setters among them; all
-  published API, kept under rail 8.2 and re-derivable by the ASM scan.
-- `org.eclipse.jetty:jetty-home` is in no dependency tree and no pom (DEMO fetches Jetty by `jetty.version`);
-  `.gitattributes` keeps a path that does not exist. Both human.
+- ~599 public members and ~35 public types are bytecode-unreferenced (write-only Lombok setters among them); all
+  published API, kept under rail 8.2, re-derivable by the ASM scan.
+- `org.eclipse.jetty:jetty-home` is in no tree and no pom; `.gitattributes` keeps a path that does not exist. Human.
 
 ## False-positive shapes
 
@@ -167,8 +165,7 @@
 - i18n keys: parse each `addResourceBundle` literal into dotted paths and judge by the FULL path — the same leaf
   sits at several depths, so a leaf search calls every orphan alive. Then apply the four shapes above.
 - PMD's report namespace is `report/2.0.0`, NOT the ruleset's `report_2_0_0`: the wrong one parses 0 violations out
-  of a full report. Assert a non-zero total before believing a clean scan.
-- Verify the identity BEFORE pushing: rail 8.4 bars force-pushing `dead-code/ledger`, so a wrong one there stands.
+  of a full report. Assert a non-zero total, or a canary, before believing any clean scan.
 
 ## Keep-list
 
@@ -202,6 +199,10 @@
 - Tests (without ITEST), studio-ui: `ModuleWorkspace.test.tsx` times out in `waitFor` only on a loaded runner —
   tell: vitest wall time near 860 s against the 20 s per-test CI ceiling and a failing set SHRINKING between
   attempts. Never chase with a vitest change; a new SHA cures it.
+- IT (studio-sso) runs the whole ITEST studio reactor, so `itest.studio.multi` failing skips simple and SSO and the
+  job name misnames the failure. `WebSocketChangeOriginTest` dies on `WebSocketTimeoutException: Connection Idle
+  Timeout`: it holds the socket idle by design (3 s settle, two 30 s awaits), so a loaded runner outlasts the idle
+  timeout. One rerun cleared it on the same SHA.
 - `Sonar analysis` is skipped when any job fails and lands ~10 min after the last, so the issues API answers 0 for
   "never analysed": confirm the analysed SHA at `project_pull_requests/list` before trusting a 0.
 - `rerun_failed_jobs` returns 403 mid-job and re-reads the same jacoco artifacts, so it cannot cure `Sonar
@@ -270,21 +271,20 @@
   `src/main/resources/log4j2.xml` against the real `resources/log4j2.properties`, `mvn jetty:run` (3 guides) and
   `mvn rewrite:run` naming no plugin, and `RulesUtilsTest.testParseFormattedDouble`'s `"deprecated"`, which javac
   ignores while both methods it calls are deprecated — the key is `deprecation`.
-- Docs settings no code reads, all editorial: DEPLOYMENT.md (22 of 81), API_GUIDE.md (6 of 10), TROUBLESHOOTING.md
-  (3 of 28), externalized-config.md's `...filesystem.supportDeployments` (gone in 5.24.0), and
+- Docs settings no code reads, all editorial: DEPLOYMENT.md (20 of 81 after #2212), API_GUIDE.md (6 of 10),
+  TROUBLESHOOTING.md (3 of 28), externalized-config.md's `...filesystem.supportDeployments`, and
   `ruleservice.store.logs.enabled`, documented as the global switch while only `...db.enabled` gates it. API_GUIDE
   and api/public-api-reference.md map `/admin/*` and `/api/projects/*/git/*` to no controller. 51 relative links
-  resolve to nothing: `/DEV/CLAUDE.md` from `README.MD` (every CLAUDE.md is deleted) and lowercase `/docs/...`.
+  resolve to nothing: `/DEV/CLAUDE.md` from `README.MD` and lowercase `/docs/...`.
 - Bugs only a human may fix: `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` of 17 flyway/common
-  scripts and nothing sets `sqlMigrationPrefix`, so Flyway skips it and the ExternalGroups index is never created;
-  `CorsFilter` is registered twice (`@WebFilter("/*")` and web.xml), doubling each `Access-Control-*` header;
-  `compose.yaml` pins `postgresql-42.7.7.jar` against the pom's 42.7.13 while the antrun guard covers only
-  Dockerfile and `DEMO/start*`, so it drifts unnoticed.
+  scripts and nothing sets `sqlMigrationPrefix`, so Flyway skips it and its index is never created; `CorsFilter` is
+  registered twice (`@WebFilter` and web.xml), doubling each `Access-Control-*` header; `compose.yaml` pins a
+  postgresql jar the antrun guard does not cover, so it drifts from the pom unnoticed.
 - `OpenAPIConverterTest` (640 lines) and `RulesDeployerServiceTest` (354 lines) carry a bare class-level `@Disabled`
   over live code. Restore or delete is a maintainer's call.
-- Flake fixes a human could make: pin ITEST's `apache/kafka-native:latest` (3 suites) or move to
-  `apache/kafka:4.3.1`; fix ORA-12516 in IT (studio-acl); raise the CI vitest `testTimeout` above 20_000.
-- `Docs/examples/production/` and `Docs/production-deployment/` are near-identical 320K copies, both reachable.
+- Flake fixes a human could make: pin ITEST's `apache/kafka-native:latest` or move to `apache/kafka:4.3.1`; fix
+  ORA-12516 in IT (studio-acl); raise the CI vitest `testTimeout` above 20_000; raise the WebSocket idle timeout for
+  `WebSocketChangeOriginTest`. `Docs/examples/production/` and `Docs/production-deployment/` duplicate 320K, both live.
 - KafkaMessageHeader.Type.PRODUCER_RECORD is documented as usable but StoreLogDataMapper acts only on
   CONSUMER_RECORD; the mapper or the guide is wrong. The constant is API and stays.
 
