@@ -40,6 +40,8 @@ Thus, data of Gender data type can only be **Male** or **Female**.
 
 OpenL Tablets checks all data of the vocabulary data type on whether its value is in the defined list of possible values. If the value is outside of the valid domain, or defined vocabulary, OpenL Tablets displays an appropriate error. Usage of vocabulary data types provides data integrity and allows users to avoid accidental mistakes in rules.
 
+A decision table condition compares a column of a vocabulary data type with a value of its base type, such as a **String** argument, in the base type. A value that is not in the vocabulary equals no value of the column, so only a range that holds it or a rule whose condition cell is empty matches it, and it is not reported as an error. A table that has to reject such a value can end with a rule that leaves the condition cell empty and returns the result of the [ERROR function](../../../03-functions-and-data-types/03-working-with-functions.md#error-function).
+
 ###### Vocabulary Values in OpenAPI
 
 OpenL Rule Services publishes the values of a vocabulary data type as the `enum` of the OpenAPI schema wherever the type is used:

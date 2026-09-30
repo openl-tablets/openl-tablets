@@ -17,6 +17,15 @@ everyone who calls that API from outside the browser.
 * **The Default Order is gone from My Settings.** The module tree opens on the view last picked in the browser, and on
   **By Excel Sheet** until one is picked. A Default Order saved before the upgrade is not used.
 
+* **A condition over a Vocabulary column no longer fails on a value missing from the Vocabulary.** A decision table
+  condition compares a Vocabulary column with a value of the base type, such as a `String` argument, in that base
+  type, as its expression does. A value that is not in the Vocabulary equals no value of the column, so only a range
+  that holds it or a rule whose condition cell is empty matches it. Before, the answer depended on how the table was
+  evaluated: most tables stopped the call with `Object '...' is outside of valid domain`, even for a number that lies
+  inside a range of the table, while a table with formulas in the condition cells answered as it does now. A table
+  that has to reject such a value can end with a rule that leaves the condition cell empty and returns the result of
+  the `error()` function.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
