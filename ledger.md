@@ -2,7 +2,8 @@
 
 ## Resume point
 
-- PR #2212 is open, green and waiting on reviewers; new work goes on a fresh branch off a re-fetched `origin/main`.
+- No PR is open: #2212 merged the day it opened. Cut a fresh branch off a re-fetched `origin/main` once a finding
+  is proven.
 - All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect near zero),
   spend the rest on a NEW vein. Only documentation, build config, i18n keys and dead TS imports have ever paid, and
   a Sonar-cleanup wave pre-harvests the Java vein, so a LARGE Java delta yields less, not more.
@@ -24,24 +25,21 @@
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | 1 key in #2212; 1,656 + 769 alive; re-run per delta |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1 in #2212, 1,656 + 769 alive; re-run per delta |
 | 11 | TypeScript exports, types, components, imports | done; 0 dead exports, 1 dead import merged in #2184 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
-| 14 | Documentation of settings and classes the code no longer has | 6 removals in #2212; re-run per release note |
+| 14 | Documentation of settings and classes the code no longer has | done; 6 in #2212; re-run per new release note |
 
 ## Open PR
 
-- #2212 `dead-code/docs-and-locales`, head 26a2291741, opened on main at 95db26cd49.
-  - a9db2af2a5 Remove documentation of settings, classes and modules the code no longer has (type 14, 5 Docs files).
-  - 26a2291741 Remove the repository locale key no screen looks up (type 10, `browser.live`).
-- GREEN on 26a2291741 (21 checks, Sonar 0 new, CodeRabbit clean); `blocked` is human review alone, so nothing is ours.
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7) — each merged
-  the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour rather than
-  non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72)
+  — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
+  rather than non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
 
 ## Module coverage
@@ -297,4 +295,5 @@
   Twelve veins re-swept at zero, PMD and dependency:analyze among them. Nothing removed, no PR opened.
 - 2026-09-30: delta was 27 commits including the EPBDS-16781 merge of five STUDIO modules into webstudio. Reactor
   green in 26:25 from a COLD `~/.m2`; Error Prone, tsc and the merge-leftover checks at zero. The new release-note
-  vein paid 6 documentation removals and the i18n pass 1 key. #2212 opened (-72).
+  vein paid 6 documentation removals and the i18n pass 1 key. #2212 MERGED (-72) within the hour, after one
+  studio-sso flake cleared on its single rerun.
