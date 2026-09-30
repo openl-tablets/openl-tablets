@@ -345,6 +345,136 @@ describe('TableEditor', () => {
         }])
     })
 
+    describe('where the reader stands once a line is taken away', () => {
+        const rules: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 3 },
+                { covered: true }, { covered: true }],
+            [{ cell: 'B5', value: 'R1' }, { cell: 'C5', value: 0 }, { cell: 'D5', value: 'Good Morning' }],
+            [{ cell: 'B6', value: 'R2' }, { cell: 'C6', value: 12 }, { cell: 'D6', value: 'Good Afternoon' }],
+            [{ cell: 'B7', value: 'R3' }, { cell: 'C7', value: 18 }, { cell: 'D7', value: 'Good Evening' }],
+        ]
+
+        /** Opens the cell the reader is on, with the key, so the keys have to reach the table. */
+        const openPicked = async () => {
+            await userEvent.keyboard('{Enter}')
+            return screen.getByTestId('table-cell-input')
+        }
+
+        /** Draws the table of rules, and waits for what its cells ask to be written with. */
+        const drawRules = async (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
+            draw({ rows: rules, ...over })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+        }
+
+        it('lands on the row that moves up into the place of the one taken away', async () => {
+            await drawRules()
+
+            await userEvent.click(screen.getByText('Good Morning'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+
+            expect(await openPicked()).toHaveValue('Good Afternoon')
+        })
+
+        it('takes several rows away one after another without picking a cell again', async () => {
+            await drawRules()
+
+            await userEvent.click(screen.getByText('R1'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+
+            expect(screen.queryByText('Good Afternoon')).not.toBeInTheDocument()
+            expect(await openPicked()).toHaveValue('R3')
+        })
+
+        it('lands on the new last row when the last one is taken away', async () => {
+            await drawRules()
+
+            await userEvent.click(screen.getByText('Good Evening'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+
+            expect(await openPicked()).toHaveValue('Good Afternoon')
+        })
+
+        it('lands on the column that moves along into the place of the one taken away', async () => {
+            await drawRules()
+
+            await userEvent.click(screen.getByText('R2'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_column'))
+
+            expect(await openPicked()).toHaveValue('12')
+        })
+
+        it('lands on the new last column when the last one is taken away', async () => {
+            await drawRules()
+
+            await userEvent.click(screen.getByText('Good Evening'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_column'))
+
+            expect(await openPicked()).toHaveValue('18')
+        })
+
+        it('lands on the merged cell the place belongs to', async () => {
+            // Every rule is taken away but the title, which reaches over all three columns.
+            await drawRules({ rows: rules.slice(0, 2) })
+
+            await userEvent.click(screen.getByText('Good Morning'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+
+            expect(await openPicked()).toHaveValue('Rules String Greeting(Integer hour)')
+        })
+
+        it('picks nothing once only the rows kept out of sight are left', async () => {
+            await drawRules({ rows: rules.slice(0, 2), hiddenRows: 1 })
+
+            await userEvent.click(screen.getByText('Good Morning'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+
+            // The header left is drawn nowhere, so nothing on it is offered — not only the row it is on.
+            expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
+            expect(screen.getByTestId('table-edit-remove_column')).toBeDisabled()
+        })
+
+        it('stays on the row it landed on when a row is laid down next', async () => {
+            await drawRules()
+
+            await userEvent.click(screen.getByText('Good Evening'))
+            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+            await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+
+            // The row is laid down under the one the reader landed on, and the reader stays on that one.
+            expect(cellOf(3, 2)).toHaveTextContent('')
+            // The reader's cell is marked as picked; its neighbour of the same row is not.
+            expect(classesOf('D6')).not.toEqual(classesOf('B6'))
+            expect(classesOf('D5')).toEqual(classesOf('B5'))
+        })
+
+        it('stands nowhere in another table until a cell of it is picked', async () => {
+            const of = (tableId: string, rows: RawTableCell[][]) => (
+                <TableEditor
+                    canWrite
+                    editing
+                    moduleName="Claims"
+                    onEditingChange={vi.fn()}
+                    onSaved={vi.fn()}
+                    projectId="repo:Rating"
+                    rows={rows}
+                    tableId={tableId}
+                    testId="module-table"
+                />
+            )
+            const { rerender } = render(of('table-1', rules))
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+            await userEvent.click(screen.getByText('Good Evening'))
+
+            rerender(of('table-2', ROWS))
+            await waitFor(() => expect(getTableEditors).toHaveBeenLastCalledWith('repo:Rating', 'table-2',
+                expect.anything()))
+
+            expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
+            expect(screen.getByTestId('table-edit-remove_column')).toBeDisabled()
+        })
+    })
+
     describe('what the screen beside it is told and may ask', () => {
         it('says while it holds cells the reader has not saved, and says when it holds none again', async () => {
             const onDirtyChange = vi.fn()
