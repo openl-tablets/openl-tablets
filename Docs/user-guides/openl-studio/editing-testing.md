@@ -322,7 +322,8 @@ A rule table can be run on its own, without a test table for it.
     A table that returns a spreadsheet shows it as the table its author wrote: a row per step, a column per
     spreadsheet column, and the calculated value in every cell.
 
-1.  To save the result, click **Save to Excel**.
+1.  To save the result, click **Save to Excel**. The workbook is written the way the options of the panel ask, as
+    described after these steps.
 
 To save the result without reading it first, click **Run into File** instead of **Run**. The table runs and the
 result is written straight to a file, which is what a result too large to read on screen is taken with. A test
@@ -330,12 +331,41 @@ table offers **Test into File** in the same place, and saves the results of its 
 keeps **Run into File**, and none of the test options: its cases are run, not tested, and the workbook holds what
 every run returned.
 
-Three options above the input decide what the file of a rule table holds:
+Three options above the input decide what the file of a rule table holds. **Run into File** and **Save to Excel** in
+the window of the result write the workbook alike; only **Run into File** takes **Result in JSON Format** into
+account:
 
--   **Skip Empty Parameters** — leaves the input values that are empty out of the workbook.
+-   **Skip Empty Parameters** — leaves the input values that are empty out of the workbook. A value is empty when
+    a field holds no value (`null`) or a list has no elements. A field of a primitive type, such as `int` or
+    `boolean`, is never empty, so `0` and `false` stay. The option starts cleared: the workbook then names every
+    field of the input and leaves the cell of a field that holds no value blank. Select it to keep only the values
+    that were entered.
 -   **Flat Parameter Layout** — writes every field of an input on a row of its own. Clear it for a compact table
     of the inputs.
 -   **Result in JSON Format** — writes the returned value on its own as JSON, instead of the workbook of the run.
+
+The input of the run is written on the **Parameters** sheet, which follows the **Result** sheet; the option changes
+only that sheet. For the `vehicle` input of `DetermineVehiclePremium` in the Example 3 - Auto Policy Calculation
+project, where only `name`, `year` and `price` were entered, the flat layout writes these rows:
+
+| Row                                  | Value   | Kept when the option is selected |
+|--------------------------------------|---------|----------------------------------|
+| `vehicle.airbagType`                 | blank   | no                               |
+| `vehicle.bodyType`                   | blank   | no                               |
+| `vehicle.carType`                    | blank   | no                               |
+| `vehicle.hasAlarm`                   | `false` | yes                              |
+| `vehicle.hasRollBar`                 | `false` | yes                              |
+| `vehicle.model`                      | blank   | no                               |
+| `vehicle.name`                       | `Camry` | yes                              |
+| `vehicle.onHighTheftProbabilityList` | `false` | yes                              |
+| `vehicle.price`                      | `25000` | yes                              |
+| `vehicle.year`                       | `2022`  | yes                              |
+
+In the compact layout the option leaves out the column of such a field instead of its row. A list is written an
+element per row in the flat layout, so a list without elements has no row either way.
+
+The workbook of a test table has no such options: it is always written in the compact layout and without the empty
+parameters.
 
 #### Creating a Test
 
