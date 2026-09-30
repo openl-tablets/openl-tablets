@@ -31,6 +31,17 @@ A ping body carries file paths and origins at most. No project content ever ride
 broadcast reaches every authenticated session, so clients re-read what they show through the REST
 API under their own ACL.
 
+## Delivery order
+
+A session hears the messages of every destination in the order the server published them
+(`MessageBrokerRegistry.setPreservePublishOrder` in `WebSocketConfig`). Spring hands messages to the
+sessions on a pool of threads, so without it two messages published a moment apart can arrive the other
+way round.
+
+A compile cycle is where that shows. It reports a module compiled and, a moment later, that it ended —
+from the compiling thread and from the status notifier. Heard in reverse, the end is overtaken by the
+progress, and a screen showing the last status it heard shows the compilation going on for good.
+
 ## Who made the change
 
 A ping tells its subscribers what changed, not who asked for it — so the session that made the

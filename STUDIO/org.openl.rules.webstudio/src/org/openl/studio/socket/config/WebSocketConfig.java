@@ -64,6 +64,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setTaskScheduler(messageBrokerTaskScheduler());
         registry.setUserDestinationPrefix("/user"); // for user-specific destinations
         registry.setApplicationDestinationPrefixes("/app"); // prefix for messages sent to the server
+        // A session hears its messages in the order they were published. They are handed over by a pool of
+        // threads, and a compilation reports that it ended a moment after its progress: overtaken by it, the end
+        // would leave a screen showing the compilation going on for good.
+        registry.setPreservePublishOrder(true);
     }
 
     // Spring-managed so the heartbeat scheduler is shut down on context close. Its worker thread is
