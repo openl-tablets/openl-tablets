@@ -1,8 +1,5 @@
 package org.openl.studio.config;
 
-
-import jakarta.servlet.http.HttpSession;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -20,7 +17,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -63,8 +59,7 @@ public class ServiceApiConfig {
                                              PropertyResolver propertyResolver,
                                              ApplicationEventPublisher eventPublisher,
                                              ProtectedBranchBypassService bypassService,
-                                             ProjectAccessService projectAccessService,
-                                             HttpSession httpSession) {
+                                             ProjectAccessService projectAccessService) {
         var rulesUserSession = new RulesUserSession();
         rulesUserSession.setUserName(currentUserInfo.getUserName());
         rulesUserSession.setWorkspaceManager(workspaceManager);
@@ -80,7 +75,6 @@ public class ServiceApiConfig {
                 bypassService,
                 projectAccessService);
         rulesUserSession.setWebStudio(webStudio);
-        WebStudioUtils.registerRulesUserSession(httpSession, rulesUserSession);
         return rulesUserSession;
     }
 

@@ -32,7 +32,9 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -181,7 +183,7 @@ class ProjectHistoryServiceTest {
         Files.writeString(history.resolve("2000_current"), "current version");
         when(aclService.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(false);
 
-        service.restore(project, "Bank Rating", "Revision Version", null);
+        service.restore(project, "Bank Rating", "Revision Version", mock(WebStudio.class));
 
         assertEquals("revision version", Files.readString(moduleFile));
         verify(aclService).isGranted(moduleArtefact, List.of(BasePermission.WRITE));
@@ -192,8 +194,10 @@ class ProjectHistoryServiceTest {
     void rejectsRestoreWithoutModuleWritePermission() {
         when(aclService.isGranted(moduleArtefact, List.of(BasePermission.WRITE))).thenReturn(false);
 
+        var webStudio = mock(WebStudio.class);
+
         var error = assertThrows(ForbiddenException.class,
-                () -> service.restore(project, "Bank Rating", "Revision Version", null));
+                () -> service.restore(project, "Bank Rating", "Revision Version", webStudio));
 
         assertEquals("openl.error.403.default.message", error.getErrorCode());
     }
@@ -246,6 +250,29 @@ class ProjectHistoryServiceTest {
     }
 
     @Test
+    void deletesTheNamedProjectHistoryOfTheGivenWorkspace() throws Exception {
+        var projectHistory = Files.createDirectories(historyFolder(workspace));
+        Files.createFile(projectHistory.resolve("Revision Version_current"));
+        var otherHistory = Files.createDirectories(workspace.resolve(FolderHelper.HISTORY_FOLDER)
+                .resolve("OtherProject")
+                .resolve("Main.xlsx"));
+        Files.createFile(otherHistory.resolve("Revision Version_current"));
+
+        ProjectHistoryService.deleteHistory(userWorkspace(), "TestProject");
+
+        assertFalse(Files.exists(workspace.resolve(FolderHelper.HISTORY_FOLDER).resolve("TestProject")));
+        assertTrue(Files.exists(otherHistory));
+    }
+
+    @Test
+    void deletingTheHistoryOfAProjectWithoutOneChangesNothing() throws Exception {
+        ProjectHistoryService.deleteHistory(userWorkspace(), "TestProject");
+
+        assertFalse(Files.exists(workspace.resolve(FolderHelper.HISTORY_FOLDER)));
+        assertTrue(Files.exists(projectFolder.resolve("rules.xml")));
+    }
+
+    @Test
     void deletesAllUsersHistoryFolders() throws Exception {
         var currentUserHistory = Files.createDirectories(workspace.resolve(FolderHelper.HISTORY_FOLDER)
                 .resolve("TestProject"));
@@ -261,6 +288,15 @@ class ProjectHistoryServiceTest {
         assertFalse(Files.exists(currentUserHistory));
         assertFalse(Files.exists(otherUserHistory));
         assertTrue(Files.exists(retainedFolder));
+    }
+
+    /** The workspace of the user the project is opened by, kept in the test's folder. */
+    private UserWorkspace userWorkspace() {
+        var localWorkspace = mock(LocalWorkspace.class);
+        when(localWorkspace.getLocation()).thenReturn(workspace.toFile());
+        var userWorkspace = mock(UserWorkspace.class);
+        when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);
+        return userWorkspace;
     }
 
     private static Path historyFolder(Path workspace) {

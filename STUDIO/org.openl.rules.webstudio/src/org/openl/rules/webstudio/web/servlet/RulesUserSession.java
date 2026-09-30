@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
+import jakarta.annotation.PreDestroy;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,8 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  * Only the user name is serializable state. The workspace, the studio and the services behind them are transient:
  * the session is never persisted or replicated, and a session that has no holder gets a fresh one from the
  * application context.
+ *
+ * <p>The holder ends with the session: the workspace is released and the studio torn down.
  */
 public class RulesUserSession implements Serializable {
 
@@ -60,9 +63,19 @@ public class RulesUserSession implements Serializable {
                         .orElse(null));
     }
 
-    public void sessionDestroyed() {
+    /**
+     * Lets go of what the session held.
+     *
+     * <p>Called when the session is invalidated or expires. The workspace is released, then the studio is torn
+     * down.
+     */
+    @PreDestroy
+    void sessionDestroyed() {
         if (userWorkspace != null) {
             userWorkspace.release();
+        }
+        if (webStudio != null) {
+            webStudio.destroy();
         }
     }
 }
