@@ -77,10 +77,9 @@ So a mutating request stays the *presumed author* for a few seconds after it sta
 (`ChangeOriginResolver.remember`, wired by `ChangeOriginFilter` — a filter rather than a handler
 interceptor, because the writes come from every mount: the REST API and the legacy pages as well as
 the UI's own). A publication about one user's workspace with no request of its own takes the clients
-**of that user** that were writing just before. It is the same move the legacy Editor makes when it
-calls `resetSourceModified()` after writing a file — the writer marks its own change as already
-known. The repository-changed ping is named the same way, but per recipient: each user is told which
-of their own clients were writing, and never about anybody else's.
+**of that user** that were writing just before. The repository-changed ping is named the same
+way, but per recipient: each user is told which of their own clients were writing, and never about
+anybody else's.
 
 Four rules keep this from swallowing real changes:
 
@@ -122,10 +121,9 @@ flowchart LR
 
 - `ProjectStateChangedEvent` is published by `WorkspaceProjectService` after a state-changing action
   succeeds, and by `WorkspaceFilesWatcher` for every content change observed on the workspace disk —
-  the disk is where all writes meet, the same signal the legacy Editor's timestamp check reads. The
-  file events carry the touched project-relative paths. Publication is best-effort: a notification
-  failure never fails the action. Writes on a repository mount go straight to the design repository,
-  whose own listener already broadcasts the change.
+  the disk is where all writes meet. The file events carry the touched project-relative paths.
+  Publication is best-effort: a notification failure never fails the action. Writes on a repository
+  mount go straight to the design repository, whose own listener already broadcasts the change.
 - Compile-status transitions never feed the change pings: a compile changes nothing they stand
   for, and it already streams on the status destinations. Without this split a compile cycle would
   ping every second and provoke pointless refreshes.
