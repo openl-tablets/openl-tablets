@@ -20,6 +20,8 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
@@ -32,6 +34,18 @@ public class CommonAuthenticationConfig {
     @Bean(initMethod = "afterPropertiesSet", destroyMethod = "destroy")
     public SecurityContextPersistenceFilter securityContextPersistenceFilter() {
         return new SecurityContextPersistenceFilter();
+    }
+
+    /**
+     * Finds who signed in to a browser session for a REST request, and never saves who a request signed in as.
+     *
+     * <p>A REST request either belongs to a browser session, whose sign-in the login filters have already saved
+     * in it, or carries its own credentials — a bearer token, a personal access token — that hold for that
+     * request alone. Saving those would open an HTTP session for every such request.
+     */
+    @Bean
+    public SecurityContextHolderFilter restSecurityContextFilter() {
+        return new SecurityContextHolderFilter(new HttpSessionSecurityContextRepository());
     }
 
     @Bean

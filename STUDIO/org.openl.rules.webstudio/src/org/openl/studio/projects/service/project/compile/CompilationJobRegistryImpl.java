@@ -9,17 +9,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
 
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.WorkspaceResetEvent;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.session.ClientSessionScope;
 
 /**
  * Default {@link CompilationJobRegistry} implementation.
@@ -44,7 +42,7 @@ import org.openl.studio.projects.service.ProjectIdentifierMapper;
  */
 @Slf4j
 @Component
-@Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@ClientSessionScope
 @RequiredArgsConstructor
 public class CompilationJobRegistryImpl implements CompilationJobRegistry {
 

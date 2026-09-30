@@ -52,8 +52,8 @@ frame's variables — all against a real, suspended execution rather than a pre-
   would be too large.
 - **Lazy variable freezing** — a frame's parameters/context/result are deep-cloned only when inspected,
   while suspended, and discarded when the frame returns. Large values load on demand.
-- **One session per user** — starting a new session terminates the previous one. Idle suspended sessions
-  are reaped automatically after 10 minutes.
+- **One session per client** — a browser session, or the credentials of a stateless client; starting a new
+  session terminates the previous one. Idle suspended sessions are reaped automatically after 10 minutes.
 
 ### Use cases
 
@@ -76,7 +76,7 @@ flowchart TB
         S3["TableInputParserService<br/>- JSON input parsing"]
         M["TraceDebugMapper<br/>- stack mapping + variable freezing"]
     end
-    subgraph SESSION["Session Layer (@SessionScope)"]
+    subgraph SESSION["Client Session Layer (@ClientSessionScope)"]
         R1["DebugSessionRegistry<br/>- one session + breakpoints + last input"]
         R2["TraceParameterRegistry<br/>- lazy parameter storage"]
         R3["DebugSessionReaper<br/>- reap idle sessions"]
@@ -271,7 +271,7 @@ line executes.
 
 **Endpoint**: `GET /projects/{projectId}/trace/breakpoints`
 
-Returns the active breakpoint keys. Works without a running session (breakpoints are session-scoped and
+Returns the active breakpoint keys. Works without a running session (breakpoints are kept for the client and
 persist across runs).
 
 **Response**: `200 OK` — array of strings (see [Breakpoint Keys](#breakpoint-keys)).

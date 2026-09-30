@@ -2,15 +2,14 @@ package org.openl.studio.projects.service.merge;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
+import org.openl.studio.session.ClientSessionScope;
 
 @Component
-@SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
+@ClientSessionScope
 public class ProjectsMergeConflictsSessionHolder {
 
     private record Entry(ProjectIdModel projectId,

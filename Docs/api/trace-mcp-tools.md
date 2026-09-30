@@ -23,12 +23,13 @@ plus `?fields=` to trim the response. The MCP server itself lives in a separate 
 - **Base:** `{context}/rest/projects/{projectId}/trace` — `/rest` is the one prefix the API is served on, for
   MCP and for the user interface alike.
 - **Auth:** a Personal Access Token in the header (as for the other `/rest` calls).
-- **Session (critical):** the debug session is server-side and bound to the HTTP session (`@SessionScope`). The
-  whole flow is many calls within ONE HTTP session. **MCP must keep the cookie/sessionId** (`JSESSIONID`) and
-  pass it across every call of one debug run. Without it, the call after `trace_start` will not find the
-  session (404).
-- **One active session per user:** `trace_start` terminates the previous one. To debug several rules in
-  parallel, use different tokens/users.
+- **Session (critical):** the debug session is server-side and kept for the client (`@ClientSessionScope`, see
+  [Client Sessions](../architecture/client-sessions.md)). The whole flow is many calls of ONE client: the same
+  Personal Access Token on every call finds the same debug session, with no cookie to keep. A client that signs
+  in through the browser keeps its `JSESSIONID` instead. With another token, the call after `trace_start` will
+  not find the session (404).
+- **One active session per client:** `trace_start` terminates the previous one. To debug several rules in
+  parallel, use a different Personal Access Token for each.
 - **Idle reaper:** a parked worker is released after ~10 minutes of inactivity. Any call resets the timer;
   during long agent pauses MCP sends a keepalive (`GET /status`).
 

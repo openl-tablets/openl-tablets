@@ -14,7 +14,7 @@ import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
- * Abstract session-scoped registry for managing asynchronous execution tasks.
+ * Abstract client-scoped registry for managing asynchronous execution tasks.
  * <p>
  * Holds at most one execution task at a time. When a new task is registered,
  * any previously running task is automatically cancelled to prevent resource exhaustion.

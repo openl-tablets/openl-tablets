@@ -3,6 +3,7 @@ package org.openl.studio.security.oauth2;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.oidc.authentication.logout.LogoutTokenClaimNames;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -31,12 +33,15 @@ import org.openl.util.HashingUtils;
 
 /**
  * Extends {@link SpringOpaqueTokenIntrospector} to create a {@link SimpleUser} based on {@link OAuth2User}.
+ *
+ * <p>The principal carries the user info of the token, and the user's sign-in at the identity provider
+ * ({@code sid}) when the introspection names one.
  */
 public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
     private final OpaqueTokenIntrospector delegate;
     private final ClientRegistration clientRegistration;
-    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService = new DefaultOAuth2UserService();
+    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
     private final Converter<Map<String, Object>, SimpleUser> userInfoClaimsConverter;
     private final PropertyResolver propertyResolver;
     private final Cache userInfoCache;
@@ -49,10 +54,25 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
                                            Converter<Map<String, Object>, SimpleUser> userInfoClaimsConverter,
                                            PropertyResolver propertyResolver,
                                            Cache cache) {
-        this.delegate = SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
-                .clientId(clientRegistration.getClientId())
-                .clientSecret(clientRegistration.getClientSecret())
-                .build();
+        this(SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+                        .clientId(clientRegistration.getClientId())
+                        .clientSecret(clientRegistration.getClientSecret())
+                        .build(),
+                new DefaultOAuth2UserService(),
+                clientRegistration,
+                userInfoClaimsConverter,
+                propertyResolver,
+                cache);
+    }
+
+    UserInfoOpaqueTokenIntrospector(OpaqueTokenIntrospector delegate,
+                                    OAuth2UserService<OAuth2UserRequest, OAuth2User> userService,
+                                    ClientRegistration clientRegistration,
+                                    Converter<Map<String, Object>, SimpleUser> userInfoClaimsConverter,
+                                    PropertyResolver propertyResolver,
+                                    Cache cache) {
+        this.delegate = delegate;
+        this.userService = userService;
         this.clientRegistration = clientRegistration;
         this.userInfoClaimsConverter = userInfoClaimsConverter;
         this.propertyResolver = propertyResolver;
@@ -77,8 +97,16 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
             userInfoCache.put(tokenHash, userCacheValue);
         }
 
+        // The sign-in tells one client of the user from another. Only the introspection answers it: the user
+        // info describes the user alone.
+        Object signIn = authorized.getAttribute(LogoutTokenClaimNames.SID);
+        var attributes = userCacheValue.userAttributes;
+        if (signIn != null) {
+            attributes = new HashMap<>(attributes);
+            attributes.put(LogoutTokenClaimNames.SID, signIn);
+        }
         return new DefaultOAuth2User(userCacheValue.privileges,
-                userCacheValue.userAttributes,
+                attributes,
                 propertyResolver.getProperty("security.oauth2.attribute.username"));
     }
 

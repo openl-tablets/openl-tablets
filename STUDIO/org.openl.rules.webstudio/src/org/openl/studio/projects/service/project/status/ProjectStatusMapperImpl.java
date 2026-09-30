@@ -90,7 +90,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     }
 
     // Read-only check: do not initiate any compilation. The status endpoint must only
-    // report whatever is already registered in the session-scoped compilation registry.
+    // report whatever is already registered in the client-scoped compilation registry.
     @Nullable
     private ProjectModel resolveModel(RulesProject project) {
         var projectId = projectIdentifierMapper.map(project);

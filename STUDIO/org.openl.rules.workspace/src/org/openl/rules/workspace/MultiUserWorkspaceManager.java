@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -20,6 +21,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceListener;
  *
  * @author Aleh Bykhavets
  */
+@Slf4j
 public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /**
      * Design Time Repository
@@ -36,6 +38,11 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * background thread reach it at the same time.
      */
     private final Map<String, UserWorkspace> userWorkspaces = new ConcurrentHashMap<>();
+    /**
+     * How many holders the workspace of each user has: browser sessions and clients that call with their own
+     * credentials.
+     */
+    private final Map<String, Integer> holders = new ConcurrentHashMap<>();
 
     @Getter
     @Setter
@@ -65,6 +72,47 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
         // purpose: two concurrent first requests of one user must not build two workspaces. It
         // happens once per user; the fast path above never takes the lock.
         return userWorkspaces.computeIfAbsent(user.getUserId(), id -> createUserWorkspace(user));
+    }
+
+    /**
+     * Returns the workspace of the user and counts the caller among its holders.
+     *
+     * <p>Every holder hands the workspace back with {@link #releaseUserWorkspace(UserWorkspace)}. It is released
+     * only when the last holder does, so one session of a user that ends leaves it working for the others.
+     *
+     * @param user active user
+     * @return new or cached instance of user workspace
+     */
+    public UserWorkspace acquireUserWorkspace(WorkspaceUser user) {
+        // Found and counted under the user's key, so a release of the last holder never runs between a new
+        // holder finding the workspace and being counted. Once counted, the workspace stays for the caller.
+        holders.compute(user.getUserId(), (id, count) -> {
+            getUserWorkspace(user);
+            return count == null ? 1 : count + 1;
+        });
+        return getUserWorkspace(user);
+    }
+
+    /**
+     * Hands back a workspace taken with {@link #acquireUserWorkspace(WorkspaceUser)}, releasing it when no other
+     * holder is left.
+     *
+     * @param workspace the workspace the caller holds
+     */
+    public void releaseUserWorkspace(UserWorkspace workspace) {
+        holders.compute(workspace.getUser().getUserId(), (id, count) -> {
+            if (count != null && count > 1) {
+                return count - 1;
+            }
+            // The last holder is gone whatever the release comes to: a count left behind by a failed release
+            // would keep the workspace from ever being released again.
+            try {
+                workspace.release();
+            } catch (RuntimeException e) {
+                log.error("Failed to release the workspace of the user '{}'.", id, e);
+            }
+            return null;
+        });
     }
 
     /**

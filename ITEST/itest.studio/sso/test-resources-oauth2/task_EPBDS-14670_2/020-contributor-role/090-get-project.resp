@@ -6,7 +6,7 @@ Content-Type: application/json
   "name": "EPBDS_14670_Project",
   "status": "CLOSED",
   "repository": "design",
-  "modifiedBy": "epbds14670r_manager",
+  "modifiedBy": "epbds14670r_contributor",
   "modifiedAt": "*",
   "revision": "*",
   "comment": "contributor saved the project",

@@ -11,22 +11,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.ui.WorkspaceResetEvent;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.session.ClientSessionScope;
 
 /**
- * Session-scoped holder for the user's active debug session and breakpoints.
+ * Client-scoped holder for the user's active debug session and breakpoints.
  *
  * <p>Holds at most one debug session; starting a new one terminates the previous. Breakpoints persist
  * across runs so the user can set them before starting and they apply to the next run. Everything is
- * released when a new session starts, on explicit cancel, when the workspace is reset, or when the HTTP
- * session is destroyed.
+ * released when a new session starts, on explicit cancel, when the workspace is reset, or when the client
+ * ends — its HTTP session, or the idle credentials of a stateless client.
  */
 @Slf4j
 @Component
-@SessionScope
+@ClientSessionScope
 @RequiredArgsConstructor
 public class DebugSessionRegistry {
 

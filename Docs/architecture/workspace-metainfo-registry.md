@@ -91,9 +91,10 @@ stateDiagram-v2
 
 - **One registry instance per `userId`, never per session.** `LocalWorkspaceManagerImpl` owns a
   `Map<userId, MetainfoRegistry>` and hands the instance to every `LocalWorkspace` and `LocalRepository`
-  created for that user. All channels of a user (browser tabs, REST, MCP) share it. Workspace
-  instances can churn — `UserWorkspaceImpl.release()` has no reference counting — but the registry
-  survives the churn, so the dirty-set and the per-project locks are never forked.
+  created for that user. All channels of a user (browser tabs, REST, MCP) share it. The user workspace
+  itself is shared the same way and released only when its last holder ends
+  (`MultiUserWorkspaceManager.releaseUserWorkspace`); the registry outlives even that, so the dirty-set and the
+  per-project locks are never forked.
 - The instance is created lazily on the first access (the disk read and the dirty-set reconstruction happen
   once per JVM) and is retained for the JVM lifetime.
 - The registry is cached write-through; all hot readers (statuses, `getRealPath`, ACL, lock operations,

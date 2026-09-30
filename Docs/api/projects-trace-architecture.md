@@ -125,7 +125,7 @@ session is reclaimed first, so an active session survives while stale ones are d
 ```mermaid
 flowchart TD
     UI["React TraceView (studio-ui)"] -->|REST + WebSocket| Ctrl[ProjectsTraceDebugController]
-    Ctrl --> Reg["DebugSessionRegistry (@SessionScope)"]
+    Ctrl --> Reg["DebugSessionRegistry (@ClientSessionScope)"]
     Ctrl --> Svc[TraceDebugService]
     Ctrl -->|freeze on inspect| Map[TraceDebugMapper]
     Ctrl -->|A1 overlay| HL[TraceHighlightService]
@@ -151,7 +151,7 @@ flowchart TD
   classes were removed — this dispatcher is the only tracer.
 - **Service / session** (`org.openl.studio.projects.service.trace`) — `TraceDebugService` builds the test
   suite and spawns the worker; `DebugSession` holds one running session (plus a per-session lock and the
-  cached inspection mapper); `DebugSessionRegistry` (`@SessionScope`, at most one session per user)
+  cached inspection mapper); `DebugSessionRegistry` (`@ClientSessionScope`, at most one session per client)
   manages lifecycle, persistent breakpoints and watches, and the remembered input; `DebugSessionReaper`
   terminates idle sessions.
 - **Model / mapper** (`org.openl.studio.projects.model.trace`) — `TraceDebugMapper` maps the live stack,

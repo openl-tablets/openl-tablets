@@ -68,7 +68,7 @@ public class PatAuthServiceImpl implements PatAuthService {
                 || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
             return PatAuthResolution.invalid();
         }
-        var auth = new PatAuthenticationToken(user, null, user.getAuthorities());
+        var auth = new PatAuthenticationToken(user, null, user.getAuthorities(), pat.publicId());
 
         return PatAuthResolution.valid(auth);
     }

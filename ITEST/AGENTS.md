@@ -218,6 +218,13 @@ requests riding on the session cookie) is exercised in exactly one place — the
 `itest.studio/multi/test-resources`, which proves the form works — and is not a way to sign a scenario in. Nor is a
 `GET /` before a scenario: the root serves a static page and prepares nothing.
 
+A request carrying `Authorization` opens no session and is served from the state kept for its credential, so a cookie
+captured earlier in the folder — another user's session — never lends that user's workspace to the request (see
+`Docs/architecture/client-sessions.md`). A scenario that switches users still sends `Cookie: NO_JSESSIONID=noAuth` on
+the first request of the new user that works with projects: it keeps the suite telling the users apart even when run
+against a build that shares session state with a cookie. A warm-up such as `GET /rest/users/profile` or `/rest/acls`
+opens no session, so the reset belongs on the request after it.
+
 ### Response Comparison
 
 - **Status code**: exact match

@@ -87,11 +87,7 @@ class PatAuthenticationFilterTest {
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
         var userDetails = createUserDetails("jdoe", "ROLE_USER");
-        var authentication = new PatAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
+        var authentication = patToken(userDetails);
         PatAuthResolution resolution = PatAuthResolution.valid(authentication);
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
@@ -205,11 +201,7 @@ class PatAuthenticationFilterTest {
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token   " + TEST_TOKEN_VALUE + "   ");
 
         var userDetails = createUserDetails("jdoe", "ROLE_USER");
-        var authentication = new PatAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
+        var authentication = patToken(userDetails);
         PatAuthResolution resolution = PatAuthResolution.valid(authentication);
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
@@ -231,20 +223,12 @@ class PatAuthenticationFilterTest {
 
         // Existing authentication for jdoe
         var existingUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        var existingAuth = new PatAuthenticationToken(
-                existingUserDetails,
-                null,
-                existingUserDetails.getAuthorities()
-        );
+        var existingAuth = patToken(existingUserDetails);
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // New PAT authentication also for jdoe
         var newUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        var newAuth = new PatAuthenticationToken(
-                newUserDetails,
-                null,
-                newUserDetails.getAuthorities()
-        );
+        var newAuth = patToken(newUserDetails);
         PatAuthResolution resolution = PatAuthResolution.valid(newAuth);
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
@@ -269,20 +253,12 @@ class PatAuthenticationFilterTest {
 
         // Existing authentication for jdoe
         var existingUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        var existingAuth = new PatAuthenticationToken(
-                existingUserDetails,
-                null,
-                existingUserDetails.getAuthorities()
-        );
+        var existingAuth = patToken(existingUserDetails);
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // New PAT authentication for jsmith
         var newUserDetails = createUserDetails("jsmith", "ROLE_ADMIN");
-        var newAuth = new PatAuthenticationToken(
-                newUserDetails,
-                null,
-                newUserDetails.getAuthorities()
-        );
+        var newAuth = patToken(newUserDetails);
         PatAuthResolution resolution = PatAuthResolution.valid(newAuth);
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
@@ -316,11 +292,7 @@ class PatAuthenticationFilterTest {
 
         // New PAT authentication
         var newUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        var newAuth = new PatAuthenticationToken(
-                newUserDetails,
-                null,
-                newUserDetails.getAuthorities()
-        );
+        var newAuth = patToken(newUserDetails);
         PatAuthResolution resolution = PatAuthResolution.valid(newAuth);
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
@@ -352,11 +324,7 @@ class PatAuthenticationFilterTest {
 
         // New PAT authentication
         var newUserDetails = createUserDetails("jdoe", "ROLE_USER");
-        var newAuth = new PatAuthenticationToken(
-                newUserDetails,
-                null,
-                newUserDetails.getAuthorities()
-        );
+        var newAuth = patToken(newUserDetails);
         PatAuthResolution resolution = PatAuthResolution.valid(newAuth);
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
@@ -422,11 +390,7 @@ class PatAuthenticationFilterTest {
     void testAuthenticationIsRequired_SameUser() {
         // Arrange
         var userDetails = createUserDetails("jdoe", "ROLE_USER");
-        var existingAuth = new PatAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
+        var existingAuth = patToken(userDetails);
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // Act
@@ -440,11 +404,7 @@ class PatAuthenticationFilterTest {
     void testAuthenticationIsRequired_DifferentUser() {
         // Arrange
         var userDetails = createUserDetails("jdoe", "ROLE_USER");
-        var existingAuth = new PatAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
+        var existingAuth = patToken(userDetails);
         when(securityContext.getAuthentication()).thenReturn(existingAuth);
 
         // Act
@@ -462,11 +422,7 @@ class PatAuthenticationFilterTest {
         var tokenCaptor = ArgumentCaptor.forClass(PatToken.class);
 
         var userDetails = createUserDetails("jdoe", "ROLE_USER");
-        var authentication = new PatAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
+        var authentication = patToken(userDetails);
         PatAuthResolution resolution = PatAuthResolution.valid(authentication);
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
@@ -480,6 +436,11 @@ class PatAuthenticationFilterTest {
         var capturedToken = tokenCaptor.getValue();
         assertEquals(TEST_PUBLIC_ID, capturedToken.publicId());
         assertEquals(TEST_SECRET, capturedToken.secret());
+    }
+
+    /** The authentication a valid personal access token of the user resolves to. */
+    private static PatAuthenticationToken patToken(UserDetails userDetails) {
+        return new PatAuthenticationToken(userDetails, null, userDetails.getAuthorities(), "abcdefghijklmnop");
     }
 
     /**

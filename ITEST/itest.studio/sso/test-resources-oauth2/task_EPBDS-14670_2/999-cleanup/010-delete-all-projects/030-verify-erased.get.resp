@@ -36,15 +36,14 @@ Content-Type: application/json
     {
       "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
       "name": "Project",
-      "branch": "master",
-      "status": "CLOSED",
+      "branch": "admin/feature-1",
+      "status": "OPENED",
       "repository": "design-flat",
       "modifiedBy": "OpenL Admin",
       "modifiedAt": "*",
       "revision": "*",
       "path": "Project",
-      "comment": "Project Project is created.",
-      "branchDefault": true,
+      "comment": "Admin saved the project",
       "inDefaultBranch": true,
       "repositoryInfo": {
         "id": "design-flat",
@@ -57,7 +56,6 @@ Content-Type: application/json
         }
       },
       "capabilities": {
-        "canOpen": true,
         "canDelete": true,
         "canDeploy": true,
         "canCompare": true,
@@ -66,7 +64,10 @@ Content-Type: application/json
         "canCopy": true,
         "canMerge": true,
         "canManageBranches": true,
-        "canExport": true
+        "canExport": true,
+        "canWrite": true,
+        "canClose": true,
+        "canDeleteBranch": true
       }
     },
     {

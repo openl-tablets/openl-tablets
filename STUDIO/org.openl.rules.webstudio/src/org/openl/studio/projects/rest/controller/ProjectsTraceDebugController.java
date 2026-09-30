@@ -427,7 +427,7 @@ public class ProjectsTraceDebugController {
         }
         if (session.getDebugger().status() == DebugStatus.TERMINATED) {
             // The reaper (idle timeout or global session cap) terminated this session out from under the
-            // session-scoped registry, which still references it. Drop the dangling reference so the client
+            // client-scoped registry, which still references it. Drop the dangling reference so the client
             // gets a clean "no active trace" instead of driving a dead worker.
             sessionRegistry.clear();
             throw new NotFoundException("trace.execution.task.message");

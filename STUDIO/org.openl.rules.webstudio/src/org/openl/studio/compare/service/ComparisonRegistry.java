@@ -9,22 +9,21 @@ import jakarta.annotation.PreDestroy;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.diff.tree.DiffTreeNode;
+import org.openl.studio.session.ClientSessionScope;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
- * The comparison a session is working on.
+ * The comparison a client is working on: a browser session, or the credentials of a stateless client.
  *
- * <p>A session holds one comparison at a time: a comparison keeps both workbooks parsed, which a
+ * <p>A client holds one comparison at a time: a comparison keeps both workbooks parsed, which a
  * screen showing one comparison does not need twice over. Starting another one releases the
- * previous, and so does the end of the session.
+ * previous, and so does the end of the client.
  */
 @Component
-@SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
+@ClientSessionScope
 @RequiredArgsConstructor
 public class ComparisonRegistry {
 
