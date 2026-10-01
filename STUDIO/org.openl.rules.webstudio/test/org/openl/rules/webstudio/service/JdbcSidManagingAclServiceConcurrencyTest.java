@@ -24,23 +24,23 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 
 /**
  * Tests that concurrent ACL operations for the same SID on different projects
  * do not fail with DuplicateKeyException.
  *
- * @see JdbcMutableAclService#createOrRetrieveSidPrimaryKey(String, boolean, boolean)
+ * @see JdbcSidManagingAclService#createOrRetrieveSidPrimaryKey(String, boolean, boolean)
  */
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:concurrency;DB_CLOSE_DELAY=-1",
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 10"})
-class JdbcMutableAclServiceConcurrencyTest {
+class JdbcSidManagingAclServiceConcurrencyTest {
 
     @Autowired
-    JdbcMutableAclService aclService;
+    JdbcSidManagingAclService aclService;
 
     @Autowired
     PlatformTransactionManager txManager;
@@ -49,7 +49,7 @@ class JdbcMutableAclServiceConcurrencyTest {
      * Simulates the real-world scenario: multiple async requests grant permissions
      * for the same user on different projects simultaneously. All threads try to
      * create the same SID row in acl_sid, triggering the race condition that
-     * {@link JdbcMutableAclService#createOrRetrieveSidPrimaryKey} now handles.
+     * {@link JdbcSidManagingAclService#createOrRetrieveSidPrimaryKey} now handles.
      */
     @Test
     @WithMockUser(value = "admin", authorities = "Administrators")

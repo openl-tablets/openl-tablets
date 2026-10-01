@@ -21,14 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.workspace.lw.LocalWorkspace;
-import org.openl.security.acl.MutableAclService;
+import org.openl.security.acl.SidManagingAclService;
 import org.openl.security.acl.oid.AclObjectIdentityProvider;
 
 public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl implements RepositoryAclService {
 
     public RepositoryAclServiceImpl(AclCache springCacheBasedAclCache,
                                     Cache missingAclCache,
-                                    MutableAclService aclService,
+                                    SidManagingAclService aclService,
                                     Sid relevantSystemWideSid,
                                     SidRetrievalStrategy sidRetrievalStrategy,
                                     AclObjectIdentityProvider oidProvider) {

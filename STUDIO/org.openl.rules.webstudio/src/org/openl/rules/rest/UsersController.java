@@ -51,7 +51,7 @@ import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -86,7 +86,7 @@ public class UsersController {
     private final PasswordEncoder passwordEncoder;
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
-    private final JdbcMutableAclService aclService;
+    private final JdbcSidManagingAclService aclService;
     private final TransactionTemplate txTemplate;
     private final boolean groupsDisabled;
 
@@ -102,7 +102,7 @@ public class UsersController {
                            ExternalGroupService extGroupService,
                            MailSender mailSender,
                            PlatformTransactionManager txManager,
-                           @Autowired(required = false) JdbcMutableAclService aclService,
+                           @Autowired(required = false) JdbcSidManagingAclService aclService,
                            @Value("${user.mode}") String userMode) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;

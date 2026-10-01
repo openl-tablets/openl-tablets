@@ -1,5 +1,6 @@
 package org.openl.security.acl;
 
+import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.Sid;
@@ -9,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 // This code is related a bug in Spring Security https://github.com/spring-projects/spring-security/issues/4186
 // After fixing this bug, this code should be removed.
-public class AclAuthorizationStrategyImpl extends org.springframework.security.acls.domain.AclAuthorizationStrategyImpl {
+public class GrantedAuthorityAclAuthorizationStrategy extends AclAuthorizationStrategyImpl {
 
     private SidRetrievalStrategy sidRetrievalStrategy;
 
@@ -19,7 +20,7 @@ public class AclAuthorizationStrategyImpl extends org.springframework.security.a
 
     private final GrantedAuthority gaTakeOwnership;
 
-    public AclAuthorizationStrategyImpl(GrantedAuthority... auths) {
+    public GrantedAuthorityAclAuthorizationStrategy(GrantedAuthority... auths) {
         super(auths);
         if (auths.length == 3) {
             this.gaTakeOwnership = auths[0];

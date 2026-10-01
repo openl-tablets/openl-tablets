@@ -27,7 +27,7 @@ import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
@@ -52,7 +52,7 @@ public class ManagementController {
     private final GroupManagementService groupManagementService;
     private final ExternalGroupService extGroupService;
     private final UserManagementService userManagementService;
-    private final JdbcMutableAclService aclService;
+    private final JdbcSidManagingAclService aclService;
     private final RepositoryAclServiceProvider aclServiceProvider;
 
     @Autowired
@@ -60,7 +60,7 @@ public class ManagementController {
                                 GroupManagementService groupManagementService,
                                 ExternalGroupService extGroupService,
                                 UserManagementService userManagementService,
-                                @Autowired(required = false) JdbcMutableAclService aclService,
+                                @Autowired(required = false) JdbcSidManagingAclService aclService,
                                 RepositoryAclServiceProvider aclServiceProvider) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;

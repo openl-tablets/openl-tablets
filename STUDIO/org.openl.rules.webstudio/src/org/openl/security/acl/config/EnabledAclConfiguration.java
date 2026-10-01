@@ -26,8 +26,8 @@ import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import org.openl.security.acl.AclAuthorizationStrategyImpl;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.GrantedAuthorityAclAuthorizationStrategy;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.MaskPermissionGrantingStrategy;
 import org.openl.security.acl.oid.AclObjectIdentityProviderImpl;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -90,7 +90,7 @@ public class EnabledAclConfiguration {
 
     @Bean
     public AclAuthorizationStrategy aclAuthorizationStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
-        var strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ADMIN"));
+        var strategy = new GrantedAuthorityAclAuthorizationStrategy(new SimpleGrantedAuthority("ADMIN"));
         strategy.setSidRetrievalStrategy(sidRetrievalStrategy);
         return strategy;
     }
@@ -101,19 +101,20 @@ public class EnabledAclConfiguration {
     }
 
     @Bean
-    public JdbcMutableAclService repositoryJdbcMutableAclService(DataSource openlDataSource,
-                                                                 AclCache aclCache,
-                                                                 AclAuthorizationStrategy aclAuthorizationStrategy,
-                                                                 PermissionGrantingStrategy permissionGrantingStrategy,
-                                                                 DefaultPermissionFactory repositoryPermissionFactory,
-                                                                 @Value("${db.url}") String jdbcUrl) {
+    public JdbcSidManagingAclService repositoryJdbcMutableAclService(
+            DataSource openlDataSource,
+            AclCache aclCache,
+            AclAuthorizationStrategy aclAuthorizationStrategy,
+            PermissionGrantingStrategy permissionGrantingStrategy,
+            DefaultPermissionFactory repositoryPermissionFactory,
+            @Value("${db.url}") String jdbcUrl) {
 
         var lookupStrategy = createRepositoryAclLookupStrategy(openlDataSource,
                 aclCache,
                 aclAuthorizationStrategy,
                 repositoryPermissionFactory,
                 permissionGrantingStrategy);
-        var mutableAclService = new JdbcMutableAclService(openlDataSource,
+        var mutableAclService = new JdbcSidManagingAclService(openlDataSource,
                 lookupStrategy,
                 aclCache,
                 RELEVANT_SYSTEM_WIDE_SID);
@@ -159,7 +160,7 @@ public class EnabledAclConfiguration {
     }
 
     @Bean
-    public AclPermissionEvaluator aclPermissionEvaluator(JdbcMutableAclService repositoryJdbcMutableAclService,
+    public AclPermissionEvaluator aclPermissionEvaluator(JdbcSidManagingAclService repositoryJdbcMutableAclService,
                                                          DefaultPermissionFactory repositoryPermissionFactory,
                                                          SidRetrievalStrategy sidRetrievalStrategy,
                                                          DefaultMethodSecurityExpressionHandler expressionHandler) {
@@ -174,7 +175,7 @@ public class EnabledAclConfiguration {
     @Bean
     public RepositoryAclService designRepositoryAclService(AclCache aclCache,
                                                            Cache missingAclCache,
-                                                           JdbcMutableAclService repositoryJdbcMutableAclService,
+                                                           JdbcSidManagingAclService repositoryJdbcMutableAclService,
                                                            SidRetrievalStrategy sidRetrievalStrategy) {
         var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.ProjectArtifact.class,
                 DESIGN_REPO_ROOT_ID);
@@ -187,10 +188,11 @@ public class EnabledAclConfiguration {
     }
 
     @Bean
-    public SimpleRepositoryAclService productionRepositoryAclService(AclCache aclCache,
-                                                                     Cache missingAclCache,
-                                                                     JdbcMutableAclService repositoryJdbcMutableAclService,
-                                                                     SidRetrievalStrategy sidRetrievalStrategy) {
+    public SimpleRepositoryAclService productionRepositoryAclService(
+            AclCache aclCache,
+            Cache missingAclCache,
+            JdbcSidManagingAclService repositoryJdbcMutableAclService,
+            SidRetrievalStrategy sidRetrievalStrategy) {
         var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.RepositoryObjectIdentity.class,
                 PROD_REPO_ROOT_ID);
         return new SimpleRepositoryAclServiceImpl(aclCache,

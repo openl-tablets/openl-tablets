@@ -40,7 +40,7 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.repository.ProjectArtifact;
 import org.openl.security.acl.repository.RepositoryAclService;
 
@@ -66,7 +66,7 @@ class RepositoryAclServiceTest {
     Cache missingAclCache;
 
     @Autowired
-    JdbcMutableAclService aclService;
+    JdbcSidManagingAclService aclService;
 
     @Autowired
     PlatformTransactionManager txManager;

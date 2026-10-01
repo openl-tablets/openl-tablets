@@ -60,7 +60,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
             for (URL url : urls) {
                 addURL(url);
             }
-            setResourceLoader(new GroovyResourceLoader(getResourceLoader()));
+            setResourceLoader(new JaxrsBeanSkippingResourceLoader(getResourceLoader()));
         } else {
             // Performance improvement, but groovy classes are loaded only from project classpath
             setResourceLoader(filename -> null);
@@ -72,7 +72,8 @@ public class OpenLClassLoader extends GroovyClassLoader {
             return classLoader;
         } else {
             GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader, buildOpenLConfiguration(), true);
-            groovyClassLoader.setResourceLoader(new GroovyResourceLoader(groovyClassLoader.getResourceLoader()));
+            groovyClassLoader
+                    .setResourceLoader(new JaxrsBeanSkippingResourceLoader(groovyClassLoader.getResourceLoader()));
             if (urls != null) {
                 for (URL url : urls) {
                     groovyClassLoader.addURL(url);

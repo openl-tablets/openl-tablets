@@ -4,10 +4,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
-class GroovyResourceLoader implements groovy.lang.GroovyResourceLoader {
-    private final groovy.lang.GroovyResourceLoader delegate;
+import groovy.lang.GroovyResourceLoader;
 
-    GroovyResourceLoader(groovy.lang.GroovyResourceLoader delegate) {
+/**
+ * Looks up Groovy sources, except for the JAX-RS request beans, which are generated at runtime and have none.
+ */
+class JaxrsBeanSkippingResourceLoader implements GroovyResourceLoader {
+    private final GroovyResourceLoader delegate;
+
+    JaxrsBeanSkippingResourceLoader(GroovyResourceLoader delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 

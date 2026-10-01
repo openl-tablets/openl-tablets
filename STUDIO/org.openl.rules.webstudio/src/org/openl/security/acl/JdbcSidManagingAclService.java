@@ -9,11 +9,16 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.lang.Nullable;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.jdbc.JdbcMutableAclService;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.Sid;
 
-public class JdbcMutableAclService extends org.springframework.security.acls.jdbc.JdbcMutableAclService implements MutableAclService {
+/**
+ * The JDBC ACL service that also deletes and renames security identities, and creates one safely when several threads
+ * grant permissions to it at once.
+ */
+public class JdbcSidManagingAclService extends JdbcMutableAclService implements SidManagingAclService {
 
     private static final String SELECT_SID_QUERY = "select id from acl_sid where principal=? and sid=?";
     private static final String INSERT_SID_QUERY = "insert into acl_sid (principal, sid) values (?, ?)";
@@ -25,10 +30,10 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     private final AclCache aclCache;
     private final Sid relevantSystemWideSid;
 
-    public JdbcMutableAclService(DataSource dataSource,
-                                 LookupStrategy lookupStrategy,
-                                 AclCache aclCache,
-                                 Sid relevantSystemWideSid) {
+    public JdbcSidManagingAclService(DataSource dataSource,
+                                     LookupStrategy lookupStrategy,
+                                     AclCache aclCache,
+                                     Sid relevantSystemWideSid) {
         super(dataSource, lookupStrategy, aclCache);
         this.aclCache = aclCache;
         this.relevantSystemWideSid = relevantSystemWideSid;
