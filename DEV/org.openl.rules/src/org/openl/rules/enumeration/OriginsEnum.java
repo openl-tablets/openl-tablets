@@ -3,6 +3,8 @@ package org.openl.rules.enumeration;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+// The constant names are the values of the origin property that tables and rules spell out.
+@SuppressWarnings("java:S115")
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum OriginsEnum {
 

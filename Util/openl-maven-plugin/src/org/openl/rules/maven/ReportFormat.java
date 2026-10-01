@@ -4,6 +4,8 @@ import java.io.File;
 
 import org.openl.rules.testmethod.TestUnitsResults;
 
+// The constant names are the values of the reportsFormat parameter that project POMs spell out.
+@SuppressWarnings("java:S115")
 public enum ReportFormat {
     junit4,
     xlsx;
