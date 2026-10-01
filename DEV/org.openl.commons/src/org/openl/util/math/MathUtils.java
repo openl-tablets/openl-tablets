@@ -229,6 +229,8 @@ public class MathUtils {
         return v[v.length - 1 - index];
     }
 
+    // SMALL and BIG reject a position outside the array, an empty array included, by contract.
+    @SuppressWarnings("javabugs:S6416")
     private static int toIndex(int length, int position) {
         var index = position - 1;
         if (index < 0 || length <= index) {
