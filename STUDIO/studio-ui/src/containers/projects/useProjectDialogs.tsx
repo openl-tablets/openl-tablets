@@ -69,7 +69,7 @@ export const useProjectDialogs = (
         // holds its spinner for, instead of dead-ending until a dialog appears unannounced.
         sync: () => {
             if (project) {
-                run('sync', () => openMergeDialog(project, () => run('sync', async () => onChanged())))
+                run('sync', () => openMergeDialog(project, () => run('sync', () => Promise.resolve(onChanged()))))
             }
         },
         deploy: () => window.dispatchEvent(new CustomEvent('openDeployModal', { detail: project })),
@@ -85,13 +85,13 @@ export const useProjectDialogs = (
         <>
             <SaveProjectModal
                 onClose={() => setSaveOpen(false)}
-                onSaved={() => run('save', async () => onChanged())}
+                onSaved={() => run('save', () => Promise.resolve(onChanged()))}
                 open={saveOpen}
                 project={project}
             />
             <CopyProjectModal
                 onClose={() => setCopySource(null)}
-                onCopied={() => run('copy', async () => onChanged())}
+                onCopied={() => run('copy', () => Promise.resolve(onChanged()))}
                 open={copySource !== null}
                 project={copySource}
                 repositories={creatable}

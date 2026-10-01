@@ -6,7 +6,7 @@ interface NotificationStore {
     loading?: boolean
     error?: unknown
     isWebSocketConnected?: boolean
-    setNotification: (notification: string) => Promise<void>
+    setNotification: (notification: string) => void
     initializeWebSocket: () => void
     cleanupWebSocket: () => void
 }
@@ -16,7 +16,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     loading: false,
     error: null,
     isWebSocketConnected: false,
-    setNotification: async (notification: string = '1') => {
+    setNotification: (notification: string = '1') => {
         const { isWebSocketConnected } = get()
 
         if (isWebSocketConnected) {

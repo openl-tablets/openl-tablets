@@ -150,7 +150,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
         return false // Prevent default upload behavior
     }
 
-    const handleDownload = async (filePath: string, side: FileSide) => {
+    const handleDownload = (filePath: string, side: FileSide) => {
         const url = `${CONFIG.API_ROOT}/projects/${projectId}/merge/conflicts/files?file=${encodeURIComponent(filePath)}&side=${side}`
         window.open(url, '_blank')
     }

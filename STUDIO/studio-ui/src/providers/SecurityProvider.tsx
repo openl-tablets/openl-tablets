@@ -21,13 +21,13 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
         setOpenlInfo(openlInfo)
     }
 
-    const loadUserProfileAndDetails = async () => {
+    const loadUserProfileAndDetails = () => {
         void fetchOpenlInformation()
         void fetchSystemSettings()
     }
 
     useEffect(() => {
-        void loadUserProfileAndDetails()
+        loadUserProfileAndDetails()
     }, [userProfile])
 
     useEffect(() => {
