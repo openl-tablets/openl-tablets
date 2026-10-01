@@ -103,6 +103,8 @@ public final class CastOperators {
         return x;
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     public static float autocast(int x, float y) {
         return x;
     }
@@ -119,10 +121,14 @@ public final class CastOperators {
         return BigDecimal.valueOf(x);
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     public static float autocast(long x, float y) {
         return x;
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     public static double autocast(long x, double y) {
         return x;
     }

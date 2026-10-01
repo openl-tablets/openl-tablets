@@ -63,6 +63,8 @@ public class MathUtils {
         return doubleArray;
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     private static double[] longArrayToDoubleArray(long[] values) {
         if (values == null) {
             return EMPTY_DOUBLE_ARRAY;
