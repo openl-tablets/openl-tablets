@@ -28,7 +28,7 @@ public class FieldMetaInfo implements IMemberMetaInfo {
 
     @Override
     public Map<String, Object> getProperties() {
-        return null;
+        return Map.of();
     }
 
     @Override

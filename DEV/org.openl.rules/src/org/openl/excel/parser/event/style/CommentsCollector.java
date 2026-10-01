@@ -16,7 +16,7 @@ public final class CommentsCollector implements HSSFShapeContainer {
 
     @Override
     public List<HSSFShape> getChildren() {
-        return null;
+        return List.of();
     }
 
     @Override

@@ -303,7 +303,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public Collection<IOpenField> getStaticFields() {
-        return null;
+        return List.of();
     }
 
     @Override

@@ -32,6 +32,7 @@ import org.openl.util.StringUtils;
 public final class TablePropertyDefinitionUtils {
 
     private static final TablePropertyDefinition[] NO_PROPERTIES = new TablePropertyDefinition[0];
+    private static final XlsNodeTypes[] ANY_TABLE_TYPE = new XlsNodeTypes[0];
 
     private TablePropertyDefinitionUtils() {
     }
@@ -250,15 +251,13 @@ public final class TablePropertyDefinitionUtils {
      * Gets the table types in which this property can be defined.
      *
      * @param propertyName property name.
-     * @return the table type in which this property can be defined. <code>NULL</code> if property can be defined for
-     * each type of tables.
+     * @return the table types in which this property can be defined. An empty array if the property can be defined
+     * for each type of tables.
      */
     public static XlsNodeTypes[] getSuitableTableTypes(String propertyName) {
-        TablePropertyDefinition propDefinition = getPropertyByName(propertyName);
-        if (propDefinition != null) {
-            return propDefinition.getTableType();
-        }
-        return null;
+        var propDefinition = getPropertyByName(propertyName);
+        var tableTypes = propDefinition == null ? null : propDefinition.getTableType();
+        return tableTypes == null ? ANY_TABLE_TYPE : tableTypes;
     }
 
     public static Map<String, Object> mergeGlobalProperties(Map<String, Object> properties1,

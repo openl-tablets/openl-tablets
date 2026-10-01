@@ -227,9 +227,6 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
 
         decorate(methodInfo, responses, apiContext.getComponents());
 
-        if (responses.isEmpty()) {
-            return null;
-        }
         return responses;
     }
 

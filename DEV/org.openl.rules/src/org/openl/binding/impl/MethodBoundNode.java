@@ -60,9 +60,7 @@ public class MethodBoundNode extends ATargetBoundNode {
     }
 
     protected Object[] evaluateChildren(IRuntimeEnv env) {
-        if (children == null) {
-            return null;
-        } else if (children == EMPTY) {
+        if (children == null || children == EMPTY) {
             return EMPTY_RESULT;
         }
 

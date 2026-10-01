@@ -465,7 +465,7 @@ public class ProjectModel {
             return ProjectHelper.testers(method,
                     currentOpenedModule ? openedModuleCompiledOpenClass.get() : compiledOpenClass.get());
         }
-        return null;
+        return new TestSuiteMethod[0];
     }
 
     /**
@@ -489,7 +489,7 @@ public class ProjectModel {
                             && ProjectHelper.isTestForMethod(testSuiteMethod, method))
                     .toArray(IOpenMethod[]::new);
         }
-        return null;
+        return IOpenMethod.EMPTY_ARRAY;
     }
 
     public TestSuiteMethod[] getAllTestMethods() {
@@ -507,7 +507,7 @@ public class ProjectModel {
 
     public WorkbookSyntaxNode[] getWorkbookNodes() {
         if (!isCompiledSuccessfully()) {
-            return null;
+            return new WorkbookSyntaxNode[0];
         }
 
         return getXlsModuleNode().getWorkbookSyntaxNodes();
