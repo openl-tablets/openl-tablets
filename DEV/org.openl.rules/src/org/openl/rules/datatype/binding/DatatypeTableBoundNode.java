@@ -360,6 +360,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return beanBuilder.byteCode();
     }
 
+    // The message breaks lines with \n so it reads the same on every platform.
+    @SuppressWarnings("java:S3457")
     private void validateDatatypeClass(Class<?> datatypeClass,
                                        Map<String, FieldDescription> fields,
                                        IBindingContext cxt) {

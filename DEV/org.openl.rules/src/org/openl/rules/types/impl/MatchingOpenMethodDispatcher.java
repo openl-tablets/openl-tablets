@@ -57,6 +57,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         candidatesSorted = null;
     }
 
+    // The message breaks lines with \n so it reads the same on every platform.
+    @SuppressWarnings("java:S3457")
     @Override
     protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
         var selected = new HashSet<IOpenMethod>(candidates);

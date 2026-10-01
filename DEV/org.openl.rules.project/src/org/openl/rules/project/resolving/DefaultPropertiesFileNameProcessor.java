@@ -69,6 +69,8 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
     }
 
+    // The message breaks lines with \r\n so it reads the same on every platform.
+    @SuppressWarnings("java:S3457")
     @Override
     public ITableProperties process(String modulePath) throws NoMatchFileNameException {
 
