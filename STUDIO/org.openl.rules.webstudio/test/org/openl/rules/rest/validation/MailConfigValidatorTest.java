@@ -24,6 +24,8 @@ import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
 
+// The deprecated validator is tested until it is removed.
+@SuppressWarnings("java:S5738")
 @SpringJUnitConfig(classes = MockConfiguration.class)
 class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 

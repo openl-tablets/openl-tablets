@@ -185,6 +185,8 @@ class PackageMojoTest {
         assertEquals(2, ((RecordingProjectHelper) mojo.projectHelper).attached.size());
     }
 
+    // The deprecated parameter is covered until it is removed.
+    @SuppressWarnings("java:S5738")
     private static PackageMojo newMojo(Path tmp, String packaging) throws IOException {
         var model = new Model();
         model.setGroupId("com.example");

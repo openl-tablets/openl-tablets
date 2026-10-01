@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
 
+// The deprecated JsonUtils API is tested until it is removed.
+@SuppressWarnings("java:S5738")
 class JsonUtilsTest {
 
     @Test
