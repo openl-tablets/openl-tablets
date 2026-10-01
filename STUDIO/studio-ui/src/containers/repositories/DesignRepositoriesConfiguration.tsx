@@ -189,6 +189,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                     setConfiguration([...configuration, initialConfig])
                 }
                 setActiveKey(initialConfig.id)
+                setActiveRepository(initialConfig)
                 form.setFieldsValue(initialConfig)
                 setIsEditingNewRepository(true)
                 onEditingStateChange?.(true)
