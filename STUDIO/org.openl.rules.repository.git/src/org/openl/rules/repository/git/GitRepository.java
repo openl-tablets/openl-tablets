@@ -1265,10 +1265,6 @@ public class GitRepository implements BranchRepository, Closeable {
                         .setPathFilter(PathFilterGroup.createFromStrings(conflictedFiles))
                         .call();
 
-                Pattern oldPathPattern = Pattern.compile("(diff --git .+\\n.+--- \"a/).+?(\".*\\n@@.+)",
-                        Pattern.DOTALL);
-                Pattern newPathPattern = Pattern.compile("(diff --git .+\\n.+\\+\\+\\+ \"b/).+?(\".*\\n@@.+)",
-                        Pattern.DOTALL);
                 for (DiffEntry entry : diff) {
                     var outputStream = new ByteArrayOutputStream();
                     try (var formatter = new DiffFormatter(outputStream)) {
@@ -1281,14 +1277,8 @@ public class GitRepository implements BranchRepository, Closeable {
 
                         // JGit currently doesn't support switching off quoting symbols with code < 0x80, so we used
                         // decode paths ourselves.
-                        var oldPathMatcher = oldPathPattern.matcher(comparison);
-                        if (oldPathMatcher.matches()) {
-                            comparison = oldPathMatcher.replaceFirst("$1" + entry.getOldPath() + "$2");
-                        }
-                        var newPathMatcher = newPathPattern.matcher(comparison);
-                        if (newPathMatcher.matches()) {
-                            comparison = newPathMatcher.replaceFirst("$1" + entry.getNewPath() + "$2");
-                        }
+                        comparison = replaceQuotedPath(comparison, "\n--- \"a/", entry.getOldPath());
+                        comparison = replaceQuotedPath(comparison, "\n+++ \"b/", entry.getNewPath());
                         diffs.put(path, comparison);
                     }
                 }
@@ -2788,6 +2778,25 @@ public class GitRepository implements BranchRepository, Closeable {
                 }
             }
         }
+    }
+
+    /**
+     * Replaces the quoted path that follows the marker in the header of a diff with the given path.
+     *
+     * <p>Only the header, which ends before the first hunk, is changed. A diff without hunks is returned as is.
+     */
+    private static String replaceQuotedPath(String diff, String marker, String path) {
+        var hunk = diff.indexOf("\n@@");
+        var start = diff.indexOf(marker);
+        if (hunk < 0 || start < 0 || start > hunk) {
+            return diff;
+        }
+        var from = start + marker.length();
+        var to = diff.indexOf('"', from);
+        if (to < 0 || to > hunk) {
+            return diff;
+        }
+        return diff.substring(0, from) + path + diff.substring(to);
     }
 
     private void createParent(File file) throws FileNotFoundException {

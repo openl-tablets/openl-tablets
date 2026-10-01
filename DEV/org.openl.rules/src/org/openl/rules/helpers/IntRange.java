@@ -96,8 +96,8 @@ public class IntRange extends Range<Long> implements INumberRange {
                     range = range
                             .replaceAll("less\\s+than", "<")
                             .replaceAll("more\\s+than", ">")
-                            .replaceAll("(\\S+)\\s+or\\s+less", "<=$1")
-                            .replaceAll("(\\S+)\\s+and\\s+more", ">=$1");
+                            .replaceAll("(?<!\\S)(\\S++)\\s++or\\s++less", "<=$1")
+                            .replaceAll("(?<!\\S)(\\S++)\\s++and\\s++more", ">=$1");
                     var parser = parse(range);
                     type = parser.getType();
                     var left = parser.getLeft();

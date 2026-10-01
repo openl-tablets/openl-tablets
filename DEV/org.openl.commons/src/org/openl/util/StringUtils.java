@@ -163,8 +163,7 @@ public class StringUtils {
         if (isBlank(text)) {
             return null;
         }
-        // Trim and split by one of the
-        return text.trim().split("\\s*[\r\n]\\s*");
+        return text.lines().map(String::trim).filter(line -> !line.isEmpty()).toArray(String[]::new);
     }
 
     /**

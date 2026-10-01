@@ -102,10 +102,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             rulesLocation = getBasePath();
             var designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
-                    .split("\\s*,\\s*", -1);
+                    .split(",", -1);
             for (String repoId : designRepositories) {
-
-                var repository = createRepo(repoId, rulesLocation);
+                var repository = createRepo(repoId.trim(), rulesLocation);
 
                 repositoryList.add(repository);
                 if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {

@@ -124,15 +124,8 @@ public final class RepositoryValidators {
                     .replaceFirst("^\\\\+([A-Za-z]:\\\\)", "$1");
         }
 
-        var p = Path.of(pathStr).toAbsolutePath().normalize();
-
-        // Trim trailing separators (except root)
-        var s = p.toString().replaceAll("[/\\\\]+$", "");
-        if (s.isEmpty()) {
-            s = p.toString();
-        }
-
-        return Path.of(s);
+        // A normalized path holds no trailing separator except the one of a root.
+        return Path.of(pathStr).toAbsolutePath().normalize();
     }
 
     private static void validateCommonRepository(RepositoryConfiguration repoConfig,
