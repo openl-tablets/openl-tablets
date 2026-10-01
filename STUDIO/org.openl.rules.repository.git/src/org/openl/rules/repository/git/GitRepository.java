@@ -3331,7 +3331,8 @@ public class GitRepository implements BranchRepository, Closeable {
         }
 
         // JGit declares RevFilter.clone() abstract and copies filters through it.
-        @SuppressWarnings("java:S2975")
+        // A filter is immutable, so a new instance with the same pattern is the copy.
+        @SuppressWarnings({"java:S2975", "java:S1182"})
         @Override
         public RevFilter clone() {
             return new PatternIdRevFilter(pattern());
