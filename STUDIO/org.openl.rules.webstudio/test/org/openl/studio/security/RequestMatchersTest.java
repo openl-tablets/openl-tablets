@@ -38,10 +38,22 @@ class RequestMatchersTest {
         assertFalse(isApi("/ws", "/other"));
     }
 
+    @Test
+    void aPatternMatchesTheAddressesBelowItsFolder() {
+        var callback = RequestMatchers.matcher("/login/oauth2/code/**");
+        assertTrue(callback.matches(request("/login/oauth2/code/okta", null)));
+        assertFalse(callback.matches(request("/login/other", null)));
+        assertTrue(RequestMatchers.matcher("/**").matches(request("/projects", null)));
+    }
+
     private static boolean isApi(String servletPath, String pathInfo) {
+        return RequestMatchers.api().matches(request(servletPath, pathInfo));
+    }
+
+    private static MockHttpServletRequest request(String servletPath, String pathInfo) {
         var request = new MockHttpServletRequest("GET", servletPath + (pathInfo == null ? "" : pathInfo));
         request.setServletPath(servletPath);
         request.setPathInfo(pathInfo);
-        return RequestMatchers.api().matches(request);
+        return request;
     }
 }

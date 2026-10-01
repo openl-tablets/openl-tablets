@@ -2,7 +2,7 @@ package org.openl.studio.security;
 
 import java.util.stream.Stream;
 
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -39,7 +39,7 @@ public final class RequestMatchers {
     }
 
     public static RequestMatcher matcher(String pattern) {
-        return new AntPathRequestMatcher(pattern);
+        return PathPatternRequestMatcher.withDefaults().matcher(pattern);
     }
 
     public static RequestMatcher not(RequestMatcher matcher) {
