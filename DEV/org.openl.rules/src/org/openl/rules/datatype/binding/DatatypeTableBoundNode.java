@@ -94,7 +94,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             DEFAULT_COLUMN_TITLE, 2
     );
 
-    private static final Pattern CONTEXT_SPLITTER = Pattern.compile("\\s*:\\s*context\\s*");
+    private static final Pattern CONTEXT_SPLITTER = Pattern.compile(":\\s*+context\\s*+");
     public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
     public static final String TRANSIENT_FIELD_SUFFIX = "~";
 
@@ -679,7 +679,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * <p>The name may carry a runtime context property, which the suffix precedes.
      */
     private static boolean isMarkedNonTransient(String nameCellCode) {
-        return CONTEXT_SPLITTER.split(nameCellCode, 2)[0].endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+        return splitContext(nameCellCode)[0].endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+    }
+
+    /**
+     * Splits a field name cell into the field name and the context property that follows {@code :context}.
+     *
+     * <p>The field name keeps no whitespace before the colon. Without {@code :context} the cell is returned whole.
+     */
+    private static String[] splitContext(String code) {
+        var parts = CONTEXT_SPLITTER.split(code, 2);
+        if (parts.length > 1) {
+            parts[0] = parts[0].stripTrailing();
+        }
+        return parts;
     }
 
     private void handleExampleValueError(String fieldName, IOpenClass fieldType, GridCellSourceCodeModule exampleValueCellSource, IBindingContext bindingContext) {
@@ -729,7 +742,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(NAME_COLUMN_TITLE, 1));
         final var code = nameCellSource.getCode();
         String contextProperty;
-        var parts = CONTEXT_SPLITTER.split(code, 2);
+        var parts = splitContext(code);
         var rawFieldName = parts[0];
         final boolean isTransient = useTransientSuffix ? rawFieldName.endsWith(TRANSIENT_FIELD_SUFFIX)
                 : !rawFieldName.endsWith(NON_TRANSIENT_FIELD_SUFFIX);
