@@ -283,13 +283,10 @@ TOKEN :
 | < MINUS : "-" >
 | < STAR : "*" >
 | < SLASH : "/" >
-| < REM : "%" >
 | < PLUSASSIGN : "+=" >
 | < MINUSASSIGN : "-=" >
 | < STARASSIGN : "*=" >
 | < SLASHASSIGN : "/=" >
-| < EXP : "**" >
-| < IMPL : "->" >
 | < STRING_LE : "string<=" >
 | < STRING_LT : "string<" >
 | < STRING_GE : "string>=" >
@@ -618,7 +615,7 @@ void ConditionalTernaryExpression() :
   int args;
 }
 {
-  ConditionalImplExpression()
+  ConditionalOrExpression()
   [
     x = < HOOK > ConditionalTernaryExpression() {args = 2;}
     [
@@ -628,21 +625,6 @@ void ConditionalTernaryExpression() :
       nop("op.ternary.qmark", pos(x), args);
     }
   ]
-}
-
-void ConditionalImplExpression() :
-{
-  Token x;
-}
-{
-  ConditionalOrExpression()
-  (
-    LOOKAHEAD(< IMPL >)
-    (x = < IMPL >) ConditionalOrExpression()
-    {
-      bop("op.binary.impl", pos(x));
-    }
-  )*
 }
 
 void ConditionalOrExpression() :
@@ -856,7 +838,7 @@ void MultiplicativeExpression() :
   String func = null;
 }
 {
-  PowerExpression()
+  UnaryExpression()
   (
     (
       x = < STAR >
@@ -867,29 +849,10 @@ void MultiplicativeExpression() :
       {
         func = "op.binary.divide";
       }
-    | x = < REM >
-      {
-        func = "op.binary.rem";
-      }
     )
-    PowerExpression()
+    UnaryExpression()
     {
       bop(func, pos(x));
-    }
-  )*
-}
-
-void PowerExpression() :
-{
-  Token x;
-}
-{
-  UnaryExpression()
-  (
-    LOOKAHEAD(< EXP >)
-    x = < EXP > UnaryExpression()
-    {
-      bop("op.binary.pow", pos(x));
     }
   )*
 }
