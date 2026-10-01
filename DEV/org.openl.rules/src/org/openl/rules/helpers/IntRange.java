@@ -9,6 +9,7 @@ import lombok.Getter;
 
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.range.Range;
+import org.openl.rules.range.RangeParser;
 
 /**
  * The <code>IntRange</code> class stores range of integers. Examples : "1-3", "2 .. 4", "123 ... 1000" (Important:
@@ -79,37 +80,47 @@ public class IntRange extends Range<Long> implements INumberRange {
     public IntRange(String range) {
         Type rangeType;
         try {
-            var parser = parse(range);
-            if (parser == null) {
-                rangeType = Type.DEGENERATE;
-                this.min = Long.parseLong(range.trim());
-                this.max = this.min;
-            } else {
-                rangeType = parser.getType();
-                var left = parser.getLeft();
-                var right = parser.getRight();
-                this.min = left == null ? Long.MIN_VALUE : Long.parseLong(left);
-                this.max = right == null ? Long.MAX_VALUE : Long.parseLong(right);
-            }
+            rangeType = parseBounds(range);
         } catch (RuntimeException ex) {
-            try {
-                if (range.contains("less") || range.contains("more")) {
-                    range = replaceVerbalBounds(range);
-                    var parser = parse(range);
-                    rangeType = parser.getType();
-                    var left = parser.getLeft();
-                    var right = parser.getRight();
-                    min = left == null ? Long.MIN_VALUE : Long.parseLong(left);
-                    max = right == null ? Long.MAX_VALUE : Long.parseLong(right);
-                } else {
-                    throw ex;
-                }
-            } catch (Exception ignore) {
-                throw ex;
-            }
+            rangeType = parseVerbalBounds(range, ex);
         }
         this.type = rangeType;
         validate();
+    }
+
+    private Type parseBounds(String range) {
+        var parser = parse(range);
+        if (parser == null) {
+            this.min = Long.parseLong(range.trim());
+            this.max = this.min;
+            return Type.DEGENERATE;
+        }
+        return applyBounds(parser);
+    }
+
+    /**
+     * Parses a range with bounds written in words, like "less than 5" or "5 and more".
+     *
+     * @param failure the failure to report when the range cannot be parsed this way either
+     */
+    private Type parseVerbalBounds(String range, RuntimeException failure) {
+        if (!range.contains("less") && !range.contains("more")) {
+            throw failure;
+        }
+        try {
+            return applyBounds(parse(replaceVerbalBounds(range)));
+        } catch (Exception ignore) {
+            throw failure;
+        }
+    }
+
+    private Type applyBounds(RangeParser parser) {
+        var rangeType = parser.getType();
+        var left = parser.getLeft();
+        var right = parser.getRight();
+        this.min = left == null ? Long.MIN_VALUE : Long.parseLong(left);
+        this.max = right == null ? Long.MAX_VALUE : Long.parseLong(right);
+        return rangeType;
     }
 
     @Override

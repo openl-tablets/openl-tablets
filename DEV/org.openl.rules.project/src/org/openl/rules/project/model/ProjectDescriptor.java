@@ -144,28 +144,7 @@ public class ProjectDescriptor {
         }
         URL projectUrl;
         try {
-            projectUrl = fixJarURI(projectFolder.toUri()).normalize().toURL();
-            if ("jar".equals(projectUrl.getProtocol())) {
-                var file = projectUrl.getPath();
-                // jar URLs must be ended with '!/' or '/' for proper URLClassLoader work
-                if (!file.endsWith("/")) {
-                    String suffix;
-                    if (file.contains("!/")) {
-                        // we are inside jar/zip file like: jar:///file.zip!/project
-                        // so needs to add '/' to the end
-                        suffix = "/";
-                    } else {
-                        // projectUrl points to jar/zip file like: jar:///file.zip
-                        // so needs to add '!/' to the end
-                        suffix = "!/";
-                    }
-                    projectUrl = new URL(projectUrl.getProtocol(),
-                            projectUrl.getHost(),
-                            projectUrl.getPort(),
-                            projectUrl.getPath() + suffix,
-                            null);
-                }
-            }
+            projectUrl = resolveProjectUrl();
         } catch (MalformedURLException e) {
             return new URL[]{};
         }
@@ -174,44 +153,7 @@ public class ProjectDescriptor {
             synchronized (this) {
                 urlsArray = classPathUrls.get();
                 if (urlsArray == null) {
-                    var urls = new ArrayList<URL>();
-                    urls.add(projectUrl);
-                    var originalUrls = new ArrayList<URL>(urls);
-                    for (String path : processClasspathPathPatterns()) {
-                        path = path.replace('\\', '/');
-                        URL url;
-                        URL originalUrl;
-                        try {
-                            url = new URL(path.startsWith("/") ? "file://" + path : path).toURI().normalize().toURL();
-                            originalUrl = url;
-                        } catch (URISyntaxException | MalformedURLException e1) {
-                            try {
-                                url = new URL(projectUrl.getProtocol(),
-                                        projectUrl.getHost(),
-                                        projectUrl.getPort(),
-                                        projectUrl.getPath() + (projectUrl.getPath().endsWith("/") ? "" : "/") + path,
-                                        null).toURI().normalize().toURL();
-                                originalUrl = url;
-                                // FIXME
-                                if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
-                                    url = extractNestedJar(url, path);
-                                }
-                            } catch (URISyntaxException | MalformedURLException e2) {
-                                continue;
-                            }
-                        }
-                        var f = false;
-                        for (URL url1 : originalUrls) {
-                            if (url1.sameFile(originalUrl)) {
-                                f = true;
-                            }
-                        }
-                        if (!f) {
-                            originalUrls.add(originalUrl);
-                            urls.add(url);
-                        }
-                    }
-                    urlsArray = urls.toArray(new URL[0]);
+                    urlsArray = resolveClassPathUrls(projectUrl);
                     classPathUrls.set(urlsArray);
                     if (!classPathCleanupRegistered && !classPathTempFiles.isEmpty()) {
                         CLASSPATH_CLEANER.register(this, classPathTempFiles);
@@ -221,6 +163,81 @@ public class ProjectDescriptor {
             }
         }
         return urlsArray;
+    }
+
+    private URL resolveProjectUrl() throws MalformedURLException {
+        var projectUrl = fixJarURI(projectFolder.toUri()).normalize().toURL();
+        var file = projectUrl.getPath();
+        // jar URLs must be ended with '!/' or '/' for proper URLClassLoader work
+        if (!"jar".equals(projectUrl.getProtocol()) || file.endsWith("/")) {
+            return projectUrl;
+        }
+        String suffix;
+        if (file.contains("!/")) {
+            // we are inside jar/zip file like: jar:///file.zip!/project
+            // so needs to add '/' to the end
+            suffix = "/";
+        } else {
+            // projectUrl points to jar/zip file like: jar:///file.zip
+            // so needs to add '!/' to the end
+            suffix = "!/";
+        }
+        return new URL(projectUrl.getProtocol(), projectUrl.getHost(), projectUrl.getPort(), file + suffix, null);
+    }
+
+    private URL[] resolveClassPathUrls(URL projectUrl) {
+        var urls = new ArrayList<URL>();
+        urls.add(projectUrl);
+        var originalUrls = new ArrayList<URL>(urls);
+        for (String path : processClasspathPathPatterns()) {
+            var entry = toClassPathEntry(projectUrl, path.replace('\\', '/'));
+            if (entry != null && originalUrls.stream().noneMatch(url -> url.sameFile(entry.originalUrl()))) {
+                originalUrls.add(entry.originalUrl());
+                urls.add(entry.url());
+            }
+        }
+        return urls.toArray(new URL[0]);
+    }
+
+    /**
+     * Resolves a classpath path, either absolute or relative to the project.
+     *
+     * @return the classpath entry, or {@code null} when the path is not a valid URL
+     */
+    private @Nullable ClassPathEntry toClassPathEntry(URL projectUrl, String path) {
+        try {
+            var url = new URL(path.startsWith("/") ? "file://" + path : path).toURI().normalize().toURL();
+            return new ClassPathEntry(url, url);
+        } catch (URISyntaxException | MalformedURLException e1) {
+            return toRelativeClassPathEntry(projectUrl, path);
+        }
+    }
+
+    private @Nullable ClassPathEntry toRelativeClassPathEntry(URL projectUrl, String path) {
+        URL url;
+        try {
+            url = new URL(projectUrl.getProtocol(),
+                    projectUrl.getHost(),
+                    projectUrl.getPort(),
+                    projectUrl.getPath() + (projectUrl.getPath().endsWith("/") ? "" : "/") + path,
+                    null).toURI().normalize().toURL();
+        } catch (URISyntaxException | MalformedURLException e2) {
+            return null;
+        }
+        // FIXME
+        if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
+            return new ClassPathEntry(extractNestedJar(url, path), url);
+        }
+        return new ClassPathEntry(url, url);
+    }
+
+    /**
+     * A classpath entry.
+     *
+     * @param url         the URL to load classes from, a temporary copy for a jar nested in an archive
+     * @param originalUrl the URL the entry is located at, which tells duplicated entries apart
+     */
+    private record ClassPathEntry(URL url, URL originalUrl) {
     }
 
     /**
@@ -318,25 +335,27 @@ public class ProjectDescriptor {
                 resolve(projectFolder, pathEntries, path, projectFolder);
             } else {
                 // without wildcard path
-                if (path.endsWith("/")) {
-                    // it is a folder
-                    pathEntries.add(path);
-                } else {
-                    var file = new File(path);
-                    if (file.isAbsolute() && file.isDirectory()) {
-                        // it is a folder
-                        pathEntries.add(path + "/");
-                    } else if (Files.isDirectory(projectFolder.resolve(path))) {
-                        // it is a folder
-                        pathEntries.add(path + "/");
-                    } else {
-                        // it is a file
-                        pathEntries.add(path);
-                    }
-                }
+                pathEntries.add(toPathEntry(path));
             }
         }
         return pathEntries;
+    }
+
+    /**
+     * Returns the path of a folder with the trailing slash, and the path of a file as is.
+     */
+    private String toPathEntry(String path) {
+        if (path.endsWith("/")) {
+            // it is a folder
+            return path;
+        }
+        var file = new File(path);
+        if ((file.isAbsolute() && file.isDirectory()) || Files.isDirectory(projectFolder.resolve(path))) {
+            // it is a folder
+            return path + "/";
+        }
+        // it is a file
+        return path;
     }
 
     private void resolve(Path folder, Collection<String> pathEntries, String pathPattern, Path rootFolder) {

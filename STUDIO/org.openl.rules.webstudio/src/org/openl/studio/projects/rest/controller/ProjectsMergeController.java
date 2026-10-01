@@ -34,10 +34,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -188,22 +190,12 @@ public class ProjectsMergeController {
             if (mergeResult.status() == MergeResultStatus.SUCCESS) {
                 var workspace = projectService.getUserWorkspace();
                 if (wasOpened) {
-                    if (project.isDeleted()) {
-                        project.close();
-                    } else {
-                        // Project can be renamed after merge, so we close it before opening to ensure that
-                        // project folder name in editor is up to date.
-                        project.close();
-                        workspace.refresh();
-
-                        var refreshedProject = workspace.getProjectByPath(repoId, realPath);
-                        if (refreshedProject.isPresent()) {
-                            var mergedProject = refreshedProject.get();
-                            workspace.setProjectBranch(mergedProject, currentBranch);
-                            mergedProject.open();
-                            nameAfterMerge = mergedProject.getName();
-                        }
-                    }
+                    nameAfterMerge = reopenMergedProject(project,
+                            workspace,
+                            repoId,
+                            realPath,
+                            currentBranch,
+                            nameBeforeMerge);
                 }
                 studio.reset();
                 if (model != null) {
@@ -230,6 +222,36 @@ public class ProjectsMergeController {
         }
     }
 
+    /**
+     * Opens the merged project again, unless the merge deleted it.
+     *
+     * @return the name of the project after the merge, which can rename it
+     */
+    private static String reopenMergedProject(RulesProject project,
+                                              UserWorkspace workspace,
+                                              String repoId,
+                                              String realPath,
+                                              String currentBranch,
+                                              String nameBeforeMerge) throws ProjectException {
+        if (project.isDeleted()) {
+            project.close();
+            return nameBeforeMerge;
+        }
+        // Project can be renamed after merge, so we close it before opening to ensure that
+        // project folder name in editor is up to date.
+        project.close();
+        workspace.refresh();
+
+        var refreshedProject = workspace.getProjectByPath(repoId, realPath);
+        if (refreshedProject.isEmpty()) {
+            return nameBeforeMerge;
+        }
+        var mergedProject = refreshedProject.get();
+        workspace.setProjectBranch(mergedProject, currentBranch);
+        mergedProject.open();
+        return mergedProject.getName();
+    }
+
     @PostMapping(value = "/conflicts/resolve", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "projects.merge.resolve-conflicts.summary", description = "projects.merge.resolve-conflicts.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.resolve-conflicts.200.desc")
@@ -246,10 +268,8 @@ public class ProjectsMergeController {
                 .forEach(resolution -> {
                     resolutions.add(new FileConflictResolution(resolution.filePath(), resolution.strategy()));
                     if (resolution.strategy() == ConflictResolutionStrategy.CUSTOM) {
-                        if (resolution.file() == null || resolution.file().isEmpty()) {
-                            throw new BadRequestException("project.merge.conflict.custom.file.missing.message", new Object[]{resolution.filePath()});
-                        }
-                        customFiles.put(resolution.filePath(), resolution.file());
+                        var file = requireCustomFile(resolution.filePath(), resolution.file());
+                        customFiles.put(resolution.filePath(), file);
                     }
                 });
 
@@ -274,25 +294,7 @@ public class ProjectsMergeController {
                 // Clear conflict info from session if resolved successfully
                 var projectId = projectIdentifierMapper.map(project);
                 conflictsSessionHolder.remove(projectId);
-                var workspace = projectService.getUserWorkspace();
-                if (wasOpened && mergeOperation) {
-                    project.close();
-                }
-                workspace.refresh();
-                var refreshedProject = workspace.getProjectByPath(repositoryId, realPath);
-                project = refreshedProject.isPresent()
-                        ? refreshedProject.orElseThrow()
-                        : workspace.getProject(repositoryId, project.getName());
-                if (wasOpened) {
-                    if (mergeOperation && currentBranch != null) {
-                        workspace.setProjectBranch(project, currentBranch);
-                    }
-                    if (project.isDeleted()) {
-                        project.close();
-                    } else {
-                        project.open();
-                    }
-                }
+                refreshResolvedProject(project, wasOpened, mergeOperation, repositoryId, realPath, currentBranch);
                 studio.reset();
                 if (model != null) {
                     model.clearModuleInfo();
@@ -303,6 +305,44 @@ public class ProjectsMergeController {
         } finally {
             if (shouldResumeDependencies && dependencyManager != null) {
                 dependencyManager.resume();
+            }
+        }
+    }
+
+    private static MultipartFile requireCustomFile(String filePath, @Nullable MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BadRequestException("project.merge.conflict.custom.file.missing.message", new Object[]{filePath});
+        }
+        return file;
+    }
+
+    /**
+     * Reads the project, whose conflicts are resolved, from the repository again, and opens it again when it was
+     * opened, unless the resolution deleted it.
+     */
+    private void refreshResolvedProject(RulesProject project,
+                                        boolean wasOpened,
+                                        boolean mergeOperation,
+                                        String repositoryId,
+                                        String realPath,
+                                        @Nullable String currentBranch) throws ProjectException {
+        var workspace = projectService.getUserWorkspace();
+        if (wasOpened && mergeOperation) {
+            project.close();
+        }
+        workspace.refresh();
+        var refreshedProject = workspace.getProjectByPath(repositoryId, realPath);
+        var resolvedProject = refreshedProject.isPresent()
+                ? refreshedProject.orElseThrow()
+                : workspace.getProject(repositoryId, project.getName());
+        if (wasOpened) {
+            if (mergeOperation && currentBranch != null) {
+                workspace.setProjectBranch(resolvedProject, currentBranch);
+            }
+            if (resolvedProject.isDeleted()) {
+                resolvedProject.close();
+            } else {
+                resolvedProject.open();
             }
         }
     }

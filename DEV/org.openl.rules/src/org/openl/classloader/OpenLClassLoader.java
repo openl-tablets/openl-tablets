@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import groovy.lang.GroovyClassLoader;
 import lombok.RequiredArgsConstructor;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.util.IOUtils;
 
@@ -181,32 +182,32 @@ public class OpenLClassLoader extends GroovyClassLoader {
                 continue;
             }
             c.add(bundleClassLoader);
-            try {
-                // if current class loader contains appropriate class - it will
-                // be returned as a result
-                //
-                Class<?> clazz;
-                if (bundleClassLoader instanceof OpenLClassLoader sbc && bundleClassLoader.getParent() == this) {
-                    clazz = sbc.findLoadedClass(name);
-                    if (clazz == null) {
-                        clazz = sbc.findClassInBundles(name, c);
-                    }
-                } else {
-                    if (bundleClassLoader instanceof OpenLClassLoader loader) {
-                        clazz = loader.loadClass(name, c);
-                    } else {
-                        clazz = bundleClassLoader.loadClass(name);
-                    }
-                }
-                if (clazz != null) {
-                    return clazz;
-                }
-            } catch (ClassNotFoundException ignored) {
-                // Not in this bundle; the next bundle is searched.
+            var clazz = findClassInBundle(bundleClassLoader, name, c);
+            if (clazz != null) {
+                return clazz;
             }
         }
 
         return null;
+    }
+
+    private @Nullable Class<?> findClassInBundle(ClassLoader bundleClassLoader, String name, Set<ClassLoader> c) {
+        try {
+            // if current class loader contains appropriate class - it will
+            // be returned as a result
+            //
+            return switch (bundleClassLoader) {
+                case OpenLClassLoader sbc when sbc.getParent() == this -> {
+                    var clazz = sbc.findLoadedClass(name);
+                    yield clazz != null ? clazz : sbc.findClassInBundles(name, c);
+                }
+                case OpenLClassLoader loader -> loader.loadClass(name, c);
+                default -> bundleClassLoader.loadClass(name);
+            };
+        } catch (ClassNotFoundException ignored) {
+            // Not in this bundle; the next bundle is searched.
+            return null;
+        }
     }
 
     private URL findResourceInBundles(String name, Set<ClassLoader> c) {

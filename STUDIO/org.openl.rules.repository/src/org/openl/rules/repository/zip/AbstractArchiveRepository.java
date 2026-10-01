@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -239,31 +240,43 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
             if (StringUtils.isEmpty(folderName)) {
                 continue;
             }
-            if (i == 0) {
-                resolvedPath = storage.get(folderName.toLowerCase(Locale.ROOT));
-                localRoot = resolvedPath != null ? resolvedPath.getParent() : null;
-            } else {
-                resolvedPath = resolvedPath.resolve(folderName);
-            }
+            resolvedPath = i == 0 ? storage.get(folderName.toLowerCase(Locale.ROOT)) : resolvedPath.resolve(folderName);
             if (resolvedPath == null) {
                 throw new IOException("Unable to resolve the path [%s].".formatted(p));
             }
+            if (i == 0) {
+                localRoot = resolvedPath.getParent();
+            }
             // don't enter an archive if it's the last token in the path
             if (i < path.getNameCount() - 1 && archivePath == null && zipArchiveFilter(resolvedPath)) {
-                try {
-                    var tmp = resolvedPath;
-                    resolvedPath = enterZipArchive(resolvedPath);
-                    archivePath = tmp;
-                } catch (IOException e) {
-                    throw new IOException("Unable to resolve the path [%s].".formatted(p), e);
-                }
+                archivePath = resolvedPath;
+                resolvedPath = enterZipArchive(resolvedPath, p);
             }
             i++;
         }
+        checkExists(archivePath, resolvedPath, p);
+        return new CompoundPath(localRoot, resolvedPath, archivePath);
+    }
+
+    private static void checkExists(@Nullable Path archivePath,
+                                    Path resolvedPath,
+                                    String p) throws FileNotFoundException {
         if ((archivePath != null && !Files.exists(archivePath)) || !Files.exists(resolvedPath)) {
             throw new FileNotFoundException("File [%s] does not exist.".formatted(p));
         }
-        return new CompoundPath(localRoot, resolvedPath, archivePath);
+    }
+
+    /**
+     * Enters the archive met on the way to the given path.
+     *
+     * @throws IOException when the archive cannot be opened, telling the path that cannot be resolved
+     */
+    private Path enterZipArchive(Path archive, String p) throws IOException {
+        try {
+            return enterZipArchive(archive);
+        } catch (IOException e) {
+            throw new IOException("Unable to resolve the path [%s].".formatted(p), e);
+        }
     }
 
     private synchronized Path enterZipArchive(Path path) throws IOException {

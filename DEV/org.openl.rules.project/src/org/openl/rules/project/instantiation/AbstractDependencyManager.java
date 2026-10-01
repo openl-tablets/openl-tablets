@@ -1,7 +1,6 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -11,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
@@ -436,25 +436,25 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         var externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(), parentClassLoader);
         // To load classes from dependency jars first
         if (project.getDependencies() != null) {
-            var projectDependencyLoaders = getDependencyLoaders().stream()
+            var loadedProjects = getDependencyLoaders().stream()
                     .filter(IDependencyLoader::isProjectLoader)
-                    .collect(Collectors.toCollection(ArrayList::new));
+                    .map(IDependencyLoader::getProject)
+                    .toList();
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
-                for (IDependencyLoader dl : projectDependencyLoaders) {
-                    if (Objects.equals(projectDependencyDescriptor.getName(), dl.getProject().getName())) {
-                        if (!breadcrumbs.contains(dl.getProject())) {
-                            breadcrumbs.add(dl.getProject());
-                            externalJarsClassloader
-                                    .addClassLoader(getExternalJarsClassLoaderRec(dl.getProject(), breadcrumbs));
-                            breadcrumbs.remove(dl.getProject());
-                        }
-                        break;
-                    }
+                var dependencyProject = findProject(loadedProjects, projectDependencyDescriptor.getName());
+                if (dependencyProject != null && breadcrumbs.add(dependencyProject)) {
+                    externalJarsClassloader
+                            .addClassLoader(getExternalJarsClassLoaderRec(dependencyProject, breadcrumbs));
+                    breadcrumbs.remove(dependencyProject);
                 }
             }
         }
         externalJarsClassloaders.put(project, externalJarsClassloader);
         return externalJarsClassloader;
+    }
+
+    private static @Nullable ProjectDescriptor findProject(Collection<ProjectDescriptor> projects, String name) {
+        return projects.stream().filter(p -> Objects.equals(name, p.getName())).findFirst().orElse(null);
     }
 
     @Override
@@ -463,27 +463,33 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             return;
         }
         var dependenciesToKeep = new HashSet<IDependencyLoader>();
-        var queue = new ArrayDeque<IDependencyLoader>();
         for (ResolvedDependency dependency : dependencies) {
             // A dependency this manager does not load is not among the ones it could keep.
             var dependencyLoader = dependency == null ? null : findDependencyLoader(dependency);
             if (dependencyLoader != null) {
-                queue.add(dependencyLoader);
                 dependenciesToKeep.add(dependencyLoader);
             }
         }
+        addUsedDependencies(dependenciesToKeep);
+        for (IDependencyLoader depLoader : getDependencyLoaders()) {
+            if (!dependenciesToKeep.contains(depLoader)) {
+                reset(depLoader.getDependency());
+            }
+        }
+    }
+
+    /**
+     * Adds to the given dependencies every dependency they use, directly or through other dependencies.
+     */
+    private void addUsedDependencies(Set<IDependencyLoader> dependencies) {
+        var queue = new ArrayDeque<>(dependencies);
         while (!queue.isEmpty()) {
             var depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
                 if (dependencyReference.getDependency().equals(depLoader)
-                        && dependenciesToKeep.add(dependencyReference.getDependOnThisDependency())) {
+                        && dependencies.add(dependencyReference.getDependOnThisDependency())) {
                     queue.add(dependencyReference.getDependOnThisDependency());
                 }
-            }
-        }
-        for (IDependencyLoader depLoader : getDependencyLoaders()) {
-            if (!dependenciesToKeep.contains(depLoader)) {
-                reset(depLoader.getDependency());
             }
         }
     }
@@ -499,61 +505,18 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             // is compiled from its sources as they stand then.
             return;
         }
-        var dependenciesReferencesToRemove = new HashSet<DependencyRelation>();
-        var queue = new ArrayDeque<IDependencyLoader>();
-        queue.add(dependencyLoader);
-        var dependenciesToReset = new HashSet<IDependencyLoader>();
-        dependenciesToReset.add(dependencyLoader);
         var projectClassloaderToReset = new HashSet<ProjectDescriptor>();
-        while (!queue.isEmpty()) {
-            var depLoader = queue.poll();
-            for (DependencyRelation dependencyReference : dependencyRelations) {
-                if (dependencyReference.getDependOnThisDependency().equals(depLoader)
-                        && dependenciesToReset.add(dependencyReference.getDependency())) {
-                    queue.add(dependencyReference.getDependency());
-                }
-                if (dependencyReference.getDependency().equals(depLoader)) {
-                    dependenciesReferencesToRemove.add(dependencyReference);
-                }
-            }
-            if (depLoader.getRefToCompiledDependency() != null) {
-                var compiledDependency = depLoader.getRefToCompiledDependency();
-                var openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
-                if (openClass instanceof XlsModuleOpenClass class1 && class1
-                        .isAppliedChangesToClasspath()) {
-                    // Datatypes are generated into the project classloader. If module contains datatype then
-                    // whole project needs to be recompiled.
-                    var queue1 = new ArrayDeque<ProjectDescriptor>();
-                    queue1.add(dependencyLoader.getProject());
-                    while (!queue1.isEmpty()) {
-                        var pd = queue1.poll();
-                        if (projectClassloaderToReset.add(pd)) {
-                            for (IDependencyLoader dl : this.getDependencyLoaders()) {
-                                if (Objects.equals(dl.getProject(), pd) && dependenciesToReset.add(dl)) {
-                                    queue.add(dl);
-                                }
-                                if (dl.isProjectLoader() && dl.getProject().getDependencies() != null) {
-                                    for (ProjectDependencyDescriptor pdd : dl.getProject().getDependencies()) {
-                                        if (Objects.equals(pdd.getName(), pd.getName())) {
-                                            queue1.add(dl.getProject());
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        var dependenciesToReset = collectDependenciesToReset(dependencyLoader, projectClassloaderToReset);
+        var dependenciesReferencesToRemove = dependencyRelations.stream()
+                .filter(dependencyReference -> dependenciesToReset.contains(dependencyReference.getDependency()))
+                .toList();
         for (IDependencyLoader dependencyToReset : dependenciesToReset) {
             if (dependencyToReset.getRefToCompiledDependency() != null) {
                 log.debug("Dependency '{}' is reset.", dependencyToReset.getDependency());
             }
             dependencyToReset.reset();
         }
-        for (DependencyRelation dependencyReference : dependenciesReferencesToRemove) {
-            dependencyRelations.remove(dependencyReference);
-        }
+        dependenciesReferencesToRemove.forEach(dependencyRelations::remove);
         for (ProjectDescriptor projectDescriptor : projectClassloaderToReset) {
             var cl = externalJarsClassloaders.get(projectDescriptor);
             if (cl != null) {
@@ -562,6 +525,75 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             externalJarsClassloaders.remove(projectDescriptor);
             projectDescriptor.releaseClassPath();
         }
+    }
+
+    /**
+     * Collects the dependency and every dependency using it, directly or through other dependencies.
+     *
+     * <p>Datatypes are generated into the project classloader. When a collected dependency contains datatypes, the
+     * whole project of the given dependency needs to be recompiled. That project and every project depending on it
+     * are added to the given projects to reset, and every dependency loaded from them is collected too.
+     */
+    private Set<IDependencyLoader> collectDependenciesToReset(IDependencyLoader dependencyLoader,
+                                                              Set<ProjectDescriptor> projectsToReset) {
+        var queue = new ArrayDeque<IDependencyLoader>();
+        queue.add(dependencyLoader);
+        var dependenciesToReset = new HashSet<IDependencyLoader>();
+        dependenciesToReset.add(dependencyLoader);
+        while (!queue.isEmpty()) {
+            var depLoader = queue.poll();
+            for (DependencyRelation dependencyReference : dependencyRelations) {
+                if (dependencyReference.getDependOnThisDependency().equals(depLoader)
+                        && dependenciesToReset.add(dependencyReference.getDependency())) {
+                    queue.add(dependencyReference.getDependency());
+                }
+            }
+            if (isAppliedChangesToClasspath(depLoader)) {
+                addProjectToReset(dependencyLoader.getProject(), projectsToReset, dependenciesToReset, queue);
+            }
+        }
+        return dependenciesToReset;
+    }
+
+    private static boolean isAppliedChangesToClasspath(IDependencyLoader dependencyLoader) {
+        var compiledDependency = dependencyLoader.getRefToCompiledDependency();
+        return compiledDependency != null
+                && compiledDependency.getCompiledOpenClass().getOpenClassWithErrors() instanceof XlsModuleOpenClass openClass
+                && openClass.isAppliedChangesToClasspath();
+    }
+
+    /**
+     * Adds the project and every project depending on it to the projects to reset. Each dependency loaded from
+     * them, which is not reset yet, is added to the dependencies to reset and to the queue.
+     */
+    private void addProjectToReset(ProjectDescriptor project,
+                                   Set<ProjectDescriptor> projectsToReset,
+                                   Set<IDependencyLoader> dependenciesToReset,
+                                   Queue<IDependencyLoader> queue) {
+        var projects = new ArrayDeque<ProjectDescriptor>();
+        projects.add(project);
+        while (!projects.isEmpty()) {
+            var pd = projects.poll();
+            if (projectsToReset.add(pd)) {
+                for (IDependencyLoader dl : getDependencyLoaders()) {
+                    if (Objects.equals(dl.getProject(), pd) && dependenciesToReset.add(dl)) {
+                        queue.add(dl);
+                    }
+                    if (dependsOnProject(dl, pd)) {
+                        projects.add(dl.getProject());
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean dependsOnProject(IDependencyLoader dependencyLoader, ProjectDescriptor project) {
+        if (!dependencyLoader.isProjectLoader()) {
+            return false;
+        }
+        var dependencies = dependencyLoader.getProject().getDependencies();
+        return dependencies != null && dependencies.stream()
+                .anyMatch(dependency -> Objects.equals(dependency.getName(), project.getName()));
     }
 
     @Override

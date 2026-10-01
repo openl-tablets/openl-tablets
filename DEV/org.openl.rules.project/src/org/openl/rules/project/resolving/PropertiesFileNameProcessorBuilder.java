@@ -29,44 +29,61 @@ public final class PropertiesFileNameProcessorBuilder {
                 .equals("org.openl.rules.project.resolving.CWPropertyFileNameProcessor")) {
             processor = buildDefault(patterns);
         } else {
-            var processorClassLoader = getCustomClassLoader(projectDescriptor);
-            Class<PropertiesFileNameProcessor> clazz;
-            try {
-                clazz = (Class<PropertiesFileNameProcessor>) processorClassLoader.loadClass(prcClass);
-            } catch (ClassNotFoundException e) {
-                var message = "Properties file name processor class '" + prcClass + "' is not found.";
-                throw new InvalidFileNameProcessorException(message, e);
-            } catch (NoClassDefFoundError e) {
-                var message = INSTANTIATION_FAILURE + prcClass + "'.";
-                throw new InvalidFileNameProcessorException(message, e);
-            }
-
-            if (!PropertiesFileNameProcessor.class.isAssignableFrom(clazz)) {
-                var message = "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.".formatted(
-                        prcClass,
-                        PropertiesFileNameProcessor.class.getTypeName());
-                throw new InvalidFileNameProcessorException(message);
-            }
-
-            Constructor<PropertiesFileNameProcessor> declaredConstructor;
-            try {
-                declaredConstructor = clazz.getDeclaredConstructor(String.class);
-                if (CollectionUtils.isEmpty(patterns)) {
-                    this.processor = buildCustom(declaredConstructor, (String) null);
-                } else {
-                    this.processor = buildCustom(declaredConstructor, patterns);
-                }
-            } catch (NoSuchMethodException e) {
-                try {
-                    declaredConstructor = clazz.getDeclaredConstructor();
-                    processor = newInstance(declaredConstructor);
-                } catch (NoSuchMethodException e1) {
-                    var message = INSTANTIATION_FAILURE + prcClass + "'. Constructor with 'String' argument or default constructor is not found.";
-                    throw new InvalidFileNameProcessorException(message, e);
-                }
-            }
+            var clazz = loadProcessorClass(getCustomClassLoader(projectDescriptor), prcClass);
+            processor = newProcessor(clazz, prcClass, patterns);
         }
         return processor;
+    }
+
+    private static Class<PropertiesFileNameProcessor> loadProcessorClass(ClassLoader processorClassLoader,
+            String prcClass) throws InvalidFileNameProcessorException {
+        Class<PropertiesFileNameProcessor> clazz;
+        try {
+            clazz = (Class<PropertiesFileNameProcessor>) processorClassLoader.loadClass(prcClass);
+        } catch (ClassNotFoundException e) {
+            var message = "Properties file name processor class '" + prcClass + "' is not found.";
+            throw new InvalidFileNameProcessorException(message, e);
+        } catch (NoClassDefFoundError e) {
+            var message = INSTANTIATION_FAILURE + prcClass + "'.";
+            throw new InvalidFileNameProcessorException(message, e);
+        }
+
+        if (!PropertiesFileNameProcessor.class.isAssignableFrom(clazz)) {
+            var message = "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.".formatted(
+                    prcClass,
+                    PropertiesFileNameProcessor.class.getTypeName());
+            throw new InvalidFileNameProcessorException(message);
+        }
+        return clazz;
+    }
+
+    private PropertiesFileNameProcessor newProcessor(Class<PropertiesFileNameProcessor> clazz,
+                                                     String prcClass,
+                                                     String[] patterns)
+            throws InvalidFileNamePatternException, InvalidFileNameProcessorException {
+        Constructor<PropertiesFileNameProcessor> declaredConstructor;
+        try {
+            declaredConstructor = clazz.getDeclaredConstructor(String.class);
+        } catch (NoSuchMethodException e) {
+            return newInstance(getDefaultConstructor(clazz, prcClass, e));
+        }
+        if (CollectionUtils.isEmpty(patterns)) {
+            return buildCustom(declaredConstructor, (String) null);
+        } else {
+            return buildCustom(declaredConstructor, patterns);
+        }
+    }
+
+    private static Constructor<PropertiesFileNameProcessor> getDefaultConstructor(
+            Class<PropertiesFileNameProcessor> clazz,
+            String prcClass,
+            NoSuchMethodException cause) throws InvalidFileNameProcessorException {
+        try {
+            return clazz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e1) {
+            var message = INSTANTIATION_FAILURE + prcClass + "'. Constructor with 'String' argument or default constructor is not found.";
+            throw new InvalidFileNameProcessorException(message, cause);
+        }
     }
 
     static PropertiesFileNameProcessor buildDefault(String... patterns) throws InvalidFileNamePatternException {

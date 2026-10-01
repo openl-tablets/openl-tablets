@@ -173,42 +173,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             boolean renameProject = !logicalName.equals(project.getName());
             if (renameProject) {
-                if (!project.getDesignRepository().supports().mappedFolders()) {
-                    getModel().clearModuleInfo();
-
-                    // Revert project name in rules.xml
-                    AProjectResource artefact = (AProjectResource) project
-                            .getArtefact(ProjectDescriptor.FILE_NAME);
-                    ProjectDescriptor projectDescriptor;
-                    try (var content = artefact.getContent()) {
-                        projectDescriptor = ProjectDescriptor.read(content);
-                    }
-                    projectDescriptor.setName(project.getName());
-                    if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
-                        throw new Message("There is no permission for modifying '%s' file.".formatted(
-                                ProjectArtifactUtils.extractResourceName(artefact)));
-                    }
-                    artefact.setContent(new ByteArrayInputStream(projectDescriptor.toBytes()));
-                    resetProjects();
-                } else {
-                    FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);
-                    if (mappingData != null) {
-                        mappingData
-                                .setExternalPath(userWorkspace.getDesignTimeRepository().getRulesLocation() + logicalName);
-                    }
-                }
+                prepareRename(project, logicalName, userWorkspace);
             }
             ProjectHistoryService.deleteHistory(userWorkspace, projectName);
             project.save();
             Repository repository = project.getDesignRepository();
-            if (repository.supports().branches()) {
-                BranchRepository branchRepository = (BranchRepository) repository;
-                if (!branchRepository.getBranch().equals(branchRepository.getBaseBranch())) {
-                    // Rename only on base branch.
-                    renameProject = false;
-                }
-            }
-            if (renameProject && repository.supports().mappedFolders()) {
+            if (renameProject && isBaseBranch(repository) && repository.supports().mappedFolders()) {
                 LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
                 File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot().toFile();
                 String prevPath = project.getFolderPath();
@@ -230,6 +200,52 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Prepares the project, whose logical name differs from its name, to be saved.
+     *
+     * <p>A repository without mapped folders keeps the name of the project in rules.xml. A repository with mapped
+     * folders maps the project to the folder named after its logical name.
+     */
+    private void prepareRename(RulesProject project,
+                               String logicalName,
+                               UserWorkspace userWorkspace) throws ProjectException, IOException {
+        if (!project.getDesignRepository().supports().mappedFolders()) {
+            getModel().clearModuleInfo();
+
+            // Revert project name in rules.xml
+            AProjectResource artefact = (AProjectResource) project
+                    .getArtefact(ProjectDescriptor.FILE_NAME);
+            ProjectDescriptor projectDescriptor;
+            try (var content = artefact.getContent()) {
+                projectDescriptor = ProjectDescriptor.read(content);
+            }
+            projectDescriptor.setName(project.getName());
+            if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
+                throw new Message("There is no permission for modifying '%s' file.".formatted(
+                        ProjectArtifactUtils.extractResourceName(artefact)));
+            }
+            artefact.setContent(new ByteArrayInputStream(projectDescriptor.toBytes()));
+            resetProjects();
+        } else {
+            FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);
+            if (mappingData != null) {
+                mappingData
+                        .setExternalPath(userWorkspace.getDesignTimeRepository().getRulesLocation() + logicalName);
+            }
+        }
+    }
+
+    /**
+     * Tells whether the repository works on its base branch. Projects are renamed only on the base branch.
+     */
+    private static boolean isBaseBranch(Repository repository) {
+        if (repository.supports().branches()) {
+            BranchRepository branchRepository = (BranchRepository) repository;
+            return branchRepository.getBranch().equals(branchRepository.getBaseBranch());
+        }
+        return true;
     }
 
     /**
@@ -515,11 +531,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             var anotherRepositoryOpened = !Objects.equals(currentRepositoryId, repositoryId);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
-            if (StringUtils.isNotBlank(projectName) && project == null) {
-                // Not empty project name is requested but it's not found
-                handleProjectNotFound();
-                return;
-            }
+            checkFound(projectName, project);
             // switch current project branch to the selected
             if (branchName != null && project != null) {
                 String newProjectName = setProjectBranch(project, branchName);
@@ -529,18 +541,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
                 // reload project descriptor. Because it might be changed
                 project = getProjectByName(currentRepositoryId, projectName);
-                if (StringUtils.isNotBlank(projectName) && project == null) {
-                    // Not empty project name is requested but it's not found
-                    handleProjectNotFound();
-                    return;
-                }
+                checkFound(projectName, project);
             }
             Module module = getModule(project, moduleName);
-            if (StringUtils.isNotBlank(moduleName) && module == null) {
-                // Not empty module name is requested but it's not found
-                handleProjectNotFound();
-                return;
-            }
+            checkFound(moduleName, module);
             // The descriptors are resolved again whenever the workspace is refreshed, so the same module
             // arrives as a new object; what it names is what tells it from another module.
             boolean anotherModuleOpened = !ProjectModel.isSameModule(currentModule, module);
@@ -550,66 +554,88 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // The reader asked for the module a write left them to compile. Asked for by name: Verify on
             // another module compiles that one and leaves this request standing.
             boolean verifying = manualCompile && ProjectModel.isSameModule(moduleToVerify.get(), module);
-            boolean anotherProjectOpened = anotherRepositoryOpened
-                    || !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
-                            .getProject()
-                            .getName()
-                            .equals(project.getName()));
+            boolean anotherProjectOpened = anotherRepositoryOpened || !isProjectOpened(project);
             currentModule = module;
             currentProject = project;
-            if (currentProject != null) {
-                // Validate the permission to read the project. If the project has read permission, then all modules of
-                // the project has the read permission too.
-                RulesProject rulesProject = getProject(repositoryId,
-                        currentProject.getProjectFolder().getFileName().toString());
-                if (rulesProject != null && module != null) {
-                    log.debug(
-                            "Check permission for repository id '{}', project path in the repository '{}', module path in the project '{}'.",
-                            repositoryId,
-                            rulesProject.getLocalFolderName(),
-                            module.getRulesRootPath());
-                } else {
-                    if (rulesProject != null) {
-                        log.debug("Check permission for repository id '{}', project path in the repository '{}'.",
-                                repositoryId,
-                                rulesProject.getLocalFolderName());
-                    }
-                }
-            }
+            validateReadPermission(repositoryId, module);
             if (module != null && (needCompile && (isAutoCompile() || manualCompile) || verifying || forcedCompile || rewritten || anotherModuleOpened || anotherProjectOpened)) {
-                if (forcedCompile) {
-                    reset(ReloadType.FORCED);
-                } else if (needCompile || verifying) {
-                    reset(ReloadType.SINGLE);
-                } else if (rewritten) {
-                    // Its workbook was written to: the dependency it stands for is dropped and resolved
-                    // afresh. Asked for before anything else that would compile the module, because only this
-                    // drops what was compiled from the workbook as it stood before the write — opening the
-                    // module again would be answered with it.
-                    reset(ReloadType.SINGLE);
-                } else if (anotherProjectOpened) {
-                    model.setModuleInfo(module, ReloadType.SINGLE);
-                } else if (anotherModuleOpened) {
-                    model.setModuleInfo(module, ReloadType.NO);
-                } else {
-                    model.setModuleInfo(module);
-                }
-                // Listen to the workbooks of the module that was opened, so that a write to one of them is
-                // kept as a revision of the project.
-                model.initProjectHistory();
-                needCompile = false;
-                forcedCompile = false;
-                manualCompile = false;
-                if (rewritten) {
-                    rewrittenModule.set(null);
-                }
-                if (verifying) {
-                    moduleToVerify.set(null);
-                }
+                openModule(module, verifying, rewritten, anotherProjectOpened, anotherModuleOpened);
             }
         } catch (Exception e) {
             log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
             handleProjectNotFound();
+        }
+    }
+
+    /**
+     * Fails when a not empty name is requested, but nothing is found by it.
+     */
+    private void checkFound(@Nullable String name, @Nullable Object found) {
+        if (StringUtils.isNotBlank(name) && found == null) {
+            handleProjectNotFound();
+        }
+    }
+
+    private boolean isProjectOpened(@Nullable ProjectDescriptor project) {
+        return model.getModuleInfo() != null && project != null && model.getModuleInfo()
+                .getProject()
+                .getName()
+                .equals(project.getName());
+    }
+
+    private void validateReadPermission(String repositoryId, @Nullable Module module) {
+        if (currentProject != null) {
+            // Validate the permission to read the project. If the project has read permission, then all modules of
+            // the project has the read permission too.
+            RulesProject rulesProject = getProject(repositoryId,
+                    currentProject.getProjectFolder().getFileName().toString());
+            if (rulesProject != null && module != null) {
+                log.debug(
+                        "Check permission for repository id '{}', project path in the repository '{}', module path in the project '{}'.",
+                        repositoryId,
+                        rulesProject.getLocalFolderName(),
+                        module.getRulesRootPath());
+            } else if (rulesProject != null) {
+                log.debug("Check permission for repository id '{}', project path in the repository '{}'.",
+                        repositoryId,
+                        rulesProject.getLocalFolderName());
+            }
+        }
+    }
+
+    private void openModule(Module module,
+                            boolean verifying,
+                            boolean rewritten,
+                            boolean anotherProjectOpened,
+                            boolean anotherModuleOpened) throws Exception {
+        if (forcedCompile) {
+            reset(ReloadType.FORCED);
+        } else if (needCompile || verifying) {
+            reset(ReloadType.SINGLE);
+        } else if (rewritten) {
+            // Its workbook was written to: the dependency it stands for is dropped and resolved
+            // afresh. Asked for before anything else that would compile the module, because only this
+            // drops what was compiled from the workbook as it stood before the write — opening the
+            // module again would be answered with it.
+            reset(ReloadType.SINGLE);
+        } else if (anotherProjectOpened) {
+            model.setModuleInfo(module, ReloadType.SINGLE);
+        } else if (anotherModuleOpened) {
+            model.setModuleInfo(module, ReloadType.NO);
+        } else {
+            model.setModuleInfo(module);
+        }
+        // Listen to the workbooks of the module that was opened, so that a write to one of them is
+        // kept as a revision of the project.
+        model.initProjectHistory();
+        needCompile = false;
+        forcedCompile = false;
+        manualCompile = false;
+        if (rewritten) {
+            rewrittenModule.set(null);
+        }
+        if (verifying) {
+            moduleToVerify.set(null);
         }
     }
 
@@ -711,10 +737,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 projectName = getCurrentProjectDescriptor().getName();
             }
         }
-        if (StringUtils.isBlank(pageUrl)) {
-            pageUrl = StringUtils.EMPTY;
-        }
+        return toUrl(repositoryId, projectName, moduleName, pageUrl);
+    }
 
+    private static String toUrl(String repositoryId, String projectName, String moduleName, String pageUrl) {
         if ((StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) && StringUtils.isNotBlank(pageUrl)) {
             return "#" + pageUrl;
         }
