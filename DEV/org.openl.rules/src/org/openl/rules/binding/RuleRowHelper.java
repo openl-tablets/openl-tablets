@@ -2,12 +2,14 @@ package org.openl.rules.binding;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -291,7 +293,10 @@ public final class RuleRowHelper {
 
     /**
      * Converts the number of the cell to the expected type by the first convertor found: from double, from Double,
-     * from the date of the cell, and from int when the number has no fraction.
+     * from the date of the cell, and from a whole number when the number has no fraction.
+     * <p>
+     * A whole number is taken as {@link Integer}, as {@link Long} beyond the {@code int} range, and as
+     * {@link BigInteger} beyond the {@code long} range.
      *
      * @return the converted value, or {@code null} when no convertor is found
      */
@@ -311,13 +316,34 @@ public final class RuleRowHelper {
             var dateValue = cell.getNativeDate();
             return objectConverter.convert(dateValue);
         }
-        if ((int) value == value) {
-            objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
+        var wholeNumber = toWholeNumber(value);
+        if (wholeNumber != null) {
+            objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, wholeNumber.getClass());
             if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
-                return objectConverter.convert((int) value);
+                return objectConverter.convert(wholeNumber);
             }
         }
         return null;
+    }
+
+    /**
+     * Gives the number as the narrowest whole number type that holds it: {@link Integer}, {@link Long} or
+     * {@link BigInteger}.
+     *
+     * @return the whole number, or {@code null} when the number has a fraction or is not finite
+     */
+    private static @Nullable Number toWholeNumber(double value) {
+        if (!Double.isFinite(value) || value != Math.rint(value)) {
+            return null;
+        }
+        if ((int) value == value) {
+            return (int) value;
+        }
+        // -2^63 is the smallest long, while 2^63 is already beyond the largest one.
+        if (value >= -0x1p63 && value < 0x1p63) {
+            return (long) value;
+        }
+        return BigDecimal.valueOf(value).toBigIntegerExact();
     }
 
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
