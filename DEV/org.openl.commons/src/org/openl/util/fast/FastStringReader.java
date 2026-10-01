@@ -5,7 +5,7 @@ import java.io.Reader;
 
 public class FastStringReader extends Reader {
 
-    private static final IOException$1 IO_EXC = new IOException$1();
+    private static final StreamClosedException IO_EXC = new StreamClosedException();
 
     private String str;
     private final int length;
@@ -31,7 +31,7 @@ public class FastStringReader extends Reader {
         }
     }
 
-    private static final class IOException$1 extends IOException {
+    private static final class StreamClosedException extends IOException {
         private static final long serialVersionUID = 4942784446367469908L;
 
         @Override
