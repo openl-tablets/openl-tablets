@@ -10,7 +10,7 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.IOpenClass;
 
-public class TablePropertyDefinition implements Comparable<TablePropertyDefinition> {
+public class TablePropertyDefinition {
 
     @Getter
     @Setter
@@ -73,11 +73,6 @@ public class TablePropertyDefinition implements Comparable<TablePropertyDefiniti
     public enum SystemValuePolicy {
         IF_BLANK_ONLY,
         ON_EACH_EDIT
-    }
-
-    @Override
-    public int compareTo(TablePropertyDefinition to) {
-        return displayName.compareTo(to.getDisplayName());
     }
 
 }
