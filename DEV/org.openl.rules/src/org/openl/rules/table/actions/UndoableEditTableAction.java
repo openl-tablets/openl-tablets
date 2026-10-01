@@ -2,6 +2,9 @@ package org.openl.rules.table.actions;
 
 import java.util.ArrayList;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.GridTableUtils;
@@ -12,6 +15,7 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 /**
  * @author Andrei Astrouski
  */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class UndoableEditTableAction implements IUndoableGridTableAction {
 
     public static final boolean COLUMNS = true;
