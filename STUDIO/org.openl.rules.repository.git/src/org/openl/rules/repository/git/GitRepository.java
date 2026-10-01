@@ -1856,67 +1856,66 @@ public class GitRepository implements BranchRepository, Closeable {
 
         if (parentsNum == 0) {
             return false;
-        } else if (parentsNum == 1) {
+        }
+        if (parentsNum == 1) {
             return !changes.isEmpty();
-        } else {
-            if (changes.size() == parentsNum) {
-                // Merge commit is modified comparing to both parents. Definitely we must show it in history.
-                return true;
+        }
+        if (changes.size() == parentsNum) {
+            // Merge commit is modified comparing to both parents. Definitely we must show it in history.
+            return true;
+        }
+        if (changes.isEmpty()) {
+            return false;
+        }
+        // Merge commit is same as one of the parents for inspecting path.
+        // It can be in two cases:
+        // 1) it's a merge commit with overwriting changes of a user (ours or theirs).
+        // 2) merge commit doesn't introduce anything related to our path (merged changes are for other
+        // paths not related to the path interesting to us).
+
+        // Find a common parent for commits that were merged.
+        // Then we compare it to each commit that changed the project in question.
+        // If there is a difference between commits, then it should be displayed.
+        try (var walk = new RevWalk(repository)) {
+            walk.setRevFilter(RevFilter.MERGE_BASE);
+
+            for (RevCommit parent : parents) {
+                var revCommit = walk.parseCommit(parent);
+                walk.markStart(revCommit);
             }
-            if (!changes.isEmpty()) {
-                // Merge commit is same as one of the parents for inspecting path.
-                // It can be in two cases:
-                // 1) it's a merge commit with overwriting changes of a user (ours or theirs).
-                // 2) merge commit doesn't introduce anything related to our path (merged changes are for other
-                // paths not related to the path interesting to us).
+            var mergeBase = walk.next();
 
-                // Find a common parent for commits that were merged.
-                // Then we compare it to each commit that changed the project in question.
-                // If there is a difference between commits, then it should be displayed.
-                try (var walk = new RevWalk(repository)) {
-                    walk.setRevFilter(RevFilter.MERGE_BASE);
-
-                    for (RevCommit parent : parents) {
-                        var revCommit = walk.parseCommit(parent);
-                        walk.markStart(revCommit);
+            if (mergeBase != null) {
+                for (int i : changes) {
+                    tw.reset(parents[i].getTree(), mergeBase.getTree());
+                    if (tw.next() && !tw.idEqual(0, 1)) {
+                        return true;
                     }
-                    var mergeBase = walk.next();
+                }
 
-                    if (mergeBase != null) {
-                        for (int i : changes) {
-                            tw.reset(parents[i].getTree(), mergeBase.getTree());
-                            if (tw.next() && !tw.idEqual(0, 1)) {
-                                return true;
+                // Check if any commit from parent until merge base contains changes in the project.
+                // If contains (probably that commit was reverted eventually), then it will be shown in history,
+                // so we must show our merge commit because it contains the latest project state, and
+                // it differs from its parent.
+                for (int i : changes) {
+                    Iterable<RevCommit> commits = git.log().addRange(mergeBase, parents[i]).call();
+                    for (RevCommit prevParentCommit : commits) {
+                        tw.reset(getTreesToCompare(prevParentCommit));
+                        var prevParentCount = prevParentCommit.getParentCount();
+                        var modified = 0;
+                        for (var j = 0; j < prevParentCount; j++) {
+                            if (tw.next() && !tw.idEqual(j, prevParentCount)) {
+                                // Path configured in tw was changed
+                                modified++;
                             }
                         }
-
-                        // Check if any commit from parent until merge base contains changes in the project.
-                        // If contains (probably that commit was reverted eventually), then it will be shown in history,
-                        // so we must show our merge commit because it contains the latest project state, and
-                        // it differs from its parent.
-                        for (int i : changes) {
-                            Iterable<RevCommit> commits = git.log().addRange(mergeBase, parents[i]).call();
-                            for (RevCommit prevParentCommit : commits) {
-                                tw.reset(getTreesToCompare(prevParentCommit));
-                                var prevParentCount = prevParentCommit.getParentCount();
-                                var modified = 0;
-                                for (var j = 0; j < prevParentCount; j++) {
-                                    if (tw.next() && !tw.idEqual(j, prevParentCount)) {
-                                        // Path configured in tw was changed
-                                        modified++;
-                                    }
-                                }
-                                if (modified > 0 && modified == prevParentCount) {
-                                    return true;
-                                }
-                            }
+                        if (modified > 0 && modified == prevParentCount) {
+                            return true;
                         }
                     }
                 }
-                return false;
             }
         }
-
         return false;
     }
 
