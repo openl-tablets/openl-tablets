@@ -14,7 +14,6 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -77,10 +76,8 @@ public class AclProjectsController {
     }
 
     @Operation(summary = "acls.get-project-rules.summary", description = "acls.get-project-rules.desc")
-    @Parameters({
-            @Parameter(name = "sid", description = "acls.param.sid.desc", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", description = "acls.param.principal.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", description = "acls.param.sid.desc", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", description = "acls.param.principal.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @GetMapping
     @JsonView(AclView.Project.class)
     public List<AclProjectModel> getAclProjectRules(@NotNull @SidExistsConstraint Sid sid) {
@@ -122,10 +119,8 @@ public class AclProjectsController {
     }
 
     @Operation(summary = "acls.update-project-rule.summary", description = "acls.update-project-rule.desc")
-    @Parameters({
-            @Parameter(name = "sid", description = "acls.param.sid.desc", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", description = "acls.param.principal.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", description = "acls.param.sid.desc", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", description = "acls.param.principal.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @ProjectManagementPermission
     @PutMapping(value = "/{project-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
@@ -140,10 +135,8 @@ public class AclProjectsController {
     }
 
     @Operation(summary = "acls.delete-project-rule.summary", description = "acls.delete-project-rule.desc")
-    @Parameters({
-            @Parameter(name = "sid", description = "acls.param.sid.desc", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", description = "acls.param.principal.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
+    @Parameter(name = "sid", description = "acls.param.sid.desc", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class))
+    @Parameter(name = "principal", description = "acls.param.principal.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     @ProjectManagementPermission
     @DeleteMapping("/{project-id}")
     public void deleteAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
