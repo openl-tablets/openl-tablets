@@ -57,11 +57,11 @@ public class DOMReader implements ExcelReader {
     }
 
     @Override
-    public List<? extends SheetDescriptor> getSheets() {
+    public List<SheetDescriptor> getSheets() {
         try {
             initializeWorkbook();
             var numberOfSheets = workbook.getNumberOfSheets();
-            var sheets = new ArrayList<DOMSheetDescriptor>(numberOfSheets);
+            var sheets = new ArrayList<SheetDescriptor>(numberOfSheets);
             for (var i = 0; i < numberOfSheets; i++) {
                 sheets.add(new DOMSheetDescriptor(workbook.getSheetName(i), i));
             }

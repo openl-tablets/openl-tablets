@@ -51,7 +51,7 @@ public class CombinedRangeIndex implements IRuleIndex {
     }
 
     @Override
-    public Iterable<? extends DecisionTableRuleNode> nodes() {
+    public Iterable<DecisionTableRuleNode> nodes() {
         return List.of(nextNode);
     }
 

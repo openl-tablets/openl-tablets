@@ -3,6 +3,7 @@ package org.openl.excel.parser.sax;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -57,7 +58,7 @@ public class SAXReader implements ExcelReader {
     }
 
     @Override
-    public List<SAXSheetDescriptor> getSheets() {
+    public List<SheetDescriptor> getSheets() {
         if (sheets == null) {
             try (ReadOnlyOPCPackage pkg = ReadOnlyOPCPackage.open(fileName)) {
 
@@ -79,7 +80,7 @@ public class SAXReader implements ExcelReader {
             }
         }
 
-        return sheets;
+        return Collections.unmodifiableList(sheets);
     }
 
     @Override
