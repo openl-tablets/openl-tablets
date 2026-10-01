@@ -114,7 +114,7 @@ public final class Constrainer implements Serializable {
 
     private final FastStack _active_undoable_once;
 
-    private final transient PrintStream _out = System.out;
+    private static final PrintStream OUT = System.out;
 
     /*
      * ============================================================================== Misc: toString(), helpers, ...
@@ -388,7 +388,7 @@ public final class Constrainer implements Serializable {
         allowUndos();
 
         if (success && _backtrack_objects.size() > 0) {
-            printObjects(_out, "BACKTRACK: ", _backtrack_objects);
+            printObjects(OUT, "BACKTRACK: ", _backtrack_objects);
         }
 
         return success;
@@ -426,7 +426,7 @@ public final class Constrainer implements Serializable {
      * Prints the statistical information. This information is accumulated during the execution of the goals.
      */
     void doPrintInformation() {
-        _out.println(
+        OUT.println(
                 "\nChoice Points: " + _number_of_choice_points + "  Failures: " + _number_of_failures + "  Undos: " + _number_of_undos + "  Notifications: " + _number_of_notifications + "  Memory: " + (_max_occupied_memory - _initial_memory) + "  Time: " + _execution_time + "msec");
     }
 
@@ -506,7 +506,7 @@ public final class Constrainer implements Serializable {
         var goal = _goal_stack.popGoal();
 
         if (_trace_goals) {
-            _out.println("Execute: " + goal);
+            OUT.println("Execute: " + goal);
         }
 
         goal = goal.execute();
@@ -521,7 +521,7 @@ public final class Constrainer implements Serializable {
 
     private void traceFailure(Failure f) {
         if (_trace_failure_stack && _failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
-            f.printStackTrace(_out);
+            f.printStackTrace(OUT);
         }
     }
 
@@ -555,12 +555,12 @@ public final class Constrainer implements Serializable {
         _number_of_failures++;
 
         if (_failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
-            _out.println("Failure " + _number_of_failures + ": " + s);
+            OUT.println("Failure " + _number_of_failures + ": " + s);
         }
 
         if (_failure_display_frequency == 0 || _number_of_failures % _failure_display_frequency == 0) {
             for (var i = 0; i < _failure_objects.size(); i++) {
-                _out.println("Failure: " + s + " " + _failure_objects.elementAt(i));
+                OUT.println("Failure: " + s + " " + _failure_objects.elementAt(i));
             }
         }
 
@@ -615,7 +615,7 @@ public final class Constrainer implements Serializable {
         allowUndos();
 
         if (_choice_point_objects.size() > 0) {
-            printObjects(_out, "CP " + (_choice_point - 1) + ":", _choice_point_objects);
+            printObjects(OUT, "CP " + (_choice_point - 1) + ":", _choice_point_objects);
         }
     }
 

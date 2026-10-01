@@ -201,7 +201,7 @@ public final class PackageMojo extends BaseOpenLMojo {
      * @since 5.23.6
      */
     @Parameter
-    private final String[] excludes = StringUtils.EMPTY_STRING_ARRAY;
+    private String[] excludes = StringUtils.EMPTY_STRING_ARRAY;
 
     @Parameter(defaultValue = "${basedir}", readonly = true, required = true)
     String projectBaseDir;
