@@ -140,12 +140,12 @@ const TraceView: React.FC = () => {
     }, [projectId, tableId, fromModule, testRanges, advancedLaunch,
         setRouteParams, loadBreakpoints, start, simpleRun, reset])
 
-    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const handlePointerDown = useCallback((e: React.PointerEvent) => {
         e.preventDefault()
         setIsResizing(true)
     }, [])
 
-    const handleMouseMove = useCallback((e: MouseEvent) => {
+    const handlePointerMove = useCallback((e: PointerEvent) => {
         if (!isResizing || !containerRef.current) return
         const rect = containerRef.current.getBoundingClientRect()
         const newWidth = ((e.clientX - rect.left) / rect.width) * 100
@@ -154,18 +154,21 @@ const TraceView: React.FC = () => {
         }
     }, [isResizing])
 
-    const handleMouseUp = useCallback(() => setIsResizing(false), [])
+    const handlePointerUp = useCallback(() => setIsResizing(false), [])
 
+    // A drag the browser takes over, as a touch turning into a scroll, ends as well: the panels stay usable.
     useEffect(() => {
         if (isResizing) {
-            document.addEventListener('mousemove', handleMouseMove)
-            document.addEventListener('mouseup', handleMouseUp)
+            document.addEventListener('pointermove', handlePointerMove)
+            document.addEventListener('pointerup', handlePointerUp)
+            document.addEventListener('pointercancel', handlePointerUp)
         }
         return () => {
-            document.removeEventListener('mousemove', handleMouseMove)
-            document.removeEventListener('mouseup', handleMouseUp)
+            document.removeEventListener('pointermove', handlePointerMove)
+            document.removeEventListener('pointerup', handlePointerUp)
+            document.removeEventListener('pointercancel', handlePointerUp)
         }
-    }, [isResizing, handleMouseMove, handleMouseUp])
+    }, [isResizing, handlePointerMove, handlePointerUp])
 
     useEffect(() => {
         if (status && !isTraceExecutionTerminal(status)) {
@@ -269,7 +272,7 @@ const TraceView: React.FC = () => {
                         </div>
                     )}
                 </div>
-                <div className={styles.resizer} onMouseDown={handleMouseDown} />
+                <hr aria-orientation="vertical" className={styles.resizer} onPointerDown={handlePointerDown} />
                 <div
                     className={cx(styles.rightPanel, isResizing && styles.panelDisabled)}
                     style={{ width: `${100 - leftPanelWidth}%` }}
