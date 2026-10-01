@@ -513,7 +513,7 @@ export const ProjectsHome = () => {
     // with this screen, while the tree beside a project reads them as soon as the project page is drawn.
     const leaveTo = useCallback((path: string) => {
         saveProjectFilters(params)
-        navigate(path)
+        void navigate(path)
     }, [navigate, params])
 
     const openProject = useCallback(

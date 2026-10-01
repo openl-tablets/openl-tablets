@@ -65,7 +65,7 @@ export const MergeModal: React.FC = () => {
             setConflictGroups([])
             setBranches(detail.branches)
             // Check for existing unresolved conflicts
-            checkExistingConflicts(detail.projectId).then((hasConflicts) => {
+            void checkExistingConflicts(detail.projectId).then((hasConflicts) => {
                 if (!hasConflicts && detail.initialStep !== 'conflicts') {
                     // No conflicts found — stay on branches step (already set)
                 } else if (!hasConflicts && detail.initialStep === 'conflicts') {

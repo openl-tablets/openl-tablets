@@ -28,7 +28,7 @@ export const Repositories = () => {
 
     const navigateTo = (key: string) => {
         if (key !== repositoryTab) {
-            navigate(`/administration/repositories/${key}`)
+            void navigate(`/administration/repositories/${key}`)
         }
     }
 

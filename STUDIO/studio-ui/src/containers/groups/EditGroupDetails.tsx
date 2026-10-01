@@ -23,7 +23,7 @@ export const EditGroupDetails: React.FC = () => {
 
     useEffect(() => {
         if (searchString) {
-            fetchExternalGroups()
+            void fetchExternalGroups()
         }
     }, [searchString])
 

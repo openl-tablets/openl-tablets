@@ -118,7 +118,8 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
         if (formatted !== null) {
             form.setFieldsValue({ displayName: formatted })
         }
-        form.validateFields(['displayName'])
+        // The form shows a failed validation next to the field; the rejection carries nothing more to report.
+        form.validateFields(['displayName']).catch(() => undefined)
     }, [firstName, lastName])
 
     return (

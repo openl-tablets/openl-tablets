@@ -22,12 +22,12 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     const loadUserProfileAndDetails = async () => {
-        fetchOpenlInformation()
-        fetchSystemSettings()
+        void fetchOpenlInformation()
+        void fetchSystemSettings()
     }
 
     useEffect(() => {
-        loadUserProfileAndDetails()
+        void loadUserProfileAndDetails()
     }, [userProfile])
 
     useEffect(() => {

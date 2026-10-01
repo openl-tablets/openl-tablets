@@ -39,7 +39,7 @@ export const useCanonicalProjectAddress = (projectId: string | undefined, routeO
         if (canonical === projectId) {
             return false
         }
-        navigate(route.current(canonical), { replace: true })
+        void navigate(route.current(canonical), { replace: true })
         return true
     }, [navigate, projectId])
 }

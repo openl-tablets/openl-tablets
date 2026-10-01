@@ -73,7 +73,7 @@ export const System: React.FC = () => {
             content: t('system:confirm_restore_defaults_message'),
             onOk: () => {
                 // Logic to restore default settings
-                apiCall('/admin/settings/system', { method: 'DELETE' })
+                void apiCall('/admin/settings/system', { method: 'DELETE' })
                     .then(() => {
                         window.location.reload()
                     })
@@ -99,7 +99,7 @@ export const System: React.FC = () => {
     }
 
     useEffect(() => {
-        fetchSystemSettings()
+        void fetchSystemSettings()
     }, [])
 
     if (!systemSettings) {

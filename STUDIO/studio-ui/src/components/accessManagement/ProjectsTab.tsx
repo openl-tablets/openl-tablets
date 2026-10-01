@@ -62,7 +62,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, se
 
     useEffect(() => {
         // Fetch projects - they will be displayed even if repository is not found in designRepositories
-        fetchProjects()
+        void fetchProjects()
     }, [fetchProjects])
 
     const projectsOptions = useMemo(() => {

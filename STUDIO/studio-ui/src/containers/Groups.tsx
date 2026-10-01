@@ -41,7 +41,7 @@ export const Groups: React.FC = () => {
             title: t('groups:confirm_deletion_title'),
             content: t('groups:confirm_deletion'),
             onOk: () => {
-                apiCall(`/admin/management/groups/${id}`, {
+                void apiCall(`/admin/management/groups/${id}`, {
                     method: 'DELETE'
                 })
                     .then(reloadGroups)

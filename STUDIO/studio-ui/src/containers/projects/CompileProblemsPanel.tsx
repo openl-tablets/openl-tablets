@@ -140,7 +140,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
             return
         }
         const inProject = where.projectId ?? project.id
-        navigate(where.type === 'table'
+        void navigate(where.type === 'table'
             ? moduleRoute(inProject, module, where.id, where.cell)
             : moduleRoute(inProject, module))
     }, [navigate, project.id])

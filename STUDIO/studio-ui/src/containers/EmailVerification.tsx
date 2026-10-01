@@ -23,7 +23,7 @@ export const EmailVerification = () => {
 
     // navigate and reload method
     const navigateAndReload = (path: string) => {
-        navigate(path)
+        void navigate(path)
         window.location.reload()
     }
     // Handle verification on mount

@@ -246,7 +246,7 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
             return
         }
         setCollecting(true)
-        collect().then(value => {
+        void collect().then(value => {
             if (!open.current) {
                 return
             }

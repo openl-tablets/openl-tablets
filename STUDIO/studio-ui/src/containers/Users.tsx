@@ -56,7 +56,7 @@ export const Users: React.FC = () => {
     }
 
     useEffect(() => {
-        fetchUsers()
+        void fetchUsers()
     }, [])
 
     const removeUser = (username: string) => {
@@ -65,7 +65,7 @@ export const Users: React.FC = () => {
             title: t('users:confirm_deletion'),
             content: t('users:confirm_delete_user'),
             onOk: () => {
-                apiCall(`/users/${username}`, {
+                void apiCall(`/users/${username}`, {
                     method: 'DELETE',
                 })
                     .then(fetchUsers)

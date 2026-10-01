@@ -61,11 +61,11 @@ export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, de
     }
 
     const onChangeTagTypeExtensible = (tagType: TagType) => (e: CheckboxChangeEvent) => {
-        onUpdateTagType(tagType, null, e.target.checked)
+        void Promise.resolve(onUpdateTagType(tagType, null, e.target.checked))
     }
 
     const onChangeTagTypeNullable = (tagType: TagType) => (e: CheckboxChangeEvent) => {
-        onUpdateTagType(tagType, null, null, e.target.checked)
+        void Promise.resolve(onUpdateTagType(tagType, null, null, e.target.checked))
     }
 
     const handleDelete = (tagType: TagType) => {

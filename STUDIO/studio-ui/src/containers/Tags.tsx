@@ -173,8 +173,8 @@ export const Tags: React.FC = () => {
     }
 
     useEffect(() => {
-        fetchTagTypes()
-        fetchTemplates()
+        void fetchTagTypes()
+        void fetchTemplates()
     }, [])
 
     return (

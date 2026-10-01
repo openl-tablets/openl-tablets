@@ -25,7 +25,7 @@ export const UserProfile: React.FC = () => {
     const [form] = Form.useForm()
 
     useEffect(() => {
-        fetchUserProfile()
+        void fetchUserProfile()
     }, [])
 
     const initialValues = useMemo(() => {
