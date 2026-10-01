@@ -17,6 +17,7 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
@@ -177,12 +178,11 @@ public class FileUtils {
      */
     private static Collection<String> getLoopedDirectories(File src, File dest) throws IOException {
         if (!dest.getCanonicalPath().startsWith(src.getCanonicalPath())) {
-            return null;
+            return List.of();
         }
-        Collection<String> looped = null;
+        Collection<String> looped = new ArrayList<>();
         var srcFiles = src.listFiles();
         if (srcFiles != null && srcFiles.length > 0) {
-            looped = new ArrayList<>(srcFiles.length + 1);
             for (File srcFile : srcFiles) {
                 var copiedFile = new File(dest, srcFile.getName());
                 if (srcFile.isDirectory()) {
@@ -201,7 +201,7 @@ public class FileUtils {
      *
      * @param srcDir   the validated source directory, must not be {@code null}
      * @param destDir  the validated destination directory, must not be {@code null}
-     * @param excluded the list of directories or files to exclude from the copy, may be null
+     * @param excluded the list of directories or files to exclude from the copy
      * @throws IOException if an error occurs
      */
     private static void doCopyDirectory(File srcDir, File destDir, Collection<String> excluded) throws IOException {
@@ -222,7 +222,7 @@ public class FileUtils {
         // recurse copying
         for (File srcFile : srcFiles) {
             var dstFile = new File(destDir, srcFile.getName());
-            if (excluded == null || !excluded.contains(srcFile.getCanonicalPath())) {
+            if (!excluded.contains(srcFile.getCanonicalPath())) {
                 if (srcFile.isDirectory()) {
                     doCopyDirectory(srcFile, dstFile, excluded);
                 } else {
