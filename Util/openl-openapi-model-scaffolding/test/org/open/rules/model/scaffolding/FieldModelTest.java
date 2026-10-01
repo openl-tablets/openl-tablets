@@ -14,7 +14,7 @@ class FieldModelTest {
         var fm = new FieldModel("type", "String");
         assertEquals("type", fm.getName());
         assertEquals("String", fm.getType());
-        assertNotEquals(fm, null);
+        assertNotEquals(fm, new Object());
 
         var fmd = new FieldModel("Sum", "Integer", 0);
         assertEquals("Sum", fmd.getName());

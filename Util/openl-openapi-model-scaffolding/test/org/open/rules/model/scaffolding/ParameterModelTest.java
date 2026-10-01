@@ -20,7 +20,7 @@ class ParameterModelTest {
         assertEquals(nameParam, oneMoreNameParam);
         assertEquals(nameParam.hashCode(), oneMoreNameParam.hashCode());
 
-        assertNotEquals(nameParam, null);
+        assertNotEquals(nameParam, new Object());
         assertNotEquals(nameParam, surnameParam);
         assertNotEquals(nameParam.hashCode(), surnameParam.hashCode());
 

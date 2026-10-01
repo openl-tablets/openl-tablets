@@ -33,11 +33,11 @@ class SpreadsheetModelTest {
         third.setName("getBankAccountDetails");
 
         assertEquals(first, second);
-        assertNotEquals(first, null);
+        assertNotEquals(first, new Object());
         assertEquals(first.hashCode(), second.hashCode());
         assertNotEquals(first, third);
         assertNotEquals(first.hashCode(), third.hashCode());
-        assertNotEquals(second, null);
+        assertNotEquals(second, new Object());
 
         first.setType(STRING);
         assertEquals(STRING, first.getType());
