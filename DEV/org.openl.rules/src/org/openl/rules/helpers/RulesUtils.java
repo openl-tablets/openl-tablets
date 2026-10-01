@@ -20,8 +20,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
@@ -766,15 +768,19 @@ public final class RulesUtils {
     }
 
     public static boolean contains(IntRange[] array, Integer elem) {
-        if (array == null) {
-            return false;
-        }
-        for (IntRange range : array) {
-            if (range != null && range.contains(elem)) {
-                return true;
-            }
-        }
-        return false;
+        return containsInRanges(array, range -> range.contains(elem));
+    }
+
+    public static boolean contains(IntRange[] array, Long elem) {
+        return containsInRanges(array, range -> range.contains(elem));
+    }
+
+    public static boolean contains(IntRange[] array, BigInteger elem) {
+        return containsInRanges(array, range -> range.contains(elem));
+    }
+
+    private static boolean containsInRanges(IntRange @Nullable [] array, Predicate<IntRange> rangeContains) {
+        return array != null && Arrays.stream(array).anyMatch(range -> range != null && rangeContains.test(range));
     }
 
     public static boolean contains(DoubleRange[] array, Double elem) {
