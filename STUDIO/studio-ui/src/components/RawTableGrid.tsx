@@ -71,7 +71,7 @@ const mute = (colour: string | undefined): string | undefined => {
         return colour
     }
     const digits = colour.length === 4
-        ? [...colour.slice(1)].map(digit => digit + digit).join('')
+        ? Array.from(colour.slice(1), digit => digit + digit).join('')
         : colour.slice(1)
     const value = Number.parseInt(digits, 16)
     const average = (((value >> 16) & 0xff) + ((value >> 8) & 0xff) + (value & 0xff)) / 3
