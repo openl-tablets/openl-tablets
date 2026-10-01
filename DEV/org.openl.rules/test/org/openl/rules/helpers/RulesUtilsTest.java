@@ -748,11 +748,11 @@ class RulesUtilsTest {
 
     @Test
     void testSmallFloatType() {
-        float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
-        assertEquals(instance.testFloatTypeSmall(array, 1), (float) 10.1, 0.0);
-        assertEquals(instance.testFloatTypeSmall(array, 2), (float) 25.5, 0.0);
-        assertEquals(instance.testFloatTypeSmall(array, 3), (float) 32.2, 0.0);
-        assertEquals(instance.testFloatTypeSmall(array, 4), (float) 35.4, 0.0);
+        float[] array = {10.1f, 32.2f, 35.4f, 25.5f};
+        assertEquals(10.1f, instance.testFloatTypeSmall(array, 1), 0.0);
+        assertEquals(25.5f, instance.testFloatTypeSmall(array, 2), 0.0);
+        assertEquals(32.2f, instance.testFloatTypeSmall(array, 3), 0.0);
+        assertEquals(35.4f, instance.testFloatTypeSmall(array, 4), 0.0);
 
         assertThrows(OpenLRuntimeException.class, () -> instance.testFloatTypeSmall(array, 0));
     }
@@ -842,11 +842,11 @@ class RulesUtilsTest {
 
     @Test
     void testSmallFloat() {
-        Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
-        assertEquals((float) 10.4, instance.testFloatSmall(array, 1));
-        assertEquals((float) 25.7, instance.testFloatSmall(array, 2));
-        assertEquals((float) 32.1, instance.testFloatSmall(array, 3));
-        assertEquals((float) 35.3, instance.testFloatSmall(array, 4));
+        Float[] array = {10.4f, 32.1f, 35.3f, 25.7f};
+        assertEquals(10.4f, instance.testFloatSmall(array, 1));
+        assertEquals(25.7f, instance.testFloatSmall(array, 2));
+        assertEquals(32.1f, instance.testFloatSmall(array, 3));
+        assertEquals(35.3f, instance.testFloatSmall(array, 4));
 
         assertThrows(OpenLRuntimeException.class, () -> instance.testFloatSmall(array, 0));
     }
@@ -908,11 +908,11 @@ class RulesUtilsTest {
 
     @Test
     void testBigFloatType() {
-        float[] array = {(float) 10.1, (float) 32.2, (float) 35.4, (float) 25.5};
-        assertEquals((float) 10.1, instance.testFloatTypeBig(array, 4));
-        assertEquals((float) 25.5, instance.testFloatTypeBig(array, 3));
-        assertEquals((float) 32.2, instance.testFloatTypeBig(array, 2));
-        assertEquals((float) 35.4, instance.testFloatTypeBig(array, 1));
+        float[] array = {10.1f, 32.2f, 35.4f, 25.5f};
+        assertEquals(10.1f, instance.testFloatTypeBig(array, 4));
+        assertEquals(25.5f, instance.testFloatTypeBig(array, 3));
+        assertEquals(32.2f, instance.testFloatTypeBig(array, 2));
+        assertEquals(35.4f, instance.testFloatTypeBig(array, 1));
 
         assertThrows(OpenLRuntimeException.class, () -> instance.testFloatTypeBig(array, 0));
     }
@@ -1002,11 +1002,11 @@ class RulesUtilsTest {
 
     @Test
     void testBigFloat() {
-        Float[] array = {(float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7};
-        assertEquals((float) 10.4, instance.testFloatBig(array, 4));
-        assertEquals((float) 25.7, instance.testFloatBig(array, 3));
-        assertEquals((float) 32.1, instance.testFloatBig(array, 2));
-        assertEquals((float) 35.3, instance.testFloatBig(array, 1));
+        Float[] array = {10.4f, 32.1f, 35.3f, 25.7f};
+        assertEquals(10.4f, instance.testFloatBig(array, 4));
+        assertEquals(25.7f, instance.testFloatBig(array, 3));
+        assertEquals(32.1f, instance.testFloatBig(array, 2));
+        assertEquals(35.3f, instance.testFloatBig(array, 1));
 
         assertThrows(OpenLRuntimeException.class, () -> instance.testFloatBig(array, 0));
     }
@@ -1086,9 +1086,9 @@ class RulesUtilsTest {
 
     @Test
     void testFloatSliceEndIndex() {
-        assertArrayEquals(new Float[]{(float) 3.3, (float) 4.4, 5.5F},
+        assertArrayEquals(new Float[]{3.3f, 4.4f, 5.5F},
                 instance.testSliceFloat(
-                        new Float[]{(float) 1.1, (float) 2.2, (float) 3.3, (float) 4.4, 5.5F, (float) 6.6, (float) 7.7},
+                        new Float[]{1.1f, 2.2f, 3.3f, 4.4f, 5.5F, 6.6f, 7.7f},
                         2,
                         5));
     }
@@ -1234,32 +1234,32 @@ class RulesUtilsTest {
 
     @Test
     void testFloatTypeSlice() {
-        assertArrayEquals(new float[]{(float) 3.3, (float) 4.4, (float) 5.5, (float) 6.6, (float) 7.7},
+        assertArrayEquals(new float[]{3.3f, 4.4f, 5.5f, 6.6f, 7.7f},
                 instance
                         .testSliceFloatType(
-                                new float[]{(float) 1.1,
-                                        (float) 2.2,
-                                        (float) 3.3,
-                                        (float) 4.4,
-                                        (float) 5.5,
-                                        (float) 6.6,
-                                        (float) 7.7},
+                                new float[]{1.1f,
+                                        2.2f,
+                                        3.3f,
+                                        4.4f,
+                                        5.5f,
+                                        6.6f,
+                                        7.7f},
                                 2),
                 0.0001f);
     }
 
     @Test
     void testFloatTypeSliceEndIndex() {
-        assertArrayEquals(new float[]{(float) 3.3, (float) 4.4, (float) 5.5},
+        assertArrayEquals(new float[]{3.3f, 4.4f, 5.5f},
                 instance
                         .testSliceFloatType(
-                                new float[]{(float) 1.1,
-                                        (float) 2.2,
-                                        (float) 3.3,
-                                        (float) 4.4,
-                                        (float) 5.5,
-                                        (float) 6.6,
-                                        (float) 7.7},
+                                new float[]{1.1f,
+                                        2.2f,
+                                        3.3f,
+                                        4.4f,
+                                        5.5f,
+                                        6.6f,
+                                        7.7f},
                                 2,
                                 5),
                 0.0001f);
