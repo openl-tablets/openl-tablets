@@ -317,11 +317,6 @@ public class HttpClient implements AutoCloseable {
 
                 rememberCookie(response);
 
-                // Bulk update of OpenAPI files
-//                if (Files.readAllLines(Path.of(requestFile)).get(0).contains("/openapi.")) {
-//                    response.writeBodyTo(responseFile);
-//                }
-
                 error = mismatch(response, assertResponse);
             } while (error != null && System.currentTimeMillis() < timeout);
 

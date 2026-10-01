@@ -1627,7 +1627,7 @@ public class GitRepository implements BranchRepository, Closeable {
             // in this case JGit uses substring filter, so nothing to escape
             return globalFilter;
         }
-        // in this case JGit uses Pattern filter, so let's validate if filter can be compiled, and escape it if not;
+        // in this case JGit uses Pattern filter, so let's validate if filter can be compiled, and escape it if not
         try {
             Pattern.compile(globalFilter).matcher("");
             return globalFilter;
