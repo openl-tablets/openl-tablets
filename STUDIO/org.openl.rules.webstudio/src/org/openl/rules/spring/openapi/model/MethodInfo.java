@@ -23,7 +23,7 @@ import org.openl.rules.spring.openapi.OpenApiUtils;
  */
 public class MethodInfo {
 
-    public static final String[] ALL_MEDIA_TYPES = new String[]{MediaType.ALL_VALUE};
+    private static final String[] ALL_MEDIA_TYPES = {MediaType.ALL_VALUE};
 
     @Getter
     private final HandlerMethod handler;
@@ -51,6 +51,13 @@ public class MethodInfo {
         this.operationAnnotation = from.operationAnnotation;
         this.jsonView = from.jsonView;
         this.httpStatus = from.httpStatus;
+    }
+
+    /**
+     * Whether the handler declares no media types it consumes, so it accepts any.
+     */
+    public boolean consumesAnyMediaType() {
+        return consumes == ALL_MEDIA_TYPES;
     }
 
     public Class<?> getBeanType() {

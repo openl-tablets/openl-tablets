@@ -282,14 +282,13 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     }
 
     private String[] resolveConsumes(MethodInfo methodInfo, Class<?> cl) {
-        var consumes = methodInfo.getConsumes();
-        if (consumes == MethodInfo.ALL_MEDIA_TYPES) {
+        if (methodInfo.consumesAnyMediaType()) {
             var possibleConsumes = apiParameterService.getMediaTypesForType(cl);
             if (possibleConsumes.length > 0) {
-                consumes = possibleConsumes;
+                return possibleConsumes;
             }
         }
-        return consumes;
+        return methodInfo.getConsumes();
     }
 
     private RequestBody parseRequestBody(io.swagger.v3.oas.annotations.parameters.RequestBody apiRequestBody,

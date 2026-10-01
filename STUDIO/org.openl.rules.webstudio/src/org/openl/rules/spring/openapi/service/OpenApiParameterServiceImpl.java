@@ -420,7 +420,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
             possibleMediaTypes.addAll(converter.getSupportedMediaTypes(cl));
         }
         if (possibleMediaTypes.contains(MediaType.ALL)) {
-            return MethodInfo.ALL_MEDIA_TYPES;
+            return new String[]{MediaType.ALL_VALUE};
         }
         return possibleMediaTypes.stream().map(Object::toString).toArray(String[]::new);
     }
