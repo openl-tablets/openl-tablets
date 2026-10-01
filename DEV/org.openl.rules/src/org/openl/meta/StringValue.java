@@ -22,7 +22,7 @@ import org.openl.util.ArrayTool;
 @Slf4j
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
 
-    private transient ValueMetaInfo metaInfo;
+    private ValueMetaInfo metaInfo;
     private final String value;
 
     public static class StringValueAdapter extends XmlAdapter<String, StringValue> {
