@@ -366,13 +366,19 @@ describe('TableEditor', () => {
             await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
         }
 
-        it('lands on the row that moves up into the place of the one taken away', async () => {
+        it.each([
+            ['the row that moves up into the place of the one taken away', 'Good Morning', 'remove_row',
+                'Good Afternoon'],
+            ['the new last row when the last one is taken away', 'Good Evening', 'remove_row', 'Good Afternoon'],
+            ['the column that moves along into the place of the one taken away', 'R2', 'remove_column', '12'],
+            ['the new last column when the last one is taken away', 'Good Evening', 'remove_column', '18'],
+        ])('lands on %s', async (_place, picked, action, landed) => {
             await drawRules()
 
-            await userEvent.click(screen.getByText('Good Morning'))
-            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+            await userEvent.click(screen.getByText(picked))
+            await userEvent.click(screen.getByTestId(`table-edit-${action}`))
 
-            expect(await openPicked()).toHaveValue('Good Afternoon')
+            expect(await openPicked()).toHaveValue(landed)
         })
 
         it('takes several rows away one after another without picking a cell again', async () => {
@@ -384,33 +390,6 @@ describe('TableEditor', () => {
 
             expect(screen.queryByText('Good Afternoon')).not.toBeInTheDocument()
             expect(await openPicked()).toHaveValue('R3')
-        })
-
-        it('lands on the new last row when the last one is taken away', async () => {
-            await drawRules()
-
-            await userEvent.click(screen.getByText('Good Evening'))
-            await userEvent.click(screen.getByTestId('table-edit-remove_row'))
-
-            expect(await openPicked()).toHaveValue('Good Afternoon')
-        })
-
-        it('lands on the column that moves along into the place of the one taken away', async () => {
-            await drawRules()
-
-            await userEvent.click(screen.getByText('R2'))
-            await userEvent.click(screen.getByTestId('table-edit-remove_column'))
-
-            expect(await openPicked()).toHaveValue('12')
-        })
-
-        it('lands on the new last column when the last one is taken away', async () => {
-            await drawRules()
-
-            await userEvent.click(screen.getByText('Good Evening'))
-            await userEvent.click(screen.getByTestId('table-edit-remove_column'))
-
-            expect(await openPicked()).toHaveValue('18')
         })
 
         it('lands on the merged cell the place belongs to', async () => {
