@@ -6,6 +6,7 @@ package org.openl.rules.dt.validator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -119,16 +120,12 @@ public class DecisionTableValidationResult implements IValidationResult {
     }
 
     private List<DecisionTableOverlapping> selectOverlappings(OverlappingStatus status) {
-        var res = new ArrayList<DecisionTableOverlapping>();
         if (overlappings == null) {
-            return res;
+            return new ArrayList<>();
         }
-        for (DecisionTableOverlapping overlapping : overlappings) {
-            if (overlapping.getStatus() == status) {
-                res.add(overlapping);
-            }
-        }
-        return res;
+        return Arrays.stream(overlappings)
+                .filter(overlapping -> overlapping.getStatus() == status)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override

@@ -349,14 +349,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 if (method instanceof ExecutableRulesMethod executableRulesMethod) {
                     return new TableProperties[]{new TableProperties(executableRulesMethod.getMethodProperties())};
                 } else if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
-                    var tableProperties = new ArrayList<TableProperties>();
-                    for (IOpenMethod method1 : openMethodDispatcher.getCandidates()) {
-                        if (method1 instanceof ExecutableRulesMethod rulesMethod) {
-                            tableProperties
-                                    .add(new TableProperties(rulesMethod.getMethodProperties()));
-                        }
-                    }
-                    return tableProperties.toArray(new TableProperties[]{});
+                    return openMethodDispatcher.getCandidates().stream()
+                            .filter(ExecutableRulesMethod.class::isInstance)
+                            .map(candidate -> new TableProperties(
+                                    ((ExecutableRulesMethod) candidate).getMethodProperties()))
+                            .toArray(TableProperties[]::new);
                 }
             }
             return null;

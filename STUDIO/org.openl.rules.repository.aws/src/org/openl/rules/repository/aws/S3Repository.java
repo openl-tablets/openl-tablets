@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -537,17 +538,15 @@ public class S3Repository implements Repository, Closeable {
         do {
             var response = s3.listObjectVersions(listVersionsRequest.build());
 
-            var versions = new ArrayList<ObjectIdentifier>();
-            for (var version : response.versions()) {
-                if (version.key().equals(name)) {
-                    versions.add(ObjectIdentifier.builder().key(name).versionId(version.versionId()).build());
-                }
-            }
-            for (var deleteMarker : response.deleteMarkers()) {
-                if (deleteMarker.key().equals(name)) {
-                    versions.add(ObjectIdentifier.builder().key(name).versionId(deleteMarker.versionId()).build());
-                }
-            }
+            var versions = Stream.concat(
+                            response.versions().stream()
+                                    .filter(version -> version.key().equals(name))
+                                    .map(ObjectVersion::versionId),
+                            response.deleteMarkers().stream()
+                                    .filter(deleteMarker -> deleteMarker.key().equals(name))
+                                    .map(DeleteMarkerEntry::versionId))
+                    .map(versionId -> ObjectIdentifier.builder().key(name).versionId(versionId).build())
+                    .toList();
             if (!versions.isEmpty()) {
                 s3.deleteObjects(it -> it.bucket(bucketName).delete(d -> d.objects(versions)));
             }

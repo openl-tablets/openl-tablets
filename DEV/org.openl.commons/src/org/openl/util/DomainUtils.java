@@ -1,8 +1,8 @@
 package org.openl.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 import org.openl.domain.IDomain;
 
@@ -13,11 +13,7 @@ public final class DomainUtils {
 
     /** The values of a domain, each as the text it is written as; the words a vocabulary datatype allows. */
     public static String[] values(IDomain<?> domain) {
-        var values = new ArrayList<String>();
-        for (Object value : domain) {
-            values.add(String.valueOf(value));
-        }
-        return values.toArray(new String[0]);
+        return StreamSupport.stream(domain.spliterator(), false).map(String::valueOf).toArray(String[]::new);
     }
 
     @SuppressWarnings("unchecked")

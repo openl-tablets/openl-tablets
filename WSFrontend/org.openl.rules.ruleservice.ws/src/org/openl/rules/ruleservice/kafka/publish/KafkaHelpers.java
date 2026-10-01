@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.kafka.publish;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -53,13 +52,10 @@ public final class KafkaHelpers {
                                                  String methodName,
                                                  String methodParameters) throws RuleServiceInstantiationException {
         String[] methodParametersSplitted = KafkaHelpers.getMethodParameters(methodParameters);
-        var methods = new ArrayList<Method>();
-        for (Method m : service.getServiceClass().getMethods()) {
-            if (m.getName().equals(methodName) && isMethodParametersMatched(m.getParameterTypes(),
-                    methodParametersSplitted)) {
-                methods.add(m);
-            }
-        }
+        var methods = Arrays.stream(service.getServiceClass().getMethods())
+                .filter(m -> m.getName().equals(methodName)
+                        && isMethodParametersMatched(m.getParameterTypes(), methodParametersSplitted))
+                .toList();
         if (methods.isEmpty()) {
             throw new MethodNotFoundException(
                     "Method with name '%s' and parameters '%s' is not found in the service class.".formatted(

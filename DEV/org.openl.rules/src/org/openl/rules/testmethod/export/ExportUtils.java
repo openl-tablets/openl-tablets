@@ -31,11 +31,7 @@ final class ExportUtils {
     }
 
     static List<Object> fieldValues(List<?> values, IOpenField field) {
-        var result = new ArrayList<Object>(values.size());
-        for (Object value : values) {
-            result.add(value == null ? null : field.get(value, null));
-        }
-        return result;
+        return values.stream().map(value -> value == null ? null : field.get(value, null)).toList();
     }
 
     static List<Object> flatten(List<?> list) {

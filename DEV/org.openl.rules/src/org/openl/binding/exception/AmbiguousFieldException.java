@@ -8,14 +8,12 @@ package org.openl.binding.exception;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import lombok.Getter;
 
 import org.openl.base.INamedThing;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 /**
@@ -41,15 +39,12 @@ public class AmbiguousFieldException extends OpenlNotCheckedException {
         if (matchingFields != null) {
             sb.append(":\nMatching fields:\n");
             var first = true;
-            var openClasses = new HashSet<IOpenClass>();
-            for (IOpenField f : matchingFields) {
-                openClasses.add(f.getDeclaringClass());
-            }
+            var declaringClasses = matchingFields.stream().map(IOpenField::getDeclaringClass).distinct().count();
             for (IOpenField f : matchingFields) {
                 if (!first) {
                     sb.append(", ");
                 }
-                sb.append(openClasses.size() == 1 ? "" : f.getDeclaringClass().getDisplayName(INamedThing.SHORT) + ".").append(f.getDisplayName(INamedThing.SHORT));
+                sb.append(declaringClasses == 1 ? "" : f.getDeclaringClass().getDisplayName(INamedThing.SHORT) + ".").append(f.getDisplayName(INamedThing.SHORT));
                 first = false;
             }
         } else {

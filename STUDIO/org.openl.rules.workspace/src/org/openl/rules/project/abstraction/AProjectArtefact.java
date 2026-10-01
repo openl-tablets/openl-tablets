@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -87,11 +88,7 @@ public class AProjectArtefact implements IProjectArtefact {
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        var versions = new ArrayList<ProjectVersion>();
-        for (FileData data : fileDatas) {
-            versions.add(createProjectVersion(data));
-        }
-        return versions;
+        return fileDatas.stream().map(this::createProjectVersion).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public int getVersionsCount() {

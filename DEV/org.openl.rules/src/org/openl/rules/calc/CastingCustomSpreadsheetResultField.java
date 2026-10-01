@@ -92,10 +92,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             if (xlsModuleOpenClass == null || xlsModuleOpenClass.getRulesModuleBindingContext() == null) {
                 throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
             }
-            Set<IOpenClass> types = new HashSet<>();
-            for (IOpenField f : fields) {
-                types.add(f.getType());
-            }
+            Set<IOpenClass> types = fields.stream().map(IOpenField::getType).collect(Collectors.toSet());
             if (types.size() == 1) {
                 this.type = types.iterator().next();
                 this.casts = null;

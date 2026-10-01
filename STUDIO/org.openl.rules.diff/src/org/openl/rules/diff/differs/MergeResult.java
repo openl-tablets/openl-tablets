@@ -2,6 +2,7 @@ package org.openl.rules.diff.differs;
 
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -26,7 +27,6 @@ public class MergeResult {
     public static MergeResult mergeNames(Set<String> original, Set<String> others) {
         var common = new TreeSet<String>();
         var originalOnly = new TreeSet<String>();
-        var othersOnly = new TreeSet<String>();
 
         for (String s : original) {
             if (others.contains(s)) {
@@ -36,11 +36,9 @@ public class MergeResult {
             }
         }
 
-        for (String s : others) {
-            if (!original.contains(s)) {
-                othersOnly.add(s);
-            }
-        }
+        var othersOnly = others.stream()
+                .filter(s -> !original.contains(s))
+                .collect(Collectors.toCollection(TreeSet::new));
 
         return new MergeResult(common, othersOnly, originalOnly);
     }

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -40,17 +41,13 @@ public final class TablePropertyDefinitionUtils {
     private static final Map<String, Object> GLOBAL_PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
 
     static {
-        var propertiesToBeSetByDefault = new ArrayList<TablePropertyDefinition>();
-        for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
-            if (propDefinition.getDefaultValue() != null) {
-                propertiesToBeSetByDefault.add(propDefinition);
-            }
-        }
-        PROPERTIES_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableList(propertiesToBeSetByDefault);
+        PROPERTIES_TO_BE_SET_BY_DEFAULT = Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
+                .filter(propDefinition -> propDefinition.getDefaultValue() != null)
+                .toList();
 
         var propertiesMapToBeSetByDefault = new HashMap<String, Object>();
 
-        for (TablePropertyDefinition propertyWithDefaultValue : propertiesToBeSetByDefault) {
+        for (TablePropertyDefinition propertyWithDefaultValue : PROPERTIES_TO_BE_SET_BY_DEFAULT) {
             var defaultPropertyName = propertyWithDefaultValue.getName();
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
                     .getPropertyByName(defaultPropertyName);
@@ -64,14 +61,10 @@ public final class TablePropertyDefinitionUtils {
         }
 
         PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableMap(propertiesMapToBeSetByDefault);
-        var globalDefaultProperties = new ArrayList<TablePropertyDefinition>();
-        TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
-        for (TablePropertyDefinition definition : definitions) {
-            if (definition.getInheritanceLevel() != null && Arrays.asList(definition.getInheritanceLevel())
-                    .contains(InheritanceLevel.GLOBAL)) {
-                globalDefaultProperties.add(definition);
-            }
-        }
+        var globalDefaultProperties = Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
+                .filter(definition -> definition.getInheritanceLevel() != null
+                        && Arrays.asList(definition.getInheritanceLevel()).contains(InheritanceLevel.GLOBAL))
+                .toList();
         var defaultGlobalProperties = new HashMap<String, Object>();
         for (TablePropertyDefinition tablePropertyDefinition : globalDefaultProperties) {
             var v = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault()
@@ -92,14 +85,9 @@ public final class TablePropertyDefinitionUtils {
      */
     public static String[] getDimensionalTablePropertiesNames() {
         if (dimensionalTablePropertiesNames == null) {
-            var names = new ArrayList<String>();
-            List<TablePropertyDefinition> dimensionalProperties = getDimensionalTableProperties();
-
-            for (TablePropertyDefinition definition : dimensionalProperties) {
-                names.add(definition.getName());
-            }
-
-            dimensionalTablePropertiesNames = names.toArray(StringUtils.EMPTY_STRING_ARRAY);
+            dimensionalTablePropertiesNames = getDimensionalTableProperties().stream()
+                    .map(TablePropertyDefinition::getName)
+                    .toArray(String[]::new);
         }
         return dimensionalTablePropertiesNames;
     }
@@ -113,16 +101,9 @@ public final class TablePropertyDefinitionUtils {
      */
     public static List<TablePropertyDefinition> getDimensionalTableProperties() {
         if (dimensionalTableProperties == null) {
-            var dimensionalProperties = new ArrayList<TablePropertyDefinition>();
-            TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
-
-            for (TablePropertyDefinition definition : definitions) {
-                if (definition.isDimensional()) {
-                    dimensionalProperties.add(definition);
-                }
-            }
-
-            dimensionalTableProperties = Collections.unmodifiableList(dimensionalProperties);
+            dimensionalTableProperties = Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
+                    .filter(TablePropertyDefinition::isDimensional)
+                    .toList();
         }
         return dimensionalTableProperties;
     }
@@ -238,13 +219,9 @@ public final class TablePropertyDefinitionUtils {
      * @return list of properties.
      */
     public static List<TablePropertyDefinition> getSystemProperties() {
-        var result = new ArrayList<TablePropertyDefinition>();
-        for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
-            if (propDefinition.isSystem()) {
-                result.add(propDefinition);
-            }
-        }
-        return result;
+        return Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
+                .filter(TablePropertyDefinition::isSystem)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static TablePropertyDefinition[] getDefaultDefinitionsForTable(String tableType) {

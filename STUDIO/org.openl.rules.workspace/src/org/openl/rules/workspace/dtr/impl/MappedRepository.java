@@ -19,6 +19,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -185,10 +186,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         var mapping = getUpToDateMapping();
-        var fileItemsInternal = new ArrayList<FileItem>(fileItems.size());
-        for (FileItem fi : fileItems) {
-            fileItemsInternal.add(new FileItem(toInternal(mapping, fi.getData()), fi.getStream()));
-        }
+        var fileItemsInternal = fileItems.stream()
+                .map(fi -> new FileItem(toInternal(mapping, fi.getData()), fi.getStream()))
+                .toList();
         var result = delegate.save(fileItemsInternal);
 
         return toExternal(mapping, result);
@@ -640,13 +640,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private List<FileData> toExternal(ProjectIndex externalToInternal, List<FileData> internal) {
-        var external = new ArrayList<FileData>(internal.size());
-
-        for (FileData data : internal) {
-            external.add(toExternal(externalToInternal, data));
-        }
-
-        return external;
+        return internal.stream()
+                .map(data -> toExternal(externalToInternal, data))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private FileItem toExternal(ProjectIndex externalToInternal, FileItem internal) {

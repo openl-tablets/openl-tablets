@@ -440,13 +440,9 @@ public class ProjectDescriptor {
         // Process modules with wildcard path
         for (Module module : readModules) {
             if (module.isModuleWithWildcard()) {
-                var newModules = new ArrayList<Module>();
-                var matchedModules = getAllModulesMatchingPathPattern(module, module.getRulesRootPath());
-                for (var m : matchedModules) {
-                    if (!containsInProcessedModules(processedModules, m, getProjectFolder())) {
-                        newModules.add(m);
-                    }
-                }
+                var newModules = getAllModulesMatchingPathPattern(module, module.getRulesRootPath()).stream()
+                        .filter(m -> !containsInProcessedModules(processedModules, m, getProjectFolder()))
+                        .toList();
                 processedModules.addAll(newModules);
             }
         }

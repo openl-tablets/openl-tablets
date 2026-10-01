@@ -1,11 +1,13 @@
 package org.openl.studio.projects.service.tables;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -85,13 +87,10 @@ public class TableVersionService {
      * @param moduleTables the tables compiled together
      */
     public Set<String> taken(String name, Map<String, Object> dimensions, TableSyntaxNode[] moduleTables) {
-        var versions = new LinkedHashSet<String>();
-        for (TableSyntaxNode node : moduleTables) {
-            if (isVersionOf(node, name, dimensions)) {
-                versions.add(currentVersion(node.getTableProperties()));
-            }
-        }
-        return versions;
+        return Arrays.stream(moduleTables)
+                .filter(node -> isVersionOf(node, name, dimensions))
+                .map(node -> currentVersion(node.getTableProperties()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**

@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.binding;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -110,22 +109,16 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
         var builder = new StringBuilder();
         builder.append(header.getName());
 
-        var names = new ArrayList<String>();
-
-        for (IOpenClass parameter : header.getSignature().getParameterTypes()) {
-            names.add(parameter.getName());
-        }
+        var names = Arrays.stream(header.getSignature().getParameterTypes()).map(IOpenClass::getName).toList();
 
         builder.append("(").append(String.join(", ", names)).append(")");
 
         // Dimensional properties and version
         //
         var tableProperties = tableSyntaxNode.getTableProperties();
-        var values = new ArrayList<Object>();
-
-        for (String property : TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames()) {
-            values.add(tableProperties.getPropertyValue(property));
-        }
+        var values = Arrays.stream(TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames())
+                .map(tableProperties::getPropertyValue)
+                .toList();
 
         builder.append("[").append(join(values)).append(tableProperties.getVersion()).append("]");
 

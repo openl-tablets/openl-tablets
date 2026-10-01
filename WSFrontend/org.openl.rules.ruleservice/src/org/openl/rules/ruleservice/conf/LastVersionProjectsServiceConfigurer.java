@@ -200,12 +200,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     private Set<String> getSupportedGroupsSet() {
         if (getSupportedGroups() != null && !getSupportedGroups().trim().isEmpty()) {
-            var groups = getSupportedGroups().split(",", -1);
-            var supportedGroupSet = new HashSet<String>();
-            for (String group : groups) {
-                supportedGroupSet.add(group.trim());
-            }
-            return supportedGroupSet;
+            return Arrays.stream(getSupportedGroups().split(",", -1))
+                    .map(String::trim)
+                    .collect(Collectors.toSet());
         }
         return Set.of();
     }

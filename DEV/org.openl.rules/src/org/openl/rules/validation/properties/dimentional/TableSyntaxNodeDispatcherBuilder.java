@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -234,16 +235,11 @@ public class TableSyntaxNodeDispatcherBuilder {
         List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
 
-        var conditions = new ArrayList<IDecisionTableColumn>();
-
         // get only dimensional properties from methods properties
-        //
-        for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-            if (isSuitable(dimensionProperty.getName(), propertiesFromMethods)) {
-                conditions.add(makeColumn(dimensionProperty, rules));
-            }
-        }
-        return conditions;
+        return dimensionalPropertiesDef.stream()
+                .filter(dimensionProperty -> isSuitable(dimensionProperty.getName(), propertiesFromMethods))
+                .map(dimensionProperty -> makeColumn(dimensionProperty, rules))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -298,11 +294,9 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return properties values from tables in group.
      */
     private List<ITableProperties> getMethodsProperties() {
-        var propertiesValues = new ArrayList<ITableProperties>();
-        for (IOpenMethod method : dispatcher.getCandidates()) {
-            propertiesValues.add(PropertiesHelper.getTableProperties(method));
-        }
-        return propertiesValues;
+        return dispatcher.getCandidates().stream()
+                .map(PropertiesHelper::getTableProperties)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**

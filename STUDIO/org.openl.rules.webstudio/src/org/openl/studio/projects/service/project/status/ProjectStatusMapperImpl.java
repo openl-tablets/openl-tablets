@@ -1,6 +1,5 @@
 package org.openl.studio.projects.service.project.status;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -239,16 +238,13 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         if (loaders == null || loaders.isEmpty()) {
             return List.of();
         }
-        var compiled = new ArrayList<String>();
         var projectCompilationCompleted = projectModel.isProjectCompilationCompleted();
         var openedModuleCompiled = projectModel.isOpenedModuleCompiled();
-        for (IDependencyLoader loader : loaders) {
-            if (!loader.isProjectLoader()
-                    && isCompiled(loader, currentModule, projectCompilationCompleted, openedModuleCompiled)) {
-                compiled.add(loader.getModule().getName());
-            }
-        }
-        return List.copyOf(compiled);
+        return loaders.stream()
+                .filter(loader -> !loader.isProjectLoader()
+                        && isCompiled(loader, currentModule, projectCompilationCompleted, openedModuleCompiled))
+                .map(loader -> loader.getModule().getName())
+                .toList();
     }
 
     private static boolean isCompiled(IDependencyLoader loader,

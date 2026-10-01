@@ -9,7 +9,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Build;
@@ -120,13 +122,9 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     private List<MavenProject> collectClassicOpenLProjects(Path anchorDir) {
-        var result = new ArrayList<MavenProject>();
-        for (var p : reactorProjects) {
-            if (isClassicOpenLProject(p, anchorDir)) {
-                result.add(p);
-            }
-        }
-        return result;
+        return reactorProjects.stream()
+                .filter(p -> isClassicOpenLProject(p, anchorDir))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /** True for an OpenL project other than {@code ${project}} that still has its pom and lives under the anchor. */
@@ -241,13 +239,10 @@ public final class PomlessMojo extends AbstractMojo {
     }
 
     private static Set<String> collectMavenArtifacts(List<ProjectDependencyDescriptor> dependencies) {
-        var declaredCoords = new HashSet<String>();
-        for (var d : dependencies) {
-            if (d.getMavenArtifact() != null) {
-                declaredCoords.add(d.getMavenArtifact());
-            }
-        }
-        return declaredCoords;
+        return dependencies.stream()
+                .map(ProjectDependencyDescriptor::getMavenArtifact)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     /**
@@ -897,10 +892,9 @@ public final class PomlessMojo extends AbstractMojo {
         if (hoist.isEmpty()) {
             return;
         }
-        var existing = new HashSet<String>();
-        for (var d : model.getDependencies()) {
-            existing.add(dependencyKey(d));
-        }
+        var existing = model.getDependencies().stream()
+                .map(PomlessMojo::dependencyKey)
+                .collect(Collectors.toCollection(HashSet::new));
         for (var d : hoist) {
             if (existing.add(dependencyKey(d))) {
                 model.addDependency(d);

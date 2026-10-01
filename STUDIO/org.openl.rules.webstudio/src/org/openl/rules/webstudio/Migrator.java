@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -579,10 +580,9 @@ public class Migrator {
             return;
         }
 
-        var projects = new ArrayList<ProjectInfo>(projectPathMap.size());
-        for (Map.Entry<String, String> entry : projectPathMap.entrySet()) {
-            projects.add(new ProjectInfo(entry.getKey(), entry.getValue()));
-        }
+        var projects = projectPathMap.entrySet().stream()
+                .map(entry -> new ProjectInfo(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toCollection(ArrayList::new));
         var index = new ProjectIndex();
         index.setProjects(projects);
         Path config = Path.of(Props.text("openl.home"), "repositories/settings/design/openl-projects.yaml");
