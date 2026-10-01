@@ -55,7 +55,7 @@ export const TableLink: React.FC<TableLinkProps> = ({
             onClick={event => {
                 event.preventDefault()
                 onOpen()
-                navigate(to)
+                void navigate(to)
             }}
             {...(type && { type })}
         >

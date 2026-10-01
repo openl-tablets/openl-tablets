@@ -69,7 +69,7 @@ export const Email: React.FC = () => {
     }
 
     useEffect(() => {
-        fetchEmailSettings()
+        void fetchEmailSettings()
     }, [])
 
     return (

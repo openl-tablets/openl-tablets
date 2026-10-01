@@ -162,18 +162,18 @@ export const Security = () => {
             title: t('security:confirm_apply_configuration'),
             content: t('security:confirm_apply_configuration_message'),
             onOk: () => {
-                saveSecuritySettings(values)
+                void saveSecuritySettings(values)
             },
         })
     }
 
     useEffect(() => {
-        fetchSecuritySettings()
+        void fetchSecuritySettings()
     }, [])
 
     useEffect(() => {
         if (typeof userMode !== 'object' && mode !== settingsMode) {
-            fetchSecuritySettingsTemplate()
+            void fetchSecuritySettingsTemplate()
         } else if (!securitySettings?.userMode?.readOnly) {
             form.resetFields()
         }
@@ -186,7 +186,7 @@ export const Security = () => {
         if (endpointAvailable && !loadingUserGroups
             && mode && mode !== SecurityUserMode.SINGLE && mode !== SecurityUserMode.MULTI
             && userGroups.length === 0) {
-            fetchUserGroups()
+            void fetchUserGroups()
         }
     }, [userMode, settingsMode])
 

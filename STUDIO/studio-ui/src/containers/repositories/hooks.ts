@@ -70,7 +70,7 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
     }
 
     useEffect(() => {
-        fetchConfiguration()
+        void fetchConfiguration()
     }, [repositoryDataType])
 
     return {

@@ -17,7 +17,7 @@ export const DeployRepositoriesTab: React.FC<{selectedRepositories: string[]}> =
         setDeployRepositories(response.map(repo => ({ label: repo.name, value: repo.aclId })))
     }
     useEffect(() => {
-        fetchDeployRepositories()
+        void fetchDeployRepositories()
     }, [])
 
     const repositoryOptions = useMemo(() => {

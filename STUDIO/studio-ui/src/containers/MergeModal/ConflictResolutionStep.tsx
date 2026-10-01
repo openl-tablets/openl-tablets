@@ -98,7 +98,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
 
     // Load conflict details on mount or when projectId changes
     useEffect(() => {
-        loadConflictDetails()
+        void loadConflictDetails()
     }, [loadConflictDetails])
 
     // Flatten all files for table

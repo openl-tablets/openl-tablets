@@ -90,13 +90,13 @@ export const DeployModal: React.FC = () => {
 
     useEffect(() => {
         if (visible && !deploymentRepositories.length) {
-            fetchDeploymentRepositories()
+            void fetchDeploymentRepositories()
         }
     }, [visible, deploymentRepositories])
 
     useEffect(() => {
         if (selectedRepository) {
-            fetchDeploymentNames()
+            void fetchDeploymentNames()
         } else {
             setDeploymentNames([])
         }

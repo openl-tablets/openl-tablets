@@ -296,7 +296,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         if (isGitRepository) {
             onCheckCommitInfo(() => doMerge(false))
         } else {
-            doMerge(false)
+            void doMerge(false)
         }
     }
 

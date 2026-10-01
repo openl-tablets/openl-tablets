@@ -40,11 +40,11 @@ export const TagTableNameCell: FC<TagTableNameCellProps> = ({ name, onChange }) 
                 value={value}
                 onBlur={() => {
                     toggleEdit()
-                    handleChangeName(value)
+                    void handleChangeName(value)
                 }}
                 onPressEnter={() => {
                     toggleEdit()
-                    handleChangeName(value)
+                    void handleChangeName(value)
                 }}
             />
         </div>

@@ -58,7 +58,7 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
 
     const onClickGroup = (group: GroupWithColor, onOpenEditDrawer: Function) => {
         if (group.name.startsWith('+') && !group.type) {
-            fetchExternalUserGroupsNotMatched()
+            void fetchExternalUserGroupsNotMatched()
         } else {
             const matchedGroup = allGroups.find((g) => g.name === group.name)
             if (matchedGroup) {

@@ -55,7 +55,7 @@ const MainMenu: React.FC = () => {
                 selectedKeys={selectedKeys}
                 onClick={({ key }) => {
                     setSelectedKeys([key])
-                    navigate(key)
+                    void navigate(key)
                 }}
             >
                 <Menu.Item key={MenuItems.userProfile} icon={<UserOutlined />} id="menuitem-profile">{t('common:menu.my_profile')}</Menu.Item>

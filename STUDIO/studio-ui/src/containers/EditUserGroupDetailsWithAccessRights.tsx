@@ -188,15 +188,15 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
 
     useEffect(() => {
         if ((isOpenFromParent || isOpen) && !designRepositories.length && !loadingDesignRepositories) {
-            fetchDesignRepositories()
+            void fetchDesignRepositories()
         }
     }, [isOpenFromParent, isOpen, designRepositories, loadingDesignRepositories])
 
     useEffect(() => {
         if ((isOpenFromParent || isOpen) && (((user || newUser) && sid) || group?.id)) {
-            fetchReposRoles()
-            fetchProjectRoles()
-            fetchRootRepositoryRoles()
+            void fetchReposRoles()
+            void fetchProjectRoles()
+            void fetchRootRepositoryRoles()
         }
     }, [isOpenFromParent, isOpen, group, sid])
 

@@ -257,7 +257,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             title: t('repository:confirm_delete_repository'),
             content: t('repository:confirm_delete_repository_message'),
             onOk: () => {
-                onDeleteRepository(id)
+                void onDeleteRepository(id)
             }
         })
     }
@@ -278,19 +278,19 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             title: t('repository:confirm_apply_configuration'),
             content: t('repository:confirm_apply_configuration_message'),
             onOk: () => {
-                onApplyConfiguration(values)
+                void onApplyConfiguration(values)
             },
         })
     }
 
     const onEdit = async (targetKey: any, action: string) => {
         if (action === 'remove') {
-            handleDeleteRepository(targetKey)
+            void handleDeleteRepository(targetKey)
         }
     }
 
     const onFinish = (values: any) => {
-        handleApplyConfiguration(values)
+        void handleApplyConfiguration(values)
     }
 
     const onChangeType = (value: any) => {
@@ -298,7 +298,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
             && repositoryType
             && activeRepository.type !== value)
         {
-            fetchDefaultConfiguration(value)
+            void fetchDefaultConfiguration(value)
         } else {
             form.setFieldsValue(activeRepository)
         }

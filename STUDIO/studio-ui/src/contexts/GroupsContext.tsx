@@ -63,7 +63,7 @@ export const GroupsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const isAdmin = hasAdminPermission()
 
     useEffect(() => {
-        fetchGroups()
+        void fetchGroups()
     }, [fetchGroups, isAdmin, isGroupsManagementEnabled])
 
     const reloadGroups = useCallback(async () => {

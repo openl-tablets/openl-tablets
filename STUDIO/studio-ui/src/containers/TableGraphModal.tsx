@@ -547,7 +547,7 @@ export const TableGraphModal: React.FC = () => {
         const address = tableAddress(projectIdRef.current ?? '', node)
         if (address !== null) {
             handleClose()
-            navigate(address)
+            void navigate(address)
         }
     }, [handleClose, navigate])
 

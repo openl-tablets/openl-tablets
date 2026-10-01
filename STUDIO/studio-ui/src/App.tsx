@@ -25,7 +25,7 @@ function App() {
         // Set up global error handling
         setupGlobalErrorHandling()
 
-        fetchUserInfo()
+        void fetchUserInfo()
     }, [])
 
     useEffect(() => {

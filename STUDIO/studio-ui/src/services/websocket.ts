@@ -125,7 +125,7 @@ class WebSocketService {
                 } else if (Date.now() >= deadline) {
                     settled = true
                     // Timeout should terminate this connect attempt and prevent late connect state.
-                    this.client?.deactivate()
+                    void this.client?.deactivate()
                     reject(new WebSocketConnectionTimeoutError(timeoutMs))
                 } else {
                     setTimeout(checkConnection, 100)
@@ -137,7 +137,7 @@ class WebSocketService {
 
     public disconnect() {
         if (this.client && this.isConnected) {
-            this.client.deactivate()
+            void this.client.deactivate()
         }
     }
 

@@ -393,7 +393,7 @@ export const ProjectDetail = ({
                     canWrite={canWriteFiles}
                     folders={folders}
                     onChanged={() => onChanged?.()}
-                    onDeleted={() => { setSelectedFile(null); onChanged?.() }}
+                    onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
                     onRemoveVirtual={() => { removeVirtualFolder(selectedFile); setSelectedFile(null) }}
                     path={selectedFile}
                     projectId={project.id}
@@ -410,8 +410,8 @@ export const ProjectDetail = ({
                 folders={folders}
                 modules={moduleFiles}
                 onChanged={() => onChanged?.()}
-                onDeleted={() => { setSelectedFile(null); onChanged?.() }}
-                onMoved={newPath => { setSelectedFile(newPath); onChanged?.() }}
+                onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
+                onMoved={newPath => { setSelectedFile(newPath); void onChanged?.() }}
                 onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
                 path={selectedFile}
                 projectId={project.id}
