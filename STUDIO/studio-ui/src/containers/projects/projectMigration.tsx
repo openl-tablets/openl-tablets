@@ -78,7 +78,8 @@ export const MigrateButton = ({ tooltip, loading, onClick, label, testId, disabl
         <span
             aria-disabled={disabled ?? false}
             style={{ display: 'inline-flex' }}
-            tabIndex={disabled ? 0 : undefined}
+            // Ant Design draws a disabled button only as a native disabled one, which takes no focus to show why.
+            tabIndex={disabled ? 0 : undefined} // NOSONAR typescript:S6845
         >
             <Button
                 data-testid={testId}
