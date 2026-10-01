@@ -31,6 +31,8 @@ import org.openl.rules.annotations.Operator;
  *
  * @author Yury Molchan
  */
+// An operator delegates to its mirror with swapped arguments on purpose: lt(x, y) is gt(y, x).
+@SuppressWarnings("java:S2234")
 @IgnoreVarargsMatching
 @Operator
 public class Comparison {
