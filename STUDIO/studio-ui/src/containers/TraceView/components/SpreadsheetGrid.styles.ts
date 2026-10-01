@@ -53,12 +53,16 @@ export const useStyles = createStyles(({ css, token }) => ({
     current: css`
         background: ${token.colorWarningBg};
     `,
+    // A native button, stripped of its own chrome so only the round mark shows.
     gutter: css`
-        margin-top: 4px;
+        box-sizing: content-box;
+        margin: 4px 0 0;
         width: 10px;
         height: 10px;
+        padding: 0;
         border-radius: 50%;
         border: 1px solid ${token.colorBorder};
+        background: none;
         flex: 0 0 auto;
         cursor: pointer;
         &:hover {

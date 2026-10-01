@@ -113,7 +113,7 @@ describe('SpreadsheetGrid', () => {
         expect(useTraceStore.getState().breakpointLabels['u0#R0C0']).toBe('$Base')
     })
 
-    it('toggles the breakpoint from the keyboard (Enter on the gutter)', async () => {
+    it('toggles the breakpoint from the keyboard, the gutter being a native button', async () => {
         render(
             <SpreadsheetGrid
                 columns={['Formula']}
@@ -123,7 +123,10 @@ describe('SpreadsheetGrid', () => {
             />
         )
 
-        screen.getByTestId('debug-cell-bp-R0C0').focus()
+        const gutter = screen.getByTestId('debug-cell-bp-R0C0')
+        expect(gutter).toBeInstanceOf(HTMLButtonElement)
+        expect(gutter).toHaveAccessibleName('debug.addBreakpoint')
+        gutter.focus()
         await userEvent.keyboard('{Enter}')
         await waitFor(() => expect(useTraceStore.getState().breakpoints).toContain('u0#R0C0'))
     })

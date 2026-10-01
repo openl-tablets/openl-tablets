@@ -5,7 +5,6 @@ import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { DecisionView } from 'types/trace'
-import { onActivate } from 'utils/keyboardActivate'
 import { useStyles } from './DecisionPanel.styles'
 
 /** Breakpoint key suffix that suspends when any rule fires; mirrors the backend CurrentLocation.RULE_FIRED_REF. */
@@ -131,14 +130,12 @@ const DecisionPanel: React.FC<DecisionPanelProps> = ({ decision, ruleNames, fram
                                 {/* The rule-breakpoint gutter is a debugger feature; the business view omits it. */}
                                 {advanced && (
                                     <Tooltip title={bpTooltip}>
-                                        <span
+                                        <button
                                             aria-label={bpTooltip}
                                             className={cx(styles.gutter, hasRuleBreakpoint && styles.gutterActive)}
                                             data-testid={`decision-rule-bp-${rule}`}
                                             onClick={() => toggleBreakpoint(ruleKey, ruleLabel(rule))}
-                                            onKeyDown={onActivate(() => toggleBreakpoint(ruleKey, ruleLabel(rule)))}
-                                            role="button"
-                                            tabIndex={0}
+                                            type="button"
                                         />
                                     </Tooltip>
                                 )}

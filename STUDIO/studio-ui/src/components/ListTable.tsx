@@ -12,6 +12,8 @@ export interface ListTableColumn<T> {
     /** The column is only as wide as it needs to be. */
     fit?: boolean
     align?: 'center' | 'right'
+    /** A click in the cell is the cell's own: it reads or opens what the cell holds, and does not pick the row. */
+    ownClicks?: boolean
 }
 
 interface ListTableProps<T> {
@@ -28,6 +30,8 @@ interface ListTableProps<T> {
     /** Whether the rows are still on their way. */
     loading?: boolean | undefined
 }
+
+const keepClick = (event: React.MouseEvent) => event.stopPropagation()
 
 /**
  * A list of rows under a header, the way every list screen of OpenL Studio shows one.
@@ -82,7 +86,13 @@ export const ListTable = <T, >({
                                 )}
                             >
                                 {columns.map(column => (
-                                    <td key={column.key} className={cellClass(column)}>{column.render(row)}</td>
+                                    <td
+                                        key={column.key}
+                                        className={cellClass(column)}
+                                        onClick={column.ownClicks ? keepClick : undefined}
+                                    >
+                                        {column.render(row)}
+                                    </td>
                                 ))}
                             </tr>
                         ))}

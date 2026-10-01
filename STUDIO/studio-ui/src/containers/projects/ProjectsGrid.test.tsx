@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
@@ -49,12 +49,6 @@ vi.mock('./ProjectRowActions', () => ({ ProjectRowActions: () => null }))
 
 const { branchSwitcherMock } = vi.hoisted(() => ({ branchSwitcherMock: vi.fn() }))
 vi.mock('./projectRow', () => ({
-    activateOnKey: (action: () => void) => (event: { key: string, preventDefault: () => void }) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            action()
-        }
-    },
     // The branch cell is shared with the table view and tested there, against the real switcher.
     ProjectBranchSwitch: (props: Record<string, unknown>) => {
         branchSwitcherMock(props)
@@ -93,10 +87,18 @@ describe('ProjectsGrid', () => {
             />
         )
 
-        await userEvent.click(screen.getByTestId('project-card-p1'))
+        // The project opens from a native button named after it, stretched over the card; the card itself is no
+        // control of its own.
+        const open = screen.getByRole('button', { name: 'Alpha' })
+        expect(open).toBe(screen.getByTestId('project-open-p1'))
+        expect(screen.getByTestId('project-card-p1')).not.toHaveAttribute('role')
+        expect(screen.getByTestId('project-card-p1')).not.toHaveAttribute('tabindex')
+
+        await userEvent.click(open)
         expect(onOpen).toHaveBeenCalledWith(project)
 
-        fireEvent.keyDown(screen.getByTestId('project-card-p1'), { key: 'Enter' })
+        open.focus()
+        await userEvent.keyboard('{Enter}')
         expect(onOpen).toHaveBeenCalledTimes(2)
     })
 

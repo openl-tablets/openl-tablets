@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { StepValueView } from 'types/trace'
 import { ParameterTree } from './TraceParameters'
-import { onActivate } from 'utils/keyboardActivate'
 import { useStyles } from './SpreadsheetGrid.styles'
 
 interface SpreadsheetGridProps {
@@ -43,14 +42,12 @@ const SpreadsheetGrid: React.FC<SpreadsheetGridProps> = ({ steps, columns, rows,
                 {/* Breakpoints are a debugger feature — the business view has none, so no gutter there. */}
                 {advanced && step.status !== 'executed' && (
                     <Tooltip title={hasBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')}>
-                        <span
+                        <button
                             aria-label={hasBreakpoint ? t('debug.removeBreakpoint') : t('debug.addBreakpoint')}
                             className={cx(styles.gutter, hasBreakpoint && styles.gutterActive)}
                             data-testid={`debug-cell-bp-${step.ref}`}
                             onClick={() => toggleBreakpoint(key, step.label || step.ref)}
-                            onKeyDown={onActivate(() => toggleBreakpoint(key, step.label || step.ref))}
-                            role="button"
-                            tabIndex={0}
+                            type="button"
                         />
                     </Tooltip>
                 )}

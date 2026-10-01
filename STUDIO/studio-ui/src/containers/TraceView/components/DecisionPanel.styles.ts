@@ -48,12 +48,17 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-wrap: wrap;
         gap: ${token.marginXXS}px;
     `,
+    // A native button, stripped of its own chrome so only the round mark shows.
     gutter: css`
         align-self: center;
+        box-sizing: content-box;
         width: 10px;
         height: 10px;
+        margin: 0;
+        padding: 0;
         border-radius: 50%;
         border: 1px solid ${token.colorBorder};
+        background: none;
         flex: 0 0 auto;
         cursor: pointer;
         &:hover {
