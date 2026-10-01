@@ -24,6 +24,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
+// WrapperValidation requires a wrapper to declare every public method, even those that only call super.
+@SuppressWarnings("java:S1185")
 public class AbstractSpreadsheetWrapper extends Spreadsheet {
     static {
         WrapperValidation.validateWrapperClass(AbstractSpreadsheetWrapper.class,
