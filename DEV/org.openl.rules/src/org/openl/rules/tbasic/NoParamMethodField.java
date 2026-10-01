@@ -14,7 +14,9 @@ public class NoParamMethodField implements IOpenField {
     private final AlgorithmSubroutineMethod methodToInvoke;
 
     public NoParamMethodField(String theFieldName, AlgorithmSubroutineMethod theMethodToInvoke) {
-        assert theMethodToInvoke.getSignature().getParameterTypes().length == 0;
+        if (theMethodToInvoke.getSignature().getParameterTypes().length != 0) {
+            throw new IllegalArgumentException("The method must have no parameters.");
+        }
 
         fieldName = theFieldName;
         methodToInvoke = theMethodToInvoke;

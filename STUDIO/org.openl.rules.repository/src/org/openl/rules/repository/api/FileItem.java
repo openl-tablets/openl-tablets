@@ -3,6 +3,7 @@ package org.openl.rules.repository.api;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import lombok.Getter;
 
@@ -31,8 +32,7 @@ public class FileItem implements Closeable {
      * @param stream the stream for the file. The file is deleted if stream is null.
      */
     public FileItem(FileData data, InputStream stream) {
-        assert data != null;
-        this.data = data;
+        this.data = Objects.requireNonNull(data, "data cannot be null");
         this.stream = stream;
     }
 

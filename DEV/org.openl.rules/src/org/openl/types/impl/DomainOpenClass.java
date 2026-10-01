@@ -2,6 +2,7 @@ package org.openl.types.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
@@ -49,9 +50,8 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
                            IDomain<?> domain,
                            ModuleOpenClass module,
                            IMetaInfo metaInfo) {
-        assert name != null;
         this.baseClass = baseClass;
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "name cannot be null");
         this.metaInfo = metaInfo;
         this.domain = domain;
         this.module = module;

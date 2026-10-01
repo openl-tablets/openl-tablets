@@ -2,6 +2,7 @@ package org.openl.rules.tbasic.runtime;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.binding.impl.ControlSignal;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
@@ -98,7 +99,7 @@ public class TBasicVM {
      * @return The result of the method execution.
      */
     public Object run(TBasicContextHolderEnv environment) {
-        assert environment != null;
+        Objects.requireNonNull(environment, "environment cannot be null");
 
         Object returnResult;
 

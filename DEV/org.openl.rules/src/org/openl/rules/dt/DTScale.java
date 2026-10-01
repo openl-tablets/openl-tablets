@@ -10,6 +10,13 @@ public class DTScale {
         this.hScale = hScale;
     }
 
+    private void requireScaledSize(int size) {
+        if (size != vScale * hScale) {
+            throw new IllegalArgumentException(
+                    "The size %d does not match the %dx%d scale.".formatted(size, vScale, hScale));
+        }
+    }
+
     public interface RowScale {
         int getMultiplier();
 
@@ -69,7 +76,7 @@ public class DTScale {
 
         @Override
         public int getActualSize(int size) {
-            assert size == vScale * hScale;
+            requireScaledSize(size);
             return vScale;
         }
 
@@ -97,7 +104,7 @@ public class DTScale {
 
         @Override
         public int getActualSize(int size) {
-            assert size == vScale * hScale;
+            requireScaledSize(size);
             return hScale;
         }
 
