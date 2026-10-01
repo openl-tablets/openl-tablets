@@ -47,7 +47,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         }
     }
 
-    private Map<String, Object> internalMap = new HashMap<>();
+    private Map<String, Serializable> internalMap = new HashMap<>();
 
     @Override
     public Object getValue(String name) {
