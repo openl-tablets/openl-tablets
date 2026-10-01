@@ -172,6 +172,8 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
         return true;
     }
 
+    // Public method kept for compatibility; it delegates to copy(), the copy constructor.
+    @SuppressWarnings("java:S2975")
     @Override
     public IRuntimeEnv clone() {
         return copy();

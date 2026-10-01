@@ -169,6 +169,8 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
      * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#clone()">Object#clone()</a>
      * @see <a href="https://en.wikipedia.org/wiki/Clone_(Java_method)">Clone (Java_method)</a>
      */
+    // Public API: clients clone runtime contexts; removing clone() would break them.
+    @SuppressWarnings("java:S2975")
     @Override
     public IRulesRuntimeContext clone() throws CloneNotSupportedException {
         var defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();

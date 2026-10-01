@@ -8,5 +8,7 @@ package org.openl.runtime;
  * @author Alexey Gamanovich
  */
 public interface IRuntimeContext extends Cloneable {
+    // Public API: clients clone runtime contexts; removing clone() would break them.
+    @SuppressWarnings("java:S2975")
     IRuntimeContext clone() throws CloneNotSupportedException;
 }
