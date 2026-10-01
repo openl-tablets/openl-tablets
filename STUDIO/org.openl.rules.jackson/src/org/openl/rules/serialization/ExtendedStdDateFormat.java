@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
  *
  * @author Vladyslav Pikus
  */
+// StdDateFormat compares formats by identity, which the pattern added here keeps.
+@SuppressWarnings("java:S2160")
 public class ExtendedStdDateFormat extends StdDateFormat {
 
     private static final String PARSE_ERROR_MSG =

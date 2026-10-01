@@ -5,6 +5,8 @@ import java.util.prefs.Preferences;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 
+// Spring identifies a property source by its name: MutablePropertySources looks sources up and replaces them by name.
+@SuppressWarnings("java:S2160")
 public class DisablePropertySource extends PropertySource<Preferences> {
 
     public static final String PROPS_NAME = "Disable properties";

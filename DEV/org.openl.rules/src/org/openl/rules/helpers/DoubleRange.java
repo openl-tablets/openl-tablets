@@ -14,6 +14,8 @@ import org.openl.rules.range.RangeParser;
  * The <code>DoubleRange</code> class stores range of floats. Examples : "1.2-3", "2 .. 4", "123.456 ... 1000.00001"
  * (Important: using of ".." and "..." requires spaces between numbers and separator).
  */
+// Range.equals already compares the bounds this range keeps, reading them through getType, getLeft and getRight.
+@SuppressWarnings("java:S2160")
 @XmlRootElement
 public class DoubleRange extends Range<Double> implements INumberRange {
     private static final int TO_DOUBLE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;

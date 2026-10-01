@@ -24,6 +24,8 @@ import org.openl.types.java.JavaOpenMethod;
 /**
  * @author snshor
  */
+// OpenL types are equal by their instance class, which binding and casts rely on; the state added here is not identity.
+@SuppressWarnings("java:S2160")
 public abstract class ADynamicClass extends AOpenClass {
 
     @Getter

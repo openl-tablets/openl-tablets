@@ -9,6 +9,8 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
+// A parameter is equal by name and type; its test value and error change after creation, so they stay out.
+@SuppressWarnings("java:S2160")
 public class ParameterWithValueDeclaration extends ParameterDeclaration implements IParameterWithValueDeclaration {
     public static final ParameterWithValueDeclaration[] EMPTY_ARRAY = new ParameterWithValueDeclaration[0];
     @Getter

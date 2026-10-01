@@ -30,6 +30,8 @@ import org.openl.types.IOpenMethod;
  *
  * @author snshor
  */
+// OpenL types are equal by their instance class, which binding and casts rely on; the state added here is not identity.
+@SuppressWarnings("java:S2160")
 public class ModuleOpenClass extends ComponentOpenClass {
 
     /**

@@ -22,6 +22,8 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
+// Spring identifies a property source by its name: MutablePropertySources looks sources up and replaces them by name.
+@SuppressWarnings("java:S2160")
 public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public static final String PROPS_NAME = "Dynamic properties";
 

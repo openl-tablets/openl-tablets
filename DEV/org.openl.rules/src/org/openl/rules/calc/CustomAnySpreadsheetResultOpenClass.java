@@ -9,6 +9,8 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 
+// The type is equal by its module and name; the types merged into it only decorate the generated bean.
+@SuppressWarnings("java:S2160")
 public class CustomAnySpreadsheetResultOpenClass extends CustomSpreadsheetResultOpenClass {
 
     private final Set<CustomSpreadsheetResultOpenClass> anyOpenClasses = new HashSet<>();

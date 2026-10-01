@@ -9,6 +9,8 @@ import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DTColumnsDefinitionField;
 import org.openl.types.IOpenField;
 
+// OpenL types are equal by their instance class, which binding and casts rely on; the state added here is not identity.
+@SuppressWarnings("java:S2160")
 public class DecisionExprFieldDataType extends ComponentOpenClass {
     private final DecisionTableDataType decisionTableDataType;
 

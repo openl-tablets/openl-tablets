@@ -12,7 +12,8 @@ import org.openl.rules.range.Range;
 import org.openl.util.StringUtils;
 
 // A parameter that is not read selects the overload by its type: the engine resolves casts and distances by signature.
-@SuppressWarnings("java:S1172")
+// Range.equals already compares the bounds this range keeps, reading them through getType, getLeft and getRight.
+@SuppressWarnings({"java:S1172", "java:S2160"})
 @XmlRootElement
 public class CharRange extends Range<Character> {
 

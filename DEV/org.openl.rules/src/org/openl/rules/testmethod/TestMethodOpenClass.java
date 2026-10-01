@@ -11,6 +11,8 @@ import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+// OpenL types are equal by their instance class, which binding and casts rely on; the state added here is not identity.
+@SuppressWarnings("java:S2160")
 public class TestMethodOpenClass extends ADynamicClass {
 
     public TestMethodOpenClass(String tableName, IOpenMethod testedMethod) {

@@ -79,6 +79,8 @@ import org.openl.util.StringUtils;
  * /html/spring-boot-features.html#boot-features-external-config">Spring
  * Boot. Externalized Configuration.</a>
  */
+// Spring identifies a property source by its name: MutablePropertySources looks sources up and replaces them by name.
+@SuppressWarnings("java:S2160")
 @Slf4j
 public class ApplicationPropertySource extends EnumerablePropertySource<Deque<PropertySource<?>>> {
 
