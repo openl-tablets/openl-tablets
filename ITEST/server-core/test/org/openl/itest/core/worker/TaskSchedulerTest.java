@@ -88,6 +88,8 @@ class TaskSchedulerTest {
         verify(command1, times(1)).run();
     }
 
+    // The task runs longer than the timeout on purpose.
+    @SuppressWarnings("java:S2925")
     @Test
     void testTimeout() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, 1);

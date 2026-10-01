@@ -69,6 +69,8 @@ class WebStudioWorkspaceRelatedDependencyManagerTest {
         }
     }
 
+    // The random pause varies the interleaving of the concurrent loads.
+    @SuppressWarnings("java:S2925")
     @Test
     void test() throws ProjectResolvingException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);

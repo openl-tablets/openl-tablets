@@ -38,6 +38,8 @@ class RunFileRepoRestRulesDeploymentTest {
         client.test("test-resources/missing-service");
     }
 
+    // The pauses keep services invoked while deployments replace them; there is no event to wait for.
+    @SuppressWarnings("java:S2925")
     @Test
     void test_EPBDS_8758_multithread() throws InterruptedException {
         client.send("admin_services_no_services.json.get");
@@ -63,6 +65,8 @@ class RunFileRepoRestRulesDeploymentTest {
         client.send("admin_services_no_services.json.get");
     }
 
+    // The pause keeps services invoked while deployments replace them; there is no event to wait for.
+    @SuppressWarnings("java:S2925")
     @Test
     @Disabled("Check EPBDS-10940 issue")
     void test_EPBDS_8758_multithread2() throws Exception {

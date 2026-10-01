@@ -1388,6 +1388,8 @@ class WorkspaceProjectServiceTest {
         verify(webStudio).rebuildCurrentModule();
     }
 
+    // The pause stands for a long write, so an overlapping second write would be caught in it.
+    @SuppressWarnings("java:S2925")
     @Test
     void two_writes_of_one_session_never_reach_the_workbook_at_the_same_time() throws Exception {
         var acl = mock(RepositoryAclService.class);
