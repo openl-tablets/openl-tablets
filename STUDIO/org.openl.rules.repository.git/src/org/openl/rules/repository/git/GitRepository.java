@@ -1,5 +1,7 @@
 package org.openl.rules.repository.git;
 
+import static org.openl.rules.repository.api.Repository.validatePath;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -309,7 +311,7 @@ public class GitRepository implements BranchRepository, Closeable {
     private RevCommit createCommit(FileData data, InputStream stream) throws GitAPIException, IOException {
         var fileInRepository = data.getName();
 
-        var file = new File(getLocalGitRoot(), fileInRepository);
+        var file = workTreeFile(fileInRepository);
         createParent(file);
         IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
@@ -345,7 +347,7 @@ public class GitRepository implements BranchRepository, Closeable {
             checkoutForcedOrReset(branch);
 
             var name = data.getName();
-            var file = new File(getLocalGitRoot(), name);
+            var file = workTreeFile(name);
             if (!file.exists()) {
                 return false;
             }
@@ -405,8 +407,8 @@ public class GitRepository implements BranchRepository, Closeable {
 
             checkoutForcedOrReset(branch);
 
-            var src = new File(getLocalGitRoot(), srcName);
-            var dest = new File(getLocalGitRoot(), destData.getName());
+            var src = workTreeFile(srcName);
+            var dest = workTreeFile(destData.getName());
             Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
             git().add().addFilepattern(destData.getName()).call();
@@ -504,7 +506,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
             checkoutForcedOrReset(branch);
 
-            var src = new File(getLocalGitRoot(), srcName);
+            var src = workTreeFile(srcName);
             if (src.isDirectory()) {
                 var files = new ArrayList<FileItem>();
                 try {
@@ -2226,7 +2228,7 @@ public class GitRepository implements BranchRepository, Closeable {
         // Add new files and update existing ones
         var savedFiles = new ArrayList<File>();
         for (FileItem change : files) {
-            var file = new File(getLocalGitRoot(), change.getData().getName());
+            var file = workTreeFile(change.getData().getName());
             savedFiles.add(file);
             applyChangeInWorkspace(change, changedFiles);
         }
@@ -2234,7 +2236,7 @@ public class GitRepository implements BranchRepository, Closeable {
         if (changesetType == ChangesetType.FULL) {
             // Remove absent files
             var basePath = getLocalGitRoot().getAbsolutePath();
-            var folder = new File(getLocalGitRoot(), relativeFolder);
+            var folder = workTreeFile(relativeFolder);
             removeAbsentFiles(basePath, folder, savedFiles);
         }
 
@@ -2248,7 +2250,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private void applyChangeInWorkspace(FileItem change, Collection<String> changedFiles) throws IOException,
             GitAPIException {
-        var file = new File(getLocalGitRoot(), change.getData().getName());
+        var file = workTreeFile(change.getData().getName());
         createParent(file);
 
         var stream = change.getStream();
@@ -2363,6 +2365,10 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private ObjectId getCommitByVersion(String version) throws IOException {
+        if (ObjectId.isId(version)) {
+            return ObjectId.fromString(version);
+        }
+        requireValidRefName(version);
         var ref = git().getRepository().findRef(version);
         if (ref == null) {
             // Version is a hash for commit
@@ -2387,6 +2393,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     @Override
     public void createRepositoryBranch(String newBranch, @Nullable String startPoint) throws IOException {
+        requireValidBranchName(newBranch);
         initializeGit(true);
 
         var branchAbsentBefore = false;
@@ -2420,14 +2427,12 @@ public class GitRepository implements BranchRepository, Closeable {
         if (isEmpty()) {
             throw new IOException("Cannot create a branch on the empty repository.");
         }
-        if (startPoint != null && git().getRepository().resolve(startPoint) == null) {
-            throw new IOException("Cannot resolve " + startPoint);
-        }
+        var startCommit = startPoint == null ? null : resolveStartPoint(startPoint);
 
         checkoutForced(branch);
         var createBranchCommand = git().branchCreate().setName(newBranch);
-        if (startPoint != null) {
-            createBranchCommand.setStartPoint(startPoint);
+        if (startCommit != null) {
+            createBranchCommand.setStartPoint(startCommit);
         }
         var branchRef = createBranchCommand.call();
         pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
@@ -2447,6 +2452,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     @Override
     public void deleteRepositoryBranch(String branch) throws IOException {
+        requireValidBranchName(branch);
         initializeGit(true);
 
         var writeLock = repositoryLock.writeLock();
@@ -2620,6 +2626,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     @Override
     public GitRepository forBranch(String branch) throws IOException {
+        requireValidBranchName(branch);
         initializeGit(true);
 
         var readLock = repositoryLock.readLock();
@@ -2812,6 +2819,42 @@ public class GitRepository implements BranchRepository, Closeable {
         return false;
     }
 
+    private void requireValidBranchName(String branch) throws IOException {
+        if (!isValidBranchName(branch)) {
+            throw new IOException("Invalid branch name '%s'".formatted(branch));
+        }
+    }
+
+    /**
+     * Resolves the commit a new branch starts from: a commit id, or a branch or tag name.
+     *
+     * @throws IOException if the start point is not a valid reference name or names no commit
+     */
+    private RevCommit resolveStartPoint(String startPoint) throws IOException {
+        ObjectId commitId;
+        if (ObjectId.isId(startPoint)) {
+            commitId = ObjectId.fromString(startPoint);
+        } else {
+            requireValidRefName(startPoint);
+            commitId = git().getRepository().resolve(startPoint);
+        }
+        if (commitId == null) {
+            throw new IOException("Cannot resolve " + startPoint);
+        }
+        try (var walk = new RevWalk(git().getRepository())) {
+            return walk.parseCommit(commitId);
+        }
+    }
+
+    /**
+     * Rejects a revision that is not a valid reference name, such as a path leading outside the references.
+     */
+    private static void requireValidRefName(String revision) throws IOException {
+        if (!Repository.isValidRefName(Constants.R_REFS + revision)) {
+            throw new IOException("Invalid revision '%s'".formatted(revision));
+        }
+    }
+
     @Override
     public boolean isValidBranchName(String s) {
         return s != null && Repository.isValidRefName(Constants.R_HEADS + s);
@@ -2841,6 +2884,17 @@ public class GitRepository implements BranchRepository, Closeable {
         } else {
             return new Git(git().getRepository());
         }
+    }
+
+    /**
+     * Resolves a repository-relative path to a file in the local working tree.
+     *
+     * @throws java.nio.file.InvalidPathException if the path is absolute or not normalized, so it could point
+     *                                            outside the working tree
+     */
+    private File workTreeFile(String path) throws IOException {
+        validatePath(path);
+        return new File(getLocalGitRoot(), path);
     }
 
     private File getLocalGitRoot() throws IOException {
