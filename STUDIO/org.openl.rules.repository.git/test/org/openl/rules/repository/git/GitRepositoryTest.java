@@ -171,6 +171,19 @@ class GitRepositoryTest {
     }
 
     @Test
+    void savesAgainOnceTheCorruptedIndexIsDeleted() throws IOException {
+        Files.writeString(new File(local, ".git/index").toPath(), "Not an index of a git repository");
+
+        var path = "rules/project1/file4";
+        var text = "Saved after the index was repaired";
+        assertThrows(IOException.class, () -> repo.save(createFileData(path, text), IOUtils.toInputStream(text)));
+
+        var result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
+        assertEquals(text.length(), result.getSize());
+        assertEquals(text, readText(repo.read(path)));
+    }
+
+    @Test
     void listOfAFileHasNoFoldersInIt() throws IOException {
         assertEquals(List.of(), repo.listFolders("rules/project1/file1"));
     }
