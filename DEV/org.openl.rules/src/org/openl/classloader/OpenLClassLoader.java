@@ -361,6 +361,8 @@ public class OpenLClassLoader extends GroovyClassLoader {
     /*
      * A utility class that will enumerate over an enumerations queue.
      */
+    // ClassLoader.getResources() returns an Enumeration, so the combined result must be one.
+    @SuppressWarnings("java:S1150")
     @RequiredArgsConstructor
     private static final class CompoundEnumeration implements Enumeration<URL> {
         private final Queue<Enumeration<URL>> queue;
