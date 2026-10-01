@@ -217,17 +217,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     renameProject = false;
                 }
             }
-            if (renameProject) {
-                if (repository.supports().mappedFolders()) {
-                    LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
-                    File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot().toFile();
-                    String prevPath = project.getFolderPath();
-                    int index = prevPath.lastIndexOf('/');
-                    String newPath = prevPath.substring(0, index + 1) + logicalName;
-                    boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
-                    if (!renamed) {
-                        log.warn("Cannot rename folder from {} to {}", prevPath, newPath);
-                    }
+            if (renameProject && repository.supports().mappedFolders()) {
+                LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
+                File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot().toFile();
+                String prevPath = project.getFolderPath();
+                int index = prevPath.lastIndexOf('/');
+                String newPath = prevPath.substring(0, index + 1) + logicalName;
+                boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
+                if (!renamed) {
+                    log.warn("Cannot rename folder from {} to {}", prevPath, newPath);
                 }
             }
             userWorkspace.refresh();

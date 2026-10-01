@@ -291,21 +291,18 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         Set<IDependencyLoader> matchedLoaders = new HashSet<>();
         for (IDependencyLoader dl : visibleDependencyLoaders) {
-            if (!Objects.equals(currentDependencyLoader,
-                    dl) && !(dl.isProjectLoader() && currentDependencyLoader != null && Objects.equals(dl.getProject(),
-                    currentDependencyLoader.getProject()))) {
-                if (Pattern.matches(value, dl.getDependency().getNode().getIdentifier())) {
-                    matchedLoaders.add(dl);
-                }
+            if (!Objects.equals(currentDependencyLoader, dl)
+                    && !(dl.isProjectLoader() && currentDependencyLoader != null
+                    && Objects.equals(dl.getProject(), currentDependencyLoader.getProject()))
+                    && Pattern.matches(value, dl.getDependency().getNode().getIdentifier())) {
+                matchedLoaders.add(dl);
             }
         }
 
         for (IDependencyLoader dl : visibleDependencyLoaders) {
-            if (!dl.isProjectLoader()) {
-                if (!dl.isProjectLoader() && !Objects.equals(currentDependencyLoader, dl) && Pattern.matches(value,
-                        dl.getModule().getName())) {
-                    matchedLoaders.add(dl);
-                }
+            if (!dl.isProjectLoader() && !Objects.equals(currentDependencyLoader, dl)
+                    && Pattern.matches(value, dl.getModule().getName())) {
+                matchedLoaders.add(dl);
             }
         }
 
@@ -446,10 +443,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         while (!queue.isEmpty()) {
             var depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
-                if (dependencyReference.getDependency().equals(depLoader)) {
-                    if (dependenciesToKeep.add(dependencyReference.getDependOnThisDependency())) {
-                        queue.add(dependencyReference.getDependOnThisDependency());
-                    }
+                if (dependencyReference.getDependency().equals(depLoader)
+                        && dependenciesToKeep.add(dependencyReference.getDependOnThisDependency())) {
+                    queue.add(dependencyReference.getDependOnThisDependency());
                 }
             }
         }
@@ -480,10 +476,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         while (!queue.isEmpty()) {
             var depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
-                if (dependencyReference.getDependOnThisDependency().equals(depLoader)) {
-                    if (dependenciesToReset.add(dependencyReference.getDependency())) {
-                        queue.add(dependencyReference.getDependency());
-                    }
+                if (dependencyReference.getDependOnThisDependency().equals(depLoader)
+                        && dependenciesToReset.add(dependencyReference.getDependency())) {
+                    queue.add(dependencyReference.getDependency());
                 }
                 if (dependencyReference.getDependency().equals(depLoader)) {
                     dependenciesReferencesToRemove.add(dependencyReference);
@@ -502,10 +497,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                         var pd = queue1.poll();
                         if (projectClassloaderToReset.add(pd)) {
                             for (IDependencyLoader dl : this.getDependencyLoaders()) {
-                                if (Objects.equals(dl.getProject(), pd)) {
-                                    if (dependenciesToReset.add(dl)) {
-                                        queue.add(dl);
-                                    }
+                                if (Objects.equals(dl.getProject(), pd) && dependenciesToReset.add(dl)) {
+                                    queue.add(dl);
                                 }
                                 if (dl.isProjectLoader() && dl.getProject().getDependencies() != null) {
                                     for (ProjectDependencyDescriptor pdd : dl.getProject().getDependencies()) {
