@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.servlet;
 import static java.util.Objects.requireNonNullElse;
 
 import java.io.IOException;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,8 +13,6 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.MappingMatch;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Hands a file the frontend build left beside the pages to the container to serve.
  *
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author Yury Molchan
  */
-@Slf4j
 @WebServlet({"/assets/*", "/icons/*", "/favicon.svg", "/favicon.ico"})
 public class StaticResourcesServlet extends HttpServlet {
 
@@ -54,15 +52,20 @@ public class StaticResourcesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        serve(getServletContext(), req, resp);
+    }
+
+    /**
+     * Answers with the file at the address of the request, or with an error when the container cannot serve it.
+     *
+     * <p>Any servlet mapped at a prefix hands a file over this way, so the container answers it whole.
+     */
+    static void serve(ServletContext context, HttpServletRequest req, HttpServletResponse resp) {
         try {
             // The container's own servlet is the portable way: it sets the content type and the caching headers.
-            getServletContext().getNamedDispatcher(CONTAINER_SERVLET).forward(asServedByTheContainer(req), resp);
+            context.getNamedDispatcher(CONTAINER_SERVLET).forward(asServedByTheContainer(req), resp);
         } catch (ServletException | IOException e) {
-            log.error("Failed to answer the request.", e);
-            if (!resp.isCommitted()) {
-                resp.reset();
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
+            FrontendPageServlet.failed(resp, e);
         }
     }
 

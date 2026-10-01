@@ -22,10 +22,13 @@ Jekyll 3.10 + Minimal Mistakes 4.28.0 remote theme on GitHub Pages.
 
 Auto-generated from folder structure. Triggered by `nav: "auto"` in `_config.yml`. Applied to `user-guides/`.
 
-- **Title**: folder name if index.md or filename (strip numeric prefix, kebab-to-Title Case, "openl" becomes "OpenL")
+- **Title**: front matter `title`, else the level 1–3 heading the page starts with (`jekyll-titles-from-headings`),
+  else the file name — a folder takes the title of its `index.md`, else its name. A name drops a numeric prefix and
+  turns kebab-case into Title Case ("openl" becomes "OpenL")
 - **Order**: alphabetical by `page.path` — numeric prefixes (`01-`, `02-`) control sequence
 - **Depth**: 0 = root link, 1 = bold section header, 2+ = nested items
 - Adding/removing `.md` files auto-updates sidebar on rebuild
+- OpenL Studio builds the same tree for its viewer (`/docs/toc.json`, `UserGuides` in webstudio): keep both in step
 
 ## User Guides Inside OpenL Studio
 

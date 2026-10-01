@@ -43,9 +43,10 @@ It turns `Docs/user-guides` into a jar.
 - **Not deployed** — the module sets `maven.deploy.skip=true`. The root `pom.xml` derives `maven.install.skip`
   from it, so the module sets `maven.install.skip=false` back. The jar still reaches the local repository, and a
   build of the webstudio war alone, outside the reactor, still resolves it.
-- **Consumed by the war only** — the webstudio war depends on it as an `optional` dependency. The war plugin still
-  packages it into `WEB-INF/lib`. The published war pom does not drag it into the builds of its consumers, so
-  nobody needs it from Nexus.
+- **Consumed by the war only** — the webstudio war depends on it as an `optional` dependency, so the published war
+  pom does not drag it into the builds of its consumers, and nobody needs it from Nexus. The war plugin leaves an
+  optional dependency out, so the war copies the jar into `WEB-INF/lib` itself, the way it ships its optional log4j
+  runtime.
 - **Version** — managed in the root `dependencyManagement`, like `studio-ui`.
 
 ### The validator
@@ -83,14 +84,18 @@ a `paths` filter only, not in `paths-ignore`. The rest of `Docs/` stays ignored,
 OpenL Studio.
 
 - **A file of the guides** — `/docs/<path>` naming a file of `META-INF/resources/docs` is handed to the container's
-  `default` servlet, which sets the content type, `ETag` and `Last-Modified`. It reuses the request shaping of
-  `StaticResourcesServlet`, which keeps the whole address under a prefix mapping. A `.md` file is answered as
-  `text/markdown; charset=UTF-8`, because the containers' MIME tables do not list it.
-- **The table of contents** — `/docs/toc.json` lists the pages as a tree, built once from the jar content. It applies
-  the rules of the site sidebar: the title comes from the front matter `title` or from the file or folder name, and
-  pages are ordered by path. `toc.json` is a reserved name, so the validator rejects a guide file with it.
+  `default` servlet, which sets the content type and `Last-Modified`. It reuses the request shaping of
+  `StaticResourcesServlet`, which keeps the whole address under a prefix mapping. `web.xml` maps a `.md` file to
+  `text/markdown;charset=UTF-8`, because the containers' own tables of types do not list it. The servlet answers a file
+  with `Cache-Control: no-cache` before the security chain writes its `no-store`, so a browser keeps the file and
+  revalidates it by its date.
+- **The table of contents** — `/docs/toc.json` lists the pages as a tree, built on the first request from the jar
+  content. It applies the rules of the site sidebar: a page takes the front matter `title`, else the level 1–3
+  heading it starts with, else its file name; a folder lists its pages, then its folders, in the order of their
+  names. `toc.json` is a reserved name, so the validator rejects a guide file with it.
 - **Anything else** — a page address such as `/docs/openl-studio/rules-editor` gets the application page, the way
-  `AppPageServlet` answers. The viewer then loads `rules-editor.md` itself.
+  `AppPageServlet` answers. The viewer then loads `rules-editor.md` itself. An address ending with a file extension
+  names a file the guides do not hold, and is not found.
 
 Viewer addresses mirror the site addresses: `/docs/<path>` is `<site>/user-guides/<path>`. A page drops the `.md`
 extension, and a folder stands for its `index.md`.
@@ -170,7 +175,7 @@ The viewer searches the text of all guides, or of one part of the guides tree.
   fences. Mermaid sources are not indexed.
 - **Where the index lives** — a client-side full-text index (MiniSearch) in a Web Worker. On the first search the
   worker fetches the pages listed by `toc.json`, about 1.1 MB of Markdown today, once per session. Later sessions
-  revalidate them with `ETag`.
+  revalidate them by their `Last-Modified`.
 - **One parser** — the worker splits pages into sections with the same Markdown parser and heading ids that the
   renderer uses, so every result anchor exists on the page it opens.
 
