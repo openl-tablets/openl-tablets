@@ -2202,13 +2202,7 @@ public class GitRepository implements BranchRepository, Closeable {
             push();
 
             if (!remote) {
-                // GC is required in local mode. In remote mode autoGC() will be invoked on each fetch or merge.
-                // autoGC() didn't solve the issue for local repository, so we use gc() instead.
-                try {
-                    git().gc().call();
-                } catch (Exception e) {
-                    log.warn(e.getMessage(), e);
-                }
+                collectGarbage();
             }
         } catch (IOException e) {
             reset(commitId);
@@ -2216,6 +2210,20 @@ public class GitRepository implements BranchRepository, Closeable {
         } catch (Exception e) {
             reset(commitId);
             throw new IOException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Packs the local repository. A failure is only logged, because the saved changes are already committed.
+     *
+     * <p>Required in local mode only: in remote mode Git collects garbage on each fetch or merge, and that
+     * automatic collection does not help a local repository.
+     */
+    private void collectGarbage() {
+        try {
+            git().gc().call();
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
         }
     }
 
