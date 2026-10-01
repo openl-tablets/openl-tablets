@@ -77,6 +77,8 @@ public class StringUtils {
         return splitWorker(str, Character::isWhitespace);
     }
 
+    // Public utility contract: split gives a null result for a null string, as documented.
+    @SuppressWarnings("java:S1168")
     private static String[] splitWorker(final String str, final IntPredicate tester) {
         if (str == null) {
             return null;
@@ -159,6 +161,8 @@ public class StringUtils {
      * @param text the String to parse, may be null
      * @return an array of parsed Strings, {@code null} if blank String input
      */
+    // Public utility contract: a blank text gives a null result, as documented.
+    @SuppressWarnings("java:S1168")
     public static String[] toLines(final String text) {
         if (isBlank(text)) {
             return null;

@@ -101,6 +101,8 @@ public final class Arrays {
         return (T[]) result;
     }
 
+    // Rule function: a null array with a null element gives a null result, which rules rely on.
+    @SuppressWarnings("java:S1168")
     public static <T> T[] addElement(T[] array, int index, T element) {
         if (array == null && element == null) {
             return null;
@@ -177,6 +179,8 @@ public final class Arrays {
      * @param array    the array to remove the element from, may be null
      * @return the element to be removed
      */
+    // Rule function: a null array gives a null result, as documented.
+    @SuppressWarnings("java:S1168")
     public static <T, E extends T> T[] removeElement(T[] array, E... elements) {
         if (array == null) {
             return null;

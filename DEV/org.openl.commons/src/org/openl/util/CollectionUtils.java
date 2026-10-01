@@ -113,6 +113,8 @@ public class CollectionUtils {
      * @return the transformed result (new list).
      * @throws NullPointerException if the mapper is null.
      */
+    // Public utility contract: a null collection gives a null result, which its tests pin down.
+    @SuppressWarnings("java:S1168")
     public static <I, O> List<O> map(Iterable<I> col, Mapper<? super I, ? extends O> mapper) {
         if (col == null) {
             return null;
@@ -161,6 +163,8 @@ public class CollectionUtils {
      * if the input collection is null.
      * @throws NullPointerException if the predicate is null.
      */
+    // Public utility contract: a null collection gives a null result, as documented.
+    @SuppressWarnings("java:S1168")
     public static <T> List<T> findAll(Iterable<T> col, Predicate<? super T> predicate) {
         if (col == null) {
             return null;

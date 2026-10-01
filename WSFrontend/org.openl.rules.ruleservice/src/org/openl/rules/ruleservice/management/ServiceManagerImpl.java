@@ -254,6 +254,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         return serviceDescriptionInProcess != null ? serviceDescriptionInProcess.getProjectDescriptor() : null;
     }
 
+    // Null tells an unknown service, which the admin REST API answers with 404; empty is a service without errors.
+    @SuppressWarnings("java:S1168")
     @Override
     public Collection<String> getServiceErrors(String deployPath) {
         var service = getServiceByDeploy(deployPath);

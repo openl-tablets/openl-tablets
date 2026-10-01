@@ -552,6 +552,8 @@ public class Condition extends FunctionalRow implements ICondition {
     /**
      * Returns the text of every argument of the call, in the order the call writes them.
      */
+    // Null tells that the argument texts cannot be read, unlike the empty list of a call without arguments.
+    @SuppressWarnings("java:S1168")
     private static List<String> argumentTexts(MethodBoundNode call) {
         var syntaxNode = call.getSyntaxNode();
         var module = syntaxNode.getModule();

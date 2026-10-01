@@ -56,6 +56,8 @@ public final class MethodKey {
      * @param originalParams parameters of method
      * @return normalized parameters
      */
+    // Keys compare the parameter arrays: a key without parameter types must not match a method without parameters.
+    @SuppressWarnings("java:S1168")
     private IOpenClass[] getNormalizedParams(IOpenClass[] originalParams) {
 
         if (originalParams == null) {

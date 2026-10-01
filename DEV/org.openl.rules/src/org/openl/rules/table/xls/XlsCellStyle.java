@@ -48,6 +48,8 @@ public class XlsCellStyle implements ICellStyle {
         return getFillPattern() == FillPatternType.NO_FILL;
     }
 
+    // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.
+    @SuppressWarnings("java:S1168")
     @Override
     public short[] getFillBackgroundColor() {
         if (hasNoFill()) {
@@ -62,6 +64,8 @@ public class XlsCellStyle implements ICellStyle {
         return xlsStyle.getFillBackgroundColor();
     }
 
+    // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.
+    @SuppressWarnings("java:S1168")
     @Override
     public short[] getFillForegroundColor() {
         if (hasNoFill()) {
