@@ -94,6 +94,8 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         return classWriter.toByteArray();
     }
 
+    // Each name joins the set it is checked against, a side effect a stream filter must not have.
+    @SuppressWarnings("java:S9391")
     private static void fixDuplicates(List<FieldDescription> fields, BiConsumer<FieldDescription, String> set, Function<FieldDescription, String> get) {
         var names = HashSet.<String>newHashSet(fields.size());
         var duplicates = new ArrayList<FieldDescription>();

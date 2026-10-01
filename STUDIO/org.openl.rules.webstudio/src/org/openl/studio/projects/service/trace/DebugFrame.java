@@ -184,6 +184,8 @@ public final class DebugFrame {
      * its sub-call, the step the frame failed on when that step never finished, and a spreadsheet's static
      * value/constant cells — all in grid order.
      */
+    // Each step joins the covered set the later loops check, a side effect a stream filter must not have.
+    @SuppressWarnings("java:S9391")
     private List<CallNode.Step> cellSteps(UnaryOperator<String> intern, boolean detailedTitles) {
         var steps = new ArrayList<CallNode.Step>();
         var covered = new HashSet<String>();

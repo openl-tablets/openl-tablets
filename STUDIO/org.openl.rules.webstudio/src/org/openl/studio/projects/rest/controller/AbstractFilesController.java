@@ -202,6 +202,8 @@ public abstract class AbstractFilesController {
         }
     }
 
+    // Reading an uploaded file throws an IOException, which a stream lambda cannot pass on.
+    @SuppressWarnings("java:S9391")
     private static List<UploadedFile> toUploadedFiles(List<MultipartFile> files) throws IOException {
         var uploaded = new ArrayList<UploadedFile>();
         for (MultipartFile file : files) {
