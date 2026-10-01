@@ -17,7 +17,7 @@ public abstract class AbstractStoreLogDataService implements StoreLogDataService
         if (isSync(storeLogData)) {
             save(storeLogData, true);
         } else {
-            var ignored = executorService.submit(() -> {
+            executorService.execute(() -> {
                 try {
                     save(storeLogData, false);
                 } catch (StoreLogDataException e) {
