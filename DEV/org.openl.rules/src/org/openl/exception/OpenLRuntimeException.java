@@ -26,60 +26,58 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     private final LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
     @Getter
-    private transient ILocation location;
+    private final transient ILocation location;
     @Getter
-    private String sourceLocation;
+    private final String sourceLocation;
     @Getter
-    private String sourceCode;
+    private final String sourceCode;
 
     public OpenLRuntimeException() {
+        this(null, null, null);
     }
 
     public OpenLRuntimeException(String message, Throwable cause) {
-        super(message, cause);
+        this(message, cause, null);
     }
 
     public OpenLRuntimeException(String message) {
-        super(message);
+        this(message, null, null);
     }
 
     public OpenLRuntimeException(Throwable cause) {
-        super(cause);
+        this(cause, null);
     }
 
     public OpenLRuntimeException(Throwable cause, IBoundNode node) {
-        super(cause);
-        if (node != null) {
-            ISyntaxNode syntaxNode = node.getSyntaxNode();
-            if (syntaxNode != null) {
-                pointTo(syntaxNode);
-            }
-        }
+        this(cause == null ? null : cause.toString(), cause, syntaxNodeOf(node));
     }
 
     public OpenLRuntimeException(String message, IBoundNode node) {
-        super(message);
-        if (node != null) {
-            ISyntaxNode syntaxNode = node.getSyntaxNode();
-            if (syntaxNode != null) {
-                pointTo(syntaxNode);
-            }
-        }
+        this(message, null, syntaxNodeOf(node));
     }
 
     protected OpenLRuntimeException(String message, ISyntaxNode syntaxNode) {
-        super(message);
-        if (syntaxNode != null) {
-            pointTo(syntaxNode);
-        }
+        this(message, null, syntaxNode);
     }
 
-    /** Remembers where in the rules the failure happened; a node without a source leaves the code unknown. */
-    private void pointTo(ISyntaxNode syntaxNode) {
-        var module = syntaxNode.getModule();
+    /**
+     * Remembers where in the rules the failure happened; a node without a source leaves the code unknown.
+     *
+     * <p>An exception created without a cause can still be given one through {@link #initCause(Throwable)}.
+     */
+    private OpenLRuntimeException(String message, Throwable cause, ISyntaxNode syntaxNode) {
+        super(message);
+        if (cause != null) {
+            initCause(cause);
+        }
+        var module = syntaxNode == null ? null : syntaxNode.getModule();
         this.sourceCode = module == null ? null : module.getCode();
-        this.location = syntaxNode.getSourceLocation();
-        this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, module);
+        this.location = syntaxNode == null ? null : syntaxNode.getSourceLocation();
+        this.sourceLocation = syntaxNode == null ? null : SourceCodeURLTool.makeSourceLocationURL(location, module);
+    }
+
+    private static ISyntaxNode syntaxNodeOf(IBoundNode node) {
+        return node == null ? null : node.getSyntaxNode();
     }
 
     public String getOriginalMessage() {
