@@ -6,6 +6,7 @@ import { ResizeHandle, useDragSize } from 'components/ResizeHandle'
 import { fetchGuidesContents, type GuideEntry } from 'services/userGuides'
 import { errorHandler } from 'utils/errorHandling'
 import { GuidePage } from './GuidePage'
+import { GuidesSearch } from './GuidesSearch'
 import { GuidesTree } from './GuidesTree'
 import { pagesOf, routeKey } from './guidePaths'
 import { useStyles } from './UserGuides.styles'
@@ -62,7 +63,9 @@ const UserGuides: React.FC = () => {
     return (
         <div className={styles.frame}>
             <nav className={styles.rail} style={{ width: railWidth }}>
-                <GuidesTree contents={contents} current={entry} />
+                <GuidesSearch contents={contents} current={entry}>
+                    <GuidesTree contents={contents} current={entry} />
+                </GuidesSearch>
                 <ResizeHandle edge="right" onPointerDown={startResize} testId="guides-rail-resizer" />
             </nav>
             <section ref={contentRef} className={styles.content}>

@@ -213,7 +213,7 @@ To display the OpenL Studio help topics, in OpenL Studio, in the top-right corne
 The **Documentation** section of the help page opens the user guides inside OpenL Studio. They are the guides of the
 running version, so they are available without internet access.
 
-![User guides inside OpenL Studio: the guides and their pages on the left, the Using Rules Editor page in the middle, and the sections of the page on the right](images/user-guides-viewer.png)
+![User guides inside OpenL Studio: the search box and the guides with their pages on the left, the Using Rules Editor page in the middle, and the sections of the page on the right](images/user-guides-viewer.png)
 
 *Reading the user guides inside OpenL Studio*
 
@@ -222,6 +222,15 @@ running version, so they are available without internet access.
 -   The **On This Page** pane on the right lists the sections of the open page. Click a section to scroll to it; the
     browser address then includes the section, so a bookmark opens the page at that section.
 -   A link to another page of the guides opens it in the same view; a link to another site opens in a new browser tab.
+
+To find a topic, type in the **Search the guides** box at the top of the left pane. The pane then lists the sections
+holding every word typed, the best first; the last word also matches a longer word it begins, so the list follows the
+typing. The list under the box narrows the search to a guide or a section the open page belongs to, or widens it back
+to **All Guides**. Click a result to open its page at that section, or clear the box to return to the list of pages.
+
+![Search for decision table: the sections found, each with the page it belongs to and the matched words highlighted](images/user-guides-search.png)
+
+*Searching the user guides*
 
 Every page has an address of its own under `/docs`, the one it has on the documentation site, so it can be bookmarked
 or sent to another user of the same OpenL Studio.

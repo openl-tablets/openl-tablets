@@ -8,7 +8,8 @@ import { Link } from 'react-router-dom'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
-import { imageSourceOf, linkTargetOf, startsWithHeading, withoutFrontMatter } from './guidePaths'
+import { startsWithHeading, withoutFrontMatter } from './frontMatter'
+import { imageSourceOf, linkTargetOf } from './guidePaths'
 import {
     languageOf,
     NOTE_TAG,

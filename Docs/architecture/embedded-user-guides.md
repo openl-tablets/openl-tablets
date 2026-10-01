@@ -169,8 +169,8 @@ R30,12-24,,Good Day
 
 The viewer searches the text of all guides, or of one part of the guides tree.
 
-- **Scope** — the search box offers *All guides* and every folder above the current page, so a search covers a whole
-  guide or one of its sections. The scope is a path prefix of the tree.
+- **Scope** — the list under the search box offers **All Guides** and every folder above the current page, so a
+  search covers a whole guide or one of its sections. The scope is a path prefix of the tree.
 - **What is found** — one result per page section, the text between two headings. A result shows the page title,
   the section heading and a snippet with the matched words highlighted. It opens `/docs/<page>#<heading>`.
 - **Matching** — every word of the query must match, the last one as a prefix, so results follow typing. Small typos
@@ -179,9 +179,16 @@ The viewer searches the text of all guides, or of one part of the guides tree.
   fences. Mermaid sources are not indexed.
 - **Where the index lives** — a client-side full-text index (MiniSearch) in a Web Worker. On the first search the
   worker fetches the pages listed by `toc.json`, about 1.1 MB of Markdown today, once per session. Later sessions
-  revalidate them by their `Last-Modified`.
+  revalidate them by their `Last-Modified`. A page that cannot be read is left out rather than failing the search.
+- **Without a worker** — where the browser refuses to start one, the same search runs on the page itself: a page
+  whose scripts come from another origin, as from a frontend dev server, or a security policy forbidding workers.
+  A worker that fails to load or breaks hands the search over to the page as well, with the searches still waiting.
+- **Results** — up to 50, a moment after typing pauses; they take the place of the table of contents, which keeps
+  the folders the reader opened.
 - **One parser** — the worker splits pages into sections with the same Markdown parser and heading ids that the
-  renderer uses, so every result anchor exists on the page it opens.
+  renderer uses, so every result anchor exists on the page it opens. The parser decodes HTML entities through a DOM
+  element in its browser build, so the worker bundle resolves that one package the way Node does, to its build
+  without a DOM.
 
 ## Alternatives Considered
 
