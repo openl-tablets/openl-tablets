@@ -254,9 +254,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     }
 
     @Override
-    public abstract void propagate() throws Failure;
-
-    @Override
     public void publish(int mask) {
         publisherMask(_publisher_mask | mask);
     }
