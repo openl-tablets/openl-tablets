@@ -40,7 +40,7 @@ class VersionTest {
     }
 
     @Test
-    void testParseVersion() throws Exception {
+    void testParseVersion() {
         Version version = Version.parseVersion("x_9.1.44", 2, "..");
 
         assertEquals("9.1.44", version.toString());

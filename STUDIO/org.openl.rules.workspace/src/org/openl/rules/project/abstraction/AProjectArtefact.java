@@ -114,6 +114,13 @@ public class AProjectArtefact implements IProjectArtefact {
         return projectVersion;
     }
 
+    /**
+     * Updates this artefact from the given one.
+     *
+     * @param artefact the artefact to take the content from
+     * @param user     the user who makes the change
+     * @throws ProjectException if an artefact cannot store the new content
+     */
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         refresh();
     }

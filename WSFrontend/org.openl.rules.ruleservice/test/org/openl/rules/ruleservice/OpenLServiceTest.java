@@ -313,7 +313,7 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.uri", value = "test-resources/RulesFrontendTest")
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
-    void proxyService() throws Exception {
+    void proxyService() {
         assertNull(OpenLService.rulesFrontend.get());
 
         assertNotNull(OpenLService.proxy("absent", Proxy.class));

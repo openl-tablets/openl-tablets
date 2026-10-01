@@ -214,7 +214,7 @@ public class Condition extends FunctionalRow implements ICondition {
                                                         IOpenClass methodParamType,
                                                         IOpenClass declaringClass,
                                                         OpenL openl,
-                                                        IBindingContext bindingContext) throws Exception {
+                                                        IBindingContext bindingContext) throws SyntaxNodeException {
 
         if (!GridTableUtils.isSingleCellTable(getCodeTable())) {
             var redundantRow = getCodeTable().getRow(1); // Bind error to the redundant expression definition

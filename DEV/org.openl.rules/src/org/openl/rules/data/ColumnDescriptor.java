@@ -344,7 +344,7 @@ public class ColumnDescriptor {
     private Object loadMultiRowArray(ILogicalTable logicalTable,
                                      OpenlToolAdaptor openlAdaptor,
                                      IOpenClass paramType,
-                                     IOpenClass aggregateType) throws SyntaxNodeException {
+                                     IOpenClass aggregateType) {
 
         // get height of table without empty cells at the end
         //

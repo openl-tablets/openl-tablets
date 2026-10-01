@@ -49,6 +49,11 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
 
     protected abstract MetaInfoReader createMetaInfoReader(T node);
 
+    /**
+     * Creates the source of the method header of the table.
+     *
+     * @throws SyntaxNodeException if a binder finds the header invalid
+     */
     public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode,
                                                     IBindingContext bindingContext) throws SyntaxNodeException {
         var table = tableSyntaxNode.getGridTable();
