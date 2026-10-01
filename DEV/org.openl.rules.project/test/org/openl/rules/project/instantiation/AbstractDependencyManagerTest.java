@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
@@ -56,6 +58,31 @@ class AbstractDependencyManagerTest {
 
             tempJars.forEach(p -> assertFalse(Files.exists(p), "temp jar must be deleted after resetAll: " + p));
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "Rates*      | true  | Rates Main  | true",
+            "Rates*      | true  | Policies    | false",
+            "Rate?       | true  | Rates       | true",
+            "Rate?       | true  | Rate        | false",
+            "Rates/Main  | true  | Rates / Main | true",
+            "'Rates   /   Main' | true | Rates/Main | true",
+            "'Rate s / Main' | true | Rates/Main | false",
+            "Rates*      | false | Rates Main  | false",
+            "Rates*      | false | Rates*      | true",
+            "Rates.Main  | true  | RatesXMain  | false",
+            "'a\\E.+'    | true  | abc         | false",
+            "'a\\E.+'    | false | abc         | false",
+            "'a\\E.+'    | false | 'a\\E.+'    | true"
+    })
+    void dependencyPatternTreatsOnlyWildcardsAsSpecial(String identifier,
+                                                       boolean withWildcardSupport,
+                                                       String name,
+                                                       boolean expected) {
+        var pattern = AbstractDependencyManager.dependencyPattern(identifier, withWildcardSupport);
+
+        assertEquals(expected, pattern.matcher(name).matches());
     }
 
     /**
