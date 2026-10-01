@@ -67,7 +67,7 @@ class PathInfoTest {
 
         assertEquals(xyzPath, oneMoreXyzPath);
         assertEquals(xyzPath.hashCode(), oneMoreXyzPath.hashCode());
-        assertNotEquals(xyzPath, null);
+        assertNotEquals(xyzPath, new Object());
 
         assertNotEquals(xyzPath, xyzPathText);
         assertNotEquals(xyzPath, xyzPathJSON);

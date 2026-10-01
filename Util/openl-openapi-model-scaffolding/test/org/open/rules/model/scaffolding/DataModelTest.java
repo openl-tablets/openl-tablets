@@ -29,7 +29,7 @@ class DataModelTest {
         var dtm = new DatatypeModel("test");
         var dm = new DataModel("bankData", "Bank", pi, dtm);
         var theSameDm = new DataModel("bankData", "Bank", pi, dtm);
-        assertNotEquals(dm, null);
+        assertNotEquals(dm, new Object());
         assertEquals(dm, theSameDm);
         assertEquals(dm.hashCode(), theSameDm.hashCode());
 

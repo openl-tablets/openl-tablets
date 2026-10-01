@@ -18,7 +18,7 @@ class StepModelTest {
         var numWithoutDescriptionStep = new StepModel("num", "String", "", "0");
         var numWithValueStep = new StepModel("num", "String", "calculation.", "1");
 
-        assertNotEquals(numStep, null);
+        assertNotEquals(numStep, new Object());
 
         assertEquals(numStep, oneMoreNumStep);
         assertEquals(numStep.hashCode(), oneMoreNumStep.hashCode());

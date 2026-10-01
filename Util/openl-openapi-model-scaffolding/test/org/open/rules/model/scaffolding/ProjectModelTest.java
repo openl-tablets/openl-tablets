@@ -33,7 +33,7 @@ class ProjectModelTest {
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
-        assertNotEquals(bankRating, null);
+        assertNotEquals(bankRating, new Object());
         assertNotEquals(bankRating, insurancePolicy);
         assertNotEquals(bankRating.hashCode(), insurancePolicy.hashCode());
         assertEquals(BANK_RATING, bankRating.getName());

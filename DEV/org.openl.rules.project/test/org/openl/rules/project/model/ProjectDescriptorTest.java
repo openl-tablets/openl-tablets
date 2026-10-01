@@ -87,7 +87,7 @@ class ProjectDescriptorTest {
 
         assertNotEquals(nullName1, named);
         assertNotEquals(named, nullName1);
-        assertNotEquals(nullName1, "project");
+        assertNotEquals(nullName1, new Object());
 
         // a null-name descriptor must survive hash-based collections (relies on both equals() and hashCode())
         var descriptors = new HashSet<ProjectDescriptor>();
