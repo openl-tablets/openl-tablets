@@ -217,24 +217,12 @@ The `org.openl.j` operators in order of priority are as follows:
 | -=                      | op.assign.subtract       |
 | \*=                     | op.assign.multiply       |
 | /=                      | op.assign.divide         |
-| %=                      | op.assign.rem            |
-| &=                      | op.assign.bitand         |
-| \|=                     | op.assign.bitor          |
-| \^=                     | op.assign.bitxor         |
 | **Conditional Ternary** |                          |
 | ? :                     | op.ternary.qmark         |
-| **Implication**         |                          |
-| -\>                     | op.binary.impl (\*)      |
 | **Boolean OR**          |                          |
 | \|\| or "or"            | op.binary.or             |
 | **Boolean AND**         |                          |
 | && or "and"             | op.binary.and            |
-| **Bitwise OR**          |                          |
-| \|                      | op.binary.bitor          |
-| **Bitwise XOR**         |                          |
-| \^                      | op.binary.bitxor         |
-| **Bitwise AND**         |                          |
-| &                       | op.binary.bitand         |
 | **Equality**            |                          |
 | ==                      | op.binary.eq             |
 | !=                      | op.binary.ne             |
@@ -249,19 +237,12 @@ The `org.openl.j` operators in order of priority are as follows:
 | \>==                    | op.binary.strict_gt (\*) |
 | \<===                   | op.binary.strict_le (\*) |
 | \>===                   | op.binary.strict_ge (\*) |
-| **Bitwise Shift**       |                          |
-| \<\<                    | op.binary.lshift         |
-| \>\>                    | op.binary.rshift         |
-| \>\>\>                  | op.binary.rshiftu        |
 | **Additive**            |                          |
 | +                       | op.binary.add            |
 | -                       | op.binary.subtract       |
 | **Multiplicative**      |                          |
 | \*                      | op.binary.multiply       |
 | /                       | op.binary.divide         |
-| %                       | op.binary.rem            |
-| **Power**               |                          |
-| \*\*                    | op.binary.pow (\*)       |
 | **Unary**               |                          |
 | +                       | op.unary.positive        |
 | -                       | op.unary.negative        |
@@ -270,9 +251,7 @@ The `org.openl.j` operators in order of priority are as follows:
 | x++                     | op.suffix.inc            |
 | x--                     | op.suffix.dec            |
 | !                       | op.unary.not             |
-| \~                      | op.unary.bitnot          |
 | (cast)                  | type.cast                |
-| \|x\|                   | op.unary.abs (\*)        |
 
 **Note:** (\*) Operators do not exist in Java standard and exist only in org.openl.j. They can be used and overloaded if necessary.
 

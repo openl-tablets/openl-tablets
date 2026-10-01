@@ -32,6 +32,19 @@ everyone who calls that API from outside the browser.
   same. A character counts as a number here, as in `'c' + 1`, so `null + 'c'` and `'c' + null` are `99` instead of the
   texts `nullc` and `cnull`. Multiplying, dividing and comparing with `null` give the same results as before.
 
+* **The deprecated `%`, `**` and `->` operators are removed.** A rule that still uses one of them no longer
+  compiles. Rewrite the expression with a function:
+
+  | Before   | After             |
+  |----------|-------------------|
+  | `x % y`  | `remainder(x, y)` |
+  | `x ** y` | `pow(x, y)`       |
+
+  `remainder` keeps the sign of the dividend, exactly as `%` did. `mod` keeps the sign of the divisor, so it gives a
+  different result when the operands have opposite signs. `pow` returns a `double`, while `**` kept the operand
+  type. `->` was never backed by an implementation, so no working rule uses it. Percent literals such as `10%` are
+  not affected.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 

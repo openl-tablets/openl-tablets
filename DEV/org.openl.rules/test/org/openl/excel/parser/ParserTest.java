@@ -205,6 +205,13 @@ class ParserTest {
     }
 
     @Test
+    void testRemovedOperators() {
+        _testErrorMsg("x % 3", "Lexical error at line");
+        _testErrorMsg("x ** 3", "Encountered");
+        _testErrorMsg("x -> y", "Encountered");
+    }
+
+    @Test
     void testIf() {
         _testType("if (x) a();", "control.if");
     }
@@ -247,9 +254,6 @@ class ParserTest {
         assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x-3", "op.binary.subtract");
-        assertNotNull(binaryNode);
-
-        binaryNode = _testOperator("x%3", "op.binary.rem");
         assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x is less than 3", "op.binary.lt");

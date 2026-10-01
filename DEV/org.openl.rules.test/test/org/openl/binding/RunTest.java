@@ -178,10 +178,6 @@ class RunTest {
                 arguments("10% of \n the  50", 5.0),
                 arguments("10% of    the  50", 5.0),
 
-                arguments("5.0 ** 7.0 ", Math.pow(5, 7)),
-                arguments("DoubleValue x = 5.0; x ** 7 ", Math.pow(5, 7)),
-                arguments("BigDecimal x = 5.0; x ** 7 ", new BigDecimal("78125.0000000")),
-
                 arguments("1 == 1", true),
                 arguments("1 is same as 1", true),
                 arguments("1 is same \n as 1", true),
