@@ -1,6 +1,5 @@
 package org.openl.studio.projects.model.trace;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -15,7 +14,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,24 +26,15 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.ILocalVar;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.calc.CustomSpreadsheetResultField;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
-import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.rules.cloner.Cloner;
-import org.openl.rules.constants.ConstantOpenField;
-import org.openl.rules.dt.ActionInvoker;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUtil;
@@ -54,17 +43,14 @@ import org.openl.studio.common.utils.SpreadsheetResultBean;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.trace.CallNode;
-import org.openl.studio.projects.service.trace.ConditionCheck;
 import org.openl.studio.projects.service.trace.CurrentLocation;
 import org.openl.studio.projects.service.trace.DebugFrame;
+import org.openl.studio.projects.service.trace.FormulaInputs;
 import org.openl.studio.projects.service.trace.SpreadsheetCellNames;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.studio.projects.service.trace.WatchCapture;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.impl.OpenFieldDelegator;
 
 /**
  * Maps the debugger's live stack to view models and freezes a frame's variables on demand.
@@ -338,8 +324,8 @@ public class TraceDebugMapper {
                     .steps(freezeSteps(frame, clones, includeSchema))
                     .gridColumns(gridNames(frame, true))
                     .gridRows(gridNames(frame, false))
-                    .decision(decisionFor(frame))
-                    .ruleNames(ruleNamesFor(frame))
+                    .decision(DecisionTableMapper.decisionFor(frame))
+                    .ruleNames(DecisionTableMapper.ruleNamesFor(frame))
                     .errors(buildErrors(frame))
                     .build();
         } finally {
@@ -474,7 +460,7 @@ public class TraceDebugMapper {
             return steps;
         }
         if (frame.getSource() instanceof IDecisionTable decisionTable) {
-            return ruleOutline(decisionTable, firedRuleIndices(frame));
+            return DecisionTableMapper.ruleOutline(decisionTable, DecisionTableMapper.firedRuleIndices(frame));
         }
         return frame.getExecutedSteps().stream()
                 .map(step -> StepValueView.builder().ref(step.ref()).label(step.label()).status(StepStatus.EXECUTED).build())
@@ -702,44 +688,6 @@ public class TraceDebugMapper {
     }
 
     /**
-     * Every rule of a decision table as a step. A decision-table frame on the live stack is always
-     * mid-firing, so the rule whose action is running is the current one — and the called sub-table nests
-     * under it. The rest are still pending and can be armed for a run-to.
-     */
-    static List<StepValueView> ruleOutline(IDecisionTable decisionTable, int[] firedRuleIndices) {
-        var fired = Arrays.stream(firedRuleIndices)
-                .mapToObj(decisionTable::getRuleName)
-                .collect(Collectors.toSet());
-        return ruleNames(decisionTable).stream()
-                .map(name -> StepValueView.builder()
-                        .ref(name)
-                        .label(name)
-                        .status(fired.contains(name) ? StepStatus.CURRENT : StepStatus.PENDING)
-                        .build())
-                .toList();
-    }
-
-    /** An input a step's formula consumed, ranked so the list reads steps → parameters → constants. */
-    private record StepInput(int rank, int order, String name, @Nullable Object value, @Nullable IOpenClass type) {
-    }
-
-    /**
-     * Accumulates a step's inputs as they are resolved: unique by name, and tracking which bare fields were
-     * narrowed into a dotted access ({@code $Cell.$Field}, {@code policy.census}) so a later pass skips them.
-     */
-    private static final class InputCollector {
-        private final List<StepInput> inputs = new ArrayList<>();
-        private final Set<String> seen = new HashSet<>();
-        private final Set<IOpenField> narrowed = new HashSet<>();
-
-        void add(@Nullable StepInput input) {
-            if (input != null && seen.add(input.name())) {
-                inputs.add(input);
-            }
-        }
-    }
-
-    /**
      * A focused spreadsheet step, self-contained: the values its formula consumed, the step's own returned
      * value, and the A1 address of its cell.
      *
@@ -779,67 +727,15 @@ public class TraceDebugMapper {
         }
     }
 
-    /**
-     * The values a step's formula consumed, named as the formula writes them: sibling steps such as
-     * {@code $LimitIndex}, the table's own parameters, fields read off another step's result such as
-     * {@code $Rate.$Value} (element-wise for an array of results), fields read off a parameter such as
-     * {@code policy.census}, fields opened into the table's scope such as {@code currentFinancialData},
-     * and module constants such as {@code MaxLimit}.
-     *
-     * <p>Resolved from the compiled cell's binding dependencies against the frame's recorded values —
-     * nothing is re-evaluated. A sibling step that has not executed yet is omitted, and so is a dependency
-     * the recorded data cannot resolve.
-     */
+    /** The values a step's formula consumed, frozen and written as parameter values. */
     private List<ParameterValue> formulaInputs(CompositeMethod composite, DebugFrame frame, Spreadsheet spreadsheet,
                                                Map<String, Object> executed, Map<Object, Object> clones,
                                                boolean includeSchema) {
-        var dependencies = new RulesBindingDependencies();
-        composite.updateDependency(dependencies);
-        List<IOpenField> fields = new ArrayList<>(dependencies.getFieldsMap().values());
-        var collector = new InputCollector();
-        collectResultFieldInputs(fields, executed, collector);
-        collectParameterFieldInputs(fields, frame, spreadsheet, collector);
-        collectOtherInputs(fields, frame, spreadsheet, executed, collector);
-        return collector.inputs.stream()
-                .sorted(Comparator.comparingInt(StepInput::rank)
-                        .thenComparingInt(StepInput::order)
-                        .thenComparing(StepInput::name))
-                .map(input -> buildParameterValue(new ParameterWithValueDeclaration(input.name(),
-                        safeClone(input.value(), clones, !frame.isCompleted()), input.type()), true, includeSchema))
+        return FormulaInputs.resolve(composite, frame, spreadsheet, executed).stream()
+                .map(input -> new ParameterWithValueDeclaration(input.getName(),
+                        safeClone(input.getValue(), clones, !frame.isCompleted()), input.getType()))
+                .map(input -> buildParameterValue(input, true, includeSchema))
                 .toList();
-    }
-
-    /** A field picked from another step's result ({@code $Cell.$Field}): listed as the dotted name with the
-     * field's value; the bare result the formula only reached through is narrowed away. */
-    private void collectResultFieldInputs(List<IOpenField> fields, Map<String, Object> executed,
-                                          InputCollector collector) {
-        for (IOpenField field : fields) {
-            if (field instanceof CustomSpreadsheetResultField resultField) {
-                collector.add(resultFieldInput(resultField, fields, executed, collector.narrowed));
-            }
-        }
-    }
-
-    /** A field read explicitly off a parameter ({@code policy.census}): listed as the dotted name with the
-     * field's value; the bare parameter the formula only reached through is narrowed away. */
-    private void collectParameterFieldInputs(List<IOpenField> fields, DebugFrame frame, Spreadsheet spreadsheet,
-                                             InputCollector collector) {
-        for (IOpenField field : fields) {
-            if (field instanceof DatatypeOpenField datatypeField) {
-                collector.add(parameterFieldInput(datatypeField, fields, frame, spreadsheet, collector.narrowed));
-            }
-        }
-    }
-
-    /** Everything else the formula consumed — sibling steps, whole parameters, constants — skipping fields
-     * already narrowed into a dotted access above. */
-    private void collectOtherInputs(List<IOpenField> fields, DebugFrame frame, Spreadsheet spreadsheet,
-                                    Map<String, Object> executed, InputCollector collector) {
-        for (IOpenField field : fields) {
-            if (!(field instanceof CustomSpreadsheetResultField) && !collector.narrowed.contains(field)) {
-                resolveStepInputs(field, frame, spreadsheet, executed).forEach(collector::add);
-            }
-        }
     }
 
     /**
@@ -861,220 +757,6 @@ public class TraceDebugMapper {
         var param = new ParameterWithValueDeclaration("return",
                 safeClone(value, clones, !frame.isCompleted()), cell.getType());
         return buildParameterValue(param, true, includeSchema);
-    }
-
-    private List<StepInput> resolveStepInputs(IOpenField field, DebugFrame frame, Spreadsheet spreadsheet,
-                                              Map<String, Object> executed) {
-        if (field instanceof SpreadsheetRangeField range) {
-            // A cell range ($First:$Last) reads as the individual steps it spans, like the tree shows it.
-            List<StepInput> inputs = new ArrayList<>();
-            for (int row = range.getStartRowIndex(); row <= range.getEndRowIndex(); row++) {
-                for (int column = range.getStartColumnIndex(); column <= range.getEndColumnIndex(); column++) {
-                    StepInput input = rangeCellInput(spreadsheet, executed, row, column);
-                    if (input != null) {
-                        inputs.add(input);
-                    }
-                }
-            }
-            return inputs;
-        }
-        StepInput single = resolveStepInput(field, frame, spreadsheet, executed);
-        return single == null ? List.of() : List.of(single);
-    }
-
-    /**
-     * A field read from another step's result, e.g. {@code $BalanceQualityIndexCalculation.$Value$BalanceQualityIndex}:
-     * pair the field with the sibling step of its declaring result type, read the field off that step's
-     * recorded value, and mark the bare step as narrowed so it is not listed on top of its field.
-     */
-    private static @Nullable StepInput resultFieldInput(CustomSpreadsheetResultField field, List<IOpenField> fields,
-                                                        Map<String, Object> executed, Set<IOpenField> narrowed) {
-        for (IOpenField candidate : fields) {
-            SpreadsheetCellField cellField = resultCellOf(candidate, field.getDeclaringClass());
-            if (cellField == null) {
-                continue;
-            }
-            SpreadsheetCell cell = cellField.getCell();
-            String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
-            if (!executed.containsKey(ref)) {
-                return null;
-            }
-            try {
-                Object result = executed.get(ref);
-                if (cellField.getType().isArray()) {
-                    // `$Plans.$Lives` over an array of results reads the field off each element into a matrix,
-                    // its type an array of the field's own type. The whole array stays listed too: unlike a
-                    // scalar result reached only through its field, an array is commonly also passed whole.
-                    IOpenClass type = field.getType().getAggregateInfo().getIndexedAggregateType(field.getType());
-                    return new StepInput(0, gridOrder(cell.getRowIndex(), cell.getColumnIndex()),
-                            cellField.getName() + "." + field.getName(), mapResultField(field, result), type);
-                }
-                narrowed.add(cellField);
-                Object value = result == null ? null : field.get(result, null);
-                return new StepInput(0, gridOrder(cell.getRowIndex(), cell.getColumnIndex()),
-                        cellField.getName() + "." + field.getName(), value, field.getType());
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    /** The referenced result cell whose type — or, for an array of results, its element type — is the field's
-     * declaring class; {@code null} for any other dependency. */
-    private static @Nullable SpreadsheetCellField resultCellOf(IOpenField candidate, IOpenClass declaring) {
-        if (!(candidate instanceof SpreadsheetCellField cellField)) {
-            return null;
-        }
-        IOpenClass type = cellField.getType();
-        IOpenClass element = type.isArray() ? type.getComponentClass() : type;
-        return element.getName().equals(declaring.getName()) ? cellField : null;
-    }
-
-    /** Read a field off each element of an array of results, as OpenL's {@code $array.$field} matrix syntax does. */
-    private static @Nullable Object mapResultField(CustomSpreadsheetResultField field, @Nullable Object array) {
-        if (array == null) {
-            return null;
-        }
-        int length = Array.getLength(array);
-        Object values = field.getType().getAggregateInfo().makeIndexedAggregate(field.getType(), length);
-        for (int i = 0; i < length; i++) {
-            Object element = Array.get(array, i);
-            Array.set(values, i, element == null ? null : field.get(element, null));
-        }
-        return values;
-    }
-
-    /** A cell's position key for a table-shaped ordering: row-major, with room for many columns per row. */
-    private static int gridOrder(int row, int column) {
-        return row * 10_000 + column;
-    }
-
-    /** One executed cell of a referenced range, named by its OpenL cell name. */
-    private static @Nullable StepInput rangeCellInput(Spreadsheet spreadsheet, Map<String, Object> executed,
-                                                      int row, int column) {
-        SpreadsheetCell[][] cells = spreadsheet.getCells();
-        SpreadsheetCell cell = row < cells.length && column < cells[row].length ? cells[row][column] : null;
-        if (cell == null || !isStepCell(cell)) {
-            return null;
-        }
-        String ref = CurrentLocation.cellRef(row, column);
-        if (!executed.containsKey(ref)) {
-            return null;
-        }
-        return new StepInput(0, gridOrder(row, column), SpreadsheetCellNames.of(spreadsheet, cell),
-                executed.get(ref), cell.getType());
-    }
-
-    private @Nullable StepInput resolveStepInput(IOpenField field, DebugFrame frame, Spreadsheet spreadsheet,
-                                                 Map<String, Object> executed) {
-        if (field instanceof SpreadsheetCellField cellField) {
-            SpreadsheetCell used = cellField.getCell();
-            String ref = CurrentLocation.cellRef(used.getRowIndex(), used.getColumnIndex());
-            // A referenced step that has not executed yet has no recorded value to show.
-            if (!executed.containsKey(ref)) {
-                return null;
-            }
-            int order = gridOrder(used.getRowIndex(), used.getColumnIndex());
-            return new StepInput(0, order, field.getName(), executed.get(ref), cellField.getType());
-        }
-        if (field instanceof ILocalVar) {
-            // The table's own parameter used by name (e.g. `bank`).
-            IMethodSignature signature = spreadsheet.getSignature();
-            Object[] params = frame.getParams();
-            int count = Math.min(params.length, signature.getNumberOfParameters());
-            for (int i = 0; i < count; i++) {
-                if (field.getName().equals(signature.getParameterName(i))) {
-                    return new StepInput(1, i, field.getName(), params[i], signature.getParameterType(i));
-                }
-            }
-            return null;
-        }
-        if (field instanceof ConstantOpenField constant) {
-            return new StepInput(3, 0, constant.getName(), constant.getValue(), constant.getType());
-        }
-        if (field instanceof OpenFieldDelegator delegator) {
-            return parameterScopeInput(delegator, frame, spreadsheet);
-        }
-        return null;
-    }
-
-    /**
-     * The index of the sole table parameter whose type the given class can be read from, or {@code -1}.
-     * Both parameter-field resolvers pair a field with the parameter of its declaring type this way.
-     *
-     * <p>Returns {@code -1} when no parameter matches and also when more than one does: the field alone
-     * does not say which same-typed parameter the formula read, so the caller lists the whole parameters
-     * rather than guessing — and mislabelling — the first.
-     */
-    private static int matchingParameterIndex(IOpenClass declaring, IMethodSignature signature, int paramsLength) {
-        int count = Math.min(paramsLength, signature.getNumberOfParameters());
-        int found = -1;
-        for (int i = 0; i < count; i++) {
-            if (declaring.isAssignableFrom(signature.getParameterType(i))) {
-                if (found >= 0) {
-                    return -1;
-                }
-                found = i;
-            }
-        }
-        return found;
-    }
-
-    /**
-     * A field of a parameter opened into the table's scope (e.g. {@code currentFinancialData} resolved
-     * as a field of the {@code bank} parameter): read it from that parameter's recorded value.
-     */
-    private static @Nullable StepInput parameterScopeInput(OpenFieldDelegator field, DebugFrame frame,
-                                                           Spreadsheet spreadsheet) {
-        IOpenClass declaring = field.getDeclaringClass();
-        if (declaring == null) {
-            return null;
-        }
-        Object[] params = frame.getParams();
-        int i = matchingParameterIndex(declaring, spreadsheet.getSignature(), params.length);
-        if (i < 0) {
-            return null;
-        }
-        try {
-            Object value = params[i] == null ? null : field.getDelegate().get(params[i], null);
-            return new StepInput(2, i, field.getName(), value, field.getType());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * A field read explicitly off a parameter, e.g. {@code policy.census}: pair the datatype field with the
-     * parameter of its declaring type, read the field off that parameter's recorded value, and name it with
-     * the dotted path. The bare parameter, present only as the root of the access, is narrowed so it is not
-     * listed on top of its field.
-     */
-    private static @Nullable StepInput parameterFieldInput(DatatypeOpenField field, List<IOpenField> fields,
-                                                           DebugFrame frame, Spreadsheet spreadsheet,
-                                                           Set<IOpenField> narrowed) {
-        IOpenClass declaring = field.getDeclaringClass();
-        if (declaring == null) {
-            return null;
-        }
-        IMethodSignature signature = spreadsheet.getSignature();
-        Object[] params = frame.getParams();
-        int i = matchingParameterIndex(declaring, signature, params.length);
-        if (i < 0) {
-            return null;
-        }
-        String parameter = signature.getParameterName(i);
-        try {
-            Object value = params[i] == null ? null : field.get(params[i], null);
-            // Narrow the bare parameter only once the read succeeds, so a throwing getter leaves the whole
-            // parameter listed rather than dropping both it and the field it could not resolve.
-            fields.stream()
-                    .filter(candidate -> candidate instanceof ILocalVar && parameter.equals(candidate.getName()))
-                    .forEach(narrowed::add);
-            return new StepInput(2, i, parameter + "." + field.getName(), value, field.getType());
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     /**
@@ -1173,19 +855,6 @@ public class TraceDebugMapper {
         return Arrays.stream(names).map(name -> name == null ? "" : name).toList();
     }
 
-    /** Every distinct rule name of a decision-table frame, so any rule can be armed; {@code null} otherwise. */
-    private static @Nullable List<String> ruleNamesFor(DebugFrame frame) {
-        return frame.getSource() instanceof IDecisionTable decisionTable ? ruleNames(decisionTable) : null;
-    }
-
-    /** Every distinct rule name of a decision table, in rule order. */
-    static List<String> ruleNames(IDecisionTable decisionTable) {
-        return IntStream.range(0, decisionTable.getNumberOfRules())
-                .mapToObj(decisionTable::getRuleName)
-                .distinct()
-                .toList();
-    }
-
     private @Nullable ParameterValue freezeResult(DebugFrame frame, Map<Object, Object> clones, boolean includeSchema) {
         if (!frame.isCompleted() || frame.getResult() == null
                 || !(frame.getSource() instanceof ExecutableRulesMethod method)) {
@@ -1230,42 +899,6 @@ public class TraceDebugMapper {
         return OpenLMessagesUtils.newErrorMessages(cause).stream()
                 .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
                 .toList();
-    }
-
-    /** Decision-table outcome explanation, or {@code null} for non-decision-table frames. */
-    private static @Nullable DecisionView decisionFor(DebugFrame frame) {
-        if (!(frame.getSource() instanceof IDecisionTable decisionTable)) {
-            return null;
-        }
-        return buildDecision(decisionTable, frame.getConditionChecks(), firedRuleIndices(frame));
-    }
-
-    private static int[] firedRuleIndices(DebugFrame frame) {
-        return frame.getCurrentStep() instanceof ActionInvoker invoker ? invoker.getRules() : new int[0];
-    }
-
-    /**
-     * Build the plain-language decision outcome from the rules that fired and the conditions evaluated.
-     * Mirrors the green/red table highlight: one entry per condition cell that was checked, so the
-     * explanation never claims more than the engine actually evaluated.
-     */
-    static @Nullable DecisionView buildDecision(IDecisionTable decisionTable, List<ConditionCheck> checks,
-                                                int[] firedRules) {
-        if (checks.isEmpty() && firedRules.length == 0) {
-            return null;
-        }
-        List<String> fired = Arrays.stream(firedRules).mapToObj(decisionTable::getRuleName).toList();
-        var conditions = new ArrayList<DecisionConditionView>();
-        for (ConditionCheck check : checks) {
-            if (!(check.condition() instanceof IBaseCondition condition)) {
-                continue;
-            }
-            var name = condition.getName();
-            for (int rule : check.rules()) {
-                conditions.add(new DecisionConditionView(name, decisionTable.getRuleName(rule), check.successful()));
-            }
-        }
-        return new DecisionView(fired, conditions);
     }
 
     /**

@@ -156,7 +156,9 @@ flowchart TD
   terminates idle sessions.
 - **Model / mapper** (`org.openl.studio.projects.model.trace`) — `TraceDebugMapper` maps the live stack,
   the executed tree, and the profile overview to view DTOs, freezes a frame's variables on demand, and
-  groups watch captures into per-cell series; `TraceHighlightService` computes the A1-keyed overlay.
+  groups watch captures into per-cell series; `DecisionTableMapper` maps a decision table's rules and the
+  explanation of the rules that fired; `FormulaInputs` (in the service package) resolves the values a
+  spreadsheet step's formula consumed; `TraceHighlightService` computes the A1-keyed overlay.
 - **REST + WebSocket** — `ProjectsTraceDebugController` under `/projects/{projectId}/trace`; status events
   reuse the trace topic via `ProjectSocketNotificationService`.
 - **UI** (`STUDIO/studio-ui`) — `TraceView` debugger layout: toolbar, call tree, variables, decision
@@ -428,5 +430,7 @@ client then reads the new stack.
 - `STUDIO/.../studio/projects/service/trace/` — `TraceDebugService(Impl)`, `DebugSession`,
   `DebugSessionRegistry`, `DebugSessionReaper`, `TraceHighlightService(Impl)`.
 - `STUDIO/.../studio/projects/model/trace/TraceDebugMapper.java` — stack/tree mapping and variable freezing.
+- `STUDIO/.../studio/projects/model/trace/DecisionTableMapper.java` — decision-table rules and their explanation.
+- `STUDIO/.../studio/projects/service/trace/FormulaInputs.java` — the inputs a spreadsheet step's formula consumed.
 - `STUDIO/.../studio/projects/rest/controller/ProjectsTraceDebugController.java` — the REST API.
 - `STUDIO/studio-ui/src/containers/TraceView/` + `store/traceStore.ts` + `services/traceService.ts` — the UI.
