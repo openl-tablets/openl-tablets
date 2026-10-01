@@ -18,6 +18,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
+// A wrapper is the table method it wraps, and the hierarchy of the engine methods is that deep already.
+@SuppressWarnings("java:S110")
 public abstract class AbstractAlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod {
     static {
         WrapperValidation.validateWrapperClass(AbstractAlgorithmSubroutineMethodWrapper.class,

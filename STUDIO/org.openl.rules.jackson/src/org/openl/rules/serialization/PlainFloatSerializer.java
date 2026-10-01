@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
  *
  * @author Yury Molchan
  */
+// The serializer extends the number serializer of Jackson, whose own hierarchy is that deep already.
+@SuppressWarnings("java:S110")
 class PlainFloatSerializer extends NumberSerializers.FloatSerializer {
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {

@@ -12,6 +12,8 @@ import org.openl.util.text.ILocation;
  *
  * @author DLiauchuk
  */
+// The error is reported with the location of the table, which only the syntax node exceptions carry.
+@SuppressWarnings("java:S110")
 public class DuplicatedPropertiesTableException extends TablePropertiesException {
 
     @Serial
