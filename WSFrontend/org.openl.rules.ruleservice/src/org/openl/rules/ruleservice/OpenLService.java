@@ -253,7 +253,7 @@ public class OpenLService {
      * @param serviceName Name of deployed service.
      * @return the OpenL rules proxy instance
      */
-    public static <T> T proxy(String serviceName, Class<T> proxyInterface) throws Exception {
+    public static <T> T proxy(String serviceName, Class<T> proxyInterface) {
         var cl = Thread.currentThread().getContextClassLoader();
         return ASMProxyFactory.newProxyInstance(cl,
                 (method, args) -> execute(serviceName, method.getName(), method.getParameterTypes(), args),

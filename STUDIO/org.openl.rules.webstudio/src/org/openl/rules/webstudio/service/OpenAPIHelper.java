@@ -41,7 +41,7 @@ public class OpenAPIHelper {
 
     public InputStream editOrCreateRulesDeploy(final ProjectModel projectModel,
                                                final OpenAPIGeneratedClasses generated,
-                                               RulesDeploy exitingRulesDeploy) throws IOException {
+                                               RulesDeploy exitingRulesDeploy) {
         var fileExists = exitingRulesDeploy != null;
         RulesDeploy rd = fileExists ? exitingRulesDeploy : new RulesDeploy();
         if (generated.hasAnnotationTemplateClass()) {

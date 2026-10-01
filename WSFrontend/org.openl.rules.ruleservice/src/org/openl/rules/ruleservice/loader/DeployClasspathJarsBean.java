@@ -45,7 +45,7 @@ public class DeployClasspathJarsBean {
     }
 
     @PostConstruct
-    public void start() throws Exception {
+    public void start() {
         deployThread.start();
     }
 

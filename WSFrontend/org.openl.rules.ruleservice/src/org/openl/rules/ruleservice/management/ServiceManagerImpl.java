@@ -473,7 +473,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @PreDestroy
-    public void destroy() throws Exception {
+    public void destroy() {
         undeployUnnecessary(Map.of());
     }
 }
