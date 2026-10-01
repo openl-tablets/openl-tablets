@@ -91,9 +91,9 @@ public class ExceptionMappingService {
     }
 
     private ValidationError handleTypeMismatchException(TypeMismatchException ex) {
-        return ValidationError.builder()
+        return new ValidationError.Builder()
                 .message(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .addField(org.openl.studio.common.model.FieldError.builder()
+                .addField(new org.openl.studio.common.model.FieldError.Builder()
                         .field(getFieldName(ex))
                         .message(ex.getLocalizedMessage())
                         .rejectedValue(ex.getValue())
@@ -109,7 +109,7 @@ public class ExceptionMappingService {
     }
 
     private ValidationError handleBindingResult(HttpStatusCode status, BindingResult bindingResult) {
-        var builder = ValidationError.builder();
+        var builder = new ValidationError.Builder();
         if (bindingResult.getGlobalErrorCount() == 1 && !bindingResult.hasFieldErrors()) {
             builder.code(buildErrorCode(bindingResult.getGlobalError().getCode()))
                     .message(resolveLocalMessage(bindingResult.getGlobalError()));
@@ -119,7 +119,7 @@ public class ExceptionMappingService {
                 bindingResult.getFieldErrors()
                         .stream()
                         .sorted(Comparator.comparing(FieldError::getField, String.CASE_INSENSITIVE_ORDER))
-                        .map(fieldError -> org.openl.studio.common.model.FieldError.builder()
+                        .map(fieldError -> new org.openl.studio.common.model.FieldError.Builder()
                                 .code(buildErrorCode(fieldError.getCode()))
                                 .field(fieldError.getField())
                                 .rejectedValue(fieldError.getRejectedValue())
@@ -142,7 +142,7 @@ public class ExceptionMappingService {
     }
 
     private ValidationError handleConstraintViolations(Set<ConstraintViolation<?>> constraintViolations) {
-        var builder = ValidationError.builder();
+        var builder = new ValidationError.Builder();
 
         builder.message(HttpStatus.BAD_REQUEST.getReasonPhrase());
 
@@ -150,7 +150,7 @@ public class ExceptionMappingService {
         constraintViolations.stream()
                 .filter(violation -> isFieldError(violation.getPropertyPath()))
                 .sorted(Comparator.comparing(violation -> violation.getPropertyPath().toString(), String.CASE_INSENSITIVE_ORDER))
-                .map(violation -> org.openl.studio.common.model.FieldError.builder()
+                .map(violation -> new org.openl.studio.common.model.FieldError.Builder()
                         .code(buildErrorCode(violation.getMessageTemplate()))
                         .field(violation.getPropertyPath().toString())
                         .rejectedValue(violation.getInvalidValue())

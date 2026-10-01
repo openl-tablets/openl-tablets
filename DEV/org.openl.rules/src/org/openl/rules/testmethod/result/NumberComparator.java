@@ -4,12 +4,12 @@ import org.openl.rules.helpers.NumberUtils;
 
 class NumberComparator implements TestResultComparator {
 
-    private static final NumberComparator INSTANCE = new NumberComparator();
+    static final TestResultComparator INSTANCE = new NumberComparator();
 
     private Double delta;
 
     /**
-     * Use {@link #getInstance()} instead.
+     * Use {@link #INSTANCE} instead.
      */
     private NumberComparator() {
     }
@@ -44,9 +44,5 @@ class NumberComparator implements TestResultComparator {
             }
         }
         return false;
-    }
-
-    public static TestResultComparator getInstance() {
-        return INSTANCE;
     }
 }

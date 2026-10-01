@@ -7,10 +7,10 @@ import java.util.Map;
  */
 class MapComparator extends GenericComparator<Map<?, ?>> {
 
-    private static final MapComparator INSTANCE = new MapComparator();
+    static final TestResultComparator INSTANCE = new MapComparator();
 
     /**
-     * Use {@link #getInstance()} instead.
+     * Use {@link #INSTANCE} instead.
      */
     private MapComparator() {
     }
@@ -23,9 +23,5 @@ class MapComparator extends GenericComparator<Map<?, ?>> {
     @Override
     boolean isEmpty(Map<?, ?> object) {
         return object.isEmpty();
-    }
-
-    public static TestResultComparator getInstance() {
-        return INSTANCE;
     }
 }

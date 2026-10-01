@@ -8,12 +8,12 @@ import java.util.Iterator;
  */
 class CollectionComparator extends GenericComparator<Collection<?>> {
 
-    private static final CollectionComparator INSTANCE = new CollectionComparator();
+    static final TestResultComparator INSTANCE = new CollectionComparator();
 
     private final TestResultComparator comparator = TestResultComparatorFactory.getComparator(Object.class, null);
 
     /**
-     * Use {@link #getInstance()} instead.
+     * Use {@link #INSTANCE} instead.
      */
     private CollectionComparator() {
     }
@@ -44,9 +44,5 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
             }
         }
         return !expectedItr.hasNext() && !actualItr.hasNext();
-    }
-
-    public static TestResultComparator getInstance() {
-        return INSTANCE;
     }
 }

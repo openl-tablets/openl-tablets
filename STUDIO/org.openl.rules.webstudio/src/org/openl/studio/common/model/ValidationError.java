@@ -30,17 +30,10 @@ public final class ValidationError extends BaseError {
         this.errors = new ArrayList<>(from.errors);
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public static class Builder extends BaseError.Builder {
 
         private final List<FieldError> fields = new ArrayList<>();
         private final List<BaseError> errors = new ArrayList<>();
-
-        private Builder() {
-        }
 
         public Builder addField(FieldError field) {
             fields.add(field);

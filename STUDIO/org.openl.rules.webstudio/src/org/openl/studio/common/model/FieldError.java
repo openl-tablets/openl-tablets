@@ -27,17 +27,10 @@ public final class FieldError extends BaseError {
         this.rejectedValue = from.rejectedValue;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public static class Builder extends BaseError.Builder {
 
         private String field;
         private Object rejectedValue;
-
-        private Builder() {
-        }
 
         public Builder field(String field) {
             this.field = field;

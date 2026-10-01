@@ -9,12 +9,12 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
  */
 class ObjectComparator extends GenericComparator<Object> {
 
-    private static final ObjectComparator INSTANCE = new ObjectComparator();
+    static final TestResultComparator INSTANCE = new ObjectComparator();
 
     private Double delta;
 
     /**
-     * Use {@link #getInstance()} instead.
+     * Use {@link #INSTANCE} instead.
      */
     private ObjectComparator() {
     }
@@ -40,9 +40,5 @@ class ObjectComparator extends GenericComparator<Object> {
             return comparator.isEqual(expectedValue, actualValue);
         }
         return Objects.equals(expectedValue, actualValue);
-    }
-
-    public static TestResultComparator getInstance() {
-        return INSTANCE;
     }
 }
