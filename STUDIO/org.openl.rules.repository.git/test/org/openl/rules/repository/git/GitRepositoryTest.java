@@ -2,6 +2,7 @@ package org.openl.rules.repository.git;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -572,6 +574,41 @@ class GitRepositoryTest {
             var status = git.status().call();
             assertTrue(status.getUncommittedChanges().isEmpty());
         }
+    }
+
+    @Test
+    void saveRejectsPathOutsideWorkTree() {
+        var data = createFileData("../outside", "text");
+        var stream = IOUtils.toInputStream("text");
+        var e = assertThrows(IOException.class, () -> repo.save(data, stream));
+        assertInstanceOf(InvalidPathException.class, e.getCause());
+        assertFalse(new File(local.getParentFile(), "outside").exists());
+    }
+
+    @Test
+    void branchOperationsRejectInvalidBranchName() {
+        assertThrows(IOException.class, () -> repo.forBranch("../outside"));
+        assertThrows(IOException.class, () -> repo.createRepositoryBranch("../outside", null));
+        assertThrows(IOException.class, () -> repo.deleteRepositoryBranch("../outside"));
+    }
+
+    @Test
+    void revisionsOutsideTheReferencesAreRejected() throws IOException {
+        var e = assertThrows(IOException.class, () -> repo.createRepositoryBranch("new", "../../config"));
+        assertEquals("Invalid revision '../../config'", e.getMessage());
+        assertThrows(IOException.class, () -> repo.checkHistory("rules/project1/file2", "../../config"));
+
+        assertEquals("Rules_2", repo.checkHistory("rules/project1/file2", "Rules_2").getVersion());
+        var head = repo.check("rules/project1/file2").getVersion();
+        assertEquals(head, repo.checkHistory("rules/project1/file2", head).getVersion());
+
+        repo.createRepositoryBranch("from-tag", "Rules_2");
+        repo.createRepositoryBranch("from-commit", head);
+        assertTrue(repo.branchExists("from-tag"));
+        assertTrue(repo.branchExists("from-commit"));
+        e = assertThrows(IOException.class, () -> repo.createRepositoryBranch("from-nothing", "missing"));
+        assertEquals("Cannot resolve missing", e.getMessage());
+        assertFalse(repo.branchExists("from-nothing"));
     }
 
     @Test
