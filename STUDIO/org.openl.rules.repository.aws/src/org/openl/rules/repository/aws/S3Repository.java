@@ -176,12 +176,12 @@ public class S3Repository implements Repository, Closeable {
                 var response = s3.listObjectVersions(request.build());
                 var versionSummaries = response.versions();
                 for (var versionSummary : versionSummaries) {
-                    if (versionSummary.isLatest()) {
+                    if (Boolean.TRUE.equals(versionSummary.isLatest())) {
                         result.add(createFileData(versionSummary));
                     }
                 }
                 for (var deleteMarkers : response.deleteMarkers()) {
-                    if (deleteMarkers.isLatest()) {
+                    if (Boolean.TRUE.equals(deleteMarkers.isLatest())) {
                         result.add(createFileData(deleteMarkers));
                     }
                 }
@@ -226,12 +226,12 @@ public class S3Repository implements Repository, Closeable {
                 var response = s3.listObjectVersions(request.build());
                 var versionSummaries = response.versions();
                 for (var versionSummary : versionSummaries) {
-                    if (versionSummary.isLatest() && Objects.equals(versionSummary.key(), name)) {
+                    if (Boolean.TRUE.equals(versionSummary.isLatest()) && Objects.equals(versionSummary.key(), name)) {
                         return createFileData(versionSummary);
                     }
                 }
                 for (var deleteMarker : response.deleteMarkers()) {
-                    if (deleteMarker.isLatest() && Objects.equals(deleteMarker.key(), name)) {
+                    if (Boolean.TRUE.equals(deleteMarker.isLatest()) && Objects.equals(deleteMarker.key(), name)) {
                         return createFileData(deleteMarker);
                     }
                 }
