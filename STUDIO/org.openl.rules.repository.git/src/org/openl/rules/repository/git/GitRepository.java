@@ -2373,6 +2373,8 @@ public class GitRepository implements BranchRepository, Closeable {
         return commitChangedFiles(conflictResolveCommit);
     }
 
+    // A revision is a commit id or passes isValidRefName, which rejects .. and absolute names; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     private ObjectId getCommitByVersion(String version) throws IOException {
         if (ObjectId.isId(version)) {
             return ObjectId.fromString(version);
@@ -2858,6 +2860,8 @@ public class GitRepository implements BranchRepository, Closeable {
      *
      * @throws IOException if the start point is not a valid reference name or names no commit
      */
+    // A revision is a commit id or passes isValidRefName, which rejects .. and absolute names; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     private RevCommit resolveStartPoint(String startPoint) throws IOException {
         ObjectId commitId;
         if (ObjectId.isId(startPoint)) {
