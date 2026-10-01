@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
@@ -40,9 +41,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private static final String DEPENDENCY_NOT_FOUND = "Dependency '%s' is not found.";
 
-    private static final Pattern ASTERISK_SIGN = Pattern.compile("\\*");
-    private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
-    private static final Pattern SLASH_SIGN = Pattern.compile("\\s*/\\s*");
 
 
     private final AtomicReference<CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new AtomicReference<>();
@@ -259,20 +257,65 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         return dependencyLoadersForProject;
     }
 
+    /**
+     * Builds the pattern that matches dependency names against the given identifier.
+     *
+     * <p>With wildcard support, {@code *} matches any sequence of characters, {@code ?} matches one character, and
+     * {@code /} matches a slash with any whitespace around it. All other characters match only themselves.
+     */
+    static Pattern dependencyPattern(String identifier, boolean withWildcardSupport) {
+        if (!withWildcardSupport) {
+            return Pattern.compile(Pattern.quote(identifier));
+        }
+        var regex = new StringBuilder();
+        var literal = new StringBuilder();
+        boolean afterSlash = false;
+        for (char c : identifier.toCharArray()) {
+            switch (c) {
+                case '*' -> appendWildcard(regex, literal, ".*");
+                case '?' -> appendWildcard(regex, literal, ".");
+                case '/' -> {
+                    literal.setLength(literal.toString().stripTrailing().length());
+                    appendWildcard(regex, literal, "\\s*/\\s*");
+                }
+                default -> {
+                    if (!afterSlash || !Character.isWhitespace(c)) {
+                        literal.append(c);
+                    }
+                }
+            }
+            afterSlash = c == '/' || afterSlash && Character.isWhitespace(c);
+        }
+        appendWildcard(regex, literal, "");
+        return Pattern.compile(regex.toString());
+    }
+
+    private static void appendWildcard(StringBuilder regex, StringBuilder literal, String wildcard) {
+        if (!literal.isEmpty()) {
+            regex.append(Pattern.quote(literal.toString()));
+            literal.setLength(0);
+        }
+        regex.append(wildcard);
+    }
+
+    private static boolean matchesDependencyName(IDependencyLoader loader,
+                                                 Pattern pattern,
+                                                 @Nullable IDependencyLoader currentLoader) {
+        var ownProject = loader.isProjectLoader() && currentLoader != null
+                && Objects.equals(loader.getProject(), currentLoader.getProject());
+        return !ownProject && pattern.matcher(loader.getDependency().getNode().getIdentifier()).matches();
+    }
+
+    private static boolean matchesModuleName(IDependencyLoader loader, Pattern pattern) {
+        return !loader.isProjectLoader() && pattern.matcher(loader.getModule().getName()).matches();
+    }
+
     @Override
     public Collection<ResolvedDependency> resolveDependency(IDependency dependency,
                                                             boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException {
-        var value = dependency.getNode().getIdentifier();
-        boolean withWildcard;
-        if (withWildcardSupport) {
-            withWildcard = ASTERISK_SIGN.matcher(value).find() || QUESTION_SIGN.matcher(value).find();
-            value = ASTERISK_SIGN.matcher(value).replaceAll("\\\\E.*\\\\Q");
-            value = QUESTION_SIGN.matcher(value).replaceAll("\\\\E.\\\\Q");
-            value = SLASH_SIGN.matcher(value).replaceAll("\\\\E\\\\s*/\\\\s*\\\\Q");
-        } else {
-            withWildcard = false;
-        }
-        value = "\\Q" + value + "\\E";
+        var identifier = dependency.getNode().getIdentifier();
+        boolean withWildcard = withWildcardSupport && (identifier.indexOf('*') >= 0 || identifier.indexOf('?') >= 0);
+        var pattern = dependencyPattern(identifier, withWildcardSupport);
         IDependencyLoader currentDependencyLoader = !getCompilationStack().isEmpty() ? getCompilationStack().getFirst()
                 : null;
         Collection<IDependencyLoader> visibleDependencyLoaders = currentDependencyLoader != null ? findAllProjectDependencyLoaders(
@@ -289,22 +332,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                     .collect(Collectors.toSet());
         }
 
-        Set<IDependencyLoader> matchedLoaders = new HashSet<>();
-        for (IDependencyLoader dl : visibleDependencyLoaders) {
-            if (!Objects.equals(currentDependencyLoader, dl)
-                    && !(dl.isProjectLoader() && currentDependencyLoader != null
-                    && Objects.equals(dl.getProject(), currentDependencyLoader.getProject()))
-                    && Pattern.matches(value, dl.getDependency().getNode().getIdentifier())) {
-                matchedLoaders.add(dl);
-            }
-        }
-
-        for (IDependencyLoader dl : visibleDependencyLoaders) {
-            if (!dl.isProjectLoader() && !Objects.equals(currentDependencyLoader, dl)
-                    && Pattern.matches(value, dl.getModule().getName())) {
-                matchedLoaders.add(dl);
-            }
-        }
+        var matchedLoaders = visibleDependencyLoaders.stream()
+                .filter(dl -> !Objects.equals(currentDependencyLoader, dl))
+                .filter(dl -> matchesDependencyName(dl, pattern, currentDependencyLoader)
+                        || matchesModuleName(dl, pattern))
+                .collect(Collectors.toSet());
 
         if (matchedLoaders.stream().anyMatch(e -> !e.isProjectLoader())) {
             matchedLoaders = matchedLoaders.stream()
