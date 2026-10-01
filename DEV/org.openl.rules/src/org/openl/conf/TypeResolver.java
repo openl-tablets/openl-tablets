@@ -39,6 +39,8 @@ import org.openl.util.RuntimeExceptionWrapper;
  *
  * @author Yury Molchan
  */
+// Rules may refer to every java.lang and java.util type by its short name, the deprecated ones included.
+@SuppressWarnings("java:S5738")
 public class TypeResolver implements INameSpacedTypeFactory {
 
     private static final HashMap<String, IOpenClass> CORE_CLASSES = new HashMap<>();

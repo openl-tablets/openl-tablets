@@ -406,6 +406,9 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService, Dis
      * @param cl class to resolve media types
      * @return found media types
      */
+    // The deprecated comparators decide which media types collapse into one; a replacement would change the
+    // published OpenAPI.
+    @SuppressWarnings("java:S5738")
     @Override
     public String[] getMediaTypesForType(Class<?> cl) {
         if (cl == null) {

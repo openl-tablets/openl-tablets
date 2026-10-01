@@ -206,6 +206,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${basedir}", readonly = true, required = true)
     String projectBaseDir;
 
+    // Builds that still set the deprecated parameter keep working until it is removed.
+    @SuppressWarnings("java:S5738")
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
 
@@ -292,6 +294,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
     }
 
+    // Builds that still set the deprecated parameter keep working until it is removed.
+    @SuppressWarnings("java:S5738")
     private void writeArchive(File outputFile,
                               File openLSourceDir,
                               String[] includedFiles,

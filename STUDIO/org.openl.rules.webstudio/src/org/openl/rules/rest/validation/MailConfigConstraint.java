@@ -13,6 +13,8 @@ import jakarta.validation.Payload;
         MailConfigConstraintValidator.class,
         MailVerificationServerSettingsConstraintValidator.class
 })
+// The deprecated validator serves the deprecated mail settings endpoint until both are removed.
+@SuppressWarnings("java:S5738")
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MailConfigConstraint {
