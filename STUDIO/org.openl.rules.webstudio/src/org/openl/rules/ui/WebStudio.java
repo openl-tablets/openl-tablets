@@ -265,16 +265,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             RulesProject project = getCurrentProject();
             if (project.hasArtefact(RulesDeploy.FILE_NAME)) {
-                try {
-                    AProjectArtefact artefact = project.getArtefact(RulesDeploy.FILE_NAME);
-                    if (artefact instanceof AProjectResource resource) {
-                        try (InputStream content = resource.getContent()) {
-                            return RulesDeploy.read(content);
-                        }
-                    }
-                } catch (ProjectException ignore) {
-                    // The artefact has gone since it was checked, so the project has no deploy configuration.
-                }
+                return readRulesDeploy(project);
             }
             return null;
         } catch (IOException e) {
@@ -283,6 +274,25 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             throw new Message("Invalid Rules Deploy Configuration.");
         }
+    }
+
+    /**
+     * Reads the deploy configuration of the project.
+     *
+     * @return the configuration, or {@code null} when the project has none
+     */
+    private static @Nullable RulesDeploy readRulesDeploy(RulesProject project) throws IOException {
+        try {
+            AProjectArtefact artefact = project.getArtefact(RulesDeploy.FILE_NAME);
+            if (artefact instanceof AProjectResource resource) {
+                try (InputStream content = resource.getContent()) {
+                    return RulesDeploy.read(content);
+                }
+            }
+        } catch (ProjectException ignore) {
+            // The artefact has gone since it was checked, so the project has no deploy configuration.
+        }
+        return null;
     }
 
     public ProjectJacksonObjectMapperFactoryBean getCurrentProjectJacksonObjectMapperFactoryBean() {
@@ -353,20 +363,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
 
                 for (AProject project : localWorkspace.getProjects()) {
-                    try {
-                        String repoId = project.getRepository().getId();
-                        List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
-                                k -> new ArrayList<>());
-                        var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
-                        var folder = repoRoot.resolve(project.getFolderPath());
-                        ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
-                        if (resolvedDescriptor != null) {
-                            resolvedDescriptor.getModules().sort(MODULES_COMPARATOR);
-                            projectDescriptors.add(resolvedDescriptor);
-                        }
-                    } catch (Exception e) {
-                        log.warn(e.getMessage(), e);
-                    }
+                    addProjectDescriptor(localWorkspace, project);
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -375,6 +372,26 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
         }
         return projects;
+    }
+
+    /**
+     * Resolves the descriptor of the project and adds it to the projects of its repository. A project that cannot be
+     * resolved is logged and left out.
+     */
+    private void addProjectDescriptor(LocalWorkspace localWorkspace, AProject project) {
+        try {
+            String repoId = project.getRepository().getId();
+            List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId, k -> new ArrayList<>());
+            var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
+            var folder = repoRoot.resolve(project.getFolderPath());
+            ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
+            if (resolvedDescriptor != null) {
+                resolvedDescriptor.getModules().sort(MODULES_COMPARATOR);
+                projectDescriptors.add(resolvedDescriptor);
+            }
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        }
     }
 
     public void compile() {

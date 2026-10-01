@@ -1532,22 +1532,7 @@ public class GitRepository implements BranchRepository, Closeable {
             if (isEmpty()) {
                 return command.apply(repository, null, path);
             }
-
-            try (var walk = new RevWalk(repository)) {
-                var branchId = resolveBranchId();
-                if (branchId == null) {
-                    return command.apply(repository, null, path);
-                }
-                var commit = walk.parseCommit(branchId);
-                var tree = commit.getTree();
-
-                // Create TreeWalk for root folder
-                try (TreeWalk rootWalk = buildTreeWalk(repository, path, tree)) {
-                    return command.apply(repository, rootWalk, path);
-                } catch (FileNotFoundException e) {
-                    return command.apply(repository, null, path);
-                }
-            }
+            return iterateBranch(repository, path, command);
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
@@ -1556,6 +1541,30 @@ public class GitRepository implements BranchRepository, Closeable {
             resetLfsCredentials();
             readLock.unlock();
             log.debug("iterate(): unlock");
+        }
+    }
+
+    /**
+     * Applies the command to the folder at the path in the latest commit of the branch.
+     * <p>
+     * The command gets no walk when the branch has no commit or the folder is absent.
+     */
+    private <T> T iterateBranch(Repository repository, String path, WalkCommand<T> command) throws IOException,
+            GitAPIException {
+        try (var walk = new RevWalk(repository)) {
+            var branchId = resolveBranchId();
+            if (branchId == null) {
+                return command.apply(repository, null, path);
+            }
+            var commit = walk.parseCommit(branchId);
+            var tree = commit.getTree();
+
+            // Create TreeWalk for root folder
+            try (TreeWalk rootWalk = buildTreeWalk(repository, path, tree)) {
+                return command.apply(repository, rootWalk, path);
+            } catch (FileNotFoundException e) {
+                return command.apply(repository, null, path);
+            }
         }
     }
 
@@ -1728,28 +1737,47 @@ public class GitRepository implements BranchRepository, Closeable {
                     log.debug("Discard commit: {}.", commitToDiscard);
                     resetCommand.setRef(commitToDiscard + "^");
                 }
-                try {
-                    resetCommand.call();
-                } catch (JGitInternalException e) {
-                    // check if index file is corrupted
-                    var indexFile = git().getRepository().getIndexFile();
-                    try {
-                        var dc = new DirCache(indexFile, git().getRepository().getFS());
-                        dc.read();
-                        log.error(e.getMessage(), e);
-                    } catch (CorruptObjectException ex) {
-                        log.error("git index file is corrupted and will be deleted", e);
-                        try {
-                            Files.deleteIfExists(indexFile.toPath());
-                        } catch (IOException deleteError) {
-                            log.warn("Cannot delete corrupted index file {}.", indexFile, deleteError);
-                        }
-                        resetCommand.call();
-                    }
-                }
+                callReset(resetCommand);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Calls the reset command. When the reset fails on a corrupted index file, the file is deleted and the reset is
+     * called again.
+     */
+    private void callReset(ResetCommand resetCommand) throws GitAPIException, IOException {
+        try {
+            resetCommand.call();
+        } catch (JGitInternalException e) {
+            if (isIndexCorrupted()) {
+                log.error("git index file is corrupted and will be deleted", e);
+                deleteIndexFile();
+                resetCommand.call();
+            } else {
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    private boolean isIndexCorrupted() throws IOException {
+        var repository = git().getRepository();
+        try {
+            new DirCache(repository.getIndexFile(), repository.getFS()).read();
+            return false;
+        } catch (CorruptObjectException e) {
+            return true;
+        }
+    }
+
+    private void deleteIndexFile() {
+        var indexFile = git().getRepository().getIndexFile();
+        try {
+            Files.deleteIfExists(indexFile.toPath());
+        } catch (IOException e) {
+            log.warn("Cannot delete corrupted index file {}.", indexFile, e);
         }
     }
 

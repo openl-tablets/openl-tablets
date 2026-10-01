@@ -397,62 +397,71 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     @Override
     public Object invoke(Method calledMethod, Object[] args) {
-        Object result = null;
         var beanMethod = findBeanMethod(calledMethod);
         try {
-            var oldClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-                LoggingHandler.setup(this);
-                Thread.currentThread().setContextClassLoader(serviceClassLoader);
-                beforeInvocation(calledMethod, args);
-                ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(calledMethod);
-                Exception ex = null;
-                if (serviceMethodAroundAdvice != null) {
-                    invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                            calledMethod,
-                            args,
-                            null,
-                            null);
-                    try {
-                        args = processArguments(calledMethod, beanMethod, args);
-                        result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
-                    } catch (Exception e) {
-                        ex = e;
-                    } finally {
-                        invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                                calledMethod,
-                                args,
-                                result,
-                                ex);
-                    }
-                } else {
-                    invokeBeforeMethodInvocationOnListeners(calledMethod, args);
-                    try {
-                        if (beanMethod != null) {
-                            args = processArguments(calledMethod, beanMethod, args);
-                            result = beanMethod.invoke(serviceTarget, args);
-                        } else {
-                            result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
-                        }
-                    } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                        ex = unwrapInvocationException(e);
-                    } catch (Exception e) {
-                        ex = e;
-                    } finally {
-                        invokeAfterMethodInvocationOnListeners(calledMethod, args, result, ex);
-                    }
-                }
-                result = afterInvocation(calledMethod, result, ex, args);
-                // repack result if arrays inside it doesn't have the returnType as interfaceMethod
-                if (calledMethod.getReturnType().isArray()) {
-                    result = ArrayUtils.repackArray(result, calledMethod.getReturnType());
-                }
-            } finally {
-                LoggingHandler.remove();
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
-            }
+            return invokeInServiceContext(calledMethod, beanMethod, args);
         } catch (Throwable t) {
             throw toWrapperException(t);
+        }
+    }
+
+    /**
+     * Invokes the service method with its interceptors, under the class loader and the logging of the service.
+     */
+    private Object invokeInServiceContext(Method calledMethod,
+                                          @Nullable Method beanMethod,
+                                          Object[] args) throws Throwable {
+        Object result = null;
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            LoggingHandler.setup(this);
+            Thread.currentThread().setContextClassLoader(serviceClassLoader);
+            beforeInvocation(calledMethod, args);
+            ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(calledMethod);
+            Exception ex = null;
+            if (serviceMethodAroundAdvice != null) {
+                invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
+                        calledMethod,
+                        args,
+                        null,
+                        null);
+                try {
+                    args = processArguments(calledMethod, beanMethod, args);
+                    result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
+                } catch (Exception e) {
+                    ex = e;
+                } finally {
+                    invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
+                            calledMethod,
+                            args,
+                            result,
+                            ex);
+                }
+            } else {
+                invokeBeforeMethodInvocationOnListeners(calledMethod, args);
+                try {
+                    if (beanMethod != null) {
+                        args = processArguments(calledMethod, beanMethod, args);
+                        result = beanMethod.invoke(serviceTarget, args);
+                    } else {
+                        result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
+                    }
+                } catch (InvocationTargetException | UndeclaredThrowableException e) {
+                    ex = unwrapInvocationException(e);
+                } catch (Exception e) {
+                    ex = e;
+                } finally {
+                    invokeAfterMethodInvocationOnListeners(calledMethod, args, result, ex);
+                }
+            }
+            result = afterInvocation(calledMethod, result, ex, args);
+            // repack result if arrays inside it doesn't have the returnType as interfaceMethod
+            if (calledMethod.getReturnType().isArray()) {
+                result = ArrayUtils.repackArray(result, calledMethod.getReturnType());
+            }
+        } finally {
+            LoggingHandler.remove();
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
         return result;
     }

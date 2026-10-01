@@ -6,8 +6,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.model.Module;
@@ -39,12 +41,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
         var propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
             var projectDescriptor = ProjectDescriptor.read(folder).expand();
-            PropertiesFileNameProcessor processor = null;
-            try {
-                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            } catch (Exception e) {
-                globalErrorMessages.add(e.getMessage());
-            }
+            var processor = buildProcessor(propertiesFileNameProcessorBuilder, projectDescriptor, globalErrorMessages);
 
             var globalWarnMessages = new LinkedHashSet<String>();
             if ("org.openl.rules.project.resolving.CWPropertyFileNameProcessor"
@@ -53,30 +50,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         "CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property is moved to the default property processor. Remove declaration of this class from 'rules.xml'.");
             }
             for (Module module : projectDescriptor.getModules()) {
-                var moduleErrorMessages = new HashSet<String>(globalErrorMessages);
-                var moduleWarnMessages = new HashSet<String>(globalWarnMessages);
-                if (module.getMethodFilter() != null
-                        && (!module.getMethodFilter().getIncludes().isEmpty()
-                        || !module.getMethodFilter().getExcludes().isEmpty())) {
-                    moduleWarnMessages.add(
-                            "'method-filter' in the module '" + module.getName() + "' is deprecated. Use 'exposed-methods' at the project level instead.");
-                }
-                var params = new HashMap<String, Object>();
-                if (processor != null) {
-                    try {
-                        final var relativePath = module.getRulesRootPath();
-                        var tableProperties = processor.process(relativePath);
-                        params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
-                    } catch (NoMatchFileNameException e) {
-                        moduleWarnMessages.add(e.getMessage());
-                    } catch (Exception | LinkageError e) {
-                        moduleErrorMessages.add("Failed to load custom file name processor class '" + e.getClass()
-                                .getTypeName() + "': " + e.getMessage());
-                    }
-                }
-                params.put(OpenLCompileManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
-                params.put(OpenLCompileManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
-                module.setProperties(params);
+                setModuleProperties(module, processor, globalErrorMessages, globalWarnMessages);
             }
             return projectDescriptor;
         } catch (FileNotFoundException e) {
@@ -88,5 +62,59 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
         } finally {
             propertiesFileNameProcessorBuilder.destroy();
         }
+    }
+
+    /**
+     * Builds the processor of the file names the project declares.
+     *
+     * @return the processor, or {@code null} when it cannot be built; the reason is then added to the error messages
+     */
+    private static @Nullable PropertiesFileNameProcessor buildProcessor(PropertiesFileNameProcessorBuilder builder,
+                                                                        ProjectDescriptor projectDescriptor,
+                                                                        Set<String> errorMessages) {
+        try {
+            return builder.build(projectDescriptor);
+        } catch (Exception e) {
+            errorMessages.add(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Sets the properties a module is compiled with: the table properties its file name gives and the messages to
+     * report for it.
+     *
+     * @param module        the module to set the properties of
+     * @param processor     the processor of the file names, or {@code null} when the project has none
+     * @param errorMessages the error messages of the whole project
+     * @param warnMessages  the warning messages of the whole project
+     */
+    private static void setModuleProperties(Module module,
+                                            @Nullable PropertiesFileNameProcessor processor,
+                                            Set<String> errorMessages,
+                                            Set<String> warnMessages) {
+        var moduleErrorMessages = new HashSet<>(errorMessages);
+        var moduleWarnMessages = new HashSet<>(warnMessages);
+        if (module.getMethodFilter() != null
+                && (!module.getMethodFilter().getIncludes().isEmpty()
+                || !module.getMethodFilter().getExcludes().isEmpty())) {
+            moduleWarnMessages.add(
+                    "'method-filter' in the module '" + module.getName() + "' is deprecated. Use 'exposed-methods' at the project level instead.");
+        }
+        var params = new HashMap<String, Object>();
+        if (processor != null) {
+            try {
+                var tableProperties = processor.process(module.getRulesRootPath());
+                params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
+            } catch (NoMatchFileNameException e) {
+                moduleWarnMessages.add(e.getMessage());
+            } catch (Exception | LinkageError e) {
+                moduleErrorMessages.add("Failed to load custom file name processor class '" + e.getClass()
+                        .getTypeName() + "': " + e.getMessage());
+            }
+        }
+        params.put(OpenLCompileManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
+        params.put(OpenLCompileManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
+        module.setProperties(params);
     }
 }

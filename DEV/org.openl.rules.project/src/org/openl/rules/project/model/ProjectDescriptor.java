@@ -194,19 +194,7 @@ public class ProjectDescriptor {
                                 originalUrl = url;
                                 // FIXME
                                 if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
-                                    try {
-                                        Path temp = FileTool.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
-                                                FileUtils.getExtension(path));
-                                        classPathTempFiles.add(temp);
-                                        try (var is = url.openStream()) {
-                                            Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
-                                        }
-                                        url = temp.toUri().normalize().toURL();
-                                    } catch (FileNotFoundException ignored) {
-                                        // do nothing. It's OK
-                                    } catch (IOException e) {
-                                        throw RuntimeExceptionWrapper.wrap(e);
-                                    }
+                                    url = extractNestedJar(url, path);
                                 }
                             } catch (URISyntaxException | MalformedURLException e2) {
                                 continue;
@@ -233,6 +221,32 @@ public class ProjectDescriptor {
             }
         }
         return urlsArray;
+    }
+
+    /**
+     * Copies a jar that a project archive holds to a temporary file, so that a class loader can read it.
+     * <p>
+     * The copy is deleted together with the other temporary jars of the project.
+     *
+     * @param url  the URL of the jar inside the project archive
+     * @param path the classpath entry naming the jar
+     * @return the URL of the copy, or the given URL when the archive holds no such jar
+     */
+    private URL extractNestedJar(URL url, String path) {
+        try {
+            Path temp = FileTool.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
+                    FileUtils.getExtension(path));
+            classPathTempFiles.add(temp);
+            try (var is = url.openStream()) {
+                Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return temp.toUri().normalize().toURL();
+        } catch (FileNotFoundException ignored) {
+            // do nothing. It's OK
+            return url;
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
     }
 
     /**
