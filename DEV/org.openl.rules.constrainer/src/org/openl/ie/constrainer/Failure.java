@@ -23,8 +23,6 @@ package org.openl.ie.constrainer;
  * @see Goal#execute()
  */
 public class Failure extends Exception {
-    private final ChoicePointLabel _label = null;
-
     /**
      * Constructor for a Failure with a given description.
      */
@@ -41,7 +39,7 @@ public class Failure extends Exception {
      * Returns the failure label.
      */
     public ChoicePointLabel label() {
-        return _label;
+        return null;
     }
 
 } // ~Failure

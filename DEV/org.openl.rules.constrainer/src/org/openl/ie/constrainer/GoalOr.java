@@ -20,7 +20,6 @@ package org.openl.ie.constrainer;
 public class GoalOr extends GoalImpl {
     private final Goal _g1;
     private final Goal _g2;
-    private final ChoicePointLabel _label = null;
 
     /**
      * Constructor with a given 2 goals.
@@ -36,7 +35,7 @@ public class GoalOr extends GoalImpl {
      */
     @Override
     public Goal execute() throws Failure {
-        constrainer().setChoicePoint(_g1, _g2, _label);
+        constrainer().setChoicePoint(_g1, _g2, null);
         return null;
     }
 

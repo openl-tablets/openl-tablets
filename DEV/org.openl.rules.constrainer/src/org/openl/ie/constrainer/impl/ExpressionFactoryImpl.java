@@ -2,18 +2,12 @@ package org.openl.ie.constrainer.impl;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import lombok.RequiredArgsConstructor;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Expression;
 import org.openl.ie.constrainer.ExpressionFactory;
-import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.Undo;
 import org.openl.ie.constrainer.UndoImpl;
-import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
@@ -24,130 +18,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
 
     @Serial
     private static final long serialVersionUID = 7593413055525940597L;
-
-    /**
-     * An interface for the unique key of the expression.
-     */
-    interface ExpressionKey {
-        /**
-         * Returns the arguments of the expression.
-         */
-        Object[] args();
-
-        /**
-         * Returns a class of the expression.
-         */
-        Class clazz();
-    }
-
-    @RequiredArgsConstructor
-    static class ExpressionKeyImpl implements ExpressionKey {
-        private final Class _clazz;
-        private final Object[] _args;
-
-        static boolean equalArgs(Object arg1, Object arg2) {
-            // are references the same?
-            if (arg1 == arg2) {
-                return true; // yes -> equal
-            }
-
-            // are classes the same?
-            if (arg1.getClass() != arg2.getClass()) {
-                return false; // not the same -> not equal
-            }
-
-            // numbers in Java compare as a class + bit representation
-            if (arg1 instanceof Number) {
-                return arg1.equals(arg2);
-            }
-
-            // arrays
-            if (arg1 instanceof IntExpArray array) {
-                return equalArrays(array, (IntExpArray) arg2);
-            }
-
-            return false;
-        }
-
-        static boolean equalArrays(IntExpArray arg1, IntExpArray arg2) {
-            return equalArrays(arg1.data(), arg2.data());
-        }
-
-        static boolean equalArrays(Object[] arg1, Object[] arg2) {
-            int size;
-            if ((size = arg1.length) != arg2.length) {
-                return false;
-            }
-
-            for (var i = 0; i < size; i++) {
-                if (!equalArgs(arg1[i], arg2[i])) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public Object[] args() {
-            return _args;
-        }
-
-        @Override
-        public Class clazz() {
-            return _clazz;
-        }
-
-        // Should use more of the objects' equals() methods
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof ExpressionKey key)) {
-                return false;
-            }
-
-            // compare classes
-            if (_clazz != key.clazz()) {
-                return false;
-            }
-
-            // compare argumens
-            if (_args.length != key.args().length) {
-                return false;
-            }
-
-            for (var i = 0; i < _args.length; i++) {
-                if (!equalArgs(_args[i], key.args()[i])) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return _clazz.hashCode() + _args.length;// ???
-        }
-
-        /**
-         * Returns a String representation of this object.
-         *
-         * @return a String representation of this object.
-         */
-        @Override
-        public String toString() {
-            var s = new StringBuilder();
-            s.append("class: ").append(_clazz.getName()).append(", args:(");
-            for (var i = 0; i < _args.length; i++) {
-                if (i != 0) {
-                    s.append(",");
-                }
-                s.append(_args[i]);
-            }
-            s.append(")");
-            return s.toString();
-        }
-    } // ~ExpressionKeyImpl
 
     /**
      * Undo Class for UndoExpressionFactory.
@@ -161,8 +31,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             }
 
         };
-
-        private HashMap _expressions;
 
         static UndoExpressionFactory getUndo() {
             return (UndoExpressionFactory) FACTORY.getElement();
@@ -178,36 +46,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             return "UndoExpressionFactory " + undoable();
         }
 
-        @Override
-        public void undo() {
-            var expFactory = (ExpressionFactoryImpl) undoable();
-            expFactory._expressions = _expressions;
-            super.undo();
-        }
-
-        @Override
-        public void undoable(Undoable u) {
-            super.undoable(u);
-            var expFactory = (ExpressionFactoryImpl) u;
-            _expressions = (HashMap) expFactory._expressions.clone();
-        }
-
     } // ~UndoExpressionFactory
-
-    /**
-     * Cached expressions.
-     */
-    private HashMap _expressions = new HashMap();
-
-    /**
-     * Use cache to find already created expression.
-     */
-    private final boolean _getFromCache = false;
-
-    /**
-     * Use cache to store newly created expression.
-     */
-    private final boolean _putInCache = false;
 
     /**
      * Returns a constructor with the given parameter types for a given parameter values.
@@ -252,13 +91,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         return UndoExpressionFactory.getUndo();
     }
 
-    /**
-     * Returns the cached expression for a given key. If there is no cached expression returns null.
-     */
-    Expression findExpression(ExpressionKey key) {
-        return (Expression) _expressions.get(key);
-    }
-
     @Override
     public Expression getExpression(Class clazz, Object[] args) {
         return getExpression(clazz, args, args2types(args));
@@ -266,47 +98,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
 
     @Override
     public Expression getExpression(Class clazz, Object[] args, Class[] types) {
-        ExpressionKey key = _getFromCache || _putInCache ? new ExpressionKeyImpl(clazz, args) : null;
-        Expression exp = _getFromCache ? findExpression(key) : null;
-
-        if (exp == null) {
-            exp = createExpression(clazz, args, types);
-            if (_putInCache) {
-                addUndo();
-                _expressions.put(key, exp);
-            }
-        }
-
-        return exp;
-    }
-
-    /**
-     * Returns a String representation of this object.
-     *
-     * @return a String representation of this object.
-     */
-    @Override
-    public String toString() {
-        var s = new StringBuilder();
-        for (Object entry : _expressions.entrySet()) {
-            var mapEntry = (Map.Entry<?, ?>) entry;
-            var key = (ExpressionKey) mapEntry.getKey();
-            var exp = (Expression) mapEntry.getValue();
-            s.append(exp.getClass().getName()).append(", ").append(System.identityHashCode(exp)).append(", ");
-            for (var i = 0; i < key.args().length; i++) {
-                if (i != 0) {
-                    s.append(", ");
-                }
-                var o = key.args()[i];
-                if (o instanceof Number) {
-                    s.append(o.getClass().getName()).append(", ").append(o);
-                } else {
-                    s.append(o.getClass().getName()).append(", ").append(System.identityHashCode(o));
-                }
-            }
-            s.append('\n');
-        }
-        return s.toString();
+        return createExpression(clazz, args, types);
     }
 
 } // ~ExpressionFactoryImpl
