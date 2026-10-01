@@ -46,6 +46,8 @@ class GitRootFactory {
         return new GitRoot(remote, localGitRoot, empty);
     }
 
+    // The folder is a SHA-256 hash inside the folder an administrator configured; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     @NonNull
     private File findLocalGitRootForRemote(int salt, String repositoryId, String localRepositoriesFolder, String uri) throws IOException {
         var candidate = generateLocalGitRoot(salt, repositoryId, localRepositoriesFolder, uri);
@@ -65,6 +67,8 @@ class GitRootFactory {
         return candidate;
     }
 
+    // The folder is a SHA-256 hash inside the folder an administrator configured; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     @NonNull
     private File processExistingGitRepositoryForRemote(int salt, String repositoryId, String localRepositoriesFolder, String uri, File candidate) throws IOException {
         try (var repository = Git.open(candidate).getRepository()) {
