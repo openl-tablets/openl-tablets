@@ -29,10 +29,6 @@ public class IntNodeBinder extends ANodeBinder {
 
         var s = node.getText();
 
-        if (s.charAt(0) == '$') {
-            s = s.substring(1);
-        }
-
         if (s.charAt(0) == '+') {
             s = s.substring(1);
         }

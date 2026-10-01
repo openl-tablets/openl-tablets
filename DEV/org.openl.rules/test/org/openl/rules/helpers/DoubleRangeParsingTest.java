@@ -98,23 +98,26 @@ class DoubleRangeParsingTest {
         assertEquals(new DoubleRange(37.1, 37.1), new DoubleRange("37.1"));
     }
 
-    @Test
-    void testKMB() {
-        assertEquals(new DoubleRange(1100000, Double.POSITIVE_INFINITY), new DoubleRange("1.1M+"));
-        assertEquals(new DoubleRange(2330000000d, 2330000000d), new DoubleRange("2.33B"));
-        assertEquals(new DoubleRange(1200, 36000000), new DoubleRange("1.2K .. 36M"));
-        assertEquals(new DoubleRange(Double.NEGATIVE_INFINITY, 24001), new DoubleRange("<=24.001K"));
-    }
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "$10.5",
+            "[$1.5; $3.2)",
+            ">$2",
 
-    @Test
-    void testThousandsSeparator() {
-        assertEquals(new DoubleRange(-123456, 987654.3), new DoubleRange("-123,456 - 987,654.3"));
-        assertEquals(new DoubleRange("123456.7+"), new DoubleRange("123,456.7+"));
-        assertEquals(new DoubleRange(">123456.7"), new DoubleRange(">123,456.7"));
-        assertEquals(new DoubleRange(123456.7, 123456.7), new DoubleRange("123,456.7"));
-        assertEquals(new DoubleRange("[123456.7 - 987654)"), new DoubleRange("[123,456.7 - 987,654)"));
-        assertEquals(new DoubleRange(123456.7, 987654), new DoubleRange(">=123,456.7 <=987,654"));
-        assertEquals(new DoubleRange(123456.7, 987654), new DoubleRange("123,456.7 and more 987,654 or less"));
+            "2.33B",
+            "1.1M+",
+            "1.2K .. 36M",
+            "<=24.001K",
+
+            "123,456.7",
+            "123,456.7+",
+            ">123,456.7",
+            "-123,456 - 987,654.3",
+            "[123,456.7 - 987,654)",
+            ">=123,456.7 <=987,654",
+            "123,456.7 and more 987,654 or less"})
+    void testBusinessNumbers(String range) {
+        checkWrong(range);
     }
 
     @Test

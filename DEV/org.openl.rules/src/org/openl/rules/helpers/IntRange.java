@@ -71,9 +71,10 @@ public class IntRange extends Range<Long> implements INumberRange {
 
     /**
      * Constructor for <code>IntRange</code>. Tries to parse range text with variety of formats. Supported range
-     * formats: "<min number> - <max number>" or "[<, <=, >, >=]<number>" or "<number>+" Also numbers can be enhanced
-     * with $ sign and K,M,B, e.g. $1K = 1000 Any symbols at the end are allowed to support expressions like ">=2
-     * barrels", "6-8 km^2"
+     * formats: "<min number> - <max number>" or "[<, <=, >, >=]<number>" or "<number>+".
+     *
+     * <p>A bound is a plain integer such as {@code 1000}. A currency sign, a thousands separator and a {@code K},
+     * {@code M} or {@code B} multiplier are rejected.
      */
     public IntRange(String range) {
         Type rangeType;
@@ -81,14 +82,14 @@ public class IntRange extends Range<Long> implements INumberRange {
             var parser = parse(range);
             if (parser == null) {
                 rangeType = Type.DEGENERATE;
-                this.min = convertToLong(range.trim());
+                this.min = Long.parseLong(range.trim());
                 this.max = this.min;
             } else {
                 rangeType = parser.getType();
                 var left = parser.getLeft();
                 var right = parser.getRight();
-                this.min = left == null ? Long.MIN_VALUE : convertToLong(left);
-                this.max = right == null ? Long.MAX_VALUE : convertToLong(right);
+                this.min = left == null ? Long.MIN_VALUE : Long.parseLong(left);
+                this.max = right == null ? Long.MAX_VALUE : Long.parseLong(right);
             }
         } catch (RuntimeException ex) {
             try {
@@ -102,8 +103,8 @@ public class IntRange extends Range<Long> implements INumberRange {
                     rangeType = parser.getType();
                     var left = parser.getLeft();
                     var right = parser.getRight();
-                    min = left == null ? Long.MIN_VALUE : convertToLong(left);
-                    max = right == null ? Long.MAX_VALUE : convertToLong(right);
+                    min = left == null ? Long.MIN_VALUE : Long.parseLong(left);
+                    max = right == null ? Long.MAX_VALUE : Long.parseLong(right);
                 } else {
                     throw ex;
                 }
@@ -192,34 +193,5 @@ public class IntRange extends Range<Long> implements INumberRange {
 
     public static int distance(BigDecimal x, IntRange y) {
         return TO_INT_RANGE_CAST_DISTANCE;
-    }
-
-    private static long convertToLong(String text) {
-        var start = 0;
-        if (text.startsWith("$")) {
-            start++;
-        }
-        if (text.charAt(start) == ',') {
-            // special case, when comma as a group separator is in the beginning.
-            throw new NumberFormatException("For input string: \"" + text + "\"");
-        }
-        var end = text.length();
-        var multiplier = switch (text.charAt(end - 1)) {
-            case 'B' -> 1_000_000_000L;
-            case 'M' -> 1_000_000L;
-            case 'K' -> 1_000L;
-            default -> 1L;
-        };
-        if (multiplier > 1L) {
-            // the multiplier suffix is not a part of the number
-            end--;
-        }
-        if (!Character.isDigit(text.charAt(end - 1))) {
-            // special case, when comma as a group separator is in the ending.
-            throw new NumberFormatException("For input string: \"" + text + "\"");
-        }
-        text = text.substring(start, end).replace(",", "");
-        var value = Long.parseLong(text);
-        return Math.multiplyExact(value, multiplier);
     }
 }

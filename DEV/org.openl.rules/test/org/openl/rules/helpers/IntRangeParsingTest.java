@@ -4,19 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.openl.rules.TestUtils;
 
 class IntRangeParsingTest {
-
-    @Test
-    void testDollarSymbol() {
-        assertEquals("[13..200]", new IntRange("$13 - 200").toString());
-        assertEquals("[11..32)", new IntRange("[$11; $32)").toString());
-        assertEquals("> 2", new IntRange(">$2").toString());
-        assertEquals("10", new IntRange("$10").toString());
-        assertEquals(">= 2", new IntRange("$2 +").toString());
-    }
 
     @Test
     void testBrackets() {
@@ -75,16 +68,6 @@ class IntRangeParsingTest {
     }
 
     @Test
-    void testKMB() {
-        assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("1M+"));
-        assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("  1M+  "));
-        assertEquals(new IntRange(2000000000, 2000000000), new IntRange("2B"));
-        assertEquals(new IntRange(1000, 36000000), new IntRange("1K .. 36M"));
-        assertEquals(new IntRange(1000, 36000000), new IntRange("  1K   ..   36M  "));
-        assertEquals(new IntRange(Long.MIN_VALUE, 24000), new IntRange("<=24K"));
-    }
-
-    @Test
     void testMinMaxFormat() {
         assertEquals("[3..15]", new IntRange("3..15").toString());
         assertEquals("[1..2]", new IntRange("1-2").toString());
@@ -131,16 +114,28 @@ class IntRangeParsingTest {
         assertEquals("[-4..-2]", new IntRange("[-4--2]").toString());
     }
 
-    @Test
-    void testThousandsSeparator() {
-        assertEquals(new IntRange(-123456, 987654), new IntRange("-123,456 - 987,654"));
-        assertEquals(new IntRange(123456, Long.MAX_VALUE), new IntRange("123,456+"));
-        assertEquals("> 123456", new IntRange(">123,456").toString());
-        assertEquals("123456", new IntRange("123,456").toString());
-        assertEquals("[123456..987654)", new IntRange("[123,456 - 987,654)").toString());
-        assertEquals("[123456..987654]", new IntRange(">=123,456 <=987,654").toString());
-        assertEquals("[123456..987654]", new IntRange("123,456 and more 987,654 or less").toString());
-        assertEquals("[123456..987654]", new IntRange("  123,456   and   more   987,654   or   less  ").toString());
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "$10",
+            "$13 - 200",
+            "[$11; $32)",
+            ">$2",
+            "$2 +",
+
+            "2B",
+            "1M+",
+            "1K .. 36M",
+            "<=24K",
+
+            "123,456",
+            "123,456+",
+            ">123,456",
+            "-123,456 - 987,654",
+            "[123,456 - 987,654)",
+            ">=123,456 <=987,654",
+            "123,456 and more 987,654 or less"})
+    void testBusinessNumbers(String range) {
+        checkWrong(range);
     }
 
     @Test
