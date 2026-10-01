@@ -72,6 +72,8 @@ final class ReactorReaderInjector {
         }
     }
 
+    // ReactorReader keeps its projects in private maps and has no API to add one.
+    @SuppressWarnings("java:S3011")
     private static Map<?, ?> readMapField(Object target, String fieldName) throws ReflectiveOperationException {
         var field = target.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -93,6 +95,8 @@ final class ReactorReaderInjector {
      * {@code readers} list field) so we still find a wrapped {@code ReactorReader}. Returns
      * {@code null} when the field is absent or empty.
      */
+    // ChainedWorkspaceReader keeps the readers it wraps in a private field without an accessor.
+    @SuppressWarnings("java:S3011")
     private static @Nullable Object unwrapChain(WorkspaceReader reader) {
         try {
             var field = reader.getClass().getDeclaredField(CHAINED_READERS_FIELD);

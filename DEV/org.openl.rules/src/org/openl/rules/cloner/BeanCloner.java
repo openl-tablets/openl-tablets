@@ -96,6 +96,8 @@ class BeanCloner<T> implements ICloner<T> {
 
         private final Field field;
 
+        // The public field belongs to a bean class known only at runtime, so only reflection can write it.
+        @SuppressWarnings("java:S3011")
         @Override
         public void set(Object target, Object value) throws IllegalAccessException {
             field.set(target, value);

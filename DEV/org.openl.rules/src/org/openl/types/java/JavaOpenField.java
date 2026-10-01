@@ -117,6 +117,8 @@ public class JavaOpenField implements IOpenField {
         return true;
     }
 
+    // A rule writes the public field of a Java class it uses, which only reflection can do.
+    @SuppressWarnings("java:S3011")
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target != null) {

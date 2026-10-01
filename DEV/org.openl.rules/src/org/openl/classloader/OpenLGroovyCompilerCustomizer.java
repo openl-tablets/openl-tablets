@@ -50,6 +50,8 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
         }
     }
 
+    // Groovy hands out only a copy of the module imports, so removing one needs the private list itself.
+    @SuppressWarnings("java:S3011")
     private OpenLGroovyCompilerCustomizer(CompilePhase phase) {
         super(phase);
         try {

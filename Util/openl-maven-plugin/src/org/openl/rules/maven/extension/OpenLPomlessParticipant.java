@@ -290,6 +290,8 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * derived {@code basedir} (the OpenL folder) is preserved. {@code setFile} would re-derive it from the new
      * file's parent ({@code target/}) and break every OpenL phase that reads {@code ${project.basedir}}.
      */
+    // MavenProject has no API to change its file while keeping its basedir.
+    @SuppressWarnings("java:S3011")
     private static void retargetProjectFile(MavenProject project, File pomFile) {
         try {
             var fileField = MavenProject.class.getDeclaredField("file");
