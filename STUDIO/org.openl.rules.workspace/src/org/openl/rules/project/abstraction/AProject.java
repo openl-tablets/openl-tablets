@@ -278,6 +278,12 @@ public class AProject extends AProjectFolder implements IProject {
         setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
     }
 
+    /**
+     * Closes the project for the user.
+     *
+     * @param user the user who closes the project
+     * @throws ProjectException if a project cannot release what it holds for the user
+     */
     public void close(CommonUser user) throws ProjectException {
         refresh();
     }

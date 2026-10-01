@@ -35,6 +35,7 @@ import org.openl.rules.table.SimpleLogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -271,7 +272,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                                  IOpenClass methodType,
                                  IOpenSourceCodeModule methodSource,
                                  OpenL openl,
-                                 IBindingContext bindingContext) throws Exception {
+                                 IBindingContext bindingContext) {
         var length = paramsTable.getHeight();
         for (var i = 0; i < length; i++) {
             if (!paramInitialized.get(i)) {
@@ -600,12 +601,17 @@ public abstract class FunctionalRow implements IDecisionRow {
         return (NO_PARAM + noParamsIndex).intern();
     }
 
+    /**
+     * Gets the source of the expression of this row.
+     *
+     * @throws SyntaxNodeException if a row finds its expression invalid
+     */
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
                                                         IMethodSignature signature,
                                                         IOpenClass methodType,
                                                         IOpenClass declaringClass,
                                                         OpenL openl,
-                                                        IBindingContext bindingContext) throws Exception {
+                                                        IBindingContext bindingContext) throws SyntaxNodeException {
         return new GridCellSourceCodeModule(codeTable.getSource(), bindingContext);
     }
 

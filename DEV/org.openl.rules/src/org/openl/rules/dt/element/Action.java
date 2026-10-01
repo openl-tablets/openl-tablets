@@ -24,6 +24,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -326,7 +327,7 @@ public class Action extends FunctionalRow implements IAction {
                                  IOpenClass methodType,
                                  IOpenSourceCodeModule methodSource,
                                  OpenL openl,
-                                 IBindingContext bindingContext) throws Exception {
+                                 IBindingContext bindingContext) {
 
         if (EXTRA_RET.equals(
                 methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction())) {
@@ -347,7 +348,7 @@ public class Action extends FunctionalRow implements IAction {
                                                         IOpenClass methodType,
                                                         IOpenClass declaringClass,
                                                         OpenL openl,
-                                                        IBindingContext bindingContext) throws Exception {
+                                                        IBindingContext bindingContext) throws SyntaxNodeException {
 
         IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
                 signature,
