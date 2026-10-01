@@ -2,6 +2,7 @@ package org.openl.rules.range;
 
 import java.text.ParseException;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,11 @@ import lombok.RequiredArgsConstructor;
  * @author Yury Molchan
  */
 public abstract class Range<T> {
+
+    private static final Pattern LESS_THAN = Pattern.compile("less\\s+than");
+    private static final Pattern MORE_THAN = Pattern.compile("more\\s+than");
+    private static final Pattern OR_LESS = Pattern.compile("(?<!\\S)(\\S++)\\s++or\\s++less");
+    private static final Pattern AND_MORE = Pattern.compile("(?<!\\S)(\\S++)\\s++and\\s++more");
 
     public enum Bound {
         OPEN, // Not inclusive
@@ -46,6 +52,24 @@ public abstract class Range<T> {
         } catch (ParseException e) {
             throw new IllegalArgumentException("Cannot parse a range", e);
         }
+    }
+
+    /**
+     * Replaces the verbal bounds of a range with comparison signs.
+     * <p>
+     * {@code less than X} becomes {@code < X}, {@code more than X} becomes {@code > X}, {@code X or less} becomes
+     * {@code <=X} and {@code X and more} becomes {@code >=X}. The words may be separated by any whitespace.
+     * <p>
+     * It lets a range combine two verbal bounds, such as {@code 2 and more 5 or less}.
+     *
+     * @param text the range text
+     * @return the range text with comparison signs instead of the verbal bounds
+     */
+    protected static String replaceVerbalBounds(String text) {
+        var result = LESS_THAN.matcher(text).replaceAll("<");
+        result = MORE_THAN.matcher(result).replaceAll(">");
+        result = OR_LESS.matcher(result).replaceAll("<=$1");
+        return AND_MORE.matcher(result).replaceAll(">=$1");
     }
 
     protected void validate() {

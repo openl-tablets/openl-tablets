@@ -64,11 +64,7 @@ public class DoubleRange extends Range<Double> implements INumberRange {
         } catch (RuntimeException ex) {
             try {
                 if (range.contains("less") || range.contains("more")) {
-                    range = range
-                            .replaceAll("less\\s+than", "<")
-                            .replaceAll("more\\s+than", ">")
-                            .replaceAll("(?<!\\S)(\\S++)\\s++or\\s++less", "<=$1")
-                            .replaceAll("(?<!\\S)(\\S++)\\s++and\\s++more", ">=$1");
+                    range = replaceVerbalBounds(range);
                     var parser = parse(range);
                     rangeType = parser.getType();
                     var left = parser.getLeft();
