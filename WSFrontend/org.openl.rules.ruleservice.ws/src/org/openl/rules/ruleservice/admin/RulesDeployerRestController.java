@@ -47,7 +47,7 @@ public class RulesDeployerRestController {
     @POST
     @Consumes("application/zip")
     @Produces("text/plain;charset=UTF-8")
-    public Response deploy(@Context HttpServletRequest request) throws Exception {
+    public Response deploy(@Context HttpServletRequest request) throws IOException {
         try {
             rulesDeployerService.deploy(request.getInputStream(), true);
             notifyDeploymentsUpdated();
@@ -65,7 +65,7 @@ public class RulesDeployerRestController {
     @Consumes("application/zip")
     @Produces("text/plain;charset=UTF-8")
     public Response deploy(@PathParam("deployPath") final String deployPath,
-                           @Context HttpServletRequest request) throws Exception {
+                           @Context HttpServletRequest request) throws IOException {
         try {
             rulesDeployerService.deploy(deployPath, request.getInputStream(), true);
             notifyDeploymentsUpdated();
@@ -78,13 +78,12 @@ public class RulesDeployerRestController {
     /**
      * Read a file by the given deployment name.
      *
-     * @return the file descriptor.
-     * @throws IOException if not possible to read the file.
+     * @return the file descriptor, streamed when the response is written.
      */
     @GET
     @Path("/{deploymentName}.zip")
     @Produces("application/zip")
-    public Response read(@PathParam("deploymentName") final String deploymentName) throws Exception {
+    public Response read(@PathParam("deploymentName") final String deploymentName) {
         var services = serviceManager.getServicesByDeployment(deploymentName);
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
@@ -107,7 +106,7 @@ public class RulesDeployerRestController {
      */
     @DELETE
     @Path("/{deploymentName}")
-    public Response delete(@PathParam("deploymentName") final String deploymentName) throws Exception {
+    public Response delete(@PathParam("deploymentName") final String deploymentName) throws IOException {
         var services = serviceManager.getServicesByDeployment(deploymentName);
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();

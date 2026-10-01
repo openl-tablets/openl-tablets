@@ -101,7 +101,7 @@ public interface IGridRegion {
                 }
                 col = col * mul + ch - 'A' + 1;
             }
-            throw new RuntimeException("Invalid cell: " + cell);
+            throw new IllegalArgumentException("Invalid cell: " + cell);
         }
 
         public static int getRow(String cell) {
@@ -111,7 +111,7 @@ public interface IGridRegion {
                     return Integer.parseInt(cell.substring(i)) - 1;
                 }
             }
-            throw new RuntimeException("Invalid cell: " + cell);
+            throw new IllegalArgumentException("Invalid cell: " + cell);
         }
 
         public static IGridRegion makeRegion(String range) {
