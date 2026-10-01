@@ -225,8 +225,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         table.updateDependency(dependencies);
     }
 
-    static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(IOpenClass methodType,
-                                                                                    IOpenClass paramType) {
+    private static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(IOpenClass methodType,
+                                                                                            IOpenClass paramType) {
         if (NumberUtils.isNonFloatPointType(methodType.getInstanceClass()) && isIntRangeType(paramType)) {
             return IntRangeAdaptor.getInstance();
         }

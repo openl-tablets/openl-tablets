@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +20,7 @@ class SAXReaderFromInputSreamTest extends BaseReaderTest {
 
     @Test
     void getSheetRelationIds() {
-        var saxReader = (SAXReader) reader;
-        List<SAXSheetDescriptor> sheets = saxReader.getSheets();
+        var sheets = reader.getSheets().stream().map(SAXSheetDescriptor.class::cast).toList();
 
         assertEquals(4, sheets.size());
 

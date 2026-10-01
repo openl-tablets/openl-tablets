@@ -3,8 +3,6 @@ package org.openl.excel.parser.sax;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 import org.openl.excel.parser.BaseReaderTest;
@@ -19,8 +17,7 @@ class SAXReaderFromFileTest extends BaseReaderTest {
 
     @Test
     void getSheetRelationIds() {
-        var saxReader = (SAXReader) reader;
-        List<SAXSheetDescriptor> sheets = saxReader.getSheets();
+        var sheets = reader.getSheets().stream().map(SAXSheetDescriptor.class::cast).toList();
 
         assertEquals(4, sheets.size());
 

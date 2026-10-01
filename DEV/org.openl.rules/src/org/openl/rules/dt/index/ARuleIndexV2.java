@@ -79,7 +79,7 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
     protected abstract int[] computeRules();
 
     @Override
-    public Iterable<? extends DecisionTableRuleNode> nodes() {
+    public Iterable<DecisionTableRuleNode> nodes() {
         return List.of(nextNode);
     }
 

@@ -8,7 +8,7 @@ public interface ExcelReader extends AutoCloseable {
     /**
      * Get all sheet descriptors
      */
-    List<? extends SheetDescriptor> getSheets();
+    List<SheetDescriptor> getSheets();
 
     /**
      * Parse and get all cells from a given sheet

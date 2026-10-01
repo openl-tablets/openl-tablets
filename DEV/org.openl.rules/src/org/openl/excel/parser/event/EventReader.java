@@ -3,6 +3,7 @@ package org.openl.excel.parser.event;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -29,11 +30,11 @@ public class EventReader implements ExcelReader {
     }
 
     @Override
-    public List<? extends SheetDescriptor> getSheets() {
+    public List<SheetDescriptor> getSheets() {
         if (listener == null) {
             initialize();
         }
-        return listener.getSheets();
+        return Collections.unmodifiableList(listener.getSheets());
     }
 
     @Override

@@ -8,7 +8,7 @@ public interface IRuleIndex {
 
     DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult);
 
-    Iterable<? extends DecisionTableRuleNode> nodes();
+    Iterable<DecisionTableRuleNode> nodes();
 
     int[] collectRules();
 

@@ -64,8 +64,8 @@ public class AclRepositoryModel {
         this.sid = builder.sid;
     }
 
-    public static RootRepositoryBuilder<?> rootRepositoryBuilder() {
-        return new RootRepositoryBuilder<>();
+    public static RootBuilder rootRepositoryBuilder() {
+        return new RootBuilder();
     }
 
     public static RepositoryBuilder repositoryBuilder() {
@@ -98,7 +98,7 @@ public class AclRepositoryModel {
         public abstract AclRepositoryModel build();
     }
 
-    public static class RootRepositoryBuilder<T extends RootRepositoryBuilder<T>> extends ABuilder<T> {
+    public abstract static class RootRepositoryBuilder<T extends RootRepositoryBuilder<T>> extends ABuilder<T> {
 
         protected AclRepositoryId id;
         protected AclRepositoryType type;
@@ -120,6 +120,15 @@ public class AclRepositoryModel {
         @Override
         public AclRepositoryModel build() {
             return new AclRepositoryModel(this);
+        }
+    }
+
+    /**
+     * Builds the model of a root of repositories, which has no name.
+     */
+    public static final class RootBuilder extends RootRepositoryBuilder<RootBuilder> {
+
+        private RootBuilder() {
         }
     }
 

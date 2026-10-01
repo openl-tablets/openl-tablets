@@ -87,7 +87,7 @@ public class SequentialXlsLoader {
             path = null;
         }
         try (ExcelReader excelReader = path == null ? factory.create(source.getByteStream()) : factory.create(path)) {
-            List<? extends SheetDescriptor> sheets = excelReader.getSheets();
+            List<SheetDescriptor> sheets = excelReader.getSheets();
             var use1904Windowing = excelReader.isUse1904Windowing();
 
             var nSheets = sheets.size();
