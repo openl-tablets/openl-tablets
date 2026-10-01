@@ -313,6 +313,8 @@ final class DebugHookImpl implements DebugHook {
         return Math.max(0, System.nanoTime() - enterNanos - (parkedNanos - parkedAtEnter));
     }
 
+    // Any failure of the traced rule, a StackOverflowError included, is recorded on its frame and rethrown.
+    @SuppressWarnings("java:S1181")
     private <T, E extends IRuntimeEnv, R> R invokeFrame(SourceClassifier.FrameDescriptor descriptor,
                                                         Invokable<? super T, E> executor,
                                                         T target,

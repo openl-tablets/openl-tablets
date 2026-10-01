@@ -131,6 +131,8 @@ public final class TraceDebugger {
         thread.start();
     }
 
+    // Any failure of the debugged rules, a StackOverflowError included, ends the session with the error status.
+    @SuppressWarnings("java:S1181")
     private void run(@Nullable ClassLoader classLoader, DebugBody body) {
         Thread current = Thread.currentThread();
         var previous = current.getContextClassLoader();

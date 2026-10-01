@@ -38,6 +38,8 @@ public class TraceExportServiceImpl implements TraceExportService {
      * Run the replay with the project's classloader in place. A failing rule still yields the trace up to the
      * failure — the failing frame is recorded as {@code ERROR} — so the partial tree is written either way.
      */
+    // A rule that overflows the stack ends the replay with an Error; the partial trace is still written.
+    @SuppressWarnings("java:S1181")
     private void replayUnderClassLoader(ClassLoader classLoader, TraceReplay replay, TraceExportHook hook) {
         Thread current = Thread.currentThread();
         var previous = current.getContextClassLoader();
