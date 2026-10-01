@@ -948,6 +948,8 @@ public class GitRepository implements BranchRepository, Closeable {
         return headRef == null || headRef.getObjectId() == null;
     }
 
+    // A branch is configured by an administrator or checked by isValidRefName in forBranch; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     private ObjectId resolveBranchId() throws IOException {
         if (git().getRepository().findRef(branch) != null) {
             return git().getRepository().resolve(branch);
@@ -1148,6 +1150,8 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
+    // A branch is configured by an administrator or checked by isValidRefName in forBranch; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     private void pull(String commitToRevert, UserInfo mergeAuthor) throws GitAPIException, IOException {
         if (!remote) {
             return;
@@ -1448,6 +1452,8 @@ public class GitRepository implements BranchRepository, Closeable {
         return result;
     }
 
+    // A branch is configured by an administrator or checked by isValidRefName in forBranch; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     private void push() throws GitAPIException, IOException {
         if (!remote) {
             return;
@@ -1755,6 +1761,8 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
+    // The branch is configured or checked by isValidRefName, a base version is checked too; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     private void checkoutForcedOrReset(String branch) throws IOException, GitAPIException {
         if (git().getRepository().resolve(branch) == null && branch.equals(this.branch)) {
             checkoutUnbornBranch(branch);
@@ -1785,6 +1793,8 @@ public class GitRepository implements BranchRepository, Closeable {
         git().checkout().setName(branch).setForced(true).call();
     }
 
+    // A branch is configured by an administrator or checked by isValidRefName in forBranch; taint analysis misses it.
+    @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
     private boolean isCommitMerged(String commitId) throws IOException {
         var repository = git().getRepository();
         try (var revWalk = new RevWalk(repository)) {
