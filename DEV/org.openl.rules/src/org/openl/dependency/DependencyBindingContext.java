@@ -96,6 +96,9 @@ public class DependencyBindingContext extends BindingContextDelegator {
         }
     }
 
+    // The new variable is announced to an external registration hook, which may look dependencies up again,
+    // so the cache is not updated inside computeIfAbsent.
+    @SuppressWarnings("java:S3824")
     private DependencyVar buildDependencyVar(CompiledDependency compiledDependency) {
         var dependencyVar = dependencyVarsCache.get(compiledDependency);
         if (dependencyVar == null) {

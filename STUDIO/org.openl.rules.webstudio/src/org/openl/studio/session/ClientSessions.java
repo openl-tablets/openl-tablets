@@ -299,6 +299,8 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
             return running.get() == 0 && now - lastAccess >= idleTimeout;
         }
 
+        // computeIfAbsent cannot be used: creating a bean reads this map again, see the comment below.
+        @SuppressWarnings("java:S3824")
         synchronized Object get(String name, ObjectFactory<?> objectFactory) {
             // Not computeIfAbsent: creating a bean asks this client for the beans it is made from, and a map
             // changed from inside its own computeIfAbsent throws ConcurrentModificationException.
