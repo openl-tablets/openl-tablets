@@ -33,6 +33,11 @@ public class ExecutableRulesMethodSpanGenerator implements TypeInstrumentation {
 
     @SuppressWarnings("unused")
     public static class MethodAdvice {
+
+        private MethodAdvice() {
+            // Byte Buddy inlines the static advice methods; the class is never instantiated.
+        }
+
         // Byte Buddy hands an @Advice.Local value over to the exit advice through the parameter it is assigned to.
         @SuppressWarnings("java:S1226")
         @Advice.OnMethodEnter(suppress = Throwable.class)
