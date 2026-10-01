@@ -33,11 +33,19 @@ import { useStyles } from './CopyTableModal.styles'
 
 /** A property row being edited: its value is whatever {@link PropertyValueInput} produces for the property's type. */
 interface TablePropertyInput {
+    /** Identifies the row while it is edited, since its name is only picked later. */
+    id: number
     name: string
     value: string | number | boolean | null
 }
 
-const blankProperty = (): TablePropertyInput => ({ name: '', value: '' })
+/** The next row's id: a row keyed by its place in the list would carry its neighbour's state when one goes. */
+let nextPropertyId = 0
+
+const propertyRow = (name: string, value: TablePropertyInput['value']): TablePropertyInput =>
+    ({ id: nextPropertyId++, name, value })
+
+const blankProperty = (): TablePropertyInput => propertyRow('', '')
 
 export interface CopyTableModalDetail {
     projectId: string
@@ -110,9 +118,10 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                         .filter(property => applicableNames.has(property.name))
                         // The copy is offered the first version the table's versions leave free: the one the source
                         // stands for is by definition taken, and a copy under that name could not be written with it.
-                        .map(property => property.name === VERSION_PROPERTY && info.versions
-                            ? { ...property, value: info.versions.next }
-                            : property)
+                        .map(({ name, value }) => propertyRow(
+                            name,
+                            name === VERSION_PROPERTY && info.versions ? info.versions.next : value
+                        ))
                 ))
                 setSelectedModule(destination)
                 if (currentSheets.length && destination === detail.currentModuleName) {
@@ -227,7 +236,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
         const definition = definitionOf(name)
         changeProperties(current => current.map((property, propertyIndex) =>
             propertyIndex === index
-                ? { name, value: initialPropertyValue(definition, sourceInfo?.versions) }
+                ? { ...property, name, value: initialPropertyValue(definition, sourceInfo?.versions) }
                 : property))
     }
 
@@ -340,7 +349,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                                 <div className={shared.rowList}>
                                     {properties.map((property, index) => (
                                         <div
-                                            key={`property-${index}`}
+                                            key={property.id}
                                             className={cx(shared.rowColumns, shared.editableRow)}
                                             data-testid={`copy-table-property-row-${index}`}
                                         >

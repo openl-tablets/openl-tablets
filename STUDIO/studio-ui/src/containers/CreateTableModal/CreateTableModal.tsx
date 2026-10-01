@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { type SetStateAction, useCallback, useMemo, useRef, useState } from 'react'
 import { App, Alert, Checkbox, Input, Modal, Select, Space, Spin, Tooltip } from 'antd'
 import {
     DeleteColumnOutlined,
@@ -96,7 +96,36 @@ const DEFAULT_VOCABULARY_TYPE = 'String'
 /** The type a Spreadsheet returns. Offered in a signature only, never as a cell type. */
 const SPREADSHEET_RESULT = 'SpreadsheetResult'
 const EMPTY_ARGUMENT: TableArgument = { type: '', name: '' }
-const blankArgument = (): TableArgument => ({ ...EMPTY_ARGUMENT })
+
+/** An argument of the signature being written, with the id that tells its row apart while it is edited. */
+interface ArgumentRow extends TableArgument {
+    id: number
+}
+
+/** The next argument row's id: a row keyed by its place in the list would carry its neighbour's state when one goes. */
+let nextArgumentId = 0
+
+const blankArgument = (): ArgumentRow => ({ ...EMPTY_ARGUMENT, id: nextArgumentId++ })
+
+/**
+ * The rows of the grid, with a key for each that stays with the row while rows are put in or taken out before it,
+ * and the key the next new row takes, so that no two rows ever share one.
+ */
+interface Grid {
+    rows: TableCellValue[][]
+    keys: number[]
+    nextKey: number
+}
+
+/** The grid of the given rows: each keeps the key at its place among the given keys, a row past them gets a new one. */
+const regrid = (rows: TableCellValue[][], keys: number[], nextKey: number): Grid => {
+    const added = Math.max(0, rows.length - keys.length)
+    return {
+        rows,
+        keys: [...keys.slice(0, rows.length), ...Array.from({ length: added }, (_, index) => nextKey + index)],
+        nextKey: nextKey + added,
+    }
+}
 
 // Built from frozen module constants, so the arrays are created once instead of on every render.
 const SIMPLE_TYPE_OPTIONS = asOptions(SIMPLE_TYPES)
@@ -150,7 +179,7 @@ const toRawSource = (
 const isEmptyArgument = (argument: TableArgument): boolean => !argument.type.trim() && !argument.name.trim()
 const isCompleteArgument = (argument: TableArgument): boolean => Boolean(argument.type.trim() && argument.name.trim())
 
-const normalizeArguments = (argumentsValue: TableArgument[]): TableArgument[] =>
+const normalizeArguments = (argumentsValue: ArgumentRow[]): ArgumentRow[] =>
     withTrailingBlank(argumentsValue, isCompleteArgument, blankArgument)
 
 /** Whether every argument is named as an identifier, and no two of them share a name. */
@@ -224,13 +253,20 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     const [tableName, setTableName] = useState('')
     const [preset, setPreset] = useState<TablePreset>('datatype')
     const [resultType, setResultType] = useState(defaultResultType('datatype'))
-    const [argumentsValue, setArgumentsValue] = useState<TableArgument[]>([blankArgument()])
+    const [argumentsValue, setArgumentsValue] = useState<ArgumentRow[]>(() => [blankArgument()])
     const [vocabularyType, setVocabularyType] = useState(DEFAULT_VOCABULARY_TYPE)
     const [extendsType, setExtendsType] = useState('')
     const [datatypeName, setDatatypeName] = useState('')
     const [target, setTarget] = useState<TargetStructure | null>(null)
     const [transposed, setTransposed] = useState(false)
-    const [rows, setRows] = useState<TableCellValue[][]>(() => normalizeRows([], 5))
+    const [grid, setGrid] = useState<Grid>(() => regrid(normalizeRows([], 5), [], 0))
+    const { rows, keys: rowKeys } = grid
+    /**
+     * Replaces the rows, each keeping the key at its place. A row put in or taken out before others is not one of
+     * these changes: it goes through {@link insertRow} and {@link removeRow}, which move the keys along with it.
+     */
+    const setRows = useCallback((next: SetStateAction<TableCellValue[][]>) => setGrid(current =>
+        regrid(typeof next === 'function' ? next(current.rows) : next, current.keys, current.nextKey)), [])
     const sheetLoader = useSheetLoader(t('project:create_table_modal.options_load_failed'))
     const { sheets, sheetName, setSheetName } = sheetLoader
     // Identifies the latest skeleton load; a response from an older one must not overwrite the current selection.
@@ -864,7 +900,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
      * <p>The new list is computed before the state is set, not inside the updater: React may run an updater more
      * than once, and the resize is a side effect that must happen exactly once per change.
      */
-    const changeArguments = (transform: (current: TableArgument[]) => TableArgument[]) => {
+    const changeArguments = (transform: (current: ArgumentRow[]) => ArgumentRow[]) => {
         const next = normalizeArguments(transform(argumentsValue))
         setArgumentsValue(next)
         resizeRowsForArguments(next)
@@ -917,15 +953,23 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     }
 
     const insertRow = (index: number) => {
-        setRows(current => normalizeEditorRows(insertAt(
-            current,
-            index,
-            new Array<TableCellValue>(Math.max(1, columns.length)).fill('')
-        )))
+        setGrid(current => regrid(
+            normalizeEditorRows(insertAt(
+                current.rows,
+                index,
+                new Array<TableCellValue>(Math.max(1, columns.length)).fill('')
+            )),
+            insertAt(current.keys, index, current.nextKey),
+            current.nextKey + 1
+        ))
     }
 
     const removeRow = (index: number) => {
-        setRows(current => normalizeEditorRows(deleteAt(current, index)))
+        setGrid(current => regrid(
+            normalizeEditorRows(deleteAt(current.rows, index)),
+            deleteAt(current.keys, index),
+            current.nextKey
+        ))
     }
 
     const insertColumn = (index: number) => {
@@ -1101,9 +1145,10 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             <Tooltip title={band.hints[bandIndex]}>
                 <td className={styles.gutter}>{bandIndex + 1}</td>
             </Tooltip>
+            {/* The band titles the leading columns, one title over each. */}
             {bandIndex === 0
-                ? band.titles.map((title, keyIndex) => (
-                    <th key={`key-${keyIndex}`} rowSpan={band.rows}>{title}</th>
+                ? columns.slice(0, band.keys).map(column => (
+                    <th key={column.key} rowSpan={band.rows}>{column.label}</th>
                 ))
                 : null}
             {columns.slice(band.keys).map((column, valueIndex) => (
@@ -1125,11 +1170,11 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 
     /** One row of the body: the author's cells, numbered on the left and with the row controls on the right. */
     const renderBodyRow = (row: TableCellValue[], rowIndex: number) => (
-        <tr key={`row-${rowIndex}`}>
+        <tr key={rowKeys[rowIndex]}>
             <td className={styles.gutter}>{rowIndex + 1}</td>
             {columns.map((column, columnIndex) => (
                 <td
-                    key={`${column.key}-${columnIndex}`}
+                    key={column.key}
                     className={cellClassName(column, columnIndex)}
                 >
                     {renderCellEditor(column, row[columnIndex] ?? '', rowIndex, columnIndex)}
@@ -1176,7 +1221,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                         <th>{t('project:create_table_modal.field')}</th>
                         <th>{t('project:create_table_modal.field_title')}</th>
                         {rows.map((_row, recordIndex) => (
-                            <th key={`record-${recordIndex}`}>
+                            <th key={rowKeys[recordIndex]}>
                                 <div className={styles.columnHeader}>
                                     <span>{recordIndex + 1}</span>
                                     <Space.Compact>
@@ -1212,7 +1257,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                             <th className={styles.structureCell}>{fieldTitles[columnIndex]}</th>
                             {rows.map((row, rowIndex) => (
                                 <td
-                                    key={`record-${rowIndex}`}
+                                    key={rowKeys[rowIndex]}
                                     className={cellClassName(column, columnIndex)}
                                 >
                                     {renderCellEditor(
@@ -1454,7 +1499,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                                     <div className={shared.rowList}>
                                         {argumentsValue.map((argument, index) => (
                                             <div
-                                                key={`argument-${index}`}
+                                                key={argument.id}
                                                 className={cx(shared.rowColumns, shared.editableRow)}
                                                 data-testid={`create-table-argument-row-${index}`}
                                             >

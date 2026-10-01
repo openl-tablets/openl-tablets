@@ -530,6 +530,20 @@ describe('CopyTableModal', () => {
         expect(screen.getByTestId('copy-table-property-value-1-2')).toHaveValue(4)
     })
 
+    it('keeps each property row its own when a row above it is given up', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        const lob = await screen.findByTestId('copy-table-property-row-1')
+
+        await user.click(within(screen.getByTestId('copy-table-property-row-0'))
+            .getByRole('button', { name: 'project:copy_table_modal.delete_property' }))
+
+        // The row that held lob is the very one now first, not the one given up drawn over with lob's values.
+        expect(screen.getByTestId('copy-table-property-row-0')).toBe(lob)
+        expect(screen.getByTestId('copy-table-property-name-0')).toHaveValue('lob')
+    })
+
     it('does not submit a version another version of the table already carries', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)
