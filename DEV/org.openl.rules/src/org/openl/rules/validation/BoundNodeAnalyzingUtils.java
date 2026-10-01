@@ -44,15 +44,9 @@ final class BoundNodeAnalyzingUtils {
     }
 
     private static boolean ifNodeMayCompleteNormally(IfNode ifNode) {
-        final var conditionNode = ifNode.getConditionNode();
-        if (conditionNode instanceof LiteralBoundNode) {
-            final Object value = computeConstantExpression(conditionNode);
-            if (Boolean.TRUE == value) {
-                return nodeMayCompleteNormally(ifNode.getThenNode());
-            }
-            if (Boolean.FALSE == value) {
-                return nodeMayCompleteNormally(ifNode.getElseNode());
-            }
+        if (ifNode.getConditionNode() instanceof LiteralBoundNode literal
+                && literal.getValue() instanceof Boolean value) {
+            return nodeMayCompleteNormally(value.booleanValue() ? ifNode.getThenNode() : ifNode.getElseNode());
         }
         return nodeMayCompleteNormally(ifNode.getThenNode()) || nodeMayCompleteNormally(ifNode.getElseNode());
     }
