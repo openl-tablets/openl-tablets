@@ -61,6 +61,8 @@ public class TableProperties implements ITableProperties {
      * @param upLevelProperties   properties that are on the up level.
      * @return
      */
+    // A property set to null on the lower level must stay null, which putIfAbsent and computeIfAbsent would override.
+    @SuppressWarnings("java:S3824")
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties,
                                                      Map<String, Object> upLevelProperties) {
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {

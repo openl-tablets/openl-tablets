@@ -163,6 +163,8 @@ public class InterfaceClassGenerator {
         return member instanceof JavaOpenConstructor || member instanceof ComponentOpenClass.ThisField || member instanceof ComponentOpenClass.GetOpenClass || member instanceof TestSuiteMethod;
     }
 
+    // The check is recursive and marks the type before it descends, which computeIfAbsent cannot do.
+    @SuppressWarnings("java:S3824")
     private static boolean isInvalidType(IOpenClass openClass, Map<IOpenClass, Boolean> invalidTypeMap) {
         var v = invalidTypeMap.get(openClass);
         if (v != null) {
