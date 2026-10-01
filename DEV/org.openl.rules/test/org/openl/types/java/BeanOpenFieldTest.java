@@ -62,7 +62,11 @@ class BeanOpenFieldTest {
         // section 'Capitalization of inferred names'
         // OpenL allows properties started from the upper case
         //
+        // The capitalized name is the subject of the test: it names the property of the bean.
+        @SuppressWarnings("java:S116")
         private String FieldName;
+        // The capitalized name is the subject of the test: it names the property of the bean.
+        @SuppressWarnings("java:S116")
         private boolean Flag;
 
         public String getFieldName() {
