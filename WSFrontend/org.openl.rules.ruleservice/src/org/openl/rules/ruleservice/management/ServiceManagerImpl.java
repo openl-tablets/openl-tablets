@@ -267,7 +267,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             Collection<OpenLMessage> messages = openClass.getAllMessages();
             var openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
                     Severity.ERROR);
-            var errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
+            var errors = openLMessages.stream().map(OpenLMessage::getSummary).toList();
             if (!errors.isEmpty()) {
                 return errors;
             }
@@ -428,7 +428,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         return services2.values()
                 .stream()
                 .filter(service -> service.getDeployment().getName().equals(deploymentName))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

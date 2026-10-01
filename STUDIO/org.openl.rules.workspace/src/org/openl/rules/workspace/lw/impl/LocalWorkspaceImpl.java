@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -133,7 +132,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                     .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
                     .map(Map.Entry::getValue)
                     .sorted(PROJECTS_COMPARATOR)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 

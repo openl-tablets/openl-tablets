@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.AccessLevel;
@@ -210,7 +209,7 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
         List<Path> found;
         try (Stream<Path> stream = Objects.equals(walkRoot, root) ? storage.values().stream()
                 : Files.walk(walkRoot, 1).filter(p -> !walkRoot.equals(p))) {
-            found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p)).collect(Collectors.toList());
+            found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p)).toList();
         }
         for (Path p : found) {
             var cp = new CompoundPath(Objects.equals(walkRoot, root) ? p.getParent() : resolvedPath.getRoot(),

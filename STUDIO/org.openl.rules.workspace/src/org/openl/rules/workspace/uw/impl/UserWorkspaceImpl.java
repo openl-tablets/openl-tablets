@@ -207,7 +207,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     .map(userRulesProjects::get)
                     .filter(Objects::nonNull)
                     .sorted(PROJECTS_COMPARATOR)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 

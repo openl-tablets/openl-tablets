@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -86,7 +85,7 @@ public class AclProjectsController {
     @JsonView(AclView.Project.class)
     public List<AclProjectModel> getAclProjectRules(@NotNull @SidExistsConstraint Sid sid) {
         return mapAclProjectModel(designTimeRepository.getManageableProjects(), sid)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Operation(summary = "acls.get-project-rule.summary", description = "acls.get-project-rule.desc")
@@ -98,7 +97,7 @@ public class AclProjectsController {
                                                           @RequestParam(value = "inherited",
                                                                   defaultValue = "false") boolean inherited) {
         return mapAclProjectModelForSid(project, inherited)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Operation(summary = "acls.suggest-subjects.summary", description = "acls.suggest-subjects.desc")
