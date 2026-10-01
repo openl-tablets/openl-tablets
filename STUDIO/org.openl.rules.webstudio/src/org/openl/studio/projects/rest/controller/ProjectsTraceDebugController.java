@@ -153,8 +153,8 @@ public class ProjectsTraceDebugController {
         var listener = listenerFactory.create(user, projectId, tableId, sessionId);
         var objectMapper = objectMapperService.createObjectMapper();
         // The launcher sends the input server-side once; a restart (profiling toggle, replay) re-runs the trace
-        // without resending it. Reuse the remembered input when this call carries neither input nor test ranges;
-        // otherwise it is a fresh launch, so remember its input for the next restart.
+        // without resending it. Reuse the remembered input when this call carries neither input nor test ranges.
+        // Otherwise it is a fresh launch, so remember its input for the next restart.
         var effectiveInputJson = inputJson;
         if (inputJson == null && testRanges == null) {
             effectiveInputJson = sessionRegistry.lastInputJson();
