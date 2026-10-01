@@ -371,6 +371,44 @@ describe('CreateTableModal', () => {
         expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ id: 'table-id' }), 'Main')
     })
 
+    it('keeps each grid row its own when a row is put in or taken out above it', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
+        await user.type(screen.getByTestId('create-table-cell-1-1'), 'second')
+        const second = screen.getByTestId('create-table-cell-1-1').closest('tr')
+
+        // The row that held the second field is the very one moved, not another one drawn over with its values.
+        await user.click(within(screen.getByTestId('create-table-cell-0-0').closest('tr')!)
+            .getByRole('button', { name: 'project:create_table_modal.delete_row' }))
+        expect(screen.getByTestId('create-table-cell-0-1').closest('tr')).toBe(second)
+        expect(screen.getByTestId('create-table-cell-0-1')).toHaveValue('second')
+
+        await user.click(within(second!).getByRole('button', { name: 'project:create_table_modal.insert_row_above' }))
+        expect(screen.getByTestId('create-table-cell-1-1').closest('tr')).toBe(second)
+        expect(screen.getByTestId('create-table-cell-0-1')).toHaveValue('')
+    })
+
+    it('keeps each argument row its own when an argument above it is taken out', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'smartRules')
+        await user.type(screen.getByTestId('create-table-argument-type-0'), 'Integer')
+        await user.type(screen.getByTestId('create-table-argument-name-0'), 'age')
+        await user.type(screen.getByTestId('create-table-argument-type-1'), 'String')
+        await user.type(screen.getByTestId('create-table-argument-name-1'), 'state')
+        const state = screen.getByTestId('create-table-argument-row-1')
+
+        await user.click(within(screen.getByTestId('create-table-argument-row-0'))
+            .getByRole('button', { name: 'project:create_table_modal.delete_argument' }))
+
+        expect(screen.getByTestId('create-table-argument-row-0')).toBe(state)
+        expect(screen.getByTestId('create-table-argument-name-0')).toHaveValue('state')
+    })
+
     it('extends a Datatype from a suggested complex type only', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
@@ -904,6 +942,21 @@ describe('CreateTableModal', () => {
             ['country', 'Country', 'Text1'],
             ['_res_', 'Result', 'TRUE'],
         ])
+    })
+
+    it('keeps each record of a transposed table its own when a record is put in before it', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+        await openModal({ sourceTableId: 'source-table-id' })
+        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('test'))
+        await user.click(screen.getByTestId('create-table-transposed'))
+        const first = screen.getByTestId('create-table-cell-0-0').closest('td')
+
+        await user.click(screen.getAllByRole('button', { name: 'project:create_table_modal.insert_record_before' })[0]!)
+
+        // The record put in takes a column of its own; the one that was first keeps its cells, now second.
+        expect(screen.getByTestId('create-table-cell-1-0').closest('td')).toBe(first)
+        expect(screen.getByTestId('create-table-cell-1-0')).toHaveValue(1)
     })
 
     it('opens a vocabulary column on a value that vocabulary accepts', async () => {
