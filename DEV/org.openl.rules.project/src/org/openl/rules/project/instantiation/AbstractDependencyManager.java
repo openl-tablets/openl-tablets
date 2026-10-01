@@ -289,13 +289,13 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                     .collect(Collectors.toSet());
         }
 
-        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
+        Set<IDependencyLoader> matchedLoaders = new HashSet<>();
         for (IDependencyLoader dl : visibleDependencyLoaders) {
             if (!Objects.equals(currentDependencyLoader,
                     dl) && !(dl.isProjectLoader() && currentDependencyLoader != null && Objects.equals(dl.getProject(),
                     currentDependencyLoader.getProject()))) {
                 if (Pattern.matches(value, dl.getDependency().getNode().getIdentifier())) {
-                    dependencyLoaders.add(dl);
+                    matchedLoaders.add(dl);
                 }
             }
         }
@@ -304,18 +304,18 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             if (!dl.isProjectLoader()) {
                 if (!dl.isProjectLoader() && !Objects.equals(currentDependencyLoader, dl) && Pattern.matches(value,
                         dl.getModule().getName())) {
-                    dependencyLoaders.add(dl);
+                    matchedLoaders.add(dl);
                 }
             }
         }
 
-        if (dependencyLoaders.stream().anyMatch(e -> !e.isProjectLoader())) {
-            dependencyLoaders = dependencyLoaders.stream()
+        if (matchedLoaders.stream().anyMatch(e -> !e.isProjectLoader())) {
+            matchedLoaders = matchedLoaders.stream()
                     .filter(e -> !e.isProjectLoader())
                     .collect(Collectors.toSet());
         }
 
-        var ret = dependencyLoaders.stream()
+        var ret = matchedLoaders.stream()
                 .map(e -> new ResolvedDependency(e.isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE,
                         new IdentifierNode(dependency.getNode().getType(),
                                 dependency.getNode().getLocation(),

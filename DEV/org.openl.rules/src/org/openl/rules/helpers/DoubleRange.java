@@ -47,15 +47,15 @@ public class DoubleRange extends Range<Double> implements INumberRange {
     }
 
     public DoubleRange(String range) {
-        Type type;
+        Type rangeType;
         try {
             var parser = parse(range);
             if (parser == null) {
-                type = Type.DEGENERATE;
+                rangeType = Type.DEGENERATE;
                 this.lowerBound = convertToDouble(range.trim());
                 this.upperBound = this.lowerBound;
             } else {
-                type = parser.getType();
+                rangeType = parser.getType();
                 var left = parser.getLeft();
                 var right = parser.getRight();
                 lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
@@ -70,7 +70,7 @@ public class DoubleRange extends Range<Double> implements INumberRange {
                             .replaceAll("(?<!\\S)(\\S++)\\s++or\\s++less", "<=$1")
                             .replaceAll("(?<!\\S)(\\S++)\\s++and\\s++more", ">=$1");
                     var parser = parse(range);
-                    type = parser.getType();
+                    rangeType = parser.getType();
                     var left = parser.getLeft();
                     var right = parser.getRight();
                     lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
@@ -82,7 +82,7 @@ public class DoubleRange extends Range<Double> implements INumberRange {
                 throw ex;
             }
         }
-        this.type = type;
+        this.type = rangeType;
         validate();
     }
 
