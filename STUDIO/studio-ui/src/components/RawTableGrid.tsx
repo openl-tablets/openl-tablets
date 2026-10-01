@@ -33,7 +33,8 @@ interface RawTableGridProps {
      * What the keyboard does with the table: moving between cells, opening one, writing into one.
      *
      * <p>Given only where the table can be written. The table takes the focus so that the keys reach it and
-     * nothing else — a screen full of other fields keeps its own.
+     * nothing else — a screen full of other fields keeps its own. Such a table is a grid, a table moved around
+     * by its cells, and says so to assistive technology.
      */
     onKeyDown?: ((event: React.KeyboardEvent<HTMLTableElement>) => void) | undefined
     /** The table itself, so the screen can hand it the focus once a cell is picked. */
@@ -167,77 +168,84 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     const extent = layout?.transposed ? columns : rows.length
     const lines = layout === undefined ? 0 : Math.max(0, extent - layout.firstDataLine)
 
-    return (
-        <table
-            ref={tableRef}
-            className={styles.table}
-            data-testid={testId}
-            onKeyDown={onKeyDown}
-            tabIndex={onKeyDown === undefined ? undefined : -1}
-        >
-            <tbody>
-                {/*
-                  * A transposed table's data runs across its columns, so its numbers run above them — one cell
-                  * per column of the grid, blank over the headings the data begins after.
-                  */}
-                {layout?.transposed && lines > 0 && (
-                    <tr>
-                        {Array.from({ length: columns }, (unused, column) => (
-                            <td key={column} className={styles.lineNumber}>
-                                {column >= layout.firstDataLine
-                                    ? <span data-testid="table-line-number">{column - layout.firstDataLine + 1}</span>
-                                    : null}
+    const body = (
+        <tbody>
+            {/*
+              * A transposed table's data runs across its columns, so its numbers run above them — one cell
+              * per column of the grid, blank over the headings the data begins after.
+              */}
+            {layout?.transposed && lines > 0 && (
+                <tr>
+                    {Array.from({ length: columns }, (unused, column) => (
+                        <td key={column} className={styles.lineNumber}>
+                            {column >= layout.firstDataLine
+                                ? <span data-testid="table-line-number">{column - layout.firstDataLine + 1}</span>
+                                : null}
+                        </td>
+                    ))}
+                </tr>
+            )}
+            {rows.map((row, rowIndex) => (
+                <tr key={rowKey(row, rowIndex)}>
+                    {/* A table written the usual way round is numbered down its side, as the Editor did. */}
+                    {layout !== undefined && !layout.transposed && (
+                        <td className={styles.lineNumber}>
+                            {rowIndex >= layout.firstDataLine
+                                ? <span data-testid="table-line-number">{rowIndex - layout.firstDataLine + 1}</span>
+                                : null}
+                        </td>
+                    )}
+                    {row.map((cell, columnIndex) => {
+                        if (cell.covered) return null
+                        const decoration = decorate?.(cell, rowIndex, columnIndex)
+                        const key = cell.cell ?? `c${columnIndex}`
+                        const drawn = (
+                            <td
+                                colSpan={cell.colspan}
+                                data-cell={cell.cell}
+                                onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
+                                onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
+                                rowSpan={cell.rowspan}
+                                style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
+                                className={cx(styles.cell, cell.comment !== undefined && styles.commented,
+                                    decoration?.className)}
+                            >
+                                {decoration?.content ?? cellText(cell, !!formulas, styles, onOpenUsage)}
                             </td>
-                        ))}
-                    </tr>
-                )}
-                {rows.map((row, rowIndex) => (
-                    <tr key={rowKey(row, rowIndex)}>
-                        {/* A table written the usual way round is numbered down its side, as the Editor did. */}
-                        {layout !== undefined && !layout.transposed && (
-                            <td className={styles.lineNumber}>
-                                {rowIndex >= layout.firstDataLine
-                                    ? <span data-testid="table-line-number">{rowIndex - layout.firstDataLine + 1}</span>
-                                    : null}
-                            </td>
-                        )}
-                        {row.map((cell, columnIndex) => {
-                            if (cell.covered) return null
-                            const decoration = decorate?.(cell, rowIndex, columnIndex)
-                            const key = cell.cell ?? `c${columnIndex}`
-                            const drawn = (
-                                <td
-                                    colSpan={cell.colspan}
-                                    data-cell={cell.cell}
-                                    onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
-                                    onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
-                                    rowSpan={cell.rowspan}
-                                    style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
-                                    className={cx(styles.cell, cell.comment !== undefined && styles.commented,
-                                        decoration?.className)}
+                        )
+                        // The note is shown while the cell is read. A cell the screen has taken over — one
+                        // being written into — shows what the screen put there, not a note over the top of it.
+                        return cell.comment === undefined || decoration?.content !== undefined
+                            ? <React.Fragment key={key}>{drawn}</React.Fragment>
+                            : (
+                                <Tooltip
+                                    key={key}
+                                    placement="rightBottom"
+                                    title={<span className={styles.note}>{cell.comment}</span>}
                                 >
-                                    {decoration?.content ?? cellText(cell, !!formulas, styles, onOpenUsage)}
-                                </td>
+                                    {drawn}
+                                </Tooltip>
                             )
-                            // The note is shown while the cell is read. A cell the screen has taken over — one
-                            // being written into — shows what the screen put there, not a note over the top of it.
-                            return cell.comment === undefined || decoration?.content !== undefined
-                                ? <React.Fragment key={key}>{drawn}</React.Fragment>
-                                : (
-                                    <Tooltip
-                                        key={key}
-                                        placement="rightBottom"
-                                        title={<span className={styles.note}>{cell.comment}</span>}
-                                    >
-                                        {drawn}
-                                    </Tooltip>
-                                )
-                        })}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+                    })}
+                </tr>
+            ))}
+        </tbody>
     )
+
+    return onKeyDown === undefined
+        ? <table ref={tableRef} className={styles.table} data-testid={testId}>{body}</table>
+        : (
+            <table
+                ref={tableRef}
+                className={styles.table}
+                data-testid={testId}
+                onKeyDown={onKeyDown}
+                role="grid"
+                tabIndex={-1}
+            >
+                {body}
+            </table>
+        )
 }
 
 export default RawTableGrid

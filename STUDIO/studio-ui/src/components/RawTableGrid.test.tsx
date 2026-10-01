@@ -147,6 +147,23 @@ describe('RawTableGrid', () => {
         expect(await screen.findByText(/Agreed with legal/)).toBeInTheDocument()
     })
 
+    it('is a grid that takes the keys only where the keyboard moves around it', async () => {
+        const onKeyDown = vi.fn()
+        const { rerender } = render(<RawTableGrid rows={rows} testId="grid" />)
+        expect(screen.getByRole('table')).toBe(screen.getByTestId('grid'))
+        expect(screen.queryByRole('grid')).not.toBeInTheDocument()
+        expect(screen.getByTestId('grid')).not.toHaveAttribute('tabindex')
+
+        rerender(<RawTableGrid onKeyDown={onKeyDown} rows={rows} testId="grid" />)
+        const grid = screen.getByRole('grid')
+        expect(grid).toBe(screen.getByTestId('grid'))
+        expect(grid).toHaveAttribute('tabindex', '-1')
+
+        grid.focus()
+        await userEvent.keyboard('{ArrowDown}')
+        expect(onKeyDown).toHaveBeenCalledWith(expect.objectContaining({ key: 'ArrowDown' }))
+    })
+
     it('draws an empty table without a row', () => {
         render(<RawTableGrid rows={[]} testId="grid" />)
 
