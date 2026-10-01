@@ -2,7 +2,6 @@ package org.openl.studio.projects.service;
 
 import jakarta.annotation.Nonnull;
 
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.model.ProjectViewModel;
@@ -12,7 +11,7 @@ import org.openl.studio.projects.model.ProjectViewModel;
  *
  * @author Vladyslav Pikus
  */
-public interface ProjectService<T extends AProject> {
+public interface ProjectService {
 
     /**
      * Get projects by criteria query
