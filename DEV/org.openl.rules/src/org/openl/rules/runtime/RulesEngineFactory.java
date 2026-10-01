@@ -123,6 +123,8 @@ public class RulesEngineFactory<T> {
         }
     }
 
+    // The class loader must stay open: the classes it defines are used after the method returns.
+    @SuppressWarnings("java:S2093")
     private CompiledOpenClass initializeOpenClass() {
         boolean oldValidationState = ValidationManager.isValidationEnabled();
         CompiledOpenClass compiledModule;

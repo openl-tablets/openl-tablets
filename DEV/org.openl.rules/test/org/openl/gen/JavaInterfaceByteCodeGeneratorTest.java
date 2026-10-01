@@ -222,6 +222,8 @@ class JavaInterfaceByteCodeGeneratorTest {
         assertEquals(expectedName, interfaceClass.getName());
     }
 
+    // The class loader must stay open: the classes it defines are used after the method returns.
+    @SuppressWarnings("java:S2093")
     private static Class<?> defineClass(String name,
                                         byte[] bytes) throws ClassNotFoundException {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();

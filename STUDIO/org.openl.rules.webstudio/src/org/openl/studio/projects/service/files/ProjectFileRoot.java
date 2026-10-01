@@ -139,6 +139,8 @@ public class ProjectFileRoot implements FileRoot {
         }
     }
 
+    // The finally block releases the project lock, which is not an AutoCloseable resource.
+    @SuppressWarnings("java:S2093")
     @Override
     public void writeBatch(String basePath, List<FileItem> items, ChangesetType changesetType, String comment) {
         // The save bypasses the artefact tree, whose mutations lock the project themselves.

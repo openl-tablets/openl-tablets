@@ -39,6 +39,8 @@ public final class CompileMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.compileClasspathElements}", required = true, readonly = true)
     private List<String> classpath;
 
+    // OpenClassUtil releases the class loader and also clears the OpenL caches bound to it.
+    @SuppressWarnings("java:S2093")
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         URL[] urls = toURLs(classpath);
