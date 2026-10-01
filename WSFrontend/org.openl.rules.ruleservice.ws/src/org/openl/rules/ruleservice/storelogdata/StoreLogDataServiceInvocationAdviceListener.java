@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.openl.binding.MethodUtil;
@@ -27,10 +26,10 @@ import org.openl.util.ClassUtils;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
 
-    @Autowired
-    private StoreLogDataManager storeLogDataManager;
+    private final StoreLogDataManager storeLogDataManager;
 
     public void process(Method interfaceMethod,
                         Object[] args,

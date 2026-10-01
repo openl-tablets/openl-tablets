@@ -11,7 +11,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.openl.info.OpenLVersion;
@@ -22,16 +23,15 @@ import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.openl.spring.env.DefaultPropertySource;
 
 @Produces(MediaType.APPLICATION_JSON)
+@RequiredArgsConstructor
 public class AdminRestController {
 
-    @Autowired(required = false)
-    private DeployClasspathJarsBean deployClasspathJarService;
+    private final ObjectProvider<DeployClasspathJarsBean> deployClasspathJarService;
 
-    @Autowired
-    private ServiceInfoProvider serviceManager;
+    private final ServiceInfoProvider serviceManager;
 
     @Value("#{uiConfig}")
-    private Map<String, Object> uiConfig;
+    private final Map<String, Object> uiConfig;
 
     /**
      * @return a list of descriptions of published OpenL services.
@@ -89,7 +89,8 @@ public class AdminRestController {
     @GET
     @Path("/healthcheck/readiness")
     public Response readiness() {
-        if (deployClasspathJarService != null && !deployClasspathJarService.isDone()) {
+        var classpathJarsDeployer = deployClasspathJarService.getIfAvailable();
+        if (classpathJarsDeployer != null && !classpathJarsDeployer.isDone()) {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();

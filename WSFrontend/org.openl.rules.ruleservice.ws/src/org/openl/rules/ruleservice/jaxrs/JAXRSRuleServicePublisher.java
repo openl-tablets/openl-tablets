@@ -13,6 +13,7 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.cxf.endpoint.Server;
@@ -46,6 +47,7 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
  * @author Nail Samatov, Marat Kamalov
  */
 @Slf4j
+@RequiredArgsConstructor
 public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public static final String REST_PREFIX = "REST/";
 
@@ -53,27 +55,21 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
 
     @Value("${ruleservice.authentication.enabled}")
-    private boolean authenticationEnabled;
+    private final boolean authenticationEnabled;
 
-    @Autowired
     @Getter
-    @Qualifier("serviceDescriptionInProcess")
-    @Setter
+    @Setter(onMethod_ = {@Autowired, @Qualifier("serviceDescriptionInProcess")})
     private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
 
-    @Autowired
     @Getter
-    @Setter
+    @Setter(onMethod_ = @Autowired)
     private StoreLogDataManager storeLogDataManager;
 
-    @Autowired
-    private List<ExceptionMapper> exceptionMappers;
+    private final List<ExceptionMapper> exceptionMappers;
 
-    @Autowired
-    private List<Feature> features;
+    private final List<Feature> features;
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
     @Override
     public void deploy(final OpenLService service) throws RuleServiceDeployException {

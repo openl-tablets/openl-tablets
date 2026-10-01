@@ -286,8 +286,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     /**
      * For validation
      */
-    @Autowired
-    @Setter
+    @Setter(onMethod_ = @Autowired)
     private Collection<RuleServicePublisher> supportedPublishers;
 
     @Override

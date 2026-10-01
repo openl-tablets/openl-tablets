@@ -11,9 +11,9 @@ import java.util.Set;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.openl.binding.MethodUtil;
@@ -29,10 +29,10 @@ import org.openl.spring.config.ConditionalOnEnable;
 
 @Service
 @ConditionalOnEnable("ruleservice.store.logs.db.enabled")
+@RequiredArgsConstructor
 public class DBStoreLogDataService extends AbstractStoreLogDataService {
 
-    @Autowired
-    private EntityManagerOperations hibernateSessionOperations;
+    private final EntityManagerOperations hibernateSessionOperations;
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
