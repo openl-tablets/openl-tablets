@@ -72,7 +72,7 @@ public class FlattenParameterExport extends BaseParameterExport {
 
     private int createAndWriteRowIds(Sheet sheet, Cursor start, TestDescription[] descriptions) {
         var colNum = start.getColNum();
-        var tasks = new TreeSet<WriteTask>();
+        var tasks = new TreeSet<>(WriteTask.BY_POSITION);
         tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), "ID", styles.header));
 
         for (var description : descriptions) {
@@ -139,7 +139,7 @@ public class FlattenParameterExport extends BaseParameterExport {
                                Function<Object, Optional<Object>> getFieldValueChain,
                                Boolean skipEmptyParameters) {
         var rowNum = start.getRowNum();
-        var tasks = new TreeSet<WriteTask>();
+        var tasks = new TreeSet<>(WriteTask.BY_POSITION);
         var colNum = start.getColNum();
         tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), namePrefix, styles.header));
         var emptyRow = true;

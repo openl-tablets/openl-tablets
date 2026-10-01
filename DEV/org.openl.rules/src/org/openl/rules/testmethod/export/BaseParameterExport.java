@@ -2,6 +2,7 @@ package org.openl.rules.testmethod.export;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -159,7 +160,14 @@ abstract class BaseParameterExport extends BaseExport {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    static final class WriteTask implements Comparable<WriteTask> {
+    static final class WriteTask {
+        /**
+         * Orders the tasks by rows, and the tasks of one row by columns.
+         */
+        static final Comparator<WriteTask> BY_POSITION = Comparator
+                .comparingInt((WriteTask task) -> task.getCursor().getRowNum())
+                .thenComparingInt(task -> task.getCursor().getColNum());
+
         @Getter
         private final Cursor cursor;
         @Getter
@@ -171,15 +179,6 @@ abstract class BaseParameterExport extends BaseExport {
 
         WriteTask(Cursor cursor, Object value, CellStyle style) {
             this(cursor, value, style, 1);
-        }
-
-        @Override
-        public int compareTo(WriteTask o) {
-            var cursor1 = getCursor();
-            var cursor2 = o.getCursor();
-
-            var rowComparison = cursor1.getRowNum() - cursor2.getRowNum();
-            return rowComparison != 0 ? rowComparison : cursor1.getColNum() - cursor2.getColNum();
         }
     }
 }

@@ -1,7 +1,6 @@
 package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
@@ -425,7 +424,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 var pair = new ConditionToEvaluatorHolder(condition, eval, info);
                 evalToConds.add(pair);
             }
-            Collections.sort(evalToConds);
+            evalToConds.sort(ConditionToEvaluatorHolder::compareIndexes);
             return evalToConds.toArray(ConditionToEvaluatorHolder.EMPTY_ARRAY);
         }
     }
@@ -570,7 +569,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return iterator;
     }
 
-    private static class ConditionToEvaluatorHolder implements Comparable<ConditionToEvaluatorHolder> {
+    private static class ConditionToEvaluatorHolder {
 
         static final ConditionToEvaluatorHolder[] EMPTY_ARRAY = new ConditionToEvaluatorHolder[0];
         private final IndexInfo localInfo;
@@ -595,8 +594,13 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return evaluator.makeIndex(condition, it);
         }
 
-        @Override
-        public int compareTo(ConditionToEvaluatorHolder o) {
+        /**
+         * Compares the conditions in the order they are evaluated. An indexed condition goes before a not indexed one.
+         * <p>
+         * Two equality indexes go from the fewer unique keys to the more. Other indexes go by the priorities of their
+         * evaluators.
+         */
+        private int compareIndexes(ConditionToEvaluatorHolder o) {
             if (!this.isIndexed() && !o.isIndexed()) {
                 return 0;
             }

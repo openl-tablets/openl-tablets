@@ -1,18 +1,18 @@
 package org.openl.rules.dt.index;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
-import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeDescIndex extends RangeAscIndex {
 
     public RangeDescIndex(DecisionTableRuleNode nextNode,
                           List<IndexNode> index,
-                          IRangeAdaptor<IndexNode, ?> adaptor,
+                          Function<Object, IndexNode> toIndexNode,
                           int[] emptyRules) {
-        super(nextNode, index, adaptor, emptyRules);
+        super(nextNode, index, toIndexNode, emptyRules);
     }
 
     @Override

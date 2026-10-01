@@ -1,5 +1,6 @@
 package org.openl.rules.table;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,24 +14,23 @@ import lombok.RequiredArgsConstructor;
  * @author PUdalau
  */
 public class RegionsPool {
-    /**
-     * Two intervals that intersects are equal.
-     */
     @RequiredArgsConstructor
-    private static class DisjointInterval implements Comparable<DisjointInterval> {
-        private final int left;
-        private final int right;
-
-        @Override
-        public int compareTo(DisjointInterval o) {
-            if (right < o.left) {
+    private static class DisjointInterval {
+        /**
+         * Orders the intervals by their positions. Two intervals that intersect are equal.
+         */
+        static final Comparator<DisjointInterval> BY_POSITION = (a, b) -> {
+            if (a.right < b.left) {
                 return -1;
             }
-            if (left > o.right) {
+            if (a.left > b.right) {
                 return 1;
             }
             return 0;
-        }
+        };
+
+        private final int left;
+        private final int right;
     }
 
     /**
@@ -60,7 +60,7 @@ public class RegionsPool {
      */
     public void add(IGridRegion region) {
         for (var row = region.getTop(); row <= region.getBottom(); row++) {
-            Map<DisjointInterval, IGridRegion> regionsMap = pool.computeIfAbsent(row, k -> new TreeMap<>());
+            Map<DisjointInterval, IGridRegion> regionsMap = pool.computeIfAbsent(row, k -> new TreeMap<>(DisjointInterval.BY_POSITION));
             regionsMap.put(new DisjointInterval(region.getLeft(), region.getRight()), region);
         }
     }

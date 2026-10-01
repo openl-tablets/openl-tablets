@@ -4,25 +4,25 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
 import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
-import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeAscIndex extends ARuleIndexV2 {
 
     protected final List<IndexNode> index;
-    private final IRangeAdaptor<IndexNode, ?> adaptor;
+    private final Function<Object, IndexNode> toIndexNode;
 
     public RangeAscIndex(DecisionTableRuleNode nextNode,
                          List<IndexNode> index,
-                         IRangeAdaptor<IndexNode, ?> adaptor,
+                         Function<Object, IndexNode> toIndexNode,
                          int[] emptyRules) {
         super(nextNode, emptyRules);
         this.index = Collections.unmodifiableList(index);
-        this.adaptor = adaptor;
+        this.toIndexNode = toIndexNode;
     }
 
     private IndexRange findIndexRange(Object value) {
@@ -32,8 +32,7 @@ public class RangeAscIndex extends ARuleIndexV2 {
         }
         // Converts value for binary search in index
         // Because different subclasses of Number are not comparable.
-        value = adaptor.adaptValueType(value);
-        var idx = Collections.binarySearch(index, (IndexNode) value);
+        var idx = Collections.binarySearch(index, toIndexNode.apply(value), IndexNode.BY_VALUE);
         return retrieveIndexRange(idx);
     }
 

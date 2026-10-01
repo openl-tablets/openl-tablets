@@ -533,7 +533,21 @@ public final class OpenLFuzzyUtils {
     }
 
     @RequiredArgsConstructor
-    public static final class FuzzyResult implements Comparable<FuzzyResult> {
+    public static final class FuzzyResult {
+        /**
+         * Orders the results from the best match to the worst one.
+         * <p>
+         * A better match finds more tokens, then misses fewer tokens, then has a smaller distance, then leaves fewer
+         * tokens unmatched and then has a higher acceptable similarity.
+         */
+        public static final Comparator<FuzzyResult> BEST_FIRST = Comparator
+                .comparingInt(FuzzyResult::getFoundTokensCount)
+                .reversed()
+                .thenComparingInt(FuzzyResult::getMissedTokensCount)
+                .thenComparingInt(result -> result.getToken().getDistance())
+                .thenComparingInt(FuzzyResult::getUnmatchedTokensCount)
+                .thenComparing(Comparator.comparingDouble(FuzzyResult::getAcceptableSimilarity).reversed());
+
         @Getter
         final Token token;
         @Getter
@@ -544,35 +558,6 @@ public final class OpenLFuzzyUtils {
         final int unmatchedTokensCount;
         @Getter
         final double acceptableSimilarity;
-
-        @Override
-        public int compareTo(FuzzyResult o) {
-            if (this.foundTokensCount > o.foundTokensCount) {
-                return -1;
-            }
-            if (this.foundTokensCount < o.foundTokensCount) {
-                return 1;
-            }
-            if (this.missedTokensCount > o.missedTokensCount) {
-                return 1;
-            }
-            if (this.missedTokensCount < o.missedTokensCount) {
-                return -1;
-            }
-            if (this.token.getDistance() < o.token.getDistance()) {
-                return -1;
-            }
-            if (this.token.getDistance() > o.token.getDistance()) {
-                return 1;
-            }
-            if (this.unmatchedTokensCount > o.unmatchedTokensCount) {
-                return 1;
-            }
-            if (this.unmatchedTokensCount < o.unmatchedTokensCount) {
-                return -1;
-            }
-            return Double.compare(o.acceptableSimilarity, this.acceptableSimilarity);
-        }
     }
 
     private static class BuildBySimilarity {

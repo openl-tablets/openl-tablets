@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.openl.rules.table.IGridTable;
 
 @RequiredArgsConstructor
-public class TablePart implements Comparable<TablePart> {
+public class TablePart {
 
     @Getter
     @Setter
@@ -26,10 +26,5 @@ public class TablePart implements Comparable<TablePart> {
     final IGridTable table;
     @Getter
     final XlsSheetSourceCodeModule source;
-
-    @Override
-    public int compareTo(TablePart o) {
-        return Integer.compare(this.part, o.part);
-    }
 
 }
