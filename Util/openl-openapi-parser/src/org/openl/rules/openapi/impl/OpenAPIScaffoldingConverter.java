@@ -61,7 +61,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
     public static final String SPR_RESULT_LINK = SCHEMAS_LINK + SPREADSHEET_RESULT;
     public static final String RESULT = "Result";
-    public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{.*?}");
+    public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{[^}]*+}");
     private static final Set<String> IGNORED_FIELDS = Set.copyOf(List.of("@class"));
     public static final String SPREADSHEET_RESULT_CLASS_NAME = SpreadsheetResult.class.getName();
     public static final String GET_PREFIX = "get";
