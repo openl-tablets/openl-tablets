@@ -121,12 +121,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     @Override
     public LocalWorkspace getWorkspace(String userId) {
-        var lwi = localWorkspaces.get(userId);
-        if (lwi == null) {
-            lwi = createWorkspace(userId);
-            localWorkspaces.put(userId, lwi);
-        }
-        return lwi;
+        return localWorkspaces.computeIfAbsent(userId, this::createWorkspace);
     }
 
     @Override
