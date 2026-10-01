@@ -29,6 +29,7 @@ import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -211,7 +212,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
         var row = key.getRow();
         var col = key.getColumn();
-        if (!IGridRegion.Tool.contains(region, col, row)) {
+        if (!GridRegionUtils.contains(region, col, row)) {
             return;
         }
 
@@ -356,7 +357,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             var key = entry.getKey();
             var row = key.getRow();
             var col = key.getColumn();
-            if (!IGridRegion.Tool.contains(region, col, row)) {
+            if (!GridRegionUtils.contains(region, col, row)) {
                 continue;
             }
 
@@ -698,7 +699,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         var cell = valueCell.getCell(columnIndex, rowIndex); // See EPBDS-7774 for an example when "rowIndex" is needed
         var row = cell.getAbsoluteRow();
         var col = cell.getAbsoluteColumn();
-        if (IGridRegion.Tool.contains(region, col, row)) {
+        if (GridRegionUtils.contains(region, col, row)) {
             // Some expression
             var stringValue = cell.getStringValue();
             var startIndex = stringValue.indexOf('=') + 1;
@@ -747,7 +748,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         var codeCell = funcRow.getCodeTable().getCell(0, 0);
         var row = codeCell.getAbsoluteRow();
         var col = codeCell.getAbsoluteColumn();
-        if (IGridRegion.Tool.contains(region, col, row)) {
+        if (GridRegionUtils.contains(region, col, row)) {
             var metaInfoList = MetaInfoReaderUtils.getMetaInfo(funcRow.getSourceCodeModule(),
                     funcRow.getMethod());
             // Decision table always contains 1 meta info
@@ -765,7 +766,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     var paramCell = paramsTable.getCell(0, i);
                     row = paramCell.getAbsoluteRow();
                     col = paramCell.getAbsoluteColumn();
-                    if (IGridRegion.Tool.contains(region, col, row)) {
+                    if (GridRegionUtils.contains(region, col, row)) {
                         setPreparedMetaInfo(row, col, getMetaInfo(paramsTable, param.getType()));
                     }
                 }

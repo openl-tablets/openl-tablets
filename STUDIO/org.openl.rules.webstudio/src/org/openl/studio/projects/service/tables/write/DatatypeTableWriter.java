@@ -7,7 +7,7 @@ import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -72,7 +72,7 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
         }
         if (update) {
             // clean up removed rows
-            var height = IGridRegion.Tool.height(tableBody.getRegion());
+            var height = GridRegionUtils.height(tableBody.getRegion());
             if (row < height) {
                 removeRows(tableBody, height - row, row);
             }
@@ -134,7 +134,7 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
         requireColumnsFor(tableAppend.getFields(), columns);
         try {
             table.getGridTable().edit();
-            var row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = GridRegionUtils.height(tableBody.getRegion());
             for (var field : tableAppend.getFields()) {
                 write(tableBody, row, field, columns);
                 row++;

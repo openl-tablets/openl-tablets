@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -67,7 +68,7 @@ class TableViewer {
     }
 
     TableModel buildModel(IGridTable gt) {
-        var tm = new TableModel(IGridRegion.Tool.width(reg), IGridRegion.Tool.height(reg), gt);
+        var tm = new TableModel(GridRegionUtils.width(reg), GridRegionUtils.height(reg), gt);
 
         if (gt.getGrid() instanceof CompositeGrid compositeGrid) {
             metaInfoReader.prepare(compositeGrid.getGridTables()[0].getRegion());
@@ -172,8 +173,8 @@ class TableViewer {
         if (gr == null) {
             return 1;
         }
-        IGridRegion intersect = IGridRegion.Tool.intersect(reg, gr);
-        return intersect != null ? IGridRegion.Tool.width(intersect) : 1;
+        IGridRegion intersect = GridRegionUtils.intersect(reg, gr);
+        return intersect != null ? GridRegionUtils.width(intersect) : 1;
     }
 
     int getRowSpan(ICell cell) {
@@ -181,8 +182,8 @@ class TableViewer {
         if (gr == null) {
             return 1;
         }
-        IGridRegion intersect = IGridRegion.Tool.intersect(reg, gr);
-        return intersect != null ? IGridRegion.Tool.height(intersect) : 1;
+        IGridRegion intersect = GridRegionUtils.intersect(reg, gr);
+        return intersect != null ? GridRegionUtils.height(intersect) : 1;
     }
 
     short[] rgb(BorderStyle bs1, BorderStyle bs2) {
@@ -194,7 +195,7 @@ class TableViewer {
     }
 
     void setGrid(TableModel tm) {
-        var width = IGridRegion.Tool.width(reg);
+        var width = GridRegionUtils.width(reg);
 
         for (var i = 0; i <= width; i++) {
             setVerticalBorder(i, tm);
@@ -209,7 +210,7 @@ class TableViewer {
     }
 
     void setHorizontalBorder(int row, TableModel tm) {
-        var width = IGridRegion.Tool.width(reg);
+        var width = GridRegionUtils.width(reg);
         var left = reg.getLeft();
         var top = reg.getTop();
 

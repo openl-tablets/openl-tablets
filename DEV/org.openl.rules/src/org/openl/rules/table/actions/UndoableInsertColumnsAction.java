@@ -2,6 +2,7 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -27,7 +28,7 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
                 region.getRight() + 1 + nCols);
         var allGridTables = table.getGrid().getTables();
         for (IGridTable allGridTable : allGridTables) {
-            if (!table.getUri().equals(allGridTable.getUri()) && IGridRegion.Tool.intersects(newRegion,
+            if (!table.getUri().equals(allGridTable.getUri()) && GridRegionUtils.intersects(newRegion,
                     allGridTable.getRegion())) {
                 return false;
             }

@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -136,7 +137,7 @@ public class TableBuilder {
             throw new IllegalStateException("beginTable() has already been called");
         }
         region = regionToWrite;
-        if (region == null || !IGridRegion.Tool.isValidRegion(region, gridModel.getSpreadsheetConstants())) {
+        if (region == null || !GridRegionUtils.isValidRegion(region, gridModel.getSpreadsheetConstants())) {
             throw new CreateTableException("Could not find appropriate region for writing");
         }
         currentRow = 0;

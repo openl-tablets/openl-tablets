@@ -8,6 +8,7 @@ import java.util.Map;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -57,13 +58,13 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
 
         if (isUpdateMode()) {
             // clean up removed columns
-            var width = IGridRegion.Tool.width(tableBody.getRegion());
+            var width = GridRegionUtils.width(tableBody.getRegion());
             if (colMax < width) {
                 removeColumns(tableBody, width - colMax, colMax);
             }
 
             // clean up removed rows
-            var height = IGridRegion.Tool.height(tableBody.getRegion());
+            var height = GridRegionUtils.height(tableBody.getRegion());
             if (rowNum < height) {
                 removeRows(tableBody, height - rowNum, rowNum);
             }
@@ -151,7 +152,7 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
             var headers = LookupTableReader.buildHeaders(headerTable);
 
             // Find the starting row for appending (after header rows and existing data)
-            var rowNum = IGridRegion.Tool.height(tableBody.getRegion());
+            var rowNum = GridRegionUtils.height(tableBody.getRegion());
 
             // Append new rows using shared logic
             writeRows(tableBody, headers, tableAppend.getRows(), rowNum);

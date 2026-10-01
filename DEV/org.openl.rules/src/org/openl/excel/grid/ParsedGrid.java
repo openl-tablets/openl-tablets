@@ -23,6 +23,7 @@ import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
@@ -238,7 +239,7 @@ public class ParsedGrid extends AGrid {
             column -= internalCol - topLeft.col;
         }
 
-        if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
+        if (currentTableStyles == null || !GridRegionUtils.contains(currentTableStyles.getRegion(), column, row)) {
             currentTableStyles = readTableStyles(row, column);
         }
 
@@ -261,7 +262,7 @@ public class ParsedGrid extends AGrid {
             int top = region.getTop() == 0 ? 0 : region.getTop() - 1;
             var extendedRegion = new GridRegion(top, left, region.getBottom() + 1, region.getRight() + 1);
 
-            if (IGridRegion.Tool.contains(extendedRegion, column, row)) {
+            if (GridRegionUtils.contains(extendedRegion, column, row)) {
                 try (var excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
                     styles = excelReader.getTableStyles(sheetDescriptor, extendedRegion);
                 } catch (Exception e) {

@@ -22,7 +22,7 @@ import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.helpers.ArraySplitter;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.xls.formatters.FormatConstants;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -49,8 +49,8 @@ class XlsSheetGridModelTest {
     }
 
     private void _testCell(String cell, int col, int row) {
-        assertEquals(IGridRegion.Tool.getColumn(cell), col);
-        assertEquals(IGridRegion.Tool.getRow(cell), row);
+        assertEquals(GridRegionUtils.getColumn(cell), col);
+        assertEquals(GridRegionUtils.getRow(cell), row);
 
         assertEquals(cell, XlsUtil.xlsCellPresentation(col, row));
     }

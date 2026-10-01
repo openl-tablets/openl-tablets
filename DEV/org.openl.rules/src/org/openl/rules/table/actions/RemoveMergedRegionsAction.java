@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import lombok.RequiredArgsConstructor;
 
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
@@ -29,7 +30,7 @@ public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
         var nregions = grid.getNumberOfMergedRegions();
         for (var i = 0; i < nregions; i++) {
             var reg = grid.getMergedRegion(i);
-            if (IGridRegion.Tool.contains(region, reg.getLeft(), reg.getTop())) {
+            if (GridRegionUtils.contains(region, reg.getLeft(), reg.getTop())) {
                 removedRegions.add(reg);
             }
         }

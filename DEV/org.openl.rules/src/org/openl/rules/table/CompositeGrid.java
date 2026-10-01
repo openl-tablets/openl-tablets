@@ -192,7 +192,7 @@ public class CompositeGrid extends AGrid {
 
         // check if merged region on the sheet belongs to table
         // region
-        IGridRegion intersection = IGridRegion.Tool.intersect(mergedRegion, tableRegion);
+        IGridRegion intersection = GridRegionUtils.intersect(mergedRegion, tableRegion);
 
         if (intersection != null) {
             if (!gridTables[j].isNormalOrientation()) {
@@ -219,7 +219,7 @@ public class CompositeGrid extends AGrid {
             }
 
             // move intersection from one place to another.
-            IGridRegion moved = IGridRegion.Tool.move(intersection, dx, dy);
+            IGridRegion moved = GridRegionUtils.move(intersection, dx, dy);
             mergedRegionsList.add(moved);
         }
     }
@@ -243,12 +243,12 @@ public class CompositeGrid extends AGrid {
             int last = i == gridTables.length - 1 ? 1 : 0;
 
             if (vertical) {
-                var rh = IGridRegion.Tool.height(reg);
+                var rh = GridRegionUtils.height(reg);
                 mapped = new GridRegion(h, 0, h + rh - 1 + last, width);
 
                 h += rh;
             } else {
-                var rw = IGridRegion.Tool.width(reg);
+                var rw = GridRegionUtils.width(reg);
                 mapped = new GridRegion(0, w, height, w + rw - 1 + last);
 
                 w += rw;
@@ -265,11 +265,11 @@ public class CompositeGrid extends AGrid {
         for (IGridTable gridTable : gridTables) {
             var reg = gridTable.getRegion();
             if (vertical) {
-                height += IGridRegion.Tool.height(reg);
-                width = Math.max(width, IGridRegion.Tool.width(reg));
+                height += GridRegionUtils.height(reg);
+                width = Math.max(width, GridRegionUtils.width(reg));
             } else {
-                width += IGridRegion.Tool.width(reg);
-                height = Math.max(height, IGridRegion.Tool.height(reg));
+                width += GridRegionUtils.width(reg);
+                height = Math.max(height, GridRegionUtils.height(reg));
             }
         }
     }
@@ -290,7 +290,7 @@ public class CompositeGrid extends AGrid {
     public Transform transform(int col, int row) {
         for (var i = 0; i < mappedRegions.length; i++) {
             // find the region to which this coordinates belong to
-            if (IGridRegion.Tool.contains(mappedRegions[i], col, row)) {
+            if (GridRegionUtils.contains(mappedRegions[i], col, row)) {
                 // according to the found region, get the appropriate table
                 // region.
                 var reg = gridTables[i].getRegion();

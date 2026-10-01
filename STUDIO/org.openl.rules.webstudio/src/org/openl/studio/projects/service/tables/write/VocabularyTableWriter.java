@@ -6,7 +6,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.VocabularyAppend;
@@ -53,7 +53,7 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
         }
         if (isUpdateMode()) {
             // clean up removed rows
-            var height = IGridRegion.Tool.height(tableBody.getRegion());
+            var height = GridRegionUtils.height(tableBody.getRegion());
             if (row < height) {
                 removeRows(tableBody, height - row, row);
             }
@@ -67,7 +67,7 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
         try {
             table.getGridTable().edit();
             var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
-            var row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = GridRegionUtils.height(tableBody.getRegion());
             for (var value : tableAppend.getValues()) {
                 createOrUpdateCell(tableBody, buildCellKey(0, row), value.value);
                 row++;

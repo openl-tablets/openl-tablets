@@ -13,9 +13,9 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.IWritableGrid;
@@ -177,7 +177,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
         if (isUpdateMode()) {
             // Clean up removed rows
-            var height = Tool.height(tableBody.getRegion());
+            var height = GridRegionUtils.height(tableBody.getRegion());
             if (maxSourceRow < height) {
                 removeRows(tableBody, height - maxSourceRow, maxSourceRow);
             }
@@ -221,7 +221,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         try {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
-            var startRow = Tool.height(tableBody.getRegion());
+            var startRow = GridRegionUtils.height(tableBody.getRegion());
             var mergeRegions = new ArrayList<IGridRegion>();
 
             // Write rows and track merge regions
@@ -369,9 +369,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var developerView = developerView();
         // A row is laid down after the one before it, whose styling it takes — so the topmost row a write can
         // add is the second one, and index 1..height is what the table takes (height adds at the end).
-        requirePosition(position, 1, Tool.height(developerView.getRegion()));
+        requirePosition(position, 1, GridRegionUtils.height(developerView.getRegion()));
         requireNotEmpty(rows);
-        var width = Tool.width(developerView.getRegion());
+        var width = GridRegionUtils.width(developerView.getRegion());
         requireBatchLines(developerView, rows, position, true, width, ROW_WIDTH_MESSAGE);
         // A single multi-row grid insert at the table's top boundary corrupts the region, so allocate the rows one
         // at a time. Do not write or merge them until the complete block exists: a later insertion inside an inline
@@ -379,30 +379,30 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         for (var i = 0; i < rows.size(); i++) {
             insertBlankRows(developerView, position - 1 + i);
         }
-        writeLines(developerView, rows, position, true, width, Tool.height(developerView.getRegion()));
+        writeLines(developerView, rows, position, true, width, GridRegionUtils.height(developerView.getRegion()));
     }
 
     private void insertColumns(int position, List<List<RawCellInput>> columns) {
         var developerView = developerView();
         // A column is laid down where the one at that index stands, whose styling it takes, and pushes it
         // aside — the first column included. Index 0..width is what the table takes (width adds at the end).
-        requirePosition(position, 0, Tool.width(developerView.getRegion()));
+        requirePosition(position, 0, GridRegionUtils.width(developerView.getRegion()));
         requireNotEmpty(columns);
-        var height = Tool.height(developerView.getRegion());
+        var height = GridRegionUtils.height(developerView.getRegion());
         requireBatchLines(developerView, columns, position, false, height, COLUMN_HEIGHT_MESSAGE);
         // Allocate the complete block before applying inline merges, for the same reason as row insertion. Column
         // insertion lands the blank at the given index (unlike row insertion).
         for (var i = 0; i < columns.size(); i++) {
             insertBlankColumns(developerView, position + i);
         }
-        writeLines(developerView, columns, position, false, Tool.width(developerView.getRegion()), height);
+        writeLines(developerView, columns, position, false, GridRegionUtils.width(developerView.getRegion()), height);
     }
 
     private void appendRows(List<List<RawCellInput>> rows) {
         var developerView = developerView();
         requireNotEmpty(rows);
-        var width = Tool.width(developerView.getRegion());
-        var startRow = Tool.height(developerView.getRegion());
+        var width = GridRegionUtils.width(developerView.getRegion());
+        var startRow = GridRegionUtils.height(developerView.getRegion());
         requireBatchLines(developerView, rows, startRow, true, width, ROW_WIDTH_MESSAGE);
         writeLines(developerView, rows, startRow, true, width, startRow + rows.size());
     }
@@ -410,8 +410,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void appendColumns(List<List<RawCellInput>> columns) {
         var developerView = developerView();
         requireNotEmpty(columns);
-        var height = Tool.height(developerView.getRegion());
-        var startColumn = Tool.width(developerView.getRegion());
+        var height = GridRegionUtils.height(developerView.getRegion());
+        var startColumn = GridRegionUtils.width(developerView.getRegion());
         requireBatchLines(developerView, columns, startColumn, false, height, COLUMN_HEIGHT_MESSAGE);
         writeLines(developerView, columns, startColumn, false, startColumn + columns.size(), height);
     }
@@ -420,7 +420,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var developerView = developerView();
         // The block (position..position+count-1) must stay within the table — the first row included, which
         // is the reader's to take away as it was in the Editor.
-        requirePosition(position, 0, Tool.height(developerView.getRegion()) - count);
+        requirePosition(position, 0, GridRegionUtils.height(developerView.getRegion()) - count);
         // Drop the merges the deleted rows hold whole first: removeRows only resizes a merge taller than the
         // block, so a merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
         var tableRegion = developerView.getRegion();
@@ -431,7 +431,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
-        requirePosition(position, 0, Tool.width(developerView.getRegion()) - count);
+        requirePosition(position, 0, GridRegionUtils.width(developerView.getRegion()) - count);
         // Same as deleteRows: drop the merges the deleted columns hold whole so none of them lingers.
         var tableRegion = developerView.getRegion();
         removeMergedRegionsWithin(developerView, new GridRegion(tableRegion.getTop(),
@@ -442,8 +442,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void updateRow(int position, List<RawCellInput> cells) {
         var developerView = developerView();
-        requirePosition(position, 0, Tool.height(developerView.getRegion()) - 1);
-        requireRowWidth(cells, Tool.width(developerView.getRegion()));
+        requirePosition(position, 0, GridRegionUtils.height(developerView.getRegion()) - 1);
+        requireRowWidth(cells, GridRegionUtils.width(developerView.getRegion()));
         // Drop merges anchored in the row so a merge dropped from the new cells does not linger.
         clearLineMerges(developerView, position, true);
         writeRow(developerView, position, cells, true);
@@ -451,8 +451,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void updateColumn(int position, List<RawCellInput> cells) {
         var developerView = developerView();
-        requirePosition(position, 0, Tool.width(developerView.getRegion()) - 1);
-        requireColumnHeight(cells, Tool.height(developerView.getRegion()));
+        requirePosition(position, 0, GridRegionUtils.width(developerView.getRegion()) - 1);
+        requireColumnHeight(cells, GridRegionUtils.height(developerView.getRegion()));
         // Drop merges anchored in the column so a merge dropped from the new cells does not linger.
         clearLineMerges(developerView, position, false);
         writeColumn(developerView, position, cells, true);
@@ -470,8 +470,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void updateRange(int row, int column, List<List<RawCellInput>> cells) {
         requireNotEmpty(cells);
         var developerView = developerView();
-        var height = Tool.height(developerView.getRegion());
-        var width = Tool.width(developerView.getRegion());
+        var height = GridRegionUtils.height(developerView.getRegion());
+        var width = GridRegionUtils.width(developerView.getRegion());
         var rangeHeight = cells.size();
         var rangeWidth = requireRectangularRange(cells);
         requireRangeMultiCell(rangeHeight, rangeWidth);
@@ -504,8 +504,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void mergeCells(int row, int column, int rowspan, int colspan) {
         var developerView = developerView();
-        var height = Tool.height(developerView.getRegion());
-        var width = Tool.width(developerView.getRegion());
+        var height = GridRegionUtils.height(developerView.getRegion());
+        var width = GridRegionUtils.width(developerView.getRegion());
         // Span subtraction (not row + rowspan) keeps the bounds check safe from int overflow on huge spans.
         var withinBounds = row >= 0 && row < height && column >= 0 && column < width
                 && rowspan >= 1 && colspan >= 1 && rowspan <= height - row && colspan <= width - column;
@@ -577,7 +577,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         var developerView = developerView();
         var tableRegion = developerView.getRegion();
-        requireRangeInBounds(row, column, rowspan, colspan, Tool.height(tableRegion), Tool.width(tableRegion));
+        requireRangeInBounds(row, column, rowspan, colspan, GridRegionUtils.height(tableRegion), GridRegionUtils.width(tableRegion));
         for (var r = row; r < row + rowspan; r++) {
             for (var c = column; c < column + colspan; c++) {
                 styleCell(developerView, tableRegion.getLeft() + c, tableRegion.getTop() + r, style);
@@ -673,8 +673,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var held = new ArrayList<IGridRegion>();
         for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             var merged = grid.getMergedRegion(i);
-            if (IGridRegion.Tool.contains(block, merged.getLeft(), merged.getTop())
-                    && IGridRegion.Tool.contains(block, merged.getRight(), merged.getBottom())) {
+            if (GridRegionUtils.contains(block, merged.getLeft(), merged.getTop())
+                    && GridRegionUtils.contains(block, merged.getRight(), merged.getBottom())) {
                 held.add(merged);
             }
         }
@@ -709,10 +709,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void writeLine(IGridTable developerView, List<RawCellInput> cells, int fixedIndex, boolean horizontal,
                            boolean skipCovered) {
         // Appending writes one index past the edge, so the table grows by one along the line's axis.
-        int spanWidth = horizontal ? Tool.width(developerView.getRegion())
-                : Math.max(Tool.width(developerView.getRegion()), fixedIndex + 1);
-        int spanHeight = horizontal ? Math.max(Tool.height(developerView.getRegion()), fixedIndex + 1)
-                : Tool.height(developerView.getRegion());
+        int spanWidth = horizontal ? GridRegionUtils.width(developerView.getRegion())
+                : Math.max(GridRegionUtils.width(developerView.getRegion()), fixedIndex + 1);
+        int spanHeight = horizontal ? Math.max(GridRegionUtils.height(developerView.getRegion()), fixedIndex + 1)
+                : GridRegionUtils.height(developerView.getRegion());
         var mergeRegions = new ArrayList<IGridRegion>();
         writeLineCells(developerView, cells, fixedIndex, horizontal, skipCovered, spanWidth, spanHeight, mergeRegions);
         applyMergeRegions(developerView, mergeRegions);
@@ -783,8 +783,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private static void requireCellInBounds(IGridTable developerView, int row, int column) {
-        var height = Tool.height(developerView.getRegion());
-        var width = Tool.width(developerView.getRegion());
+        var height = GridRegionUtils.height(developerView.getRegion());
+        var width = GridRegionUtils.width(developerView.getRegion());
         if (row < 0 || row >= height || column < 0 || column >= width) {
             throw new BadRequestException("table.action.cell.out-of-bounds.message",
                     new Object[]{row, column, height - 1, width - 1});
@@ -911,7 +911,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         var merges = new ArrayList<IGridRegion>();
         for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             var merged = grid.getMergedRegion(i);
-            if (Tool.contains(region, merged.getLeft(), merged.getTop())
+            if (GridRegionUtils.contains(region, merged.getLeft(), merged.getTop())
                     && !grid.isEmpty(merged.getLeft(), merged.getTop())) {
                 merges.add(merged);
             }
@@ -942,7 +942,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             var row = horizontal ? fixedIndex : i;
             var column = horizontal ? i : fixedIndex;
             if (cell == null || !Boolean.TRUE.equals(cell.covered())
-                    || earlierSpans.stream().noneMatch(region -> Tool.contains(region, column, row))) {
+                    || earlierSpans.stream().noneMatch(region -> GridRegionUtils.contains(region, column, row))) {
                 return false;
             }
         }

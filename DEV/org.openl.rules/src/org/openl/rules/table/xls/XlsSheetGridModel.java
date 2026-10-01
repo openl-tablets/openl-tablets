@@ -36,6 +36,7 @@ import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
@@ -212,7 +213,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         var left = 1;
 
         var newRegion = new GridRegion(top, left, top + height - 1, left + width - 1);
-        if (IGridRegion.Tool.isValidRegion(newRegion, getSpreadsheetConstants())) {
+        if (GridRegionUtils.isValidRegion(newRegion, getSpreadsheetConstants())) {
             return newRegion;
         }
         return null;

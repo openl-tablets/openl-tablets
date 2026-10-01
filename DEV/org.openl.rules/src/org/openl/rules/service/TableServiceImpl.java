@@ -3,8 +3,8 @@ package org.openl.rules.service;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
@@ -59,7 +59,7 @@ public class TableServiceImpl {
     }
 
     public synchronized void moveTableTo(IGridTable table, IGridRegion destRegion) throws TableServiceException {
-        if (Tool.height(destRegion) != table.getHeight() || Tool.width(destRegion) != table.getWidth()) {
+        if (GridRegionUtils.height(destRegion) != table.getHeight() || GridRegionUtils.width(destRegion) != table.getWidth()) {
             throw new TableServiceException("Bad destination region size.");
         }
         try {

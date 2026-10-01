@@ -8,6 +8,7 @@ import java.util.Map;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -85,13 +86,13 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
      */
     private void removeUnusedCells(IGridTable tableBody, int colMax, int row) {
         // clean up removed columns
-        var width = IGridRegion.Tool.width(tableBody.getRegion());
+        var width = GridRegionUtils.width(tableBody.getRegion());
         if (colMax < width) {
             removeColumns(tableBody, width - colMax, colMax);
         }
 
         // clean up removed rows
-        var height = IGridRegion.Tool.height(tableBody.getRegion());
+        var height = GridRegionUtils.height(tableBody.getRegion());
         if (row < height) {
             removeRows(tableBody, height - row, row);
         }
@@ -136,7 +137,7 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
             var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headers = SmartRulesTableReader
                     .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
-            var row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = GridRegionUtils.height(tableBody.getRegion());
             for (var rule : tableAppend.getRules()) {
                 var col = 0;
                 for (var header : headers) {
