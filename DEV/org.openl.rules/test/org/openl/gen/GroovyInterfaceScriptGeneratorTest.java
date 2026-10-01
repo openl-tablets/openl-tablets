@@ -222,6 +222,8 @@ class GroovyInterfaceScriptGeneratorTest {
         assertEquals(expectedName, interfaceClass.getName());
     }
 
+    // The class loader must stay open: the classes it defines are used after the method returns.
+    @SuppressWarnings("java:S2093")
     private static Class<?> defineClass(String text) {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {

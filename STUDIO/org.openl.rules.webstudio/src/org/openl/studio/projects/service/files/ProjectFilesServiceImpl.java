@@ -406,6 +406,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         return action + (path.isEmpty() ? "repository root" : path);
     }
 
+    // The finally block releases the project lock, which is not an AutoCloseable resource.
+    @SuppressWarnings("java:S2093")
     @Override
     public void writeFiles(@NotNull FileRoot root,
                            @NotNull Map<String, byte[]> written,

@@ -56,6 +56,8 @@ public class XlsDiff2 {
         diffGuess = new TreeMap<>();
     }
 
+    // OpenClassUtil releases the class loader and also clears the OpenL caches bound to it.
+    @SuppressWarnings("java:S2093")
     private List<XlsTable> load(IOpenSourceCodeModule src) {
         final var oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader classLoader = null;

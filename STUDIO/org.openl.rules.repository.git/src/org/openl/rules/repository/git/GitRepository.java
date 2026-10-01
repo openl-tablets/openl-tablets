@@ -490,6 +490,8 @@ public class GitRepository implements BranchRepository, Closeable {
         return delete(data);
     }
 
+    // The finally block closes the streams of a whole list of items, which try-with-resources cannot declare.
+    @SuppressWarnings("java:S2093")
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         initializeGit(true);

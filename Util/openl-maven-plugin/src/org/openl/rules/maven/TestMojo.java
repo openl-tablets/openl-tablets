@@ -197,6 +197,8 @@ public final class TestMojo extends BaseOpenLMojo {
                 hasDependencies) : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
     }
 
+    // OpenClassUtil releases the class loader and also clears the OpenL caches bound to it.
+    @SuppressWarnings("java:S2093")
     private Summary executeAllAtOnce(String testSourcePath,
                                      String mainSourcePath,
                                      boolean hasDependencies) throws MalformedURLException,

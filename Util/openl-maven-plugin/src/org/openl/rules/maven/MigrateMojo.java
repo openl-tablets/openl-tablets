@@ -106,6 +106,8 @@ public final class MigrateMojo extends BaseOpenLMojo {
     @Component
     private ScmManager scmManager;
 
+    // OpenClassUtil releases the class loader and also clears the OpenL caches bound to it.
+    @SuppressWarnings("java:S2093")
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
         var source = Path.of(sourcePath);

@@ -286,6 +286,8 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
+    // The finally block closes the streams of a whole list of items, which try-with-resources cannot declare.
+    @SuppressWarnings("java:S2093")
     private void deployMultiProject(Path pathToArchive,
                                     boolean ignoreIfExists,
                                     Path root,
