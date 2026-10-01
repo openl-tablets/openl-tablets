@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.util.Date;
 
@@ -16,14 +17,14 @@ class XlsDateFormatterTest {
 
     @Test
     void parsesDateUsingTheCellFormatFirst() {
-        var expected = Date.from(LocalDate.of(2024, 1, 2).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        var expected = Date.from(LocalDate.of(2024, Month.JANUARY, 2).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         assertEquals(expected, formatter.parse("1/2/24"));
     }
 
     @Test
     void parsesRawApiIsoDateWhenItDoesNotMatchTheCellFormat() {
-        var expected = Date.from(LocalDateTime.of(2024, 1, 2, 3, 4, 5, 678_000_000)
+        var expected = Date.from(LocalDateTime.of(2024, Month.JANUARY, 2, 3, 4, 5, 678_000_000)
                 .atZone(ZoneId.systemDefault())
                 .toInstant());
 
