@@ -60,4 +60,13 @@ To view the rules of the project, click the name of a module on the **Overview**
 
 In addition to tutorials, OpenL Tablets provides several example projects that demonstrate how OpenL Tablets can be used in various business domains.
 
+The following examples are available:
+
+- **Example 1 - Bank Rating** — Limit of transactions with bank-counterparties
+- **Example 2 - Corporate Rating** — Rating of a company by its financial statements
+- **Example 3 - Auto Policy Calculation** — Auto insurance premium by the UServ business rules model
+- **Example-4-Reference-Guide** — Runnable examples of this guide
+
+**Example-4-Reference-Guide** follows the chapters of this guide. It holds an example of every table type, of the BEX language syntax, and of every built-in function, each with a test table, so running its tests shows the result of every example. For the list of its workbooks, see [Getting Started > Tutorials](../../getting-started/tutorials.md#example-4-reference-guide).
+
 To create an example project, follow the steps described in [Tutorials](#tutorials) but click the **Examples** category instead of **Tutorials**, and select an example to explore. When completed, the example appears in the OpenL Studio Editor.

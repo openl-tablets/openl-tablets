@@ -12,7 +12,7 @@ This reference guide is organized into the following sections:
 - [Basic Concepts](01-introduction/03-basic-concepts.md) - Core concepts and terminology
 - [System Overview](01-introduction/04-system-overview.md) - Architecture and components
 - [Installing OpenL Tablets](01-introduction/05-installing-openl-tablets.md) - Installation instructions
-- [Tutorials and Examples](01-introduction/06-tutorials-and-examples.md) - Getting started tutorials
+- [Tutorials and Examples](01-introduction/06-tutorials-and-examples.md) - Getting started tutorials and example projects, including the runnable examples of this guide
 
 ### Working with OpenL Tables
 

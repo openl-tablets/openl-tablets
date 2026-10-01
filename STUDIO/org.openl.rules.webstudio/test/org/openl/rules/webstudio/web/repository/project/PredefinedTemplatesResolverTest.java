@@ -38,7 +38,9 @@ class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
         var templates = templatesResolver.getTemplates("templates");
         assertEquals(2, templates.size());
         assertTrue(templates.containsAll(Arrays.asList("Empty Project", "Sample Project")));
-        assertEquals(3, templatesResolver.getTemplates("examples").size());
+        var examples = templatesResolver.getTemplates("examples");
+        assertEquals(4, examples.size());
+        assertTrue(examples.contains("Example-4-Reference-Guide"));
         assertEquals(8, templatesResolver.getTemplates("tutorials").size());
     }
 

@@ -21,11 +21,16 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
 - **org.openl.rules.annotations** — Annotation processing for rules
 - **org.openl.rules.gen** — Code generation for bindings
 - **org.openl.rules.project** — Project model, instantiation strategies, resource resolution
-- **org.openl.rules.test** — Functional test framework (test table implementations)
+- **org.openl.rules.test** — Functional test framework (test table implementations). Its
+  `test-resources/functionality` holds what a user showcase cannot: regressions of specific defects, expected
+  compilation errors and warnings (`.msg.txt`), Java and Groovy interop, engine internals. A behavior users see is
+  shown and tested once, in `Example-4-Reference-Guide` of `org.openl.rules.demo`, never again here
 - **org.openl.rules.demo** — Demo projects OpenL Studio offers as templates, examples and tutorials. The jar ships
   inside the OpenL Studio war only: it is installed into the local repository but never deployed.
   `DemoProjectsTest` compiles every project and runs its test tables during the build, so a demo project ships only
-  without compilation errors and with all its tests passing
+  without compilation errors and with all its tests passing. The `Example-4-Reference-Guide` example has a tested
+  example of every table type, BEX syntax and public, non-deprecated built-in function, in workbooks that follow the
+  Reference Guide chapters: a new or changed rules feature updates its workbook too
 - **org.openl.rules.util** — Rule utility functions
 - **org.openl.spring** — Spring integration (`PassCoder` for password encoding lives here)
 
@@ -105,6 +110,10 @@ any cast from an `IntExp`, so that an operator does not bind to an `Object` over
 ## Rule Utility Libraries (`org.openl.rules.util`)
 
 **Registration**: every new class must be added to `org.openl.conf.LibrariesRegistry` via `DEFAULT.addJavalib(YourClass.class)` in its `static` initializer. Forgetting this leaves the methods invisible to rules.
+
+**Reference example**: a new public function gets an example with a test in the matching `7-Functions` workbook of
+`DEV/org.openl.rules.demo/src/org.openl.rules.demo.examples/Example-4-Reference-Guide`, which shows every public,
+non-deprecated built-in function to users.
 
 **Boxed-type-only public API**: never expose primitive overloads (`int`, `long`, `float`, `double`, `byte`, `short`). OpenL compiles rule variables to boxed types internally, so primitive variants add no performance benefit and bloat the method-dispatch search space. Keep primitive arithmetic in **private** helpers; public methods accept and return `Byte` / `Short` / `Integer` / `Long` / `Float` / `Double` / `BigInteger` / `BigDecimal`.
 
