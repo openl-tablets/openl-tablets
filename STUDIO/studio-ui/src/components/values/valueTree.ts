@@ -21,28 +21,32 @@ export const linesSummary = (count: number, elements: boolean): string =>
 export const complexValueSummary = (value: object): string =>
     (Array.isArray(value) ? linesSummary(value.length, true) : linesSummary(Object.keys(value).length, false))
 
-/** Describes a value without inner structure the way a debugger shows it. Strings are quoted, null is spelled out. */
+/**
+ * Describes a value without inner structure the way a debugger shows it. Strings are quoted, null is spelled out.
+ *
+ * A value with inner structure is named by what it holds. Nothing else comes in a value read from JSON: a bigint, a
+ * symbol or a function is written the way JavaScript writes it.
+ */
 export const describeSimpleValue = (value: unknown): SimpleValueText => {
-    if (value === null) {
-        return { display: 'null', kind: 'null' }
+    switch (typeof value) {
+        case 'undefined':
+            return { display: 'undefined', kind: 'null' }
+        case 'string':
+            return { display: `"${value}"`, kind: 'string' }
+        case 'number':
+            return { display: String(value), kind: 'number' }
+        case 'boolean':
+            return { display: String(value), kind: 'boolean' }
+        case 'object':
+            // A value with inner structure is opened as a tree; on one line it is named by what it holds.
+            return value === null
+                ? { display: 'null', kind: 'null' }
+                : { display: complexValueSummary(value), kind: 'other' }
+        case 'bigint':
+        case 'symbol':
+        case 'function':
+            return { display: value.toString(), kind: 'other' }
     }
-    if (value === undefined) {
-        return { display: 'undefined', kind: 'null' }
-    }
-    if (typeof value === 'string') {
-        return { display: `"${value}"`, kind: 'string' }
-    }
-    if (typeof value === 'number') {
-        return { display: String(value), kind: 'number' }
-    }
-    if (typeof value === 'boolean') {
-        return { display: String(value), kind: 'boolean' }
-    }
-    if (isComplexValue(value)) {
-        // A value with inner structure is opened as a tree; on one line it is named by what it holds.
-        return { display: complexValueSummary(value), kind: 'other' }
-    }
-    return { display: String(value), kind: 'other' }
 }
 
 /** The field names of the values read so far, by value: the tree is built again each time the reader opens a node. */
