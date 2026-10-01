@@ -71,6 +71,8 @@ final class TraceExportHook implements DebugHook {
         return subStep(executor, target, params, env, location);
     }
 
+    // Any failure of the traced rule, a StackOverflowError included, is recorded on its frame and rethrown.
+    @SuppressWarnings("java:S1181")
     private <T, E extends IRuntimeEnv, R> R frame(Invokable<? super T, E> executor, T target, Object[] params,
                                                   E env, ExecutableRulesMethod method,
                                                   SourceClassifier.FrameDescriptor descriptor) {
