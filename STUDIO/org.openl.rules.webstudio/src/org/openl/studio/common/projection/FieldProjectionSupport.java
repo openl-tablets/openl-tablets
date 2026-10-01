@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -63,7 +62,16 @@ public class FieldProjectionSupport {
      */
     private static final String COMMON_MODEL_PACKAGE = "org.openl.studio.common.model";
 
-    private final ConcurrentHashMap<Class<?>, Boolean> projectableCache = new ConcurrentHashMap<>();
+    /**
+     * Answers per class without holding the class strongly, so the classes of a recompiled project and their
+     * class loader are still collected after Jackson has introspected them.
+     */
+    private final ClassValue<Boolean> projectableCache = new ClassValue<>() {
+        @Override
+        protected Boolean computeValue(Class<?> type) {
+            return computeProjectable(type);
+        }
+    };
 
     /**
      * Whether this class is a projectable response DTO.
@@ -77,7 +85,7 @@ public class FieldProjectionSupport {
         if (type == null) {
             return false;
         }
-        return projectableCache.computeIfAbsent(type, FieldProjectionSupport::computeProjectable);
+        return projectableCache.get(type);
     }
 
     private static boolean computeProjectable(Class<?> type) {
