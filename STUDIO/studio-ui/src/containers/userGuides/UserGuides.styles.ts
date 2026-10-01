@@ -177,22 +177,6 @@ export const useStyles = createStyles(({ css, token }) => ({
             line-height: 1.5;
         }
 
-        table {
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: ${token.paddingXXS}px ${token.paddingSM}px;
-            border: 1px solid ${token.colorBorderSecondary};
-            text-align: left;
-            vertical-align: top;
-        }
-
-        th {
-            background: ${token.colorFillAlter};
-            font-weight: 600;
-        }
-
         .contains-task-list {
             padding-left: 1em;
             list-style: none;
@@ -234,5 +218,26 @@ export const useStyles = createStyles(({ css, token }) => ({
     tableScroll: css`
         margin: 0 0 1em;
         overflow-x: auto;
+    `,
+    /** A pipe table or a `csv` block; an `openl` block is drawn by the table editor's own grid instead. */
+    table: css`
+        border-collapse: collapse;
+
+        th, td {
+            padding: ${token.paddingXXS}px ${token.paddingSM}px;
+            border: 1px solid ${token.colorBorderSecondary};
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: ${token.colorFillAlter};
+            font-weight: 600;
+        }
+    `,
+    /** A header cell of an `openl` block: the table header and the column headers. */
+    openlHeader: css`
+        background: ${token.colorFillSecondary};
+        font-weight: 600;
     `,
 }))
