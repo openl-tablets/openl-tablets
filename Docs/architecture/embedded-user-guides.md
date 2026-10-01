@@ -133,9 +133,9 @@ The guides use only this syntax, and the validator holds them to it:
   of OpenL Studio.
 - **CSV** — a `csv` code fence is drawn as a table. Its records follow RFC 4180, so a value holding a comma, a quote
   or a line break is quoted. The first record is the column header.
-- **OpenL table** — an `openl` code fence is drawn as an OpenL table: a read-only cell grid styled like the table
-  editor of OpenL Studio. It lets a guide show a rule table as text instead of a screenshot. See
-  [The `openl` fence](#the-openl-fence).
+- **OpenL table** — an `openl` code fence is drawn as an OpenL table by `RawTableGrid`, the read-only grid the table
+  editor and the trace window of OpenL Studio draw a table with. It lets a guide show a rule table as text instead of
+  a screenshot. See [The `openl` fence](#the-openl-fence).
 - **Syntax highlighting** — fenced code is highlighted for the languages the guides use: `bash`, `groovy`, `java`,
   `json`, `properties`, `xml` and `yaml`. A fence without a language renders as plain text. Only these grammars are
   bundled.
@@ -151,6 +151,7 @@ The lines of an `openl` fence are CSV records, like those of a `csv` fence, with
 - **Merged cells** — a cell `<` joins the cell on its left, and a cell `^` joins the cell above. A merged area must be
   a rectangle. A literal `<` or `^` is written quoted.
 - **Short records** — a record shorter than the widest one is padded with empty cells.
+- **Shading** — the table header and the column headers are shaded; the other rows are not.
 
 For example, a rules table with a merged condition value:
 

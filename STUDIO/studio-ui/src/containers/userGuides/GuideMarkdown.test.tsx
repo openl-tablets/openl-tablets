@@ -108,6 +108,27 @@ describe('GuideMarkdown', () => {
         expect(text).toHaveTextContent('public class Plain {}')
     })
 
+    it('draws a csv block as a table whose first record is the column header', () => {
+        renderPage('```csv\nName,Note\nOne,"a, b"\nTwo\n```')
+
+        const table = screen.getByTestId('guide-csv-table')
+        expect(Array.from(table.querySelectorAll('th')).map(cell => cell.textContent)).toEqual(['Name', 'Note'])
+        expect(Array.from(table.querySelectorAll('tbody tr')).map(row => Array.from(row.querySelectorAll('td')).map(cell => cell.textContent)))
+            .toEqual([['One', 'a, b'], ['Two', '']])
+    })
+
+    it('draws an openl block the way the table editor draws an OpenL table', () => {
+        renderPage('```openl\nRules String hello(Integer hour)\nC1,RET1\n---\n0-12,Good Morning\n^,Good Day\n```')
+
+        const table = screen.getByTestId('guide-openl-table')
+        const header = screen.getByText('Rules String hello(Integer hour)')
+        expect(header).toHaveAttribute('colspan', '2')
+        expect(screen.getByText('0-12')).toHaveAttribute('rowspan', '2')
+        expect(table.querySelectorAll('tr')).toHaveLength(4)
+        expect(screen.getByText('C1').className).toBe(header.className)
+        expect(screen.getByText('Good Day').className).not.toBe(header.className)
+    })
+
     it('draws a mermaid block as a diagram', async () => {
         renderPage('```mermaid\nflowchart LR\n  A --> B\n```')
 

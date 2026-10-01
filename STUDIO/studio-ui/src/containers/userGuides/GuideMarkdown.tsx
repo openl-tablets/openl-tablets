@@ -17,6 +17,7 @@ import {
     rehypeNoteAlerts,
     SANITIZE_SCHEMA,
 } from './markdownPlugins'
+import { CsvTable, OpenLTable } from './GuideTables'
 import { MermaidDiagram } from './MermaidDiagram'
 import { useStyles } from './UserGuides.styles'
 
@@ -57,6 +58,13 @@ const GuideLink: React.FC<GuideLinkProps> = ({ file, href, children }) => {
 const codeOf = (pre: Element | undefined): Element | undefined =>
     pre?.children.find((child): child is Element => child.type === 'element' && child.tagName === 'code')
 
+/** The code blocks drawn as something else than code: a diagram or a table. */
+const DRAWN_BLOCKS: Record<string, React.FC<{ text: string }>> = {
+    mermaid: ({ text }) => <MermaidDiagram source={text} />,
+    csv: CsvTable,
+    openl: OpenLTable,
+}
+
 /** How the parts of a page are drawn, for the page in the given file. */
 const componentsOf = (file: string, styles: Styles, noteTitle: string): Components => ({
     a: ({ href, children }) => <GuideLink file={file} href={href}>{children}</GuideLink>,
@@ -71,11 +79,12 @@ const componentsOf = (file: string, styles: Styles, noteTitle: string): Componen
     ),
     pre: ({ node, children }) => {
         const code = codeOf(node)
-        return code && languageOf(code) === 'mermaid' ? <MermaidDiagram source={toString(code)} /> : <pre>{children}</pre>
+        const Drawn = DRAWN_BLOCKS[languageOf(code) ?? '']
+        return code && Drawn ? <Drawn text={toString(code)} /> : <pre>{children}</pre>
     },
     table: ({ children }) => (
         <div className={styles.tableScroll}>
-            <table>{children}</table>
+            <table className={styles.table}>{children}</table>
         </div>
     ),
     [NOTE_TAG]: ({ children }) => (
