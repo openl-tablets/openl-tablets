@@ -2570,7 +2570,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // Resolve the source (with its live grid) before opening the destination module. The resolved POI grid stays
         // valid across the reopen — the copy only reads it — so a copy into another module still sees the source cells.
         var source = getOpenLTable(project, sourceTableId).table();
-        var sheetName = Optional.ofNullable(request.sheetName()).filter(StringUtils::isNotBlank).orElseGet(request::name);
+        var requestedSheet = request.sheetName();
+        var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet)
+                ? requestedSheet
+                : request.name();
         if (StringUtils.isNotBlank(request.modulePath())) {
             return copyIntoNewModule(project, source, request, sheetName);
         }
