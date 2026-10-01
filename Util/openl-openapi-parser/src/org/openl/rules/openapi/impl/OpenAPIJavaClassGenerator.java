@@ -176,6 +176,8 @@ public class OpenAPIJavaClassGenerator {
         return false;
     }
 
+    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
+    @SuppressWarnings("java:S6916")
     private boolean isNotDefaultOperation(PathInfo pathInfo, List<InputParameter> parameters) {
         switch (pathInfo.getOperation()) {
             case GET -> {

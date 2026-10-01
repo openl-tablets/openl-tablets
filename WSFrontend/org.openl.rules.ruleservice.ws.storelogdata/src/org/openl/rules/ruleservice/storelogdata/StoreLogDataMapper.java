@@ -137,6 +137,8 @@ public class StoreLogDataMapper {
         }
     }
 
+    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
+    @SuppressWarnings("java:S6916")
     private static @Nullable String getRequest(StoreLogData storeLogData) {
         String request = null;
         switch (storeLogData.getPublisherType()) {
@@ -152,6 +154,8 @@ public class StoreLogDataMapper {
         return request;
     }
 
+    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
+    @SuppressWarnings("java:S6916")
     private static @Nullable String getResponse(StoreLogData storeLogData) {
         String response = null;
         switch (storeLogData.getPublisherType()) {

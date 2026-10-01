@@ -310,6 +310,8 @@ public class XlsSheetsMatcher {
      *
      * @throws IllegalStateException if the cell type is not supported
      */
+    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
+    @SuppressWarnings("java:S6916")
     private static boolean equalValueInCell(Cursor baseCursor, Cursor cursor) {
         final var baseCellType = baseCursor.cell.getCellType();
         switch (baseCellType) {

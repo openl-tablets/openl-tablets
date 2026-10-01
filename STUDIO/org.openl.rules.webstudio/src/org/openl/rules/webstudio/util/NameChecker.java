@@ -87,6 +87,8 @@ public final class NameChecker {
      * @param path path where folder
      * @throws IOException If path is invalid for any platform
      */
+    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
+    @SuppressWarnings("java:S6916")
     public static void validatePath(String path) throws IOException {
         var end = path.length() - 1;
         for (var i=0; i <= end; i++) {
