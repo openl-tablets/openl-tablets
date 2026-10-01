@@ -204,15 +204,17 @@ Tests are co-located with sources (e.g. `src/containers/DeployModal.test.tsx` ne
   `getLatestProps` helper that reads the last mock call — earlier calls may have stale closures after re-renders.
 - **Stable `react-i18next` mock**: define the `t` function once inside the `vi.mock` factory, not inline in the return.
   A new `t` reference per render causes infinite `useCallback`/`useEffect` loops when `t` is in a dependency array.
-- **Do not spy on or mock `console.*`.** `vitest-fail-on-console` is wired into `vitest.setup.ts` and fails any
-  `console.error`. Fix the source instead — remove redundant logging or demote to `console.warn` (silenced globally:
-  `silenceMessage` drops every `methodName === 'warn'`, so warns never fail and never print). Per-test
+- **Do not spy on or mock `console.*`.** `vitest-fail-on-console` is wired into `vitest.setup.ts` and fails a test on
+  any `console.error` or `console.warn`. Fix the source instead — remove redundant logging, or send a diagnostic worth
+  keeping to `errorHandler.logError()` (`utils/errorHandling.ts`), which prints nothing in tests. Per-test
   `vi.spyOn(console, 'error').mockImplementation(...)` is forbidden — it hides regressions and conflicts with
   `vitest-fail-on-console`'s per-test re-wrap.
-- **Do not edit `failOnConsole` options in `vitest.setup.ts`.** Don't add new `silenceMessage` patterns or `skipTest`
-  entries to make a failing test pass. Existing silences are reserved for jsdom/framework limitations with no
-  source-level fix (e.g. `Not implemented: navigation`, rc-form's orphan `useForm` warning, jsdom CSSOM parse failures,
-  AntD deprecation warnings). Other noise must be fixed at the source.
+- **Keep `failOnConsole()` in `vitest.setup.ts` without options.** Don't add `silenceMessage` patterns, `skipTest`
+  entries or `shouldFailOn*` switches to make a failing test pass — fix the noise at the source, as was done for
+  rc-form's orphan `useForm` warning and the AntD deprecation warnings. Errors that jsdom raises itself (e.g.
+  `Not implemented: navigation to another Document`, CSS it cannot parse) bypass `vitest-fail-on-console` — they print
+  but never fail a test, so keep them out of the output: a test that reaches `location.reload()` stubs it with
+  `vi.stubGlobal('location', { ...window.location, reload })`.
 
 ## Code Coverage
 
@@ -301,16 +303,16 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   resolves it via `page.getByTestId('foo')`; React Testing Library uses `getByTestId('foo')`. Choose stable,
   semantic ids (`repositories-tabs`, not `tabs1`); never reuse CSS class names as test ids.
 - **Do not call `console.*` directly from components, hooks, or services — route errors, never swallow them.**
-  ESLint enforces this (`no-console`); `utils/errorHandling.ts` is the only allowed `console.error` call site. Pick
-  the sink by audience:
+  ESLint enforces this (`no-console`); `utils/errorHandling.ts` is the only allowed `console` call site. Pick the sink
+  by audience:
     - **User-actionable errors** — surface in the UI: `notification.error`, form field errors, error boundaries.
     - **Background or diagnostic errors** (and details too technical for the UI) — `errorHandler.logError()` from
       `utils/errorHandling.ts`. It attaches context (url, user agent, timestamp), keeps the last 100 errors in memory
       for support, and prints to the browser console outside tests, so production failures stay diagnosable.
 
-  `console.warn` is the one direct call allowed — for transient recoverable signals (reconnect attempts, queued work,
-  disconnected sends). `vitest-fail-on-console` silences every warn, so warns are harmless in CI but still visible in
-  the browser dev console.
+  There is no `console.warn` exception — `vitest-fail-on-console` fails a test on any warn. Transient recoverable
+  signals (reconnect attempts, queued work, disconnected sends) are not errors and are not logged; expose them through
+  a callback or state when a caller must react.
 - Use the current Ant Design API — avoid deprecated props:
     - `Spin`: `description` instead of `tip`.
     - `Modal`: `destroyOnHidden` instead of `destroyOnClose`; `mask={{ closable }}` instead of `maskClosable`.
