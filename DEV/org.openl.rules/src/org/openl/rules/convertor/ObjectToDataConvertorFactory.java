@@ -3,6 +3,7 @@ package org.openl.rules.convertor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -120,6 +121,8 @@ public class ObjectToDataConvertorFactory {
             converters.put(new ClassCastPair(double.class, Double.class), CopyConvertor.the);
             converters.put(new ClassCastPair(int.class, Integer.class), CopyConvertor.the);
             converters.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
+            converters.put(new ClassCastPair(Long.class, long.class), CopyConvertor.the);
+            converters.put(new ClassCastPair(Long.class, BigInteger.class), e -> BigInteger.valueOf((Long) e));
 
             converters.put(new ClassCastPair(Date.class, Calendar.class), e -> {
                 Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
