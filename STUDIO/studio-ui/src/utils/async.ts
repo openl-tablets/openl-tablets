@@ -12,7 +12,8 @@ export async function runSequentialCollectErrors<T>(
     const failures: Array<{ item: T; error: unknown }> = []
     for (const item of items) {
         try {
-            await run(item)
+            // Running the operations one after another is what this helper is for.
+            await run(item) // NOSONAR typescript:S9382
         } catch (e) {
             failures.push({ item, error: e })
         }

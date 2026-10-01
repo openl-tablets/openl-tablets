@@ -370,7 +370,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         const failures: Array<{ type: RepositoryType; error: unknown }> = []
         for (const { type, value } of ops) {
             try {
-                await syncRootRole(type, value)
+                // The roles are written one at a time so a failure of one is reported without racing the other.
+                await syncRootRole(type, value) // NOSONAR typescript:S9382
             } catch (e) {
                 failures.push({ type, error: e })
             }
