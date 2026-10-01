@@ -14,7 +14,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 
@@ -55,12 +54,16 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     @Setter
     private ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
 
-    @Autowired
-    @Lazy
-    private ServiceManagerImpl serviceManager;
+    private final ServiceManagerImpl serviceManager;
 
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
+
+    // The service manager depends on this factory, so it is injected lazily to break the cycle.
+    public RuleServiceOpenLServiceInstantiationFactoryImpl(@Lazy ServiceManagerImpl serviceManager,
+                                                          ApplicationContext applicationContext) {
+        this.serviceManager = serviceManager;
+        this.applicationContext = applicationContext;
+    }
 
     private void initService(ServiceDescription serviceDescription,
                              RuleServiceDependencyManager dependencyManager,

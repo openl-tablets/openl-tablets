@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +51,7 @@ import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 
 @Slf4j
+@RequiredArgsConstructor
 public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
 
@@ -60,18 +62,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private BaseKafkaConfig defaultKafkaDeploy;
     private BaseKafkaConfig immutableKafkaDeploy;
 
-    @Autowired
     @Getter
-    @Setter
+    @Setter(onMethod_ = @Autowired)
     private StoreLogDataManager storeLogDataManager;
 
-    @Autowired
-    private Environment env;
+    private final Environment env;
 
-    @Autowired
     @Getter
-    @Qualifier("serviceDescriptionInProcess")
-    @Setter
+    @Setter(onMethod_ = {@Autowired, @Qualifier("serviceDescriptionInProcess")})
     private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
 
     private BaseKafkaConfig getDefaultKafkaDeploy() throws IOException {

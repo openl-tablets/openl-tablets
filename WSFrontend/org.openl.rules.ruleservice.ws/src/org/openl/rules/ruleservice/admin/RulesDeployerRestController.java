@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.core.StreamingOutput;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -32,16 +32,14 @@ import org.openl.rules.ruleservice.management.ServiceManager;
  */
 @Path("/deploy")
 @Produces("application/json")
+@RequiredArgsConstructor
 public class RulesDeployerRestController {
 
-    @Autowired
-    private RulesDeployerService rulesDeployerService;
+    private final RulesDeployerService rulesDeployerService;
 
-    @Autowired
-    private ServiceManager serviceManager;
+    private final ServiceManager serviceManager;
 
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Deploys target zip input stream

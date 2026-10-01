@@ -68,11 +68,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private final Map<String, OpenLService> services2 = new ConcurrentHashMap<>();
     private final Map<String, Date> startDates = new ConcurrentHashMap<>();
 
-    @Autowired
-    @Setter
+    @Setter(onMethod_ = @Autowired)
     private Collection<RuleServicePublisher> supportedPublishers;
-    @Autowired(required = false)
-    @Setter
+    @Setter(onMethod_ = @Autowired(required = false))
     private Collection<RuleServicePublisherListener> listeners = List.of();
 
     @Getter
