@@ -235,7 +235,7 @@ class ProjectLockInterceptorTest {
         var target = new Written();
         var locked = locking(target);
 
-        assertThrows(IllegalStateException.class, () -> locked.nameless());
+        assertThrows(IllegalStateException.class, locked::nameless);
 
         // Failing open here would be a write that looks guarded and is not.
         assertFalse(target.ran);
