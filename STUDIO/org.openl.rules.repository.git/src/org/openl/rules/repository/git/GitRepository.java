@@ -243,6 +243,8 @@ public class GitRepository implements BranchRepository, Closeable {
         return check(data.getName());
     }
 
+    // Checking a saved file throws an IOException, which a stream lambda cannot pass on.
+    @SuppressWarnings("java:S9391")
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         initializeGit(true);
