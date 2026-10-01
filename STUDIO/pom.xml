@@ -12,6 +12,7 @@
     <description>OpenL Studio Pom Project</description>
     <modules>
         <module>studio-ui</module>
+        <module>studio-docs</module>
         <module>../WSFrontend/org.openl.rules.ruleservice.annotation</module>
         <module>../WSFrontend/org.openl.rules.ruleservice.common</module>
         <module>../WSFrontend/org.openl.rules.ruleservice.ws.common</module>

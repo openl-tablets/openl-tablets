@@ -1,0 +1,35 @@
+# The prefixes an external link of the user guides may start with, one a line. A link is never fetched: a prefix only
+# records that a reviewer accepted the site it leads to.
+
+# OpenL Tablets
+https://github.com/openl-tablets/openl-tablets/
+https://openl-tablets.github.io/openl-tablets/
+https://openl-tablets.org/
+
+# Videos
+https://www.youtube.com/embed/
+https://youtu.be/
+
+# Java
+https://adoptium.net/
+https://docs.oracle.com/
+https://openjdk.org/
+https://www.oracle.com/java/
+
+# Libraries and tools
+https://cxf.apache.org/docs/
+https://docs.aws.amazon.com/
+https://docs.jboss.org/hibernate/
+https://fasterxml.github.io/jackson-annotations/
+https://git-lfs.github.com/
+https://git-scm.com/
+https://github.com/FasterXML/
+https://kafka.apache.org/documentation/
+https://swagger.io/docs/
+https://tomcat.apache.org/
+
+# Standards and references
+https://creativecommons.org/licenses/
+https://en.wikipedia.org/wiki/
+https://fetch.spec.whatwg.org/
+https://tools.ietf.org/html/

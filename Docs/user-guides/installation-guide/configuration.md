@@ -88,7 +88,7 @@ as a Java system property or an environment variable, because they are resolved 
 ### The Generated Property Reference
 
 A running instance publishes every known property with its effective default value at
-`/webstudio/application.properties`, for example, <http://localhost:8080/webstudio/application.properties>. Most
+`/webstudio/application.properties`, for example, `http://localhost:8080/webstudio/application.properties`. Most
 properties also carry a description. Use it as the authoritative list for the installed version — it also includes
 properties contributed by optional modules that this page does not cover.
 

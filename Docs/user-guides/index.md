@@ -54,16 +54,16 @@ Learn how to deploy and use OpenL Tablets rules as web services.
 ## Quick Links
 
 - **Getting Started**: New to OpenL Tablets? Start with the [Installation Guide](installation-guide/index.md)
-- **Developers**: See [Developer Guides](../developer-guides/index.md)
-- **Integration**: Check [Integration Guides](../integration-guides/index.md)
-- **Configuration**: Visit [Configuration](../configuration/index.md)
+- **Developers**: See [Developer Guides](https://openl-tablets.github.io/openl-tablets/developer-guides/)
+- **Integration**: Check [Integration Guides](https://openl-tablets.github.io/openl-tablets/integration-guides/)
+- **Configuration**: Visit [Configuration](https://openl-tablets.github.io/openl-tablets/configuration/)
 
 ---
 
 ## Support
 
-Need help? Check our [Troubleshooting Guide](../onboarding/troubleshooting.md) or visit the [GitHub Issues](https://github.com/openl-tablets/openl-tablets/issues).
+Need help? Check our [Troubleshooting Guide](https://openl-tablets.github.io/openl-tablets/onboarding/troubleshooting) or visit the [GitHub Issues](https://github.com/openl-tablets/openl-tablets/issues).
 
 ---
 
-**Note**: This documentation is being actively migrated and improved. Some sections may be under construction. See [Migration Plan](../MIGRATION_PLAN.md) for status.
+**Note**: This documentation is being actively migrated and improved. Some sections may be under construction.

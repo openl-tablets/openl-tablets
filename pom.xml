@@ -165,6 +165,8 @@
         <mockito.version>5.24.0</mockito.version>
         <datasource-proxy.version>1.11.0</datasource-proxy.version>
         <xmlunit.version>2.14.0</xmlunit.version>
+        <!-- Parses the user guides, which the tests of studio-docs validate -->
+        <commonmark.version>0.30.0</commonmark.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <testcontainers.keycloak.version>4.3.1</testcontainers.keycloak.version>
         <s3mock.version>5.2.3</s3mock.version>
@@ -267,6 +269,30 @@
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.commonmark</groupId>
+                <artifactId>commonmark</artifactId>
+                <version>${commonmark.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.commonmark</groupId>
+                <artifactId>commonmark-ext-autolink</artifactId>
+                <version>${commonmark.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.commonmark</groupId>
+                <artifactId>commonmark-ext-gfm-tables</artifactId>
+                <version>${commonmark.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.commonmark</groupId>
+                <artifactId>commonmark-ext-yaml-front-matter</artifactId>
+                <version>${commonmark.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -1025,6 +1051,11 @@
             <dependency>
                 <groupId>org.openl.rules.studio</groupId>
                 <artifactId>studio-ui</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules.studio</groupId>
+                <artifactId>studio-docs</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

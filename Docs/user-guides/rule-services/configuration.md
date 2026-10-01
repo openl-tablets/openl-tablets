@@ -44,7 +44,7 @@ For more information on configuration files, see [Configuration Points](#configu
 
 ### Service Manager
 
-**Service Manager** is the main component of OpenL Rule Services frontend joining all major parts, such as a loader, rule service publishers, and Service Configurer. For more information on OpenL Rule Services frontend components, see [OpenL Tablets Developers Guide](../../developer-guides/).
+**Service Manager** is the main component of OpenL Rule Services frontend joining all major parts, such as a loader, rule service publishers, and Service Configurer. For more information on OpenL Rule Services frontend components, see [OpenL Tablets Developers Guide](https://openl-tablets.github.io/openl-tablets/developer-guides/).
 
 Service Manager manages all currently running services and intelligently controls all operations for deploying, undeploying, and redeploying the services. These operations are only performed in the following cases:
 
@@ -55,7 +55,7 @@ Service Manager always acts as a data source listener as described in further se
 
 ### Configuration Points
 
-Any part of OpenL Rule Services frontend can be replaced by the user’s own implementation. For more information on the system architecture, see [OpenL Tablets Developers Guide](../../developer-guides/).
+Any part of OpenL Rule Services frontend can be replaced by the user’s own implementation. For more information on the system architecture, see [OpenL Tablets Developers Guide](https://openl-tablets.github.io/openl-tablets/developer-guides/).
 
 If the common approach is used, the following components must be configured:
 
@@ -452,7 +452,7 @@ For more information on serialization values, see <https://fasterxml.github.io/j
 
 JSON payload of the same datatype with different `serializationInclusion` property values are as follows:
 
-![JSON payload of the same datatype with different serializationInclusion values](../../assets/images/rule-services/01e96b672cddf6a2778693641109b4ab.jpeg)
+![JSON payload of the same datatype with different serializationInclusion values](images/01e96b672cddf6a2778693641109b4ab.jpeg)
 
 *JSON payload of the same datatype with different* `serializationInclusion` *values*
 
@@ -688,7 +688,6 @@ Rules behavior in OpenL Tablets can be extended using one of the following optio
 -   [Table Dispatching Validation Mode](#table-dispatching-validation-mode)
 -   [Configuring a Number of Threads to Rules Compilation](#configuring-a-number-of-threads-to-rules-compilation)
 -   [Enabling Logging to Console](#enabling-logging-to-console)
--   [Configuring the Instantiation Strategy](#configuring-the-instantiation-strategy)
 
 These settings are defined in the `application.properties` configuration file.
 
@@ -737,7 +736,7 @@ The CORS filter supports the following initialization parameters:
 
 | Attribute               | Description                                                                                                                                                                                                                                                                                                                                                                    |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| cors.allowed.origins  | A list of [origins](https://tools.ietf.org/html/rfc6454) that are allowed to access the resource. <br/>A \* can be specified to enable access to resource from any origin. <br/>Otherwise, an allowed list of comma-separated origins can be provided.  <br/>**Examples:** https://www.w3.org, https://www.example.com.  <br/>The empty string means that no origin is allowed to access the resource. |
+| cors.allowed.origins  | A list of [origins](https://tools.ietf.org/html/rfc6454) that are allowed to access the resource. <br/>A \* can be specified to enable access to resource from any origin. <br/>Otherwise, an allowed list of comma-separated origins can be provided.  <br/>**Examples:** `https://www.w3.org`, `https://www.example.com`.  <br/>The empty string means that no origin is allowed to access the resource. |
 | cors.allowed.methods  | A comma separated list of HTTP methods that can be used to access the resource using cross-origin requests. <br/>These methods are also included as a part of the `Access-Control-Allow-Methods` header in pre-flight response.  <br/>**Example:** GET,POST.                                                                                                                                 |
 | cors.allowed.headers  | A comma separated list of request headers for making an actual request. <br/>These headers are also returned as a part of the `Access-Control-Allow-Headers` header in pre-flight response.  <br/>**Example:** Origin,Accept.                                                                                                                                                                |
 | cors.preflight.maxage | The number of seconds a browser is allowed to cache the result of the pre-flight request. <br/>This attribute is included as a part of the `Access-Control-Max-Age` header in the pre-flight response. <br/>A negative value prevents a CORS filter from adding this response header to the pre-flight response.                                                                         |
@@ -793,7 +792,7 @@ To start using a relational database, proceed as follows:
 
 1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
 
-    ```sh
+    ```bash
     mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.full:<openl version here>:war -DoutputDirectory=./
     ```
 
@@ -830,4 +829,4 @@ If table creating is enabled in Hibernate, the system creates the following tabl
 | SERVICE_NAME   | TEXT      | Deployment service that was called.                            |
 | URL            | TEXT      | URL of the request.                                            |
 
-**Note:** Only methods annotated with `org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB `are used for storing their requests and responses in a relational database. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns for tables. For more information on customization using annotations, see [Service Customization through Annotations](#service-customization-through-annotations).
+**Note:** Only methods annotated with `org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB `are used for storing their requests and responses in a relational database. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns for tables. For more information on customization using annotations, see [Service Customization through Annotations](advanced-configuration.md#service-customization-through-annotations).

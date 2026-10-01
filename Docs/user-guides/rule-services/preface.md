@@ -27,7 +27,7 @@ The following table lists sources of information related to contents of this gui
 | [OpenL Studio Guide](../openl-studio/) | Describes OpenL Studio, a web application for managing OpenL Tablets projects through web browser. |
 | [OpenL Tablets Reference Guide](../reference-guide/)             | Provides overview of OpenL Tablets technology, as well as its basic concepts and principles.                  |
 | [OpenL Tablets Installation Guide](../installation-guide/)       | Describes how to install and set up OpenL Tablets software.                                                   |
-| [https://openl-tablets.org/](http://openl-tablets.org/)                                                                                                   | OpenL Tablets open source project website.                                                                    |
+| [https://openl-tablets.org/](https://openl-tablets.org/)                                                                                                   | OpenL Tablets open source project website.                                                                    |
 
 ### Typographic Conventions
 

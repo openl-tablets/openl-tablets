@@ -219,7 +219,7 @@ If the [description column](01-parsing-a-spreadsheet-table.md#parsing-a-spreadsh
 
 ![Step descriptions added via //<ColumnName> column](../../../ref-guide-images/StepsDescriptionInSchema.png)
 
-*Step descriptions added via //<ColumnName> column*
+*Step descriptions added via `//<ColumnName>` column*
 
 **Note:** Rule descriptions included in API-exposed rules will appear in the OpenL Tablets Rule Services. If multiple versions of a rule are available, the selection is made randomly from those that contain non-empty descriptions.
 

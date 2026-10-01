@@ -159,7 +159,6 @@ The following topics are included:
 
 -   [Rules Editor](#rules-editor)
 -   [Projects Page](#projects-page)
--   [Administration](#administration)
 
 #### Rules Editor
 
