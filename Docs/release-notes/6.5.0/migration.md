@@ -66,6 +66,13 @@ everyone who calls that API from outside the browser.
   instead of `Date(2021, 04, 08)`. Number values in Data and Test tables never accepted these forms and are not
   affected.
 
+* **A named constructor argument takes its value from the rule.** In `new Customer(name = name)` and
+  `Customer(name = name)`, the value `name` is the parameter or variable of the rule. Before, a value that had the
+  name of a field of the type read that field of the new, still empty object, so `name = name` left the field empty,
+  and so did `name = city` with a parameter `city`. A value can no longer read another field of the new object:
+  `Customer(name = "Ann", city = name)` fails to compile with `Identifier 'name' is not found.` when the rule has no
+  `name` of its own.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
