@@ -25,12 +25,12 @@ public final class Avg {
             @Override
             public void processNonNull(T value) {
                 var doubleValue = value.doubleValue();
-                result = result == null ? doubleValue : (result + doubleValue);
+                current = current == null ? doubleValue : (current + doubleValue);
             }
 
             @Override
             public Double result() {
-                return result == null ? null : (result / counter);
+                return current == null ? null : (current / counter);
             }
         });
     }
@@ -42,12 +42,12 @@ public final class Avg {
         return process(values, new Result<Float, Float>() {
             @Override
             public void processNonNull(Float value) {
-                result = result == null ? value : (result + value);
+                current = current == null ? value : (current + value);
             }
 
             @Override
             public Float result() {
-                return result == null ? null : (result / counter);
+                return current == null ? null : (current / counter);
             }
         });
     }
@@ -59,12 +59,12 @@ public final class Avg {
         return process(values, new Result<BigDecimal, BigDecimal>() {
             @Override
             public void processNonNull(BigDecimal value) {
-                result = result == null ? value : result.add(value);
+                current = current == null ? value : current.add(value);
             }
 
             @Override
             public BigDecimal result() {
-                return devide(result, counter);
+                return devide(current, counter);
             }
         });
     }
@@ -77,12 +77,12 @@ public final class Avg {
             @Override
             public void processNonNull(BigInteger value) {
                 var bigDecimal = new BigDecimal(value);
-                result = result == null ? bigDecimal : result.add(bigDecimal);
+                current = current == null ? bigDecimal : current.add(bigDecimal);
             }
 
             @Override
             public BigDecimal result() {
-                return devide(result, counter);
+                return devide(current, counter);
             }
         });
     }

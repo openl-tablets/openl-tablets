@@ -2,7 +2,6 @@ package org.openl.rules.repository.api;
 
 import java.util.Objects;
 
-import lombok.Getter;
 
 /**
  * An implementation of pagination that requires {@code offset} and {@code size} parameters. Page number is
@@ -14,20 +13,24 @@ import lombok.Getter;
  */
 public class Offset extends Pageable {
 
-    @Getter
-    private final int offset;
+    private final int start;
 
     public Offset(int offset, int size) {
         super(size);
         if (offset < 0) {
             throw new IllegalArgumentException("Page offset must be greater or equal 0.");
         }
-        this.offset = offset;
+        this.start = offset;
+    }
+
+    @Override
+    public int getOffset() {
+        return start;
     }
 
     @Override
     public int getPageNumber() {
-        return offset / getPageSize();
+        return start / getPageSize();
     }
 
     public static Offset of(int offset, int pageSize) {
@@ -45,11 +48,11 @@ public class Offset extends Pageable {
         if (!super.equals(o)) {
             return false;
         }
-        return offset == offset1.offset;
+        return start == offset1.start;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), offset);
+        return Objects.hash(super.hashCode(), start);
     }
 }

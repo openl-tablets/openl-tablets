@@ -93,15 +93,15 @@ public final class Covar {
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(Double y, Double x) {
-                result = covariance(y, x, avgY, avgX, result);
+                current = covariance(y, x, avgY, avgX, current);
             }
 
             @Override
             public Double result() {
-                if (counter <= 1 || result == null) {
+                if (counter <= 1 || current == null) {
                     return null;
                 }
-                return result / (counter - 1);
+                return current / (counter - 1);
             }
         });
     }
@@ -116,15 +116,15 @@ public final class Covar {
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(Float y, Float x) {
-                result = covariance(y, x, avgY, avgX, result);
+                current = covariance(y, x, avgY, avgX, current);
             }
 
             @Override
             public Float result() {
-                if (counter <= 1 || result == null) {
+                if (counter <= 1 || current == null) {
                     return null;
                 }
-                return result / (counter - 1);
+                return current / (counter - 1);
             }
         });
     }
@@ -139,34 +139,34 @@ public final class Covar {
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(BigDecimal y, BigDecimal x) {
-                result = covariance(y, x, avgY, avgX, result);
+                current = covariance(y, x, avgY, avgX, current);
             }
 
             @Override
             public BigDecimal result() {
-                if (counter <= 1 || result == null) {
+                if (counter <= 1 || current == null) {
                     return null;
                 }
-                return BigDecimal.ZERO.compareTo(result) == 0 ? result
-                        : result.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128);
+                return BigDecimal.ZERO.compareTo(current) == 0 ? current
+                        : current.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128);
             }
         });
 
     }
 
-    private static Double covariance(Double y, Double x, Double avgY, Double avgX, Double result) {
+    private static Double covariance(Double y, Double x, Double avgY, Double avgX, Double current) {
         var tmp = (x - avgX) * (y - avgY);
-        return result == null ? tmp : result + tmp;
+        return current == null ? tmp : current + tmp;
     }
 
-    private static Float covariance(Float y, Float x, Float avgY, Float avgX, Float result) {
+    private static Float covariance(Float y, Float x, Float avgY, Float avgX, Float current) {
         var tmp = (x - avgX) * (y - avgY);
-        return result == null ? tmp : result + tmp;
+        return current == null ? tmp : current + tmp;
     }
 
-    private static BigDecimal covariance(BigDecimal y, BigDecimal x, BigDecimal avgY, BigDecimal avgX, BigDecimal result) {
+    private static BigDecimal covariance(BigDecimal y, BigDecimal x, BigDecimal avgY, BigDecimal avgX, BigDecimal current) {
         var tmp = x.subtract(avgX).multiply(y.subtract(avgY));
-        return result == null ? tmp : result.add(tmp);
+        return current == null ? tmp : current.add(tmp);
     }
 
     /**
@@ -188,12 +188,12 @@ public final class Covar {
         return biProcess(inputStats.y, inputStats.x, new Result<Number, Double>() {
             @Override
             public void processNonNull(Number y, Number x) {
-                result = covariance(y.doubleValue(), x.doubleValue(), avgY, avgX, result);
+                current = covariance(y.doubleValue(), x.doubleValue(), avgY, avgX, current);
             }
 
             @Override
             public Double result() {
-                return result == null ? null : result / counter;
+                return current == null ? null : current / counter;
             }
         });
     }
@@ -249,12 +249,12 @@ public final class Covar {
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(BigDecimal y, BigDecimal x) {
-                result = covariance(y, x, avgY, avgX, result);
+                current = covariance(y, x, avgY, avgX, current);
             }
 
             @Override
             public BigDecimal result() {
-                return result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter), MathContext.DECIMAL128);
+                return current == null || BigDecimal.ZERO.compareTo(current) == 0 ? current : current.divide(BigDecimal.valueOf(counter), MathContext.DECIMAL128);
             }
         });
     }
@@ -268,12 +268,12 @@ public final class Covar {
         return biProcess(inputStats.y, inputStats.x, new Result<>() {
             @Override
             public void processNonNull(Float y, Float x) {
-                result = covariance(y, x, avgY, avgX, result);
+                current = covariance(y, x, avgY, avgX, current);
             }
 
             @Override
             public Float result() {
-                return result == null ? null : result / counter;
+                return current == null ? null : current / counter;
             }
         });
     }

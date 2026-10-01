@@ -23,7 +23,7 @@ public final class Product {
         return process(values, new Result<>() {
             @Override
             public void processNonNull(T value) {
-                result = result == null ? value.doubleValue() : result * value.doubleValue();
+                current = current == null ? value.doubleValue() : current * value.doubleValue();
             }
         });
     }
@@ -35,7 +35,7 @@ public final class Product {
         return process(values, new Result<Double, Double>() {
             @Override
             public void processNonNull(Double value) {
-                result = result == null ? value : result * value;
+                current = current == null ? value : current * value;
             }
         });
     }
@@ -47,7 +47,7 @@ public final class Product {
         return process(values, new Result<Long, Long>() {
             @Override
             public void processNonNull(Long value) {
-                result = result == null ? value : result * value;
+                current = current == null ? value : current * value;
             }
         });
     }
@@ -59,7 +59,7 @@ public final class Product {
         return process(values, new Result<BigDecimal, BigDecimal>() {
             @Override
             public void processNonNull(BigDecimal value) {
-                result = result == null ? value : result.multiply(value);
+                current = current == null ? value : current.multiply(value);
             }
         });
     }
@@ -71,7 +71,7 @@ public final class Product {
         return process(values, new Result<BigInteger, BigInteger>() {
             @Override
             public void processNonNull(BigInteger value) {
-                result = result == null ? value : result.multiply(value);
+                current = current == null ? value : current.multiply(value);
             }
         });
     }
