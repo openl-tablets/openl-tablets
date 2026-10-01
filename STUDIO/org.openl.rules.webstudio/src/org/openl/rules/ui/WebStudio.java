@@ -17,6 +17,7 @@ import java.util.function.BiConsumer;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
@@ -213,7 +214,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 String prevPath = project.getFolderPath();
                 int index = prevPath.lastIndexOf('/');
                 String newPath = prevPath.substring(0, index + 1) + logicalName;
-                boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
+                var source = folderInside(repoRoot, prevPath);
+                var target = folderInside(repoRoot, newPath);
+                boolean renamed = source != null && target != null && source.renameTo(target);
                 if (!renamed) {
                     log.warn("Cannot rename folder from {} to {}", prevPath, newPath);
                 }
@@ -245,6 +248,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return getProject(currentRepositoryId, projectFolder);
         }
         return null;
+    }
+
+    /**
+     * Resolves the path against the root folder.
+     *
+     * <p>Returns {@code null} when the path leads outside the root, for example through {@code ..} segments, or
+     * names the root itself.
+     */
+    static @Nullable File folderInside(File root, String path) throws IOException {
+        var folder = new File(root, path).getCanonicalFile();
+        return folder.getPath().startsWith(root.getCanonicalPath() + File.separator) ? folder : null;
     }
 
     public RulesDeploy getCurrentProjectRulesDeploy() {
