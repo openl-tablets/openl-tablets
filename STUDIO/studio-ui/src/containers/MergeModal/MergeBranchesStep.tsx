@@ -240,7 +240,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         void checkMergeStatus(targetBranch)
     }, [canSelectBranch, checkMergeStatus, targetBranch])
 
-    const handleMerge = async (mode: MergeMode) => {
+    const handleMerge = (mode: MergeMode) => {
         if (!selectedBranch) return
 
         const targetBranch = mode === 'send' ? selectedBranch : currentBranch

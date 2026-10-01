@@ -252,7 +252,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         }
     }
 
-    const handleDeleteRepository = async (id: string) => {
+    const handleDeleteRepository = (id: string) => {
         modal.confirm({
             title: t('repository:confirm_delete_repository'),
             content: t('repository:confirm_delete_repository_message'),
@@ -273,7 +273,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         }
     }
 
-    const handleApplyConfiguration = async (values: any) => {
+    const handleApplyConfiguration = (values: any) => {
         modal.confirm({
             title: t('repository:confirm_apply_configuration'),
             content: t('repository:confirm_apply_configuration_message'),
@@ -283,14 +283,14 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         })
     }
 
-    const onEdit = async (targetKey: any, action: string) => {
+    const onEdit = (targetKey: any, action: string) => {
         if (action === 'remove') {
-            void handleDeleteRepository(targetKey)
+            handleDeleteRepository(targetKey)
         }
     }
 
     const onFinish = (values: any) => {
-        void handleApplyConfiguration(values)
+        handleApplyConfiguration(values)
     }
 
     const onChangeType = (value: any) => {

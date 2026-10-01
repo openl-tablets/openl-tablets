@@ -35,7 +35,7 @@ export const Notification: React.FC = () => {
     }
 
     const postNotification = (notification: string) => {
-        void setNotification(notification)
+        setNotification(notification)
     }
 
     return (
