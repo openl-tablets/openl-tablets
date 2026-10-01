@@ -140,11 +140,9 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
         }
         // Never lose an exposed method: the interface is generated with the legacy filter applied, so every
         // visible method was exposed before the migration and must stay exposed after it.
-        for (var name : allNames) {
-            if (patterns.stream().noneMatch(p -> FileUtils.pathMatches(p, name))) {
-                patterns.add(name);
-            }
-        }
+        patterns.addAll(allNames.stream()
+                .filter(name -> patterns.stream().noneMatch(p -> FileUtils.pathMatches(p, name)))
+                .toList());
         return patterns.stream()
                 .filter(p -> patterns.stream().noneMatch(other -> covers(other, p)))
                 .collect(Collectors.toCollection(TreeSet::new));

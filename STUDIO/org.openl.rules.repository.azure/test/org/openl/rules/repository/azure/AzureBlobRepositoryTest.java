@@ -272,9 +272,10 @@ class AzureBlobRepositoryTest {
     }
 
     @SuppressWarnings("unchecked")
-    private PagedIterable<BlobItem> mockPagedIterable(Iterable<BlobItem> iterable) {
+    private PagedIterable<BlobItem> mockPagedIterable(List<BlobItem> items) {
         var pagedIterable = mock(PagedIterable.class);
-        when(pagedIterable.iterator()).thenReturn(iterable.iterator());
+        when(pagedIterable.iterator()).thenReturn(items.iterator());
+        when(pagedIterable.stream()).thenAnswer(invocation -> items.stream());
         return pagedIterable;
     }
 

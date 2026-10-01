@@ -51,14 +51,10 @@ public class TestUnitsResults implements INamedThing {
      */
     public List<ITestUnit> getFilteredTestUnits(boolean failuresOnly, int size) {
         if (failuresOnly) {
-            var failedUnits = new ArrayList<ITestUnit>();
-            for (ITestUnit testUnit : testUnits) {
-                if (testUnit.getResultStatus() != TestStatus.TR_OK // Failed unit
-                        && (failedUnits.size() < size || size == ALL_FAILURES)) {
-                    failedUnits.add(testUnit);
-                }
-            }
-            return failedUnits;
+            return testUnits.stream()
+                    .filter(testUnit -> testUnit.getResultStatus() != TestStatus.TR_OK)
+                    .limit(size == ALL_FAILURES ? Long.MAX_VALUE : Math.max(size, 0))
+                    .toList();
         }
 
         return testUnits;
