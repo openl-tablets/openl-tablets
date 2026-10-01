@@ -2134,22 +2134,20 @@ public class GitRepository implements BranchRepository, Closeable {
             var fromCommit = revWalk.parseCommit(fromId);
             var toCommit = revWalk.parseCommit(toId);
             var merged = revWalk.isMergedInto(fromCommit, toCommit);
-            if (!merged && skipEmptyChanges) {
-                if (fromCommit.getParentCount() == 2) {
-                    // fromCommit is a merge commit
-                    final var parent1 = fromCommit.getParent(0);
-                    final var parent2 = fromCommit.getParent(1);
+            if (!merged && skipEmptyChanges && fromCommit.getParentCount() == 2) {
+                // fromCommit is a merge commit
+                final var parent1 = fromCommit.getParent(0);
+                final var parent2 = fromCommit.getParent(1);
 
-                    if (hasSameContent(parent1, fromCommit) || hasSameContent(parent2, fromCommit)) {
-                        // Merge commit has same content as one of their parents
-                        final var firstParentMerged = isMergedInto(parent1, toCommit, true);
-                        final var secondParentMerged = isMergedInto(parent2, toCommit, true);
-                        if (firstParentMerged && secondParentMerged) {
-                            // If both parents are merged to our commit and one of the parents is same as child (merge
-                            // commit), we can assume that the merge commit doesn't have any valuable updates.
-                            // So we can assume that all valuable changes are merged.
-                            return true;
-                        }
+                if (hasSameContent(parent1, fromCommit) || hasSameContent(parent2, fromCommit)) {
+                    // Merge commit has same content as one of their parents
+                    final var firstParentMerged = isMergedInto(parent1, toCommit, true);
+                    final var secondParentMerged = isMergedInto(parent2, toCommit, true);
+                    if (firstParentMerged && secondParentMerged) {
+                        // If both parents are merged to our commit and one of the parents is same as child (merge
+                        // commit), we can assume that the merge commit doesn't have any valuable updates.
+                        // So we can assume that all valuable changes are merged.
+                        return true;
                     }
                 }
             }
