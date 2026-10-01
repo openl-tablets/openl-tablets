@@ -183,26 +183,19 @@ public class OpenAPIJavaClassGenerator {
                     // if RuntimeContext is provided, POST by default.
                     return true;
                 }
-                if (parameters.size() > JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET) {
-                    // if more than 3 parameters, POST by default.
-                    return true;
-                } else if (!parameters.stream().allMatch(p -> p.getType().getType() == TypeInfo.Type.PRIMITIVE)) {
-                    // if there is at least one non-primitive parameter, POST by default.
+                // if more than 3 parameters, or at least one non-primitive parameter, POST by default.
+                if (parameters.size() > JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET
+                        || !parameters.stream().allMatch(p -> p.getType().getType() == TypeInfo.Type.PRIMITIVE)) {
                     return true;
                 }
             }
             case POST -> {
-                if (!projectModel.isRuntimeContextProvided()) {
-                    if (parameters.isEmpty()) {
-                        // if no context and empty params, GET by default.
-                        return true;
-                    } else if (parameters
-                            .size() <= JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET && parameters.stream()
-                            .allMatch(p -> p.getType().getType() == TypeInfo.Type.PRIMITIVE)) {
-                        // if no context and if there are less than 3 parameters, and they are all primitive, GET by
-                        // default.
-                        return true;
-                    }
+                // if no context and either empty params, or less than 3 parameters that are all primitive, GET by
+                // default.
+                if (!projectModel.isRuntimeContextProvided() && (parameters.isEmpty()
+                        || (parameters.size() <= JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET
+                        && parameters.stream().allMatch(p -> p.getType().getType() == TypeInfo.Type.PRIMITIVE)))) {
+                    return true;
                 }
             }
             default -> {
