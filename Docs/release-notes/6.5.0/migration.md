@@ -237,6 +237,12 @@ everyone who calls that API from outside the browser.
   - **`addIgnoreNull(array, element)`, `addArrayElementIgnoreNull(array, element)`** —
     `element == null ? array : ArrayUtils.add(array, element)` with `ArrayUtils` of Apache Commons Lang; the form with
     an index passes it as the second argument of `ArrayUtils.add`
+* **`POST /rest/projects/{id}/run` refuses a table that does not compile.** It used to start the run, and
+  `GET /rest/projects/{id}/run/result` answered `200` with no `errors` and a result worked out as if the cells that
+  could not be read were empty, or with no result at all. It now answers `409` with the code
+  `openl.error.409.run.table.compile.errors.message` and the first compilation error of the table. A table that
+  compiles within its own module but not with the rest of the project runs with `fromModule`, as the Run button of
+  the editor does.
 
 ## Administrators
 

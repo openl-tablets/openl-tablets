@@ -2,6 +2,7 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -30,10 +31,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.message.Severity;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.export.RulesResultExport;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.common.utils.WebTool;
@@ -106,11 +110,12 @@ public class ProjectsRunController {
                 ? projectModel.getOpenedModuleMethod(uri)
                 : projectModel.getMethod(uri);
 
-        if (method == null) {
-            throw new NotFoundException("table.message");
-        }
         if (method instanceof TestSuiteMethod) {
             throw new BadRequestException("run.test-table.not.supported.message");
+        }
+        refuseIfNotCompiled(projectModel, uri, currentOpenedModule);
+        if (method == null) {
+            throw new NotFoundException("table.message");
         }
 
         var parseResult = inputParserService.parseInput(inputJson, method, objectMapperService.createObjectMapper());
@@ -126,6 +131,16 @@ public class ProjectsRunController {
                 currentOpenedModule);
 
         runResultRegistry.setTask(projectId, tableId, runTask);
+    }
+
+    private static void refuseIfNotCompiled(ProjectModel projectModel, String uri, boolean currentOpenedModule) {
+        var errors = currentOpenedModule
+                ? projectModel.getOpenedModuleMessagesByTsn(uri, Severity.ERROR)
+                : projectModel.getMessagesByTsn(uri, Severity.ERROR);
+        if (!errors.isEmpty()) {
+            var summary = Objects.toString(errors.getFirst().getSummary(), "").lines().findFirst().orElse("");
+            throw new ConflictException("run.table.compile.errors.message", summary);
+        }
     }
 
     @Operation(summary = "run.get-result.summary", description = "run.get-result.desc")
