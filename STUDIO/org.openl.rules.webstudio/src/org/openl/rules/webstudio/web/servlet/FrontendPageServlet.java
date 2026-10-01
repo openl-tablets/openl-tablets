@@ -67,11 +67,16 @@ abstract class FrontendPageServlet extends HttpServlet {
             resp.setHeader("Cache-Control", "no-store");
             resp.getWriter().println(basedAt(template, req.getContextPath()));
         } catch (IOException e) {
-            log.error("Failed to answer the request.", e);
-            if (!resp.isCommitted()) {
-                resp.reset();
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
+            failed(resp, e);
+        }
+    }
+
+    /** Answers with an error after a response could not be written, unless a part of it has already gone out. */
+    static void failed(HttpServletResponse resp, Exception e) {
+        log.error("Failed to answer the request.", e);
+        if (!resp.isCommitted()) {
+            resp.reset();
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

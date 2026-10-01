@@ -9,7 +9,9 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   a WebSocket message. A feature therefore lands as an endpoint plus a React screen — never as a server-rendered
   page or a fragment of HTML. Only a few addresses answer differently, each through a servlet mapping of its own:
   `ApiDocsServlet` answers `/api-docs` with the page the API documentation is drawn on, `StaticResourcesServlet`
-  hands a built file (`/assets`, `/icons`, the favicons) to the container, and the Spring `StudioDispatcherServlet`
+  hands a built file (`/assets`, `/icons`, the favicons) to the container, `UserGuidesServlet` answers `/docs` — a
+  file of the user guides goes to the container, `/docs/toc.json` is their table of contents, and any other address
+  is the page a guide is drawn on — and the Spring `StudioDispatcherServlet`
   serves the REST API under `/rest` and the WebSocket handshake at `/ws`. The two are different protocols, so the
   handshake is not under `/rest`: a proxy and a timeout treat a long-lived connection differently from a request.
   Both addresses share one security chain. The dispatcher lets a handler answer at its own address only.
@@ -32,8 +34,9 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 **Core application**:
 - **org.openl.rules.webstudio** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`)
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
-- **studio-docs/** — packs `Docs/user-guides` into a jar for the war; never deployed to a remote repository. Its
-  tests validate the guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
+- **studio-docs/** — packs `Docs/user-guides` into a jar the war serves at `/docs`; never deployed to a remote
+  repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib` itself. Its tests validate the
+  guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
 
 **Repository & storage**:
 - **org.openl.rules.repository** — Repository abstraction layer

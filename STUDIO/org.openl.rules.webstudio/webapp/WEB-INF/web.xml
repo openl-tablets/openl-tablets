@@ -21,6 +21,12 @@
     <!-- Set default encoding for outgoing responses -->
     <response-character-encoding>UTF-8</response-character-encoding>
 
+    <!-- A page of the user guides, served at /docs. The containers' own tables of types do not list it. -->
+    <mime-mapping>
+        <extension>md</extension>
+        <mime-type>text/markdown;charset=UTF-8</mime-type>
+    </mime-mapping>
+
     <filter>
         <filter-name>CorsFilter</filter-name>
         <filter-class>org.openl.rules.webstudio.web.servlet.CorsFilter</filter-class>

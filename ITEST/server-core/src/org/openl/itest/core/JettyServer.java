@@ -42,7 +42,8 @@ public class JettyServer {
 
         webApp.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
-                "|.*studio-ui[^/]*\\.jar$"); // For loading UI from the META-INF/resources in OpenL Studio
+                "|.*studio-ui[^/]*\\.jar$" + // For loading UI from the META-INF/resources in OpenL Studio
+                "|.*studio-docs[^/]*\\.jar$"); // For the user guides OpenL Studio serves at /docs
 
         var httpServer = new Server(0);
         httpServer.setStopAtShutdown(true);
