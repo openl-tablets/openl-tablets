@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
+
 /**
  * An utility for working with properties files. Parsing, storing.
  *
@@ -39,116 +42,7 @@ public final class PropertiesUtils {
      * @see java.util.Properties
      */
     public static void load(Reader input, BiConsumer<? super String, ? super String> result) throws IOException {
-
-        var str = new StringBuilder();
-        String key = null;
-
-        var newLine = true;
-        var skipWhitespaces = true;
-        var skipLine = false;
-        var backSlash = false;
-        var ignoreLF = false;
-        var lastNonWhitespace = 0;
-
-        while (true) {
-            var ch = input.read();
-
-            if (ignoreLF && ch == '\n') {
-                // Ignore in \r\n sequence
-                ignoreLF = false;
-                continue;
-            }
-            ignoreLF = ch == '\r';
-
-            if ((!backSlash && (ch == '\r' || ch == '\n')) || ch == -1) {
-                var value = str.substring(0, lastNonWhitespace);
-                if (key != null) {
-                    result.accept(key, value);
-                    key = null;
-                } else if (lastNonWhitespace > 0) {
-                    result.accept(value, null);
-                }
-
-                newLine = true;
-                skipWhitespaces = true;
-                lastNonWhitespace = 0;
-                str.setLength(0);
-
-                if (ch == -1) {
-                    // EOF
-                    return;
-                }
-                //Do new line;
-                continue;
-            }
-
-            if (newLine && (ch == '#' || ch == '!')) {
-                // skip comments
-                skipLine = true;
-                newLine = false;
-                continue;
-            }
-
-            if (skipWhitespaces && Character.isWhitespace(ch)) {
-                // Skip whitespaces in the beginning
-                continue;
-            }
-            skipWhitespaces = false;
-
-            if (skipLine && !newLine) {
-                continue;
-            }
-            skipLine = false;
-            newLine = false;
-
-            if (backSlash) {
-                // escaped symbols via backslash
-                backSlash = false;
-                switch (ch) {
-                    case '\n', '\r' -> {
-                        skipWhitespaces = true;
-                        continue;
-                    }
-                    case 't' -> ch = '\t';
-                    case 'n' -> ch = '\n';
-                    case 'r' -> ch = '\r';
-                    case 'f' -> ch = '\f';
-                    case 'u' -> {
-                        char[] hex = new char[4];
-                        ch = input.read(hex);
-                        if (ch < 4) {
-                            throw new EOFException("End of the data is reached unexpectedly");
-                        }
-                        ch = Integer.parseInt(String.valueOf(hex), 16);
-                    }
-                    default -> {
-                        // Any other escaped symbol stands for itself.
-                    }
-                }
-                str.append((char) ch);
-                lastNonWhitespace = str.length();
-                continue;
-            }
-
-            if (ch == '\\') {
-                backSlash = true;
-                continue;
-            }
-
-            if (key == null && (ch == ':' || ch == '=')) {
-                // Key separator. It supports both - column and equal signs
-                skipWhitespaces = true;
-                key = str.substring(0, lastNonWhitespace);
-                lastNonWhitespace = 0;
-                str.setLength(0);
-                continue;
-            }
-
-            str.append((char) ch);
-            if (!Character.isWhitespace(ch)) {
-                lastNonWhitespace = str.length();
-            }
-        }
+        new Parser(input, result).parse();
     }
 
     /**
@@ -237,5 +131,122 @@ public final class PropertiesUtils {
                 .replace("\t", "\\t")
                 .replace("\r", "\\r")
                 .replace("\n", "\\n");
+    }
+
+    /**
+     * Reads properties char by char and sends every key/value pair to the target function as soon as its line ends.
+     */
+    @RequiredArgsConstructor
+    private static final class Parser {
+
+        private final Reader input;
+        private final BiConsumer<? super String, ? super String> result;
+        private final StringBuilder str = new StringBuilder();
+        private @Nullable String key;
+        private boolean newLine = true;
+        private boolean skipWhitespaces = true;
+        private boolean skipLine;
+        private boolean backSlash;
+        private boolean ignoreLF;
+        private int lastNonWhitespace;
+
+        private void parse() throws IOException {
+            for (var ch = input.read(); ch != -1; ch = input.read()) {
+                read(ch);
+            }
+            endLine();
+        }
+
+        private void read(int ch) throws IOException {
+            var crlf = ignoreLF && ch == '\n';
+            ignoreLF = ch == '\r';
+            if (crlf) {
+                // The LF of a \r\n sequence, whose CR has already ended the line
+                return;
+            }
+            if (!backSlash && isLineBreak(ch)) {
+                endLine();
+            } else if (newLine && (ch == '#' || ch == '!')) {
+                skipLine = true;
+                newLine = false;
+            } else if (!skipLine && !(skipWhitespaces && Character.isWhitespace(ch))) {
+                // Neither a comment, nor a whitespace in the beginning of a line or a value
+                newLine = false;
+                skipWhitespaces = false;
+                readContent(ch);
+            }
+        }
+
+        private void readContent(int ch) throws IOException {
+            if (backSlash) {
+                backSlash = false;
+                readEscaped(ch);
+            } else if (ch == '\\') {
+                backSlash = true;
+            } else if (key == null && (ch == ':' || ch == '=')) {
+                // Key separator. It supports both - column and equal signs
+                key = takeText();
+                skipWhitespaces = true;
+            } else {
+                str.append((char) ch);
+                if (!Character.isWhitespace(ch)) {
+                    lastNonWhitespace = str.length();
+                }
+            }
+        }
+
+        private void readEscaped(int ch) throws IOException {
+            if (isLineBreak(ch)) {
+                // The line continues on the next one, without its leading whitespaces
+                skipWhitespaces = true;
+            } else {
+                str.append((char) unescape(ch));
+                lastNonWhitespace = str.length();
+            }
+        }
+
+        private int unescape(int ch) throws IOException {
+            return switch (ch) {
+                case 't' -> '\t';
+                case 'n' -> '\n';
+                case 'r' -> '\r';
+                case 'f' -> '\f';
+                case 'u' -> readUnicode();
+                // Any other escaped symbol stands for itself.
+                default -> ch;
+            };
+        }
+
+        private int readUnicode() throws IOException {
+            var hex = new char[4];
+            if (input.read(hex) < 4) {
+                throw new EOFException("End of the data is reached unexpectedly");
+            }
+            return Integer.parseInt(String.valueOf(hex), 16);
+        }
+
+        private void endLine() {
+            var value = takeText();
+            if (key != null) {
+                result.accept(key, value);
+                key = null;
+            } else if (!value.isEmpty()) {
+                result.accept(value, null);
+            }
+            newLine = true;
+            skipWhitespaces = true;
+            skipLine = false;
+        }
+
+        private String takeText() {
+            var text = str.substring(0, lastNonWhitespace);
+            lastNonWhitespace = 0;
+            str.setLength(0);
+            return text;
+        }
+
+        private static boolean isLineBreak(int ch) {
+            return ch == '\r' || ch == '\n';
+        }
     }
 }

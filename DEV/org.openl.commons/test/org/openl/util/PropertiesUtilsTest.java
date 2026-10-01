@@ -2,6 +2,7 @@ package org.openl.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -66,6 +67,34 @@ class PropertiesUtilsTest {
             var result = new ArrayList<String>();
             PropertiesUtils.load(new StringReader("x=1\n\ry=\\u123"), (k, v) -> result.add(k + "=" + v));
         });
+    }
+
+    @Test
+    void failNotHexUnicode() {
+        var input = new StringReader("x=\\u12G4");
+        assertThrows(NumberFormatException.class, () -> PropertiesUtils.load(input, (k, v) -> fail()));
+    }
+
+    @Test
+    void loadUnicodeEscapes() throws IOException {
+        var result = new ArrayList<String>();
+        PropertiesUtils.load(new StringReader("\\u0023a\\u003db\\u0020=\\u0020c\\u0020\nx=a\\u000D\ny\\u003A"),
+                (k, v) -> result.add("[" + k + "]=[" + v + "]"));
+        assertEquals(Arrays.asList("[#a=b ]=[ c ]", "[x]=[a\r]", "[y:]=[null]"), result);
+    }
+
+    @Test
+    void loadContinuationLines() throws IOException {
+        var result = new ArrayList<String>();
+        PropertiesUtils.load(new StringReader("x=a\\\r  b\\\r\n\t c\ny=1\\\n"), (k, v) -> result.add(k + "=" + v));
+        assertEquals(Arrays.asList("x=abc", "y=1"), result);
+    }
+
+    @Test
+    void loadEmptyKeys() throws IOException {
+        var result = new ArrayList<String>();
+        PropertiesUtils.load(new StringReader("=v\n  : w\r\n\\ \n!x=y"), (k, v) -> result.add("[" + k + "]=[" + v + "]"));
+        assertEquals(Arrays.asList("[]=[v]", "[]=[w]", "[ ]=[null]"), result);
     }
 
     @Test
