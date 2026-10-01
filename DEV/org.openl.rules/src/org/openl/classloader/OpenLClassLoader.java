@@ -201,6 +201,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
                     return clazz;
                 }
             } catch (ClassNotFoundException ignored) {
+                // Not in this bundle; the next bundle is searched.
             }
         }
 

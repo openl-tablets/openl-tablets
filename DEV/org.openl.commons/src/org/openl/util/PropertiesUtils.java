@@ -121,7 +121,9 @@ public final class PropertiesUtils {
                         }
                         ch = Integer.parseInt(String.valueOf(hex), 16);
                     }
-                    default -> { }
+                    default -> {
+                        // Any other escaped symbol stands for itself.
+                    }
                 }
                 str.append((char) ch);
                 lastNonWhitespace = str.length();
