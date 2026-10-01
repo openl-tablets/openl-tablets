@@ -19,7 +19,8 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRuntimeEnv {
     }
 
     // Public method kept for compatibility; it delegates to copy(), the copy constructor.
-    @SuppressWarnings("java:S2975")
+    // copy() builds the copy through the copy constructor, so super.clone() is not called.
+    @SuppressWarnings({"java:S2975", "java:S1182"})
     @Override
     public IRuntimeEnv clone() {
         return copy();
