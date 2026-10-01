@@ -1,665 +1,173 @@
 package org.openl.ie.constrainer;
 
-/*
- * Copyright Exigen Group 1998, 1999, 2000
- * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
- *
- * The copyright to the computer program(s) herein
- * is the property of Exigen Group, USA. All rights reserved.
- * The program(s) may be used and/or copied only with
- * the written permission of Exigen Group
- * or in accordance with the terms and conditions
- * stipulated in the agreement/contract under which
- * the program(s) have been supplied.
- */
-
-import java.io.PrintStream;
-import java.io.Serializable;
 import java.util.ArrayDeque;
-import java.util.Queue;
-
-import org.openl.ie.constrainer.impl.ExpressionFactoryImpl;
-import org.openl.ie.constrainer.impl.GoalStack;
-import org.openl.ie.constrainer.impl.IntBoolVarImpl;
-import org.openl.ie.constrainer.impl.IntVarImpl;
-import org.openl.ie.constrainer.impl.UndoFastVectorAdd;
-import org.openl.ie.constrainer.impl.UndoStack;
-import org.openl.ie.constrainer.impl.UndoableIntImpl;
-import org.openl.ie.constrainer.impl.UndoableOnceImpl;
-import org.openl.ie.tools.FastStack;
-import org.openl.ie.tools.FastVector;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.SequencedSet;
+import java.util.function.Supplier;
 
 /**
- * An implementation of the Constrainer - a placeholder for all variables, constraints, and search goals of the problem.
+ * The owner of the variables and expressions of a problem, and the search for their values.
  * <p>
- * The Constrainer is a Java package for modeling and solving different constraint satisfaction problems.
- * <p>
- * A problem is represented in terms of the decision variables and constraints, which define relationships between these
- * variables.
- * <p>
- * The decision variables could be represented in form of Java objects which may use the predefined constrained
- * variables such as IntVar.
- * <p>
- * The constraints themselves are objects inherited from a generic class Constraint.
- * <p>
- * A user can define new business constraints.
- *
- * <p>
- * To find the problem solutions, the search algorithms could be represented using objects called Goals as building
- * blocks. The Constrainer supports a reversible environment with multiple choice points: when constraints/goals fail,
- * the Constrainer automatically backtracks to a previous choice point (if any).
- * <p>
- * There are several basic entities in the Constrainer:
- * <ol>
- * <li>Class Constrainer - a placeholder for all variables, constraints, and search goals of the problem
- * <li>Interface Subject - a base-class for constrained variables. Contains the major methods to allow constraints
- * (observers) observe the modification of the variables (subjects).
- * <li>Interface IntVar - constrained integer variables, the most popular subclass of the class Subject
- * <li>Interface Goal - a base class for different search goals and constraints.
- * </ol>
- *
- * @author (C)2000 Exigen Group (http://www.IntelEngine.com)
+ * The search goes depth-first. Every change of a variable after a choice point is undone when the search backtracks
+ * to that point. Before the next step of the search, the changes of the variables are propagated to the expressions
+ * that observe them.
  */
-
-/*
- * Implementation notes
- *
- * GOALS EXECUTION. There are two major stacks: execution stack "EXE" and alternative stack "ALT". At each choice point
- * we create a new reversibility stack "REV". EXE.push(goal), then, while EXE is not empty, execute(EXE.pop()). Goal
- * execution could: - push new subgoal on EXE (GoalAnd) - push goals on ALT (GoalOr) - fail. When failed: - pop from EXE
- * all goals pushed on it after the last choice point (done via marker) - if ALT.empty, FAILURE! - EXE.push(ALT.pop()).
- * When EXE is empty, SUCCESS!
- *
- */
-
-public final class Constrainer implements Serializable {
-
-    public static double FLOAT_PRECISION = 1.0e-6;
-
-    // PRIVATE MEMBERS
-    private final String _name;
-    private final FastVector _intvars;
-    private final FastVector _constraints;
-
-    private final int _choice_point;
-
-    private GoalStack _goal_stack;
-
-    private final UndoStack _reversibility_stack;
-    private int _number_of_choice_points;
-    private int _number_of_failures;
-    private int _number_of_undos;
-    private final FastVector _choice_point_objects;
-    private final FastVector _failure_objects;
-    private final boolean _trace_failure_stack;
-
-    private final int _failure_display_frequency;
-    private final FastVector _backtrack_objects;
-
-    private final boolean _trace_goals;
-
-    private boolean _show_internal_names;
-    private final boolean _show_variable_names;
-
-    private final long _initial_memory;
-    private long _max_occupied_memory;
-    private long _number_of_notifications;
-
-    private final boolean _print_information;
-    private long _execution_time;
-
-    private final Queue _propagation_queue;
-
-    private final ExpressionFactory _expressionFactory;
-
-    private final FastStack _active_undoable_once;
-
-    private static final PrintStream OUT = System.out;
-
-    /*
-     * ============================================================================== Misc: toString(), helpers, ...
-     * ============================================================================
-     */
+public final class Constrainer {
 
     /**
-     * This method aborts the program execution. It prints the "msg" and the stack trace. Used to display "impossible"
-     * errors.
-     *
-     * @param msg Diagnostic message to print.
+     * A state to backtrack to: the goal to try instead, the goals left to execute, and the size of the undo stack.
      */
-    public static void abort(String msg) {
-        throw new IllegalStateException(msg);
+    private record ChoicePoint(Goal alternative, Deque<Goal> goals, int undoSize) {
     }
 
-    /*
-     * ============================================================================== EOF High-level Components
-     * ============================================================================
-     */
+    private final Deque<Runnable> undos = new ArrayDeque<>();
+    private final List<IntVar> undoSavers = new ArrayList<>();
+    private final SequencedSet<IntVar> propagationQueue = new LinkedHashSet<>();
+    private final Deque<ChoicePoint> choicePoints = new ArrayDeque<>();
+    private Deque<Goal> goals = new ArrayDeque<>();
 
     /**
-     * Returns the precision of the constrained floating-point variable calculations.
-     *
-     * @return the precision of the constrained floating-point variable calculations.
+     * Creates a variable with the values from {@code min} to {@code max}.
      */
-    public static double precision() {
-        return FLOAT_PRECISION;
+    public IntExp addIntVar(int min, int max, String name) {
+        return new IntVar(this, min, max, name);
     }
 
     /**
-     * Sets the precision of the constrained floating-point variable calculations. The default value is 1E-06.
-     *
-     * @param prc The new precision to be set.
-     */
-    public static void precision(double prc) {
-        FLOAT_PRECISION = prc;
-    }
-
-    /**
-     * Helper to print the vector of obects.
-     */
-    static void printObjects(PrintStream out, String prefix, FastVector objects) {
-        var size = objects.size();
-        var data = objects.data();
-        for (var i = 0; i < size; i++) {
-            out.print(prefix);
-            out.println(data[i]);
-        }
-    }
-
-    /**
-     * Constructs a new constrainer - the object that serves as a placeholder for all other constrained objects,
-     * constraints, and goals. Each problem should define at least one Constrainer object. All other objects relate to
-     * this object.
-     *
-     * @param s Constrainer's symbolic name
-     */
-    public Constrainer(String s) {
-        _initial_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        _max_occupied_memory = _initial_memory;
-        _name = s;
-
-        _active_undoable_once = new FastStack();
-
-        _intvars = new FastVector();
-        _constraints = new FastVector();
-
-        _reversibility_stack = new UndoStack();
-        _goal_stack = new GoalStack(_reversibility_stack);
-
-        _propagation_queue = new ArrayDeque();
-
-        _show_internal_names = false;
-        _show_variable_names = true;
-        _choice_point = 0;
-        _number_of_choice_points = 0;
-        _number_of_failures = 0;
-        _number_of_notifications = 0;
-        _failure_display_frequency = 0;
-        _number_of_undos = 0;
-        _choice_point_objects = new FastVector();
-        _failure_objects = new FastVector();
-        _backtrack_objects = new FastVector();
-        _trace_goals = false;
-
-        _trace_failure_stack = false;
-
-        _print_information = false;
-
-        _expressionFactory = new ExpressionFactoryImpl(this);
-
-    }
-
-    /**
-     * Adds a constrained boolean variable to the Constrainer.
-     *
-     * @param boolVar Variable to add.
-     * @return Added variable.
-     */
-    IntBoolVar addIntBoolVar(IntBoolVar boolVar) {
-        _intvars.add(boolVar);
-        addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        return boolVar;
-    }
-
-    /**
-     * Creates and adds a constrained boolean variable to the Constrainer.
-     *
-     * @param name Variable's symbolic name.
-     * @return The added variable.
+     * Creates a boolean variable.
      */
     public IntBoolVar addIntBoolVar(String name) {
-        var boolVar = new IntBoolVarImpl(this, name);
-        return addIntBoolVar(boolVar);
+        return new IntBoolVar(this, name);
     }
 
     /**
-     * Adds a constrained integer variable to the Constrainer.
+     * Returns the boolean expression that is always true or always false.
+     */
+    public IntBoolExp constant(boolean value) {
+        return new IntBoolExpConst(this, value);
+    }
+
+    /**
+     * Saves the action that undoes a change, to execute when the search backtracks over the change.
+     */
+    void addUndo(Runnable undo) {
+        undos.push(undo);
+    }
+
+    /**
+     * Remembers the variable that has saved its state for the current choice point.
+     */
+    void undoSaved(IntVar variable) {
+        undoSavers.add(variable);
+    }
+
+    /**
+     * Queues the changed variable to propagate its changes, unless it is in the queue already.
+     */
+    void enqueue(IntVar variable) {
+        propagationQueue.add(variable);
+    }
+
+    /**
+     * Searches for the values of the variables that satisfy the constraint, and executes the goal on them. The search
+     * tries the smallest values first, so it finds the smallest values in lexicographic order.
+     * <p>
+     * Afterwards, all the changes are undone, including the expressions the constraint is made of, so they no longer
+     * take part in the search.
      *
-     * @param min The minimum possible value of the variable being added.
-     * @param max The maximum possible value of the variable being added.
-     * @return The added variable.
+     * @param constraint makes the goal that imposes the constraint
+     * @return {@code true} if the values are found
      */
-    public IntVar addIntVar(int min, int max) {
-        return addIntVar(min, max, "", IntVar.DOMAIN_DEFAULT);
-    }
-
-    /**
-     * Adds a constrained integer variable to the Constrainer.
-     *
-     * @param min  The minimum possible value of the variable being added.
-     * @param max  The maximum possible value of the variable being added.
-     * @param type The {@link Domain} type of the variable being added.
-     * @return The added variable.
-     */
-    public IntVar addIntVar(int min, int max, int type) {
-        return addIntVar(min, max, "", type);
-    }
-
-    /**
-     * Adds a constrained integer variable to the Constrainer.
-     *
-     * @param min  The minimum possible value of the variable being added.
-     * @param max  The maximum possible value of the variable being added.
-     * @param name Variable's symbolic name.
-     * @return The added variable.
-     */
-    public IntVar addIntVar(int min, int max, String name) {
-        return addIntVar(min, max, name, IntVar.DOMAIN_DEFAULT);
-    }
-
-    /**
-     * Adds a constrained integer variable to the Constrainer.
-     *
-     * @param min  The minimum possible value of the variable being added.
-     * @param max  The maximum possible value of the variable being added.
-     * @param name Variable's symbolic name.
-     * @param type The {@link Domain} type of the variable being added.
-     * @return The added variable.
-     */
-    public IntVar addIntVar(int min, int max, String name, int type) {
-        var intVar = new IntVarImpl(this, min, max, name, type);
-        return addIntVar(intVar);
-    }
-
-    /**
-     * Adds a constrained integer variable to the Constrainer.
-     *
-     * @param intVar Variable to add.
-     * @return Passed variable.
-     */
-    IntVar addIntVar(IntVar intVar) {
-        _intvars.addElement(intVar);
-        addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        return intVar;
-    }
-
-    /**
-     * Adds an internal constrained integer variable to the Constrainer.
-     */
-    IntVar addIntVarInternal(IntVar intVar) {
-        return addIntVar(intVar);
-    }
-
-    /**
-     * Adds an internal constrained integer variable to the Constrainer, selectively allows trace. Used in expressions
-     * that create internal variables for their own needs. <br>
-     * <b>Note:</b>Constrainer's users should not use this method.
-     */
-    public IntVar addIntVarTraceInternal(int min, int max, String name, int type) {
-        var intVar = new IntVarImpl(this, min, max, name, type);
-        return addIntVarInternal(intVar);
-    }
-
-    /*
-     * ============================================================================== Propagation
-     * ============================================================================
-     */
-
-    /**
-     * Adds the subject (usually variable) to the propagation queue. It happenes when the subject changes its state. The
-     * notificatioin events will be generated in {@link #propagate} method.
-     */
-    public void addToPropagationQueue(Subject subject) {
-        _propagation_queue.add(subject);
-    }
-
-    /*
-     * ============================================================================== Undo objects
-     * ============================================================================
-     */
-
-    /**
-     * Adds an undo-object to the reversibility stack.
-     *
-     * @param undoObject Undo object to add.
-     */
-    public void addUndo(Undo undoObject) {
-        _number_of_undos++;
-        _reversibility_stack.pushUndo(undoObject);
-    }
-
-    /**
-     * Adds an undo-object to the reversibility stack for a given undoable object. Some undo-objects can be generated
-     * one time between choice points. Constrainer notifies such objects when backtrack or choice point occures.
-     *
-     * @param undoObject Undo object to add.
-     * @param undoable   Undoable object to add for notification.
-     */
-    public void addUndo(Undo undoObject, Undoable undoable) {
-        addUndo(undoObject);
-        // Adds an undoableOnce to the activeUndoableOnce.
-        // Used in UndoableOnceImpl and allowUndos().
-        if (undoable instanceof UndoableOnceImpl) {
-            _active_undoable_once.push(undoable);
-        }
-    }
-
-    /*
-     * ============================================================================== EOF Variables
-     * ============================================================================
-     */
-
-    /**
-     * Adds an undoable integer to the Constrainer.
-     *
-     * @param value Initial value.
-     * @return Added undoable integer.
-     */
-    public UndoableInt addUndoableInt(int value) {
-        return new UndoableIntImpl(this, value);
-    }
-
-    /**
-     * Clears the undone-flags for active undoable once objects. This force them to create undos again. Used: - when a
-     * choice point is set - when backtracking is performed
-     */
-    void allowUndos() {
-        while (!_active_undoable_once.empty()) {
-            ((UndoableOnceImpl) _active_undoable_once.pop()).restore();
-        }
-    }
-
-    /**
-     * Backtracks to the most recent labeled choice point.
-     */
-    boolean backtrack(ChoicePointLabel label) {
-        var success = _goal_stack.backtrack(label);
-
+    boolean solve(Supplier<Goal> constraint, IntExp[] vars, Goal onSolution) {
+        var start = undos.size();
+        goals = new ArrayDeque<>(List.of(constraint.get(), generate(vars), onSolution));
+        choicePoints.clear();
         allowUndos();
-
-        if (success && _backtrack_objects.size() > 0) {
-            printObjects(OUT, "BACKTRACK: ", _backtrack_objects);
+        var found = true;
+        while (found && !goals.isEmpty()) {
+            found = executeNextGoal();
         }
-
-        return success;
-    }
-
-    public int getStackSize() {
-        return _reversibility_stack.size();
-    }
-
-    public void backtrackStack(int newSize) {
-        _reversibility_stack.backtrack(newSize);
+        undo(start);
+        return found;
     }
 
     /**
-     * Clears the propagation queue.
+     * Executes the next goal, backtracking if it fails.
+     *
+     * @return {@code false} if the goal fails and there is no choice point to backtrack to
      */
-    void clearPropagationQueue() {
-        while (!_propagation_queue.isEmpty()) {
-            var subject = (Subject) _propagation_queue.remove();
-            subject.inProcess(false);
+    private boolean executeNextGoal() {
+        try {
+            var next = goals.pop().execute();
+            propagate();
+            if (next != null) {
+                goals.push(next);
+            }
+            return true;
+        } catch (Failure e) {
+            propagationQueue.clear();
+            return backtrack();
         }
     }
 
-    /**
-     * Returns a vector with all currently available constraints.
-     *
-     * @return Vector of added constraints.
-     */
-    public FastVector constraints() {
-        return _constraints;
-    }
-
-
-    /**
-     * Prints the statistical information. This information is accumulated during the execution of the goals.
-     */
-    void doPrintInformation() {
-        OUT.println(
-                "\nChoice Points: " + _number_of_choice_points + "  Failures: " + _number_of_failures + "  Undos: " + _number_of_undos + "  Notifications: " + _number_of_notifications + "  Memory: " + (_max_occupied_memory - _initial_memory) + "  Time: " + _execution_time + "msec");
-    }
-
-    /**
-     * Executes the goal without state restoration.
-     *
-     * @param goal org.openl.ie.constrainer.Goal
-     * @return true if success
-     */
-    public boolean execute(Goal goal) {
-        return execute(goal, false);
-    }
-
-    /**
-     * Executes the search goal provided by the first parameter. In most cases, the goal is expected to find a solution:
-     * to instantiate all constrained objects and satisfied all constraints. Return true if the solution is found.
-     * Returns false otherwise. The second parameter allows a user to restore the state of the constrainer after the
-     * succesful execution of the mainGoal.
-     *
-     * @param mainGoal    org.openl.ie.constrainer.Goal
-     * @param restoreFlag boolean
-     * @return true if success
-     */
-    public synchronized boolean execute(Goal mainGoal, boolean restoreFlag) {
-        var executionStart = System.currentTimeMillis();
-
-        var success = true;
-
-        // save current goalStack
-        var oldGoalStack = _goal_stack;
-
-        _goal_stack = new GoalStack(mainGoal, _reversibility_stack);
-
+    private boolean backtrack() {
+        if (choicePoints.isEmpty()) {
+            return false;
+        }
+        var choicePoint = choicePoints.pop();
+        undo(choicePoint.undoSize());
+        goals = choicePoint.goals();
+        goals.push(choicePoint.alternative());
         allowUndos();
+        return true;
+    }
 
-        while (!_goal_stack.empty()) {
-            try {
-                executeNextGoal();
-            } catch (Failure f) {
-
-                traceFailure(f);
-
-                updateMaxOccupiedMemory();
-
-                clearPropagationQueue();
-
-                // Backtrack
-                if (!backtrack(f.label())) {
-                    success = false;
-                    break;
+    /**
+     * Returns the goal that binds the variables, the first unbound one first, to their smallest values. Every binding
+     * is a choice point: on backtracking, the variable loses the value and the search goes on with the next one.
+     */
+    private Goal generate(IntExp[] vars) {
+        return () -> {
+            for (var v : vars) {
+                if (!v.bound()) {
+                    var value = v.min();
+                    setChoicePoint(() -> {
+                        v.setMin(value + 1);
+                        return generate(vars);
+                    });
+                    v.setValue(value);
+                    return generate(vars);
                 }
-            } catch (RuntimeException re) {
-                throw re;
-            } catch (Exception t) {
-                throw new RuntimeException("Unexpected exception: ", t);
             }
-
-        } // ~while
-
-        var restoreAnyway = restoreFlag || !success;
-        if (restoreAnyway) {
-            backtrackStack(_goal_stack.undoStackSize());
-        }
-
-        _execution_time += System.currentTimeMillis() - executionStart;
-
-        if (_print_information && !(mainGoal instanceof Constraint)) {
-            doPrintInformation();
-        }
-
-        _goal_stack = oldGoalStack;
-
-        return success;
+            return null;
+        };
     }
 
-    private void executeNextGoal() throws Failure {
-        var goal = _goal_stack.popGoal();
-
-        if (_trace_goals) {
-            OUT.println("Execute: " + goal);
-        }
-
-        goal = goal.execute();
-        propagate();
-
-        updateMaxOccupiedMemory();
-
-        if (goal != null) {
-            _goal_stack.pushGoal(goal);
-        }
-    }
-
-    private void traceFailure(Failure f) {
-        if (_trace_failure_stack && _failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
-            f.printStackTrace(OUT);
-        }
-    }
-
-    private void updateMaxOccupiedMemory() {
-        if (_print_information) {
-            var occupiedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-            if (_max_occupied_memory < occupiedMemory) {
-                _max_occupied_memory = occupiedMemory;
-            }
-        }
-    }
-
-    /*
-     * ============================================================================== High-level Components
-     * ============================================================================
-     */
-
-    /**
-     * Returns the expression factory for this constrainer.
-     */
-    public ExpressionFactory expressionFactory() {
-        return _expressionFactory;
-    }
-
-    /**
-     * Throws Failure exception.
-     *
-     * @param s The diagnostic message.
-     */
-    public void fail(String s) throws Failure {
-        _number_of_failures++;
-
-        if (_failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
-            OUT.println("Failure " + _number_of_failures + ": " + s);
-        }
-
-        if (_failure_display_frequency == 0 || _number_of_failures % _failure_display_frequency == 0) {
-            for (var i = 0; i < _failure_objects.size(); i++) {
-                OUT.println("Failure: " + s + " " + _failure_objects.elementAt(i));
-            }
-        }
-
-        throw new Failure(s);// _failure; //
-    }
-
-    /*
-     * ============================================================================== EOF Tracing
-     * ============================================================================
-     */
-
-    /**
-     * Used internally in the implementation of subject when it sends a notificaction event. <br>
-     * <b>Note:</b>Constrainer's users should not use this method.
-     */
-    public void incrementNumberOfNotifications() {
-        _number_of_notifications++;
-    }
-
-
-    /*
-     * ============================================================================== EOF Special expressions,
-     * constraints, ... ============================================================================
-     */
-
-    /**
-     * Propagate events triggered by successful goal execution.
-     */
-    public void propagate() throws Failure {
-        while (!_propagation_queue.isEmpty()) {
-            var subject = (Subject) _propagation_queue.remove();
-            subject.inProcess(false);
-            subject.propagate(); // may fail
-        }
-    }
-
-    /**
-     * Pushes the goal onto the goal stack.
-     */
-    void pushOnExecutionStack(Goal goal) {
-        _goal_stack.pushGoal(goal);
-    }
-
-    /**
-     * Sets a labeled choice point between two goals.
-     */
-    void setChoicePoint(Goal g1, Goal g2, ChoicePointLabel label) {
-        _number_of_choice_points++;
-
-        _goal_stack.setChoicePoint(g1, g2, label);
-
+    private void setChoicePoint(Goal alternative) {
+        choicePoints.push(new ChoicePoint(alternative, new ArrayDeque<>(goals), undos.size()));
         allowUndos();
+    }
 
-        if (_choice_point_objects.size() > 0) {
-            printObjects(OUT, "CP " + (_choice_point - 1) + ":", _choice_point_objects);
+    private void propagate() throws Failure {
+        while (!propagationQueue.isEmpty()) {
+            propagationQueue.removeFirst().propagate();
+        }
+    }
+
+    private void undo(int size) {
+        while (undos.size() > size) {
+            undos.pop().run();
         }
     }
 
     /**
-     * Returns true if internal names for the expressions are shown.
-     *
-     * @return true if internal names for the expressions are shown.
+     * Lets the variables save their state again, for the new choice point.
      */
-    public boolean showInternalNames() {
-        return _show_internal_names;
+    private void allowUndos() {
+        undoSavers.forEach(IntVar::allowUndo);
+        undoSavers.clear();
     }
-
-    /**
-     * Controls whether to show the internal names for the expressions.
-     *
-     * @param flag true if show.
-     */
-    public void showInternalNames(boolean flag) {
-        _show_internal_names = flag;
-    }
-
-    /*
-     * ============================================================================== EOF Execution, backtracking,
-     * choice points ============================================================================
-     */
-
-    /**
-     * Returns variable names printing behaviour flag.
-     *
-     * @return the variable names printing flag.
-     */
-    public boolean showVariableNames() {
-        return _show_variable_names;
-    }
-
-    /**
-     * Returns the string representation of the constrainer.
-     *
-     * @return the string representation of the constrainer.
-     */
-    @Override
-    public String toString() {
-        return "Constrainer: " + _name + "\n" + _goal_stack + "\n" + _reversibility_stack;
-
-    }
-
-} // ~Constrainer
+}

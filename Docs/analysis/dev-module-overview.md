@@ -58,7 +58,7 @@ Foundation (commons) → Core Engine (rules) → Project Management → Integrat
 | `org.openl.rules.annotations` | 200 | 5 | Custom annotations | None |
 | `org.openl.rules.util` | 5,000+ | 20+ | Built-in rule functions | annotations |
 | `org.openl.rules.gen` | 2,000+ | 30+ | Code generation (build-time) | rules, Velocity |
-| `org.openl.rules.constrainer` | 10,000+ | 100+ | Constraint solver | commons |
+| `org.openl.rules.constrainer` | 1,800 | 23 | Gap/overlap check of decision tables | None |
 | `org.openl.rules.project` | 15,000+ | 100+ | Project management | rules, JAXB |
 | `org.openl.spring` | 3,000+ | 25+ | Spring integration | commons, Spring |
 | `org.openl.rules.test` | 500+ | 5+ | Testing framework | rules.project |
@@ -662,50 +662,39 @@ Strings.join(list, ",") // Join strings
 
 ---
 
-## 6. org.openl.rules.constrainer - Constraint Solver
+## 6. org.openl.rules.constrainer - Decision Table Gap/Overlap Check
 
 **Location**: `/home/user/openl-tablets/DEV/org.openl.rules.constrainer/`
-**Purpose**: Constraint programming engine for CSP (Constraint Satisfaction Problems)
+**Purpose**: Searches for the gaps and overlaps of the decision tables that have the `validateDT` property set to `on`
+**Package**: `org.openl.ie.constrainer` — only `org.openl.rules` uses it, so the engine behind the API below is
+package-private
 
-### Core Abstractions
+### API
 
-**`Constrainer`** - Main solver engine
+- **`Constrainer`** — owns the variables and expressions of a check, and searches for their values
+- **`IntExp`**, **`IntBoolExp`**, **`IntBoolVar`** — integer and boolean expressions. The condition formulas are
+  compiled with the parameters of these types, and OpenL binds the operators to the methods by their names: `+` to
+  `add`, `==` to `eq`, `<`, `<=`, `>`, `>=` to `lt`, `le`, `gt`, `ge`, and `&&`, `||` to `and`, `or`
+- **`DTChecker`** — takes the condition expressions of every rule. `checkCompleteness()` returns an `Uncovered` input,
+  and `checkOverlappings()` returns the `Overlapping` pairs of rules with the status `BLOCK`, `PARTIAL` or `OVERRIDE`
+
 ```java
-Constrainer constrainer = new Constrainer();
-IntVar x = constrainer.addIntVar(0, 10, "x");
-constrainer.addConstraint(x.gt(5));
-boolean solved = constrainer.findSolution();
+var constrainer = new Constrainer();
+var x = constrainer.addIntVar(0, 10, "x");
+var checker = new DTChecker(constrainer, new IntBoolExp[][]{{x.lt(5)}, {x.gt(5)}}, List.of(x), true);
+checker.checkCompleteness(); // x = 5 is uncovered
 ```
 
-**`IntVar`** - Integer variable
-- Domain - Value domain
-- Operations: `add()`, `mul()`, `lt()`, `gt()`, etc.
+### Search Model
 
-**`IntExp`** - Integer expression
-- `IntBoolExp` - Boolean expressions
-- `IntExpConst` - Constants
-
-**`Constraint`** - Abstract constraint
-- `ConstraintConst` - Constant constraints
-
-**`Goal`** - Search goal
-- `GoalSetMin`, `GoalSetMax` - Optimization goals
-- `GoalOr` - OR goals
-
-### Execution Model
-- **Observer Pattern** - Constraint propagation
-- **Backtracking** - `ChoicePointLabel`
-- **Undo** - Rollback mechanism
-
-### Use Case
-Rarely used in typical OpenL projects, but available for:
-- Resource allocation
-- Scheduling problems
-- Optimization scenarios
-- Complex constraint satisfaction
+- A variable keeps every value of a domain under 128 values, and only the bounds of a larger domain
+- Observers propagate a change of a variable to the expressions made of it
+- The search binds the variables to their smallest values first and undoes the changes on backtracking, so it reports
+  the smallest inputs
+- The search for overlappings stops after 50 of them
 
 ### Dependencies
-- `org.openl.commons` only
+- None
 
 ---
 

@@ -18,7 +18,8 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
 - **org.openl.rules** — Main engine: type system, parser, binding, bytecode gen, runtime
 - **org.openl.commons** — Shared utilities (`org.openl.util`, `org.openl.message`)
 - **org.openl.rules.annotations** — Annotation processing for rules
-- **org.openl.rules.constrainer** — Constraint solving
+- **org.openl.rules.constrainer** — Gap/overlap check of the decision tables with `validateDT` on; only
+  `org.openl.rules` uses it, so everything beyond its API is package-private
 - **org.openl.rules.gen** — Code generation for bindings
 - **org.openl.rules.project** — Project model, instantiation strategies, resource resolution
 - **org.openl.rules.test** — Functional test framework (test table implementations)
@@ -86,6 +87,15 @@ a whole core until the server is restarted — fails the store's own assertion h
 a cell at index -1. `ParsedGrid` hands the writable grid to the thread that took the sheet up and answers
 everybody else with the sheet as it was parsed; Studio queues the writes of one session behind one another
 (`WorkbookWrites`). Anything new that changes a workbook belongs inside that queue.
+
+### Decision Table Gap/Overlap Check (`org.openl.rules.constrainer`)
+
+`ValidationAlgorithm` compiles the condition formulas of a decision table with parameters of the types `IntExp`,
+`IntBoolExp` and `IntBoolVar`, and `DTChecker` searches the results for gaps and overlaps.
+
+**Rules**: OpenL binds the operators of the formulas to the public methods of these types by name — `add`, `eq`, `lt`,
+`le`, `gt`, `ge`, `and`, `or` — so no Java code calls most of them. Never rename or remove them. `CastFactory` refuses
+any cast from an `IntExp`, so that an operator does not bind to an `Object` overload instead.
 
 ## Rule Utility Libraries (`org.openl.rules.util`)
 

@@ -2,7 +2,6 @@ package org.openl.rules.dt.type.domains;
 
 import lombok.RequiredArgsConstructor;
 
-import org.openl.ie.constrainer.IntVar;
 import org.openl.types.java.JavaEnumDomain;
 
 @RequiredArgsConstructor
@@ -16,11 +15,6 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
             return -1;
         }
         return ((Enum<?>) value).ordinal();
-    }
-
-    @Override
-    public int getIntVarDomainType() {
-        return IntVar.DOMAIN_BIT_FAST;
     }
 
     @Override

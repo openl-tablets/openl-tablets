@@ -67,7 +67,7 @@
 | **org.openl.rules.util** | annotations | None |
 | **org.openl.rules** | commons, annotations, util | POI, ASM, Groovy, Commons |
 | **org.openl.rules.gen** | rules | Velocity |
-| **org.openl.rules.constrainer** | commons | None |
+| **org.openl.rules.constrainer** | None | None |
 | **org.openl.rules.project** | rules | Commons Lang3, JAXB |
 | **org.openl.spring** | commons | Spring Framework |
 | **org.openl.rules.test** | rules.project | None |

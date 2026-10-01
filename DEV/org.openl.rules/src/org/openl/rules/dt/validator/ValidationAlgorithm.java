@@ -10,14 +10,11 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.DTChecker;
 import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntBoolExpConst;
 import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl;
-import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
-import org.openl.ie.constrainer.consistencyChecking.Overlapping;
-import org.openl.ie.constrainer.consistencyChecking.Uncovered;
+import org.openl.ie.constrainer.Overlapping;
+import org.openl.ie.constrainer.Uncovered;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.types.IMethodSignature;
@@ -32,10 +29,10 @@ import org.openl.types.java.JavaOpenClass;
 public class ValidationAlgorithm {
 
     private final IDecisionTableValidatedObject decisionTableToValidate;
-    private IntExpArray vars;
+    private List<IntExp> vars;
     private final OpenL openl;
 
-    private final Constrainer constrainer = new Constrainer("Validation");
+    private final Constrainer constrainer = new Constrainer();
 
     public ValidationAlgorithm(IDecisionTableValidatedObject validatedObject, OpenL openl) {
         this.decisionTableToValidate = validatedObject;
@@ -61,10 +58,10 @@ public class ValidationAlgorithm {
 
             var expressions = makeExpressions(analyzer, methodsForConditionValidation);
 
-            var cdt = new CDecisionTableImpl(expressions,
+            var tableChecker = new DTChecker(constrainer,
+                    expressions,
                     vars,
                     decisionTableToValidate.isOverrideAscending());
-            var tableChecker = new DTCheckerImpl(cdt);
 
             List<Uncovered> completeness = tableChecker.checkCompleteness();
             List<Overlapping> overlappings = tableChecker.checkOverlappings();
@@ -100,15 +97,8 @@ public class ValidationAlgorithm {
         return true;
     }
 
-    private Object findVar(IntExpArray vars, String name) {
-
-        for (var i = 0; i < vars.size(); i++) {
-            if (vars.elementAt(i).name().equals(name)) {
-                return vars.elementAt(i);
-            }
-        }
-
-        return null;
+    private Object findVar(List<IntExp> vars, String name) {
+        return vars.stream().filter(v -> v.name().equals(name)).findFirst().orElse(null);
     }
 
     private IOpenMethod makeConditionMethod(IBaseCondition condition, DecisionTableAnalyzer analyzer) {
@@ -168,7 +158,7 @@ public class ValidationAlgorithm {
                                       IOpenMethod methodForConditionValidation) {
 
         if (conditionToValidate.isEmpty(ruleN)) {
-            return new IntBoolExpConst(constrainer, true);
+            return constrainer.constant(true);
         }
 
         var paramsNum = methodForConditionValidation.getSignature().getNumberOfParameters();
@@ -248,7 +238,7 @@ public class ValidationAlgorithm {
     }
 
     @SuppressWarnings("deprecation")
-    private IntExpArray makeVars(DecisionTableAnalyzer analyzer) {
+    private List<IntExp> makeVars(DecisionTableAnalyzer analyzer) {
 
         var signatureVars = new ArrayList<IntExp>();
 
@@ -269,7 +259,7 @@ public class ValidationAlgorithm {
             }
         }
 
-        return new IntExpArray(constrainer, signatureVars);
+        return signatureVars;
     }
 
     @SuppressWarnings("deprecation")

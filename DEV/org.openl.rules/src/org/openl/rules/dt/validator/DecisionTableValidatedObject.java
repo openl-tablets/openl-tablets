@@ -19,7 +19,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.IntBoolVar;
 import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntVar;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.EnumDomainAdaptor;
@@ -77,7 +76,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     @Override
-    public IntVar makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
+    public IntExp makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
         var domain = getDomains().get(parameterName);
         if (domain == null) {
             if (paramType.getDomain() != null) {

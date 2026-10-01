@@ -5,7 +5,6 @@ import java.util.Date;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.domain.DateRangeDomain;
-import org.openl.ie.constrainer.IntVar;
 
 /**
  * Adaptor for date ranges. Helps to access dates in range by index and retrieve index of date within the range.
@@ -19,11 +18,6 @@ public class DateRangeDomainAdaptor implements IDomainAdaptor {
     @Override
     public int getIndex(Object value) {
         return domain.getIndex((Date) value);
-    }
-
-    @Override
-    public int getIntVarDomainType() {
-        return IntVar.DOMAIN_PLAIN;
     }
 
     @Override

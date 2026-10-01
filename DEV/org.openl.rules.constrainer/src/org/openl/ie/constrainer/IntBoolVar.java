@@ -1,20 +1,70 @@
 package org.openl.ie.constrainer;
 
-/*
- * Copyright Exigen Group 1998, 1999, 2000
- * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
- *
- * The copyright to the computer program(s) herein
- * is the property of Exigen Group, USA. All rights reserved.
- * The program(s) may be used and/or copied only with
- * the written permission of Exigen Group
- * or in accordance with the terms and conditions
- * stipulated in the agreement/contract under which
- * the program(s) have been supplied.
- */
+import static org.openl.ie.constrainer.IntEvent.MAX;
+import static org.openl.ie.constrainer.IntEvent.MIN;
+import static org.openl.ie.constrainer.IntEvent.VALUE;
 
 /**
- * An interface for the boolean variable as [0..1] integer variable.
+ * A constrained boolean variable: the type of a boolean decision table parameter in the condition formulas.
+ * <p>
+ * It is also the base of the boolean expressions that keep their own domain. A change of the domain is undone on
+ * backtracking. The observers learn about the change at once, without waiting for the propagation.
  */
-public interface IntBoolVar extends IntVar, IntBoolExp {
+public class IntBoolVar extends IntBoolExp {
+
+    private static final IntEvent TRUE_EVENT = new IntEvent(MIN | VALUE, 1, 1, 0, 1);
+    private static final IntEvent FALSE_EVENT = new IntEvent(MAX | VALUE, 0, 0, 0, 1);
+
+    int min;
+    int max = 1;
+
+    IntBoolVar(Constrainer constrainer) {
+        super(constrainer);
+    }
+
+    IntBoolVar(Constrainer constrainer, String name) {
+        super(constrainer, name);
+    }
+
+    @Override
+    int min() {
+        return min;
+    }
+
+    @Override
+    int max() {
+        return max;
+    }
+
+    @Override
+    void setMin(int value) throws Failure {
+        if (value > max) {
+            throw new Failure();
+        }
+        if (value > min) {
+            constrainer.addUndo(this::reset);
+            min = value;
+            notifyObservers(TRUE_EVENT);
+        }
+    }
+
+    @Override
+    void setMax(int value) throws Failure {
+        if (value < min) {
+            throw new Failure();
+        }
+        if (value < max) {
+            constrainer.addUndo(this::reset);
+            max = value;
+            notifyObservers(FALSE_EVENT);
+        }
+    }
+
+    /**
+     * Restores the domain [0..1]. A single change binds the variable, so it is the domain before any change.
+     */
+    private void reset() {
+        min = 0;
+        max = 1;
+    }
 }

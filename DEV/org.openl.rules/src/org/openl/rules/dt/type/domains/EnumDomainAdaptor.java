@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.openl.domain.EnumDomain;
-import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor
@@ -35,11 +34,6 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
         }
 
         return -1;
-    }
-
-    @Override
-    public int getIntVarDomainType() {
-        return IntVar.DOMAIN_BIT_FAST;
     }
 
     @Override
