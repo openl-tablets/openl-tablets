@@ -612,6 +612,74 @@ class GitRepositoryTest {
     }
 
     @Test
+    void saveRejectsABaseVersionOutsideTheReferences() throws IOException {
+        var head = repo.check("rules/project1/file2").getVersion();
+        var data = createFileData("rules/project1/file2", "text");
+        data.setVersion("../../config");
+        var stream = IOUtils.toInputStream("text");
+
+        var e = assertThrows(IOException.class, () -> repo.save(data, stream));
+        assertEquals("Invalid revision '../../config'", e.getMessage());
+        assertEquals(head, repo.check("rules/project1/file2").getVersion());
+    }
+
+    @Test
+    void saveBasedOnAnOlderTagOrCommitIdIsMergedIntoTheBranch() throws IOException {
+        String oldCommit;
+        try (var git = repo.getClosableGit()) {
+            oldCommit = git.getRepository().resolve(TAG_PREFIX + 2 + "^{commit}").name();
+        }
+
+        saveFolderBasedOn(TAG_PREFIX + 2, "rules/project1/based-on-tag");
+        saveFolderBasedOn(oldCommit, "rules/project1/based-on-commit");
+
+        assertEquals(TAG_PREFIX + 2, readText(repo.read("rules/project1/based-on-tag")));
+        assertEquals(oldCommit, readText(repo.read("rules/project1/based-on-commit")));
+        assertEquals("Hello World.", readText(repo.read("rules/project1/file2")));
+    }
+
+    private void saveFolderBasedOn(String version, String path) throws IOException {
+        var folderData = createFileData(FOLDER_IN_REPOSITORY, "");
+        folderData.setVersion(version);
+        repo.save(folderData, List.of(new FileItem(path, IOUtils.toInputStream(version))), ChangesetType.DIFF);
+
+        try (var git = repo.getClosableGit()) {
+            var repository = git.getRepository();
+            var tip = repository.parseCommit(repository.resolve(Constants.R_HEADS + BRANCH));
+            assertEquals(2, tip.getParentCount(), "The changes based on '" + version + "' are not merged");
+        }
+    }
+
+    @Test
+    void mergeRejectsABranchOutsideTheReferences() throws IOException {
+        writeOutsideRef(Constants.MASTER);
+        var author = new UserInfo("jsmith", "jsmith@email", "John Smith");
+
+        var e = assertThrows(IOException.class, () -> repo.merge("../../outside-ref", author, null));
+        assertEquals("Invalid branch name '../../outside-ref'", e.getMessage());
+        assertNull(repo.check("rules/project1/file1master"));
+    }
+
+    @Test
+    void branchStatusesSkipABranchOutsideTheReferences() throws IOException {
+        writeOutsideRef(BRANCH);
+        var branches = List.of("../../../../outside-ref");
+
+        assertTrue(repo.getBranchStatuses(branches).isEmpty());
+        assertTrue(repo.getBranchTreeRevisions(branches, "").isEmpty());
+    }
+
+    /**
+     * Writes the tip of the branch to a file beside the local repository, so it would be read as a reference.
+     */
+    private void writeOutsideRef(String branch) throws IOException {
+        try (var git = repo.getClosableGit()) {
+            var tip = git.getRepository().resolve(Constants.R_HEADS + branch).name();
+            createNewFile(local.getParentFile(), "outside-ref", tip);
+        }
+    }
+
+    @Test
     void saveWithUsernameOnlyAuthorUsesUsernameAsCommitter() throws IOException {
         var data = new FileData();
         data.setName("rules/project1/username-only");

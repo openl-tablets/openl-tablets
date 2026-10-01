@@ -289,9 +289,7 @@ public class GitRepository implements BranchRepository, Closeable {
     private void saveSingleFile(FileData data, InputStream stream) throws IOException {
         String commitId = null;
         try {
-            var parentVersion = data.getVersion();
-            var checkoutOldVersion = isCheckoutOldVersion(data.getName(), parentVersion);
-            checkoutForcedOrReset(checkoutOldVersion ? parentVersion : branch);
+            var checkoutOldVersion = checkoutBaseVersion(data);
             var commit = createCommit(data, stream);
             commitId = commit.getId().getName();
 
@@ -2058,6 +2056,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     @Override
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
+        requireValidBranchName(branchFrom);
         initializeGit(true);
 
         var writeLock = repositoryLock.writeLock();
@@ -2189,9 +2188,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
         String commitId = null;
         try {
-            var parentVersion = folderData.getVersion();
-            var checkoutOldVersion = isCheckoutOldVersion(folderData.getName(), parentVersion);
-            checkoutForcedOrReset(checkoutOldVersion ? parentVersion : branch);
+            var checkoutOldVersion = checkoutBaseVersion(folderData);
 
             var commit = createCommit(folderData, files, changesetType);
             commitId = commit.getId().getName();
@@ -2694,8 +2691,17 @@ public class GitRepository implements BranchRepository, Closeable {
         return git().getRepository().exactRef(Constants.R_HEADS + branch) != null;
     }
 
+    /**
+     * Finds the local branch, or the remote one when the branch is not checked out locally.
+     *
+     * <p>A name that is not a valid branch name, such as a path leading outside the references, finds nothing.
+     */
     private static @Nullable Ref findBranchRef(Repository repository, String branch) throws IOException {
-        var local = repository.exactRef(Constants.R_HEADS + branch);
+        var localName = Constants.R_HEADS + branch;
+        if (!Repository.isValidRefName(localName)) {
+            return null;
+        }
+        var local = repository.exactRef(localName);
         return local != null
                 ? local
                 : repository.exactRef(Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + branch);
@@ -2833,6 +2839,25 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private String getMergeMessage(Ref r) throws IOException {
         return new MergeMessageFormatter().format(List.of(r), git().getRepository().exactRef(Constants.HEAD));
+    }
+
+    /**
+     * Checks out the version the saved changes are based on.
+     *
+     * <p>It is the head of the branch, unless the changes are based on an older version of the saved path.
+     *
+     * @return whether an older version is checked out, so the new commit must be merged into the branch
+     * @throws IOException if the older version is not a valid reference name, such as a path leading outside the
+     *                     references
+     */
+    private boolean checkoutBaseVersion(FileData data) throws GitAPIException, IOException {
+        var baseVersion = data.getVersion();
+        var checkoutOldVersion = isCheckoutOldVersion(data.getName(), baseVersion);
+        if (checkoutOldVersion) {
+            requireValidRefName(baseVersion);
+        }
+        checkoutForcedOrReset(checkoutOldVersion ? baseVersion : branch);
+        return checkoutOldVersion;
     }
 
     boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
