@@ -1,6 +1,8 @@
 package org.openl.util;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
+
 
 public final class EnumUtils {
 
@@ -48,21 +50,14 @@ public final class EnumUtils {
     }
 
     public static String[] getNames(Object[] constants) {
-        var names = new ArrayList<String>();
-        for (Object constant : constants) {
-            if (constant != null) {
-                names.add(getName((Enum<?>) constant));
-            }
-        }
-        return names.toArray(new String[0]);
+        return Arrays.stream(constants)
+                .filter(Objects::nonNull)
+                .map(constant -> getName((Enum<?>) constant))
+                .toArray(String[]::new);
     }
 
     public static String[] getValues(Object[] constants) {
-        var values = new ArrayList<String>();
-        for (Object constant : constants) {
-            values.add(constant.toString());
-        }
-        return values.toArray(new String[0]);
+        return Arrays.stream(constants).map(Object::toString).toArray(String[]::new);
     }
 
     public static String[] getNames(Class<?> enumClass) {
@@ -71,12 +66,7 @@ public final class EnumUtils {
     }
 
     public static String[] getValues(Class<?> enumClass) {
-        Object[] constants = getEnumConstants(enumClass);
-        var values = new ArrayList<String>();
-        for (Object constant : constants) {
-            values.add(constant.toString());
-        }
-        return values.toArray(new String[0]);
+        return getValues(getEnumConstants(enumClass));
     }
 
     public static Object[] getEnumConstants(Class<?> enumClass) {

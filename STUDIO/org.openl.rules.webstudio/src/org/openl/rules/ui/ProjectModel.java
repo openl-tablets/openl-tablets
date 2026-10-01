@@ -478,20 +478,16 @@ public class ProjectModel {
     public IOpenMethod[] getTestAndRunMethods(String tableUri, boolean currentOpenedModule) {
         IOpenMethod method = getMethod(tableUri);
         if (method != null) {
-            List<IOpenMethod> res = new ArrayList<>();
             Collection<IOpenMethod> methods;
             if (currentOpenedModule) {
                 methods = openedModuleCompiledOpenClass.get().getOpenClassWithErrors().getMethods();
             } else {
                 methods = compiledOpenClass.get().getOpenClassWithErrors().getMethods();
             }
-            for (IOpenMethod tester : methods) {
-                if (tester instanceof TestSuiteMethod testSuiteMethod
-                        && ProjectHelper.isTestForMethod(testSuiteMethod, method)) {
-                    res.add(tester);
-                }
-            }
-            return res.toArray(IOpenMethod.EMPTY_ARRAY);
+            return methods.stream()
+                    .filter(tester -> tester instanceof TestSuiteMethod testSuiteMethod
+                            && ProjectHelper.isTestForMethod(testSuiteMethod, method))
+                    .toArray(IOpenMethod[]::new);
         }
         return null;
     }
@@ -862,13 +858,9 @@ public class ProjectModel {
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
-        List<TableSyntaxNode> executableNodes = new ArrayList<>();
-        for (TableSyntaxNode node : nodes) {
-            if (node.getMember() instanceof IOpenMethod) {
-                executableNodes.add(node);
-            }
-        }
-        return executableNodes;
+        return Arrays.stream(nodes)
+                .filter(node -> node.getMember() instanceof IOpenMethod)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**

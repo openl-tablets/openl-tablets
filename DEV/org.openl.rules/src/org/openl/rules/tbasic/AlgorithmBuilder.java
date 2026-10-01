@@ -5,8 +5,8 @@ import static org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity
 import static org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity.REQUIRED;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -255,12 +255,10 @@ public class AlgorithmBuilder {
 
     static {
         try {
-            var algorithmOperations = new LinkedHashSet<String>();
-
-            for (TableParserSpecificationBean specification : algSpecifications) {
-                algorithmOperations.add(specification.getKeyword());
-            }
-            var algorithmOperationsArray = algorithmOperations.toArray(StringUtils.EMPTY_STRING_ARRAY);
+            var algorithmOperationsArray = Arrays.stream(algSpecifications)
+                    .map(TableParserSpecificationBean::getKeyword)
+                    .distinct()
+                    .toArray(String[]::new);
             CELL_META_INFO = new CellMetaInfo(
                     new DomainOpenClass(OPERATION1,
                             JavaOpenClass.STRING,

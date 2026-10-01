@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -117,16 +116,10 @@ public class PrepareDeploymentBomMojo extends AbstractMojo {
             return List.of();
         }
         var anchorDir = anchorBasedir.toPath().toAbsolutePath().normalize();
-        var members = new ArrayList<MavenProject>();
-        for (var p : session.getAllProjects()) {
-            if (isMember(p, anchorDir)) {
-                members.add(p);
-            }
-        }
-        members.sort(Comparator
-                .comparing(MavenProject::getGroupId)
-                .thenComparing(MavenProject::getArtifactId));
-        return members;
+        return session.getAllProjects().stream()
+                .filter(p -> isMember(p, anchorDir))
+                .sorted(Comparator.comparing(MavenProject::getGroupId).thenComparing(MavenProject::getArtifactId))
+                .toList();
     }
 
     /**

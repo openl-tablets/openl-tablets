@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -112,12 +111,9 @@ public class OpenLService {
         }
         var instance = service.getServiceBean();
 
-        var methods = new ArrayList<Method>(2);
-        for (Method method : instance.getClass().getMethods()) {
-            if (method.getName().equals(ruleName)) {
-                methods.add(method);
-            }
-        }
+        var methods = Arrays.stream(instance.getClass().getMethods())
+                .filter(method -> method.getName().equals(ruleName))
+                .toList();
         if (methods.isEmpty()) {
             throw new IllegalArgumentException("Method '%s' is not found in service '%s'.".formatted(ruleName, serviceName));
         }
@@ -219,12 +215,9 @@ public class OpenLService {
         var instance = service.getServiceBean();
 
         int argsCount = json == null ? 0 : json.length;
-        var methods = new ArrayList<Method>(2);
-        for (Method method : instance.getClass().getMethods()) {
-            if (method.getName().equals(ruleName) && method.getParameterCount() == argsCount) {
-                methods.add(method);
-            }
-        }
+        var methods = Arrays.stream(instance.getClass().getMethods())
+                .filter(method -> method.getName().equals(ruleName) && method.getParameterCount() == argsCount)
+                .toList();
         if (methods.isEmpty()) {
             throw new IllegalArgumentException("Method '%s' with %d input arguments is not found in service '%s'.".formatted(ruleName, argsCount, serviceName));
         }

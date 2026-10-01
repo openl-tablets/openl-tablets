@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
@@ -154,10 +155,9 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
                                                     List<AnchorStaging> stagings,
                                                     Map<String, String> reactorVersions,
                                                     ProjectBuildingRequest request) throws MavenExecutionException {
-        var existing = new HashSet<String>();
-        for (var p : session.getAllProjects()) {
-            existing.add(gav(p.getGroupId(), p.getArtifactId(), p.getVersion()));
-        }
+        var existing = session.getAllProjects().stream()
+                .map(p -> gav(p.getGroupId(), p.getArtifactId(), p.getVersion()))
+                .collect(Collectors.toCollection(HashSet::new));
         var added = new ArrayList<MavenProject>();
         for (var staging : stagings) {
             for (var s : staging.staged()) {
@@ -184,14 +184,10 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * entries don't count — they never bind the plugin to the build. Each is an independent anchor.
      */
     private static List<MavenProject> findAnchors(MavenSession session) {
-        var result = new ArrayList<MavenProject>();
-        for (var p : session.getProjects()) {
-            if (!OpenLPackagings.isOpenL(p.getPackaging())
-                    && findOpenLPluginInBuildPlugins(p.getOriginalModel()) != null) {
-                result.add(p);
-            }
-        }
-        return result;
+        return session.getProjects().stream()
+                .filter(p -> !OpenLPackagings.isOpenL(p.getPackaging())
+                        && findOpenLPluginInBuildPlugins(p.getOriginalModel()) != null)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**

@@ -3242,11 +3242,7 @@ public final class DecisionTableHelper {
 
         var indexes = new HashSet<Integer>(matchIndexes);
         indexes.addAll(functionIndexes);
-        var newFits = new ArrayList<List<DTHeader>>();
-        for (Integer i : indexes) {
-            newFits.add(fits.get(i));
-        }
-        return newFits;
+        return indexes.stream().map(fits::get).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static List<List<DTHeader>> filterHeadersByMin(List<List<DTHeader>> fits,
@@ -3273,11 +3269,7 @@ public final class DecisionTableHelper {
         }
         var indexes = new HashSet<Integer>(matchIndexes);
         indexes.addAll(functionIndexes);
-        var newFits = new ArrayList<List<DTHeader>>();
-        for (Integer i : indexes) {
-            newFits.add(fits.get(i));
-        }
-        return newFits;
+        return indexes.stream().map(fits::get).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static List<List<DTHeader>> filterHeadersByMatchType(DecisionTable decisionTable,
@@ -3651,12 +3643,9 @@ public final class DecisionTableHelper {
     }
 
     private static List<List<DTHeader>> filterBasedOnDeclaredDtHeaders(List<List<DTHeader>> fits) {
-        var ret = new ArrayList<List<DTHeader>>();
-        for (List<DTHeader> fit : fits) {
-            if (isExternalParametersDeclared(fit)) {
-                ret.add(fit);
-            }
-        }
+        var ret = fits.stream()
+                .filter(DecisionTableHelper::isExternalParametersDeclared)
+                .collect(Collectors.toCollection(ArrayList::new));
         return ret.isEmpty() ? fits : ret;
     }
 

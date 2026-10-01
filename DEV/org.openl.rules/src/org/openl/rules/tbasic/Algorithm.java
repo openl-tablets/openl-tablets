@@ -1,6 +1,5 @@
 package org.openl.rules.tbasic;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
@@ -87,13 +85,9 @@ public class Algorithm extends AlgorithmFunction {
         if (thisIOpenClass == null) {
             return List.of();
         }
-        var subroutines = new ArrayList<AlgorithmSubroutineMethod>();
-        for (IOpenMethod method : thisIOpenClass.getMethods()) {
-            if (method instanceof AlgorithmSubroutineMethod subroutineMethod) {
-                subroutines.add(subroutineMethod);
-            }
-        }
-
-        return subroutines;
+        return thisIOpenClass.getMethods().stream()
+                .filter(AlgorithmSubroutineMethod.class::isInstance)
+                .map(AlgorithmSubroutineMethod.class::cast)
+                .toList();
     }
 }

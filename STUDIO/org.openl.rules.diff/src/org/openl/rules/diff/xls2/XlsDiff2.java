@@ -2,6 +2,7 @@ package org.openl.rules.diff.xls2;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,7 +23,6 @@ import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -71,12 +71,7 @@ public class XlsDiff2 {
             var xsn = xmi.getXlsModuleNode();
 
             var nodes = xsn.getXlsTableSyntaxNodes();
-            var tables = new ArrayList<XlsTable>(nodes.length);
-            for (TableSyntaxNode node : nodes) {
-                tables.add(new XlsTable(node));
-            }
-
-            return tables;
+            return Arrays.stream(nodes).map(XlsTable::new).collect(Collectors.toCollection(ArrayList::new));
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
             Thread.currentThread().setContextClassLoader(oldCl);

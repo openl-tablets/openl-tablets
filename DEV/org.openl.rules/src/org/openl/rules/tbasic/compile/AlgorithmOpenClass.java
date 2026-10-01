@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,13 +55,9 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
     }
 
     private Collection<IOpenField> filterFields(Collection<IOpenField> fields) {
-        var visibleFields = new ArrayList<IOpenField>();
-        for (IOpenField field : fields) {
-            if (!invisibleFields.contains(field.getName())) {
-                visibleFields.add(field);
-            }
-        }
-        return visibleFields;
+        return fields.stream()
+                .filter(field -> !invisibleFields.contains(field.getName()))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override

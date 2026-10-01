@@ -2,6 +2,7 @@ package org.openl.rules.workspace.dtr.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProjectIndex {
     private List<ProjectInfo> projects = new ArrayList<>();
@@ -16,10 +17,7 @@ public class ProjectIndex {
 
     public ProjectIndex copy() {
         var index = new ProjectIndex();
-        var projectsCopy = new ArrayList<ProjectInfo>(projects.size());
-        for (ProjectInfo project : projects) {
-            projectsCopy.add(project.copy());
-        }
+        var projectsCopy = projects.stream().map(ProjectInfo::copy).collect(Collectors.toCollection(ArrayList::new));
         index.setProjects(projectsCopy);
         return index;
     }

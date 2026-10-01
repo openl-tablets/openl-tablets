@@ -1227,11 +1227,9 @@ public class TraceDebugMapper {
             return List.of();
         }
         Throwable cause = Objects.requireNonNullElse(error.getCause(), error);
-        var result = new ArrayList<MessageDescription>();
-        for (OpenLMessage message : OpenLMessagesUtils.newErrorMessages(cause)) {
-            result.add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
-        }
-        return result;
+        return OpenLMessagesUtils.newErrorMessages(cause).stream()
+                .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
+                .toList();
     }
 
     /** Decision-table outcome explanation, or {@code null} for non-decision-table frames. */

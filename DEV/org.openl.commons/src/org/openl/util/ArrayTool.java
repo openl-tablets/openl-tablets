@@ -1,7 +1,7 @@
 package org.openl.util;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -207,13 +207,7 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return null;
         }
-        var v = new ArrayList<String>();
-        for (String s : ary2) {
-            if (contains(ary1, s)) {
-                v.add(s);
-            }
-        }
-        return v.toArray(new String[0]);
+        return Arrays.stream(ary2).filter(s -> contains(ary1, s)).toArray(String[]::new);
     }
 
     /**

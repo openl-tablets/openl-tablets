@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -360,10 +361,7 @@ public final class DebugFrame {
      * not silently dropped from the tree.
      */
     private List<CallNode> conditionSubCalls() {
-        Set<String> firedRefs = new HashSet<>();
-        for (ExecutedStep step : executedSteps) {
-            firedRefs.add(step.ref());
-        }
+        Set<String> firedRefs = executedSteps.stream().map(ExecutedStep::ref).collect(Collectors.toSet());
         List<CallNode> conditionCalls = new ArrayList<>();
         executedChildren.forEach((ref, children) -> {
             if (!firedRefs.contains(ref)) {

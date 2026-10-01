@@ -1,6 +1,5 @@
 package org.openl.rules.maven;
 
-import java.io.File;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -230,13 +230,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
         if (ids.isEmpty() || ids.contains(ALL_ID)) {
             return all;
         }
-        var result = new ArrayList<Migrator>();
-        for (var migrator : all) {
-            if (matches(migrator.getId(), ids)) {
-                result.add(migrator);
-            }
-        }
-        return List.copyOf(result);
+        return all.stream().filter(migrator -> matches(migrator.getId(), ids)).toList();
     }
 
     private static boolean matches(String migratorId, List<String> selectedIds) {
@@ -262,10 +256,9 @@ public final class MigrateMojo extends BaseOpenLMojo {
         }
         var message = buildCommitMessage(migrator);
         var baseDir = sourceFolder.toFile();
-        var files = new ArrayList<File>(changed.size());
-        for (var path : changed) {
-            files.add(sourceFolder.relativize(path).toFile());
-        }
+        var files = changed.stream()
+                .map(path -> sourceFolder.relativize(path).toFile())
+                .collect(Collectors.toCollection(ArrayList::new));
         var fileSet = new ScmFileSet(baseDir, files);
         var repository = scmManager.makeScmRepository(scmConnection);
 

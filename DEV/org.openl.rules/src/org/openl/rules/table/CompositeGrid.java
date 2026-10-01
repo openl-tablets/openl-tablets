@@ -4,9 +4,10 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -224,11 +225,7 @@ public class CompositeGrid extends AGrid {
     }
 
     private Set<IGrid> getGridSet() {
-        var gridSet = new HashSet<IGrid>();
-        for (IGridTable gridTable : gridTables) {
-            gridSet.add(gridTable.getGrid());
-        }
-        return gridSet;
+        return Arrays.stream(gridTables).map(IGridTable::getGrid).collect(Collectors.toSet());
     }
 
     /**

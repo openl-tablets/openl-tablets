@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * An util class for collections and arrays.
@@ -165,14 +167,9 @@ public class CollectionUtils {
         }
         Objects.requireNonNull(predicate, "predicate cannot be null");
 
-        int size = col instanceof Collection c ? c.size() : 0;
-        var result = new ArrayList<T>(size);
-        for (final T item : col) {
-            if (predicate.evaluate(item)) {
-                result.add(item);
-            }
-        }
-        return result;
+        return StreamSupport.stream(col.spliterator(), false)
+                .filter(predicate::evaluate)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**

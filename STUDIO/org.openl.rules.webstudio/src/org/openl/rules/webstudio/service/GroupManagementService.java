@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -24,13 +25,7 @@ public class GroupManagementService {
 
     public List<org.openl.rules.security.Group> getGroups() {
         List<Group> groups = groupDao.getAllGroups();
-        var resultGroups = new ArrayList<org.openl.rules.security.Group>();
-
-        for (Group group : groups) {
-            resultGroups.add(PrivilegesEvaluator.wrap(group));
-        }
-
-        return resultGroups;
+        return groups.stream().map(PrivilegesEvaluator::wrap).collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Transactional(readOnly = true)

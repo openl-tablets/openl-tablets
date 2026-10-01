@@ -1,9 +1,9 @@
 package org.openl.studio.projects.service.tables;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -147,13 +147,10 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
                                                  ExecutionValueMapper valueMapper,
                                                  boolean full) {
         var suite = testSuite.getTestSuiteMethod();
-        var parameters = new ArrayList<ParameterValue>();
-        for (var param : TestUtils.getContextParams(testSuite, test)) {
-            parameters.add(writeValue(suite, param, valueMapper, full));
-        }
-        for (var param : test.getExecutionParams()) {
-            parameters.add(writeValue(suite, param, valueMapper, full));
-        }
+        var parameters = Stream.concat(Arrays.stream(TestUtils.getContextParams(testSuite, test)),
+                        Arrays.stream(test.getExecutionParams()))
+                .map(param -> writeValue(suite, param, valueMapper, full))
+                .toList();
         return TestCaseView.builder()
                 .id(test.getId())
                 .description(test.hasDescription() ? test.getDescription() : null)

@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -191,12 +191,9 @@ public class AProject extends AProjectFolder implements IProject {
 
     @Override
     public List<ProjectVersion> getVersions() {
-        Collection<FileData> fileDatas = getHistoryFileDatas();
-        var versions = new ArrayList<ProjectVersion>();
-        for (FileData data : fileDatas) {
-            versions.add(createProjectVersion(data));
-        }
-        return versions;
+        return getHistoryFileDatas().stream()
+                .map(this::createProjectVersion)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public String getBusinessName() {
