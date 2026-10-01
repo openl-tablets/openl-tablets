@@ -3,6 +3,7 @@ package org.openl.rules.security.standalone.persistence;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -131,7 +132,7 @@ public class User implements Serializable {
         if (!(o instanceof User user))
             return false;
 
-        return loginName != null ? loginName.equals(user.loginName) : user.loginName == null;
+        return Objects.equals(loginName, user.loginName);
     }
 
     @Override
