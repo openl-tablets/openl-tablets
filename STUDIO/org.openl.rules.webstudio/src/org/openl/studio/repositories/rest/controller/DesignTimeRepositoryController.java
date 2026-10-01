@@ -165,9 +165,13 @@ public class DesignTimeRepositoryController {
     }
 
     /**
-     * Superseded by {@code GET /projects/{projectId}/history}, which the Revisions tab — the only caller this ever
-     * had — now asks instead. A project is named here by the name the repository published it under, which stops
-     * being the name its own user knows it by once the project is renamed in {@code rules.xml}.
+     * Returns the revisions of a project named by the name the repository published it under.
+     *
+     * <p>That name stops being the name the user knows the project by once the project is renamed in
+     * {@code rules.xml}.
+     *
+     * @deprecated Superseded by {@code GET /projects/{projectId}/history}, which the Revisions tab — the only caller
+     *             this ever had — now asks instead.
      */
     @GetMapping({"/{repo-name}/projects/{project-name}/history",
             "/{repo-name}/branches/{branch-name}/projects/{project-name}/history"})
