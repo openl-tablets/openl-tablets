@@ -100,6 +100,36 @@ class RunTest {
 
     }
 
+    static Stream<Arguments> testNullLiteralOperand() {
+        return Stream.of(
+                arguments("null + 3", 3),
+                arguments("null - 3", -3),
+                arguments("3 - null", 3),
+                arguments("byte x = 3; null + x", (byte) 3),
+                arguments("short x = 3; null - x", (short) -3),
+                arguments("null + 3.5", 3.5),
+                arguments("null + 'c'", 99),
+                arguments("\"\" + (null + 3)", "3"),
+                arguments("(null + 3) * 2", 6),
+                arguments("null + 3 == 3", true),
+                arguments("null * 3", null),
+                arguments("null * 3 + 1", 1),
+                arguments("null / 3", null),
+                arguments("null / 2 + 1", 1.0),
+                arguments("null == 3", false),
+                arguments("null != 3", true),
+                arguments("null < 3", null),
+                arguments("null >= 3", null),
+                arguments("null + \"a\"", "nulla"),
+                arguments("null + true", "nulltrue"));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testNullLiteralOperand(String expression, Object expected) {
+        assertToExpected(expression, expected);
+    }
+
     static Stream<Arguments> testRun() {
         return Stream.of(
                 arguments("String $x$y=null; $x$y == null || $x$y.length() < 10", true),
