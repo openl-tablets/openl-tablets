@@ -19,6 +19,11 @@ import org.openl.util.StringUtils;
  */
 public class CellValueConstraintValidator implements ConstraintValidator<CellValueConstraint, Object> {
 
+    /**
+     * The pattern of a string an array accepts as its element: not empty and without surrounding whitespace.
+     */
+    static final String REPRESENTABLE_STRING = "^\\S(?:[\\s\\S]*\\S)?$";
+
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         if (isScalar(value)) {

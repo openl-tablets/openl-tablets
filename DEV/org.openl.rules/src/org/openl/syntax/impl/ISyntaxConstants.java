@@ -7,16 +7,18 @@ package org.openl.syntax.impl;
 /**
  * @author snshor
  */
-public interface ISyntaxConstants {
+public final class ISyntaxConstants {
 
     /**
      * The namespace for regular openl types
      */
-    String THIS_NAMESPACE = "org.openl.this";
+    public static final String THIS_NAMESPACE = "org.openl.this";
 
     /**
      * The namespace for operator methods - this way they do not mix with THIS namespace
      */
-    String OPERATORS_NAMESPACE = "org.openl.operators";
+    public static final String OPERATORS_NAMESPACE = "org.openl.operators";
 
+    private ISyntaxConstants() {
+    }
 }

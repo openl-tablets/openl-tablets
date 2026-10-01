@@ -1,8 +1,11 @@
 package org.openl.gen.writers;
 
-public interface DefaultValue {
+public final class DefaultValue {
     /**
      * Key word for the default value. Some kind of the default value should be used when this word is found
      */
-    String DEFAULT = "_DEFAULT_";
+    public static final String DEFAULT = "_DEFAULT_";
+
+    private DefaultValue() {
+    }
 }
