@@ -1729,8 +1729,10 @@ public class GitRepository implements BranchRepository, Closeable {
                         log.error(e.getMessage(), e);
                     } catch (CorruptObjectException ex) {
                         log.error("git index file is corrupted and will be deleted", e);
-                        if (!indexFile.delete() && indexFile.exists()) {
-                            log.warn("Cannot delete corrupted index file {}.", indexFile);
+                        try {
+                            Files.deleteIfExists(indexFile.toPath());
+                        } catch (IOException deleteError) {
+                            log.warn("Cannot delete corrupted index file {}.", indexFile, deleteError);
                         }
                         resetCommand.call();
                     }
