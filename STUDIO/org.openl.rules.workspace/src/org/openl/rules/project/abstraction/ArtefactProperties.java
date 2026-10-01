@@ -1,6 +1,9 @@
 package org.openl.rules.project.abstraction;
 
-public interface ArtefactProperties {
+public final class ArtefactProperties {
     // Deployment Descriptor
-    String DESCRIPTORS_FILE = "openl_repository_descriptors.xml";
+    public static final String DESCRIPTORS_FILE = "openl_repository_descriptors.xml";
+
+    private ArtefactProperties() {
+    }
 }

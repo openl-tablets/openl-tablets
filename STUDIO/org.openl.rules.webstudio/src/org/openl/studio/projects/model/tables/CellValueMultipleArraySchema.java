@@ -10,6 +10,6 @@ interface CellValueMultipleArraySchema {
 }
 
 /** A string array element, or the null alternative accepted in arrays with two or more elements. */
-@Schema(type = "string", nullable = true, pattern = CellValueSingletonArraySchema.REPRESENTABLE_STRING)
+@Schema(type = "string", nullable = true, pattern = CellValueConstraintValidator.REPRESENTABLE_STRING)
 interface NullableCellStringSchema {
 }

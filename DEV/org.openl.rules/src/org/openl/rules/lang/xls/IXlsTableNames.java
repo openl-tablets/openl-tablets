@@ -7,46 +7,48 @@ package org.openl.rules.lang.xls;
 /**
  * @author snshor
  */
-public interface IXlsTableNames {
+public final class IXlsTableNames {
 
-    String DECISION_TABLE = "DT";
-    String DECISION_TABLE2 = "Rules";
-    String SIMPLE_DECISION_TABLE = "SimpleRules";
-    String CONSTANTS = "Constants";
-    String SMART_DECISION_TABLE = "SmartRules";
-    String CONDITIONS_TABLE = "Conditions";
-    String ACTIONS_TABLE = "Actions";
-    String RETURNS_TABLE = "Returns";
-    String SIMPLE_DECISION_LOOKUP = "SimpleLookup";
-    String SMART_DECISION_LOOKUP = "SmartLookup";
-    String SPREADSHEET_TABLE = "Spreadsheet";
-    String SPREADSHEET_TABLE2 = "Calc";
-    String TBASIC_TABLE = "TBasic";
-    String TBASIC_TABLE2 = "Algorithm";
-    String COLUMN_MATCH = "ColumnMatch";
-    String PROPERTY_TABLE = "Properties";
-    String METHOD_TABLE = "Code";
-    String METHOD_TABLE2 = "Method";
-    String DATA_TABLE = "Data";
-    String DATATYPE_TABLE = "Datatype";
-    String ENVIRONMENT_TABLE = "Environment";
-    String TEST_METHOD_TABLE = "Testmethod";
-    String TEST_TABLE = "Test";
-    String RUN_METHOD_TABLE = "Runmethod";
-    String RUN_TABLE = "Run";
-    String TABLE_PART = "TablePart";
-    String COLLECT = "Collect";
-    String COLLECT_AS = "as";
-    String COLLECT_AND = "and";
+    public static final String DECISION_TABLE = "DT";
+    public static final String DECISION_TABLE2 = "Rules";
+    public static final String SIMPLE_DECISION_TABLE = "SimpleRules";
+    public static final String CONSTANTS = "Constants";
+    public static final String SMART_DECISION_TABLE = "SmartRules";
+    public static final String CONDITIONS_TABLE = "Conditions";
+    public static final String ACTIONS_TABLE = "Actions";
+    public static final String RETURNS_TABLE = "Returns";
+    public static final String SIMPLE_DECISION_LOOKUP = "SimpleLookup";
+    public static final String SMART_DECISION_LOOKUP = "SmartLookup";
+    public static final String SPREADSHEET_TABLE = "Spreadsheet";
+    public static final String SPREADSHEET_TABLE2 = "Calc";
+    public static final String TBASIC_TABLE = "TBasic";
+    public static final String TBASIC_TABLE2 = "Algorithm";
+    public static final String COLUMN_MATCH = "ColumnMatch";
+    public static final String PROPERTY_TABLE = "Properties";
+    public static final String METHOD_TABLE = "Code";
+    public static final String METHOD_TABLE2 = "Method";
+    public static final String DATA_TABLE = "Data";
+    public static final String DATATYPE_TABLE = "Datatype";
+    public static final String ENVIRONMENT_TABLE = "Environment";
+    public static final String TEST_METHOD_TABLE = "Testmethod";
+    public static final String TEST_TABLE = "Test";
+    public static final String RUN_METHOD_TABLE = "Runmethod";
+    public static final String RUN_TABLE = "Run";
+    public static final String TABLE_PART = "TablePart";
+    public static final String COLLECT = "Collect";
+    public static final String COLLECT_AS = "as";
+    public static final String COLLECT_AND = "and";
 
-    String LANG_PROPERTY = "language";
-    String INCLUDE_TABLE = "include";
-    String IMPORT_PROPERTY = "import";
+    public static final String LANG_PROPERTY = "language";
+    public static final String INCLUDE_TABLE = "include";
+    public static final String IMPORT_PROPERTY = "import";
 
     // For module dependencies
-    String DEPENDENCY = "dependency";
+    public static final String DEPENDENCY = "dependency";
 
-    String VIEW_BUSINESS = "business";
-    String VIEW_DEVELOPER = "developer";
+    public static final String VIEW_BUSINESS = "business";
+    public static final String VIEW_DEVELOPER = "developer";
 
+    private IXlsTableNames() {
+    }
 }
