@@ -97,7 +97,8 @@ const retryApiCall = async <T>(
             }
 
             // Wait before retrying with exponential backoff
-            await delay(currentDelay)
+            // The retries back off one after another by design, so the wait cannot run in parallel.
+            await delay(currentDelay) // NOSONAR typescript:S9382
             currentDelay = Math.min(currentDelay * config.backoffMultiplier, config.maxDelayMs)
         }
     }
