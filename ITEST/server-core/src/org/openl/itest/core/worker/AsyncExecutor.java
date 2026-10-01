@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This service allows executing commands asynchronously during an infinite amount of time or until they are
  * interrupted<br/>
@@ -13,6 +15,7 @@ import java.util.stream.Stream;
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class AsyncExecutor {
 
     private static final int MAX_THREADS = Math.min(Runtime.getRuntime().availableProcessors() * 2, 8);
@@ -82,7 +85,7 @@ public class AsyncExecutor {
         try {
             executor.awaitTermination(timeout, unit);
         } catch (InterruptedException e) {
-            e.printStackTrace(System.err); // the console is the only log of the test harness
+            log.error("Interrupted while waiting for the tasks to stop.", e);
             Thread.currentThread().interrupt();
             return true;
         }
@@ -117,7 +120,7 @@ public class AsyncExecutor {
                 } catch (Exception | AssertionError ex) {
                     error = true;
                     run = false;
-                    ex.printStackTrace(System.err); // the console is the only log of the test harness
+                    log.error("The task has failed.", ex);
                 }
             }
         }
