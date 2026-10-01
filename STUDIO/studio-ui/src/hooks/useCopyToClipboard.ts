@@ -41,7 +41,8 @@ const legacyCopy = (text: string, sourceDialog: HTMLElement | null): boolean => 
             || textarea.selectionEnd !== textarea.value.length) {
             return false
         }
-        return document.execCommand('copy')
+        // The fallback for pages served without HTTPS, where navigator.clipboard is not available.
+        return document.execCommand('copy') // NOSONAR typescript:S1874
     } finally {
         textarea.remove()
         if (activeElement instanceof HTMLElement && activeElement.isConnected) {
