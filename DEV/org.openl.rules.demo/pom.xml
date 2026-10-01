@@ -18,4 +18,11 @@
              resolves the jar from the local repository. -->
         <maven.install.skip>false</maven.install.skip>
     </properties>
+    <dependencies>
+        <!-- Compiles every demo project and runs its tests during the build -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.test</artifactId>
+        </dependency>
+    </dependencies>
 </project>

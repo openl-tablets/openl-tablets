@@ -23,7 +23,9 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
 - **org.openl.rules.project** — Project model, instantiation strategies, resource resolution
 - **org.openl.rules.test** — Functional test framework (test table implementations)
 - **org.openl.rules.demo** — Demo projects OpenL Studio offers as templates, examples and tutorials. The jar ships
-  inside the OpenL Studio war only: it is installed into the local repository but never deployed
+  inside the OpenL Studio war only: it is installed into the local repository but never deployed.
+  `DemoProjectsTest` compiles every project and runs its test tables during the build, so a demo project ships only
+  without compilation errors and with all its tests passing
 - **org.openl.rules.util** — Rule utility functions
 - **org.openl.spring** — Spring integration (`PassCoder` for password encoding lives here)
 
