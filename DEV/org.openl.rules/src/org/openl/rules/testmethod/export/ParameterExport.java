@@ -40,7 +40,7 @@ class ParameterExport extends BaseParameterExport {
                                         Cursor start,
                                         TestUnitsResults test,
                                         List<List<FieldDescriptor>> nonEmptyFields) {
-        var tasks = new TreeSet<WriteTask>();
+        var tasks = new TreeSet<>(WriteTask.BY_POSITION);
 
         var rowNum = start.getRowNum();
         var colNum = start.getColNum();
@@ -214,7 +214,7 @@ class ParameterExport extends BaseParameterExport {
 
         var descriptions = test.getTestSuite().getTests();
         for (TestDescription description : descriptions) {
-            var tasks = new TreeSet<WriteTask>();
+            var tasks = new TreeSet<>(WriteTask.BY_POSITION);
 
             // ID
             var maxHeight = getMaxHeight(description, nonEmptyFields);

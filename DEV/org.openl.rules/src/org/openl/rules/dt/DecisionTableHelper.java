@@ -1104,7 +1104,7 @@ public final class DecisionTableHelper {
             resultList.add(Pair.of(fieldsChain, fuzzyResult));
         } else {
             Pair<IOpenField[], FuzzyResult> existedResult = resultList.getFirst();
-            var fuzzyResultCompare = fuzzyResult.compareTo(existedResult.getRight());
+            var fuzzyResultCompare = FuzzyResult.BEST_FIRST.compare(fuzzyResult, existedResult.getRight());
             if (fuzzyResultCompare <= 0) {
                 if (fuzzyResultCompare < 0) {
                     resultList.clear();

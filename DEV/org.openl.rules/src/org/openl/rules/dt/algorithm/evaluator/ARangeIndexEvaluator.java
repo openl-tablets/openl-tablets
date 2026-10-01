@@ -1,8 +1,9 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -103,14 +104,14 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     }
 
     List<IndexNode> mergeRulesByValue(List<IndexNode> nodes) {
-        Collections.sort(nodes);
+        nodes.sort(IndexNode.BY_VALUE);
         final var length = nodes.size();
         var builder = new DecisionTableRuleNodeBuilder();
         var result = new ArrayList<IndexNode>();
         for (var i = 0; i < length; i++) {
             var node = nodes.get(i);
             builder.addRule(node.getRuleN());
-            if (i == length - 1 || node.compareTo(nodes.get(i + 1)) != 0) {
+            if (i == length - 1 || IndexNode.BY_VALUE.compare(node, nodes.get(i + 1)) != 0) {
                 result.add(new IndexNode(node.getValue(), builder.makeRulesAry()));
                 builder = new DecisionTableRuleNodeBuilder();
             }
@@ -133,13 +134,16 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         return IConditionEvaluator.RANGE_CONDITION_PRIORITY;
     }
 
+    /**
+     * Converts a value to an index node to search the index for.
+     */
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    protected static class RangeIndexNodeAdaptor implements IRangeAdaptor<IndexNode, Comparable<?>> {
+    protected static class RangeIndexNodeAdaptor implements Function<Object, IndexNode> {
         private final IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
 
         @SuppressWarnings("unchecked")
         @Override
-        public Comparable<?> adaptValueType(Object value) {
+        public IndexNode apply(Object value) {
             if (value == null) {
                 throw new IllegalArgumentException("Null values is not supported.");
             }
@@ -148,26 +152,16 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             }
             return new IndexNode((Comparable<Object>) value);
         }
-
-        @Override
-        public Comparable<Object> getMax(IndexNode param) {
-            throw new UnsupportedOperationException("Operation is not supported.");
-        }
-
-        @Override
-        public Comparable<Object> getMin(IndexNode param) {
-            throw new UnsupportedOperationException("Operation is not supported.");
-        }
-
-        @Override
-        public boolean useOriginalSource() {
-            throw new UnsupportedOperationException("Operation not supported.");
-        }
-
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    public static class IndexNode implements Comparable<IndexNode> {
+    public static class IndexNode {
+        /**
+         * Orders the index nodes by their values. A node without a value goes first.
+         */
+        public static final Comparator<IndexNode> BY_VALUE = Comparator.comparing(IndexNode::getValue,
+                Comparator.nullsFirst(Comparator.naturalOrder()));
+
         @Getter
         private final Comparable<Object> value;
         @Getter
@@ -183,18 +177,6 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         IndexNode(Comparable<Object> value, int[] rules) {
             this.value = value;
             this.rules = rules;
-        }
-
-        @Override
-        public int compareTo(IndexNode o) {
-            if (this.value == o.value) {
-                return 0;
-            } else if (this.value == null) {
-                return -1;
-            } else if (o.value == null) {
-                return 1;
-            }
-            return this.value.compareTo(o.value);
         }
     }
 }

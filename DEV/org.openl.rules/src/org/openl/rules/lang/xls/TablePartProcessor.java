@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.openl.source.IOpenSourceCodeModule;
 public class TablePartProcessor {
 
     private static final String TABLE_PART_NUMBER = "TablePart number ";
+    private static final Comparator<TablePart> BY_PART = Comparator.comparingInt(TablePart::getPart);
 
     @Getter
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -189,7 +191,7 @@ public class TablePartProcessor {
 
     private synchronized void addToParts(TablePart tablePart) throws OpenLCompilationException {
         var key = tablePart.getPartName();
-        var set = tableParts.computeIfAbsent(key, e -> new TreeSet<>());
+        var set = tableParts.computeIfAbsent(key, e -> new TreeSet<>(BY_PART));
         var res = set.add(tablePart);
         if (!res) {
             var message = "Duplicated TablePart part # = " + tablePart.getPart();
