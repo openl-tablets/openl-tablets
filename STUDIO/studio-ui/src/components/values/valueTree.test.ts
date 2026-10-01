@@ -19,6 +19,14 @@ describe('describeSimpleValue', () => {
         expect(describeSimpleValue(false)).toEqual({ display: 'false', kind: 'boolean' })
         expect(describeSimpleValue(BigInt(7))).toEqual({ display: '7', kind: 'other' })
     })
+
+    it('names a value with inner structure by what it holds, and writes what JSON never holds as JavaScript does', () => {
+        expect(describeSimpleValue({ a: 1, b: 2 })).toEqual({ display: '{2 fields}', kind: 'other' })
+        expect(describeSimpleValue([1, 2, 3])).toEqual({ display: '{3 elements}', kind: 'other' })
+        expect(describeSimpleValue(Symbol('id'))).toEqual({ display: 'Symbol(id)', kind: 'other' })
+        const answer = () => 42
+        expect(describeSimpleValue(answer)).toEqual({ display: answer.toString(), kind: 'other' })
+    })
 })
 
 describe('isComplexValue / complexValueSummary', () => {
