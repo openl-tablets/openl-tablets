@@ -52,8 +52,8 @@ class RemOperatorTest {
 
     @Test
     void testFloat() {
-        assertEquals("passed", instance.testRemFloat((float) 4.44, (float) 2.22));
-        assertEquals("not passed", instance.testRemFloat((float) 5.57, 44));
+        assertEquals("passed", instance.testRemFloat(4.44f, 2.22f));
+        assertEquals("not passed", instance.testRemFloat(5.57f, 44));
     }
 
     @Test
