@@ -370,6 +370,8 @@ class HttpData {
         return out.toByteArray();
     }
 
+    // A failed response joins the report of the requests on the console, its body written as the raw bytes received.
+    @SuppressWarnings("java:S106")
     void log(String resourceName) {
         try {
             System.err.println("--------------------");

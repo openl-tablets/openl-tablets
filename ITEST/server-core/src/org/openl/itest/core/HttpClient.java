@@ -116,6 +116,8 @@ public class HttpClient implements AutoCloseable {
      *
      * @param path a root directory where HTTP request files are stored
      */
+    // The report of the requests is written to the console, so it does not depend on the logger binding of a suite.
+    @SuppressWarnings("java:S106")
     public void test(String path) {
         Path rootPath = Path.of(path);
         var requests = findRequests(rootPath);
