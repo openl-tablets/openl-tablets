@@ -161,6 +161,8 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
         return getDeclaringClass().getName();
     }
 
+    // The constructor belongs to a Java class that is known only at run time.
+    @SuppressWarnings("java:S1452")
     public Constructor<?> getJavaConstructor() {
         return constructor;
     }

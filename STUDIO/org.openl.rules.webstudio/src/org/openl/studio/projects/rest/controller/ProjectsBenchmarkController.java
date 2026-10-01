@@ -141,6 +141,8 @@ public class ProjectsBenchmarkController {
     @ApiResponse(responseCode = "202", description = "benchmark.list.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping
+    // The endpoint answers with another body while the result is not ready yet.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getBenchmarks(@ProjectId @PathVariable("projectId") RulesProject project) {
         var projectId = projectIdentifierMapper.map(project);
         if (benchmarkResultRegistry.hasTask(projectId) && !benchmarkResultRegistry.isDone(projectId)) {

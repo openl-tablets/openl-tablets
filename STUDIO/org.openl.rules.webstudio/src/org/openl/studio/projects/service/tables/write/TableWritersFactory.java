@@ -24,6 +24,8 @@ import org.openl.studio.projects.model.tables.VocabularyView;
 @Component
 public class TableWritersFactory {
 
+    // Each writer writes the view of its own table type.
+    @SuppressWarnings("java:S1452")
     public TableWriter<? extends TableView> getNewTableWriter(TableView tableView, XlsSheetGridModel gridModel) {
         var rect = gridModel.findEmptyRect(tableView.getWidth(), tableView.getHeight());
         var gridTable = new GridTable(rect, gridModel);
@@ -44,6 +46,8 @@ public class TableWritersFactory {
         };
     }
 
+    // Each writer writes the view of its own table type.
+    @SuppressWarnings("java:S1452")
     public TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
         // RawTableView can be used for any table type, so check it first
         if (RawTableView.TABLE_TYPE.equals(tableType)) {

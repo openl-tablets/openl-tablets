@@ -83,6 +83,8 @@ public class CompareController {
     @ApiResponse(responseCode = "202", description = "compare.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{comparisonId}")
+    // The endpoint answers with another body while the result is not ready yet.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getComparison(
             @Parameter(description = "compare.param.comparison-id.desc")
             @PathVariable("comparisonId") String comparisonId) {
@@ -99,6 +101,8 @@ public class CompareController {
     @ApiResponse(responseCode = "202", description = "compare.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{comparisonId}/tables/{tableId}")
+    // The endpoint answers with another body while the result is not ready yet.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getTable(
             @Parameter(description = "compare.param.comparison-id.desc")
             @PathVariable("comparisonId") String comparisonId,

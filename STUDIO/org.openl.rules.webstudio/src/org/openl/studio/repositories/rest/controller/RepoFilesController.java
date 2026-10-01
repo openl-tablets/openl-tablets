@@ -115,6 +115,8 @@ public class RepoFilesController extends AbstractFilesController {
 
     @GetMapping(value = "/{*path}", produces = MediaType.ALL_VALUE)
     @Operation(summary = "projects.files.get.summary", description = "projects.files.get.desc")
+    // The endpoint answers with a listing, a file node or the file content, depending on the path and the view.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getFile(
             @DesignRepository("repo-name") Repository repository,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,

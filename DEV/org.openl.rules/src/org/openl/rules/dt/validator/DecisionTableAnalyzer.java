@@ -57,10 +57,14 @@ public class DecisionTableAnalyzer {
         return usedParamsFromSignature.values().iterator();
     }
 
+    // The domain comes from IType.getDomain(), whose values have a type known only at run time.
+    @SuppressWarnings("java:S1452")
     public IDomain<?> getParameterDomain(String parameterName, IBaseDecisionRow condition) {
         return conditionAnalyzers.get(condition).getParameterDomain(parameterName);
     }
 
+    // The domain comes from IType.getDomain(), whose values have a type known only at run time.
+    @SuppressWarnings("java:S1452")
     public IDomain<?> getSignatureParameterDomain(String parameterName) {
         return usedParamsFromSignature.get(parameterName).getDomain();
     }

@@ -923,6 +923,8 @@ public class ProjectsController {
             }
     )
     @GetMapping(value = "/{projectId}/tests/summary", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
+    // The endpoint answers with JSON, a workbook or a status, depending on the tests state and the Accept header.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getTestsSummary(@ProjectId @PathVariable("projectId") RulesProject project,
                                              @RequestParam(value = "failuresOnly", defaultValue = "false")
                                              @Parameter(description = "projects.tests.summary.param.failures-only.desc")
@@ -981,6 +983,8 @@ public class ProjectsController {
     @ApiResponse(responseCode = "202", description = "projects.tests.summary.202.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{projectId}/tests/summary/{tableId}/cases/{caseId}")
+    // The endpoint answers with another body while the result is not ready yet.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getTestCaseResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("tableId") @Parameter(description = "projects.tests.case.param.table-id.desc") String tableId,
@@ -1017,6 +1021,8 @@ public class ProjectsController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{projectId}/tests/summary/{tableId}/cases/{caseId}/lines")
+    // The endpoint answers with another body while the result is not ready yet.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getTestCaseLines(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("tableId") @Parameter(description = "projects.tests.case.param.table-id.desc") String tableId,
