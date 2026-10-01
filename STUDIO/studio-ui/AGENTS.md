@@ -17,6 +17,9 @@ Use almost the latest versions when possible.
 - **ESLint** (flat config: `eslint.config.js`)
 - **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
 - **Vitest** + React Testing Library (`jsdom` environment)
+- **react-markdown** with remark/rehype plugins, **lowlight** and **Mermaid** draw the user guides
+  (`containers/userGuides`). Mermaid stays on 11.x: Mermaid 12 depends on `elkjs` (EPL-2.0), which the license
+  check of `npm run build` rejects
 
 ## Project Structure
 
@@ -62,6 +65,12 @@ The build writes two pages (`build.rollupOptions.input`):
   source — builds it from `CONFIG.API_ROOT` too, never from a literal.
 - **WebSocket**: `services/websocket.ts` connects to `${CONTEXT}/ws`, built from `document.baseURI`. The handshake has
   an address of its own, so it is not under `CONFIG.API_ROOT`.
+- **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
+  with; Mermaid is a chunk of its own, loaded with the first diagram. The guides are files rather than REST, so
+  `services/userGuides.ts` reads them with `fetch` from `${CONFIG.CONTEXT}/docs` instead of `apiCall`. The syntax a page
+  may use is set by the validator of `STUDIO/studio-docs`, see `Docs/architecture/embedded-user-guides.md`. A bare
+  `#heading` link resolves against `<base href>`, the root of the application, not against the page: a link to a
+  heading — in a page or in its outline — goes through the router with the address of the page.
 - **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
   once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
   (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads
@@ -211,7 +220,7 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 
 ## Quality Rules
 
-- Use the `apiCall` wrapper, never raw `fetch`.
+- Use the `apiCall` wrapper, never raw `fetch` — the user guides, files served at `/docs`, are the one exception.
 - Guard screens with `PermissionContext` and `SystemContext` flags.
 - Add translations from day one — no hardcoded user-facing strings.
 - **Colours follow the appearance.** Never hardcode a colour in a style — take an Ant Design token

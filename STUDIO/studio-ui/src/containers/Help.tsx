@@ -5,7 +5,7 @@ import { SystemContext } from '../contexts'
 import { Link } from 'react-router-dom'
 import { CompressOutlined, FileTextOutlined, GlobalOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-// Each guide is a folder of `Docs/user-guides`, which the documentation site publishes at `user-guides/<path>`.
+// Each guide is a folder of `Docs/user-guides`, which OpenL Studio ships and shows at `/docs/<path>/`.
 const documentationItems = [
     { path: 'getting-started', title: 'Getting Started' },
     { path: 'installation-guide', title: 'Installation Guide' },
@@ -18,12 +18,7 @@ export const Help: React.FC = () => {
     const { t } = useTranslation()
     const { openlInfo } = useContext(SystemContext)
 
-    const openlVersion = openlInfo?.['openl.version'] || 'unknown'
     const openlUrl = openlInfo?.['openl.site'] || 'https://openl-tablets.org'
-
-    // The documentation of a snapshot build is the one of the next release.
-    const docsVersion = openlVersion.endsWith('SNAPSHOT') ? 'next' : openlVersion
-    const guidesLink = `${openlUrl}/openl-tablets/${docsVersion}/user-guides`
 
     return (
         <>
@@ -50,7 +45,7 @@ export const Help: React.FC = () => {
                     >
                         {documentationItems.map((item) => (
                             <React.Fragment key={item.path}>
-                                <Link rel="noopener noreferrer" target="_blank" to={`${guidesLink}/${item.path}`}>{item.title}</Link>
+                                <Link to={`/docs/${item.path}/`}>{item.title}</Link>
                                 <br />
                             </React.Fragment>
                         ))}

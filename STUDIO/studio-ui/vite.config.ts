@@ -31,7 +31,12 @@ export default defineConfig({
             },
             '/logout' : {
                 target: 'http://localhost:8080'
-            }
+            },
+            // A file of the user guides comes from the backend; a page of a guide is a screen of the application.
+            '/docs': {
+                target: 'http://localhost:8080',
+                bypass: req => (/\.[^/]*$/.test(req.url?.split(/[?#]/)[0] ?? '') ? undefined : req.url),
+            },
         },
     },
     build: {
