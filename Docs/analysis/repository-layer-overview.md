@@ -1516,6 +1516,13 @@ Repository safeRepo = new PathCheckedRepository(unsafeRepo);
 - Absolute paths
 - Invalid characters
 
+**Git reference names** — Git reads references from files, so `GitRepository` checks the branch and revision names
+it is given against the Git reference name rules before it looks them up:
+- Selecting, creating, deleting or merging an invalid branch, or reading or saving on top of an invalid revision,
+  such as `../../config`, fails with an `IOException`
+- A branch status or tree revision is not reported for an invalid branch name
+- A commit id and a tag name are valid revisions
+
 ### Authentication
 
 **Git**:
