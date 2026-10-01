@@ -32,7 +32,7 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
     }
 
     @Override
-    public IStorage<Object> optimizeAndBuild() {
+    public IStorage optimizeAndBuild() {
         if (storage.size() == 0) {
             return new EmptyStorage(info);
         }

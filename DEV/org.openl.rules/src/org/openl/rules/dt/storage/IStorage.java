@@ -2,7 +2,7 @@ package org.openl.rules.dt.storage;
 
 import org.openl.rules.dt.Expr;
 
-public interface IStorage<T> {
+public interface IStorage {
 
     int size();
 

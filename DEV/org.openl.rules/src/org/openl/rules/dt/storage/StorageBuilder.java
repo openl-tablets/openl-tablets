@@ -8,7 +8,7 @@ import java.util.Map;
 
 import lombok.Getter;
 
-public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
+public abstract class StorageBuilder<T> implements IStorageBuilder {
 
     @Getter
     final StorageInfo info = new StorageInfo();
