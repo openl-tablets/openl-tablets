@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import java.util.Objects;
+
 import lombok.Getter;
 
 import org.openl.meta.IMetaInfo;
@@ -47,5 +49,16 @@ public class ConstructorUsage extends MethodUsage {
     private boolean isDatatype() {
         var method = getMethod();
         return method instanceof DatatypeOpenConstructor && method.getDeclaringClass() instanceof DatatypeOpenClass;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o) && o instanceof ConstructorUsage that
+                && Objects.equals(constructorNode, that.constructorNode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), constructorNode);
     }
 }

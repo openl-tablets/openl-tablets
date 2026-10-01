@@ -103,6 +103,16 @@ public final class StubSpreadSheetResult extends SpreadsheetResult {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return o instanceof StubSpreadSheetResult that && values.equals(that.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return values.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "Stub SpreadsheetResult:\n" + values;
     }
