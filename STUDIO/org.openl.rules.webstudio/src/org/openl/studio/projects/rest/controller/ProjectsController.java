@@ -339,6 +339,12 @@ public class ProjectsController {
         getWebStudio().reset();
     }
 
+    /**
+     * Returns the compilation status of the project.
+     *
+     * @deprecated Superseded by {@code GET /projects/{projectId}?include=status}, which carries the same status in
+     *             the project response.
+     */
     @GetMapping("/{projectId}/status")
     @Operation(summary = "projects.status.get.summary", description = "projects.status.get.desc")
     @Deprecated(forRemoval = false)
