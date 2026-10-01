@@ -45,6 +45,8 @@ class FieldDescriptor {
         return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields, "");
     }
 
+    // Null marks a simple value that takes one column; an empty list is a type without fields to export.
+    @SuppressWarnings("java:S1168")
     private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type,
                                                                   List<?> values,
                                                                   Boolean skipEmptyParameters,

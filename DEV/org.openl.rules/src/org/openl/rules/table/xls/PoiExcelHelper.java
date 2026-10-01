@@ -162,6 +162,8 @@ public final class PoiExcelHelper {
         }
     }
 
+    // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.
+    @SuppressWarnings("java:S1168")
     public static short[] toRgb(Color color) {
         if (color == null) {
             return null;

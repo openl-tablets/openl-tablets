@@ -145,6 +145,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
      *
      * @return Not null list if successful and null if cannot load user authorities because of an error.
      */
+    // Null tells a failed directory search, which falls back to the default authorities; empty is a user in no group.
+    @SuppressWarnings("java:S1168")
     private Collection<GrantedAuthority> loadUserAuthorities(DirContextOperations userData,
                                                                        String username,
                                                                        String password) {

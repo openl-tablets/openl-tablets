@@ -203,6 +203,8 @@ public final class ArrayTool {
         return true;
     }
 
+    // Rules reach it through RulesUtils.intersection, where a null array gives a null result.
+    @SuppressWarnings("java:S1168")
     public static String[] intersection(String[] ary1, String[] ary2) {
         if (ary1 == null || ary2 == null) {
             return null;
@@ -222,6 +224,8 @@ public final class ArrayTool {
      * @param object input object
      * @return array of objects
      */
+    // Public utility contract: a null object gives a null result, as documented.
+    @SuppressWarnings("java:S1168")
     public static Object[] toArray(Object object) {
         if (object == null) {
             return null;

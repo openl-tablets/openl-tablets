@@ -88,6 +88,8 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
         return null;
     }
 
+    // Null marks a method without table properties: dimension keys skip its dimensions to hash and print it.
+    @SuppressWarnings("java:S1168")
     @Override
     public Map<String, Object> getProperties() {
         return null;

@@ -33,6 +33,8 @@ class OpenLCellStyle extends XlsCellStyle {
         return colors;
     }
 
+    // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.
+    @SuppressWarnings("java:S1168")
     @Override
     public short[] getFillBackgroundColor() {
         if (hasNoFill()) {
@@ -42,6 +44,8 @@ class OpenLCellStyle extends XlsCellStyle {
         return toRgb(palette, getXlsStyle().getFillBackgroundColor());
     }
 
+    // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.
+    @SuppressWarnings("java:S1168")
     @Override
     public short[] getFillForegroundColor() {
         if (hasNoFill()) {

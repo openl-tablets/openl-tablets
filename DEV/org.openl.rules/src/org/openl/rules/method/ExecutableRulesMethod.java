@@ -150,6 +150,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         return boundNode;
     }
 
+    // Null marks a method without table properties: dimension keys skip its dimensions to hash and print it.
+    @SuppressWarnings("java:S1168")
     @Override
     public Map<String, Object> getProperties() {
         if (getMethodProperties() != null) {
