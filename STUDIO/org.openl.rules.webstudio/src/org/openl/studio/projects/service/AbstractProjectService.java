@@ -53,7 +53,7 @@ import org.openl.util.StringUtils;
 @ParametersAreNonnullByDefault
 @RequiredArgsConstructor
 @Slf4j
-public abstract class AbstractProjectService<T extends AProject> implements ProjectService<T> {
+public abstract class AbstractProjectService<T extends AProject> implements ProjectService {
 
     protected static final Comparator<AProject> PROJECT_BUSINESS_NAME_ORDER =
             Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER);
