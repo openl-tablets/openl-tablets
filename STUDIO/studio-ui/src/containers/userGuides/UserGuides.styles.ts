@@ -20,6 +20,64 @@ export const useStyles = createStyles(({ css, token }) => ({
         border-right: 1px solid ${token.colorSplit};
         background: ${token.colorBgLayout};
     `,
+    /** The search above the table of contents. */
+    search: css`
+        display: flex;
+        flex-direction: column;
+        gap: ${token.paddingXS}px;
+        padding: ${token.paddingSM}px ${token.paddingSM}px ${token.paddingXS}px;
+    `,
+    scope: css`
+        align-self: flex-start;
+        max-width: 100%;
+    `,
+    /** Where the table of contents stays while a search shows its results, so the folders opened stay open. */
+    railSlot: css`
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+
+        &[hidden] {
+            display: none;
+        }
+    `,
+    results: css`
+        flex: 1;
+        min-height: 0;
+        margin: 0;
+        padding: 0 0 ${token.paddingXS}px;
+        overflow-y: auto;
+        list-style: none;
+    `,
+    result: css`
+        display: flex;
+        flex-direction: column;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
+        color: ${token.colorText};
+
+        &:hover {
+            background: ${token.colorFillTertiary};
+            color: ${token.colorText};
+        }
+    `,
+    resultTitle: css`
+        font-weight: 500;
+    `,
+    resultPage: css`
+        color: ${token.colorTextSecondary};
+        font-size: ${token.fontSizeSM}px;
+    `,
+    snippet: css`
+        color: ${token.colorTextTertiary};
+        font-size: ${token.fontSizeSM}px;
+
+        mark {
+            padding: 0;
+            background: ${token.colorWarningBg};
+            color: ${token.colorText};
+        }
+    `,
     railBody: css`
         flex: 1;
         min-height: 0;

@@ -7,10 +7,9 @@ import {
     resolvePath,
     routeKey,
     routeOfFile,
-    startsWithHeading,
     trailTo,
-    withoutFrontMatter,
 } from './guidePaths'
+import { startsWithHeading, withoutFrontMatter } from './frontMatter'
 
 const editor: GuideEntry = { title: 'Using Rules Editor', file: 'openl-studio/rules-editor.md' }
 const appendices: GuideEntry = { title: 'Appendices', children: [{ title: 'Error Pages', file: 'openl-studio/appendices/error-pages.md' }]}

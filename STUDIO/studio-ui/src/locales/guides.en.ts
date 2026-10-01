@@ -8,4 +8,11 @@ i18next.addResourceBundle('en', 'guides', {
     load_failed: 'The user guides could not be read.',
     page_failed: 'The page could not be read.',
     diagram_failed: 'The diagram could not be drawn.',
+    search: 'Search',
+    search_placeholder: 'Search the guides',
+    scope: 'Scope',
+    all_guides: 'All Guides',
+    searching: 'Reading the guides…',
+    no_matches: 'No page matches the search.',
+    results: 'Search Results',
 })

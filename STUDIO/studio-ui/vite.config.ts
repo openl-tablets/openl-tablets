@@ -1,5 +1,18 @@
-import { defineConfig } from 'vite'
+import { createRequire } from 'node:module'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+
+const require = createRequire(import.meta.url)
+
+/**
+ * The decoder of HTML entities micromark imports draws on a DOM element in its browser build, and a worker has no
+ * DOM: resolved the way Node resolves it, the package gives its own build without one.
+ */
+const domlessEntityDecoder = (): Plugin => ({
+    name: 'domless-entity-decoder',
+    enforce: 'pre',
+    resolveId: source => (source === 'decode-named-character-reference' ? require.resolve(source) : null),
+})
 
 export default defineConfig({
     base: './',
@@ -38,6 +51,10 @@ export default defineConfig({
                 bypass: req => (/\.[^/]*$/.test(req.url?.split(/[?#]/)[0] ?? '') ? undefined : req.url),
             },
         },
+    },
+    // The search of the user guides parses the pages in a worker.
+    worker: {
+        plugins: () => [domlessEntityDecoder()],
     },
     build: {
         sourcemap: true,

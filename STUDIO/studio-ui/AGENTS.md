@@ -68,9 +68,13 @@ The build writes two pages (`build.rollupOptions.input`):
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
   with; Mermaid is a chunk of its own, loaded with the first diagram. The guides are files rather than REST, so
   `services/userGuides.ts` reads them with `fetch` from `${CONFIG.CONTEXT}/docs` instead of `apiCall`. The syntax a page
-  may use is set by the validator of `STUDIO/studio-docs`, see `Docs/architecture/embedded-user-guides.md`. A bare
-  `#heading` link resolves against `<base href>`, the root of the application, not against the page: a link to a
-  heading — in a page or in its outline — goes through the router with the address of the page.
+  may use is set by the validator of `STUDIO/studio-docs`, see `Docs/architecture/embedded-user-guides.md`. The search
+  indexes the pages in a module worker (`guideSearch.worker.ts`), and on the page itself where no worker starts —
+  under `_REACT_UI_ROOT_` the scripts come from another origin than the page, so the fallback is what a developer
+  sees. A worker has no DOM: code it imports must not touch `document`, which `vite.config.ts` enforces for the one
+  package that does (`domlessEntityDecoder`). A bare `#heading` link resolves against `<base href>`, the root of the
+  application, not against the page: a link to a heading — in a page or in its outline — goes through the router with
+  the address of the page.
 - **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
   once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
   (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads
