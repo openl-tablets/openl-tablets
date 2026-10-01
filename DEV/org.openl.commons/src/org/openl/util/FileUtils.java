@@ -534,50 +534,30 @@ public class FileUtils {
         regex.append('^'); // Start of string
 
         var length = antPattern.length();
-        for (var i = 0; i < length; i++) {
+        var i = 0;
+        while (i < length) {
             var c = antPattern.charAt(i);
-
+            var consumed = 1;
             switch (c) {
-                case '?':
-                    // ? matches exactly one character except path separator
-                    regex.append("[^/]");
-                    break;
-
-                case '*':
-                    // Check if this is a ** pattern
+                // ? matches exactly one character except path separator
+                case '?' -> regex.append("[^/]");
+                case '*' -> {
                     if (i + 1 < length && antPattern.charAt(i + 1) == '*') {
-                        // ** matches zero or more characters including path separators
+                        // ** matches zero or more characters including path separators, and the '/' after it is
+                        // already included in the regexp
                         regex.append(".*");
-                        i++; // skip the second *
-                        if (i + 1 < length && antPattern.charAt(i + 1) == '/') {
-                            i++; // skip the '/' as it is already included in regexp
-                        }
+                        consumed = i + 2 < length && antPattern.charAt(i + 2) == '/' ? 3 : 2;
                     } else {
                         // * matches zero or more characters except path separators
                         regex.append("[^/]*");
                     }
-                    break;
-
-                case '.':
-                case '^':
-                case '$':
-                case '[':
-                case ']':
-                case '(':
-                case ')':
-                case '{':
-                case '}':
-                case '+':
-                case '|':
-                case '\\':
-                    // Escape regex special characters
-                    regex.append('\\');
-                    // Fall through to the default
-                default:
-                    // Regular character
-                    regex.append(c);
-                    break;
+                }
+                // Escape regex special characters
+                case '.', '^', '$', '[', ']', '(', ')', '{', '}', '+', '|', '\\' -> regex.append('\\').append(c);
+                // Regular character
+                default -> regex.append(c);
             }
+            i += consumed;
         }
 
         regex.append('$'); // End of string
