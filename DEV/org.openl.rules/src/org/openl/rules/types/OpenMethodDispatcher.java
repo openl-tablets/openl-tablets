@@ -169,6 +169,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * Finds appropriate method using runtime context. This method used to optimize runtime where the same method is
      * used more that one time.
      */
+    // The message breaks lines with \n so it reads the same on every platform.
+    @SuppressWarnings("java:S3457")
     public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
         // Gets the runtime context.
         //

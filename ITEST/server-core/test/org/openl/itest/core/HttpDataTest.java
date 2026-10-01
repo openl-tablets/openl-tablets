@@ -280,6 +280,8 @@ class HttpDataTest {
         return HttpData.readFile(responseFile.toString());
     }
 
+    // HTTP ends header lines with CRLF whatever the platform.
+    @SuppressWarnings("java:S3457")
     private static HttpData createRequest(Path requestFile, String contentType, byte[] body) throws IOException {
         Files.writeString(requestFile,
                 "POST / HTTP/1.1\r\nContent-Type: %s\r\n\r\n".formatted(contentType),
