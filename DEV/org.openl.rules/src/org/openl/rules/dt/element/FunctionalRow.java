@@ -799,10 +799,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         return false;
     }
 
-    public IStorage[] getStorage() {
-        return storage;
-    }
-
     public Object getStorageValue(int paramNum, int ruleNum) {
         if (storage == null) {
             return null;
