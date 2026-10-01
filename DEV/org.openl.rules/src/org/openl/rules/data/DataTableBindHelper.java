@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.SequencedSet;
 import java.util.regex.Pattern;
 
 import lombok.RequiredArgsConstructor;
@@ -644,7 +645,7 @@ public class DataTableBindHelper {
      *                       <code>null</code>.
      * @param table          is needed only for error processing. Can be <code>null</code>.
      */
-    public static LinkedHashSet<IdentifierNodesBucket> getColumnIdentifiers(IBindingContext bindingContext,
+    public static SequencedSet<IdentifierNodesBucket> getColumnIdentifiers(IBindingContext bindingContext,
                                                                             ITable table,
                                                                             ILogicalTable descriptorRows) {
         var width = descriptorRows.getWidth();

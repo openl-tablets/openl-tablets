@@ -1,6 +1,7 @@
 package org.openl.vm;
 
 import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.RecursiveAction;
@@ -19,7 +20,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     private final IOpenRunner runner;
     protected final ArrayDeque<Object> thisStack = new ArrayDeque<>();
     protected final ArrayDeque<Object[]> frameStack = new ArrayDeque<>();
-    protected ArrayDeque<IRuntimeContext> contextStack;
+    protected Deque<IRuntimeContext> contextStack;
     private IOpenClass topClass;
     private IRulesMethodWrapper methodWrapper;
     private Queue<RecursiveAction> actionStack;
@@ -41,7 +42,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
         pushContext(buildDefaultRuntimeContext());
     }
 
-    public ArrayDeque<IRuntimeContext> cloneContextStack() {
+    public Deque<IRuntimeContext> cloneContextStack() {
         return new ArrayDeque<>(contextStack);
     }
 
