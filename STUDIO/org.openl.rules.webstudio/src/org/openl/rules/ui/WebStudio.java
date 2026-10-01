@@ -259,6 +259,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         }
                     }
                 } catch (ProjectException ignore) {
+                    // The artefact has gone since it was checked, so the project has no deploy configuration.
                 }
             }
             return null;
