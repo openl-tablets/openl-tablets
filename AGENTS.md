@@ -46,8 +46,8 @@ Multi-module Maven project. The version inherits from the root `pom.xml`.
 - **WSFrontend/** — Rule Services (REST endpoints, Kafka, logging, metrics)
 - **ITEST/** — Integration tests (TestContainers, declarative HTTP req/resp suites)
 - **Util/** — CLI tools and utilities
-- **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/`,
-  cross-cutting architecture notes under `Docs/architecture/`
+- **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/`, which OpenL
+  Studio also ships and `STUDIO/studio-docs` validates; cross-cutting architecture notes under `Docs/architecture/`
 
 Dependency versions are managed in the root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend).
 Read those files for current versions, prefer the latest ones, and do not hardcode versions in documentation or
@@ -60,6 +60,7 @@ mvn clean install -Dquick -DnoPerf -T1C   # Fast dev build
 mvn clean install -DskipTests              # Skip all tests; also drops ITEST and the archetypes from the reactor
 mvn test -pl <module-path>                 # Test specific module
 mvn validate -N                            # Format and mirrored-version check — run before committing
+mvn test -pl STUDIO/studio-docs            # Validate the user guides: links, images, Markdown
 mvn verify -Dsonar                         # Coverage: JaCoCo runs ONLY with -Dsonar
 docker compose up --build                  # Studio :8080, Rule Services :8081 (compose.yaml, NOT docker-compose.yaml)
 ```

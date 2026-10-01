@@ -1,6 +1,6 @@
 # ADR: User Guides Embedded in OpenL Studio
 
-- **Status** — Proposed
+- **Status** — Accepted
 - **Ticket** — [EPBDS-16455](https://jira.eisgroup.com/browse/EPBDS-16455)
 - **Scope** — `Docs/user-guides`, a new `STUDIO/studio-docs` module, OpenL Studio backend and `studio-ui`
 
@@ -25,7 +25,7 @@ OpenL Studio ships the user guides of its own version and shows them inside the 
 ```mermaid
 flowchart LR
     MD["Docs/user-guides"] -->|copied by| DOCS["studio-docs.jar"]
-    DOCS -->|validated by| VAL["UserGuidesValidationTest"]
+    DOCS -->|validated by| VAL["UserGuidesTest"]
     DOCS -->|packaged into| WAR["webstudio war"]
     WAR --> SERVLET["UserGuidesServlet /docs/*"]
     SERVLET -->|guide files, toc.json| UI["guides chunk of studio-ui"]
@@ -50,8 +50,9 @@ It turns `Docs/user-guides` into a jar.
 
 ### The validator
 
-`UserGuidesValidationTest` in `studio-docs` parses every guide with a CommonMark parser, so links inside code are not
-mistaken for real ones. It fails the build with the file and line of each problem:
+`UserGuidesTest` in `studio-docs` runs `GuideValidator` over the guides the jar holds. The validator parses every
+guide with a CommonMark parser, so links inside code are not mistaken for real ones. The test fails the build with the
+file and line of each problem:
 
 - **Broken relative link** — the target file is missing. A folder link needs an `index.md` in that folder. Names
   are compared case-sensitively, because the jar and Linux are case-sensitive while macOS is not.
@@ -63,17 +64,18 @@ mistaken for real ones. It fails the build with the file and line of each proble
 - **Unreferenced image** — an image file that no guide uses. This enforces the rule that images no longer referenced
   are deleted.
 - **External link not in the allowlist** — an absolute URL does not start with a prefix listed in
-  `src/test/resources/allowed-links.txt`. A new external site is accepted by adding it to that file in review.
-  External links are never fetched, so the build stays offline and stable.
+  `STUDIO/studio-docs/test-resources/allowed-links.txt`. A new external site is accepted by adding it to that file in
+  review. External links are never fetched, so the build stays offline and stable. An address written as bare text
+  counts only when GFM links it, as a web or an e-mail address: a JDBC URL in the text is no link.
 - **Unsupported syntax** — an admonition other than `> [!Note]`, an HTML tag outside the supported list, or a code
   fence language the viewer does not know. See [Supported Markdown](#supported-markdown).
-- **Malformed `csv` or `openl` fence** — a record that is not valid CSV, a `<` in the first column, a `^` in the
-  first row, or merged cells that do not form a rectangle.
+- **Malformed `csv` or `openl` fence** — a record that is not valid CSV, a `<` in the first column, a second `---`
+  line, or merged cells that do not form a rectangle.
 
-The quick CI build (`.github/workflows/build-quick.yml`) ignores `Docs/**` today, so a change to the guides alone
-would never run the test. The guides become build input, so the quick build stops ignoring them: both its `push`
-and `pull_request` filters keep `Docs/**` and add `!Docs/user-guides/**` after it. The rest of `Docs/` stays
-ignored, because the jar does not contain it.
+The quick CI build (`.github/workflows/build-quick.yml`) used to ignore `Docs/**`, so a change to the guides alone
+would never run the test. The guides are build input now, so both its `push` and `pull_request` triggers use a
+`paths` filter that leaves `Docs/**` out and takes `Docs/user-guides/**` back in. GitHub reads such a re-inclusion in
+a `paths` filter only, not in `paths-ignore`. The rest of `Docs/` stays ignored, because the jar does not contain it.
 
 ### The servlet
 
@@ -115,8 +117,9 @@ The Help page links its documentation card to `/docs/<guide>/` instead of the do
 The guides use only this syntax, and the validator holds them to it:
 
 - **GFM** — headings, emphasis, lists, task lists, pipe tables, strikethrough, autolinks and fenced code. Raw HTML is
-  limited to the tags the guides use, `br` and the `table` elements. Everything else is removed by a sanitizer.
-  The guides ship with the application, so the sanitizer is defence in depth, not a trust boundary.
+  limited to the tags the guides use: `br` for a line break in a table cell, `img` for a screenshot of a given size,
+  and an `iframe` in a `p` for a YouTube player. Everything else is removed by a sanitizer. The guides ship with the
+  application, so the sanitizer is defence in depth, not a trust boundary.
 - **`> [!Note]`** — rendered as an antd `Alert` of the info type. Other GitHub alert types are not supported.
 - **Mermaid** — a `mermaid` code fence is drawn as a diagram. The diagram theme follows the light or dark appearance
   of OpenL Studio.
@@ -131,10 +134,10 @@ The guides use only this syntax, and the validator holds them to it:
 
 ### The `openl` fence
 
-The records of an `openl` fence are CSV records, like those of a `csv` fence, with these additions:
+The lines of an `openl` fence are CSV records, like those of a `csv` fence, with these additions:
 
-- **Table header** — the first record is the header of the OpenL table. When it holds one cell, the cell spans the
-  whole width.
+- **Table header** — the first line is the header of the OpenL table, taken as it is written, commas included, so a
+  method signature needs no quotes. It spans the whole width.
 - **Column headers** — a `---` line ends the header rows. The records between the table header and that line are
   shaded as column headers. Without the line, only the table header is shaded.
 - **Merged cells** — a cell `<` joins the cell on its left, and a cell `^` joins the cell above. A merged area must be
@@ -204,10 +207,12 @@ The viewer searches the text of all guides, or of one part of the guides tree.
   the check before merge, not after publishing.
 - **CI cost** — a change to the guides alone runs the whole quick build, not only the validator. It also builds the
   war that ships them, so a guide change is checked the way it is released.
-- **Links to fix first** — 29 links point outside `Docs/user-guides` today: to `DEPLOYMENT.md`, `configuration/`,
-  `developer-guides/`, `integration-guides/` and `onboarding/`. They become absolute links to the documentation site.
-  Eight images of `Docs/assets/images/rule-services` move under the Rule Services guide's `images/` folder. The link
-  to the missing `MIGRATION_PLAN.md` is removed.
+- **Guides fixed first** — the validator found what the published site already showed broken or reached outside the
+  guides. Links to `DEPLOYMENT.md`, `configuration/`, `developer-guides/`, `integration-guides/` and `onboarding/`
+  became absolute links to the documentation site, and the link to the missing `MIGRATION_PLAN.md` was removed. The
+  Rule Services images moved from `Docs/assets/images/rule-services` to the guide's `images/` folder. Four links to
+  missing headings, an `sh` code block, a placeholder kramdown hid as an HTML tag, and example addresses written as
+  links were fixed. The HTML tables of the development properties became `openl` fences.
 - **Two renderers** — the Jekyll site and the viewer render the same files. The site does not draw Mermaid diagrams
   or `> [!Note]` alerts yet, and it shows `csv` and `openl` fences as plain code. It gains them through the theme's
   `head/custom.html` include, which needs no Jekyll plugin. Until then, the plain code stays readable.

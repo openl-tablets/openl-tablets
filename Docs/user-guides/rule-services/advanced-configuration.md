@@ -117,7 +117,7 @@ For filtering methods, define the `method`-filter tag in the `rules.xml` file. T
 -   If the `excludes` tag is defined for method filtering, the system uses methods which method names do not match a regular expression for defined patterns.
 -   If the excludes tag is not defined, the system does not exclude the methods.
 
-If OpenL Tablets Dynamic Interface feature is used, a client interface can also be generated dynamically at runtime. Apache CXF supports the dynamic client feature. For more information on dynamic interface support by Apache CXF, see <http://cxf.apache.org/docs/dynamic-clients.html>.
+If OpenL Tablets Dynamic Interface feature is used, a client interface can also be generated dynamically at runtime. Apache CXF supports the dynamic client feature. For more information on dynamic interface support by Apache CXF, see <https://cxf.apache.org/docs/dynamic-clients.html>.
 
 Note: If a project is empty and does not contain any method, it is unavailable as a service.
 

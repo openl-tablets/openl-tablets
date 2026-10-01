@@ -18,7 +18,7 @@ java -version
 
 ### 2. Install Apache Tomcat
 
-Download from [tomcat.apache.org](http://tomcat.apache.org/).
+Download from [tomcat.apache.org](https://tomcat.apache.org/).
 
 **Windows Installation:**
 - Use ZIP distribution or Service Installer
@@ -63,7 +63,7 @@ The WAR will auto-extract to a directory with the same name.
 
 #### Access OpenL Studio
 
-Navigate to: http://localhost:8080/webstudio
+Navigate to: `http://localhost:8080/webstudio`
 
 OpenL Studio opens in single-user mode, ready to use. Configure repositories, security, and other settings from the [Administration](../openl-studio/administration/) UI (see step 5).
 

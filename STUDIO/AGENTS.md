@@ -32,6 +32,8 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 **Core application**:
 - **org.openl.rules.webstudio** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`)
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
+- **studio-docs/** — packs `Docs/user-guides` into a jar for the war; never deployed to a remote repository. Its
+  tests validate the guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
 
 **Repository & storage**:
 - **org.openl.rules.repository** — Repository abstraction layer

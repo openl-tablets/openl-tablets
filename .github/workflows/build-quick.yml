@@ -34,19 +34,25 @@ on:
       - main
       - master
       - '5.*.x'
-    paths-ignore:
-      - 'Docs/**'
-      - '.github/**'
-      - '.idea/**'
-      - '.claude/**'
-      - '*.md'
+    # A 'paths' filter rather than 'paths-ignore': only it takes a path back in after leaving its folder out.
+    # The user guides are build input - OpenL Studio ships them, and studio-docs validates them.
+    paths:
+      - '**'
+      - '!Docs/**'
+      - 'Docs/user-guides/**'
+      - '!.github/**'
+      - '!.idea/**'
+      - '!.claude/**'
+      - '!*.md'
   pull_request:
     types:
       - opened
       - synchronize
       - reopened
-    paths-ignore:
-      - 'Docs/**'
+    paths:
+      - '**'
+      - '!Docs/**'
+      - 'Docs/user-guides/**'
   workflow_dispatch:
 
 jobs:

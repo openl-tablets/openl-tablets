@@ -27,6 +27,26 @@ Auto-generated from folder structure. Triggered by `nav: "auto"` in `_config.yml
 - **Depth**: 0 = root link, 1 = bold section header, 2+ = nested items
 - Adding/removing `.md` files auto-updates sidebar on rebuild
 
+## User Guides Inside OpenL Studio
+
+OpenL Studio ships `user-guides/` (the `STUDIO/studio-docs` jar) and shows it at `/docs`. The tests of that module
+validate the guides; run them after every change: `mvn test -pl STUDIO/studio-docs`. The decision and the formats
+are recorded in [`architecture/embedded-user-guides.md`](architecture/embedded-user-guides.md).
+
+- **Links stay inside `user-guides/`** — the jar holds nothing else. Link any other page with an absolute address on
+  the site: `https://openl-tablets.github.io/openl-tablets/<path>`.
+- **External links** — the prefix must be listed in `STUDIO/studio-docs/test-resources/allowed-links.txt`. Write an
+  example address (`localhost`, `example.com`) as code, not as a link.
+- **Names are case-sensitive** — a link and an image must match the file name exactly, even on macOS.
+- **Images** — every image is shown by some page, and every image a page shows exists.
+- **Headings** — a `#fragment` names a heading of the target page by its GitHub id.
+- **Markdown** — GFM and `> [!Note]` only. Raw HTML is limited to `br`, a sized `img`, and a YouTube `iframe` in a
+  `p`. Code blocks take `bash`, `groovy`, `java`, `json`, `properties`, `xml`, `yaml`, or no language.
+- **Diagrams and tables** — a `mermaid` block draws a diagram, a `csv` block a table, and an `openl` block an OpenL
+  table: the first line is the table header as written, the other lines are CSV records, `---` ends the column
+  headers, a `<` cell joins the cell on its left and a `^` cell the cell above.
+- **`toc.json`** at the root is reserved for the table of contents OpenL Studio builds.
+
 ## File Naming
 
 - Section landing pages: `<dir>/index.md`
