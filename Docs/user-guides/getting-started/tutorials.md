@@ -76,3 +76,41 @@ This example represents a business rules module defined in the UServ Business Ru
 in the **doc** file). This is a simple example of the application of OpenL Tablets rules. In this example, you will
 encounter most table types: Decision tables, Data tables, Datatypes, Spreadsheets, Method, and Properties tables.
 Additionally, you can see an example of tests for rules located in a separate module.
+
+## Example-4-Reference-Guide
+
+This example is a runnable companion of the [Reference Guide](../reference-guide/index.md). It shows every table type,
+the syntax of the BEX language, and every built-in function, each next to a test table, so running the tests in OpenL
+Studio shows the result of every example. Every workbook covers one topic, and a note above each table explains it.
+
+The project is a template to look things up and to copy from:
+
+- Open a workbook to see the syntax of a topic, for example, `SmartRules.xlsx` for the matching of conditions to
+  inputs.
+- Run its tests to see the results; trace a test to follow a calculation step by step.
+- Change a value in a test to experiment, and run the test again.
+
+The workbooks are grouped into folders in the order of the Reference Guide:
+
+- **`1-Data-Model`** — `Datatypes`, `DataTables`, `Constants`: custom and vocabulary data types, default values,
+  inheritance, data tables with primary and foreign keys, nested objects, lists and maps, constants.
+- **`2-Decision-Tables`** — `RulesTables`, `SmartRules`, `SimpleRules`, `LookupTables`, `ExternalElements`: conditions,
+  actions and returns, collected results, rule names and referents, matching of inputs, ranges and arrays, lookups,
+  transposed tables, external conditions, returns and actions.
+- **`3-Calculations`** — `Spreadsheets`, `MethodTables`, `TBasicTables`, `ColumnMatchTables`: spreadsheet steps,
+  columns, ranges and nested spreadsheets, code with conditions and loops in Method and TBasic tables, the MATCH, SCORE
+  and WEIGHTED algorithms of column match tables.
+- **`4-Testing`** — `TestTables`: inputs and expected values, precision, expected errors, Run tables.
+- **`5-Project`** — `Environment`, `Properties`, `Versioning`, `RuntimeContext`, `Localization`, `TableParts`: Java
+  imports and module dependencies, table properties, rule versions, the runtime context, localized messages, table
+  parts.
+- **`6-Language`** — `Operators`, `Numbers`, `BusinessExpressions`, `Expressions`, `ArrayOperators`,
+  `ValuesAndRanges`: arithmetic, comparison, logical and assignment operators, the null literal in arithmetic, the
+  limits of every number type, types of results, overflow, casts and special values, remainder and power edge cases,
+  numbers in cells, business keywords and attribute paths, literals, statements, casts and calls of rules, array index
+  operators, values in cells, ranges.
+- **`7-Functions`** — `MathFunctions`, `RoundingAndDivision`, `AggregateFunctions`, `StatisticalFunctions`,
+  `StringFunctions`, `DateFunctions`, `ArrayFunctions`, `BooleanFunctions`, `SpecialFunctions`: every built-in
+  function with examples of its arguments and results.
+
+The localized messages of the `Localization` workbook are in the `i18n` folder of the project.
