@@ -7,6 +7,8 @@ package org.openl.binding.impl;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
@@ -18,7 +20,9 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
+import org.openl.util.OpenClassUtils;
 
 /**
  * @author snshor
@@ -37,7 +41,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
                                           IBindingContext bindingContext) {
 
         IOpenClass[] types = {b1.getType(), b2.getType()};
-        IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
+        IMethodCaller methodCaller = findOperatorMethodCaller(operatorName, types, bindingContext);
         if (methodCaller == null) {
             String message = errorMsg(operatorName, types[0], types[1]);
             return makeErrorNode(message, node, bindingContext);
@@ -121,6 +125,34 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
 
     public static String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {
         return "Operator '%s(%s, %s)' is not found.".formatted(methodName, t1.getName(), t2.getName());
+    }
+
+    /**
+     * Finds the operator for the types of the operands. The null literal is a value of the type of the other operand,
+     * boxed when that type is primitive. So {@code null + 3} adds two integers, as a null {@code Integer} variable plus
+     * 3 does, instead of adding days to a null date.
+     *
+     * <p>When no operator accepts the null literal as that type, the operator is searched for the null literal as it
+     * is, so {@code null + true} still concatenates strings.
+     */
+    private static @Nullable IMethodCaller findOperatorMethodCaller(String methodName,
+                                                                    IOpenClass[] types,
+                                                                    IBindingContext bindingContext) {
+        IOpenClass[] typedNull = {typeNull(types[0], types[1]), typeNull(types[1], types[0])};
+        IMethodCaller methodCaller = null;
+        if (typedNull[0] != types[0] || typedNull[1] != types[1]) {
+            methodCaller = findBinaryOperatorMethodCaller(methodName, typedNull, bindingContext);
+        }
+        return methodCaller != null ? methodCaller
+                : findBinaryOperatorMethodCaller(methodName, types, bindingContext);
+    }
+
+    /**
+     * Returns the type of the other operand, boxed when it is primitive, for the null literal, and the type itself
+     * for any other operand.
+     */
+    private static IOpenClass typeNull(IOpenClass type, IOpenClass otherType) {
+        return NullOpenClass.isAnyNull(type) ? OpenClassUtils.toWrapperIfPrimitive(otherType) : type;
     }
 
     public static IMethodCaller findBinaryOperatorMethodCaller(String methodName,

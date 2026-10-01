@@ -26,6 +26,12 @@ everyone who calls that API from outside the browser.
   that has to reject such a value can end with a rule that leaves the condition cell empty and returns the result of
   the `error()` function.
 
+* **The literal `null` added to or subtracted from a number counts as `0`.** It takes the type of the other operand,
+  as an empty value of that type does: `null + 3` is `3` and `null - 3` is `-3`. Before, both were an empty `Date`, so
+  `"" + (null + 3)` gave `null` and `null + 3 == 3` gave `false`; a `byte` or `short` operand and `null - 'c'` did the
+  same. A character counts as a number here, as in `'c' + 1`, so `null + 'c'` and `'c' + null` are `99` instead of the
+  texts `nullc` and `cnull`. Multiplying, dividing and comparing with `null` give the same results as before.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
