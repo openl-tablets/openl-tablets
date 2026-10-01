@@ -22,6 +22,8 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
     @Serial
     private static final long serialVersionUID = 3618613334261575918L;
 
+    // The body is whatever error value a rule raised; it serializes along whenever that value does.
+    @SuppressWarnings("java:S1948")
     @Getter
     private final Object body;
     @Getter

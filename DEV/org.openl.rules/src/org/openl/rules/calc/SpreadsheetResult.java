@@ -42,6 +42,8 @@ public class SpreadsheetResult implements Serializable {
     private static final int MAX_DEPTH = 2;
     private static final int MAX_VALUE_LENGTH = 10 * 1024;
 
+    // The cells hold whatever values the steps compute; the result serializes along whenever they do.
+    @SuppressWarnings("java:S1948")
     Object[][] results;
     String[] columnNames;
     String[] rowNames;

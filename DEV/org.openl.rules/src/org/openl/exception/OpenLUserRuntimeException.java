@@ -13,6 +13,8 @@ public class OpenLUserRuntimeException extends OpenLRuntimeException {
 
     @Serial
     private static final long serialVersionUID = -6327856390127472929L;
+    // The body is whatever value a rule raises as the error; it serializes along whenever that value does.
+    @SuppressWarnings("java:S1948")
     @Getter
     protected final Object body;
 
