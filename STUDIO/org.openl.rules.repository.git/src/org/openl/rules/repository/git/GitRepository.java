@@ -346,16 +346,16 @@ public class GitRepository implements BranchRepository, Closeable {
 
             checkoutForcedOrReset(branch);
 
-            var name = data.getName();
-            var file = workTreeFile(name);
+            var fileName = data.getName();
+            var file = workTreeFile(fileName);
             if (!file.exists()) {
                 return false;
             }
 
-            git().rm().addFilepattern(name).call();
+            git().rm().addFilepattern(fileName).call();
             var commit = git().commit()
                     .setMessage(getCommitMessage(data))
-                    .setOnly(name)
+                    .setOnly(fileName)
                     .setNoVerify(noVerify)
                     .setCommitter(committerName(data.getAuthor()), committerEmail(data.getAuthor()))
                     .call();
@@ -687,9 +687,9 @@ public class GitRepository implements BranchRepository, Closeable {
                     .setNoCheckout(true)
                     .setCloneAllBranches(true);
 
-            var credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
-            if (credentialsProvider != null) {
-                cloneCommand.setCredentialsProvider(credentialsProvider);
+            var credentials = getCredentialsProvider(GitActionType.CLONE);
+            if (credentials != null) {
+                cloneCommand.setCredentialsProvider(credentials);
             }
 
             var cloned = cloneCommand.call();
@@ -1425,9 +1425,9 @@ public class GitRepository implements BranchRepository, Closeable {
     private FetchResult fetchAll() throws GitAPIException {
         var fetchCommand = git().fetch();
         fetchCommand.setTagOpt(TagOpt.FETCH_TAGS);
-        var credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
-        if (credentialsProvider != null) {
-            fetchCommand.setCredentialsProvider(credentialsProvider);
+        var credentials = getCredentialsProvider(GitActionType.FETCH_ALL);
+        if (credentials != null) {
+            fetchCommand.setCredentialsProvider(credentials);
         }
         fetchCommand.setRefSpecs(new RefSpec().setSourceDestination(Constants.R_HEADS + "*",
                 Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/*"));
@@ -1457,9 +1457,9 @@ public class GitRepository implements BranchRepository, Closeable {
                 throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
 
-            var credentialsProvider = getCredentialsProvider(GitActionType.PUSH);
-            if (credentialsProvider != null) {
-                push.setCredentialsProvider(credentialsProvider);
+            var credentials = getCredentialsProvider(GitActionType.PUSH);
+            if (credentials != null) {
+                push.setCredentialsProvider(credentials);
             }
 
             Iterable<PushResult> results = push.call();
@@ -1665,9 +1665,9 @@ public class GitRepository implements BranchRepository, Closeable {
                     return historyVisitor.getResult();
                 }
 
-                var id = getCommitByVersion(version);
-                if (id != null) {
-                    var commit = walk.parseCommit(id);
+                var commitId = getCommitByVersion(version);
+                if (commitId != null) {
+                    var commit = walk.parseCommit(commitId);
                     historyVisitor.visit(name, commit, getVersionName(git().getRepository(), tags, commit));
                 } else {
                     log.warn("Cannot find commit for version {}", version);
@@ -1786,13 +1786,13 @@ public class GitRepository implements BranchRepository, Closeable {
         List<Ref> call = git().tagList().call();
         var maxId = 0L;
         for (Ref tagRef : call) {
-            String name = getLocalTagName(tagRef);
-            if (name.startsWith(tagPrefix)) {
+            String tagName = getLocalTagName(tagRef);
+            if (tagName.startsWith(tagPrefix)) {
                 int num;
                 try {
-                    num = Integer.parseInt(name.substring(tagPrefix.length()));
+                    num = Integer.parseInt(tagName.substring(tagPrefix.length()));
                 } catch (NumberFormatException e) {
-                    log.debug("Tag '{}' is skipped because it does not contain version number", name);
+                    log.debug("Tag '{}' is skipped because it does not contain version number", tagName);
                     continue;
                 }
                 if (num > maxId) {
@@ -2730,10 +2730,10 @@ public class GitRepository implements BranchRepository, Closeable {
 
         List<Ref> refs = git.branchList().call();
         for (Ref ref : refs) {
-            var name = ref.getName();
-            if (name.startsWith(Constants.R_HEADS)) {
-                name = name.substring(Constants.R_HEADS.length());
-                branchNames.add(name);
+            var branchName = ref.getName();
+            if (branchName.startsWith(Constants.R_HEADS)) {
+                branchName = branchName.substring(Constants.R_HEADS.length());
+                branchNames.add(branchName);
             }
         }
         return branchNames;
@@ -2746,9 +2746,9 @@ public class GitRepository implements BranchRepository, Closeable {
 
         var push = git().push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
-        var credentialsProvider = getCredentialsProvider(GitActionType.PUSH_BRANCH);
-        if (credentialsProvider != null) {
-            push.setCredentialsProvider(credentialsProvider);
+        var credentials = getCredentialsProvider(GitActionType.PUSH_BRANCH);
+        if (credentials != null) {
+            push.setCredentialsProvider(credentials);
         }
 
         Iterable<PushResult> results = push.call();

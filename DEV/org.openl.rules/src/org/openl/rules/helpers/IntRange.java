@@ -76,15 +76,15 @@ public class IntRange extends Range<Long> implements INumberRange {
      * barrels", "6-8 km^2"
      */
     public IntRange(String range) {
-        Type type;
+        Type rangeType;
         try {
             var parser = parse(range);
             if (parser == null) {
-                type = Type.DEGENERATE;
+                rangeType = Type.DEGENERATE;
                 this.min = convertToLong(range.trim());
                 this.max = this.min;
             } else {
-                type = parser.getType();
+                rangeType = parser.getType();
                 var left = parser.getLeft();
                 var right = parser.getRight();
                 this.min = left == null ? Long.MIN_VALUE : convertToLong(left);
@@ -99,7 +99,7 @@ public class IntRange extends Range<Long> implements INumberRange {
                             .replaceAll("(?<!\\S)(\\S++)\\s++or\\s++less", "<=$1")
                             .replaceAll("(?<!\\S)(\\S++)\\s++and\\s++more", ">=$1");
                     var parser = parse(range);
-                    type = parser.getType();
+                    rangeType = parser.getType();
                     var left = parser.getLeft();
                     var right = parser.getRight();
                     min = left == null ? Long.MIN_VALUE : convertToLong(left);
@@ -111,7 +111,7 @@ public class IntRange extends Range<Long> implements INumberRange {
                 throw ex;
             }
         }
-        this.type = type;
+        this.type = rangeType;
         validate();
     }
 

@@ -29,10 +29,10 @@ public final class PropertiesFileNameProcessorBuilder {
                 .equals("org.openl.rules.project.resolving.CWPropertyFileNameProcessor")) {
             processor = buildDefault(patterns);
         } else {
-            var classLoader = getCustomClassLoader(projectDescriptor);
+            var processorClassLoader = getCustomClassLoader(projectDescriptor);
             Class<PropertiesFileNameProcessor> clazz;
             try {
-                clazz = (Class<PropertiesFileNameProcessor>) classLoader.loadClass(prcClass);
+                clazz = (Class<PropertiesFileNameProcessor>) processorClassLoader.loadClass(prcClass);
             } catch (ClassNotFoundException e) {
                 var message = "Properties file name processor class '" + prcClass + "' is not found.";
                 throw new InvalidFileNameProcessorException(message, e);
