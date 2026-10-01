@@ -229,8 +229,14 @@ class JavaOpenClassTest {
     }
 
     public abstract static class BeanA implements IBeanA {
+        // The capitalized name is the subject of the test: it names the property of the bean.
+        @SuppressWarnings("java:S116")
         private int B;
+        // The capitalized name is the subject of the test: it names the property of the bean.
+        @SuppressWarnings("java:S116")
         private int Ba;
+        // The capitalized name is the subject of the test: it names the property of the bean.
+        @SuppressWarnings("java:S116")
         private int BB;
         private int cc;
 
