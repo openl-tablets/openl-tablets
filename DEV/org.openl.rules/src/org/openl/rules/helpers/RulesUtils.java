@@ -1220,42 +1220,48 @@ public final class RulesUtils {
     }
 
     public static void out(String output) {
-        System.out.println(output);
+        println(output);
     }
 
     public static void out(Object output) {
-        System.out.println(output);
+        println(output);
     }
 
     public static void out(byte output) {
-        System.out.println(String.valueOf(output));
+        println(output);
     }
 
     public static void out(short output) {
-        System.out.println(String.valueOf(output));
+        println(output);
     }
 
     public static void out(int output) {
-        System.out.println(output);
+        println(output);
     }
 
     public static void out(long output) {
-        System.out.println(output);
+        println(output);
     }
 
     public static void out(float output) {
-        System.out.println(output);
+        println(output);
     }
 
     public static void out(double output) {
-        System.out.println(output);
+        println(output);
     }
 
     public static void out(char output) {
-        System.out.println(output);
+        println(output);
     }
 
     public static void out(boolean output) {
+        println(output);
+    }
+
+    // The out rule functions print to the standard output by their contract, which logging would break.
+    @SuppressWarnings("java:S106")
+    private static void println(Object output) {
         System.out.println(output);
     }
 
