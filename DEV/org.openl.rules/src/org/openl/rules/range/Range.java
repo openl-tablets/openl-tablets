@@ -17,7 +17,11 @@ public abstract class Range<T> {
 
     private static final Pattern LESS_THAN = Pattern.compile("less\\s+than");
     private static final Pattern MORE_THAN = Pattern.compile("more\\s+than");
+    // Linear: the lookbehind starts a match only at a word start and the possessive quantifiers never backtrack.
+    @SuppressWarnings("java:S8786")
     private static final Pattern OR_LESS = Pattern.compile("(?<!\\S)(\\S++)\\s++or\\s++less");
+    // Linear: the lookbehind starts a match only at a word start and the possessive quantifiers never backtrack.
+    @SuppressWarnings("java:S8786")
     private static final Pattern AND_MORE = Pattern.compile("(?<!\\S)(\\S++)\\s++and\\s++more");
 
     public enum Bound {
