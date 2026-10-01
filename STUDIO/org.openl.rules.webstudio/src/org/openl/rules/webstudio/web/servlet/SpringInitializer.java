@@ -88,6 +88,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         ((SpringInitializer) session.getServletContext().getAttribute(THIS)).cache.remove(sessionID);
     }
 
+    // The H2 driver ships inside the web application, where DriverManager may not discover it by itself.
+    @SuppressWarnings("java:S4925")
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
