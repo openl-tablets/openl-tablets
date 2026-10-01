@@ -326,6 +326,8 @@ public final class ClassUtils {
         return decapitalize(name.substring(3));
     }
 
+    // The field is named at runtime, so only reflection can write it.
+    @SuppressWarnings("java:S3011")
     public static void set(Object target, String fieldName, Object value) throws Exception {
         var clz = target.getClass();
         try {
