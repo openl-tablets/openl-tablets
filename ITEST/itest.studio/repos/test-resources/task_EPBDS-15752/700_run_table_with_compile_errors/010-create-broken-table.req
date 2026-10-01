@@ -1,0 +1,37 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Bank Rating",
+  "table": {
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "doCompileError",
+    "returnType": "Integer",
+    "args": [
+      {
+        "name": "x",
+        "type": "Integer"
+      }
+    ],
+    "headers": [
+      {
+        "title": "X"
+      },
+      {
+        "title": "Result"
+      }
+    ],
+    "rules": [
+      {
+        "X": 1,
+        "Result": "abc"
+      },
+      {
+        "X": 2,
+        "Result": 20
+      }
+    ]
+  }
+}
