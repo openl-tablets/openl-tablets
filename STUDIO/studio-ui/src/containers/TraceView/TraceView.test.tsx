@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DebugStatus } from 'types/trace'
 import TraceView from './TraceView'
@@ -144,5 +144,44 @@ describe('TraceView mode gating', () => {
         expect(screen.queryByTestId('trace-advanced')).not.toBeInTheDocument()
         expect(screen.queryByTestId('simple-run')).not.toBeInTheDocument()
         expect(screen.getByTestId('debug-status')).toHaveTextContent('debug.status.suspended')
+    })
+})
+
+describe('TraceView panel separator', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        launchWith()
+    })
+
+    it('resizes the panels while the separator is dragged, and stops once it is let go', () => {
+        setStore('completed')
+        render(<TraceView />)
+        const separator = screen.getByRole('separator')
+        expect(separator).toHaveAttribute('aria-orientation', 'vertical')
+        const left = separator.previousElementSibling as HTMLElement
+        const panels = separator.parentElement as HTMLElement
+        vi.spyOn(panels, 'getBoundingClientRect').mockReturnValue(DOMRect.fromRect({ x: 0, width: 1000, height: 500 }))
+
+        fireEvent.pointerDown(separator)
+        fireEvent.pointerMove(document, { clientX: 500 })
+        expect(left.style.width).toBe('50%')
+
+        fireEvent.pointerUp(document)
+        fireEvent.pointerMove(document, { clientX: 600 })
+        expect(left.style.width).toBe('50%')
+    })
+
+    it('stops resizing when the browser takes the drag over', () => {
+        setStore('completed')
+        render(<TraceView />)
+        const separator = screen.getByRole('separator')
+        const left = separator.previousElementSibling as HTMLElement
+        vi.spyOn(separator.parentElement as HTMLElement, 'getBoundingClientRect')
+            .mockReturnValue(DOMRect.fromRect({ x: 0, width: 1000, height: 500 }))
+
+        fireEvent.pointerDown(separator)
+        fireEvent.pointerCancel(document)
+        fireEvent.pointerMove(document, { clientX: 600 })
+        expect(left.style.width).toBe('35%')
     })
 })

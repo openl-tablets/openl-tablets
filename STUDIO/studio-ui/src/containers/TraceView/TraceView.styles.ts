@@ -48,10 +48,14 @@ export const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         flex-direction: column;
     `,
+    // The separator between the panels, stripped of the rule an <hr> draws; the pointer drags it, touch included.
     resizer: css`
         flex-shrink: 0;
         width: 9px;
+        margin: 0;
+        border: none;
         cursor: ew-resize;
+        touch-action: none;
         display: flex;
         align-items: center;
         justify-content: center;
