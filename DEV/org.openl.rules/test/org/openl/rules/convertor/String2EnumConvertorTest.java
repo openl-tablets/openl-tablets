@@ -41,12 +41,16 @@ class String2EnumConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
+    // Mixed-case constant names check that a constant is found by its name written in any case.
+    @SuppressWarnings("java:S115")
     private enum EnumVal {
         VAL1,
         val2,
         Val3
     }
 
+    // Mixed-case constant names check that a constant is found by its name written in any case.
+    @SuppressWarnings("java:S115")
     private enum EnumRes {
         RES1,
         res2,
