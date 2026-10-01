@@ -541,7 +541,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenField> getStaticFields() {
-        return null;
+        return List.of();
     }
 
     @Override

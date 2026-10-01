@@ -2249,7 +2249,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public List<TableTestView> getTableTests(RulesProject project, String tableId, @Nullable String moduleName) {
         var context = getOpenLTableInModule(project, tableId, moduleName);
         var tests = context.module().getTestAndRunMethods(context.table().getUri(), false);
-        if (tests == null) {
+        if (tests.length == 0) {
             return List.of();
         }
         var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);

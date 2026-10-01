@@ -1,6 +1,7 @@
 package org.openl.types.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,12 @@ class ADynamicTest {
     void testIsAssignableFromNullOpenClass() {
         var d = new DummyDynamicClass("test");
         assertFalse(d.isAssignableFrom(NullOpenClass.the));
+    }
+
+    @Test
+    void testNoStaticFields() {
+        assertTrue(new DummyDynamicClass("test").getStaticFields().isEmpty());
+        assertTrue(NullOpenClass.the.getStaticFields().isEmpty());
     }
 }
 

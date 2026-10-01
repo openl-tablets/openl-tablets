@@ -141,6 +141,7 @@ import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
 import org.openl.studio.projects.validator.ProjectStateValidator;
+import org.openl.types.IOpenMethod;
 
 class WorkspaceProjectServiceTest {
 
@@ -1959,6 +1960,8 @@ class WorkspaceProjectServiceTest {
         when(table.getUri()).thenReturn("Pricing/Claims.xlsx?sheet=Rules");
         when(moduleModel.getModuleInfo()).thenReturn(moduleInfo);
         when(moduleInfo.containsTable("Pricing/Claims.xlsx?sheet=Rules")).thenReturn(true);
+        when(moduleModel.getTestAndRunMethods("Pricing/Claims.xlsx?sheet=Rules", false))
+                .thenReturn(IOpenMethod.EMPTY_ARRAY);
         doReturn(handle).when(service).openProject(project, "Claims");
 
         service.getTableTests(project, "claims-id", "Claims");

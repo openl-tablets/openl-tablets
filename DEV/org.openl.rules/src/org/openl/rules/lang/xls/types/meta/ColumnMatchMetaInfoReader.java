@@ -155,31 +155,28 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
             if (isNeededCell(cell, rowNum, colNum)) {
                 // "values" column
                 // We must check actual value because we can find IntRange instead of Integer there.
-                var checkValues = getCheckValues(columnMatch, rowIndex);
-                Object value = checkValues == null ? null : checkValues[sv];
+                var value = getCheckValue(columnMatch, rowIndex, sv);
                 return value == null ? null : new CellMetaInfo(JavaOpenClass.getOpenClass(value.getClass()), false);
             }
         }
         return NOT_FOUND;
     }
 
-    private Object[] getCheckValues(ColumnMatch columnMatch, int rowIndex) {
+    /**
+     * Returns the value the row checks at the given index, or {@code null} when the row has no checked values.
+     */
+    private static Object getCheckValue(ColumnMatch columnMatch, int rowIndex, int index) {
         var checkTree = columnMatch.getCheckTree();
-        if (checkTree == null) {
-            return null;
-        }
-        List<MatchNode> children = checkTree.getChildren();
-        return getObjects(children, rowIndex);
+        var node = checkTree == null ? null : findNode(checkTree.getChildren(), rowIndex);
+        var checkValues = node == null ? null : node.getCheckValues();
+        return checkValues == null ? null : checkValues[index];
     }
 
-    private static Object[] getObjects(List<MatchNode> children, int rowIndex) {
-        for (MatchNode child : children) {
-            if (child.getRowIndex() == rowIndex) {
-                return child.getCheckValues();
-            }
-            Object[] objects = getObjects(child.getChildren(), rowIndex);
-            if (objects != null) {
-                return objects;
+    private static MatchNode findNode(List<MatchNode> nodes, int rowIndex) {
+        for (MatchNode node : nodes) {
+            var found = node.getRowIndex() == rowIndex ? node : findNode(node.getChildren(), rowIndex);
+            if (found != null) {
+                return found;
             }
         }
         return null;

@@ -283,7 +283,7 @@ public final class NullOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenField> getStaticFields() {
-        return null;
+        return List.of();
     }
 
     @Override

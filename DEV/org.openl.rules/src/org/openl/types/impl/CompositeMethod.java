@@ -97,7 +97,7 @@ public class CompositeMethod extends ExecutableMethod {
 
     @Override
     public Map<String, Object> getProperties() {
-        return null;
+        return Map.of();
     }
 
     @Override

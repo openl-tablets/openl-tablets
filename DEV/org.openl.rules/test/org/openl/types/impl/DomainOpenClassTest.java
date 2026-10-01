@@ -31,6 +31,8 @@ class DomainOpenClassTest {
         assertFalse(domainClass.isAbstract());
 
         assertTrue(domainClass.isSimple());
+
+        assertTrue(domainClass.getStaticFields().isEmpty());
     }
 
     @Test

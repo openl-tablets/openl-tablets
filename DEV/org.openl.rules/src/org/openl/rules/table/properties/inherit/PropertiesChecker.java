@@ -121,7 +121,7 @@ public final class PropertiesChecker {
      */
     public static boolean isPropertySuitableForTableType(String propertyName, String tableType) {
         XlsNodeTypes[] definitionTableTypes = TablePropertyDefinitionUtils.getSuitableTableTypes(propertyName);
-        if (definitionTableTypes != null && definitionTableTypes.length > 0) {
+        if (definitionTableTypes.length > 0) {
             for (XlsNodeTypes nodeType : definitionTableTypes) {
                 if (nodeType.toString().equals(tableType)) {
                     // If type from property definition and current table type are equals. It means property is suitable

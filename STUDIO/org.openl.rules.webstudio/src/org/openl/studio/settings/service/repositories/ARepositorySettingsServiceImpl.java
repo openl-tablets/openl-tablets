@@ -46,7 +46,7 @@ public abstract class ARepositorySettingsServiceImpl implements RepositorySettin
     }
 
     protected Class<?>[] getValidationGroups() {
-        return null;
+        return BeanValidationProvider.EMPTY_GROUPS;
     }
 
     @Override

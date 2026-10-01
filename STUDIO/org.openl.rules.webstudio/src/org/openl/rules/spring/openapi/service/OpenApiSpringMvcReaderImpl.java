@@ -266,7 +266,7 @@ public class OpenApiSpringMvcReaderImpl {
 
         // parse response body
         var generatedResponses = apiResponseService.generateResponses(apiContext, methodInfo);
-        if (generatedResponses != null) {
+        if (!generatedResponses.isEmpty()) {
             if (operation.getResponses() == null) {
                 operation.setResponses(generatedResponses);
             } else {
