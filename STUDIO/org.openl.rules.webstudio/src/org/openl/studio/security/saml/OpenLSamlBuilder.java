@@ -57,6 +57,8 @@ public class OpenLSamlBuilder {
 
     private LazyInMemoryRelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
+    // The static field feeds the marshaller registered once per JVM; see the comment on the field.
+    @SuppressWarnings("java:S3010")
     public OpenLSamlBuilder(PropertyResolver propertyResolver) {
         forceAuthN = Boolean.parseBoolean(propertyResolver.getProperty("security.saml.forceAuthN"));
         relyingPartyRegistrationRepository = new LazyInMemoryRelyingPartyRegistrationRepository(propertyResolver);
