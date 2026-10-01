@@ -43,15 +43,15 @@ public final class Var {
         return avg == null ? null : process(values, new Result<>() {
             @Override
             public void processNonNull(T value) {
-                result = variance(value.doubleValue(), avg, result);
+                current = variance(value.doubleValue(), avg, current);
             }
 
             @Override
             public Double result() {
-                if (counter <= 1 || result == null) {
+                if (counter <= 1 || current == null) {
                     return null;
                 }
-                return result / (counter - 1);
+                return current / (counter - 1);
             }
         });
     }
@@ -68,15 +68,15 @@ public final class Var {
         return avg == null ? null : process(values, new Result<>() {
             @Override
             public void processNonNull(Float value) {
-                result = variance(value, avg, result);
+                current = variance(value, avg, current);
             }
 
             @Override
             public Float result() {
-                if (counter <= 1 || result == null) {
+                if (counter <= 1 || current == null) {
                     return null;
                 }
-                return result / (counter - 1);
+                return current / (counter - 1);
             }
         });
     }
@@ -97,16 +97,16 @@ public final class Var {
         return avg == null ? null : process(values, new Result<>() {
             @Override
             public void processNonNull(BigInteger value) {
-                result = variance(new BigDecimal(value), avg, result);
+                current = variance(new BigDecimal(value), avg, current);
             }
 
             @Override
             public BigDecimal result() {
-                if (counter <= 1 || result == null) {
+                if (counter <= 1 || current == null) {
                     return null;
                 }
-                return BigDecimal.ZERO.compareTo(result) == 0 ? result
-                        : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
+                return BigDecimal.ZERO.compareTo(current) == 0 ? current
+                        : current.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
             }
         });
     }
@@ -127,16 +127,16 @@ public final class Var {
         return avg == null ? null : process(values, new Result<>() {
             @Override
             public void processNonNull(BigDecimal value) {
-                result = variance(value, avg, result);
+                current = variance(value, avg, current);
             }
 
             @Override
             public BigDecimal result() {
-                if (counter <= 1 || result == null) {
+                if (counter <= 1 || current == null) {
                     return null;
                 }
-                return BigDecimal.ZERO.compareTo(result) == 0 ? result
-                        : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
+                return BigDecimal.ZERO.compareTo(current) == 0 ? current
+                        : current.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
             }
         });
     }
@@ -156,7 +156,7 @@ public final class Var {
         return process(values, new Result<>() {
             @Override
             public void processNonNull(T value) {
-                result = variance(value.doubleValue(), avg, result);
+                current = variance(value.doubleValue(), avg, current);
             }
 
             @Override
@@ -164,7 +164,7 @@ public final class Var {
                 if (counter <= 1) {
                     return 0.0;
                 }
-                return result == null ? null : result / counter;
+                return current == null ? null : current / counter;
             }
         });
     }
@@ -184,7 +184,7 @@ public final class Var {
         return process(values, new Result<>() {
             @Override
             public void processNonNull(Float value) {
-                result = variance(value, avg, result);
+                current = variance(value, avg, current);
             }
 
             @Override
@@ -192,7 +192,7 @@ public final class Var {
                 if (counter <= 1) {
                     return 0.0f;
                 }
-                return result == null ? null : result / counter;
+                return current == null ? null : current / counter;
             }
         });
     }
@@ -211,7 +211,7 @@ public final class Var {
         return process(values, new Result<>() {
             @Override
             public void processNonNull(BigDecimal value) {
-                result = variance(value, avg, result);
+                current = variance(value, avg, current);
             }
 
             @Override
@@ -219,7 +219,7 @@ public final class Var {
                 if (counter <= 1) {
                     return BigDecimal.ZERO;
                 }
-                return result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
+                return current == null || BigDecimal.ZERO.compareTo(current) == 0 ? current : current.divide(BigDecimal.valueOf(counter), DECIMAL128);
             }
         });
     }
@@ -238,7 +238,7 @@ public final class Var {
         return process(values, new Result<>() {
             @Override
             public void processNonNull(BigInteger value) {
-                result = variance(new BigDecimal(value), avg, result);
+                current = variance(new BigDecimal(value), avg, current);
             }
 
             @Override
@@ -246,25 +246,25 @@ public final class Var {
                 if (counter <= 1) {
                     return BigDecimal.ZERO;
                 }
-                return result == null || BigDecimal.ZERO.compareTo(result) == 0 ? result : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
+                return current == null || BigDecimal.ZERO.compareTo(current) == 0 ? current : current.divide(BigDecimal.valueOf(counter), DECIMAL128);
             }
         });
     }
 
-    private static Double variance(Double value, Double avg, Double result) {
+    private static Double variance(Double value, Double avg, Double current) {
         var tmp = (value - avg);
         tmp *= tmp;
-        return result == null ? tmp : result + tmp;
+        return current == null ? tmp : current + tmp;
     }
 
-    private static Float variance(Float value, Float avg, Float result) {
+    private static Float variance(Float value, Float avg, Float current) {
         var tmp = (value - avg);
         tmp *= tmp;
-        return result == null ? tmp : result + tmp;
+        return current == null ? tmp : current + tmp;
     }
 
-    private static BigDecimal variance(BigDecimal value, BigDecimal avg, BigDecimal result) {
+    private static BigDecimal variance(BigDecimal value, BigDecimal avg, BigDecimal current) {
         var tmp = value.subtract(avg).pow(2, DECIMAL128);
-        return result == null ? tmp : result.add(tmp);
+        return current == null ? tmp : current.add(tmp);
     }
 }

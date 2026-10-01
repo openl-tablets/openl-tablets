@@ -44,8 +44,8 @@ public final class Statistics {
         return process(values, new Result<T, T>() {
             @Override
             public void processNonNull(T value) {
-                if (result == null || (!isNaN(result) && (isNaN(value) || beats.test(value, result)))) {
-                    result = value;
+                if (current == null || (!isNaN(current) && (isNaN(value) || beats.test(value, current)))) {
+                    current = value;
                 }
             }
         });
@@ -84,7 +84,7 @@ public final class Statistics {
     }
 
     abstract static class Result<V, R> implements Processor<V, R> {
-        R result;
+        R current;
         int counter;
 
         public void processNonNull(V value) {
@@ -111,7 +111,7 @@ public final class Statistics {
 
         @Override
         public R result() {
-            return result;
+            return current;
         }
     }
 
