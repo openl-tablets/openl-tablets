@@ -28,6 +28,8 @@ public final class ASMProxyFactory {
     private ASMProxyFactory() {
     }
 
+    // The explicit array selects the varargs overload; a bare argument would call this method again.
+    @SuppressWarnings("java:S3878")
     public static <T> T newProxyInstance(ClassLoader classLoader, ASMProxyHandler handler, Class<T> proxyInterface) {
         @SuppressWarnings("unchecked")
         var proxyInstance = (T) newProxyInstance(classLoader, handler, new Class[]{proxyInterface});
