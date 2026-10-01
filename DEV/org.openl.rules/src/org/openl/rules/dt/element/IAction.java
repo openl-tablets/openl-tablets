@@ -4,7 +4,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -20,6 +19,4 @@ public interface IAction extends IBaseAction, IDecisionRow {
                        RuleRow ruleRow,
                        IOpenClass ruleExecutionType,
                        TableSyntaxNode tableSyntaxNode) throws Exception;
-
-    IStorage[] getStorage();
 }
