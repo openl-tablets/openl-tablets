@@ -1,7 +1,6 @@
 package org.openl.studio.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +19,6 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.service.HistoryRepositoryMapper;
@@ -55,9 +53,7 @@ public class ServiceApiConfig {
                                              UserManagementService userManagementService,
                                              TestSuiteExecutor testSuiteExecutor,
                                              RepositoryAclService designRepositoryAclService,
-                                             @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
-                                             PropertyResolver propertyResolver,
                                              ApplicationEventPublisher eventPublisher,
                                              ProtectedBranchBypassService bypassService,
                                              ProjectAccessService projectAccessService) {
@@ -69,9 +65,7 @@ public class ServiceApiConfig {
         var webStudio = new WebStudio(rulesUserSession,
                 testSuiteExecutor,
                 designRepositoryAclService,
-                productionRepositoryAclService,
                 projectDescriptorArtefactResolver,
-                propertyResolver,
                 eventPublisher,
                 bypassService,
                 projectAccessService);
