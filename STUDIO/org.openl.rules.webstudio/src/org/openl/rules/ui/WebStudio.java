@@ -18,7 +18,6 @@ import java.util.function.BiConsumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,7 +49,6 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -105,11 +103,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final RulesUserSession rulesUserSession;
 
-    private final PropertyResolver propertyResolver;
-
     private final RepositoryAclService designRepositoryAclService;
-
-    private final SimpleRepositoryAclService productionRepositoryAclService;
 
     private final Authentication authentication;
     private final ProjectDescriptorArtefactResolver pdArtefactResolver;
@@ -126,9 +120,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
                      RepositoryAclService designRepositoryAclService,
-                     SimpleRepositoryAclService productionRepositoryAclService,
                      ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
-                     PropertyResolver propertyResolver,
                      ApplicationEventPublisher eventPublisher,
                      ProtectedBranchBypassService bypassService,
                      ProjectAccessService projectAccessService
@@ -136,10 +128,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
         this.designRepositoryAclService = designRepositoryAclService;
-        this.productionRepositoryAclService = productionRepositoryAclService;
         this.pdArtefactResolver = projectDescriptorArtefactResolver;
         this.rulesUserSession = rulesUserSession;
-        this.propertyResolver = propertyResolver;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
         this.projectAccessService = projectAccessService;
