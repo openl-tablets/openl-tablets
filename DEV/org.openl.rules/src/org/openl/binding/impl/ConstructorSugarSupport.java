@@ -50,7 +50,7 @@ public class ConstructorSugarSupport {
                     var childType = child.getType();
                     if ("op.assign".equals(childType)) {
                         isAllParamsNoAssign = false;
-                        var iBoundNode = ANodeBinder.bindChildNode(child, varBindingContext);
+                        var iBoundNode = AssignOperatorNodeBinder.bind(child, varBindingContext, bindingContext);
                         var paramNameSyntaxNode = child.getChild(0);
                         var paramName = paramNameSyntaxNode.getText();
                         if (namedParams.containsKey(paramName)) {

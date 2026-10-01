@@ -130,6 +130,26 @@ class RunTest {
         assertToExpected(expression, expected);
     }
 
+    static Stream<Arguments> testNamedConstructorArgument() {
+        return Stream.of(
+                arguments("int x = 5; new java.awt.Point(x = x).x", 5),
+                arguments("int y = 7; new java.awt.Point(x = y).x", 7),
+                arguments("int x = 3; new java.awt.Point(x = 1, y = x).y", 3),
+                arguments("int x = 5; new java.awt.Point(x = x, y = x + 1).y", 6),
+                arguments("int x = 5; new java.awt.Point(x = 1, y = new java.awt.Point(x = x).x).y", 5));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testNamedConstructorArgument(String expression, Object expected) {
+        assertToExpected(expression, expected);
+    }
+
+    @Test
+    void testNamedConstructorArgumentDoesNotReadNewObject() {
+        assertError("new java.awt.Point(x = 1, y = x).y", "Identifier 'x' is not found.");
+    }
+
     static Stream<Arguments> testRun() {
         return Stream.of(
                 arguments("String $x$y=null; $x$y == null || $x$y.length() < 10", true),

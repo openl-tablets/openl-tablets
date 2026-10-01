@@ -24,7 +24,21 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
      * org.openl.binding.IBindingContext)
      */
     @Override
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
+        return bind(node, bindingContext, bindingContext);
+    }
+
+    /**
+     * Binds an assignment whose target and value are resolved in different binding contexts.
+     *
+     * <p>A named argument of a constructor, as in {@code new Customer(name = name)}, assigns a field of the new
+     * object. Its target is a field of that object. Its value is an expression of the caller: {@code name} on the
+     * right is the parameter or variable of the caller, not the field of the new object.
+     *
+     * @param targetContext  the context the target is resolved in
+     * @param bindingContext the context the value is resolved in, which also receives the errors
+     */
+    static IBoundNode bind(ISyntaxNode node, IBindingContext targetContext, IBindingContext bindingContext) {
 
         if (node.getNumberOfChildren() != 2) {
             return makeErrorNode("Expected two child nodes in assign node.", node, bindingContext);
@@ -32,10 +46,9 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
         var index = node.getType().lastIndexOf('.');
         var methodName = node.getType().substring(index + 1);
-        IBoundNode[] children = bindChildren(node, bindingContext);
 
-        var target = children[0];
-        var source = children[1];
+        var target = bindChildNode(node.getChild(0), targetContext);
+        var source = bindChildNode(node.getChild(1), bindingContext);
         if (!target.isLvalue()) {
             return makeErrorNode("Impossible to assign value.", node, bindingContext);
         }
