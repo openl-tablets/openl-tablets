@@ -63,7 +63,7 @@ public class AsyncExecutor {
      * Start execution of all tasks
      */
     public void start() {
-        workers.forEach(w -> { var ignored = executor.submit(w); });
+        workers.forEach(executor::execute);
         executor.shutdown();
     }
 

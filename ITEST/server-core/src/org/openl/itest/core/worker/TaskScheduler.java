@@ -30,7 +30,7 @@ public class TaskScheduler {
      * @param unit    the time unit of the delay parameter
      */
     public void schedule(Runnable command, int delay, TimeUnit unit) {
-        var ignored = scheduledExecutor.schedule(wrap(command), delay, unit);
+        scheduledExecutor.schedule(wrap(command), delay, unit);
     }
 
     /**
