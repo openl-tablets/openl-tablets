@@ -983,6 +983,8 @@ public class XlsBinder implements IOpenBinder {
 
         private final List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
 
+        // Used through the method reference syntaxNodeExceptionHolder::addBindingContextError.
+        @SuppressWarnings("java:S1144")
         private void addBindingContextError(SyntaxNodeException e) {
             syntaxNodeExceptions.add(e);
         }

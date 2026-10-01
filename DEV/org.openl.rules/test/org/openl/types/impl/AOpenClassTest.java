@@ -57,6 +57,8 @@ class AOpenClassTest {
 
     public static class C extends A {
 
+        // The test inspects the methods the class declares, so this one must exist.
+        @SuppressWarnings("java:S1144")
         private void getC() {
             // The method only has to exist for the test.
         }
