@@ -566,16 +566,16 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                                           FileData folderData,
                                           final Iterable<FileItem> files) {
         return () -> new Iterator<>() {
-            private final Iterator<FileItem> delegate = files.iterator();
+            private final Iterator<FileItem> iterator = files.iterator();
 
             @Override
             public boolean hasNext() {
-                return delegate.hasNext();
+                return iterator.hasNext();
             }
 
             @Override
             public FileItem next() {
-                var external = delegate.next();
+                var external = iterator.next();
                 var data = external.getData();
                 String name;
                 if (folderData != null && folderData.getAdditionalData(FileMappingData.class) != null) {

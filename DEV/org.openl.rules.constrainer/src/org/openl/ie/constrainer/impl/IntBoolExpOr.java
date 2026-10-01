@@ -27,7 +27,7 @@ import org.openl.ie.constrainer.Subject;
 final class IntBoolExpOr extends IntBoolExpForSubject {
     @RequiredArgsConstructor
     class ObserverBoolExpOr extends Observer {
-        final IntBoolExp _exp2;
+        final IntBoolExp otherExp;
 
         @Override
         public Object master() {
@@ -48,10 +48,10 @@ final class IntBoolExpOr extends IntBoolExpForSubject {
             }
             // exp1 is false -> (exp1 || exp2) == exp2
             else {
-                setDomainMin(_exp2.min());
-                setDomainMax(_exp2.max());
-                _exp2.setMin(_min);
-                _exp2.setMax(_max);
+                setDomainMin(otherExp.min());
+                setDomainMax(otherExp.max());
+                otherExp.setMin(_min);
+                otherExp.setMax(_max);
             }
         }
 
