@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.IdentityHashMap;
 
 import org.openl.dependency.DependencyBindingContext;
 import org.openl.dependency.DependencyOpenClass;
@@ -86,9 +85,7 @@ public final class WrapperLogic {
         return method;
     }
 
-    public static IOpenClass toModuleType(IOpenClass type,
-                                          XlsModuleOpenClass xlsModuleOpenClass,
-                                          IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+    public static IOpenClass toModuleType(IOpenClass type, XlsModuleOpenClass xlsModuleOpenClass) {
         if (type == null) {
             return null;
         }
@@ -106,18 +103,14 @@ public final class WrapperLogic {
     }
 
     public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
-        return toModuleType(openMethod.getType(), xlsModuleOpenClass, new IdentityHashMap<>());
+        return toModuleType(openMethod.getType(), xlsModuleOpenClass);
     }
 
     public static IMethodSignature buildMethodSignature(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
         var parameterTypes = openMethod.getSignature().getParameterTypes();
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
-        IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = null;
         for (var i = 0; i < parameterTypes.length; i++) {
-            if (cache == null) {
-                cache = new IdentityHashMap<>();
-            }
-            IOpenClass t = toModuleType(parameterTypes[i], xlsModuleOpenClass, cache);
+            IOpenClass t = toModuleType(parameterTypes[i], xlsModuleOpenClass);
             if (openMethod.getSignature() instanceof MethodSignature methodSignature) {
                 parameterDeclarations[i] = new ParameterDeclaration(t,
                         openMethod.getSignature().getParameterName(i),
