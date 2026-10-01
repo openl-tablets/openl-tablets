@@ -32,8 +32,9 @@ export const formatDisplayName = (
     firstName?: string | null,
     lastName?: string | null
 ): string | null => {
-    const first = firstName || ''
-    const last = lastName || ''
+    // A default parameter would not cover null, which the profile sends for a missing name.
+    const first = firstName || '' // NOSONAR typescript:S7760
+    const last = lastName || '' // NOSONAR typescript:S7760
     if (mode === DisplayUserName.FirstLast) {
         return `${first} ${last}`.trim()
     }
