@@ -123,9 +123,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         applicationContext.addBeanFactoryPostProcessor(
                 bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
 
-        // Register Utility 'Props' class
+        // Let the static Props helpers read the environment
         Props.setEnvironment(applicationContext.getEnvironment());
-        applicationContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("props", new Props()));
 
         // Do migrate before Spring initialization
         var fromVersion = Migrator.migrate();
