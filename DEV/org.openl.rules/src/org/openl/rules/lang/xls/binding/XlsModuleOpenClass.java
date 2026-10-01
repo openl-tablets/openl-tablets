@@ -274,7 +274,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     protected IOpenField processFieldBeforeAdding(IOpenField openField) {
-        IOpenClass type = WrapperLogic.toModuleType(openField.getType(), this, new IdentityHashMap<>());
+        IOpenClass type = WrapperLogic.toModuleType(openField.getType(), this);
         if (type != openField.getType()) {
             return switch (openField) {
                 case DataOpenField field1 -> {

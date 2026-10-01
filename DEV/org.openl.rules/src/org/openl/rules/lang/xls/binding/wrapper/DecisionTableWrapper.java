@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.IdentityHashMap;
 import java.util.Objects;
 
 import lombok.Getter;
@@ -37,7 +36,7 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
         this.customSpreadsheetResultType = (CustomSpreadsheetResultOpenClass) WrapperLogic
-                .toModuleType(delegate.getCustomSpreadsheetResultType(), xlsModuleOpenClass, new IdentityHashMap<>());
+                .toModuleType(delegate.getCustomSpreadsheetResultType(), xlsModuleOpenClass);
         this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
         this.externalMethodCall = externalMethodCall;
