@@ -4,12 +4,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * The service allow to schedule running of commands after a given delay in one thread by default.<br/>
  * It wraps every command and catch any exception which was occurred during run.
  *
  * @author Vladyslav Pikus
  */
+@Slf4j
 public class TaskScheduler {
 
     private final ScheduledExecutorService scheduledExecutor;
@@ -53,7 +56,7 @@ public class TaskScheduler {
                 scheduledExecutor.awaitTermination(timeout, unit);
             }
         } catch (InterruptedException e) {
-            e.printStackTrace(System.err); // the console is the only log of the test harness
+            log.error("Interrupted while waiting for the scheduled tasks to complete.", e);
             Thread.currentThread().interrupt();
             return true;
         }
@@ -72,7 +75,7 @@ public class TaskScheduler {
                 command.run();
             } catch (Exception | AssertionError e) {
                 error = true;
-                e.printStackTrace(System.err); // the console is the only log of the test harness
+                log.error("The scheduled task has failed.", e);
             }
         };
     }
