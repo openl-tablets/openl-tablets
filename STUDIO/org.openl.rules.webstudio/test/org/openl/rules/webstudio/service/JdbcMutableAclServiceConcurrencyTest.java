@@ -72,7 +72,7 @@ class JdbcMutableAclServiceConcurrencyTest {
                     SecurityContextHolder.setContext(ctx);
                     try {
                         // Wait until all threads are ready to maximize contention
-                        assertDoesNotThrow(() -> barrier.await());
+                        barrier.await();
 
                         var tx = new TransactionTemplate(txManager);
                         tx.execute(status -> {
@@ -129,7 +129,7 @@ class JdbcMutableAclServiceConcurrencyTest {
                     ctx.setAuthentication(authentication);
                     SecurityContextHolder.setContext(ctx);
                     try {
-                        assertDoesNotThrow(() -> barrier.await());
+                        barrier.await();
 
                         var tx = new TransactionTemplate(txManager);
                         tx.execute(status -> {

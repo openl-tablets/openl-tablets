@@ -68,7 +68,8 @@ class ParsedGridEditingTest {
         parsed.table().stopEditing();
 
         assertTrue(parsed.loader().isCanUnload(), "and lets go of it however the write ended");
-        assertNull(onAnotherThread(() -> ((ParsedGrid) parsed.table().getGrid()).writableGridIfWriting()));
+        var grid = (ParsedGrid) parsed.table().getGrid();
+        assertNull(onAnotherThread(grid::writableGridIfWriting));
     }
 
     /** The one table of a parsed sheet, and the loader holding the workbook it is written through. */
