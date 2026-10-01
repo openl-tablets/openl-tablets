@@ -31,6 +31,8 @@ class ASMProxyFactoryTest {
     public interface Holder {
         String echo(String value);
 
+        // The name repeats the one the proxy naming scheme would produce, which the test proves does not clash.
+        @SuppressWarnings("java:S114")
         interface proxy {
         }
     }
