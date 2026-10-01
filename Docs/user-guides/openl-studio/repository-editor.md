@@ -885,7 +885,7 @@ Proceed as follows:
     -   **Groups** — define comma separated service groups.
     -   **Configuration (XML)** — add configuration description to the XML file.
 
-        For more information on the **Deploy Configuration** tab settings configuration, see [OpenL Tablets Rule Services Usage and Customization Guide > Service Configurer](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#service-configurer).
+        For more information on the **Deploy Configuration** tab settings configuration, see [OpenL Tablets Rule Services Usage and Customization Guide > Service Configurer](../rule-services/configuration.md#service-configurer).
 
 1.  Click **Save**.
 

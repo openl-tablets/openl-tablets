@@ -18,7 +18,7 @@ To add a repository, proceed as follows:
     | **AWS S3**             | The repository is located in Amazon Simple Storage Service (AWS S3). <br/>A “bucket” is a logical unit of storage in AWS S3 and is globally unique. <br/>Choose a region for storage to reduce latency and costs. An Access key and a Secret key are required to access storage. <br/>If left empty, the system retrieves credentials from one of the known locations as described in [AWS Documentation. Best Practices for Managing AWS Access Keys](http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html). <br/>The Listener period is the interval in which to check for repository changes, in seconds. |
     | **Azure Blob Storage** | The repository is located in Microsoft Azure Blob Storage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
-    For more information on repository settings, see [OpenL Tablets Rule Services Usage and Customization Guide > Configuring a Data Source](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#configuring-a-data-source).
+    For more information on repository settings, see [OpenL Tablets Rule Services Usage and Customization Guide > Configuring a Data Source](../../../rule-services/configuration.md#configuring-a-data-source).
 
 5.  Provide the URL value.
 
@@ -33,7 +33,7 @@ To add a repository, proceed as follows:
 
 6.  For **Database JDBC** and **Database JNDI** types, to set up a secure connection, select the **Secure connection** check box and fill in the **Login** and **Password** fields.
 
-    For more information on repository security, see [OpenL Tablets Installation Guide > Configuring Private Key for Repository Security](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#configuring-private-key-for-repository-security).
+    For more information on repository security, see [OpenL Tablets Installation Guide > Encrypting Passwords](../../../installation-guide/configuration.md#encrypting-passwords).
 
     ![](../../images/configure-deployment-repository.png)
 

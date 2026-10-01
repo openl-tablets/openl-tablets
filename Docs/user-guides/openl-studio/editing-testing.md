@@ -30,7 +30,7 @@ OpenL Studio allows editing comma separated arrays of values. A multi selection 
 
 #### Editing Default Table Properties
 
-This section describes table properties available in OpenL Studio. For more information on table properties, see [OpenL Tablets Reference Guide > Table Properties](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/table-properties).
+This section describes table properties available in OpenL Studio. For more information on table properties, see [OpenL Tablets Reference Guide > Table Properties](../reference-guide/02-working-with-openl-tables/04-table-properties/01-category-and-module-level-properties.md#table-properties).
 
 The properties of a table are shown in the **Table Details** pane on the right of the table. The pane lists only the properties that the table declares or inherits, grouped as **Info**, **Business Dimension**, **Version** and **Dev**. The default value of a property that the table does not declare is not listed, though it applies to the table. In the following example, the table declares only its description, so the default properties, such as **Active = true** and **Fail On Miss = false**, are not shown.
 
@@ -59,7 +59,7 @@ Default properties can be overridden at the table level; in other words, a defau
 
 #### Editing Inherited Table Properties
 
-Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-table). In the **Table Details** pane of the given table, inherited properties appear in a different color and are marked with an arrow icon. Resting the pointer on the icon tells where the property is inherited from, for example, **Inherited from the module properties table** or **Inherited from the category properties table**. The values of the inherited properties are not stored in the table, they are displayed in the **Table Details** pane, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
+Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](../reference-guide/02-working-with-openl-tables/03-table-types/11-less-common-table-types/03-properties-table.md#properties-table). In the **Table Details** pane of the given table, inherited properties appear in a different color and are marked with an arrow icon. Resting the pointer on the icon tells where the property is inherited from, for example, **Inherited from the module properties table** or **Inherited from the category properties table**. The values of the inherited properties are not stored in the table, they are displayed in the **Table Details** pane, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
 
 ![](images/inherited-category-level-properties.png)
 
