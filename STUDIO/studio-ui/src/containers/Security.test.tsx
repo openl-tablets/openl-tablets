@@ -101,12 +101,6 @@ const defaultSettings = {
     administrators: ['admin'],
 }
 
-// Note: jsdom emits "Error: Not implemented: navigation (except hash changes)"
-// when Security.tsx calls `window.location.reload()` on save. Location is
-// non-configurable in jsdom, so reload cannot be stubbed at the API layer.
-// The error is silenced globally in src/setupTests.ts via jest-fail-on-console's
-// silenceMessage option.
-
 describe('Security', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -361,6 +355,8 @@ describe('Security', () => {
     })
 
     it('calls save API on confirm and reloads page', async () => {
+        const reload = vi.fn()
+        vi.stubGlobal('location', { ...window.location, reload })
         mockUserMode = SecurityUserMode.MULTI
 
         render(<Security />)
@@ -386,6 +382,7 @@ describe('Security', () => {
                 true
             )
         })
+        await waitFor(() => expect(reload).toHaveBeenCalledTimes(1))
     })
 
     it('shows error notification on save failure', async () => {

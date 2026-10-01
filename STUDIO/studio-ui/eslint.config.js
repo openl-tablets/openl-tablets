@@ -47,7 +47,7 @@ export default [
             'semi-spacing': 'error',
             'comma-spacing': ['error', { 'before': false, 'after': true }],
             'semi': ['error', 'never'],
-            'no-console': ['error', { 'allow': ['warn']}],
+            'no-console': 'error',
             // Static Ant Design pop-ups render outside React and ignore the theme — use services/popups
             'no-restricted-imports': ['error', {
                 'paths': [{
@@ -132,7 +132,7 @@ export default [
         },
     },
     {
-        // The central error logger is the only sanctioned console.error call site
+        // The central error logger is the only sanctioned console call site
         files: ['./src/utils/errorHandling.ts'],
         rules: {
             'no-console': 'off',
