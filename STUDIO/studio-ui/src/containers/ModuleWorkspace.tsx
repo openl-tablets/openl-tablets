@@ -119,6 +119,24 @@ const projectReadFor = (
 ): Project | null => (read !== null && read.address === address ? read.project : null)
 
 /**
+ * Tells the server that the reader has put down the table they took up to write.
+ *
+ * <p>Taking a table up to write it holds the project, so that nobody else is offered the same table while the
+ * edits are still on screen. The table is put down again once the reader closes the editor, opens another table,
+ * leaves the module or closes the page. The server lets the project go only where there is nothing left to protect,
+ * so a project carrying changes that are saved and not committed keeps it.
+ */
+const useTablePutDown = (editing: boolean, projectId: string | undefined, tableId: string | null) => {
+    const heldProject = editing ? projectId ?? null : null
+    const heldTable = editing ? tableId : null
+    const putDown = useCallback(
+        () => (heldProject === null || heldTable === null ? undefined : stopEditingTable(heldProject, heldTable)),
+        [heldProject, heldTable]
+    )
+    useReleaseOnClose(heldProject === null || heldTable === null ? null : putDown)
+}
+
+/**
  * One module of a project, opened for reading.
  *
  * The screen wears the project's own head — the project sits in the trail, the module takes the title — so opening
@@ -556,17 +574,7 @@ export const ModuleWorkspace = () => {
         setEditCell(null)
     }, [moduleName, selectedId])
 
-    // Taking a table up to write it holds the project, so that nobody else is offered the same table while the
-    // edits are still on screen. This says the reader has put it down again — they closed the editor, opened
-    // another table, left the module or closed the page. The server lets the project go only where there is
-    // nothing left to protect, so a project carrying changes that are saved and not committed keeps it.
-    const heldProject = editing ? project?.id ?? null : null
-    const heldTable = editing ? selectedId : null
-    const putDown = useCallback(
-        () => (heldProject === null || heldTable === null ? undefined : stopEditingTable(heldProject, heldTable)),
-        [heldProject, heldTable]
-    )
-    useReleaseOnClose(heldProject === null || heldTable === null ? null : putDown)
+    useTablePutDown(editing, project?.id, selectedId)
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
