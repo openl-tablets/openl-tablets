@@ -1035,6 +1035,8 @@ public class GitRepository implements BranchRepository, Closeable {
     /**
      * @return true if need to force listener invocation. It can be if some branch was added or deleted.
      */
+    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
+    @SuppressWarnings("java:S6916")
     private boolean doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
         var branchesChanged = false;
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {

@@ -706,6 +706,8 @@ public final class Strings {
         };
     }
 
+    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
+    @SuppressWarnings("java:S6916")
     private static void appendLiteral(StringBuilder regex, char ch, int prevCh, boolean inSet) {
         switch (ch) {
             case ' ' -> {
