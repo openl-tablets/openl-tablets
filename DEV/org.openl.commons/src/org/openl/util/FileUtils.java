@@ -209,15 +209,7 @@ public class FileUtils {
         if (srcFiles == null) { // null if security restricted
             throw new IOException("Failed to list contents of " + srcDir);
         }
-        if (destDir.exists()) {
-            if (!destDir.isDirectory()) {
-                throw new IOException("Destination '%s' exists but is not a directory".formatted(destDir));
-            }
-        } else {
-            if (!destDir.mkdirs() && !destDir.isDirectory()) {
-                throw new IOException("Destination '%s' directory cannot be created".formatted(destDir));
-            }
-        }
+        createDirectory(destDir);
 
         // recurse copying
         for (File srcFile : srcFiles) {
@@ -234,6 +226,16 @@ public class FileUtils {
         // Try to preserve file date
         if (!destDir.setLastModified(srcDir.lastModified())) {
             LoggerFactory.getLogger(FileUtils.class).warn("Failed to set modified time to file '{}'.", destDir);
+        }
+    }
+
+    private static void createDirectory(File dir) throws IOException {
+        if (dir.exists()) {
+            if (!dir.isDirectory()) {
+                throw new IOException("Destination '%s' exists but is not a directory".formatted(dir));
+            }
+        } else if (!dir.mkdirs() && !dir.isDirectory()) {
+            throw new IOException("Destination '%s' directory cannot be created".formatted(dir));
         }
     }
 

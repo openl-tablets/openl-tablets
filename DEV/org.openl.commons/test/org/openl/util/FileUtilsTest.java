@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -57,6 +58,26 @@ class FileUtilsTest {
         try (var files = Files.list(Path.of(FileUtils.getTempDirectoryPath()))) {
             assertTrue(files.noneMatch(file -> file.getFileName().toString().startsWith("openl-test")));
         }
+    }
+
+    @Test
+    void testCopyDirectory(@TempDir Path tempDir) throws IOException {
+        var src = tempDir.resolve("src");
+        Files.writeString(Files.createDirectories(src.resolve("nested")).resolve("file.txt"), "content");
+        var dest = tempDir.resolve("dest");
+
+        FileUtils.copy(src.toFile(), dest.toFile());
+
+        assertEquals("content", Files.readString(dest.resolve("nested/file.txt")));
+    }
+
+    @Test
+    void testCopyDirectoryToFile(@TempDir Path tempDir) throws IOException {
+        var src = Files.createDirectories(tempDir.resolve("src"));
+        var dest = Files.writeString(tempDir.resolve("dest"), "content").toFile();
+
+        var thrown = assertThrows(IOException.class, () -> FileUtils.copy(src.toFile(), dest));
+        assertEquals("Destination '" + dest + "' exists but is not a directory", thrown.getMessage());
     }
 
     @Test

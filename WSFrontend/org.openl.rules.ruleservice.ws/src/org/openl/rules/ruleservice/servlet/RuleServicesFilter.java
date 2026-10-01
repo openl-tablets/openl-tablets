@@ -138,38 +138,14 @@ public class RuleServicesFilter implements Filter {
         }
 
         // Static content
-        if (method.equals("GET") && isAllowedPath(path)) {
-
-            try (var resourceStream = getClass().getClassLoader().getResourceAsStream("static" + path)) {
-                if (resourceStream != null) {
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    var mimeType = mimeMap.getContentTypeFor(path);
-
-                    response.setContentType(mimeType);
-                    resourceStream.transferTo(response.getOutputStream());
-                    return;
-                }
-            }
+        if (method.equals("GET") && isAllowedPath(path) && sendStaticResource(path, response)) {
+            return;
         }
 
         // Security
-        if (authorizationCheckers.length > 0 && !skipAuthorization(path)) {
-            var authorized = false;
-            try {
-                for (AuthorizationChecker validator : authorizationCheckers) {
-                    if (validator.authorize(request)) {
-                        log.debug("Authorized: {} {}; by: {}", method, request.getRequestURL(), validator);
-                        authorized = true;
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("Authorization failure.", e);
-            }
-            if (!authorized) {
-                accessDeniedHandler.handle(request, response);
-                return;
-            }
+        if (authorizationCheckers.length > 0 && !skipAuthorization(path) && !isAuthorized(request)) {
+            accessDeniedHandler.handle(request, response);
+            return;
         }
 
         // CORS
@@ -199,6 +175,39 @@ public class RuleServicesFilter implements Filter {
             lock.unlock();
         }
 
+    }
+
+    /**
+     * Sends the static resource found by the path.
+     *
+     * @return true if the resource is sent, false if there is no resource with such path
+     */
+    private boolean sendStaticResource(String path, HttpServletResponse response) throws IOException {
+        try (var resourceStream = getClass().getClassLoader().getResourceAsStream("static" + path)) {
+            if (resourceStream == null) {
+                return false;
+            }
+            response.setStatus(HttpServletResponse.SC_OK);
+            var mimeType = mimeMap.getContentTypeFor(path);
+
+            response.setContentType(mimeType);
+            resourceStream.transferTo(response.getOutputStream());
+            return true;
+        }
+    }
+
+    private boolean isAuthorized(HttpServletRequest request) {
+        try {
+            for (AuthorizationChecker validator : authorizationCheckers) {
+                if (validator.authorize(request)) {
+                    log.debug("Authorized: {} {}; by: {}", request.getMethod(), request.getRequestURL(), validator);
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Authorization failure.", e);
+        }
+        return false;
     }
 
     private boolean skipAuthorization(String path) {

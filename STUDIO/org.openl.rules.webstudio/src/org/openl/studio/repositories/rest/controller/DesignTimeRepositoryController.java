@@ -233,13 +233,7 @@ public class DesignTimeRepositoryController {
         allowedToPushRequestedBranch(repository, branch, force);
         var targetRepository = projectCreationTargetResolver.resolve(repository, branch, !archiveOverwrite);
         if (archiveOverwrite) {
-            String pathInRepo = targetRepository.supports().mappedFolders()
-                    ? AclPathUtils.concatPaths(path, projectName)
-                    : projectName;
-            if (!designRepositoryAclService
-                    .isGranted(targetRepository.getId(), pathInRepo, List.of(BasePermission.WRITE))) {
-                throw new ForbiddenException();
-            }
+            checkOverwritePermission(targetRepository, path, projectName);
         }
 
         allowedToPush(targetRepository, force);
@@ -259,6 +253,16 @@ public class DesignTimeRepositoryController {
         projectCreationService.applyStatusAfterCreate(targetRepository, FileUtils.getName(data.getName()),
                 effectiveStatus);
         return mapFileDataResponse(data, targetRepository.supports());
+    }
+
+    private void checkOverwritePermission(Repository targetRepository, String path, String projectName) {
+        String pathInRepo = targetRepository.supports().mappedFolders()
+                ? AclPathUtils.concatPaths(path, projectName)
+                : projectName;
+        if (!designRepositoryAclService
+                .isGranted(targetRepository.getId(), pathInRepo, List.of(BasePermission.WRITE))) {
+            throw new ForbiddenException();
+        }
     }
 
     private FileData createFromArchive(Repository repository, String projectName, MultipartFile file,

@@ -614,11 +614,7 @@ public class GitRepository implements BranchRepository, Closeable {
             this.remote = gitRoot.remote();
 
             if (gitRoot.empty()) {
-                if (gitRoot.remote()) {
-                    cloneRemoteRepository();
-                } else {
-                    initLocalRepository();
-                }
+                createLocalRepository(gitRoot.remote());
             }
 
             git.set(Git.open(getLocalGitRoot()));
@@ -649,14 +645,7 @@ public class GitRepository implements BranchRepository, Closeable {
             }
             tryToUnlockIndex();
         } catch (Exception e) {
-            if (git() != null) {
-                try {
-                    git().close();
-                } catch (Exception ignored) {
-                    // safe to ignore: close failure should not mask the original exception
-                }
-                git.set(null);
-            }
+            closeGitQuietly();
             if (failOnError) {
                 throwClearException(e);
             } else {
@@ -665,6 +654,25 @@ public class GitRepository implements BranchRepository, Closeable {
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
+        }
+    }
+
+    private void createLocalRepository(boolean remote) throws IOException, GitAPIException {
+        if (remote) {
+            cloneRemoteRepository();
+        } else {
+            initLocalRepository();
+        }
+    }
+
+    private void closeGitQuietly() {
+        if (git() != null) {
+            try {
+                git().close();
+            } catch (Exception ignored) {
+                // safe to ignore: close failure should not mask the original exception
+            }
+            git.set(null);
         }
     }
 
@@ -950,13 +958,14 @@ public class GitRepository implements BranchRepository, Closeable {
         return headRef == null || headRef.getObjectId() == null;
     }
 
+    private ObjectId resolveBranchId() throws IOException {
+        return resolveBranchId(git().getRepository());
+    }
+
     // A branch is configured by an administrator or checked by isValidRefName in forBranch; taint analysis misses it.
     @SuppressWarnings({"javasecurity:S2083", "javasecurity:S6549"})
-    private ObjectId resolveBranchId() throws IOException {
-        if (git().getRepository().findRef(branch) != null) {
-            return git().getRepository().resolve(branch);
-        }
-        return null;
+    private @Nullable ObjectId resolveBranchId(Repository repository) throws IOException {
+        return repository.findRef(branch) != null ? repository.resolve(branch) : null;
     }
 
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
@@ -1039,85 +1048,108 @@ public class GitRepository implements BranchRepository, Closeable {
     /**
      * @return true if need to force listener invocation. It can be if some branch was added or deleted.
      */
-    // A when guard is allowed only on a pattern label, not on the constant labels this switch dispatches on.
-    @SuppressWarnings("java:S6916")
     private boolean doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
         var branchesChanged = false;
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
             var result = refUpdate.getResult();
             switch (result) {
-                case FAST_FORWARD -> {
-                    if (!isEmpty()) {
-                        checkoutForced(refUpdate.getRemoteName());
-                    }
-                    if (!(Constants.R_HEADS + branch).equals(refUpdate.getRemoteName())) {
-                        branchesChanged = true;
-                    }
-                    // It's assumed that we don't have unpushed commits at this point so there must be no additional
-                    // merge
-                    // while checking last revision. Accept only fast forwards.
-                    git().merge()
-                            .include(refUpdate.getNewObjectId())
-                            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-                            .call();
-                }
+                case FAST_FORWARD -> branchesChanged |= fastForward(refUpdate);
                 case REJECTED_CURRENT_BRANCH -> checkoutForced(baseBranch); // On the next fetch the branch probably will be deleted
-                case FORCED -> {
-                    if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
-                        var remoteName = refUpdate.getRemoteName();
-                        if (remoteName.startsWith(Constants.R_HEADS)) {
-                            // Delete the branch
-                            String branchToDelete = Repository.shortenRefName(remoteName);
-                            String currentBranch = Repository.shortenRefName(git().getRepository().getFullBranch());
-                            if (branchToDelete.equals(currentBranch)) {
-                                var branchToCheckout = git().lsRemote()
-                                        .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
-                                        .callAsMap()
-                                        .get("HEAD")
-                                        .getObjectId()
-                                        .getName();
-                                checkoutForced(branchToCheckout);
-                            }
-                            git().branchDelete().setBranchNames(branchToDelete).setForce(true).call();
-                            branchesChanged = true;
-                        }
-                    }
-                }
-                case NEW -> {
-                    if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
-                        var remoteName = refUpdate.getRemoteName();
-                        if (remoteName.startsWith(Constants.R_HEADS)) {
-                            createRemoteTrackingBranch(git(), Repository.shortenRefName(remoteName));
-                            branchesChanged = true;
-                        }
-                    }
-                }
-                case REJECTED -> {
-                    if (refUpdate.getRemoteName().startsWith(Constants.R_HEADS)) {
-                        // Force update for branch
-                        git().fetch()
-                                .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
-                                .setForceUpdate(true)
-                                .setRefSpecs(refUpdate.getRemoteName() + ":" + refUpdate.getLocalName())
-                                .call();
-
-                        checkoutForced(refUpdate.getRemoteName());
-                        // Reset local branch to match remote
-                        git().reset().setMode(ResetCommand.ResetType.HARD)
-                                .setRef(refUpdate.getLocalName())
-                                .call();
-
-                        if (!(Constants.R_HEADS + branch).equals(refUpdate.getRemoteName())) {
-                            branchesChanged = true;
-                        }
-                    }
-                }
+                case FORCED -> branchesChanged |= deleteRemovedBranch(refUpdate);
+                case NEW -> branchesChanged |= trackNewBranch(refUpdate);
+                case REJECTED -> branchesChanged |= forceUpdateBranch(refUpdate);
                 case NO_CHANGE -> { /* Do nothing */ }
                 default -> log.warn("Unsupported type of fetch result type: {}", result);
             }
         }
 
         return branchesChanged;
+    }
+
+    /**
+     * @return true if the fast-forwarded branch is not the branch of this repository
+     */
+    private boolean fastForward(TrackingRefUpdate refUpdate) throws GitAPIException, IOException {
+        if (!isEmpty()) {
+            checkoutForced(refUpdate.getRemoteName());
+        }
+        // It's assumed that we don't have unpushed commits at this point so there must be no additional
+        // merge
+        // while checking last revision. Accept only fast forwards.
+        git().merge()
+                .include(refUpdate.getNewObjectId())
+                .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                .call();
+        return isOtherBranch(refUpdate.getRemoteName());
+    }
+
+    /**
+     * Deletes the local branch, which was deleted in the remote repository.
+     *
+     * @return true if the branch is deleted
+     */
+    private boolean deleteRemovedBranch(TrackingRefUpdate refUpdate) throws GitAPIException, IOException {
+        var remoteName = refUpdate.getRemoteName();
+        if (!ObjectId.zeroId().equals(refUpdate.getNewObjectId()) || !remoteName.startsWith(Constants.R_HEADS)) {
+            return false;
+        }
+        // Delete the branch
+        String branchToDelete = Repository.shortenRefName(remoteName);
+        String currentBranch = Repository.shortenRefName(git().getRepository().getFullBranch());
+        if (branchToDelete.equals(currentBranch)) {
+            var branchToCheckout = git().lsRemote()
+                    .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
+                    .callAsMap()
+                    .get("HEAD")
+                    .getObjectId()
+                    .getName();
+            checkoutForced(branchToCheckout);
+        }
+        git().branchDelete().setBranchNames(branchToDelete).setForce(true).call();
+        return true;
+    }
+
+    /**
+     * Tracks the branch, which was created in the remote repository.
+     *
+     * @return true if the branch is tracked
+     */
+    private boolean trackNewBranch(TrackingRefUpdate refUpdate) throws GitAPIException {
+        var remoteName = refUpdate.getRemoteName();
+        if (ObjectId.zeroId().equals(refUpdate.getOldObjectId()) && remoteName.startsWith(Constants.R_HEADS)) {
+            createRemoteTrackingBranch(git(), Repository.shortenRefName(remoteName));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Resets the local branch to the remote one, whose update was rejected.
+     *
+     * @return true if the updated branch is not the branch of this repository
+     */
+    private boolean forceUpdateBranch(TrackingRefUpdate refUpdate) throws GitAPIException {
+        if (!refUpdate.getRemoteName().startsWith(Constants.R_HEADS)) {
+            return false;
+        }
+        // Force update for branch
+        git().fetch()
+                .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
+                .setForceUpdate(true)
+                .setRefSpecs(refUpdate.getRemoteName() + ":" + refUpdate.getLocalName())
+                .call();
+
+        checkoutForced(refUpdate.getRemoteName());
+        // Reset local branch to match remote
+        git().reset().setMode(ResetCommand.ResetType.HARD)
+                .setRef(refUpdate.getLocalName())
+                .call();
+
+        return isOtherBranch(refUpdate.getRemoteName());
+    }
+
+    private boolean isOtherBranch(String remoteName) {
+        return !(Constants.R_HEADS + branch).equals(remoteName);
     }
 
     private void fastForwardNotMergedCommits(FetchResult fetchResult) throws IOException, GitAPIException {
@@ -1234,151 +1266,183 @@ public class GitRepository implements BranchRepository, Closeable {
                                        boolean theirToOur,
                                        String branchFrom,
                                        UserInfo userInfo) throws GitAPIException, IOException {
-        if (mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
-            var mergedCommits = mergeResult.getMergedCommits();
-            var repository = git().getRepository();
-            List<Ref> tags = git().tagList().call();
+        if (mergeResult.getMergeStatus() != MergeResult.MergeStatus.CONFLICTING) {
+            return;
+        }
+        var mergedCommits = mergeResult.getMergedCommits();
+        var repository = git().getRepository();
+        List<Ref> tags = git().tagList().call();
 
-            String baseCommit = getVersionName(repository, tags, mergeResult.getBase());
+        String baseCommit = getVersionName(repository, tags, mergeResult.getBase());
 
-            String ourCommit = null;
-            String theirCommit = null;
-            ObjectId ourId = null;
-            ObjectId theirId = null;
+        // The first merged commit is ours when their changes are merged into our branch, the second one is theirs
+        var firstId = mergedCommits.length > 0 ? mergedCommits[0] : null;
+        var secondId = mergedCommits.length > 1 ? mergedCommits[1] : null;
+        var ourId = theirToOur ? firstId : secondId;
+        var theirId = theirToOur ? secondId : firstId;
+        var ourCommit = ourId == null ? null : getVersionName(repository, tags, ourId);
+        var theirCommit = theirId == null ? null : getVersionName(repository, tags, theirId);
 
-            if (mergedCommits.length > 0) {
-                String commit = getVersionName(repository, tags, mergedCommits[0]);
-                if (theirToOur) {
-                    ourId = mergedCommits[0];
-                    ourCommit = commit;
-                } else {
-                    theirId = mergedCommits[0];
-                    theirCommit = commit;
-                }
+        Set<String> conflictedFiles = mergeResult.getConflicts().keySet();
+        Map<String, String> diffs = ourId != null && theirId != null
+                ? diffConflictedFiles(repository, ourId, theirId, conflictedFiles)
+                : new HashMap<>();
+        var conflict = new MergeConflict(baseCommit, ourCommit, theirCommit, diffs);
+
+        var toAutoResolve = new TreeMap<String, WorkbookDiffResult>(String.CASE_INSENSITIVE_ORDER);
+        var allCanAutoResolve = collectAutoResolvable(conflictedFiles, conflict, toAutoResolve);
+
+        if (!allCanAutoResolve) {
+            throw conflict.toException(toAutoResolve);
+        } else if (!toAutoResolve.isEmpty()) {
+            resolveConflictsAutomatically(mergeResult, conflict, toAutoResolve, theirToOur, branchFrom, userInfo);
+        }
+    }
+
+    /**
+     * Collects the conflicted workbooks, whose differences can be merged automatically, and removes them from the
+     * differences of the conflict.
+     *
+     * @return true if every conflicted file can be resolved automatically
+     */
+    private boolean collectAutoResolvable(Set<String> conflictedFiles,
+                                          MergeConflict conflict,
+                                          Map<String, WorkbookDiffResult> toAutoResolve) throws MergeConflictException {
+        var allCanAutoResolve = true;
+        for (String conflictedFile : conflictedFiles) {
+            var diffResult = diffConflictedWorkbook(conflictedFile, conflict);
+            if (diffResult == null) {
+                allCanAutoResolve = false;
+            } else {
+                toAutoResolve.put(conflictedFile, diffResult);
+                conflict.diffs().remove(conflictedFile);
             }
-            if (mergedCommits.length > 1) {
-                String commit = getVersionName(repository, tags, mergedCommits[1]);
-                if (theirToOur) {
-                    theirId = mergedCommits[1];
-                    theirCommit = commit;
-                } else {
-                    ourId = mergedCommits[1];
-                    ourCommit = commit;
-                }
+        }
+        return allCanAutoResolve;
+    }
+
+    /**
+     * @return the differences of the conflicted files between the two commits, by the paths of the files
+     */
+    private Map<String, String> diffConflictedFiles(Repository repository,
+                                                    ObjectId ourId,
+                                                    ObjectId theirId,
+                                                    Set<String> conflictedFiles) throws GitAPIException, IOException {
+        var diffs = new HashMap<String, String>();
+        AbstractTreeIterator ourTreeParser = prepareTreeParser(repository, ourId);
+        AbstractTreeIterator theirTreeParser = prepareTreeParser(repository, theirId);
+
+        List<DiffEntry> diff = git().diff()
+                .setOldTree(theirTreeParser)
+                .setNewTree(ourTreeParser)
+                .setPathFilter(PathFilterGroup.createFromStrings(conflictedFiles))
+                .call();
+
+        for (DiffEntry entry : diff) {
+            var outputStream = new ByteArrayOutputStream();
+            try (var formatter = new DiffFormatter(outputStream)) {
+                formatter.setRepository(repository);
+                formatter.setQuotePaths(false);
+                formatter.format(entry);
+                String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
+                        : entry.getNewPath();
+                var comparison = outputStream.toString(StandardCharsets.UTF_8);
+
+                // JGit currently doesn't support switching off quoting symbols with code < 0x80, so we used
+                // decode paths ourselves.
+                comparison = replaceQuotedPath(comparison, "\n--- \"a/", entry.getOldPath());
+                comparison = replaceQuotedPath(comparison, "\n+++ \"b/", entry.getNewPath());
+                diffs.put(path, comparison);
             }
+        }
+        return diffs;
+    }
 
-            Set<String> conflictedFiles = mergeResult.getConflicts().keySet();
-            var diffs = new HashMap<String, String>();
-
-            if (ourId != null && theirId != null) {
-                AbstractTreeIterator ourTreeParser = prepareTreeParser(repository, ourId);
-                AbstractTreeIterator theirTreeParser = prepareTreeParser(repository, theirId);
-
-                List<DiffEntry> diff = git().diff()
-                        .setOldTree(theirTreeParser)
-                        .setNewTree(ourTreeParser)
-                        .setPathFilter(PathFilterGroup.createFromStrings(conflictedFiles))
-                        .call();
-
-                for (DiffEntry entry : diff) {
-                    var outputStream = new ByteArrayOutputStream();
-                    try (var formatter = new DiffFormatter(outputStream)) {
-                        formatter.setRepository(repository);
-                        formatter.setQuotePaths(false);
-                        formatter.format(entry);
-                        String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
-                                : entry.getNewPath();
-                        var comparison = outputStream.toString(StandardCharsets.UTF_8);
-
-                        // JGit currently doesn't support switching off quoting symbols with code < 0x80, so we used
-                        // decode paths ourselves.
-                        comparison = replaceQuotedPath(comparison, "\n--- \"a/", entry.getOldPath());
-                        comparison = replaceQuotedPath(comparison, "\n+++ \"b/", entry.getNewPath());
-                        diffs.put(path, comparison);
-                    }
-                }
+    /**
+     * Compares the base, our and their versions of a conflicted workbook.
+     *
+     * @return the differences, or {@code null} when the file cannot be resolved automatically
+     * @throws MergeConflictException when the versions cannot be read or compared
+     */
+    private @Nullable WorkbookDiffResult diffConflictedWorkbook(String conflictedFile,
+                                                                MergeConflict conflict) throws MergeConflictException {
+        if (!FileTypeHelper.isExcelFile(conflictedFile)) {
+            // skip non-excel resources
+            return null;
+        }
+        var baseCommit = conflict.baseCommit();
+        var ourCommit = conflict.ourCommit();
+        var theirCommit = conflict.theirCommit();
+        FileItem baseConflictedFile = null;
+        FileItem ourConflictedFile = null;
+        FileItem theirConflictedFile = null;
+        try {
+            baseConflictedFile = parseHistory0(conflictedFile, baseCommit, new ReadHistoryVisitor(baseCommit));
+            ourConflictedFile = parseHistory0(conflictedFile, ourCommit, new ReadHistoryVisitor(ourCommit));
+            theirConflictedFile = parseHistory0(conflictedFile,
+                    theirCommit,
+                    new ReadHistoryVisitor(theirCommit));
+            if (baseConflictedFile == null || ourConflictedFile == null || theirConflictedFile == null) {
+                return null;
             }
-
-            var toAutoResolve = new TreeMap<String, WorkbookDiffResult>(String.CASE_INSENSITIVE_ORDER);
-            var allCanAutoResolve = true;
-            for (String conflictedFile : conflictedFiles) {
-                if (!FileTypeHelper.isExcelFile(conflictedFile)) {
-                    // skip non-excel resources
-                    allCanAutoResolve = false;
-                    continue;
-                }
-                FileItem baseConflictedFile = null;
-                FileItem ourConflictedFile = null;
-                FileItem theirConflictedFile = null;
-                try {
-                    baseConflictedFile = parseHistory0(conflictedFile, baseCommit, new ReadHistoryVisitor(baseCommit));
-                    ourConflictedFile = parseHistory0(conflictedFile, ourCommit, new ReadHistoryVisitor(ourCommit));
-                    theirConflictedFile = parseHistory0(conflictedFile,
-                            theirCommit,
-                            new ReadHistoryVisitor(theirCommit));
-                    if (baseConflictedFile == null || ourConflictedFile == null || theirConflictedFile == null) {
-                        allCanAutoResolve = false;
-                    } else {
-                        try (XlsWorkbookMerger workbookMerger = XlsWorkbookMerger.create(baseConflictedFile.getStream(),
-                                ourConflictedFile.getStream(),
-                                theirConflictedFile.getStream())) {
-                            var diffResult = workbookMerger.getDiffResult();
-                            if (!diffResult.hasConflicts()) {
-                                toAutoResolve.put(conflictedFile, diffResult);
-                                diffs.remove(conflictedFile);
-                            } else {
-                                allCanAutoResolve = false;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new MergeConflictException(MergeConflictDetails.builder()
-                            .diffs(diffs)
-                            .baseCommit(baseCommit)
-                            .yourCommit(ourCommit)
-                            .theirCommit(theirCommit)
-                            .build());
-                } finally {
-                    IOUtils.closeQuietly(baseConflictedFile);
-                    IOUtils.closeQuietly(ourConflictedFile);
-                    IOUtils.closeQuietly(theirConflictedFile);
-                }
+            try (XlsWorkbookMerger workbookMerger = XlsWorkbookMerger.create(baseConflictedFile.getStream(),
+                    ourConflictedFile.getStream(),
+                    theirConflictedFile.getStream())) {
+                var diffResult = workbookMerger.getDiffResult();
+                return diffResult.hasConflicts() ? null : diffResult;
             }
+        } catch (Exception e) {
+            throw conflict.toException(null);
+        } finally {
+            IOUtils.closeQuietly(baseConflictedFile);
+            IOUtils.closeQuietly(ourConflictedFile);
+            IOUtils.closeQuietly(theirConflictedFile);
+        }
+    }
 
-            if (!allCanAutoResolve) {
-                throw new MergeConflictException(MergeConflictDetails.builder()
-                        .diffs(diffs)
-                        .baseCommit(baseCommit)
-                        .yourCommit(ourCommit)
-                        .theirCommit(theirCommit)
-                        .toAutoResolve(toAutoResolve)
-                        .build());
-            } else if (!toAutoResolve.isEmpty()) {
-                String ourBranch;
-                String theirBranch;
-                if (theirToOur) {
-                    ourBranch = branch;
-                    theirBranch = branchFrom;
-                } else {
-                    ourBranch = branchFrom;
-                    theirBranch = branch;
-                }
-                try {
-                    var conflictResolveData = autoResolveConflicts(toAutoResolve,
-                            ourCommit,
-                            ourBranch,
-                            theirCommit,
-                            theirBranch);
-                    resolveConflict(mergeResult, conflictResolveData, userInfo);
-                } catch (Exception e) {
-                    throw new MergeConflictException(MergeConflictDetails.builder()
-                            .diffs(diffs)
-                            .baseCommit(baseCommit)
-                            .yourCommit(ourCommit)
-                            .theirCommit(theirCommit)
-                            .build());
-                }
-            }
+    private void resolveConflictsAutomatically(MergeResult mergeResult,
+                                               MergeConflict conflict,
+                                               Map<String, WorkbookDiffResult> toAutoResolve,
+                                               boolean theirToOur,
+                                               String branchFrom,
+                                               UserInfo userInfo) throws MergeConflictException {
+        String ourBranch;
+        String theirBranch;
+        if (theirToOur) {
+            ourBranch = branch;
+            theirBranch = branchFrom;
+        } else {
+            ourBranch = branchFrom;
+            theirBranch = branch;
+        }
+        try {
+            var conflictResolveData = autoResolveConflicts(toAutoResolve,
+                    conflict.ourCommit(),
+                    ourBranch,
+                    conflict.theirCommit(),
+                    theirBranch);
+            resolveConflict(mergeResult, conflictResolveData, userInfo);
+        } catch (Exception e) {
+            throw conflict.toException(null);
+        }
+    }
+
+    /**
+     * The commits of a conflicting merge and the differences of its conflicted files.
+     */
+    private record MergeConflict(String baseCommit,
+                                 @Nullable String ourCommit,
+                                 @Nullable String theirCommit,
+                                 Map<String, String> diffs) {
+
+        MergeConflictException toException(@Nullable Map<String, WorkbookDiffResult> toAutoResolve) {
+            return new MergeConflictException(MergeConflictDetails.builder()
+                    .diffs(diffs)
+                    .baseCommit(baseCommit)
+                    .yourCommit(ourCommit)
+                    .theirCommit(theirCommit)
+                    .toAutoResolve(toAutoResolve)
+                    .build());
         }
     }
 
@@ -1882,33 +1946,17 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Git git) throws IOException,
             GitAPIException {
-        var repository = git.getRepository();
         var parents = commit.getParents();
         var parentsNum = parents.length;
 
         tw.reset(getTreesToCompare(commit));
 
-        var changes = new HashSet<Integer>();
-
-        while (tw.next()) {
-            if (parentsNum == 0) {
-                // Path is changed but there are no parents. It's a first commit.
-                return true;
-            }
-
-            var currentMode = tw.getRawMode(parentsNum);
-            for (var i = 0; i < parentsNum; i++) {
-                var parentMode = tw.getRawMode(i);
-                if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
-                    // Path configured in tw was changed
-                    changes.add(i);
-                }
-            }
-        }
-
         if (parentsNum == 0) {
-            return false;
+            // Path is changed but there are no parents. It's a first commit.
+            return tw.next();
         }
+        var changes = findChangedParents(tw, parentsNum);
+
         if (parentsNum == 1) {
             return !changes.isEmpty();
         }
@@ -1928,7 +1976,7 @@ public class GitRepository implements BranchRepository, Closeable {
         // Find a common parent for commits that were merged.
         // Then we compare it to each commit that changed the project in question.
         // If there is a difference between commits, then it should be displayed.
-        try (var walk = new RevWalk(repository)) {
+        try (var walk = new RevWalk(git.getRepository())) {
             walk.setRevFilter(RevFilter.MERGE_BASE);
 
             for (RevCommit parent : parents) {
@@ -1937,38 +1985,74 @@ public class GitRepository implements BranchRepository, Closeable {
             }
             var mergeBase = walk.next();
 
-            if (mergeBase != null) {
-                for (int i : changes) {
-                    tw.reset(parents[i].getTree(), mergeBase.getTree());
-                    if (tw.next() && !tw.idEqual(0, 1)) {
-                        return true;
-                    }
-                }
+            return mergeBase != null && (differsFromMergeBase(tw, parents, changes, mergeBase)
+                    || hasChangesSinceMergeBase(tw, git, parents, changes, mergeBase));
+        }
+    }
 
-                // Check if any commit from parent until merge base contains changes in the project.
-                // If contains (probably that commit was reverted eventually), then it will be shown in history,
-                // so we must show our merge commit because it contains the latest project state, and
-                // it differs from its parent.
-                for (int i : changes) {
-                    Iterable<RevCommit> commits = git.log().addRange(mergeBase, parents[i]).call();
-                    for (RevCommit prevParentCommit : commits) {
-                        tw.reset(getTreesToCompare(prevParentCommit));
-                        var prevParentCount = prevParentCommit.getParentCount();
-                        var modified = 0;
-                        for (var j = 0; j < prevParentCount; j++) {
-                            if (tw.next() && !tw.idEqual(j, prevParentCount)) {
-                                // Path configured in tw was changed
-                                modified++;
-                            }
-                        }
-                        if (modified > 0 && modified == prevParentCount) {
-                            return true;
-                        }
-                    }
+    /**
+     * @return the indexes of the parents, comparing to which the path configured in the tree walk is changed
+     */
+    private static Set<Integer> findChangedParents(TreeWalk tw, int parentsNum) throws IOException {
+        var changes = new HashSet<Integer>();
+        while (tw.next()) {
+            var currentMode = tw.getRawMode(parentsNum);
+            for (var i = 0; i < parentsNum; i++) {
+                var parentMode = tw.getRawMode(i);
+                if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
+                    // Path configured in tw was changed
+                    changes.add(i);
+                }
+            }
+        }
+        return changes;
+    }
+
+    private static boolean differsFromMergeBase(TreeWalk tw,
+                                                RevCommit[] parents,
+                                                Set<Integer> changes,
+                                                RevCommit mergeBase) throws IOException {
+        for (int i : changes) {
+            tw.reset(parents[i].getTree(), mergeBase.getTree());
+            if (tw.next() && !tw.idEqual(0, 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if any commit from parent until merge base contains changes in the project. If contains (probably that
+     * commit was reverted eventually), then it will be shown in history, so we must show our merge commit because it
+     * contains the latest project state, and it differs from its parent.
+     */
+    private static boolean hasChangesSinceMergeBase(TreeWalk tw,
+                                                    Git git,
+                                                    RevCommit[] parents,
+                                                    Set<Integer> changes,
+                                                    RevCommit mergeBase) throws IOException, GitAPIException {
+        for (int i : changes) {
+            Iterable<RevCommit> commits = git.log().addRange(mergeBase, parents[i]).call();
+            for (RevCommit prevParentCommit : commits) {
+                if (isChangedComparingToAllParents(tw, prevParentCommit)) {
+                    return true;
                 }
             }
         }
         return false;
+    }
+
+    private static boolean isChangedComparingToAllParents(TreeWalk tw, RevCommit commit) throws IOException {
+        tw.reset(getTreesToCompare(commit));
+        var parentCount = commit.getParentCount();
+        var modified = 0;
+        for (var j = 0; j < parentCount; j++) {
+            if (tw.next() && !tw.idEqual(j, parentCount)) {
+                // Path configured in tw was changed
+                modified++;
+            }
+        }
+        return modified > 0 && modified == parentCount;
     }
 
     private static ObjectId[] getTreesToCompare(RevCommit commit) {
@@ -2832,16 +2916,14 @@ public class GitRepository implements BranchRepository, Closeable {
             for (File file : found) {
                 if (file.isDirectory()) {
                     removeAbsentFiles(baseAbsolutePath, file, toSave);
-                } else {
-                    if (!toSave.contains(file)) {
-                        var relativePath = file.getAbsolutePath()
-                                .substring(baseAbsolutePath.length())
-                                .replace('\\', '/');
-                        if (relativePath.startsWith("/")) {
-                            relativePath = relativePath.substring(1);
-                        }
-                        git().rm().addFilepattern(relativePath).call();
+                } else if (!toSave.contains(file)) {
+                    var relativePath = file.getAbsolutePath()
+                            .substring(baseAbsolutePath.length())
+                            .replace('\\', '/');
+                    if (relativePath.startsWith("/")) {
+                        relativePath = relativePath.substring(1);
                     }
+                    git().rm().addFilepattern(relativePath).call();
                 }
             }
         }
@@ -3035,60 +3117,68 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private void configureBuiltInLFS(Repository repository) throws IOException {
-        var lfsApplied = false;
+        useLFS = isLfsApplied(repository);
 
+        if (useLFS) {
+            log.info("LFS is enabled for repository '{}'.", name);
+            installBuiltInLfs(repository);
+            renameLfsPrePushHook(repository);
+        }
+    }
+
+    /**
+     * @return true if the .gitattributes file of the branch applies the LFS filter
+     */
+    private boolean isLfsApplied(Repository repository) throws IOException {
         try (var walk = new RevWalk(repository)) {
-            ObjectId branchId = null;
-            if (repository.findRef(branch) != null) {
-                branchId = repository.resolve(branch);
-            }
+            var branchId = resolveBranchId(repository);
             if (branchId != null) {
                 var commit = walk.parseCommit(branchId);
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, Constants.DOT_GIT_ATTRIBUTES, commit.getTree())) {
                     var loader = repository.open(rootWalk.getObjectId(0));
-                    lfsApplied = new String(loader.getBytes(), StandardCharsets.UTF_8).contains("filter=lfs");
+                    return new String(loader.getBytes(), StandardCharsets.UTF_8).contains("filter=lfs");
                 } catch (FileNotFoundException ignored) {
                     // .gitattributes does not exist; LFS is not configured
                 }
             }
         }
+        return false;
+    }
 
-        useLFS = lfsApplied;
-
-        if (useLFS) {
-            log.info("LFS is enabled for repository '{}'.", name);
-            try {
-                var installed = repository.getConfig()
-                        .getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
-                                ConfigConstants.CONFIG_SECTION_LFS,
-                                ConfigConstants.CONFIG_KEY_USEJGITBUILTIN,
-                                false);
-                if (!installed) {
-                    LfsFactory.getInstance().getInstallCommand().setRepository(repository).call();
-                }
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new IOException(e);
+    private static void installBuiltInLfs(Repository repository) throws IOException {
+        try {
+            var installed = repository.getConfig()
+                    .getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
+                            ConfigConstants.CONFIG_SECTION_LFS,
+                            ConfigConstants.CONFIG_KEY_USEJGITBUILTIN,
+                            false);
+            if (!installed) {
+                LfsFactory.getInstance().getInstallCommand().setRepository(repository).call();
             }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
 
-            var hookFile = repository.getFS().findHook(repository, PrePushHook.NAME);
-            if (hookFile != null) {
-                try (var input = new FileInputStream(hookFile)) {
-                    var content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-                    if (content.contains("git lfs")) {
-                        // Rename pre-push hook otherwise we will be spammed with warning message (if native git with
-                        // LFS is found)
-                        log.info(
-                                "Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}",
-                                repository);
-                        var from = hookFile.getPath();
-                        var to = from + ".renamed";
-                        var renamed = hookFile.renameTo(new File(to));
-                        if (!renamed) {
-                            log.warn("Cannot rename '{}' to '{}'", from, to);
-                        }
+    private static void renameLfsPrePushHook(Repository repository) throws IOException {
+        var hookFile = repository.getFS().findHook(repository, PrePushHook.NAME);
+        if (hookFile != null) {
+            try (var input = new FileInputStream(hookFile)) {
+                var content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+                if (content.contains("git lfs")) {
+                    // Rename pre-push hook otherwise we will be spammed with warning message (if native git with
+                    // LFS is found)
+                    log.info(
+                            "Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}",
+                            repository);
+                    var from = hookFile.getPath();
+                    var to = from + ".renamed";
+                    var renamed = hookFile.renameTo(new File(to));
+                    if (!renamed) {
+                        log.warn("Cannot rename '{}' to '{}'", from, to);
                     }
                 }
             }
@@ -3155,39 +3245,36 @@ public class GitRepository implements BranchRepository, Closeable {
         public List<FileData> apply(Repository repository,
                                     TreeWalk rootWalk,
                                     String baseFolder) throws IOException {
-            if (rootWalk != null) {
-                // Iterate files in folder
-                var files = new ArrayList<FileData>();
-                if (rootWalk.getFilter() == TreeFilter.ALL) {
-                    while (rootWalk.next()) {
-                        files.add(createFileData(rootWalk, baseFolder, start));
-                    }
-                } else {
-                    // Only a folder holds files. A path that names one file is walked as a tree otherwise, and
-                    // Git answers that the blob is not a tree.
-                    if (rootWalk.getTreeCount() > 0 && FileMode.TREE.equals(rootWalk.getFileMode(0))) {
-                        try (var dirWalk = new TreeWalk(repository)) {
-                            dirWalk.addTree(rootWalk.getObjectId(0));
-                            dirWalk.setRecursive(true);
-                            while (dirWalk.next()) {
-                                if (revCommit != null) {
-                                    files.add(new LazyFileData(branch,
-                                            baseFolder + dirWalk.getPathString(),
-                                            GitRepository.this,
-                                            revCommit,
-                                            getFileId(dirWalk)));
-                                } else {
-                                    files.add(createFileData(dirWalk, baseFolder, start));
-                                }
-                            }
+            if (rootWalk == null) {
+                return List.of();
+            }
+            // Iterate files in folder
+            var files = new ArrayList<FileData>();
+            if (rootWalk.getFilter() == TreeFilter.ALL) {
+                while (rootWalk.next()) {
+                    files.add(createFileData(rootWalk, baseFolder, start));
+                }
+            } else if (rootWalk.getTreeCount() > 0 && FileMode.TREE.equals(rootWalk.getFileMode(0))) {
+                // Only a folder holds files. A path that names one file is walked as a tree otherwise, and
+                // Git answers that the blob is not a tree.
+                try (var dirWalk = new TreeWalk(repository)) {
+                    dirWalk.addTree(rootWalk.getObjectId(0));
+                    dirWalk.setRecursive(true);
+                    while (dirWalk.next()) {
+                        if (revCommit != null) {
+                            files.add(new LazyFileData(branch,
+                                    baseFolder + dirWalk.getPathString(),
+                                    GitRepository.this,
+                                    revCommit,
+                                    getFileId(dirWalk)));
+                        } else {
+                            files.add(createFileData(dirWalk, baseFolder, start));
                         }
                     }
                 }
-
-                return files;
-            } else {
-                return List.of();
             }
+
+            return files;
         }
     }
 

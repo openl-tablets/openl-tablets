@@ -7,6 +7,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.range.Range;
+import org.openl.rules.range.RangeParser;
 
 
 /**
@@ -49,37 +50,47 @@ public class DoubleRange extends Range<Double> implements INumberRange {
     public DoubleRange(String range) {
         Type rangeType;
         try {
-            var parser = parse(range);
-            if (parser == null) {
-                rangeType = Type.DEGENERATE;
-                this.lowerBound = convertToDouble(range.trim());
-                this.upperBound = this.lowerBound;
-            } else {
-                rangeType = parser.getType();
-                var left = parser.getLeft();
-                var right = parser.getRight();
-                lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
-                upperBound = right == null ? Double.POSITIVE_INFINITY : convertToDouble(right);
-            }
+            rangeType = parseBounds(range);
         } catch (RuntimeException ex) {
-            try {
-                if (range.contains("less") || range.contains("more")) {
-                    range = replaceVerbalBounds(range);
-                    var parser = parse(range);
-                    rangeType = parser.getType();
-                    var left = parser.getLeft();
-                    var right = parser.getRight();
-                    lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
-                    upperBound = right == null ? Double.POSITIVE_INFINITY : convertToDouble(right);
-                } else {
-                    throw ex;
-                }
-            } catch (Exception ignore) {
-                throw ex;
-            }
+            rangeType = parseVerbalBounds(range, ex);
         }
         this.type = rangeType;
         validate();
+    }
+
+    private Type parseBounds(String range) {
+        var parser = parse(range);
+        if (parser == null) {
+            this.lowerBound = convertToDouble(range.trim());
+            this.upperBound = this.lowerBound;
+            return Type.DEGENERATE;
+        }
+        return applyBounds(parser);
+    }
+
+    /**
+     * Parses a range with bounds written in words, like "less than 5" or "5 and more".
+     *
+     * @param failure the failure to report when the range cannot be parsed this way either
+     */
+    private Type parseVerbalBounds(String range, RuntimeException failure) {
+        if (!range.contains("less") && !range.contains("more")) {
+            throw failure;
+        }
+        try {
+            return applyBounds(parse(replaceVerbalBounds(range)));
+        } catch (Exception ignore) {
+            throw failure;
+        }
+    }
+
+    private Type applyBounds(RangeParser parser) {
+        var rangeType = parser.getType();
+        var left = parser.getLeft();
+        var right = parser.getRight();
+        lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
+        upperBound = right == null ? Double.POSITIVE_INFINITY : convertToDouble(right);
+        return rangeType;
     }
 
     /**
