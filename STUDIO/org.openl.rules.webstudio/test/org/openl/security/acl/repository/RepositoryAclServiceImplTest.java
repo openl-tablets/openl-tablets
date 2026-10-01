@@ -22,7 +22,7 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.security.acl.MutableAclService;
+import org.openl.security.acl.SidManagingAclService;
 import org.openl.security.acl.oid.AclObjectIdentityProvider;
 
 /**
@@ -32,13 +32,13 @@ import org.openl.security.acl.oid.AclObjectIdentityProvider;
  */
 class RepositoryAclServiceImplTest {
 
-    private MutableAclService aclService;
+    private SidManagingAclService aclService;
     private AclObjectIdentityProvider oidProvider;
     private RepositoryAclServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        aclService = mock(MutableAclService.class);
+        aclService = mock(SidManagingAclService.class);
         oidProvider = mock(AclObjectIdentityProvider.class);
         var sidRetrievalStrategy = mock(SidRetrievalStrategy.class);
         when(sidRetrievalStrategy.getSids(any())).thenReturn(List.of(new GrantedAuthoritySid("DEVELOPERS")));

@@ -27,7 +27,7 @@ import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.ExternalGroupServiceImpl;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.studio.security.GetUserPrivileges;
 
 /**
@@ -44,7 +44,8 @@ public class UserManagementConfiguration {
                                                        GroupDao groupDao,
                                                        SessionRegistry sessionRegistry,
                                                        PasswordEncoder passwordEncoder,
-                                                       @Autowired(required = false) JdbcMutableAclService aclService) {
+                                                       @Autowired(required = false)
+                                                       JdbcSidManagingAclService aclService) {
         return new UserManagementService(userDao, groupDao, sessionRegistry, passwordEncoder, aclService);
     }
 
@@ -57,7 +58,8 @@ public class UserManagementConfiguration {
 
     @Bean("groupManagementService")
     public GroupManagementService groupManagementService(GroupDao groupDao,
-                                                         @Autowired(required = false) JdbcMutableAclService aclService) {
+                                                         @Autowired(required = false)
+                                                         JdbcSidManagingAclService aclService) {
         return new GroupManagementService(groupDao, aclService);
     }
 

@@ -22,7 +22,7 @@ import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @RequiredArgsConstructor
@@ -39,7 +39,7 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
     private final TransactionTemplate txTemplate;
     private final SecureDesignTimeRepository designTimeRepository;
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
-    private final JdbcMutableAclService aclService;
+    private final JdbcSidManagingAclService aclService;
 
     @Override
     public void process(BulkAclOverwriteRequest request) {

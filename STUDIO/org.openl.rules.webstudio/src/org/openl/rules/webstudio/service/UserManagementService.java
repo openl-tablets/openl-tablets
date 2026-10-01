@@ -24,7 +24,7 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.util.StringUtils;
 
 /**
@@ -37,7 +37,7 @@ public class UserManagementService {
     private final GroupDao groupDao;
     private final SessionRegistry sessionRegistry;
     private final PasswordEncoder passwordEncoder;
-    private final JdbcMutableAclService aclService;
+    private final JdbcSidManagingAclService aclService;
 
     @Transactional(readOnly = true)
     public List<org.openl.rules.security.User> getAllUsers() {

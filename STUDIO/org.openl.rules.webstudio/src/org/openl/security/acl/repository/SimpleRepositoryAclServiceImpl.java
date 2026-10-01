@@ -27,14 +27,14 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import org.openl.rules.workspace.lw.LocalWorkspace;
-import org.openl.security.acl.MutableAclService;
+import org.openl.security.acl.SidManagingAclService;
 import org.openl.security.acl.oid.AclObjectIdentityProvider;
 
 @Slf4j
 public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclService {
 
 
-    protected final MutableAclService aclService;
+    protected final SidManagingAclService aclService;
     private final Sid relevantSystemWideSid;
     private final AclCache springCacheBasedAclCache;
     protected final SidRetrievalStrategy sidRetrievalStrategy;
@@ -52,7 +52,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     public SimpleRepositoryAclServiceImpl(AclCache springCacheBasedAclCache,
                                           Cache missingAclCache,
-                                          MutableAclService aclService,
+                                          SidManagingAclService aclService,
                                           Sid relevantSystemWideSid,
                                           SidRetrievalStrategy sidRetrievalStrategy,
                                           AclObjectIdentityProvider oidProvider) {

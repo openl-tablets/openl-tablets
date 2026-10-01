@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 
 /**
  * @author Andrei Astrouski
@@ -21,7 +21,7 @@ import org.openl.security.acl.JdbcMutableAclService;
 public class GroupManagementService {
 
     private final GroupDao groupDao;
-    private final JdbcMutableAclService aclService;
+    private final JdbcSidManagingAclService aclService;
 
     public List<org.openl.rules.security.Group> getGroups() {
         List<Group> groups = groupDao.getAllGroups();

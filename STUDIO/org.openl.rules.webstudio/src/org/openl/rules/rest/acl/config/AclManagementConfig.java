@@ -22,7 +22,7 @@ import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
-import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -70,7 +70,7 @@ public class AclManagementConfig {
                                                            PlatformTransactionManager txManager,
                                                            SecureDesignTimeRepository designTimeRepository,
                                                            SecureDeploymentRepositoryService deploymentRepositoryService,
-                                                           JdbcMutableAclService aclService) {
+                                                           JdbcSidManagingAclService aclService) {
         return new BulkAclOverwriteServiceImpl(
                 userManagementService,
                 groupManagementService,
