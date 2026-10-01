@@ -148,6 +148,8 @@ class JsonUtilsTest {
         assertEquals(objectMapper1, objectMapper2);
     }
 
+    // The pause gives the collector the chance to clear what is only weakly held.
+    @SuppressWarnings("java:S2925")
     @Test
     void getObjectMapperTest_GC_keep() {
         var key = new Object();

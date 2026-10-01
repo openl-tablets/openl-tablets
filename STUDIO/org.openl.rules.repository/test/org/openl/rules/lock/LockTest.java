@@ -75,6 +75,8 @@ class LockTest {
         assertFalse(lockInfo.isLocked());
     }
 
+    // The pause puts a time gap between the two lock files, which the scenario is about.
+    @SuppressWarnings("java:S2925")
     @Test
     void testSimultaneousLocksWithDelay() throws IOException {
         var user2PrepareLock = lock.createLockFile("user5");

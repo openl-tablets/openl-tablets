@@ -77,6 +77,8 @@ class RunRestRulesDeploymentTest {
         client.send("admin_services_no_services.json.get");
     }
 
+    // The pause keeps services invoked while deployments replace them; there is no event to wait for.
+    @SuppressWarnings("java:S2925")
     @Test
     void test_EPBDS_8758_multithread2() throws Exception {
         client.send("admin_services_no_services.json.get");

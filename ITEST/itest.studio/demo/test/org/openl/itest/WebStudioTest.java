@@ -46,6 +46,8 @@ class WebStudioTest {
      * the whole Spring context, and the restart used to race the start-up of the web application and fail it,
      * leaving every page answering 503 (EPBDS-16473).
      */
+    // The readiness is probed for a while at a steady pace; there is no event to wait for.
+    @SuppressWarnings("java:S2925")
     private static void staysReadyAfterStartUp(HttpClient client) throws InterruptedException {
         var deadline = System.nanoTime() + Duration.ofSeconds(5).toNanos();
         while (System.nanoTime() < deadline) {

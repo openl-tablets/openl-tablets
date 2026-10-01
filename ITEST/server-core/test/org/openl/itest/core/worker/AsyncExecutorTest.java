@@ -60,6 +60,8 @@ class AsyncExecutorTest {
         assertTrue(errors);
     }
 
+    // The task runs longer than the timeout on purpose.
+    @SuppressWarnings("java:S2925")
     @Test
     void testTimeout() {
         CountDownLatch waitToStart = new CountDownLatch(1);
