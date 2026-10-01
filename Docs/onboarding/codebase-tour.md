@@ -117,7 +117,7 @@ MyRules rules = factory.newInstance();
 - `org.openl.rules.annotations` - Custom annotations
 - `org.openl.rules.util` - Built-in functions for rules
 - `org.openl.rules.gen` - Code generation (build-time only)
-- `org.openl.rules.constrainer` - Constraint solver
+- `org.openl.rules.constrainer` - Gap/overlap check of decision tables
 - `org.openl.rules.test` - Testing framework
 
 **Dependency Flow**:

@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 
-import org.openl.ie.constrainer.consistencyChecking.Overlapping;
-import org.openl.ie.constrainer.consistencyChecking.Overlapping.OverlappingStatus;
-import org.openl.ie.constrainer.consistencyChecking.Uncovered;
+import org.openl.ie.constrainer.Overlapping;
+import org.openl.ie.constrainer.Overlapping.OverlappingStatus;
+import org.openl.ie.constrainer.Uncovered;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.validator.IValidationResult;
 import org.openl.util.ArrayOfNamedValues;

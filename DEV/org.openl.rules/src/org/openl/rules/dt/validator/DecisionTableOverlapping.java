@@ -6,7 +6,7 @@ package org.openl.rules.dt.validator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.openl.ie.constrainer.consistencyChecking.Overlapping;
+import org.openl.ie.constrainer.Overlapping;
 import org.openl.util.ArrayOfNamedValues;
 
 /**

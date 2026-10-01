@@ -10,8 +10,6 @@ public interface IDomainAdaptor {
 
     int getIndex(Object value);
 
-    int getIntVarDomainType();
-
     int getMax();
 
     int getMin();

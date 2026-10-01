@@ -3,7 +3,6 @@ package org.openl.rules.dt.type.domains;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.domain.IntRangeDomain;
-import org.openl.ie.constrainer.IntVar;
 
 @RequiredArgsConstructor
 public class IntRangeDomainAdaptor implements IDomainAdaptor {
@@ -13,11 +12,6 @@ public class IntRangeDomainAdaptor implements IDomainAdaptor {
     @Override
     public int getIndex(Object value) {
         return (Integer) value;
-    }
-
-    @Override
-    public int getIntVarDomainType() {
-        return IntVar.DOMAIN_PLAIN;
     }
 
     @Override

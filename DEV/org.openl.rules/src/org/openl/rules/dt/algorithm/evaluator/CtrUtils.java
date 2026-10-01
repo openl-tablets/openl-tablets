@@ -1,7 +1,6 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntBoolExpConst;
 import org.openl.ie.constrainer.IntExp;
 
 /**
@@ -15,7 +14,7 @@ public final class CtrUtils {
     public static IntBoolExp containsCtr(int[] ary, IntExp exp) {
 
         if (ary == null || ary.length == 0) {
-            return IntBoolExpConst.getIntBoolExpConst(exp.constrainer(), false);
+            return exp.constrainer().constant(false);
         }
 
         var b = exp.eq(ary[0]);
@@ -26,16 +25,6 @@ public final class CtrUtils {
 
         return b;
 
-    }
-
-    public static IntBoolExp containsCtr(Integer[] ary, IntExp exp) {
-        IntBoolExp b = IntBoolExpConst.getIntBoolExpConst(exp.constrainer(), true);
-
-        for (Integer integer : ary) {
-            b = b.or(exp.eq(integer));
-        }
-
-        return b;
     }
 
 }

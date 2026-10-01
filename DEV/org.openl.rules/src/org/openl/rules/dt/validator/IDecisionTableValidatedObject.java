@@ -3,7 +3,7 @@
  */
 package org.openl.rules.dt.validator;
 
-import org.openl.ie.constrainer.consistencyChecking.CDecisionTable;
+import org.openl.ie.constrainer.DTChecker;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.validator.IValidatedObject;
 
@@ -21,8 +21,10 @@ public interface IDecisionTableValidatedObject extends IValidatedObject {
     IConditionTransformer getTransformer();
 
     /**
-     * @return true if the {@link IDecisionTable} allows for ascending override (usually true for DT that return value)
-     * @see CDecisionTable#isOverrideAscending()
+     * Returns whether a rule of the {@link IDecisionTable} is applied before the rules below it: usually the case for a
+     * decision table that returns a value.
+     *
+     * @see DTChecker
      */
 
     boolean isOverrideAscending();

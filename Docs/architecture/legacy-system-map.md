@@ -38,7 +38,7 @@ This document provides a complete map of legacy, modern, and transitional compon
 | **Data Tables** | ✅ Modern | Production-ready | Continue using |
 | **Algorithm/TBasic** | ⚠️ Transitional | Limited usage | Evaluate need |
 | **Column Match** | ⚠️ Transitional | Niche use case | Evaluate need |
-| **Constraint Solver** | 🔴 Legacy | Rarely used, tests excluded | Consider removal |
+| **Constraint Solver** | ✅ Modern | Gap/overlap check of decision tables (`validateDT`) | Continue using |
 | **`OpenL.getInstance()`** | ❌ Deprecated | Static singleton | Remove in 7.0.0 |
 | **Operator methods in `Operators`** | ❌ Deprecated | 20+ methods | Use annotations instead |
 | **Legacy source modules** | ❌ Deprecated | Multiple classes | Being removed |
@@ -75,27 +75,6 @@ This document provides a complete map of legacy, modern, and transitional compon
 | **Archetypes** | ✅ Modern | Quick start | Continue using |
 | **OpenAPI Tools** | ✅ Modern | Code generation | Continue using |
 | **OpenTelemetry** | ✅ Modern | Observability | Continue using |
-
----
-
-## Legacy Technologies
-
-### 1. Constraint Solver
-
-**Status**: 🔴 **Legacy - Consider Removal**
-
-**Location**: `/DEV/org.openl.rules.constrainer/`
-
-**Why Legacy**:
-- Rarely used in practice
-- Tests excluded from build (broken)
-- Maintenance burden
-- Better alternatives available
-
-**Action**:
-- Evaluate usage in customer projects
-- If not used, schedule removal
-- If used, fix tests and document
 
 ---
 
@@ -195,13 +174,7 @@ management and the repository configuration all live there.
 
 ### High Priority (Critical)
 
-**1. Fix Constraint Solver Tests**
-- **Impact**: Medium
-- **Effort**: Small (1 week)
-- **Risk**: Low
-- **Action**: Fix or remove
-
-**2. Cache Implementation Review**
+**1. Cache Implementation Review**
 - **Impact**: High (memory leaks)
 - **Effort**: Medium (1 month)
 - **Risk**: High
@@ -209,19 +182,19 @@ management and the repository configuration all live there.
 
 ### Medium Priority (Important)
 
-**4. String Interning Review**
+**2. String Interning Review**
 - **Impact**: Medium
 - **Effort**: Medium
 - **Risk**: Medium
 - **Action**: Profile and optimize
 
-**5. Azure Repository Rewrite**
+**3. Azure Repository Rewrite**
 - **Impact**: Medium
 - **Effort**: Medium
 - **Risk**: Medium
 - **Action**: Use REST API directly
 
-**6. Generic Type Support**
+**4. Generic Type Support**
 - **Impact**: Medium (feature gap)
 - **Effort**: Large
 - **Risk**: High
@@ -229,13 +202,13 @@ management and the repository configuration all live there.
 
 ### Low Priority (Nice to Have)
 
-**7. Public Field Refactoring**
+**5. Public Field Refactoring**
 - **Impact**: Low
 - **Effort**: Small
 - **Risk**: Low
 - **Action**: Make fields private with getters
 
-**8. Method Overload Resolution Optimization**
+**6. Method Overload Resolution Optimization**
 - **Impact**: Low (performance)
 - **Effort**: Medium
 - **Risk**: Medium

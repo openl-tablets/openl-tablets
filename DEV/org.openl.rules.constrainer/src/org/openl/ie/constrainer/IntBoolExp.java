@@ -1,69 +1,79 @@
 package org.openl.ie.constrainer;
 
-/*
- * Copyright Exigen Group 1998, 1999, 2000
- * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
- *
- * The copyright to the computer program(s) herein
- * is the property of Exigen Group, USA. All rights reserved.
- * The program(s) may be used and/or copied only with
- * the written permission of Exigen Group
- * or in accordance with the terms and conditions
- * stipulated in the agreement/contract under which
- * the program(s) have been supplied.
- */
-
 /**
- * An interface for the constraint boolean expression as an [0..1] integer expression where 0 is false and 1 is true.
+ * A constrained boolean expression: an integer expression with the domain within [0..1], where 0 is false and 1 is
+ * true.
+ * <p>
+ * OpenL binds the operators {@code &&} and {@code ||} of the condition formulas to the methods {@code and} and
+ * {@code or} by their names.
  */
-public interface IntBoolExp extends IntExp {
-    /**
-     * Returns the boolean expression: <code>(this && value)</code>
-     */
-    IntBoolExp and(boolean value);
+public abstract class IntBoolExp extends IntExp {
+
+    IntBoolExp(Constrainer constrainer) {
+        super(constrainer);
+    }
+
+    IntBoolExp(Constrainer constrainer, String name) {
+        super(constrainer, name);
+    }
 
     /**
-     * Returns the boolean expression: <code>(this && exp)</code>
+     * Returns the expression {@code this && value}.
      */
-    IntBoolExp and(IntBoolExp exp);
+    public IntBoolExp and(boolean value) {
+        return value ? this : constrainer.constant(false);
+    }
 
     /**
-     * Returns the Constraint that corresponds to this expression.
+     * Returns the expression {@code this && exp}.
      */
-    Constraint asConstraint();
+    public IntBoolExp and(IntBoolExp exp) {
+        return new IntBoolExpAnd(this, exp);
+    }
 
     /**
-     * Returns true if the expression is false. Note: this is not equals to <code>!isTrue()</code>
+     * Returns the expression {@code this || value}.
      */
-    boolean isFalse();
+    public IntBoolExp or(boolean value) {
+        return value ? constrainer.constant(true) : this;
+    }
 
     /**
-     * Returns true if the expression is true. Note: this is not equals to <code>!isFalse()</code>
+     * Returns the expression {@code this || exp}.
      */
-    boolean isTrue();
+    public IntBoolExp or(IntBoolExp exp) {
+        return new IntBoolExpOr(this, exp);
+    }
 
     /**
-     * Returns the boolean expression: <code>(this || value)</code>
+     * Returns whether the expression is true. While the expression is unknown, it is neither true nor false.
      */
-    IntBoolExp or(boolean value);
+    boolean isTrue() {
+        return min() == 1;
+    }
 
     /**
-     * Returns the boolean expression: <code>(this || exp)</code>
+     * Returns whether the expression is false. While the expression is unknown, it is neither true nor false.
      */
-    IntBoolExp or(IntBoolExp exp);
+    boolean isFalse() {
+        return max() == 0;
+    }
 
     /**
-     * Sets the expression to be false.
+     * Makes the expression true.
      *
-     * @throws Failure if expression is bound to be true.
+     * @throws Failure if the expression is false
      */
-    void setFalse() throws Failure;
+    void setTrue() throws Failure {
+        setMin(1);
+    }
 
     /**
-     * Sets the expression to be true.
+     * Makes the expression false.
      *
-     * @throws Failure if expression is bound to be false.
+     * @throws Failure if the expression is true
      */
-    void setTrue() throws Failure;
-
-} // ~IntBoolExp
+    void setFalse() throws Failure {
+        setMax(0);
+    }
+}

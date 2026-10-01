@@ -24,7 +24,7 @@ import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.cache.GenericKey;
 import org.openl.conf.LibrariesRegistry;
 import org.openl.domain.IDomain;
-import org.openl.ie.constrainer.ConstrainerObject;
+import org.openl.ie.constrainer.IntExp;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -911,7 +911,7 @@ public class CastFactory implements ICastFactory {
             return null;
         }
 
-        if (ConstrainerObject.class.isAssignableFrom(fromClass)) {
+        if (IntExp.class.isAssignableFrom(fromClass)) {
             return null;
         }
 
