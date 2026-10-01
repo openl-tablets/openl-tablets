@@ -166,6 +166,8 @@ public class DoubleRange extends Range<Double> implements INumberRange {
         return TO_DOUBLE_RANGE_CAST_DISTANCE;
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     public static DoubleRange autocast(long x, DoubleRange y) {
         return new DoubleRange(x);
     }
@@ -206,6 +208,8 @@ public class DoubleRange extends Range<Double> implements INumberRange {
         return TO_DOUBLE_RANGE_CAST_DISTANCE;
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     public static DoubleRange autocast(IntRange x, DoubleRange y) {
         return new DoubleRange(x.getMin(), x.getMax());
     }

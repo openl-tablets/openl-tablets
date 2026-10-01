@@ -52,6 +52,8 @@ public class DefaultValueCellWriter {
         }
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     private static void setValue(String type,
                                  Object defaultValue,
                                  Cell valueCell,

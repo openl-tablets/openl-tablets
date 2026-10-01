@@ -686,6 +686,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     @Deprecated(since = "5.22.7")
     public static long pow(long x, long y) {
         return (long) Math.pow(x, y);

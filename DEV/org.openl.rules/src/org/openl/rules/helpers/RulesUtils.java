@@ -2210,6 +2210,8 @@ public final class RulesUtils {
         return Math.pow(a, b);
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     public static double pow(long a, long b) {
         return Math.pow(a, b);
     }

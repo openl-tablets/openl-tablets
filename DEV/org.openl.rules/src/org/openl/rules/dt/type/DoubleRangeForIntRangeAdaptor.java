@@ -12,6 +12,8 @@ public final class DoubleRangeForIntRangeAdaptor implements IRangeAdaptor<IntRan
         return INSTANCE;
     }
 
+    // The widening to floating point is intended; an explicit cast here is reported as redundant (java:S1905).
+    @SuppressWarnings("java:S9395")
     @Override
     public Double getMax(IntRange range) {
         if (range == null) {
