@@ -108,11 +108,6 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     }
 
     @Override
-    public void printStackTrace() {
-        printStackTrace(System.err);
-    }
-
-    @Override
     public void printStackTrace(PrintStream printStream) {
         var trace = new StringWriter();
         var writer = new PrintWriter(trace);
