@@ -9,6 +9,8 @@ import org.springframework.core.env.PropertySources;
 
 import org.openl.util.StringUtils;
 
+// Spring identifies a property source by its name: MutablePropertySources looks sources up and replaces them by name.
+@SuppressWarnings("java:S2160")
 public class RefPropertySource extends PropertySource<Object> {
 
     static final String PROPS_NAME = "References to properties";

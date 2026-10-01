@@ -14,6 +14,8 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.types.IOpenField;
 
+// OpenL types are equal by their instance class, which binding and casts rely on; the state added here is not identity.
+@SuppressWarnings("java:S2160")
 @Slf4j
 public class AlgorithmOpenClass extends ComponentOpenClass {
 

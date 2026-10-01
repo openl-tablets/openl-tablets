@@ -2627,6 +2627,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // The flag follows from the token text: "true" and "is true" are true tokens, the others are false ones.
+    @SuppressWarnings("java:S2160")
     private static class PredicateToken extends Token {
         @Getter
         boolean isTrue;

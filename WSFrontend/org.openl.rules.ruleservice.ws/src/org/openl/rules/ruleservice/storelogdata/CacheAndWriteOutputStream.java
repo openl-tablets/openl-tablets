@@ -17,6 +17,8 @@ import org.apache.cxf.io.CachedOutputStream;
  * {@link org.apache.cxf.io.CacheAndWriteOutputStream} writes to the target stream immediately and is used instead
  * whenever no synchronous logging is configured.
  */
+// CachedOutputStream compares the buffer it writes to, which belongs to one stream only.
+@SuppressWarnings("java:S2160")
 class CacheAndWriteOutputStream extends CachedOutputStream {
 
     private final OutputStream flowThroughStream;

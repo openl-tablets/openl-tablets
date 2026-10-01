@@ -473,6 +473,8 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
 
+    // A Java type is equal by its Java class; the state added here is derived from that class.
+    @SuppressWarnings("java:S2160")
     private static class JavaPrimitiveClass extends JavaOpenClass {
         private final Object nullObject;
 
@@ -492,6 +494,8 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
 
+    // A Java type is equal by its Java class; the state added here is derived from that class.
+    @SuppressWarnings("java:S2160")
     private static class JavaOpenInterface extends JavaOpenClass {
 
         private final AtomicReference<Class<?>> generatedImplClass = new AtomicReference<>();

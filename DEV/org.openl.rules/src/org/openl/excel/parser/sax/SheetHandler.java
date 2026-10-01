@@ -389,6 +389,8 @@ public class SheetHandler extends DefaultHandler {
         }
     }
 
+    // A map is equal by its entries as the Map contract requires; the size limit is not content.
+    @SuppressWarnings("java:S2160")
     private static class LruCache<A, B> extends LinkedHashMap<A, B> {
         private static final long serialVersionUID = -6937158218983475882L;
         private final int maxEntries;

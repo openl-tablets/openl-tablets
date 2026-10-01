@@ -15,6 +15,8 @@ import org.openl.rules.range.RangeParser;
  * The <code>IntRange</code> class stores range of integers. Examples : "1-3", "2 .. 4", "123 ... 1000" (Important:
  * using of ".." and "..." requires spaces between numbers and separator).
  */
+// Range.equals already compares the bounds this range keeps, reading them through getType, getLeft and getRight.
+@SuppressWarnings("java:S2160")
 @XmlRootElement
 public class IntRange extends Range<Long> implements INumberRange {
     private static final int TO_INT_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;

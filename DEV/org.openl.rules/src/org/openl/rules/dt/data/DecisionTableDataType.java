@@ -36,6 +36,8 @@ import org.openl.types.IOpenField;
  * @author snshor Created Jun 15, 2010
  */
 
+// OpenL types are equal by their instance class, which binding and casts rely on; the state added here is not identity.
+@SuppressWarnings("java:S2160")
 public class DecisionTableDataType extends ComponentOpenClass {
 
     public static String EXPR_FIELD_NAME = SpreadsheetStructureBuilder.DOLLAR_SIGN + "Expr";

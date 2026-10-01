@@ -19,7 +19,8 @@ public final class AliasWrapperLogic {
     }
 
     // A wrapper is the table method it wraps, and the hierarchy of the engine methods is that deep already.
-    @SuppressWarnings("java:S110")
+    // A wrapper equals the table it wraps; the alias is that table's id property, so equal tables have equal aliases.
+    @SuppressWarnings({"java:S110", "java:S2160"})
     private static class AliasAlgorithmWrapper extends AbstractAlgorithmWrapper {
         private final String aliasMethodName;
 
@@ -40,7 +41,8 @@ public final class AliasWrapperLogic {
     }
 
     // A wrapper is the table method it wraps, and the hierarchy of the engine methods is that deep already.
-    @SuppressWarnings("java:S110")
+    // A wrapper equals the table it wraps; the alias is that table's id property, so equal tables have equal aliases.
+    @SuppressWarnings({"java:S110", "java:S2160"})
     private static class AliasAlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSubroutineMethodWrapper {
         private final String aliasMethodName;
 
@@ -62,7 +64,8 @@ public final class AliasWrapperLogic {
     }
 
     // A wrapper is the table method it wraps, and the hierarchy of the engine methods is that deep already.
-    @SuppressWarnings("java:S110")
+    // A wrapper equals the table it wraps; the alias is that table's id property, so equal tables have equal aliases.
+    @SuppressWarnings({"java:S110", "java:S2160"})
     private static class AliasDecisionTableWrapper extends AbstractDecisionTableWrapper {
         private final String aliasMethodName;
 
@@ -84,7 +87,8 @@ public final class AliasWrapperLogic {
     }
 
     // A wrapper is the table method it wraps, and the hierarchy of the engine methods is that deep already.
-    @SuppressWarnings("java:S110")
+    // A wrapper equals the table it wraps; the alias is that table's id property, so equal tables have equal aliases.
+    @SuppressWarnings({"java:S110", "java:S2160"})
     private static class AliasColumnMatchWrapper extends AbstractColumnMatchWrapper {
         private final String aliasMethodName;
 
@@ -106,7 +110,8 @@ public final class AliasWrapperLogic {
     }
 
     // A wrapper is the table method it wraps, and the hierarchy of the engine methods is that deep already.
-    @SuppressWarnings("java:S110")
+    // A wrapper equals the table it wraps; the alias is that table's id property, so equal tables have equal aliases.
+    @SuppressWarnings({"java:S110", "java:S2160"})
     private static class AliasSpreadsheetWrapper extends AbstractSpreadsheetWrapper {
         private final String aliasMethodName;
 
@@ -128,7 +133,8 @@ public final class AliasWrapperLogic {
     }
 
     // A wrapper is the table method it wraps, and the hierarchy of the engine methods is that deep already.
-    @SuppressWarnings("java:S110")
+    // A wrapper equals the table it wraps; the alias is that table's id property, so equal tables have equal aliases.
+    @SuppressWarnings({"java:S110", "java:S2160"})
     private static class AliasTableMethodWrapper extends AbstractTableMethodWrapper {
         private final String aliasMethodName;
 

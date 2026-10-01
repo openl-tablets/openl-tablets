@@ -18,6 +18,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.types.NullOpenClass;
 
+// A loader is equal by the dependency it loads; the added field is the parent's dependency manager by its type.
+@SuppressWarnings("java:S2160")
 final class WebStudioDependencyLoader extends SimpleDependencyLoader {
 
     private final WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceRelatedDependencyManager;
