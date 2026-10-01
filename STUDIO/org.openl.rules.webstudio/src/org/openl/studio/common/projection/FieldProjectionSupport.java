@@ -131,7 +131,7 @@ public class FieldProjectionSupport {
             case PageResponse<?> page -> firstElementType(page.getContent());
             case Iterable<?> iterable -> firstElementType(iterable);
             case Object[] array -> firstElementType(Arrays.asList(array));
-            default -> ClassUtils.getUserClass(body);
+            case Object other -> ClassUtils.getUserClass(other);
         };
     }
 
