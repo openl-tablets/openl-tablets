@@ -17,6 +17,8 @@ const ProjectWorkspace = React.lazy(() =>
     import('../containers/ProjectWorkspace').then(module => ({ default: module.ProjectWorkspace })))
 const ModuleWorkspace = React.lazy(() =>
     import('../containers/ModuleWorkspace').then(module => ({ default: module.ModuleWorkspace })))
+// The user guides bring a Markdown renderer, code highlighting and diagrams of their own, loaded on the first visit.
+const UserGuides = React.lazy(() => import('../containers/userGuides/UserGuides'))
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
 import { DefaultLayout } from '../layouts/DefaultLayout'
@@ -52,6 +54,15 @@ const router = createBrowserRouter([
             {
                 path: 'help',
                 element: <Help />,
+            },
+            {
+                // The user guides OpenL Studio ships, each page at the address the documentation site gives it.
+                path: 'docs/*',
+                element: (
+                    <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                        <UserGuides />
+                    </React.Suspense>
+                ),
             },
             {
                 path: 'projects',

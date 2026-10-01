@@ -46,24 +46,22 @@ const guideLinks = () => Object.fromEntries(
 )
 
 describe('Help', () => {
-    it('links every guide of the release to its folder on the documentation site', () => {
+    it('opens every guide inside OpenL Studio, where the build ships it', () => {
         renderHelp(openlInfo('6.4.0'))
 
         expect(guideLinks()).toEqual({
-            'Getting Started': 'https://openl-tablets.org/openl-tablets/6.4.0/user-guides/getting-started',
-            'Installation Guide': 'https://openl-tablets.org/openl-tablets/6.4.0/user-guides/installation-guide',
-            'Reference Guide': 'https://openl-tablets.org/openl-tablets/6.4.0/user-guides/reference-guide',
-            'OpenL Studio User Guide': 'https://openl-tablets.org/openl-tablets/6.4.0/user-guides/openl-studio',
-            'Rule Services Usage and Customization Guide':
-                'https://openl-tablets.org/openl-tablets/6.4.0/user-guides/rule-services',
+            'Getting Started': '/docs/getting-started/',
+            'Installation Guide': '/docs/installation-guide/',
+            'Reference Guide': '/docs/reference-guide/',
+            'OpenL Studio User Guide': '/docs/openl-studio/',
+            'Rule Services Usage and Customization Guide': '/docs/rule-services/',
         })
     })
 
-    it('links the guides of the next release from a snapshot build', () => {
+    it('opens the guides in the same tab, as a screen of the application', () => {
         renderHelp(openlInfo('6.5.0-SNAPSHOT'))
 
-        expect(Object.values(guideLinks())).toSatisfy((links: (string | null)[]) =>
-            links.every(link => link?.startsWith('https://openl-tablets.org/openl-tablets/next/user-guides/')))
+        expect(screen.getByRole('link', { name: 'Reference Guide' })).not.toHaveAttribute('target')
     })
 
     it('offers no PDF guides any more', () => {
@@ -73,10 +71,16 @@ describe('Help', () => {
         expect(document.querySelectorAll('a[href$=".pdf"]')).toHaveLength(0)
     })
 
+    it('links the official site of the build', () => {
+        renderHelp({ ...openlInfo('6.4.0'), 'openl.site': 'https://example.org' })
+
+        expect(screen.getByRole('link', { name: 'Official Website' })).toHaveAttribute('href', 'https://example.org')
+        expect(screen.getByRole('link', { name: 'OpenL Tablets News' })).toHaveAttribute('href', 'https://example.org/news')
+    })
+
     it('falls back to the official site while the build information is not loaded', () => {
         renderHelp()
 
-        expect(screen.getByRole('link', { name: 'Installation Guide' }))
-            .toHaveAttribute('href', 'https://openl-tablets.org/openl-tablets/unknown/user-guides/installation-guide')
+        expect(screen.getByRole('link', { name: 'Official Website' })).toHaveAttribute('href', 'https://openl-tablets.org')
     })
 })

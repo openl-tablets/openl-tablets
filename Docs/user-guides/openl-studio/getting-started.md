@@ -210,6 +210,22 @@ New users start with **Follow System**, the **Standard** theme, and the comforta
 
 To display the OpenL Studio help topics, in OpenL Studio, in the top-right corner, click the user icon and select **Help**.
 
+The **Documentation** section of the help page opens the user guides inside OpenL Studio. They are the guides of the
+running version, so they are available without internet access.
+
+![User guides inside OpenL Studio: the guides and their pages on the left, the Using Rules Editor page in the middle, and the sections of the page on the right](images/user-guides-viewer.png)
+
+*Reading the user guides inside OpenL Studio*
+
+-   The left pane lists the guides and their pages. Click a page to open it, or click the arrow next to a section to
+    expand it. If titles are cut off, drag the right edge of the pane to widen it; the browser remembers the width.
+-   The **On This Page** pane on the right lists the sections of the open page. Click a section to scroll to it; the
+    browser address then includes the section, so a bookmark opens the page at that section.
+-   A link to another page of the guides opens it in the same view; a link to another site opens in a new browser tab.
+
+Every page has an address of its own under `/docs`, the one it has on the documentation site, so it can be bookmarked
+or sent to another user of the same OpenL Studio.
+
 ### Signing Out of OpenL Studio
 
 To sign out of OpenL Studio, proceed as follows:

@@ -107,13 +107,16 @@ The guides viewer is part of the `studio-ui` application, its single `index` ent
 
 - **Loaded on demand** — the `/docs/*` route loads the viewer as a lazy chunk, the way `ProjectWorkspace` is loaded.
   A user who never opens the guides downloads none of its code.
-- **Chunk content** — the Markdown renderer, the sanitizer, the CSV parser and the highlighting grammars.
+- **Chunk content** — the Markdown renderer, the sanitizer, the CSV parser, and lowlight with the grammars of the
+  languages the guides use. lowlight is used directly rather than through `rehype-highlight`, which imports the
+  grammars of 37 languages whichever are asked for.
 - **Nested chunks** — the Mermaid library loads with the first diagram, and the search index loads with the first
   search, so reading a page without diagrams pays for neither.
 
-The viewer shows a sidebar from `toc.json` and a table of contents from the page headings. Links are resolved
-against the page that contains them. A `.md` link becomes an in-app route, an image becomes a `/docs/...` file
-address, and an external link opens in a new tab.
+The viewer shows a sidebar from `toc.json`, and beside the page its outline: the two highest heading levels below the
+heading the page opens with, which the site takes for the title. A page without a heading of its own is given the
+title of its `toc.json` entry. Links are resolved against the page that contains them. A `.md` link becomes an
+in-app route, an image becomes a `/docs/...` file address, and an external link opens in a new tab.
 
 The Help page links its documentation card to `/docs/<guide>/` instead of the documentation site.
 
@@ -221,6 +224,9 @@ The viewer searches the text of all guides, or of one part of the guides tree.
 - **Two renderers** — the Jekyll site and the viewer render the same files. The site does not draw Mermaid diagrams
   or `> [!Note]` alerts yet, and it shows `csv` and `openl` fences as plain code. It gains them through the theme's
   `head/custom.html` include, which needs no Jekyll plugin. Until then, the plain code stays readable.
+- **Licenses** — Mermaid reaches `robust-predicates` through d3, released into the public domain under the
+  Unlicense, so the license check of the `studio-ui` build accepts the Unlicense. Mermaid 12 depends on `elkjs`
+  (EPL-2.0), so the viewer uses Mermaid 11.
 - **First search cost** — the first search of a session downloads every page of the guides once. The index
   grows with the guides.
 - **Follow-ups** — screens can open their guide section through a `/docs/<path>#<anchor>` link. Screenshots of OpenL
