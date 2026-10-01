@@ -215,33 +215,11 @@ public class DoubleRange extends Range<Double> implements INumberRange {
     }
 
     private static double convertToDouble(String text) {
-        var start = 0;
-        if (text.startsWith("$")) {
-            start++;
-        }
-        if (text.charAt(start) == ',') {
-            // special case, when comma as a group separator is in the beginning.
+        if (!Character.isDigit(text.charAt(text.length() - 1)) || text.indexOf('e') >= 0 || text.indexOf('E') >= 0) {
+            // A Java number may end with a dot or a type letter and may have an exponent, a range bound may not.
             throw new NumberFormatException("For input string: \"" + text + "\"");
         }
-        var end = text.length();
-        var multiplier = switch (text.charAt(end - 1)) {
-            case 'B' -> 1_000_000_000.0;
-            case 'M' -> 1_000_000.0;
-            case 'K' -> 1_000.0;
-            default -> 1.0;
-        };
-        if (multiplier > 1.0) {
-            // the multiplier suffix is not a part of the number
-            end--;
-        }
-        if (!Character.isDigit(text.charAt(end - 1)) || text.indexOf('e') >= 0 || text.indexOf('E') >= 0) {
-            // special case, when comma or decimal separator, or letter is in the ending.
-            // These symbols are prohibited even if they are valid for Java numbers.
-            throw new NumberFormatException("For input string: \"" + text + "\"");
-        }
-        text = text.substring(start, end).replace(",", "");
-        var value = Double.parseDouble(text);
-        return value * multiplier;
+        return Double.parseDouble(text);
     }
 
 }

@@ -219,10 +219,10 @@ Or like this:
 
 | Gender | Age   | Marital Status | Mileage | Use      | Bodily Injury | Property Damage | Medical | Collision | Comprehensive |
 |--------|-------|----------------|---------|----------|---------------|-----------------|---------|-----------|---------------|
-| Male   | 16-20 | Single         | 0-10K   | Pleasure | 3.90          | 3.90            | 2.10    | 4.45      | 2.95          |
-| Male   | 21-24 | Single         | 0-10K   | Pleasure | 2.00          | 2.00            | 1.50    | 2.55      | 2.20          |
-| Female | 16-20 | Single         | 0-10K   | Pleasure | 2.80          | 2.80            | 1.90    | 2.90      | 2.20          |
-| Female | 21-24 | Single         | 0-10K   | Pleasure | 1.65          | 1.65            | 1.50    | 2.00      | 1.40          |
+| Male   | 16-20 | Single         | 0-10000 | Pleasure | 3.90          | 3.90            | 2.10    | 4.45      | 2.95          |
+| Male   | 21-24 | Single         | 0-10000 | Pleasure | 2.00          | 2.00            | 1.50    | 2.55      | 2.20          |
+| Female | 16-20 | Single         | 0-10000 | Pleasure | 2.80          | 2.80            | 1.90    | 2.90      | 2.20          |
+| Female | 21-24 | Single         | 0-10000 | Pleasure | 1.65          | 1.65            | 1.50    | 2.00      | 1.40          |
 
 *... 50 or more rows of similar nature*
 

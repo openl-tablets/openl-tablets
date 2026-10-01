@@ -212,6 +212,15 @@ class ParserTest {
     }
 
     @Test
+    void testRemovedBusinessLiterals() throws OpenLConfigurationException {
+        _testErrorMsg("10K", "Encountered");
+        _testErrorMsg("1.5M", "Encountered");
+        _testErrorMsg("1,000", "Encountered");
+        _testErrorMsg("08", "Encountered");
+        _testType("$100", "identifier");
+    }
+
+    @Test
     void testIf() {
         _testType("if (x) a();", "control.if");
     }

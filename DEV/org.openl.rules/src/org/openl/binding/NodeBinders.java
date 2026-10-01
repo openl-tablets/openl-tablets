@@ -10,7 +10,6 @@ import org.openl.binding.impl.BinaryOperatorAndNodeBinder;
 import org.openl.binding.impl.BinaryOperatorNodeBinder;
 import org.openl.binding.impl.BinaryOperatorOrNodeBinder;
 import org.openl.binding.impl.BlockBinder;
-import org.openl.binding.impl.BusinessIntNodeBinder;
 import org.openl.binding.impl.CharNodeBinder;
 import org.openl.binding.impl.DoubleNodeBinder;
 import org.openl.binding.impl.ForNodeBinder;
@@ -73,7 +72,6 @@ public class NodeBinders {
         BINDERS.put("literal.percent", new PercentNodeBinder());
         BINDERS.put("literal.string", new StringNodeBinder());
         BINDERS.put("literal.char", new CharNodeBinder());
-        BINDERS.put("literal.integer.business", new BusinessIntNodeBinder());
         BINDERS.put("array.init", new ArrayInitializationBinder());
         BINDERS.put("method.header", new MethodHeaderNodeBinder());
         BINDERS.put("param.declaration", new ParameterDeclarationNodeBinder());

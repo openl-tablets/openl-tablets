@@ -45,6 +45,27 @@ everyone who calls that API from outside the browser.
   type. `->` was never backed by an implementation, so no working rule uses it. Percent literals such as `10%` are
   not affected.
 
+* **A number in a formula or a range is written in digits only.** The `$` sign, the thousands separator and the `K`,
+  `M`, `B` multipliers are removed, because they read differently across countries and `$` also starts a reference
+  to a spreadsheet step. A formula or a range that still uses one of them no longer compiles. Rewrite the number:
+
+  | Before        | After             |
+  |---------------|-------------------|
+  | `= $600 * 2`  | `= 600 * 2`       |
+  | `= 1.5M`      | `= 1500000`       |
+  | `[1K .. 10K)` | `[1000 .. 10000)` |
+  | `>= $2,500`   | `>= 2500`         |
+
+  Two cases change the result instead of failing, so search the rules for a comma between digits:
+
+  - In a formula, the comma separates values. `{1,500}` is an array of `1` and `500`, and `max(1,000)` compares `1`
+    with `0`.
+  - In a condition of a smart rule or a simple rule over numbers, `1,000` is the list of `1` and `0`, not `1000`.
+
+  A leading zero makes a whole number octal, as in Java, so `08` and `09` no longer compile: write `Date(2021, 4, 8)`
+  instead of `Date(2021, 04, 08)`. Number values in Data and Test tables never accepted these forms and are not
+  affected.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 

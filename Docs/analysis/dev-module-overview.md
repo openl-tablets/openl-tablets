@@ -321,8 +321,8 @@ interface IDecisionTable extends IOpenMethod {
 Decision Table: Calculate Premium
 |  Age  |  Risk  | Premium |
 |-------|--------|---------|
-| 18-25 | High   |  $500   |  <- Rule row
-| 26-65 | Low    |  $200   |  <- Rule row
+| 18-25 | High   |  500    |  <- Rule row
+| 26-65 | Low    |  200    |  <- Rule row
 ```
 
 **Key Components**:

@@ -339,18 +339,6 @@ TOKEN :
 | 
   < #OCTAL_LITERAL : "0" ([ "0"-"7" ])* >
 | 
-  < #FP_LITERAL1 :
-    ([ "0"-"9" ])+
-    (
-      "." ([ "0"-"9" ])+
-    )? >
-| 
-  < #FP_LITERAL2 :
-    [ "1"-"9" ] ([ "0"-"9" ])? ([ "0"-"9" ])? ("," [ "0"-"9" ] [ "0"-"9" ] [ "0"-"9" ])+
-    (
-      "." ([ "0"-"9" ])+
-    )? >
-| 
   < FLOATING_POINT_LITERAL :
     (
       ([ "0"-"9" ])+ "." ([ "0"-"9" ])* (< EXPONENT >)? ([ "f", "F", "d", "D" ])?
@@ -358,12 +346,6 @@ TOKEN :
     | ([ "0"-"9" ])+ < EXPONENT > ([ "f", "F", "d", "D" ])?
     | ([ "0"-"9" ])+ (< EXPONENT >)? [ "f", "F", "d", "D" ]
     ) 
-  >
-| 
-  < BUSINESS_INTEGER_LITERAL :
-    ("$")? 	< FP_LITERAL1 > ([ "M", "K", "B" ])?
-  | 
-    ("$")? 	< FP_LITERAL2 > ([ "M", "K", "B" ])? 
   >
 | 
   < DATE_FORMAT_LITERAL_4_2_2 : 
@@ -1456,11 +1438,6 @@ void Literal() :
   < INTEGER_LITERAL >
   {
     literal("literal.integer", pos(token), token.image);
-  }
-| 
-  < BUSINESS_INTEGER_LITERAL >
-  {
-    literal("literal.integer.business", pos(token), token.image);
   }
 | 
   < PERCENT_LITERAL >

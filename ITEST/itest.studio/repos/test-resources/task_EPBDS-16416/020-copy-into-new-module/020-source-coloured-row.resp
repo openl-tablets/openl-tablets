@@ -217,7 +217,7 @@ Content-Type: application/json
       },
       {
         "cell": "G13",
-        "value": "< 8K",
+        "value": "< 8000",
         "style": {
           "background": "#b9cde5",
           "align": "center",
@@ -236,7 +236,7 @@ Content-Type: application/json
       },
       {
         "cell": "H13",
-        "value": "[8K .. 100K)",
+        "value": "[8000 .. 100000)",
         "style": {
           "background": "#b9cde5",
           "align": "center",
@@ -255,7 +255,7 @@ Content-Type: application/json
       },
       {
         "cell": "I13",
-        "value": ">= 100K",
+        "value": ">= 100000",
         "style": {
           "background": "#b9cde5",
           "align": "center",
@@ -274,7 +274,7 @@ Content-Type: application/json
       },
       {
         "cell": "J13",
-        "value": "< 1K",
+        "value": "< 1000",
         "style": {
           "background": "#b9cde5",
           "align": "center",
@@ -293,7 +293,7 @@ Content-Type: application/json
       },
       {
         "cell": "K13",
-        "value": "[1K .. 10K)",
+        "value": "[1000 .. 10000)",
         "style": {
           "background": "#b9cde5",
           "align": "center",
@@ -312,7 +312,7 @@ Content-Type: application/json
       },
       {
         "cell": "L13",
-        "value": ">= 10K",
+        "value": ">= 10000",
         "style": {
           "background": "#b9cde5",
           "align": "center",

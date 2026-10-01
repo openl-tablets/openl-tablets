@@ -235,11 +235,12 @@ class RunTest {
     }
 
     @Test
-    void testBusinessLiteral() {
-        assertToExpected(" 10M is more or equal 1K", true);
-        assertToExpected(" 10K is more or equal 1L", true);
-        assertToExpected(" 1K is more or equal 100", true);
-        assertToExpected(" -1K is more or equal 100", false);
+    void testRemovedBusinessLiteral() {
+        assertToExpected("int[] ary = {1,000}; ary.length", 2);
+        assertToExpected("int[] ary = {1,500}; ary[1]", 500);
+        assertToExpected("max(1,000)", 1);
+        assertErrorStartWith("10M is more or equal 1K", "Encountered");
+        assertErrorStartWith("$100 + 1", "Identifier '$100' is not found");
     }
 
     @Test
