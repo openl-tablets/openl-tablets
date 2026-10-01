@@ -65,7 +65,7 @@ public class FastStringReader extends Reader {
      * @throws IOException If an I/O error occurs
      */
     @Override
-    public int read(char cbuf[], int off, int len) throws IOException {
+    public int read(char[] cbuf, int off, int len) throws IOException {
         ensureOpen();
         if (off < 0 || off > cbuf.length || len < 0 || off + len > cbuf.length || off + len < 0) {
             throw new IndexOutOfBoundsException();
