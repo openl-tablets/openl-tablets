@@ -18,6 +18,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 
 @Slf4j
@@ -40,7 +41,7 @@ public class StyleIndexHandler extends DefaultHandler {
 
     public StyleIndexHandler(IGridRegion tableRegion, int sheetIndex) {
         this.tableRegion = tableRegion;
-        cellIndexes = new int[IGridRegion.Tool.height(tableRegion)][IGridRegion.Tool.width(tableRegion)];
+        cellIndexes = new int[GridRegionUtils.height(tableRegion)][GridRegionUtils.width(tableRegion)];
         this.sheetIndex = sheetIndex;
 
         formulaParsingWorkbook = new SAXFormulaParsingWorkbook();
@@ -51,7 +52,7 @@ public class StyleIndexHandler extends DefaultHandler {
         if ("c".equals(localName)) {
             var cellRef = attributes.getValue("r");
             current = new CellAddress(cellRef);
-            if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow())) {
+            if (GridRegionUtils.contains(tableRegion, current.getColumn(), current.getRow())) {
                 var cellStyleStr = attributes.getValue("s");
                 int styleIndex = cellStyleStr != null ? Integer.parseInt(cellStyleStr) : 0;
                 var internalRow = current.getRow() - tableRegion.getTop();
@@ -61,7 +62,7 @@ public class StyleIndexHandler extends DefaultHandler {
         } else if ("f".equals(localName)) {
             sharedFormulaIndex = attributes.getValue("si");
             sharedFormulaRef = attributes.getValue("ref");
-            if (IGridRegion.Tool.contains(tableRegion,
+            if (GridRegionUtils.contains(tableRegion,
                     current.getColumn(),
                     current.getRow()) || sharedFormulaIndex != null && sharedFormulaRef != null) {
                 readFormula = true;
@@ -84,7 +85,7 @@ public class StyleIndexHandler extends DefaultHandler {
                 sharedFormulas.put(sharedFormulaIndex,
                         new SharedFormulaDefinition(formula.toString(), sharedFormulaRef));
             }
-            if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow())) {
+            if (GridRegionUtils.contains(tableRegion, current.getColumn(), current.getRow())) {
                 try {
                     var value = formula.toString();
                     if (sharedFormulaIndex != null && sharedFormulaRef == null) {

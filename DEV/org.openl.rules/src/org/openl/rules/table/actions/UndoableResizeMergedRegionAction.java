@@ -1,6 +1,7 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
@@ -37,7 +38,7 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridTableActio
             // Wrong region created
             newRegion = null;
         }
-        if (IGridRegion.Tool.width(newRegion) == 1 && IGridRegion.Tool.height(newRegion) == 1) {
+        if (GridRegionUtils.width(newRegion) == 1 && GridRegionUtils.height(newRegion) == 1) {
             newRegion = null;
         }
     }

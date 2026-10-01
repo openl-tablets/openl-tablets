@@ -3,6 +3,7 @@ package org.openl.rules.table.actions;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -20,7 +21,7 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
 
     @Override
     protected boolean canPerformAction(IGridRegion gridRegion) {
-        return !(startCol < 0 || startCol >= IGridRegion.Tool.width(gridRegion));
+        return !(startCol < 0 || startCol >= GridRegionUtils.width(gridRegion));
     }
 
     @Override

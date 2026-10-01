@@ -6,8 +6,8 @@ import java.util.List;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.common.exception.BadRequestException;
@@ -78,14 +78,14 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
 
         if (isUpdateMode()) {
             // Clean up removed rows
-            var height = IGridRegion.Tool.height(tableBody.getRegion());
+            var height = GridRegionUtils.height(tableBody.getRegion());
             if (nextRow < height) {
                 removeRows(tableBody, height - nextRow, nextRow);
             }
 
             // Clean up removed columns
             var width = tableView.headers.size();
-            var currentWidth = IGridRegion.Tool.width(tableBody.getRegion());
+            var currentWidth = GridRegionUtils.width(tableBody.getRegion());
             if (width < currentWidth) {
                 removeColumns(tableBody, currentWidth - width, width);
             }
@@ -165,7 +165,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
 
             // Calculate next row after existing data
             // The height already points to the next empty row after all existing data
-            var row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = GridRegionUtils.height(tableBody.getRegion());
 
             // Append new rows
             for (var dataRow : rows) {
@@ -188,7 +188,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
             var originalGrid = originalTable.getGrid();
             var leftCell = gridRegion.getLeft();
             var topCell = gridRegion.getTop();
-            var firstPropertyRow = IGridRegion.Tool.height(originalGrid.getCell(leftCell, topCell).getAbsoluteRegion());
+            var firstPropertyRow = GridRegionUtils.height(originalGrid.getCell(leftCell, topCell).getAbsoluteRegion());
             var propsHeader = originalGrid.getCell(leftCell, topCell + firstPropertyRow).getStringValue();
             var fromRow = 1;
             if (!GridTool.tableWithoutPropertySection(propsHeader)) {

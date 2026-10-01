@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 
 import lombok.Getter;
 
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
@@ -116,8 +117,8 @@ public class XlsUrlParser {
             return false;
         }
 
-        IGridRegion i1 = IGridRegion.Tool.makeRegion(range);
-        return IGridRegion.Tool.intersects(i1, IGridRegion.Tool.makeRegion(p2.range));
+        IGridRegion i1 = GridRegionUtils.makeRegion(range);
+        return GridRegionUtils.intersects(i1, GridRegionUtils.makeRegion(p2.range));
     }
 
 }

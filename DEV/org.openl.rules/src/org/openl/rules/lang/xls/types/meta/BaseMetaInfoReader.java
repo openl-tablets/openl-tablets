@@ -22,6 +22,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -71,7 +72,7 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     @Override
     public final CellMetaInfo getMetaInfo(int row, int col) {
         try {
-            if (!IGridRegion.Tool.contains(getGridTable().getRegion(), col, row)) {
+            if (!GridRegionUtils.contains(getGridTable().getRegion(), col, row)) {
                 return null;
             }
 

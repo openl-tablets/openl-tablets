@@ -51,6 +51,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.openl.excel.parser.TableStyles;
 import org.openl.excel.parser.event.style.CommentsCollector;
 import org.openl.excel.parser.event.style.EventTableStyles;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 
 @Slf4j
@@ -77,7 +78,7 @@ public class TableStyleListener implements HSSFListener {
     public TableStyleListener(EventSheetDescriptor sheet, IGridRegion tableRegion) {
         this.sheet = sheet;
         this.tableRegion = tableRegion;
-        cellIndexes = new int[IGridRegion.Tool.height(tableRegion)][IGridRegion.Tool.width(tableRegion)];
+        cellIndexes = new int[GridRegionUtils.height(tableRegion)][GridRegionUtils.width(tableRegion)];
     }
 
     void process(String fileName) throws IOException {
@@ -187,7 +188,7 @@ public class TableStyleListener implements HSSFListener {
             var row = r.getRow();
             short column = r.getColumn();
 
-            if (IGridRegion.Tool.contains(tableRegion, column, row)) {
+            if (GridRegionUtils.contains(tableRegion, column, row)) {
                 currentFormula = (FormulaRecord) rec;
                 // Don't forget to save style index
                 saveStyleIndex(r, row, column);
@@ -201,7 +202,7 @@ public class TableStyleListener implements HSSFListener {
             var row = r.getRow();
             short column = r.getColumn();
 
-            if (IGridRegion.Tool.contains(tableRegion, column, row)) {
+            if (GridRegionUtils.contains(tableRegion, column, row)) {
                 saveStyleIndex(r, row, column);
             }
         }

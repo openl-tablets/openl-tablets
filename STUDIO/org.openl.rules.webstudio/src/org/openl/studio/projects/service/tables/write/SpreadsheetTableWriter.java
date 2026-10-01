@@ -7,7 +7,7 @@ import java.util.Objects;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.common.exception.BadRequestException;
@@ -110,7 +110,7 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
         try {
             table.getGridTable().edit();
             var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
-            var rowId = IGridRegion.Tool.height(tableBody.getRegion());
+            var rowId = GridRegionUtils.height(tableBody.getRegion());
             for (var i = 0; i < rows.size(); i++) {
                 appendRow(tableBody, rowId + i, rows.get(i), cells[i]);
             }

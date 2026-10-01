@@ -39,7 +39,7 @@ public abstract class AGrid implements IGrid {
         var nRegions = getNumberOfMergedRegions();
         for (var i = 0; i < nRegions; i++) {
             var reg = getMergedRegion(i);
-            if (IGridRegion.Tool.contains(reg, col, row)) {
+            if (GridRegionUtils.contains(reg, col, row)) {
                 return reg;
             }
         }
@@ -68,7 +68,6 @@ public abstract class AGrid implements IGrid {
     @Override
     public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
         var region = getRegionContaining(firstCellColumn, firstCellRow);
-        return region != null && IGridRegion.Tool
-                .contains(region, secondCellColumn, secondCellRow);
+        return region != null && GridRegionUtils.contains(region, secondCellColumn, secondCellRow);
     }
 }

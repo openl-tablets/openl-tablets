@@ -18,11 +18,11 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.CellKey.CellKeyFactory;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.SubGridTable;
@@ -182,7 +182,7 @@ public abstract class TableWriter<T extends TableView> {
             var propName = entry.getKey();
             boolean newProperty = GridTool.getPropertyRowIndex(originalRegion, originalGrid, propName) == -1;
             if (newProperty) {
-                int tableWidth = Tool.width(originalRegion);
+                int tableWidth = GridRegionUtils.width(originalRegion);
                 int nColsToInsert = 0;
                 if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                     nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
@@ -221,14 +221,14 @@ public abstract class TableWriter<T extends TableView> {
         boolean inserted = false;
         if (region.getBottom() <= grow) {
             int nRows = grow - region.getBottom();
-            int beforeRow = region.getTop() - originalTable.getRegion().getTop() + Tool.height(region);
+            int beforeRow = region.getTop() - originalTable.getRegion().getTop() + GridRegionUtils.height(region);
             insertRows(gridTable, nRows, beforeRow);
             inserted = true;
         }
         int gcol = cellKey.getColumn() + region.getLeft();
         if (region.getRight() <= gcol) {
             int nCols = gcol - region.getRight();
-            int beforeCol = region.getLeft() - originalTable.getRegion().getLeft() + Tool.width(region);
+            int beforeCol = region.getLeft() - originalTable.getRegion().getLeft() + GridRegionUtils.width(region);
             insertColumns(gridTable, nCols, beforeCol);
             inserted = true;
         }

@@ -20,6 +20,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
@@ -118,8 +119,8 @@ class MergedRegionsTest {
     private void compareTablesByCell(IGridRegion testRegion,
                                      IGridRegion expectedRegion,
                                      XlsSheetGridModel grid) throws DifferentCellsException {
-        var height = Math.max(IGridRegion.Tool.height(testRegion), IGridRegion.Tool.height(expectedRegion));
-        var width = Math.max(IGridRegion.Tool.width(testRegion), IGridRegion.Tool.width(expectedRegion));
+        var height = Math.max(GridRegionUtils.height(testRegion), GridRegionUtils.height(expectedRegion));
+        var width = Math.max(GridRegionUtils.width(testRegion), GridRegionUtils.width(expectedRegion));
         for (var row = 0; row <= height; row++) {
             for (var column = 0; column <= width; column++) {
                 var resultCell = (XlsCell) grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);

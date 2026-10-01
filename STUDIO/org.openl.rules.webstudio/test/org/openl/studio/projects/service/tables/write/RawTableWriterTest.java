@@ -23,6 +23,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IOpenLTable;
@@ -1393,7 +1394,7 @@ class RawTableWriterTest {
         var count = 0;
         for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             var merged = grid.getMergedRegion(i);
-            if (IGridRegion.Tool.contains(region, merged.getLeft(), merged.getTop())) {
+            if (GridRegionUtils.contains(region, merged.getLeft(), merged.getTop())) {
                 count++;
             }
         }

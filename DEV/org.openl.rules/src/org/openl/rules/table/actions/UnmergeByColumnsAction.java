@@ -3,6 +3,7 @@ package org.openl.rules.table.actions;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
@@ -22,7 +23,7 @@ public class UnmergeByColumnsAction implements IUndoableGridTableAction {
             var column = region.getLeft();
             while (column < region.getRight()) {
                 var mergedRegion = grid.getRegionStartingAt(column, row);
-                if (mergedRegion != null && IGridRegion.Tool.width(mergedRegion) > 1) {
+                if (mergedRegion != null && GridRegionUtils.width(mergedRegion) > 1) {
                     grid.removeMergedRegion(mergedRegion);
                     for (var i = mergedRegion.getLeft(); i <= mergedRegion.getRight(); i++) {
                         grid.addMergedRegion(new GridRegion(mergedRegion.getTop(), i, mergedRegion.getBottom(), i));

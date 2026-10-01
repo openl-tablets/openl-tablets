@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 
@@ -93,7 +94,7 @@ record TableWindow(int startRow, int rows) {
         var merges = new ArrayList<IGridRegion>();
         for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             var merged = grid.getMergedRegion(i);
-            if (IGridRegion.Tool.contains(region, merged.getLeft(), merged.getTop())) {
+            if (GridRegionUtils.contains(region, merged.getLeft(), merged.getTop())) {
                 merges.add(merged);
             }
         }
