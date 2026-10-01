@@ -99,6 +99,33 @@ describe('TraceTree', () => {
         expect(useTraceStore.getState().breakpoints).toContain('u0#R1C0')
     })
 
+    it('lists its rows as items of a tree and runs a step from the keyboard', async () => {
+        useTraceStore.setState({
+            projectId: 'p1',
+            status: 'suspended',
+            frames: [
+                frame(0, { name: 'ROOT', steps: [step('R0C0', 'current', '$Call')]}),
+                frame(1, { name: 'Child', active: true, steps: [step('R1C0', 'pending', '$Next')]}),
+            ],
+            selectedFrameIndex: 1,
+        })
+
+        render(<TraceTree />)
+        const tree = screen.getByRole('tree', { name: 'tree.title' })
+        expect(tree).toContainElement(screen.getByTestId('tree-frame-0'))
+        // The frame picked is the selected item of the tree; every other row is an item that is not.
+        expect(screen.getByTestId('tree-frame-1')).toHaveAttribute('aria-selected', 'true')
+        expect(screen.getByTestId('tree-frame-0')).toHaveAttribute('aria-selected', 'false')
+        expect(screen.getByTestId('tree-step-1-R1C0')).toHaveAttribute('aria-selected', 'false')
+        expect(screen.getAllByRole('treeitem')).toHaveLength(4)
+        expect(screen.queryAllByRole('button', { name: /ROOT|Child|\$Next/ })).toHaveLength(0)
+
+        screen.getByTestId('tree-step-1-R1C0').focus()
+        await userEvent.keyboard('{Enter}')
+        await waitFor(() => expect(resume).toHaveBeenCalledWith('p1'))
+        expect(useTraceStore.getState().breakpoints).toContain('u1#R1C0')
+    })
+
     it('starts a new run fully collapsed instead of inheriting stale expansions', async () => {
         const child: CallNodeView = {
             uri: 'cu', name: 'ChildTable', instance: 0, kind: 'spreadsheet',

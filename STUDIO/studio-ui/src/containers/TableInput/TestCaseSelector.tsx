@@ -164,15 +164,14 @@ export const TestCaseSelector: React.FC<TestCaseSelectorProps> = ({
         {
             key: 'parameters',
             title: t('testCases.title'),
+            // Reading a value, or opening one, is not a way of picking the case.
+            ownClicks: true,
             render: (row: CaseRow) => (
-                // Reading a value, or opening one, is not a way of picking the case: the click stops here.
-                <div onClick={event => event.stopPropagation()} role="presentation">
-                    <ParameterValueList
-                        keyPrefix={`case-${row.id}`}
-                        onLoad={index => readCase(tableId, row.id).then(read => read.parameters[index])}
-                        parameters={row.parameters}
-                    />
-                </div>
+                <ParameterValueList
+                    keyPrefix={`case-${row.id}`}
+                    onLoad={index => readCase(tableId, row.id).then(read => read.parameters[index])}
+                    parameters={row.parameters}
+                />
             ),
         },
     ]

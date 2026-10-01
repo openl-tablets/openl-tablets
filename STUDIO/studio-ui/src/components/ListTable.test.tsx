@@ -39,6 +39,18 @@ describe('ListTable', () => {
         expect(onRowClick).toHaveBeenCalledWith(rows[1])
     })
 
+    it('keeps a click in a cell of its own from picking the row', async () => {
+        const onRowClick = vi.fn()
+        const own: ListTableColumn<Row> = { key: 'note', title: 'Note', ownClicks: true, render: row => `note ${row.id}` }
+        renderTable({ columns: [...columns, own], onRowClick })
+
+        await userEvent.click(screen.getByText('note 2'))
+        expect(onRowClick).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByText('Second'))
+        expect(onRowClick).toHaveBeenCalledWith(rows[1])
+    })
+
     it('gives a row the keyboard reached to the screen that owns it', async () => {
         const onRowClick = vi.fn()
         renderTable({ onRowClick })

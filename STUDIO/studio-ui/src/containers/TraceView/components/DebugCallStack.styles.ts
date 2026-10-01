@@ -17,13 +17,20 @@ export const useStyles = createStyles(({ css, token }) => ({
         background: ${token.colorFillQuaternary};
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
+    // A native button, stripped of its own chrome so it reads as the plain row of the stack.
     frame: css`
         display: flex;
         align-items: center;
         cursor: pointer;
         gap: ${token.marginXS}px;
+        margin: 0;
         padding: ${token.paddingXXS}px ${token.paddingSM}px;
+        border: none;
         border-left: 2px solid transparent;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: start;
         transition: background ${token.motionDurationMid};
         &:hover {
             background: ${token.colorFillTertiary};

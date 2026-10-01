@@ -45,7 +45,7 @@ export function deriveProjectRow(project: Project, repoInfoOf: (project: Project
     }
 }
 
-/** Activate a non-button row/card from the keyboard: Enter or Space run the handler. */
+/** Activate a non-button table row from the keyboard: Enter or Space run the handler. */
 export const activateOnKey = (onActivate: () => void) => (event: KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()

@@ -2,7 +2,6 @@ import React from 'react'
 import { Tag, Empty } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
-import { onActivate } from 'utils/keyboardActivate'
 import { kindIcon } from './TraceIcons'
 import { useStyles } from './DebugCallStack.styles'
 
@@ -28,14 +27,12 @@ const DebugCallStack: React.FC = () => {
         <div className={styles.panel} data-testid="debug-callstack">
             <div className={styles.header}>{t('debug.callStack')}</div>
             {ordered.map((frame) => (
-                <div
+                <button
                     key={frame.index}
                     aria-current={frame.active ? 'true' : undefined}
                     data-testid={`debug-frame-${frame.index}`}
                     onClick={() => selectFrame(frame.index)}
-                    onKeyDown={onActivate(() => selectFrame(frame.index))}
-                    role="button"
-                    tabIndex={0}
+                    type="button"
                     className={cx(
                         styles.frame,
                         frame.active && styles.frameCurrent,
@@ -49,7 +46,7 @@ const DebugCallStack: React.FC = () => {
                         <span className={styles.location}>{frame.location.label}</span>
                     )}
                     {frame.error && <Tag color="error">{t('severity.ERROR')}</Tag>}
-                </div>
+                </button>
             ))}
         </div>
     )

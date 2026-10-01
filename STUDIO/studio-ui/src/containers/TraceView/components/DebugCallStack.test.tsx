@@ -99,7 +99,7 @@ describe('DebugCallStack', () => {
         await waitFor(() => expect(getVariables).toHaveBeenCalledWith('p1', 0))
     })
 
-    it('selects a frame from the keyboard (Space activates the row)', async () => {
+    it('selects a frame from the keyboard, each frame being a native button', async () => {
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame(0, { name: 'ROOT' }), frame(1, { name: 'Child', active: true })],
@@ -107,8 +107,16 @@ describe('DebugCallStack', () => {
         })
         render(<DebugCallStack />)
 
-        screen.getByTestId('debug-frame-0').focus()
+        const root = screen.getByRole('button', { name: /ROOT/ })
+        expect(root).toBe(screen.getByTestId('debug-frame-0'))
+        expect(root).toHaveAttribute('type', 'button')
+
+        root.focus()
         await userEvent.keyboard(' ')
         await waitFor(() => expect(useTraceStore.getState().selectedFrameIndex).toBe(0))
+
+        screen.getByRole('button', { name: /Child/ }).focus()
+        await userEvent.keyboard('{Enter}')
+        await waitFor(() => expect(useTraceStore.getState().selectedFrameIndex).toBe(1))
     })
 })

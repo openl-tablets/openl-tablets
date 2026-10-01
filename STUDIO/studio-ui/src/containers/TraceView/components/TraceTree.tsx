@@ -42,6 +42,19 @@ interface TreeRow {
     moreCount?: number
 }
 
+/**
+ * Makes a row an item of the tree that runs the given action when it is clicked or activated from the keyboard.
+ *
+ * Only a frame is ever the selected item of the tree, so such a row is never selected.
+ */
+const treeItem = (action: () => void) => ({
+    'aria-selected': false,
+    onClick: action,
+    onKeyDown: onActivate(action),
+    role: 'treeitem',
+    tabIndex: 0,
+})
+
 const hasChildren = (step: StepValueView): boolean =>
     (step.children?.length ?? 0) > 0 || (step.childrenTotal ?? 0) > 0
 
@@ -305,10 +318,11 @@ const TraceTree: React.FC = () => {
         return (
             <div
                 key={row.key}
+                aria-selected={row.frameIndex === selectedFrameIndex}
                 data-testid={`tree-frame-${row.frameIndex}`}
                 onClick={selectThisFrame}
                 onKeyDown={onActivate(selectThisFrame)}
-                role="button"
+                role="treeitem"
                 style={indent(row.depth)}
                 tabIndex={0}
                 className={cx(styles.row, styles.frame, frame.active && styles.current,
@@ -355,11 +369,12 @@ const TraceTree: React.FC = () => {
         return (
             <Tooltip key={row.key} title={tooltip}>
                 <div
+                    aria-selected={false}
                     data-rowkey={row.key}
                     data-testid={`tree-step-${row.frameIndex}-${step.ref}`}
                     onClick={onClick}
                     onKeyDown={onActivate(onClick)}
-                    role="button"
+                    role="treeitem"
                     style={indent(row.depth)}
                     tabIndex={0}
                     className={cx(styles.row,
@@ -395,7 +410,7 @@ const TraceTree: React.FC = () => {
                         className={cx(styles.row, styles.inactive, row.refTargetKey && styles.runnable)}
                         data-testid={`tree-ref-${row.key}`}
                         style={indent(row.depth)}
-                        {...(jump && { onClick: jump, onKeyDown: onActivate(jump), role: 'button', tabIndex: 0 })}
+                        {...(jump && treeItem(jump))}
                     >
                         <span className={styles.chevronSlot} />
                         <LinkOutlined className={styles.refIcon} />
@@ -453,7 +468,7 @@ const TraceTree: React.FC = () => {
                 style={indent(row.depth)}
                 className={cx(styles.row, row.expandKey && styles.runnable,
                     flashKey === row.key && styles.flashed)}
-                {...(expand && { onClick: expand, onKeyDown: onActivate(expand), role: 'button', tabIndex: 0 })}
+                {...(expand && treeItem(expand))}
             >
                 {twisty(row.expandKey)}
                 {/* An empty mark slot, matching the live step's, so executed steps line up with live rows. */}
@@ -480,8 +495,7 @@ const TraceTree: React.FC = () => {
                 key={row.key}
                 className={cx(styles.row, styles.inactive)}
                 style={indent(row.depth)}
-                {...(loadMore && { onClick: loadMore, onKeyDown: onActivate(loadMore), role: 'button',
-                    tabIndex: 0, 'data-testid': `tree-more-${row.key}` })}
+                {...(loadMore && { ...treeItem(loadMore), 'data-testid': `tree-more-${row.key}` })}
             >
                 <span className={styles.chevronSlot} />
                 <span className={cx(styles.leafLabel, loadMore && styles.moreLink)}>
@@ -544,7 +558,9 @@ const TraceTree: React.FC = () => {
             {truncated && (
                 <div className={styles.truncated} data-testid="trace-tree-truncated">{t('tree.truncated')}</div>
             )}
-            {rows.map(render)}
+            <div aria-label={t('tree.title')} role="tree">
+                {rows.map(render)}
+            </div>
         </div>
     )
 }

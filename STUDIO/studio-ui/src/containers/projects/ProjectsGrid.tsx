@@ -9,7 +9,7 @@ import { RepoBadge } from './RepoBadge'
 import { RowCompileDot } from './CompileIndicator'
 import { ProjectRowActions, type ProjectListHandlers } from './ProjectRowActions'
 import type { RowBusyId } from './projectActions'
-import { deriveProjectRow, activateOnKey, ProjectBranchSwitch, ProjectTags } from './projectRow'
+import { deriveProjectRow, ProjectBranchSwitch, ProjectTags } from './projectRow'
 import type { ProjectStatusUpdate } from '../../services/projectStatus'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -19,6 +19,9 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 12px;
     `,
     card: css`
+        /* The stacking of the button stretched over the card, and of what rises above it, stays inside the card. */
+        position: relative;
+        isolation: isolate;
         display: flex;
         flex-direction: column;
         padding: 16px;
@@ -31,11 +34,6 @@ const useStyles = createStyles(({ css, token }) => ({
         &:hover {
             border-color: ${token.colorPrimaryBorder};
             background: ${token.colorFillQuaternary};
-        }
-
-        &:focus-visible {
-            outline: 2px solid ${token.colorPrimaryBorder};
-            outline-offset: -2px;
         }
 
         &:hover .card-chevron {
@@ -57,6 +55,49 @@ const useStyles = createStyles(({ css, token }) => ({
         /* The name keeps the height of the actions button, so the header band never shifts when a card
            carries no actions. */
         min-height: ${token.controlHeight}px;
+    `,
+    /**
+     * The button that opens the project. It is drawn as the plain title it is, and stretched over the whole card,
+     * so a click anywhere on the card opens the project and the card is ringed while the button has the focus.
+     * The stretch lies over everything else on the card, its tags too; the button's own marks rise above it, so
+     * their hints still show.
+     */
+    open: css`
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: start;
+        cursor: pointer;
+
+        &::after {
+            content: '';
+            position: absolute;
+            z-index: 1;
+            inset: -1px;
+            border-radius: ${token.borderRadiusLG}px;
+        }
+
+        &:focus-visible {
+            outline: none;
+        }
+
+        &:focus-visible::after {
+            outline: 2px solid ${token.colorPrimaryBorder};
+            outline-offset: -2px;
+        }
+
+        & > * {
+            position: relative;
+            z-index: 2;
+        }
+    `,
+    /** A control of the card's own, above the button stretched over the card, so it is the one clicked. */
+    raised: css`
+        position: relative;
+        z-index: 2;
     `,
     name: css`
         min-width: 0;
@@ -152,18 +193,15 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                 const { muted, repoLabel, repoType, supportsBranches, lockLabel, tags, date } = deriveProjectRow(project, repoInfoOf, t)
                 const pendingActionId = pending[project.id] ?? null
                 return (
-                    <div
-                        key={project.id}
-                        aria-label={project.name}
-                        className={styles.card}
-                        data-testid={`project-card-${project.id}`}
-                        onClick={() => onOpen(project)}
-                        onKeyDown={activateOnKey(() => onOpen(project))}
-                        role="button"
-                        tabIndex={0}
-                    >
+                    <div key={project.id} className={styles.card} data-testid={`project-card-${project.id}`}>
                         <div className={styles.head}>
-                            <div className={styles.title}>
+                            <button
+                                aria-label={project.name}
+                                className={cx(styles.title, styles.open)}
+                                data-testid={`project-open-${project.id}`}
+                                onClick={() => onOpen(project)}
+                                type="button"
+                            >
                                 <StatusMark status={project.status} testId={`status-${project.id}`} />
                                 <Typography.Text
                                     className={cx(styles.name, muted && styles.nameMuted)}
@@ -180,8 +218,8 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                                     compileStatus={compileStatusByProject.get(project.id)}
                                     status={project.status}
                                 />
-                            </div>
-                            <div className={styles.headRight}>
+                            </button>
+                            <div className={cx(styles.headRight, styles.raised)}>
                                 <ProjectRowActions handlers={handlers} layout="menu" pendingActionId={pendingActionId} project={project} />
                             </div>
                         </div>
@@ -189,9 +227,10 @@ export const ProjectsGrid = ({ projects, repoInfoOf, handlers, onOpen, compileSt
                             <ProjectTags tags={tags} />
                         </div>
                         <div className={styles.footer}>
-                            <RepoBadge className={styles.repoMeta} name={repoLabel} type={repoType} />
+                            {/* Above the button stretched over the card, so its hint shows a repository name cut short. */}
+                            <RepoBadge className={cx(styles.repoMeta, styles.raised)} name={repoLabel} type={repoType} />
                             {/* Switching a branch is a card action of its own: it must not open the project. */}
-                            <span onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()} role="presentation">
+                            <span className={styles.raised}>
                                 <ProjectBranchSwitch
                                     busy={pendingActionId !== null}
                                     onSwitched={onChanged}

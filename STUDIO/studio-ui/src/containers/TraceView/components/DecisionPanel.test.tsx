@@ -111,6 +111,17 @@ describe('DecisionPanel', () => {
         expect(useTraceStore.getState().breakpoints).not.toContain('dt/uri#Standard')
     })
 
+    it('toggles a rule breakpoint from the keyboard, the gutter being a native button', async () => {
+        render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" />)
+
+        const gutter = screen.getByTestId('decision-rule-bp-Senior')
+        expect(gutter).toBeInstanceOf(HTMLButtonElement)
+        expect(gutter).toHaveAccessibleName('debug.addBreakpoint')
+        gutter.focus()
+        await userEvent.keyboard('{Enter}')
+        expect(useTraceStore.getState().breakpoints).toContain('dt/uri#Senior')
+    })
+
     it('arms a breakpoint on any rule chosen from the all-rules dropdown', async () => {
         // The full rule list is available even before any rule fires (decision is null).
         render(<DecisionPanel decision={null} frameName="DT" frameUri="dt/uri" ruleNames={['R1', 'R2', 'R3']} />)
