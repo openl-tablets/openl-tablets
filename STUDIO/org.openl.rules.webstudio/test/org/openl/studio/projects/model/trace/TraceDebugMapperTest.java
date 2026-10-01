@@ -175,7 +175,7 @@ class TraceDebugMapperTest {
                 new ConditionCheck(state, new int[]{0}, true),     // State matched for Standard
                 new ConditionCheck(state, new int[]{1}, false));   // State failed for Senior
 
-        var decision = TraceDebugMapper.buildDecision(dt, checks, new int[]{0});  // rule 0 fired
+        var decision = DecisionTableMapper.buildDecision(dt, checks, new int[]{0});  // rule 0 fired
         assertNotNull(decision);
         assertEquals(List.of("Standard"), decision.firedRules());
         // One row per checked condition cell, mirroring the green/red highlight: 2 + 1 + 1.
@@ -186,7 +186,7 @@ class TraceDebugMapperTest {
                 c -> c.condition().equals("Age") && c.rule().equals("Standard") && c.matched()));
 
         // Suspended at entry: nothing evaluated and no rule fired → no explanation.
-        assertNull(TraceDebugMapper.buildDecision(dt, List.of(), new int[0]));
+        assertNull(DecisionTableMapper.buildDecision(dt, List.of(), new int[0]));
     }
 
     @Test
@@ -197,7 +197,7 @@ class TraceDebugMapperTest {
         when(dt.getRuleName(1)).thenReturn("R2");
         when(dt.getRuleName(2)).thenReturn("R3");
 
-        var steps = TraceDebugMapper.ruleOutline(dt, new int[]{0});  // R1 fired and is mid-action
+        var steps = DecisionTableMapper.ruleOutline(dt, new int[]{0});  // R1 fired and is mid-action
 
         assertEquals(List.of("R1", "R2", "R3"), steps.stream().map(StepValueView::ref).toList());
         // The fired rule is current so a sub-table called from its action nests under it, not the last rule.
@@ -207,7 +207,7 @@ class TraceDebugMapperTest {
         assertTrue(steps.stream().allMatch(s -> s.value() == null), "the outline carries no values");
 
         // Nothing fired yet (suspended at entry): every rule is pending and run-to-able.
-        assertTrue(TraceDebugMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> s.status() == StepStatus.PENDING));
+        assertTrue(DecisionTableMapper.ruleOutline(dt, new int[0]).stream().allMatch(s -> s.status() == StepStatus.PENDING));
     }
 
     @Test
@@ -219,7 +219,7 @@ class TraceDebugMapperTest {
         when(dt.getRuleName(2)).thenReturn("R3");
         when(dt.getRuleName(3)).thenReturn("R2");  // a duplicate name collapses to one
 
-        assertEquals(List.of("R1", "R2", "R3"), TraceDebugMapper.ruleNames(dt));
+        assertEquals(List.of("R1", "R2", "R3"), DecisionTableMapper.ruleNames(dt));
     }
 
     @Test
