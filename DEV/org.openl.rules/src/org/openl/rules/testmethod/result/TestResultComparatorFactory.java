@@ -14,37 +14,37 @@ public class TestResultComparatorFactory {
 
     public static TestResultComparator getComparator(Class<?> clazz, Double delta) {
         if (clazz == null) {
-            GenericComparator.getInstance();
+            return GenericComparator.INSTANCE;
         } else if (clazz.isArray()) {
             return new ArrayComparator(clazz.getComponentType(), delta);
         } else if (String.class == clazz) {
-            return StringComparator.getInstance();
+            return StringComparator.INSTANCE;
         } else if (NumberUtils.isNumberType(clazz)) {
             return getNumberComparator(clazz, delta);
         } else if (ClassUtils.isAssignable(clazz, Comparable.class)) {
             // Expected result and actual result can be different types (StubSpreadsheet)
-            return ComparableComparator.getInstance();
+            return ComparableComparator.INSTANCE;
         } else if (ClassUtils.isAssignable(clazz, Collection.class)) {
-            return CollectionComparator.getInstance();
+            return CollectionComparator.INSTANCE;
         } else if (ClassUtils.isAssignable(clazz, Map.class)) {
-            return MapComparator.getInstance();
+            return MapComparator.INSTANCE;
         } else if (Object.class == clazz || Serializable.class == clazz) {
             if (delta == null) {
-                return ObjectComparator.getInstance();
+                return ObjectComparator.INSTANCE;
             } else {
                 return new ObjectComparator(delta);
             }
         }
-        return GenericComparator.getInstance();
+        return GenericComparator.INSTANCE;
     }
 
     private static TestResultComparator getNumberComparator(Class<?> clazz, Double delta) {
         if (delta == null) {
             if (NumberUtils.isNonFloatPointType(clazz)) {
                 // let's use Comparable comparator
-                return ComparableComparator.getInstance();
+                return ComparableComparator.INSTANCE;
             }
-            return NumberComparator.getInstance();
+            return NumberComparator.INSTANCE;
         } else {
             return new NumberComparator(delta);
         }

@@ -7,10 +7,10 @@ package org.openl.rules.testmethod.result;
  */
 class GenericComparator<T> implements TestResultComparator {
 
-    private static final GenericComparator<Object> INSTANCE = new GenericComparator<>();
+    static final TestResultComparator INSTANCE = new GenericComparator<>();
 
     /**
-     * Use {@link #getInstance()} instead.
+     * Use {@link #INSTANCE} instead.
      */
     GenericComparator() {
     }
@@ -46,9 +46,5 @@ class GenericComparator<T> implements TestResultComparator {
 
     boolean equals(T expected, T actual) {
         return expected.equals(actual);
-    }
-
-    public static TestResultComparator getInstance() {
-        return INSTANCE;
     }
 }

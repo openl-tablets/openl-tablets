@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class NumberComparatorTest {
     @Test
     void test() {
-        var comp = (NumberComparator) NumberComparator.getInstance();
+        var comp = NumberComparator.INSTANCE;
 
         assertTrue(comp.isEqual(null, null));
 

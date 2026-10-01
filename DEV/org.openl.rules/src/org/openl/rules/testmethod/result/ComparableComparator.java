@@ -5,11 +5,10 @@ package org.openl.rules.testmethod.result;
  */
 class ComparableComparator<T extends Comparable<T>> extends GenericComparator<T> {
 
-    @SuppressWarnings("rawtypes")
-    private static final ComparableComparator INSTANCE = new ComparableComparator();
+    static final TestResultComparator INSTANCE = new ComparableComparator<>();
 
     /**
-     * Use {@link #getInstance()} instead.
+     * Use {@link #INSTANCE} instead.
      */
     private ComparableComparator() {
     }
@@ -23,9 +22,5 @@ class ComparableComparator<T extends Comparable<T>> extends GenericComparator<T>
     @Override
     boolean equals(T expected, T actual) {
         return expected.compareTo(actual) == 0;
-    }
-
-    public static TestResultComparator getInstance() {
-        return INSTANCE;
     }
 }
