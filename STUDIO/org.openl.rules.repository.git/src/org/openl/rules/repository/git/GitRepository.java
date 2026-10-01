@@ -1389,10 +1389,11 @@ public class GitRepository implements BranchRepository, Closeable {
                 sb.append(" (").append(branchName).append(')');
             }
         };
-        for (String conflictedFile : toAutoResolve.keySet()) {
+        for (var entry : toAutoResolve.entrySet()) {
+            var conflictedFile = entry.getKey();
+            var diffResult = entry.getValue();
             output.reset();
             sb.append("\n\t").append(conflictedFile);
-            var diffResult = toAutoResolve.get(conflictedFile);
             var sheetDiffResult = diffResult.getSheetDiffResult();
             var ourConflictedFile = parseHistory0(conflictedFile, ourCommit, new ReadHistoryVisitor(ourCommit));
             for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.OUR)) {
