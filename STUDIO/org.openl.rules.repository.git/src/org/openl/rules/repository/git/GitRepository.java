@@ -748,17 +748,9 @@ public class GitRepository implements BranchRepository, Closeable {
         var localBranches = getAvailableBranches(git);
         var remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
         for (Ref remoteBranch : remoteBranches) {
-            if (remoteBranch.isSymbolic()) {
-                log.debug("Skip the symbolic branch '{}'.", remoteBranch.getName());
-                continue;
-            }
-            if (!remoteBranch.getName().startsWith(remotePrefix)) {
-                log.warn("The branch {} will not be tracked", remoteBranch.getName());
-                continue;
-            }
-            var branchName = remoteBranch.getName().substring(remotePrefix.length());
+            var branchName = trackedBranchName(remoteBranch, remotePrefix);
             try {
-                if (!localBranches.contains(branchName)) {
+                if (branchName != null && !localBranches.contains(branchName)) {
                     createRemoteTrackingBranch(git, branchName);
                 }
             } catch (RefAlreadyExistsException e) {
@@ -768,6 +760,21 @@ public class GitRepository implements BranchRepository, Closeable {
                         remoteBranch.getName());
             }
         }
+    }
+
+    /**
+     * The name of the local branch that tracks the remote branch, or {@code null} when the remote branch is not tracked.
+     */
+    private static @Nullable String trackedBranchName(Ref remoteBranch, String remotePrefix) {
+        if (remoteBranch.isSymbolic()) {
+            log.debug("Skip the symbolic branch '{}'.", remoteBranch.getName());
+            return null;
+        }
+        if (!remoteBranch.getName().startsWith(remotePrefix)) {
+            log.warn("The branch {} will not be tracked", remoteBranch.getName());
+            return null;
+        }
+        return remoteBranch.getName().substring(remotePrefix.length());
     }
 
     private void detectCanRunHooks() {
@@ -1303,17 +1310,17 @@ public class GitRepository implements BranchRepository, Closeable {
                             new ReadHistoryVisitor(theirCommit));
                     if (baseConflictedFile == null || ourConflictedFile == null || theirConflictedFile == null) {
                         allCanAutoResolve = false;
-                        continue;
-                    }
-                    try (XlsWorkbookMerger workbookMerger = XlsWorkbookMerger.create(baseConflictedFile.getStream(),
-                            ourConflictedFile.getStream(),
-                            theirConflictedFile.getStream())) {
-                        var diffResult = workbookMerger.getDiffResult();
-                        if (!diffResult.hasConflicts()) {
-                            toAutoResolve.put(conflictedFile, diffResult);
-                            diffs.remove(conflictedFile);
-                        } else {
-                            allCanAutoResolve = false;
+                    } else {
+                        try (XlsWorkbookMerger workbookMerger = XlsWorkbookMerger.create(baseConflictedFile.getStream(),
+                                ourConflictedFile.getStream(),
+                                theirConflictedFile.getStream())) {
+                            var diffResult = workbookMerger.getDiffResult();
+                            if (!diffResult.hasConflicts()) {
+                                toAutoResolve.put(conflictedFile, diffResult);
+                                diffs.remove(conflictedFile);
+                            } else {
+                                allCanAutoResolve = false;
+                            }
                         }
                     }
                 } catch (Exception e) {
