@@ -3,6 +3,7 @@ package org.openl.rules.tbasic;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.StringValue;
@@ -20,11 +21,8 @@ public class RowParser implements IRowParser {
     private final TableParserSpecificationBean[] specifications;
 
     public RowParser(List<AlgorithmRow> rows, TableParserSpecificationBean[] specifications) {
-        assert rows != null;
-        assert specifications != null;
-
-        this.rows = rows;
-        this.specifications = specifications;
+        this.rows = Objects.requireNonNull(rows, "rows cannot be null");
+        this.specifications = Objects.requireNonNull(specifications, "specifications cannot be null");
     }
 
     private void checkRowValue(StringValue operation,

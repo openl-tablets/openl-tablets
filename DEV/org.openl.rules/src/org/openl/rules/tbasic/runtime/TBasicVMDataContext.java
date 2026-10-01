@@ -2,6 +2,7 @@ package org.openl.rules.tbasic.runtime;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
@@ -22,11 +23,8 @@ public class TBasicVMDataContext {
     public TBasicVMDataContext(List<RuntimeOperation> operations,
                                Map<String, RuntimeOperation> labels,
                                boolean isMainMethod) {
-        assert operations != null;
-        assert labels != null;
-
-        this.operations = operations;
-        this.labels = labels;
+        this.operations = Objects.requireNonNull(operations, "operations cannot be null");
+        this.labels = Objects.requireNonNull(labels, "labels cannot be null");
         isMainMethodContext = isMainMethod;
     }
 
