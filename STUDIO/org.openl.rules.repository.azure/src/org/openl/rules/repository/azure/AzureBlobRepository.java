@@ -384,18 +384,11 @@ public class AzureBlobRepository implements Repository {
             options.setPrefix(pathPrefix);
             options.setDetails(new BlobListDetails().setRetrieveVersions(true));
 
-            var commits = new ArrayList<AzureCommit>();
-            final var items = blobContainerClient.listBlobs(options, null);
-            for (BlobItem item : items) {
-                commits.add(getCommit(item));
-            }
-
-            var fileDataList = new ArrayList<FileData>(commits.size());
-            for (AzureCommit commit : commits) {
-                fileDataList.add(createFileData(name, commit));
-            }
-
-            return fileDataList;
+            return blobContainerClient.listBlobs(options, null)
+                    .stream()
+                    .map(this::getCommit)
+                    .map(commit -> createFileData(name, commit))
+                    .toList();
         } catch (Exception e) {
             throw new IOException(e);
         }
