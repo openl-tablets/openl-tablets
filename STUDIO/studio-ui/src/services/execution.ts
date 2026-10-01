@@ -52,13 +52,17 @@ const delay = (ms: number): Promise<void> => new Promise(resolve => {
  * is reported from inside it. A run that is still going on answers that way to the last attempt as well, and
  * the caller waits for the next status.
  */
-const readSettled = <T, >(read: () => Promise<T>, attemptsLeft = SETTLE_ATTEMPTS): Promise<T> =>
-    read().catch(error => {
+const readSettled = async <T, >(read: () => Promise<T>, attemptsLeft = SETTLE_ATTEMPTS): Promise<T> => {
+    try {
+        return await read()
+    } catch (error) {
         if (!isStillRunning(error) || attemptsLeft <= 0) {
             throw error
         }
-        return delay(SETTLE_INTERVAL_MS).then(() => readSettled(read, attemptsLeft - 1))
-    })
+        await delay(SETTLE_INTERVAL_MS)
+        return readSettled(read, attemptsLeft - 1)
+    }
+}
 
 const projectUrl = (projectId: string, suffix: string): string =>
     `/projects/${toUrlSafeId(projectId)}${suffix}`
