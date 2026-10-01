@@ -104,15 +104,15 @@ public class Version implements Comparable<Version> {
         return nnum;
     }
 
-    public static Version extractVersion(String s, IVersionStartPatternFinder finder, String pattern) throws Exception {
+    public static Version extractVersion(String s, IVersionStartPatternFinder finder, String pattern) {
         var idx = findVersionStart(s, finder, pattern);
         if (idx == -1) {
-            throw new Exception("Could not find version pattern in " + s);
+            throw new IllegalArgumentException("Could not find version pattern in " + s);
         }
         return parseVersion(s, idx, pattern);
     }
 
-    public static Version extractVersion(String s, String pattern) throws Exception {
+    public static Version extractVersion(String s, String pattern) {
         return extractVersion(s, new StandardVersionStartPatternFinder(), pattern);
     }
 

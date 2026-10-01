@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,7 @@ public class OpenApiResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON, "application/yaml"})
     @Operation(hidden = true)
-    public Response getOpenAPI(@Context UriInfo uriInfo, @PathParam("type") String type) throws Exception {
+    public Response getOpenAPI(@Context UriInfo uriInfo, @PathParam("type") String type) throws JsonProcessingException {
         if (StringUtils.isNotBlank(type) && type.trim().equalsIgnoreCase("yaml")) {
             var openAPI = yamlApi != null ? yamlApi.get() : null;
             if (openAPI == null) {
