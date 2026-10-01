@@ -1,11 +1,14 @@
 package org.openl.rules.webstudio.web;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.core.env.Environment;
 
 import org.openl.spring.env.DisablePropertySource;
 import org.openl.util.StringUtils;
 
-public class Props {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Props {
 
     private static Environment env;
 
