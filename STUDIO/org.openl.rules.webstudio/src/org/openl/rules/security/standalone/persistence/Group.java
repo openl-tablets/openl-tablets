@@ -2,6 +2,7 @@ package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -87,7 +88,7 @@ public class Group implements Serializable {
         if (!(o instanceof Group group))
             return false;
 
-        return id != null ? id.equals(group.id) : group.id == null;
+        return Objects.equals(id, group.id);
     }
 
     @Override
