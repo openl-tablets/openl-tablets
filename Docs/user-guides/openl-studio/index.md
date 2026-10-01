@@ -32,7 +32,7 @@ This guide is organized into the following sections:
 
 ## Additional Resources
 
-For more information on OpenL Tablets Rules, see the [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/).
+For more information on OpenL Tablets Rules, see the [OpenL Tablets Reference Guide](../reference-guide/index.md).
 
 ---
 

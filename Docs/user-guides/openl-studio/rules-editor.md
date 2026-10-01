@@ -56,7 +56,7 @@ If a particular module is not available, the project in which it is defined must
 
 By default, a project is opened in the multi-module mode. This is a common production mode. In the multi-module mode, all modules of the current project with all their dependencies are displayed, that is, modules of projects defined as the project dependencies.
 
-For more information on project and module dependencies, see [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+For more information on project and module dependencies, see [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
 
 The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The **Compiling N of M** indicator beside the module name shows how many modules are compiled, and the tree shows a skeleton until the tables of the module are read. The compilation problems panel at the bottom of the page lists errors and warnings as more modules are compiled, and the number of errors is shown in the tree next to the tables that have them.
 
@@ -100,13 +100,13 @@ A project can be opened for editing and saved directly in Rules Editor.
 |-----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Project description                                                               | Enter the text in the **Description** section.                                                                                                                                                                                                                                                                                             |
 | Modules configuration                                                             | In the **Modules** section, enter the name and the rules root path of every module, select **Compile this module only** to compile the module without the modules it does not depend on, drag a module to reorder it, click **Add** to add a module, or click the trash icon to remove it. |
-| Custom file name processor and properties defined in the file name                | In the **Version patterns** section, click **Add** to enter a file name pattern. The question mark next to the section name opens the description of patterns. In **Properties processor**, enter the class of the custom file name processor. For more information on properties pattern for the file name, see [OpenL Tablets Reference Guide > Properties Defined in the File Name](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#properties-defined-in-the-file-name). |
+| Custom file name processor and properties defined in the file name                | In the **Version patterns** section, click **Add** to enter a file name pattern. The question mark next to the section name opens the description of patterns. In **Properties processor**, enter the class of the custom file name processor. For more information on properties pattern for the file name, see [OpenL Tablets Reference Guide > Properties Defined in the File Name](../reference-guide/02-working-with-openl-tables/04-table-properties/08-properties-defined-in-the-file-name.md#properties-defined-in-the-file-name). |
 | Methods exposed by the project                                                    | In the **Exposed methods** section, enter one pattern per line in **Includes** and **Excludes**. The patterns support the `*` wildcard for any characters and the `?` wildcard for one character. When both are empty, every method of the project is exposed.                                                                      |
 | Project dependencies                                                              | Manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).                                                                                                                                                                                                                                       |
 | Project sources                                                                   | In the **Sources** section, click **Add** to enter a path to the folder or library that holds the source code, or click the trash icon to remove a path.                                                                                                                                                                                 |
 | OpenAPI specification                                                             | Manage the OpenAPI specification as described in [Viewing and Editing Project-Related OpenAPI Details](#viewing-and-editing-project-related-openapi-details).                                                                                                                                                                             |
 
-Click **Save** above the sections to keep the changes, or **Cancel** to discard them. All changes are saved in the project `rules.xml` file, and the project status changes to **In Editing**. For more information on this XML file, see the [OpenL Tablets Developers Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide).
+Click **Save** above the sections to keep the changes, or **Cancel** to discard them. All changes are saved in the project `rules.xml` file, and the project status changes to **In Editing**. For more information on this XML file, see the [OpenL Tablets Developer Guide > Rules Project Descriptor](https://openl-tablets.github.io/openl-tablets/developer-guides/rules-projects#rules-project-descriptor).
 
 Modules and sources that the standard `rules/`, `tests/`, `lib/` and `groovy/` folders provide are found automatically. They are listed in the sections but cannot be edited while `rules.xml` does not declare them: to add a module, put its Excel file in the `rules/` or `tests/` folder, and to add a library, put its JAR file in the `lib/` folder.
 
@@ -148,7 +148,7 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 1.  To save the changes, click **Save** above the sections.
 
 The **Exposed methods** section of the project filters the methods of the whole project. The **Included Methods** and **Excluded Methods** of a single module are deprecated and kept for backward compatibility only: the module form does not edit them.
-For more information, refer to the [Rule Services and Customization Guide > Dynamic Interface Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#dynamic-interface-support)
+For more information, refer to the [OpenL Tablets Rule Services Usage and Customization Guide > Dynamic Interface Support](../rule-services/advanced-configuration.md#dynamic-interface-support).
 
 #### Comparing and Reverting Module Changes
 
@@ -221,7 +221,7 @@ If **Auto-included** is cleared or the single module mode is selected, the root 
 > [!Note]
 > Dependency projects must be open to make dependency work. When a project with dependencies is opened, OpenL Studio offers to open its dependencies too, as described in [Opening a Project](repository-editor.md#opening-a-project).
 
-For more information on project and module dependencies, see the [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+For more information on project and module dependencies, see the [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
 
 ### Viewing Tables
 
@@ -245,7 +245,7 @@ OpenL Tablets module tables are listed in the module tree. Table types are repre
 | ![](images/table-type-comment-icon.png) | Table not corresponding to any preceding types. Such tables are considered comments. |
 | ![](images/table-type-spreadsheet-icon.png) | Spreadsheet table, Constants table.                                                  |
 
-For more information on table types, see [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/). The number of errors that a table or a group of tables contains is displayed as a red badge next to its name in the tree.
+For more information on table types, see [OpenL Tablets Reference Guide > Table Types](../reference-guide/index.md#table-types). The number of errors that a table or a group of tables contains is displayed as a red badge next to its name in the tree.
 
 The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Details** pane offers none for it.
 
@@ -392,7 +392,7 @@ OpenL Studio provides a special tool, **Range Editor**, for adding and editing r
 
 This section briefly introduces Range Editor and provides examples of its functionality.
 
-The main Range Editor goal is to move to a single range format in OpenL rules, namely, the ‘..’ format. For more information on ranges on OpenL Tablets, see [OpenL Tablets Reference Guide > Representing Range Types](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#representing-range-types).
+The main Range Editor goal is to move to a single range format in OpenL rules, namely, the ‘..’ format. For more information on ranges on OpenL Tablets, see [OpenL Tablets Reference Guide > Representing Range Types](../reference-guide/02-working-with-openl-tables/03-table-types/10-representing-values-of-different-types.md#representing-range-types).
 
 Consider the following principles while working with Range Editor:
 
@@ -712,7 +712,7 @@ To create a table:
 
 The table is created in the selected module and opens in the Rules Editor. Its availability to other modules depends
 on project and module dependencies. For more information, see
-[OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+[OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
 
 For an executable table, **Create Test** opens the same window with a Test table skeleton generated from the selected
 table signature. The generated columns contain every input parameter and the expected result. The tested table can
