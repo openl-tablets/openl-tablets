@@ -1493,17 +1493,17 @@ public class ProjectModel {
     private class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
-        private final String historyStoragePath;
+        private final String storagePath;
 
-        private XlsModificationListener(LocalRepository repository, String historyStoragePath) {
+        private XlsModificationListener(LocalRepository repository, String storagePath) {
             this.repository = repository;
-            this.historyStoragePath = historyStoragePath;
+            this.storagePath = storagePath;
         }
 
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
             File sourceFile = workbookSourceCodeModule.getSourceFile();
-            ProjectHistoryService.init(historyStoragePath, sourceFile);
+            ProjectHistoryService.init(storagePath, sourceFile);
         }
 
         @Override
@@ -1511,7 +1511,7 @@ public class ProjectModel {
             isModified();
             File sourceFile = workbookSourceCodeModule.getSourceFile();
             repository.getProjectState(sourceFile.getPath()).notifyModified();
-            ProjectHistoryService.save(historyStoragePath, sourceFile);
+            ProjectHistoryService.save(storagePath, sourceFile);
         }
     }
 }
