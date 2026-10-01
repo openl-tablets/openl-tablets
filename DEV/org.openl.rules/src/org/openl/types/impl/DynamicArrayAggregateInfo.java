@@ -43,17 +43,12 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             // also different object types may be used as indexes : vehicleSymbols[vehicle]
             var indexField = componentClass.getIndexField();
 
-            if (indexField != null) {
-                // If the type of the suggested index is the same as the type of indexed field
-                // simply create indexed field
-                if (indexField.getType() == indexType) {
-                    return new ArrayFieldIndex(componentClass, indexField);
-                } else if (IntegerValuesUtils.isIntegerValue(
-                        indexField.getType().getInstanceClass()) && String.class == indexType.getInstanceClass()) {
-                    // handles the case when index field of Datatype is of type int, and we try to get String index
-                    // e.g. person["12"]
-                    return new ArrayFieldIndex(componentClass, indexField);
-                }
+            // Simply create the indexed field when the suggested index has the type of the indexed field, or when the
+            // index field of a Datatype is of type int and a String index is used, e.g. person["12"]
+            if (indexField != null && (indexField.getType() == indexType
+                    || (IntegerValuesUtils.isIntegerValue(indexField.getType().getInstanceClass())
+                    && String.class == indexType.getInstanceClass()))) {
+                return new ArrayFieldIndex(componentClass, indexField);
             }
         }
         return null;
