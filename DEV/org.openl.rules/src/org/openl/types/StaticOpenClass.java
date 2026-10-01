@@ -54,7 +54,7 @@ public class StaticOpenClass implements IOpenClass {
     public Iterable<IOpenMethod> methods(String name) {
         return StreamSupport.stream(delegate.methods(name).spliterator(), false)
                 .filter(IOpenMember::isStatic)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenField> getDeclaredFields() {
-        return delegate.getDeclaredFields().stream().filter(IOpenField::isStatic).collect(Collectors.toList());
+        return delegate.getDeclaredFields().stream().filter(IOpenField::isStatic).toList();
     }
 
     @Override
@@ -176,12 +176,12 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenMethod> getMethods() {
-        return delegate.getMethods().stream().filter(IOpenMethod::isStatic).collect(Collectors.toList());
+        return delegate.getMethods().stream().filter(IOpenMethod::isStatic).toList();
     }
 
     @Override
     public Collection<IOpenMethod> getDeclaredMethods() {
-        return delegate.getDeclaredMethods().stream().filter(IOpenMethod::isStatic).collect(Collectors.toList());
+        return delegate.getDeclaredMethods().stream().filter(IOpenMethod::isStatic).toList();
     }
 
     @Override

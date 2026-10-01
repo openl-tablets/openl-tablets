@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -430,7 +429,7 @@ public final class OpenLFuzzyUtils {
                         missedTokensMin1,
                         sourceTokens.length - maxMatchedTokens,
                         acceptableSimilarity))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static double[][][] getDistances(String[] sourceTokens, String[][] tokensList) {

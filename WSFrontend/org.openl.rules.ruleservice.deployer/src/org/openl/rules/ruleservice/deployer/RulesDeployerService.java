@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -256,7 +255,7 @@ public class RulesDeployerService implements Closeable {
                 data.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
                 data.setComment("Delete deployment.");
                 return data;
-            }).collect(Collectors.toList());
+            }).toList();
             return deployRepo.delete(toDelete);
         }
     }

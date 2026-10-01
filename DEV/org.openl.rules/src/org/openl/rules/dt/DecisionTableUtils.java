@@ -2,7 +2,6 @@ package org.openl.rules.dt;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
@@ -29,7 +28,7 @@ public class DecisionTableUtils {
         }
         return identifierNodes.stream()
                 .map(e -> new ExpressionIdentifier(e.getIdentifier(), e.getLocation()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static void parseAndCollectIdentifierNodes(ISyntaxNode node,

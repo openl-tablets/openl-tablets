@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -47,6 +46,6 @@ public class DependencyOpenClass extends OpenClassDelegator {
 
     @Override
     public Collection<IOpenMethod> getMethods() {
-        return super.getMethods().stream().map(this::applyDependencyLogicToMethod).collect(Collectors.toList());
+        return super.getMethods().stream().map(this::applyDependencyLogicToMethod).toList();
     }
 }

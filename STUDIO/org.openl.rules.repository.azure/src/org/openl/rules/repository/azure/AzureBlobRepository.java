@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
@@ -602,7 +601,7 @@ public class AzureBlobRepository implements Repository {
 
                     return fileData;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Response<BlockBlobItem> saveFile(FileItem file) throws IOException {

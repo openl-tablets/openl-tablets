@@ -386,7 +386,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                                     refSpreadsheets,
                                     modelName,
                                     propertyEntry))
-                            .collect(Collectors.toList());
+                            .toList();
                 }
             }
             model.setSteps(steps);
@@ -932,7 +932,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     .stream()
                     .filter(x -> !IGNORED_FIELDS.contains(x.getKey()))
                     .map(p -> extractStep(openAPIRefResolver, p))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return stepModels;
     }
@@ -1037,7 +1037,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 var ref = property.getValue().get$ref();
                 var isRuntimeContext = ref != null && ref.equals(LINK_TO_DEFAULT_RUNTIME_CONTEXT);
                 return !(isIgnoredField || isRuntimeContext);
-            }).map(p -> extractField(openAPIRefResolver, p)).collect(Collectors.toList());
+            }).map(p -> extractField(openAPIRefResolver, p)).toList();
         }
         dm.setFields(fields);
         return dm;
@@ -1060,7 +1060,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     .stream()
                     .filter(property -> !IGNORED_FIELDS.contains(property.getKey()))
                     .map(p -> extractField(openAPIRefResolver, p))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         dm.setFields(fields);
         return dm;

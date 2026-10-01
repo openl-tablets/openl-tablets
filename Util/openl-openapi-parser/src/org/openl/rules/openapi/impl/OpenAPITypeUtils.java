@@ -331,7 +331,7 @@ public class OpenAPITypeUtils {
         return groupedByParent.entrySet()
                 .stream()
                 .collect(Collectors.toMap(mapEntry -> SCHEMAS_LINK + mapEntry.getKey(),
-                        entry -> entry.getValue().stream().map(x -> SCHEMAS_LINK + x.getKey()).collect(Collectors.toList())));
+                        entry -> entry.getValue().stream().map(x -> SCHEMAS_LINK + x.getKey()).toList()));
     }
 
     public static Map<String, Schema> getFieldsOfChild(ComposedSchema cs) {
