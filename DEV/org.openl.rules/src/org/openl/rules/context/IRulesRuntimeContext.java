@@ -75,5 +75,7 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 
     // <<< END INSERT >>>
 
+    // Public API: clients clone runtime contexts; removing clone() would break them.
+    @SuppressWarnings("java:S2975")
     IRulesRuntimeContext clone() throws CloneNotSupportedException;
 }

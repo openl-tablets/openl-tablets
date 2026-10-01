@@ -3330,6 +3330,8 @@ public class GitRepository implements BranchRepository, Closeable {
             return cmit.getId().getName();
         }
 
+        // JGit declares RevFilter.clone() abstract and copies filters through it.
+        @SuppressWarnings("java:S2975")
         @Override
         public RevFilter clone() {
             return new PatternIdRevFilter(pattern());

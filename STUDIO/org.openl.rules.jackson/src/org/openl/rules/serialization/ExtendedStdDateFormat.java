@@ -87,6 +87,8 @@ public class ExtendedStdDateFormat extends StdDateFormat {
         return df.format(date, toAppendTo, fieldPosition);
     }
 
+    // Jackson clones the configured DateFormat for every use, so StdDateFormat.clone() must be overridden.
+    @SuppressWarnings("java:S2975")
     @Override
     public StdDateFormat clone() {
         return new ExtendedStdDateFormat(pattern, _timezone, _locale, _lenient, isColonIncludedInTimeZone());
