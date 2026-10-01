@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
@@ -226,29 +225,27 @@ public class ProjectsController {
 
     @GetMapping
     @Operation(summary = "projects.list.summary")
-    @Parameters({
-            @Parameter(name = "status", description = "projects.list.param.status.desc", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {
-                    "LOCAL",
-                    "DELETED",
-                    "OPENED",
-                    "VIEWING_VERSION",
-                    "EDITING",
-                    "CLOSED"})),
-            @Parameter(name = "repository", description = "projects.list.param.repository.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "dependsOn", description = "projects.list.param.depends-on.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "name", description = "projects.list.param.name.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "author", description = "projects.list.param.author.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "branch", description = "projects.list.param.branch.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "sort", description = "projects.list.param.sort.desc", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {"name", "status", "updated"})),
-            @Parameter(
-                    name = "include",
-                    description = "projects.list.param.include.desc",
-                    in = ParameterIn.QUERY,
-                    style = ParameterStyle.FORM,
-                    explode = Explode.TRUE,
-                    array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class))),
-            @Parameter(name = "tags", description = "projects.list.param.tags.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
-    })
+    @Parameter(name = "status", description = "projects.list.param.status.desc", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {
+            "LOCAL",
+            "DELETED",
+            "OPENED",
+            "VIEWING_VERSION",
+            "EDITING",
+            "CLOSED"}))
+    @Parameter(name = "repository", description = "projects.list.param.repository.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "dependsOn", description = "projects.list.param.depends-on.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "name", description = "projects.list.param.name.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "author", description = "projects.list.param.author.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "branch", description = "projects.list.param.branch.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "sort", description = "projects.list.param.sort.desc", in = ParameterIn.QUERY, schema = @Schema(allowableValues = {"name", "status", "updated"}))
+    @Parameter(
+            name = "include",
+            description = "projects.list.param.include.desc",
+            in = ParameterIn.QUERY,
+            style = ParameterStyle.FORM,
+            explode = Explode.TRUE,
+            array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class)))
+    @Parameter(name = "tags", description = "projects.list.param.tags.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     @JsonView(GenericView.Full.class)
     public ProjectsPageResponse getProjects(@Parameter(hidden = true) @RequestParam MultiValueMap<String, String> params,
                                                       @RequestParam(value = "status", required = false) List<ProjectStatus> statuses,
@@ -424,34 +421,32 @@ public class ProjectsController {
 
     @GetMapping("/{projectId}/tables")
     @Operation(summary = "projects.tables.list.summary")
-    @Parameters({
-            @Parameter(name = "kind", description = "projects.tables.list.param.kind.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = String.class,
-                    allowableValues = {
-                            "Rules",
-                            "Spreadsheet",
-                            "Datatype",
-                            "Data",
-                            "Test",
-                            "TBasic",
-                            "Column Match",
-                            "Method",
-                            "Run",
-                            "Constants",
-                            "Conditions",
-                            "Actions",
-                            "Returns",
-                            "Environment",
-                            "Properties",
-                            "Other"
-                    })),
-            @Parameter(name = "name", description = "projects.tables.list.param.name.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "module", description = "projects.tables.list.param.module.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "scope", description = "projects.tables.list.param.scope.desc", in = ParameterIn.QUERY,
-                    schema = @Schema(implementation = TableSearchScope.class)),
-            @Parameter(name = "header", description = "projects.tables.list.param.header.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "text", description = "projects.tables.list.param.text.desc", in = ParameterIn.QUERY),
-            @Parameter(name = "properties", description = "projects.tables.list.param.properties.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
-    })
+    @Parameter(name = "kind", description = "projects.tables.list.param.kind.desc", in = ParameterIn.QUERY, schema = @Schema(implementation = String.class,
+            allowableValues = {
+                    "Rules",
+                    "Spreadsheet",
+                    "Datatype",
+                    "Data",
+                    "Test",
+                    "TBasic",
+                    "Column Match",
+                    "Method",
+                    "Run",
+                    "Constants",
+                    "Conditions",
+                    "Actions",
+                    "Returns",
+                    "Environment",
+                    "Properties",
+                    "Other"
+            }))
+    @Parameter(name = "name", description = "projects.tables.list.param.name.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "module", description = "projects.tables.list.param.module.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "scope", description = "projects.tables.list.param.scope.desc", in = ParameterIn.QUERY,
+            schema = @Schema(implementation = TableSearchScope.class))
+    @Parameter(name = "header", description = "projects.tables.list.param.header.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "text", description = "projects.tables.list.param.text.desc", in = ParameterIn.QUERY)
+    @Parameter(name = "properties", description = "projects.tables.list.param.properties.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     public PageResponse<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
                                                     @Parameter(hidden = true) @RequestParam Map<String, String> params,
                                                     @RequestParam(value = "kind", required = false) Set<String> kinds,

@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -57,18 +56,16 @@ public class DeploymentsController {
             summary = "deployments.get-list.summary",
             description = "deployments.get-list.desc"
     )
-    @Parameters({
-            @Parameter(
-                    name = "repository",
-                    description = "deployments.get-list.param.repository.desc",
-                    in = ParameterIn.QUERY
-            ),
-            @Parameter(
-                    name = "project",
-                    description = "deployments.get-list.param.project.desc",
-                    in = ParameterIn.QUERY
-            )
-    })
+    @Parameter(
+            name = "repository",
+            description = "deployments.get-list.param.repository.desc",
+            in = ParameterIn.QUERY
+    )
+    @Parameter(
+            name = "project",
+            description = "deployments.get-list.param.project.desc",
+            in = ParameterIn.QUERY
+    )
     @GetMapping
     @JsonView(GenericView.Short.class)
     public List<DeploymentViewModel> getDeployments(
