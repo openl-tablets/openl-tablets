@@ -137,6 +137,8 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(ConversionFailedException.class)
+    // The handler answers with the error of the REST exception handler or with the one Spring builds.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> handleConversionFailedException(ConversionFailedException e, WebRequest request) {
         if (e.getCause() instanceof RestRuntimeException ex) {
             return handleAllRestRuntimeExceptions(ex, request);

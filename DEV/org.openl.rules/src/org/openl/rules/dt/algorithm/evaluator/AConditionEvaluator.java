@@ -38,6 +38,8 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
 
     // Added to support dependent parameters
 
+    // Each evaluator builds a domain of its own value type, such as integer ranges or any indexed values.
+    @SuppressWarnings("java:S1452")
     protected abstract IDomain<? extends Object> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined;
 
 }

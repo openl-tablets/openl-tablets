@@ -85,6 +85,8 @@ public class OpenLOpenAPIUtils {
         return schemaNames;
     }
 
+    // Swagger hands out schemas raw, and the type parameter of a schema depends on its kind.
+    @SuppressWarnings("java:S1452")
     public static Schema<?> getUsedSchemaInResponse(OpenAPIRefResolver openAPIRefResolver, Operation operation) {
         if (operation == null) {
             return null;

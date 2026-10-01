@@ -100,6 +100,8 @@ public abstract class AbstractFilesController {
      * Serves a file download, a folder zip download, or a folder/file listing depending on the path
      * and parameters.
      */
+    // The endpoint answers with a listing, a file node or the file content, depending on the path and the view.
+    @SuppressWarnings("java:S1452")
     protected ResponseEntity<?> handleGetFile(FileRoot root, String path, String view, String download,
                                               Set<String> extensions, String namePattern, boolean foldersOnly,
                                               boolean recursive, FileViewMode viewMode, String version,

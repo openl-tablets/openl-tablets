@@ -27,6 +27,8 @@ public interface ProjectsContainer {
      *
      * @return all projects in the container.
      */
+    // Sub-interfaces narrow the type of the projects, as UserWorkspace does to RulesProject.
+    @SuppressWarnings("java:S1452")
     Collection<? extends AProject> getProjects();
 
     /**
@@ -37,5 +39,7 @@ public interface ProjectsContainer {
      */
     boolean hasProject(String repositoryId, String name);
 
+    // Sub-interfaces narrow the type of the projects, as UserWorkspace does to RulesProject.
+    @SuppressWarnings("java:S1452")
     Collection<? extends AProject> getProjects(String repositoryId);
 }

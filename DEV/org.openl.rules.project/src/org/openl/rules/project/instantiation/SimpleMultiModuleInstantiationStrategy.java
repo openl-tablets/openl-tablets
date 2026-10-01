@@ -174,6 +174,8 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
         }
     }
 
+    // The factory is built for a service class that is known only at run time.
+    @SuppressWarnings("java:S1452")
     protected RulesEngineFactory<?> getEngineFactory() {
         if (engineFactory == null) {
 

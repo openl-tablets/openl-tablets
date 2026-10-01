@@ -145,6 +145,8 @@ public class ProjectsRunController {
             }
     )
     @GetMapping(value = "/result", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
+    // The endpoint answers with JSON, a workbook or a status, depending on the run state and the Accept header.
+    @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
             // Asked for neither, the workbook is the one the download this endpoint replaced produced:

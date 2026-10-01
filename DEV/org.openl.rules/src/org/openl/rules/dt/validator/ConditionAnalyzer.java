@@ -11,6 +11,8 @@ public class ConditionAnalyzer {
 
     private final IBaseDecisionRow condition;
 
+    // The domain comes from IType.getDomain(), whose values have a type known only at run time.
+    @SuppressWarnings("java:S1452")
     public IDomain<?> getParameterDomain(String parameterName) {
 
         var parametersDeclaration = condition.getParams();

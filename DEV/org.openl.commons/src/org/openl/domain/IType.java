@@ -21,6 +21,8 @@ public interface IType extends INamedThing {
     /**
      * Provides type validation(usually by constraining type)
      */
+    // The domain holds values of this type, which the OpenL type system does not carry as a type parameter.
+    @SuppressWarnings("java:S1452")
     IDomain<?> getDomain();
 
     /**
