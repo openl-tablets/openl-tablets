@@ -332,7 +332,7 @@ public final class RuleRowHelper {
      *
      * @return the whole number, or {@code null} when the number has a fraction or is not finite
      */
-    private static @Nullable Number toWholeNumber(double value) {
+    public static @Nullable Number toWholeNumber(double value) {
         if (!Double.isFinite(value) || value != Math.rint(value)) {
             return null;
         }

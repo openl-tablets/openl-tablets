@@ -42,6 +42,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -4469,8 +4470,24 @@ public final class DecisionTableHelper {
         ICell cell;
 
         public CellValue(ICell cell) {
-            this.value = cell.getStringValue();
+            this.value = textOf(cell);
             this.cell = cell;
+        }
+
+        /**
+         * Gives the text of the cell to guess the type of a column by.
+         * <p>
+         * A whole number beyond the {@code int} range is given in plain digits, as {@code 2147483648} rather than
+         * {@code 2.147483648E9}, so that it is read as a value of the integer type of the condition.
+         */
+        private static @Nullable String textOf(ICell cell) {
+            if (cell.getObjectValue() instanceof Double number) {
+                var wholeNumber = RuleRowHelper.toWholeNumber(number);
+                if (wholeNumber != null) {
+                    return wholeNumber.toString();
+                }
+            }
+            return cell.getStringValue();
         }
 
         @Override
