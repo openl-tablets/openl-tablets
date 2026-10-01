@@ -17,7 +17,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
@@ -161,7 +161,7 @@ public class OAuth2SecurityConfig {
             @Qualifier("userInfoClaimsConverter") Converter<Map<String, Object>, SimpleUser> userInfoClaimsConverter,
             Environment environment) {
 
-        var accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+        var accessTokenResponseClient = new RestClientAuthorizationCodeTokenResponseClient();
         var userService = new OpenLOAuth2UserService(environment, userInfoClaimsConverter);
 
         return new OidcAuthorizationCodeAuthenticationProvider(accessTokenResponseClient, userService);
