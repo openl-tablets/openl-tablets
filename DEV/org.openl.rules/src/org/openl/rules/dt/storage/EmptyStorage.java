@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.openl.rules.dt.Expr;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class EmptyStorage implements IStorage<Object> {
+class EmptyStorage implements IStorage {
 
     @Getter
     private final StorageInfo info;

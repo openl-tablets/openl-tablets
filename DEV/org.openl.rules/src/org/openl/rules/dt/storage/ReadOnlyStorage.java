@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public abstract class ReadOnlyStorage<T> implements IStorage<T> {
+public abstract class ReadOnlyStorage implements IStorage {
 
     @Getter
     private final StorageInfo info;

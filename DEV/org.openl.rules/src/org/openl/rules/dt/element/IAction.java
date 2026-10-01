@@ -21,5 +21,5 @@ public interface IAction extends IBaseAction, IDecisionRow {
                        IOpenClass ruleExecutionType,
                        TableSyntaxNode tableSyntaxNode) throws Exception;
 
-    IStorage<?>[] getStorage();
+    IStorage[] getStorage();
 }

@@ -1,8 +1,8 @@
 package org.openl.rules.dt.storage;
 
-public interface IStorageBuilder<T> {
+public interface IStorageBuilder {
 
-    IStorage<T> optimizeAndBuild();
+    IStorage optimizeAndBuild();
 
     void writeObject(Object loadedValue, int index);
 

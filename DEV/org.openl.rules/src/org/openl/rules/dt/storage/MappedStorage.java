@@ -2,7 +2,7 @@ package org.openl.rules.dt.storage;
 
 import org.openl.rules.dt.Expr;
 
-abstract class MappedStorage extends ReadOnlyStorage<Object> {
+abstract class MappedStorage extends ReadOnlyStorage {
 
     private final Object[] uniqueValues;
     private IStorage storage;

@@ -67,7 +67,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     protected IParameterDeclaration[] params;
     protected BitSet paramInitialized;
     protected Set<String> paramsUniqueNames;
-    protected IStorage<?>[] storage;
+    protected IStorage[] storage;
 
     private ILogicalTable decisionTable;
     private ILogicalTable paramsTable;
@@ -340,7 +340,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             loadParamsFromColumn(ota, ruleRow, params, paramIndexed, ruleN, builders);
         }
 
-        storage = new IStorage<?>[builders.length];
+        storage = new IStorage[builders.length];
         for (var i = 0; i < builders.length; i++) {
             storage[i] = builders[i].optimizeAndBuild();
             updateSpreadsheetResultParamType(decisionTable, i);
@@ -386,21 +386,20 @@ public abstract class FunctionalRow implements IDecisionRow {
      * @return {@code true} when a formula returns a spreadsheet result of any type
      */
     private boolean collectSpreadsheetResultTypes(
-            IStorage<?> paramStorage,
+            IStorage paramStorage,
             int paramDim,
             Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses) {
         var anySpreadsheetResult = false;
         for (var j = 0; j < paramStorage.size(); j++) {
-            if (paramStorage.getValue(j) instanceof CompositeMethod) {
-                anySpreadsheetResult = processCompositeMethod((CompositeMethod) paramStorage.getValue(j),
+            if (paramStorage.getValue(j) instanceof CompositeMethod compositeMethod) {
+                anySpreadsheetResult = processCompositeMethod(compositeMethod,
                         customSpreadsheetResultOpenClasses,
                         paramDim,
                         anySpreadsheetResult);
                 if (anySpreadsheetResult) {
                     break;
                 }
-            } else if (paramStorage.getValue(j) instanceof ArrayHolder) {
-                var arrayHolder = (ArrayHolder) paramStorage.getValue(j);
+            } else if (paramStorage.getValue(j) instanceof ArrayHolder arrayHolder) {
                 anySpreadsheetResult = processArrayHolder(arrayHolder,
                         customSpreadsheetResultOpenClasses,
                         paramDim,
@@ -471,10 +470,10 @@ public abstract class FunctionalRow implements IDecisionRow {
         return anySpreadsheetResult;
     }
 
-    private IStorageBuilder<?>[] makeStorageBuilders(int len, IParameterDeclaration[] paramDecl) {
+    private IStorageBuilder[] makeStorageBuilders(int len, IParameterDeclaration[] paramDecl) {
 
         var nparams = paramDecl.length;
-        IStorageBuilder<?>[] builders = new IStorageBuilder[nparams];
+        IStorageBuilder[] builders = new IStorageBuilder[nparams];
         for (var i = 0; i < builders.length; i++) {
             builders[i] = StorageFactory.makeStorageBuilder(len, scale);
         }
@@ -487,7 +486,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                                       IParameterDeclaration[] paramDecl,
                                       boolean[] paramIndexed,
                                       int ruleN,
-                                      IStorageBuilder<?>[] builders) {
+                                      IStorageBuilder[] builders) {
         var paramGridColumn = getValueCell(ruleN).getSource();
 
         var fromHeight = 0;
@@ -709,7 +708,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public boolean isEmpty(int ruleN) {
-        for (IStorage<?> aStorage : storage) {
+        for (IStorage aStorage : storage) {
             if (!aStorage.isSpace(ruleN)) {
                 return false;
             }
@@ -721,7 +720,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public boolean hasFormula(int ruleN) {
         if (storage != null) {
-            for (IStorage<?> aStorage : storage) {
+            for (IStorage aStorage : storage) {
                 if (aStorage.isFormula(ruleN)) {
                     return true;
                 }
@@ -775,7 +774,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private boolean initHasFormulas() {
         if (storage != null) {
-            for (IStorage<?> aStorage : storage) {
+            for (IStorage aStorage : storage) {
                 if (aStorage.getInfo().getNumberOfFormulas() > 0) {
                     return true;
                 }
@@ -794,7 +793,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return false;
     }
 
-    public IStorage<?>[] getStorage() {
+    public IStorage[] getStorage() {
         return storage;
     }
 
@@ -809,7 +808,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     public void removeDebugInformation() {
         Optional.ofNullable(method).ifPresent(CompositeMethod::removeDebugInformation);
         if (storage != null) {
-            for (IStorage<?> st : storage) {
+            for (IStorage st : storage) {
                 var rules = st.size();
                 for (var i = 0; i < rules; i++) {
                     var paramValue = st.getValue(i);
@@ -824,7 +823,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public void clearExprs() {
         if (this.storage != null) {
-            for (IStorage<?> st : this.storage) {
+            for (IStorage st : this.storage) {
                 st.removeExprs();
             }
         }

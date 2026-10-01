@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.openl.rules.dt.Expr;
 import org.openl.types.impl.CompositeMethod;
 
-public class ObjectStorage implements IStorage<Object> {
+public class ObjectStorage implements IStorage {
 
     @Getter
     private final Object[] values;
