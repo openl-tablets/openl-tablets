@@ -3,16 +3,19 @@ package org.openl.rules.repository.azure;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
 public class AzureCommit {
     @Getter
     @Setter
-    private transient String version;
+    @JsonIgnore
+    private String version;
     @Getter
     @Setter
-    private transient String path;
+    @JsonIgnore
+    private String path;
 
     @Getter
     @Setter

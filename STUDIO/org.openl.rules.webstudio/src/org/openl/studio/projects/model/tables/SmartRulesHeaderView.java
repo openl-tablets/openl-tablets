@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -12,7 +13,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = SmartRulesHeaderView.Builder.class)
 public class SmartRulesHeaderView extends ARuleHeaderView {
 
-    public transient int width;
+    @JsonIgnore
+    public int width;
 
     private SmartRulesHeaderView(Builder builder) {
         super(builder);
