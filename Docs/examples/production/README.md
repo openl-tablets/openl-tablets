@@ -57,32 +57,31 @@ Each example directory contains:
 
 ## Related Documentation
 
-- [Production Deployment Guide](../../configuration/deployment.md) - Comprehensive deployment guide
-- [Security Configuration](../../configuration/security.md) - Security setup
-- [Docker Guide](../../operations/docker-guide.md) - Container deployment
-- [Configuration Overview](../../configuration/overview.md) - System configuration
+- [Deployment](../../DEPLOYMENT.md) - Docker images, environment variables, and Kubernetes
+- [Production Deployment Guide](../../Production_Deployment.md) - Roles and stages of a production pipeline
+- [Security](../../configuration/security.md) - Authentication of OpenL Rule Services
+- [Configuration](../../configuration/index.md) - Where the settings are described
 
 ## Prerequisites
 
-- Java 11 or higher
-- Maven 3.6+
-- Docker and Docker Compose (for containerized examples)
-- OpenL Tablets runtime
+- Java 21 or later
+- Maven
+- Docker with the Docker Compose plugin (for containerized examples)
 
 ## Building Examples
 
 Most examples can be built using Maven:
 
 ```bash
-cd example/[example-name]
-mvn clean install
+cd example
+mvn clean package
 ```
 
 For Docker Compose examples:
 
 ```bash
 cd studio-config
-docker-compose up
+docker compose up
 ```
 
 ## Notes
