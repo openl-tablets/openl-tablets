@@ -20,7 +20,7 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
             }
 
             var arg = node.getArgument();
-            var actualValue = arg.extractValue(target, params, env);
+            var actualValue = arg.extractValue(params, env);
             var matcher = node.getMatcher();
 
             // find all matching scores from left to right

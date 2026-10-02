@@ -465,21 +465,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return imports;
     }
 
-    @Override
-    protected boolean isDependencyMethodInheritable(IOpenMethod openMethod) {
-        if (openMethod instanceof TestSuiteMethod) {
-            return false;
-        }
-        return super.isDependencyMethodInheritable(openMethod);
+    private static boolean isDependencyMethodInheritable(IOpenMethod openMethod) {
+        return !(openMethod instanceof TestSuiteMethod);
     }
 
-    @Override
-    protected boolean isDependencyFieldInheritable(IOpenField openField) {
-        if (openField instanceof ConstantOpenField || openField instanceof DataOpenField field && XlsNodeTypes.XLS_DATA
-                .equals(field.getNodeType())) {
-            return true;
-        }
-        return super.isDependencyFieldInheritable(openField);
+    private static boolean isDependencyFieldInheritable(IOpenField openField) {
+        return openField instanceof ConstantOpenField
+                || openField instanceof DataOpenField field && XlsNodeTypes.XLS_DATA.equals(field.getNodeType());
     }
 
     @Override

@@ -819,11 +819,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
-        return isComponentSpecificOpenClass(this, componentOpenClass, getModule(), cache);
+        return isComponentSpecificOpenClass(componentOpenClass, getModule(), cache);
     }
 
-    public static boolean isComponentSpecificOpenClass(IBindingContext bindingContext,
-                                                       IOpenClass componentOpenClass,
+    public static boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass,
                                                        XlsModuleOpenClass xlsModuleOpenClass,
                                                        IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         if (componentOpenClass instanceof CustomSpreadsheetResultOpenClass class2) {

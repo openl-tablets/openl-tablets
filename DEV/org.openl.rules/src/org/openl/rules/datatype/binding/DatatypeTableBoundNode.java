@@ -32,7 +32,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
@@ -117,7 +116,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     @Getter
     private ILogicalTable table;
-    private final OpenL openl;
 
     @Getter(AccessLevel.PRIVATE)
     @Setter
@@ -129,21 +127,18 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
                                   DatatypeOpenClass datatype,
                                   ModuleOpenClass moduleOpenClass,
-                                  ILogicalTable table,
-                                  OpenL openl) {
-        this(tableSyntaxNode, datatype, moduleOpenClass, table, openl, null);
+                                  ILogicalTable table) {
+        this(tableSyntaxNode, datatype, moduleOpenClass, table, null);
     }
 
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
                                   DatatypeOpenClass datatype,
                                   ModuleOpenClass moduleOpenClass,
                                   ILogicalTable table,
-                                  OpenL openl,
                                   IdentifierNode parentClassIdentifier) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
         this.table = table;
-        this.openl = openl;
         this.parentClassIdentifier = parentClassIdentifier;
         this.parentClassName = parentClassIdentifier != null ? parentClassIdentifier.getIdentifier() : null;
         this.moduleOpenClass = moduleOpenClass;
@@ -160,7 +155,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      */
     private void readFieldsAndGenerateByteCode(final IBindingContext bindingContext) {
 
-        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
+        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, bindingContext);
         // Save normalized table to work with it later
         this.table = dataTable;
 

@@ -43,7 +43,7 @@ public class DispatcherTableReturnColumn {
         return getCodeExpression().toUpperCase();
     }
 
-    public String getRuleValue(int ruleIndex, int elementNum) {
+    public String getRuleValue(int ruleIndex) {
         final var builder = new StringBuilder(128);
         builder.append('=')
                 .append(methodName)
@@ -70,9 +70,5 @@ public class DispatcherTableReturnColumn {
 
     public IOpenClass getReturnType() {
         return originalReturnType;
-    }
-
-    public String getRuleValue(int ruleIndex) {
-        return getRuleValue(ruleIndex, 0);
     }
 }

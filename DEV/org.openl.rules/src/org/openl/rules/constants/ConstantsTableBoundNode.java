@@ -190,7 +190,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     }
 
     private void addConstants(final IBindingContext bindingContext) {
-        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
+        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, bindingContext);
         normalizedData = dataTable;
 
         var tableHeight = 0;
