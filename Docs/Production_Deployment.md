@@ -138,8 +138,8 @@ graph LR
 
 ## Configuration Examples
 
-- [OpenL Studio Docker Compose Setup](production-deployment/studio-config/)
-- [Minimal Rule Project with Maven and Docker](production-deployment/example/)
+- [OpenL Studio Docker Compose Setup](examples/production/studio-config/README.md)
+- [Minimal Rule Project with Maven and Docker](examples/production/example/README.md)
 
 ---
 
