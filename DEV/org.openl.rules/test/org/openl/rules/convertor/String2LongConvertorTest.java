@@ -23,9 +23,9 @@ class String2LongConvertorTest {
         assertEquals(Long.MIN_VALUE, result);
     }
 
-    // Overflows on both sides and a non-integer value
+    // Overflows on both sides, a non-integer value, NaN and an infinity
     @ParameterizedTest
-    @ValueSource(strings = {"9223372036854775808", "-9223372036854775809", "1.3"})
+    @ValueSource(strings = {"9223372036854775808", "-9223372036854775809", "1.3", "NaN", "-Infinity"})
     void testConvertInvalid(String value) {
         var converter = new String2LongConvertor();
         assertThrows(NumberFormatException.class, () -> converter.parse(value, null));

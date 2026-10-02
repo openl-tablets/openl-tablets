@@ -66,6 +66,12 @@ everyone who calls that API from outside the browser.
   instead of `Date(2021, 04, 08)`. Number values in Data and Test tables never accepted these forms and are not
   affected.
 
+* **A percent value in a whole-number cell has to be a whole number.** A text such as `5%` or `250%` in an `Integer`,
+  `Long`, `Short` or `Byte` cell no longer compiles, just as the number `2.5` there does not:
+  `Cannot parse cell value '250%'. Expected value of type 'Long'.` Before, the fraction was dropped without a warning,
+  so `250%` was `2` and `5%` was `0`. A percent value without a fraction loads as before, `300%` as `3`. Use a `Double`
+  or `BigDecimal` type to keep the fraction.
+
 * **A named constructor argument takes its value from the rule.** In `new Customer(name = name)` and
   `Customer(name = name)`, the value `name` is the parameter or variable of the rule. Before, a value that had the
   name of a field of the type read that field of the new, still empty object, so `name = name` left the field empty,
