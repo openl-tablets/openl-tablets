@@ -85,5 +85,9 @@ bundle install && bundle exec jekyll serve
 
 ## Caveats
 
-- `developer-guides/`, `integration-guides/`, `api/` exist but intentionally unlinked
+- The header menu and the `user-guides/` sidebar are the only navigation. The other folders — `api/`, `architecture/`,
+  `configuration/`, `developer-guides/`, `examples/`, `integration-guides/`, `onboarding/`, `ref/` — are reached by links
+  from [`README.MD`](README.MD), which indexes them. A new page is linked from its folder index and from `README.MD`.
+- A technical page describes what the code does now: check each class, property, endpoint, and path against the code
+  before writing it, and do not keep a history of what a page said before.
 - Deeply nested reference guide paths produce long URLs
