@@ -36,7 +36,7 @@ public final class ProjectHelper {
 
     /**
      * Checks if the tester is instance of {@link TestSuiteMethod}, if it has any parameters for testing(see
-     * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors in it.
+     * {@link TestSuiteMethod#hasChecks()}) and if there is no errors in it.
      *
      * @param tester instance of method that is considered to be a test.
      * @return true if tester is valid {@link TestSuiteMethod}.
@@ -44,7 +44,7 @@ public final class ProjectHelper {
     private static boolean isTester(IOpenMethod tester) {
         if (tester instanceof TestSuiteMethod testSuiteMethod) {
             try {
-                return !testSuiteMethod.isRunMethod() && testSuiteMethod.isRunmethodTestable();
+                return !testSuiteMethod.isRunMethod() && testSuiteMethod.hasChecks();
             } catch (Exception e) {
                 Logger log = LoggerFactory.getLogger(ProjectHelper.class);
                 log.error(e.getMessage(), e);

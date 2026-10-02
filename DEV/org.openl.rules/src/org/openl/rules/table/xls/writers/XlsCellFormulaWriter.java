@@ -29,10 +29,7 @@ public class XlsCellFormulaWriter extends XlsCellStringWriter {
             cellToWrite.setCellFormula(excelFormula);
             PoiExcelHelper.evaluateFormula(cellToWrite);
         } catch (Exception e) {
-            // if the setting of Excel formula have been failed then we have
-            // OpenL formula
-            // TODO make separate writers and editors for OpenL and Excel
-            // Formulas
+            // A formula Excel cannot read is an OpenL formula, which is written as text.
             super.writeCellValue();
         }
     }

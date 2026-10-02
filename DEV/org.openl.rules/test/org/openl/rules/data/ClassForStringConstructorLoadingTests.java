@@ -1,8 +1,8 @@
 package org.openl.rules.data;
 
-class ClassForStringConstructorLoadingTests {
+public class ClassForStringConstructorLoadingTests {
 
-    ClassForStringConstructorLoadingTests(String theValue) {
+    public ClassForStringConstructorLoadingTests(String theValue) {
 
     }
 }

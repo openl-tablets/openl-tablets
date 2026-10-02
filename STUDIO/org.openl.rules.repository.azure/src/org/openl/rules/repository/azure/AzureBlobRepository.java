@@ -376,9 +376,7 @@ public class AzureBlobRepository implements Repository {
     @Override
     public List<FileData> listHistory(String name) throws IOException {
         try {
-            // TODO: What if name is a file name?
-            // Current implementation works only if name is a project name.
-            // If will invoke this method for files and project sub-folders, we should improve this method.
+            // The history is kept for projects only, so the name must be the name of a project.
             var pathPrefix = versionFileName(name);
 
             var options = new ListBlobsOptions();

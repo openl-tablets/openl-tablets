@@ -347,7 +347,7 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     public boolean isOpenedForEditing() {
-        // TODO Remove this workaround
+        // A project outside a user workspace is never opened for editing.
         return false;
     }
 

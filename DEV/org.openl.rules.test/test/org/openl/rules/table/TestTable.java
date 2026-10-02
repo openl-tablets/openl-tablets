@@ -31,6 +31,6 @@ class TestTable {
 
         var hiTest = (TestSuiteMethod) openClass.getMethod("hiTest", IOpenClass.EMPTY);
         assertNotNull(hiTest);
-        assertTrue(hiTest.isRunmethodTestable());
+        assertTrue(hiTest.hasChecks());
     }
 }

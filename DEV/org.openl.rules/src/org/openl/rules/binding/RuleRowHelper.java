@@ -392,10 +392,6 @@ public final class RuleRowHelper {
                                           OpenlToolAdaptor openlAdaptor,
                                           String source) {
 
-        // TODO: parse values considering underlying excel format. Note: this
-        // class does not know anything about Excel. Keep it storage format
-        // agnostic (don't introduce excel dependencies). Also consider adding
-        // meta info.
         source = StringUtils.trimToNull(source);
         if (source != null) {
             var bindingContext = openlAdaptor.getBindingContext();

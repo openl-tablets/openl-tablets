@@ -52,8 +52,7 @@ public class DatatypeOpenField extends AOpenField {
     private Accessors accessors() {
         var methods = accessors.get();
         if (methods == null) {
-            // TODO: Refactoring. Move this method to DatatypeTableBoundNode.processRow()
-            // No needs in lazy-initialization in run-time when it is known in compile-time
+            // Found on first use: the bean class that declares the accessors is generated after the field.
             synchronized (this) {
                 methods = accessors.get();
                 if (methods == null) {
@@ -113,7 +112,7 @@ public class DatatypeOpenField extends AOpenField {
 
     @Override
     public boolean isWritable() {
-        // TODO check final attribute
+        // A generated datatype bean has a setter for every field.
         return true;
     }
 

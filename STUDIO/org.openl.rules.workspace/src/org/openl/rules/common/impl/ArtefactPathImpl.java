@@ -35,11 +35,7 @@ public class ArtefactPathImpl implements ArtefactPath {
         }
     }
 
-    protected void addSegment(String segment) {
-        if (segment.indexOf(SEGMENT_DELIMITER) >= 0) {
-            // TODO: error -- segment must not contain delimiter(s)
-        }
-
+    private void addSegment(String segment) {
         segments.add(segment);
     }
 
