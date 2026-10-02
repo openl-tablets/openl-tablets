@@ -163,7 +163,7 @@ services:
 
   studio:
     container_name: studio
-    image: openltablets/webstudio:5.27.12@sha256:35a4223afd3dc0158e4785155e2186cb5d6c1d7c337ef234d63962fcc78ada9f
+    image: openltablets/webstudio:6.4.0
     ports:
       - "8081:8080"
     depends_on:
@@ -178,9 +178,6 @@ services:
       ## Security settings.
       USER_MODE: multi
       SECURITY_ADMINISTRATORS: admin
-
-      ## Avoid set up wizard. We don't need it since we configure studio though environment variables
-      WEBSTUDIO_CONFIGURED: "true"
 
       ## DB
       DB_URL: jdbc:postgresql://postgres-db:5432/openl_studio
