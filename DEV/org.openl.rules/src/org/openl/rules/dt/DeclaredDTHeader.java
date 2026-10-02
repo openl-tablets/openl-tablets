@@ -16,6 +16,8 @@ class DeclaredDTHeader extends DTHeader {
     @Getter
     private final boolean verticalConditionWithMergedTitle;
 
+    // The header keeps its position, size and the column definition it matches.
+    @SuppressWarnings("java:S107")
     DeclaredDTHeader(int[] methodParameterIndexes,
                      DTColumnsDefinition dtColumnsDefinition,
                      IParameterDeclaration[][] columnParameters,

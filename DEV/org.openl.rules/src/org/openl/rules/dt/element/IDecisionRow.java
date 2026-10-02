@@ -45,6 +45,8 @@ public interface IDecisionRow extends IBaseDecisionRow {
 
     void prepareParams(OpenL openl, IBindingContext bindingContext);
 
+    // Every row type prepares with the table, its header, the rule row and the binding state.
+    @SuppressWarnings("java:S107")
     void prepare(DecisionTable decisionTable,
                  IOpenClass methodType,
                  IMethodSignature signature,

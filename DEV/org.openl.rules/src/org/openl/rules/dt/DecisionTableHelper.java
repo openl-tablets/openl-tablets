@@ -315,6 +315,8 @@ public final class DecisionTableHelper {
         return originalTable.getSubtable(0, 1, originalTable.getWidth(), originalTable.getHeight() - 1);
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeVirtualHeaders(TableSyntaxNode tableSyntaxNode,
                                             DecisionTable decisionTable,
                                             ILogicalTable originalTable,
@@ -687,6 +689,8 @@ public final class DecisionTableHelper {
         return type.getName();
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeReturnWithReturnDtHeader(TableSyntaxNode tableSyntaxNode,
                                                       ILogicalTable uncutOriginalTable,
                                                       ILogicalTable originalTable,
@@ -864,6 +868,8 @@ public final class DecisionTableHelper {
 
     private static final String FUZZY_RET_VARIABLE_NAME = "$Rn";
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static IOpenClass writeReturnStatement(IOpenClass type,
                                                    IOpenField[] fieldsChain,
                                                    Set<String> generatedNames,
@@ -946,6 +952,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeInputParametersToReturn(TableSyntaxNode tableSyntaxNode,
                                                      DecisionTable decisionTable,
                                                      FuzzyContext fuzzyContext,
@@ -1164,6 +1172,8 @@ public final class DecisionTableHelper {
         return false;
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeFuzzyReturns(TableSyntaxNode tableSyntaxNode,
                                           DecisionTable decisionTable,
                                           ILogicalTable originalTable,
@@ -1281,6 +1291,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeSimpleDTReturnHeader(TableSyntaxNode tableSyntaxNode,
                                                   DecisionTable decisionTable,
                                                   ILogicalTable originalTable,
@@ -1319,6 +1331,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeReturns(TableSyntaxNode tableSyntaxNode,
                                      DecisionTable decisionTable,
                                      ILogicalTable uncutOriginalTable,
@@ -1482,6 +1496,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeDeclaredDtHeader(DecisionTable decisionTable,
                                               ILogicalTable originalTable,
                                               IWritableGrid grid,
@@ -1620,6 +1636,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeActions(DecisionTable decisionTable,
                                      ILogicalTable originalTable,
                                      IWritableGrid grid,
@@ -1751,6 +1769,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeConditions(TableSyntaxNode tableSyntaxNode,
                                         DecisionTable decisionTable,
                                         ILogicalTable originalTable,
@@ -2043,6 +2063,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeMetaInfoForVCondition(ILogicalTable originalTable,
                                                    DecisionTable decisionTable,
                                                    int column,
@@ -2093,6 +2115,8 @@ public final class DecisionTableHelper {
         }
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static void writeMetaInfoForAction(DecisionTable decisionTable,
                                                ILogicalTable originalTable,
                                                int column,
@@ -2834,6 +2858,8 @@ public final class DecisionTableHelper {
                     new PredicateToken("false", maxDistance + 1, 1, false));
         }
 
+        // Each step of the decision table build takes the table, grid, module and binding state it works on.
+        @SuppressWarnings("java:S107")
         private static void addFuzzyDtHeader(DecisionTable decisionTable,
                                              FuzzyContext fuzzyContext,
                                              int w,
@@ -3443,6 +3469,8 @@ public final class DecisionTableHelper {
         return ret;
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static List<DTHeader> fitDtHeaders(TableSyntaxNode tableSyntaxNode,
                                                DecisionTable decisionTable,
                                                ILogicalTable originalTable,
@@ -3803,6 +3831,8 @@ public final class DecisionTableHelper {
         return false;
     }
 
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static List<DTHeader> getDTHeaders(TableSyntaxNode tableSyntaxNode,
                                                DecisionTable decisionTable,
                                                ILogicalTable originalTable,
@@ -4512,6 +4542,8 @@ public final class DecisionTableHelper {
      * Check type of condition values. If condition values are complex(Range, Array) then types of complex values will
      * be returned
      */
+    // Each step of the decision table build takes the table, grid, module and binding state it works on.
+    @SuppressWarnings("java:S107")
     private static Triple<String[], IOpenClass, String> getTypeForConditionColumn(DecisionTable decisionTable,
                                                                                   ILogicalTable originalTable,
                                                                                   DTHeader condition,

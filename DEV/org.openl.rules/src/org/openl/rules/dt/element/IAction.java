@@ -12,6 +12,8 @@ import org.openl.types.IOpenMethodHeader;
 
 public interface IAction extends IBaseAction, IDecisionRow {
 
+    // Every action type prepares with the table, its header, the rule row and the binding state.
+    @SuppressWarnings("java:S107")
     void prepareAction(DecisionTable decisionTable,
                        IOpenMethodHeader header,
                        IMethodSignature signature,

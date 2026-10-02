@@ -219,6 +219,8 @@ public class ProjectCreationService {
      *
      * @return the created project's file data (branch/revision)
      */
+    // The method takes every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public FileData createFromTemplate(String repositoryId, String projectName, String path,
                                        String type, String category, String template,
                                        String comment, Map<String, String> tags) {
@@ -227,6 +229,8 @@ public class ProjectCreationService {
                 projectName, path, type, category, template, comment, tags);
     }
 
+    // The method takes every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public FileData createFromTemplate(Repository repository, String projectName, String path,
                                        String type, String category, String template,
                                        String comment, Map<String, String> tags) {
@@ -253,6 +257,8 @@ public class ProjectCreationService {
      *
      * @return the created project's file data (branch/revision)
      */
+    // The method takes every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public FileData createFromFiles(String repositoryId, String projectName, String path, List<ProjectFile> files,
                                     String comment, String modelsPath, String algorithmsPath, String modelsModuleName,
                                     String algorithmsModuleName, Map<String, String> tags) {
@@ -262,6 +268,8 @@ public class ProjectCreationService {
                 algorithmsModuleName, tags);
     }
 
+    // The method takes every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public FileData createFromFiles(Repository repository, String projectName, String path, List<ProjectFile> files,
                                     String comment, String modelsPath, String algorithmsPath, String modelsModuleName,
                                     String algorithmsModuleName, Map<String, String> tags) {

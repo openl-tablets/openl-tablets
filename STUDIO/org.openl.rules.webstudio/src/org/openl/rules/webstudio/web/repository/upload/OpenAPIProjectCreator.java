@@ -53,6 +53,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final String algorithmsModuleName;
     private final String openAPIPath;
 
+    // The creator takes the target repository and every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public OpenAPIProjectCreator(ProjectFile projectFile,
                                  String repositoryId,
                                  String projectName,
@@ -77,6 +79,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 tags);
     }
 
+    // The creator takes the target repository and every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public OpenAPIProjectCreator(Repository repository,
                                  ProjectFile projectFile,
                                  String projectName,

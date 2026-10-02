@@ -30,6 +30,8 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
     private final Class<?> rangeType;
     private final String rangeName;
 
+    // The field keeps the bounds, type and casts of the spreadsheet range it reads.
+    @SuppressWarnings("java:S107")
     public SpreadsheetRangeField(String name,
                                  String rangeName,
                                  int startColumnIndex,

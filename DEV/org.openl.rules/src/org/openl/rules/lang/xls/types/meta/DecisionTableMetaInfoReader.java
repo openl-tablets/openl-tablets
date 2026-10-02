@@ -379,6 +379,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
+    // The meta information keeps the cell position and every detail of the column it describes.
+    @SuppressWarnings("java:S107")
     public void addCondition(int row,
                              int col,
                              String header,
@@ -402,6 +404,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         getMetaInfos().getRules().add(CellKey.CellKeyFactory.getCellKey(col, row));
     }
 
+    // The meta information keeps the cell position and every detail of the column it describes.
+    @SuppressWarnings("java:S107")
     public void addAction(int row,
                           int col,
                           String header,

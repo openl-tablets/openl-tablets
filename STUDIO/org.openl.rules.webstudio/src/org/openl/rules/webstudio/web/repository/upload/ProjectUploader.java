@@ -40,6 +40,8 @@ public class ProjectUploader {
     private String createdProjectName;
     private final Map<String, String> tags;
 
+    // The uploader takes the target repository, the project creation request and the services it uses.
+    @SuppressWarnings("java:S107")
     public ProjectUploader(Repository repository,
                            List<ProjectFile> uploadedFiles,
                            String projectName,

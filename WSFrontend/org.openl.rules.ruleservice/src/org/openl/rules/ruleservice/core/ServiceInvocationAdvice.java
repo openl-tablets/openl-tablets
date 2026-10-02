@@ -93,6 +93,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     private final Function<Object, String> serializer;
 
+    // The advice takes the compiled rules, the service target and the runtime services it invokes them with.
+    @SuppressWarnings("java:S107")
     public ServiceInvocationAdvice(IOpenClass openClass,
                                    Object serviceTarget,
                                    Map<Method, Method> methodMap,

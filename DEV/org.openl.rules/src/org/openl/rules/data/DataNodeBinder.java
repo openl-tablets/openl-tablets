@@ -151,6 +151,8 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param openl             OpenL instance.
      * @param hasColumnTitleRow Flag representing if tableBody has title row for columns.
      */
+    // Data, property and test tables bind through it with their table, body, type and binding state.
+    @SuppressWarnings("java:S107")
     public void processTable(XlsModuleOpenClass xlsOpenClass,
                              ITable tableToProcess,
                              ILogicalTable tableBody,

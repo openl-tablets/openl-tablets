@@ -29,6 +29,8 @@ public class EventTableStyles implements TableStyles {
     private final List<HSSFComment> comments;
     private final Map<CellAddress, String> formulas;
 
+    // The styles keep the records the HSSF event parser collected for the table.
+    @SuppressWarnings("java:S107")
     public EventTableStyles(IGridRegion region,
                             int[][] cellIndexes,
                             List<ExtendedFormatRecord> extendedFormats,

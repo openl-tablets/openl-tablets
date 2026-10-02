@@ -521,6 +521,8 @@ public class DataTableBindHelper {
      * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be
      *                       <code>null</code>.
      */
+    // The descriptors depend on the table, its type, the descriptor and data rows, and the binding options.
+    @SuppressWarnings("java:S107")
     public static ColumnDescriptor[] makeDescriptors(IBindingContext bindingContext,
                                                      ITable table,
                                                      IOpenClass type,
@@ -741,6 +743,8 @@ public class DataTableBindHelper {
         return new GridCellSourceCodeModule(gridTable);
     }
 
+    // A column descriptor takes the field, the foreign key and the header the column is parsed into.
+    @SuppressWarnings("java:S107")
     private static ColumnDescriptor getColumnDescriptor(OpenL openl,
                                                         IOpenField descriptorField,
                                                         boolean constructorField,

@@ -45,6 +45,8 @@ public class ProjectsPageResponse extends PageResponse<ProjectViewModel> {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final Map<String, IndexHealth> projectIndexHealth;
 
+    // The response takes one value per field of the projects page JSON.
+    @SuppressWarnings("java:S107")
     private ProjectsPageResponse(Collection<ProjectViewModel> content,
                                  Pageable page,
                                  Long total,
@@ -61,6 +63,8 @@ public class ProjectsPageResponse extends PageResponse<ProjectViewModel> {
         this.projectIndexHealth = Map.copyOf(projectIndexHealth);
     }
 
+    // The response takes one value per field of the projects page JSON.
+    @SuppressWarnings("java:S107")
     public static ProjectsPageResponse of(Collection<ProjectViewModel> content,
                                           Pageable page,
                                           long total,

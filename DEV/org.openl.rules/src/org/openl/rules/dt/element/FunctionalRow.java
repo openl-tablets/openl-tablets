@@ -646,6 +646,8 @@ public abstract class FunctionalRow implements IDecisionRow {
      * @param bindingContext binding context
      * @return parameter declaration
      */
+    // A parameter declaration compiles against the method header and the binding state of the row.
+    @SuppressWarnings("java:S107")
     private IParameterDeclaration getParameterDeclaration(IOpenSourceCodeModule paramSource,
                                                           IOpenSourceCodeModule methodSource,
                                                           IMethodSignature signature,

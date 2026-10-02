@@ -113,6 +113,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     /**
      * Constructor for module with dependent modules
      */
+    // A module is created with its metadata, dependencies, class loader and binding context.
+    @SuppressWarnings("java:S107")
     public XlsModuleOpenClass(String moduleName,
                               XlsMetaInfo xlsMetaInfo,
                               OpenL openl,
