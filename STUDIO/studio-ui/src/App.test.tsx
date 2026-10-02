@@ -187,13 +187,14 @@ describe('App sign-in', () => {
         expect(replace).not.toHaveBeenCalled()
     })
 
-    it('opens the login page at once from the context root', () => {
+    it('reloads the context root through the server like any other page', () => {
         openAt('/webstudio/')
+        render(<App />).unmount()
 
         render(<App />)
 
+        expect(reload).toHaveBeenCalledTimes(1)
         expect(replace).toHaveBeenCalledExactlyOnceWith('/webstudio/login')
-        expect(reload).not.toHaveBeenCalled()
     })
 
     it('draws the login page for a signed-out user who is on it', () => {

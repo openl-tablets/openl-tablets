@@ -20,18 +20,18 @@ const RELOADED_PAGE_KEY = 'openl.signIn.reloadedPage'
 /**
  * Takes a signed-out user to the sign-in.
  *
- * The page is reloaded, so that the server answers its address with the sign-in it is configured for: the login
- * form or an identity provider (SAML, OAuth2). The server brings the user back to the page afterwards.
+ * The page is reloaded, the context root included, so that the server answers its address with the sign-in it is
+ * configured for: the login form or an identity provider (SAML, OAuth2). The server brings the user back to the page
+ * afterwards.
  *
- * The context root opens the login page at once. So does a page that comes back from that reload still signed out,
- * instead of reloading again: its server guards no page, as the Vite dev server does not. The login page replaces
- * the page in the history, as a redirect of the server does.
+ * A page that comes back from that reload still signed out opens the login page instead of reloading again: its
+ * server guards no page, as the Vite dev server does not. The login page replaces the page in the history, as a
+ * redirect of the server does.
  *
  * The tab remembers the reloaded page until the login page is opened for it or the user signs in.
  */
 const goToSignIn = (loginPage: string) => {
-    const reloaded = readStored(RELOADED_PAGE_KEY, 'sessionStorage') === location.href
-    if (reloaded || location.pathname === `${CONFIG.CONTEXT}/`) {
+    if (readStored(RELOADED_PAGE_KEY, 'sessionStorage') === location.href) {
         removeStored(RELOADED_PAGE_KEY, 'sessionStorage')
         location.replace(loginPage)
     } else {
