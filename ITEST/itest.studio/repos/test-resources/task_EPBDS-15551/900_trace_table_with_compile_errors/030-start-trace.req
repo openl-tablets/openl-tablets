@@ -1,0 +1,7 @@
+POST /rest/projects/{PROJECT_ID}/trace?tableId=55fb2e40e388612edbd1cebf1b306942 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "x": 1
+}

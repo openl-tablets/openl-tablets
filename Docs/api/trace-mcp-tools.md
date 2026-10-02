@@ -262,7 +262,8 @@ Starts a session. Before `POST /trace`, MCP resolves the input if needed: either
 **Output:** `DebugStackView` (usually `status=suspended`, one frame at entry; with
 `stopAtEntry=false` and no breakpoints — terminal right away; with `profiling=true` — always with `profile`,
 and with `tree` unless `includeTree` is disabled).
-**Errors:** `404` table/method not found; `409` mapper configuration error.
+**Errors:** `404` table/method not found; `409` the table, or a table it tests, does not compile, or the mapper
+configuration fails.
 
 > [!Note]
 > The server remembers the last input: a restart **without** `inputJson` and **without** `testRanges` (a replay,

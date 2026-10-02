@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
@@ -37,9 +38,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.rest.compile.OpenLTableLogic;
+import org.openl.rules.rest.compile.TableDescription;
+import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.utils.WebTool;
@@ -143,6 +151,7 @@ public class ProjectsTraceDebugController {
         IOpenMethod method = currentOpenedModule
                 ? projectModel.getOpenedModuleMethod(table.getUri())
                 : projectModel.getMethod(table.getUri());
+        refuseIfNotCompiled(projectModel, table, method, currentOpenedModule);
         if (method == null) {
             throw new NotFoundException("table.message");
         }
@@ -412,6 +421,34 @@ public class ProjectsTraceDebugController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("trace.txt"))
                 .contentType(new MediaType("text", "plain", StandardCharsets.UTF_8))
                 .body(buffer.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static void refuseIfNotCompiled(ProjectModel projectModel, IOpenLTable table, IOpenMethod method,
+                                            boolean currentOpenedModule) {
+        var firstError = urisToCheck(projectModel, table, method, currentOpenedModule)
+                .flatMap(uri -> compileErrors(projectModel, uri, currentOpenedModule).stream())
+                .findFirst();
+        if (firstError.isPresent()) {
+            var summary = Objects.toString(firstError.get().getSummary(), "").lines().findFirst().orElse("");
+            throw new ConflictException("trace.table.compile.errors.message", summary);
+        }
+    }
+
+    private static Stream<String> urisToCheck(ProjectModel projectModel, IOpenLTable table, IOpenMethod method,
+                                              boolean currentOpenedModule) {
+        var targets = method instanceof TestSuiteMethod
+                ? OpenLTableLogic.getTargetTables(table, projectModel, currentOpenedModule).stream()
+                        .map(TableDescription::uri)
+                        .filter(uri -> projectModel.getTableByUri(uri) != null)
+                : Stream.<String>empty();
+        return Stream.concat(Stream.of(table.getUri()), targets);
+    }
+
+    private static List<OpenLMessage> compileErrors(ProjectModel projectModel, String uri,
+                                                    boolean currentOpenedModule) {
+        return currentOpenedModule
+                ? projectModel.getOpenedModuleMessagesByTsn(uri, Severity.ERROR)
+                : projectModel.getMessagesByTsn(uri, Severity.ERROR);
     }
 
     /** Terminate the active session and drop its worker plus cached parameter values. */

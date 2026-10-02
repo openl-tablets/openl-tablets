@@ -157,6 +157,16 @@ everyone who calls that API from outside the browser.
   with the code `openl.error.409.project.status.update.failed.message`. It now answers `409` with
   `openl.error.409.file.project.locked.message`, naming the project and the user, or with
   `openl.error.409.file.project.branch.protected.message`, naming the project and the branch.
+* **`POST /rest/projects/{id}/trace` refuses a table that does not compile.** It used to start the session for a table
+  with a compilation error, taking an unparsable cell as empty, so the trace completed with a result computed from the
+  rest of the table, and it answered `404` for a table whose header did not parse. It now answers `409` with
+  `openl.error.409.trace.table.compile.errors.message`, naming the first error. The errors are read from the whole
+  project, or from the module named by `fromModule`, and a test table is refused for errors in the tables it tests
+  as well. A table that compiles within its own module but not with the rest of the project traces with
+  `fromModule`, as the Trace button of the editor does. A table with an expression that does not compile used to halt
+  on the failing step under `breakOnErrors`; it is refused with the same `409` now, so a client that traced it to find
+  the error reads it from the answer. A table that only calls a table that does not compile is still traced and halts
+  on the failing step.
 * **`treeView` and `profiles` are gone from `/rest/users/profile`.** `GET` no longer returns them, and a `PUT` that
   still sends `treeView` answers `400` with `Unknown field 'treeView'`. Drop the field from the body.
 * **A `PUT /rest/users/profile` that leaves a field out keeps the stored value**, for a name, the e-mail and the display
