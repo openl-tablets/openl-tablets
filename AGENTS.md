@@ -113,7 +113,7 @@ EPBDS-NNNNN <subject>
 - **For bug fixes, name the cause and its observable effect**, not the symptom:
     - `EPBDS-15981 Fix NPE when ProjectDescriptor.name is null` — not `Fix 'something went wrong' message`
     - `Fix date parsing which breaks UI rendering` — not `Fix missed input`
-- **Subject line only.** Add a body only when a single line cannot explain the change with fewer words.
+- **Subject line only.** Add a body only when a single line cannot explain the change with not more than 80 symbols.
 - **No `Co-Authored-By:` or other co-author trailers.**
 - **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a
   misconfiguration, code cleanup or a dependency bump.
