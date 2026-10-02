@@ -114,7 +114,8 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
         return callIndex;
     }
 
-    @SuppressWarnings("unchecked")
+    // The multithreaded subclass overrides it and reads the result length to decide whether to call in parallel.
+    @SuppressWarnings({"unchecked", "java:S1172"})
     protected void invokeMethodAndSetResultToArray(Object target,
                                                    IRuntimeEnv env,
                                                    Object[] callParameters,

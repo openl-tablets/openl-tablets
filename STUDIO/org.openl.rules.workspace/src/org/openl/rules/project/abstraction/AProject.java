@@ -284,6 +284,8 @@ public class AProject extends AProjectFolder implements IProject {
      * @param user the user who closes the project
      * @throws ProjectException if a project cannot release what it holds for the user
      */
+    // A hook: RulesProject overrides it and unlocks the project the user has locked.
+    @SuppressWarnings("java:S1172")
     public void close(CommonUser user) throws ProjectException {
         refresh();
     }

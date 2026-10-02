@@ -14,6 +14,8 @@ public class DeclareIteratorOperation extends RuntimeOperation {
 
     private final String elementName;
 
+    // OperationFactory passes the operation parameters to the constructor by position, so the label stays first.
+    @SuppressWarnings("java:S1172")
     public DeclareIteratorOperation(String label, String elementName) {
         this.elementName = elementName;
     }

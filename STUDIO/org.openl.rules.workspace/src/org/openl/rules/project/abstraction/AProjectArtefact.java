@@ -121,6 +121,8 @@ public class AProjectArtefact implements IProjectArtefact {
      * @param user     the user who makes the change
      * @throws ProjectException if an artefact cannot store the new content
      */
+    // A hook: folders, resources and projects override it and update their content from the artefact.
+    @SuppressWarnings("java:S1172")
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         refresh();
     }

@@ -15,6 +15,8 @@ class GenericComparator<T> implements TestResultComparator {
     GenericComparator() {
     }
 
+    // A hook: the specialized comparators override it and check the types of both values.
+    @SuppressWarnings("java:S1172")
     boolean fit(Object expected, Object actual) {
         return true;
     }

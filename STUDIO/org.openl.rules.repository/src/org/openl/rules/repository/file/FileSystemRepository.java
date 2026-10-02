@@ -347,10 +347,14 @@ public class FileSystemRepository implements Repository, Closeable {
         return files;
     }
 
+    // A plain folder keeps no versions; the local repository overrides it and reads the version of the file.
+    @SuppressWarnings("java:S1172")
     protected String getVersion(Path file) {
         return null;
     }
 
+    // A plain folder keeps no versions; the local repository overrides it and reads the version of the path.
+    @SuppressWarnings("java:S1172")
     protected String getVersion(String path) throws IOException {
         return null;
     }

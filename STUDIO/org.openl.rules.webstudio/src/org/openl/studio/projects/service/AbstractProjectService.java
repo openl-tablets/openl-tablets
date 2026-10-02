@@ -141,11 +141,15 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     }
 
     /** The project status used for the summary counts, if this service exposes one. */
+    // A hook: the workspace project service overrides it and reads the status of the project.
+    @SuppressWarnings("java:S1172")
     protected Optional<ProjectStatus> statusOf(AProject project) {
         return Optional.empty();
     }
 
     /** Current compilation status for projects in the returned page, if this service exposes it. */
+    // A hook: the workspace project service overrides it and reports the statuses of the page projects.
+    @SuppressWarnings("java:S1172")
     protected List<ProjectStatusViewModel> projectStatuses(List<? extends AProject> pageProjects) {
         return List.of();
     }
@@ -347,6 +351,8 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     protected abstract Stream<T> getProjects0(ProjectCriteriaQuery query);
 
+    // A hook: the workspace project service overrides it and reads the query to include the descriptor.
+    @SuppressWarnings("java:S1172")
     protected ProjectViewModel.Builder mapProjectResponse(T src,
                                                           ProjectCriteriaQuery query,
                                                           Map<AProject, ProjectStatus> statuses) {
