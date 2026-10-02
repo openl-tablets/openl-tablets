@@ -31,15 +31,7 @@ Download from [tomcat.apache.org](https://tomcat.apache.org/).
    -Xms512m -Xmx2000m
    ```
 
-2. **Update server.xml** - Add UTF-8 encoding to Connector elements:
-   ```xml
-   <Connector port="8080" protocol="HTTP/1.1"
-              connectionTimeout="20000"
-              redirectPort="8443"
-              URIEncoding="UTF-8" />
-   ```
-
-3. **Set CATALINA_HOME** environment variable (optional but recommended)
+2. **Set CATALINA_HOME** environment variable (optional but recommended)
 
 **Starting Tomcat:**
 - **Windows**: Run `bin\startup.bat` or start the service
@@ -87,19 +79,21 @@ For multi-user mode, configure an external database.
 2. Copy to `<TOMCAT_HOME>\lib\` directory
 3. Restart Tomcat
 
-**Common JDBC Drivers:**
-- MySQL: `mysql-connector-java-8.x.x.jar`
-- PostgreSQL: `postgresql-42.x.x.jar`
-- Oracle: `ojdbc8.jar`
-- MS SQL Server: `mssql-jdbc-x.x.x.jre11.jar`
+**JDBC Drivers:**
+- MySQL and MariaDB: MySQL Connector/J or MariaDB Connector/J
+- PostgreSQL: PostgreSQL JDBC Driver
+- Oracle: Oracle JDBC Driver (`ojdbc`)
+- MS SQL Server: Microsoft JDBC Driver for SQL Server
 
 #### Database Connection Configuration
 
-In **Administration → Repositories Settings**, configure the database connection:
+The database holds the users of OpenL Studio. In **Administration → System Settings → Database Configuration**, configure the connection:
 - Database URL (e.g., `jdbc:mysql://localhost:3306/openl`)
-- Username
+- Login
 - Password
-- Driver class name
+- Maximum Pool Size
+
+Or set `db.url`, `db.user`, and `db.password` in the `application.properties` file.
 
 ---
 
@@ -118,11 +112,7 @@ Choose one of the following modes:
 - **SSO: SAML**: Single Sign-On via a SAML 2.0 identity provider
 - **SSO: OIDC (OAuth2)**: Single Sign-On via an OAuth2/OIDC identity provider
 
-For multi-user mode, set up the administrator account:
-
-- Admin username
-- Admin password
-- Email (optional)
+For multi-user mode, in **Administration → Security**, list the users with administrator privileges in **Administrators**. The default group of the newly created users is set there as well.
 
 #### Step 2: Repository Configuration
 

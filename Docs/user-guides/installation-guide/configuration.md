@@ -10,9 +10,8 @@ of the **Administration** area. What each setting actually means is described on
 [Using Administration Tools][admin] — this page links to it instead of repeating it.
 
 > [!Note]
-> Earlier versions of OpenL Studio configured the first launch through an Installation Wizard. The wizard has been
-> removed. Prepare a new instance with an `application.properties` file, then refine the settings in the
-> **Administration** area.
+> Prepare a new instance with an `application.properties` file, then refine the settings in the **Administration**
+> area.
 
 The following topics are included in this chapter:
 
@@ -88,7 +87,7 @@ as a Java system property or an environment variable, because they are resolved 
 ### The Generated Property Reference
 
 A running instance publishes every known property with its effective default value at
-`/webstudio/application.properties`, for example, `http://localhost:8080/webstudio/application.properties`. Most
+`<context path>/application.properties`, for example, `http://localhost:8080/webstudio/application.properties`. Most
 properties also carry a description. Use it as the authoritative list for the installed version — it also includes
 properties contributed by optional modules that this page does not cover.
 

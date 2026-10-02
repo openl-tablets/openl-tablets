@@ -53,20 +53,20 @@ Skip this guide and go directly to [Deployment Guide](https://openl-tablets.gith
 # 1. Install Java 21+
 java -version
 
-# 2. Download and install Apache Tomcat 10
+# 2. Download and install Apache Tomcat 10.1
 # Download from https://tomcat.apache.org/
 
 # 3. Download OpenL Studio WAR
 # Download from https://openl-tablets.org/downloads
 
 # 4. Deploy to Tomcat
-cp openl-studio.war $TOMCAT_HOME/webapps/
+cp webstudio.war $TOMCAT_HOME/webapps/
 
 # 5. Start Tomcat
 $TOMCAT_HOME/bin/startup.sh
 
 # 6. Access OpenL Studio
-open http://localhost:8080/openl-studio
+open http://localhost:8080/webstudio
 ```
 
 See [Quick Start Installation](quick-start.md) for detailed steps.
@@ -119,10 +119,10 @@ See [Quick Start Installation](quick-start.md) for detailed steps.
 Before installing, ensure you have:
 
 - **Java 21 or higher** - [Download JDK](https://openjdk.org/)
-- **Apache Tomcat 10 or higher** - [Download Tomcat](https://tomcat.apache.org/)
+- **Apache Tomcat 10.1** - [Download Tomcat](https://tomcat.apache.org/)
 - **Database** (optional for quick start):
-  - PostgreSQL 12+ (recommended)
-  - MySQL 8+ (supported)
+  - PostgreSQL (recommended)
+  - MySQL, MariaDB, SQL Server, or Oracle (supported)
   - H2 (embedded, development only)
 
 See [System Requirements](system-requirements.md) for detailed prerequisites.
@@ -134,7 +134,7 @@ See [System Requirements](system-requirements.md) for detailed prerequisites.
 ### Option 1: Quick Start (Tomcat + H2)
 **Best for**: First-time users, quick setup
 - Uses embedded H2 database
-- Single command deployment
+- Deployment by copying one WAR file
 - See: [Quick Start Installation](quick-start.md)
 
 ### Option 2: Tomcat + PostgreSQL
@@ -194,12 +194,6 @@ When you're ready to deploy to production:
 - [Configuration Guide](https://openl-tablets.github.io/openl-tablets/configuration/) - Configuration options
 - **[Deployment Guide](https://openl-tablets.github.io/openl-tablets/DEPLOYMENT)** - Production deployment
 - [OpenL Studio User Guide](../openl-studio/) - Using OpenL Studio
-
----
-
-**Last Updated**: 2025-11-05
-**Version**: 6.0.0-SNAPSHOT
-**Scope**: Development and testing installation
 
 ---
 
