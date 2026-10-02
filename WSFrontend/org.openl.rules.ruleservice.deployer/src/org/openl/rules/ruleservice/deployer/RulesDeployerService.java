@@ -89,6 +89,8 @@ public class RulesDeployerService implements Closeable {
         this(properties::getProperty);
     }
 
+    // The programmatic deployment guide documents this constructor with a Function; narrowing it breaks callers.
+    @SuppressWarnings("java:S4276")
     public RulesDeployerService(Function<String, String> properties) {
         this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties::apply);
         if (deployRepo.supports().isLocal()) {
