@@ -22,6 +22,7 @@ import org.openl.binding.impl.CharNodeBinder;
 import org.openl.binding.impl.DoubleNodeBinder;
 import org.openl.binding.impl.IntNodeBinder;
 import org.openl.binding.impl.LiteralBoundNode;
+import org.openl.binding.impl.PercentNodeBinder;
 import org.openl.binding.impl.StringNodeBinder;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.rules.lang.xls.Parser;
@@ -148,6 +149,7 @@ class ParserTest {
                                          Class<?> clazz,
                                          final String type) throws Exception {
         var pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
         ISyntaxNode ln = search(pc.getTopNode(), type);
 
         var literalBoundNode = (LiteralBoundNode) binder.bind(ln, null);
@@ -304,6 +306,22 @@ class ParserTest {
                 new BigDecimal("2e+308"),
                 BigDecimal.class,
                 "literal.real");
+    }
+
+    @Test
+    void testPercentParseAndBind() throws Exception {
+        _testLiteralParseAndBind(new PercentNodeBinder(), "15%", 0.15, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "0.25%", 0.0025, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "0.5%", 0.005, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "12.345%", 0.12345, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "1.5e2%", 1.5, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "25E-1%", 0.025, double.class, "literal.percent");
+
+        // Dividing the parsed double by 100 missed these fractions in the last bit
+        _testLiteralParseAndBind(new PercentNodeBinder(), "0.07%", 0.0007, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "1.1%", 0.011, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "33.3%", 0.333, double.class, "literal.percent");
+        _testLiteralParseAndBind(new PercentNodeBinder(), "99.99%", 0.9999, double.class, "literal.percent");
     }
 
     @Test
