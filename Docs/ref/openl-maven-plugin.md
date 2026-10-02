@@ -47,7 +47,7 @@ Integrates OpenL rules compilation into the Maven lifecycle.
 | `deploy`        | `deploy`           | Deploy the packaged artifact to OpenL Studio or a repository  |
 | `migrate`       |                    | Migrates or modernizes OpenL Project and Maven modules        |
 | `prepare-bom`   | `package`          | Generates BOM with all OpenL projects [1]                     |
-| `prepare-pom`   | `verify`           | Writes `openl-pom.xml` for install/deploy [1]                 |
+| `prepare-pom`   | `validate`         | Writes `openl-pom.xml` for install/deploy [1]                 |
 | `pomless`       |                    | Converts classic pom-ful OpenL projects to pom-less [2]       |
 
 [1]: Applicable to pom-less projects only.
@@ -156,7 +156,7 @@ value — managed coordinates and reactor siblings alike, same precedence.
 
 ### Generated artifacts
 
-The synthesised pom stays in memory; the project root is never written. `openl:prepare-pom` (verify phase) writes a
+The synthesised pom stays in memory; the project root is never written. `openl:prepare-pom` (validate phase) writes a
 flat `target/openl-pom.xml` for install/deploy. The `.zip` lands in the same `target/`, installed with the derived GAV.
 
 ### Deployment BOM
