@@ -27,12 +27,6 @@ public class ArtefactPathImpl implements ArtefactPath {
         }
     }
 
-    public ArtefactPathImpl(String[] segments) {
-        for (String element : segments) {
-            addSegment(element);
-        }
-    }
-
     public ArtefactPathImpl(String pathAsString) {
         if (!pathAsString.isEmpty() && pathAsString.charAt(0) == SEGMENT_DELIMITER) {
             appendToSegments(pathAsString.substring(1));
