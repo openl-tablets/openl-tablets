@@ -15,7 +15,11 @@ public interface IMemberBoundNode {
 
     void addTo(ModuleOpenClass openClass);
 
+    // Implemented by every table bound node, whose binding steps throw many different checked exceptions.
+    @SuppressWarnings("java:S112")
     void finalizeBind(IBindingContext cxt) throws Exception;
 
+    // Implemented by every table bound node, whose binding steps throw many different checked exceptions.
+    @SuppressWarnings("java:S112")
     void removeDebugInformation(IBindingContext cxt) throws Exception;
 }

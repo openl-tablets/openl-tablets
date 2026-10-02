@@ -327,7 +327,8 @@ public final class ClassUtils {
     }
 
     // The field is named at runtime, so only reflection can write it.
-    @SuppressWarnings("java:S3011")
+    // Rethrows what the setter throws as it is, so callers see the original exception.
+    @SuppressWarnings({"java:S112", "java:S3011"})
     public static void set(Object target, String fieldName, Object value) throws Exception {
         var clz = target.getClass();
         try {
@@ -398,6 +399,8 @@ public final class ClassUtils {
         return setter;
     }
 
+    // Rethrows what the getter throws as it is, so callers see the original exception.
+    @SuppressWarnings("java:S112")
     public static Object get(Object target, String fieldName) throws Exception {
         var clz = target.getClass();
         try {

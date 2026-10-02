@@ -17,6 +17,8 @@ public interface ServiceMethodAroundAdvice<T> extends ServiceMethodAdvice {
      * @param args              method arguments
      * @throws Throwable
      */
+    // Customer extension point: an implementation may throw any exception, which reaches the service caller.
+    @SuppressWarnings("java:S112")
     T around(Method interfaceMethod, Method serviceTargetMethod, Object serviceTarget, Object... args) throws Throwable;
 
 }

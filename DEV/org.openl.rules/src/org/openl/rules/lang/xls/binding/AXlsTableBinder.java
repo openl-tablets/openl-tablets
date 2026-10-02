@@ -28,6 +28,8 @@ public abstract class AXlsTableBinder extends ANodeBinder {
         return null;
     }
 
+    // Implemented by every table binder, whose binding steps throw many different checked exceptions.
+    @SuppressWarnings("java:S112")
     public abstract IMemberBoundNode preBind(TableSyntaxNode syntaxNode,
                                              OpenL openl,
                                              RulesModuleBindingContext bindingContext,

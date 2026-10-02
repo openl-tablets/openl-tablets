@@ -123,6 +123,8 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         }
     }
 
+    // Implemented by every goal, whose steps throw many checked exceptions; execute() reports them as a failure.
+    @SuppressWarnings("java:S112")
     abstract void execute(String sourcePath, boolean hasDependencies) throws Exception;
 
     boolean isDisabled() {

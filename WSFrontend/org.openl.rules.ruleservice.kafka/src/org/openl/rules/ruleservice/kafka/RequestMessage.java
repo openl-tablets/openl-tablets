@@ -35,6 +35,8 @@ public class RequestMessage {
         }
     }
 
+    // Rethrows the failure kept while the message was read, which can be any exception.
+    @SuppressWarnings("java:S112")
     public final Object[] getParameters() throws Exception {
         if (isSuccess()) {
             return parameters.clone();
@@ -43,6 +45,8 @@ public class RequestMessage {
         }
     }
 
+    // Rethrows the failure kept while the message was read, which can be any exception.
+    @SuppressWarnings("java:S112")
     public final Method getMethod() throws Exception {
         if (method != null) {
             return method;

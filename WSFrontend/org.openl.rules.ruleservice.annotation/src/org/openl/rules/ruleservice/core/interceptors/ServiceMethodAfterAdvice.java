@@ -21,6 +21,8 @@ public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
      * @return method return value
      * @throws Exception
      */
+    // Customer extension point: an implementation may throw any exception, which reaches the service caller.
+    @SuppressWarnings("java:S112")
     T afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception;
 
     /**
@@ -34,5 +36,7 @@ public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
      * @return method return value
      * @throws Exception
      */
+    // Customer extension point: an implementation may throw any exception, which reaches the service caller.
+    @SuppressWarnings("java:S112")
     T afterThrowing(Method interfaceMethod, Exception t, Object... args) throws Exception;
 }

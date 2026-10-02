@@ -53,6 +53,8 @@ public abstract class ABoundNode implements IBoundNode {
         }
     }
 
+    // Implemented by every bound node; evaluate() wraps whatever an evaluation throws into OpenLRuntimeException.
+    @SuppressWarnings("java:S112")
     protected abstract Object evaluateRuntime(IRuntimeEnv env) throws Exception;
 
     @Override
