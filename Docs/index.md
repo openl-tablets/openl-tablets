@@ -30,8 +30,9 @@ Write business rules in Excel. Manage and test them in a browser-based IDE. Depl
 ### Getting started
 
 - **[What is OpenL Tablets?](what-is-openl-tablets.md)** — Platform overview, components, and when to use it
-- **[Tutorials](user-guides/tutorials.md)** — Step-by-step walkthroughs from decision tables to advanced rule types
-- **[Videocasts](user-guides/videocasts.md)** — Video demonstrations of key features
+- **[Tutorials](user-guides/getting-started/tutorials.md)** — Step-by-step walkthroughs from decision tables to
+  advanced rule types
+- **[Videocasts](user-guides/getting-started/videocasts.md)** — Video demonstrations of key features
 
 ### Reference
 
@@ -51,7 +52,7 @@ Write business rules in Excel. Manage and test them in a browser-based IDE. Depl
 Run OpenL Tablets locally using Docker:
 
 ```bash
-docker run -p 8080:8080 openltablets/openl-tablets
+docker run -p 8080:8080 openltablets/webstudio
 ```
 
 Open [http://localhost:8080](http://localhost:8080){:target="_blank"} in your browser to access OpenL Studio.
