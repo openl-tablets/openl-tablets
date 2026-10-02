@@ -1,5 +1,7 @@
 package org.openl.codegen.tools.type;
 
+import java.util.Locale;
+
 import lombok.Getter;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -33,5 +35,12 @@ public class TablePropertyDefinitionWrapper {
 
     public String getOperation() {
         return operationName;
+    }
+
+    /**
+     * The name of the {@code MatchingConstraint} method that checks the operation: the operation name in lower case.
+     */
+    public String getOperationMethod() {
+        return operationName == null ? null : operationName.toLowerCase(Locale.ROOT);
     }
 }
