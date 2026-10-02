@@ -46,7 +46,17 @@ interface RawTableGridProps {
     testId?: string | undefined
 }
 
-const formatValue = (value: RawTableCell['value']): string => (value == null ? '' : String(value))
+const EXCEL_SIGNIFICANT_DIGITS = 15
+
+const formatNumber = (value: number): string =>
+    Number.isInteger(value) ? String(value) : String(Number(value.toPrecision(EXCEL_SIGNIFICANT_DIGITS)))
+
+const formatValue = (value: RawTableCell['value']): string => {
+    if (value == null) {
+        return ''
+    }
+    return typeof value === 'number' ? formatNumber(value) : String(value)
+}
 
 /** Stable row key from the first cell's A1 address (e.g. `A2`); falls back to the row position. */
 const rowKey = (row: RawTableCell[], index: number): string => {
