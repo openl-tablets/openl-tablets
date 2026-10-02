@@ -31,6 +31,12 @@ everyone who calls that API from outside the browser.
   holds that infinity or is empty, as `==` compares them. Before, it matched the rule of a number of the column, such
   as `0`, and a condition cell with `Infinity` could also match `-Infinity` or a number.
 
+* **A `DoubleRange` condition matches exactly the numbers its range holds.** A range without an upper limit, such as
+  `> 10`, `10+` or `more than 10`, matches `Infinity`. A negative bound keeps the number next to it on the correct
+  side: `(-1; 0)` matches `-0.9999999999999999`, while `[-2; -1]` and `-1` do not. Before, `Infinity` matched only a
+  rule whose condition cell is empty. At a negative bound that is a power of two, such as `-1` or `-4`, the number
+  next to the bound fell on the wrong side.
+
 * **The literal `null` added to or subtracted from a number counts as `0`.** It takes the type of the other operand,
   as an empty value of that type does: `null + 3` is `3` and `null - 3` is `-3`. Before, both were an empty `Date`, so
   `"" + (null + 3)` gave `null` and `null + 3 == 3` gave `false`; a `byte` or `short` operand and `null - 'c'` did the

@@ -13,6 +13,13 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         return INSTANCE;
     }
 
+    /**
+     * Returns the first number above the range.
+     *
+     * <p>For a range that holds {@code Infinity}, such as {@code > 10}, the result is {@code NaN}. {@code NaN} is the
+     * only {@code Double} ordered above {@code Infinity}, so {@code Infinity} falls inside the range, while
+     * {@code NaN} itself stays outside every range.
+     */
     @Override
     public Double getMax(DoubleRange range) {
         if (range == null) {
@@ -20,15 +27,15 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         }
 
         var max = range.getUpperBound();
-        if (max != Double.POSITIVE_INFINITY && range.getType().right == Range.Bound.CLOSED) {
-            // the max should be moved to the right,
-            // to ensure that range.getUpperBound() will get to the interval
-            //
-            max += Math.ulp(max);
+        if (range.getType().right == Range.Bound.OPEN) {
+            return max;
         }
-        return max;
+        return max == Double.POSITIVE_INFINITY ? Double.NaN : Math.nextUp(max);
     }
 
+    /**
+     * Returns the first number of the range.
+     */
     @Override
     public Double getMin(DoubleRange range) {
         if (range == null) {
@@ -36,10 +43,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         }
 
         var min = range.getLowerBound();
-        if (range.getType().left == Range.Bound.OPEN) {
-            min += Math.ulp(min);
-        }
-        return min;
+        return range.getType().left == Range.Bound.OPEN ? Math.nextUp(min) : min;
     }
 
     @Override
