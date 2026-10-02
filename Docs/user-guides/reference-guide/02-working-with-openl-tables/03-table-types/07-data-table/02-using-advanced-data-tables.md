@@ -37,5 +37,11 @@ A user can call any value from a data table using the following syntax:
 
 ```
 <datatable name>[<number of row>] Example: testcars[0]
-<datatable name>["<value of PK>"] Example: testcars["BMW 35"]
+<datatable name>["<value of the first datatype field>"] Example: testcars["BMW 35"]
 ```
+
+A text index returns the first row whose first datatype field equals the text, or null if no row matches. The primary
+key is not used here: the \_PK\_ column, or the first column of a table without it, identifies rows only for references
+from other tables, as described in [Ensuring Data Integrity](05-ensuring-data-integrity.md#ensuring-data-integrity). A
+row whose first field value is not unique is available by its row number. For more information on indexes, see
+[Working with Arrays from Rules](../../../03-functions-and-data-types/04-working-with-arrays.md#working-with-arrays-from-rules).
