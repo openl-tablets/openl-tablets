@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod.result;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class TestResultComparatorFactory {
     private TestResultComparatorFactory() {
     }
 
-    public static TestResultComparator getComparator(Class<?> clazz, Double delta) {
+    public static TestResultComparator getComparator(Class<?> clazz, BigDecimal delta) {
         if (clazz == null) {
             return GenericComparator.INSTANCE;
         } else if (clazz.isArray()) {
@@ -38,7 +39,7 @@ public class TestResultComparatorFactory {
         return GenericComparator.INSTANCE;
     }
 
-    private static TestResultComparator getNumberComparator(Class<?> clazz, Double delta) {
+    private static TestResultComparator getNumberComparator(Class<?> clazz, BigDecimal delta) {
         if (delta == null) {
             if (NumberUtils.isNonFloatPointType(clazz)) {
                 // let's use Comparable comparator

@@ -4,6 +4,7 @@ import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
 import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
 import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -184,7 +185,7 @@ public class BaseTestUnit implements ITestUnit {
 
     private boolean isFieldEqual(IOpenField field, Object expectedFieldValue, Object actualFieldValue) {
         // Get delta for field if setted
-        Double columnDelta = null;
+        BigDecimal columnDelta = null;
         if (field instanceof PrecisionFieldChain chain && chain.hasDelta()) {
             columnDelta = chain.getDelta();
         }

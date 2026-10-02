@@ -37,6 +37,15 @@ everyone who calls that API from outside the browser.
   rule whose condition cell is empty. At a negative bound that is a power of two, such as `-1` or `-4`, the number
   next to the bound fell on the wrong side.
 
+* **A test compares a `BigDecimal` result with all its digits.** Without a precision, the expected value must equal
+  the result, and with a precision `(n)` their difference may be up to `1E-n`, computed without rounding. Before, both
+  were rounded to a `Double`, so a test passed when they differed after about the 16th digit: `0.6666666666666667`
+  matched two thirds, which is `0.6666666666666666666666666666666667` as a `BigDecimal`. Write the expected value
+  with all its digits, or give the column a precision, such as `_res_ (10)`. A `BigInteger` result with a precision
+  is compared with all its digits too. A `Double` or `Float` result is still compared in binary, so its difference
+  can be a little larger than it looks: with `(1)`, `0.4` does not match `0.3`. For such a result, `(5)` allows the
+  `Double` nearest to `0.00001` now, where it allowed only `9.999999999999999E-6`, so `0.00001` did not match `0`.
+
 * **`min`, `small`, `big` and `median` return NaN when one of the values is NaN, as `max` does.** This holds
   wherever NaN stands among the values or in an array of `Double`, `double`, `Float` or `float` values. Empty values
   are still skipped. Before:

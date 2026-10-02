@@ -1,5 +1,6 @@
 package org.openl.rules.testmethod.result;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -11,7 +12,7 @@ class ObjectComparator extends GenericComparator<Object> {
 
     static final TestResultComparator INSTANCE = new ObjectComparator();
 
-    private Double delta;
+    private BigDecimal delta;
 
     /**
      * Use {@link #INSTANCE} instead.
@@ -19,7 +20,7 @@ class ObjectComparator extends GenericComparator<Object> {
     private ObjectComparator() {
     }
 
-    ObjectComparator(Double delta) {
+    ObjectComparator(BigDecimal delta) {
         this.delta = delta;
     }
 
