@@ -89,7 +89,7 @@ This setup defines a repository named `example` in OpenL Studio using environmen
 - Protected branches (`main`, `release-*`)
 - Git commit attribution with a named user and email
 
-For a detailed explanation of configuration parameters, refer to the [OpenL Studio Git Integration Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository).
+For a detailed explanation of configuration parameters, refer to the [OpenL Studio Git Integration Guide](https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository).
 
 ---
 

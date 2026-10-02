@@ -196,29 +196,29 @@ services:
       ## We are going to use them to avoid necessity to define each required settings. You can override any settings later, but keep in mind that all settings,
       ## which come before this are going to be overwritten.
       REPOSITORY_EXAMPLE__REF_: repo-default.design
-      # "Connection timeout" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Connection timeout" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_CONNECTION-TIMEOUT__REF_: repo-git.connection-timeout
-      # "Changes check interval" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Changes check interval" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_LISTENER-TIMER-PERIOD__REF_: repo-git.listener-timer-period
 
       ## Here we define variables that are specific for our project
-      # "URL" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "URL" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_URI: http://gitea:3000/admin_user/design.git
       # Fixed value indicating remote git repository type. Equates to "git" in "Type" field in settings.
       REPOSITORY_EXAMPLE_FACTORY: "repo-git"
-      # "Name" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Name" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_NAME: "Example"
-      # "Login" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Login" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_LOGIN: admin_user
-      # "Password" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Password" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_PASSWORD: admin_password
-      # "Local path" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Local path" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_LOCAL-REPOSITORY-PATH: /opt/openl/local/repositories/example
-      # "Default branch name" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Default branch name" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_BRANCH: develop
-      # "Flat folder structure" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Flat folder structure" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_FOLDER-STRUCTURE_FLAT: false
-      # "Protected branches" as described at https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#setting-up-a-connection-to-a-git-repository
+      # "Protected branches" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_PROTECTED-BRANCHES: main, release-*
 
   postgres:
