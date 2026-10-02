@@ -589,6 +589,8 @@ public class DecisionTableLoader {
 
     @FunctionalInterface
     private interface Supplier {
+        // Runs the binding of a table, whose failure is kept and rethrown as it is when no direction compiles.
+        @SuppressWarnings("java:S112")
         void get() throws Exception;
     }
 

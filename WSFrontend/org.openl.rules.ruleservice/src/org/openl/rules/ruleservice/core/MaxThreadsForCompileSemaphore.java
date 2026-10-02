@@ -35,6 +35,8 @@ public final class MaxThreadsForCompileSemaphore {
     }
 
     public interface Callable<T> {
+        // Like java.util.concurrent.Callable: run() hands on whatever the task throws.
+        @SuppressWarnings("java:S112")
         T call() throws Exception;
     }
 }

@@ -147,6 +147,8 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
+    // IOpenClass keeps its method signatures, as DEV/AGENTS.md requires for the type system interfaces.
+    @SuppressWarnings("java:S112")
     void addType(IOpenClass type) throws Exception;
 
     IOpenClass findType(String name);

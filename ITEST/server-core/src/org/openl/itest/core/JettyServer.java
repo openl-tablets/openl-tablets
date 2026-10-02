@@ -103,6 +103,8 @@ public class JettyServer {
         return this;
     }
 
+    // Closing the client stops Jetty, whose LifeCycle.stop() throws Exception.
+    @SuppressWarnings("java:S112")
     public void test() throws Exception {
         var profile = this.webAppContext.getInitParams().get("spring.profiles.active");
         try (var client = start()) {
