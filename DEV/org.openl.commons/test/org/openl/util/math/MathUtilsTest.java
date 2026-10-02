@@ -527,4 +527,29 @@ class MathUtilsTest {
         arr = new double[]{1.1d, 2.2d, 3.3d};
         assertEquals(Double.parseDouble("6.6"), MathUtils.sum(arr), 0.1);
     }
+
+    @Test
+    void testNaN() {
+        var nan = Double.NaN;
+        Double[] boxed = {3.0, nan, null, 1.0};
+        assertEquals(nan, MathUtils.small(boxed, 1));
+        assertEquals(nan, MathUtils.small(boxed, 3));
+        assertEquals(nan, MathUtils.big(boxed, 1));
+        assertEquals(nan, MathUtils.big(boxed, 2));
+        assertEquals(Double.valueOf(3.0), MathUtils.big(new Double[]{3.0, null, 1.0}, 1));
+        assertThrows(IllegalArgumentException.class, () -> MathUtils.small(boxed, 4));
+
+        assertEquals(nan, MathUtils.small(new double[]{3, nan, 1}, 1));
+        assertEquals(nan, MathUtils.big(new double[]{3, nan, 1}, 3));
+        assertEquals(Float.NaN, MathUtils.small(new Float[]{3f, Float.NaN, 1f}, 2));
+        assertEquals(Float.valueOf(1f), MathUtils.small(new Float[]{3f, 1f}, 1));
+        assertEquals(Float.NaN, MathUtils.small(new float[]{3, Float.NaN, 1}, 1));
+        assertEquals(Float.NaN, MathUtils.big(new float[]{3, Float.NaN, 1}, 2));
+
+        assertEquals(nan, MathUtils.median(boxed));
+        assertEquals(nan, MathUtils.median(new double[]{1, 2, nan, 4}));
+        assertEquals(nan, MathUtils.median(new Double[]{1.5, nan}));
+        assertEquals(Float.NaN, MathUtils.median(new Float[]{3f, Float.NaN, 1f}));
+        assertEquals(Float.NaN, MathUtils.median(new float[]{Float.NaN, 1, 2}));
+    }
 }
