@@ -87,6 +87,12 @@ everyone who calls that API from outside the browser.
   that are all `field = value` pairs are no longer assignments passed by position, so `new BigDecimal(x = 5)` with a
   variable `x` fails to compile; assign `x` before the call.
 
+* **A text cell reads an exponent with a small `e`.** The letter case no longer matters for any number type, as in a
+  formula: `1.5e3` is `1500` like `1.5E3`, and `1e3` is `1000` like `1E3`. Before, the small letter failed to compile
+  with `Cannot parse cell value '1.5e3'`. Only a Spreadsheet cell without a type calculates differently: its text
+  `1e3` is now the `Double` `1000.0` instead of the text `1e3`. Give such a step the type `String`, as in
+  `Code : String`, to keep the text.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
