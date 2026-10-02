@@ -32,11 +32,12 @@ everyone who calls that API from outside the browser.
   same. A character counts as a number here, as in `'c' + 1`, so `null + 'c'` and `'c' + null` are `99` instead of the
   texts `nullc` and `cnull`. Multiplying, dividing and comparing with `null` give the same results as before.
 
-* **A percent value in a `Double` cell equals the fraction it stands for.** A text such as `0.07%` or `99.99%` in a
-  `Double` cell, or in a Spreadsheet cell without a type, is `0.0007` or `0.9999`, as the fraction written out is.
-  Before, it was `0.0007000000000000001` or `0.9998999999999999`, so a result computed from such a value can change
-  in its last digit. A `BigDecimal` cell already read the exact fraction, and a `Float` cell reads the same value as
-  before.
+* **A percent value equals the fraction it stands for.** `0.07%` is `0.0007` and `99.99%` is `0.9999`, as the
+  fractions written out are, both as a percent literal in a formula and as a text in a `Double` cell or in a
+  Spreadsheet cell without a type. Before, they were `0.0007000000000000001` and `0.9998999999999999`, so a result
+  computed from such a value can change in its last digit. A `BigDecimal` cell already read the exact fraction, and a
+  `Float` cell reads the same value as before. A percent literal also takes any number of decimals and an exponent:
+  `0.5%`, `12.345%` and `1.5e2%` compile, while before it had no decimals or exactly two.
 
 * **The deprecated `%`, `**` and `->` operators are removed.** A rule that still uses one of them no longer
   compiles. Rewrite the expression with a function:
