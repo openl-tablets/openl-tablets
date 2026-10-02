@@ -265,7 +265,7 @@ Fixes #456
 
 - User documentation: `Docs/`
 - API documentation: JavaDoc in source code
-- Developer guides: `Docs/developer-guide/`
+- Developer guides: `Docs/developer-guides/`
 
 ## Getting Help
 
