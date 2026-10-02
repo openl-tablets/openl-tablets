@@ -8,6 +8,8 @@ import org.openl.source.impl.ASourceCodeModule;
 /**
  * @deprecated It will be removed without replacement.
  */
+// Multi-module and dependency compilation still use this module as their source; it has no replacement yet.
+@SuppressWarnings("java:S1133")
 @Deprecated(since = "5.23.10")
 public class VirtualSourceCodeModule extends ASourceCodeModule {
 

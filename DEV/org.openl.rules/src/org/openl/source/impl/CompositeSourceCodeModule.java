@@ -20,6 +20,8 @@ import org.openl.util.fast.FastStringReader;
  * @author snshor
  * @deprecated It will be removed without replacement.
  */
+// Method tables still join their cell sources through this module; it has no replacement yet.
+@SuppressWarnings("java:S1133")
 @Deprecated(since = "5.23.10")
 public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 

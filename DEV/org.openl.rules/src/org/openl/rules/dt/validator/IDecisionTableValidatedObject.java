@@ -17,6 +17,8 @@ public interface IDecisionTableValidatedObject extends IValidatedObject {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The decision table validator still reads the condition transformer here; it has no replacement yet.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.5.0")
     IConditionTransformer getTransformer();
 

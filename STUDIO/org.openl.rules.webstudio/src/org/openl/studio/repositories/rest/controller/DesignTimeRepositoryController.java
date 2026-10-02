@@ -173,6 +173,8 @@ public class DesignTimeRepositoryController {
      * @deprecated Superseded by {@code GET /projects/{projectId}/history}, which the Revisions tab — the only caller
      *             this ever had — now asks instead.
      */
+    // A published REST endpoint that API clients may still call.
+    @SuppressWarnings("java:S1133")
     @GetMapping({"/{repo-name}/projects/{project-name}/history",
             "/{repo-name}/branches/{branch-name}/projects/{project-name}/history"})
     @Operation(summary = "repos.get-project-revs.summary", description = "repos.get-project-revs.desc")

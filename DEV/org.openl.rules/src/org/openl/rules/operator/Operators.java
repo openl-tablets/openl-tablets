@@ -438,6 +438,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static float dec(float x) {
         return x - 1;
@@ -446,6 +448,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static double dec(double x) {
         return x - 1;
@@ -454,6 +458,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static byte dec(byte x) {
         return (byte) (x - 1);
@@ -462,6 +468,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static short dec(short x) {
         return (short) (x - 1);
@@ -470,6 +478,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static int dec(int x) {
         return x - 1;
@@ -478,6 +488,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static long dec(long x) {
         return x - 1;
@@ -486,6 +498,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Byte dec(Byte x) {
         return subtract(x, Byte.valueOf((byte) 1));
@@ -494,6 +508,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Short dec(Short x) {
         return subtract(x, Short.valueOf((byte) 1));
@@ -502,6 +518,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Integer dec(Integer x) {
         return subtract(x, Integer.valueOf(1));
@@ -510,6 +528,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Long dec(Long x) {
         return subtract(x, Long.valueOf(1));
@@ -518,6 +538,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Float dec(Float x) {
         return subtract(x, Float.valueOf(1f));
@@ -526,6 +548,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Double dec(Double x) {
         return subtract(x, Double.valueOf(1d));
@@ -534,6 +558,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static BigInteger dec(BigInteger x) {
         return subtract(x, BigInteger.ONE);
@@ -542,6 +568,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static BigDecimal dec(BigDecimal x) {
         return subtract(x, BigDecimal.ONE);
@@ -550,6 +578,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static byte inc(byte x) {
         return (byte) (x + 1);
@@ -558,6 +588,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static short inc(short x) {
         return (short) (x + 1);
@@ -566,6 +598,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static float inc(float x) {
         return x + 1;
@@ -574,6 +608,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static double inc(double x) {
         return x + 1;
@@ -582,6 +618,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static int inc(int x) {
         return x + 1;
@@ -590,6 +628,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static long inc(long x) {
         return x + 1;
@@ -598,6 +638,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Byte inc(Byte x) {
         return add(x, Byte.valueOf((byte) 1));
@@ -606,6 +648,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Short inc(Short x) {
         return add(x, Short.valueOf((byte) 1));
@@ -614,6 +658,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Integer inc(Integer x) {
         return add(x, Integer.valueOf(1));
@@ -622,6 +668,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Long inc(Long x) {
         return add(x, Long.valueOf(1));
@@ -630,6 +678,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Float inc(Float x) {
         return add(x, Float.valueOf(1f));
@@ -638,6 +688,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.26.1")
     public static Double inc(Double x) {
         return add(x, Double.valueOf(1d));
@@ -646,6 +698,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static BigInteger inc(BigInteger x) {
         return add(x, BigInteger.ONE);
@@ -654,6 +708,8 @@ public class Operators {
     /**
      * @deprecated It will be removed without replacement.
      */
+    // The ++ and -- operators of rules dispatch here; removing this overload breaks the rules that use them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static BigDecimal inc(BigDecimal x) {
         return add(x, BigDecimal.ONE);

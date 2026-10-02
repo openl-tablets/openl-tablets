@@ -19,6 +19,8 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @deprecated Project membership is derived from Git trees. Use
      * {@link #createRepositoryBranch(String, String)}.
      */
+    // Repository plugins may still call or override this method; removing it breaks them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(forRemoval = true)
     default void createBranch(String projectPath, String branch) throws IOException {
         createRepositoryBranch(branch, getBranch());
@@ -33,6 +35,8 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @param startPoint  existing branch, tag or commit revision
      * @throws IOException if the branch cannot be created
      */
+    // Repository plugins may still call or override this method; removing it breaks them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(forRemoval = true)
     default void createBranch(String projectPath, String branch, String startPoint) throws IOException {
         createRepositoryBranch(branch, startPoint);
@@ -42,6 +46,8 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @deprecated Project membership cannot be edited as repository metadata. A {@code null} project path
      * deletes the repository branch; any other value is rejected.
      */
+    // Repository plugins may still call or override this method; removing it breaks them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(forRemoval = true)
     default void deleteBranch(String projectPath, String branch) throws IOException {
         if (projectPath != null) {
@@ -78,6 +84,8 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @deprecated Project membership is available from the workspace project index. This compatibility
      * method returns actual repository branches only.
      */
+    // Repository plugins may still call or override this method; removing it breaks them.
+    @SuppressWarnings("java:S1133")
     @Deprecated(forRemoval = true)
     default List<String> getBranches(String projectPath) throws IOException {
         return listBranches();

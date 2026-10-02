@@ -90,6 +90,8 @@ public final class PackageMojo extends BaseOpenLMojo {
      *
      * @deprecated It will be removed without replacement.
      */
+    // Customer POMs may still set this plugin parameter; removing it breaks their builds.
+    @SuppressWarnings("java:S1133")
     @Deprecated(forRemoval = true, since = "6.1.2")
     @Parameter(defaultValue = "lib/")
     String classpathFolder;

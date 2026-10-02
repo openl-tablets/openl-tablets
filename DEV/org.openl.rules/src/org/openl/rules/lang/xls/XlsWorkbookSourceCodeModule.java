@@ -31,6 +31,8 @@ import org.openl.util.StringTool;
 /**
  * @deprecated It will be removed without replacement.
  */
+// The engine still represents every loaded workbook with this module; it has no replacement yet.
+@SuppressWarnings("java:S1133")
 @Deprecated(since = "5.23.10")
 @RequiredArgsConstructor
 @Slf4j
