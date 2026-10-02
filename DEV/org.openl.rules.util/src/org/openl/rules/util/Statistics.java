@@ -1,5 +1,9 @@
 package org.openl.rules.util;
 
+import java.util.function.BiPredicate;
+
+import org.jspecify.annotations.Nullable;
+
 /**
  * A set of function for statistical analyze.
  */
@@ -10,34 +14,48 @@ public final class Statistics {
     }
 
     /**
-     * Returns the greatest of values. If values are equal, the first instance will return.
+     * Returns the greatest of the values.
+     * <p>
+     * Empty values are skipped. Of equal values, the first one is returned. The result is empty when there are no
+     * values or all of them are empty.
+     * <p>
+     * A NaN value makes the result NaN, as in {@link Math#max(double, double)}.
      */
-    public static <T extends Comparable<T>> T max(T... values) {
-        return process(values, new Result<T, T>() {
-            @Override
-            public void processNonNull(T value) {
-                if (result == null || result.compareTo(value) < 0) {
-                    result = value;
-                }
-            }
-        });
+    public static <T extends Comparable<T>> @Nullable T max(@Nullable T @Nullable ... values) {
+        return pick(values, (value, best) -> value.compareTo(best) > 0);
     }
 
     /**
-     * Returns the smallest of values. If values are equal, the first instance will return.
+     * Returns the smallest of the values.
+     * <p>
+     * Empty values are skipped. Of equal values, the first one is returned. The result is empty when there are no
+     * values or all of them are empty.
+     * <p>
+     * A NaN value makes the result NaN, as in {@link Math#min(double, double)}.
      */
-    public static <T extends Comparable<T>> T min(T... values) {
+    public static <T extends Comparable<T>> @Nullable T min(@Nullable T @Nullable ... values) {
+        return pick(values, (value, best) -> value.compareTo(best) < 0);
+    }
+
+    /**
+     * Returns the value that beats all the others. The first NaN value beats any number.
+     */
+    private static <T> @Nullable T pick(@Nullable T @Nullable [] values, BiPredicate<T, T> beats) {
         return process(values, new Result<T, T>() {
             @Override
             public void processNonNull(T value) {
-                if (result == null || result.compareTo(value) > 0) {
+                if (result == null || (!isNaN(result) && (isNaN(value) || beats.test(value, result)))) {
                     result = value;
                 }
             }
         });
     }
 
-    public static <V, R> R process(V[] values, Processor<V, R> processor) {
+    private static boolean isNaN(Object value) {
+        return (value instanceof Double d && d.isNaN()) || (value instanceof Float f && f.isNaN());
+    }
+
+    public static <V, R> R process(V @Nullable [] values, Processor<V, R> processor) {
         if (values == null || values.length == 0) {
             return null;
         }
