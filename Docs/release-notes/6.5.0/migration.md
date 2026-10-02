@@ -51,6 +51,35 @@ everyone who calls that API from outside the browser.
   type. `->` was never backed by an implementation, so no working rule uses it. Percent literals such as `10%` are
   not affected.
 
+* **The functions `format`, `dateToString`, `stringToDate`, `parseFormattedDouble`, `addIgnoreNull` and
+  `addArrayElementIgnoreNull` are removed.** A rule that still calls one of them no longer compiles, for example with
+  `Method 'format(java.lang.Double)' is not found.` Rewrite the call:
+
+  - **`format(amount)`** — `toString(amount, "#,##0.00")`
+  - **`format(amount, pattern)`** — `toString(amount, pattern)`
+  - **`format(date)`, `dateToString(date)`** — `toString(date, "M/d/yy")`
+  - **`format(date, pattern)`, `dateToString(date, pattern)`** — `toString(date, pattern)`
+  - **`stringToDate(text)`** — `toDate(text)`
+  - **`parseFormattedDouble(text)`** — `toNumber(text)`
+  - **`addIgnoreNull(array, element)`** — `element == null ? array : add(array, element)`
+  - **`addIgnoreNull(array, index, element)`** — `element == null ? array : addElement(array, index, element)`
+
+  `addArrayElementIgnoreNull` takes the same arguments as `addIgnoreNull` and is rewritten the same way. The
+  `DEFAULT_DOUBLE_FORMAT` constant is removed with them, so write its pattern `"#,##0.00"` instead. Check the
+  rewritten rules for these differences:
+
+  - The removed functions wrote and read numbers and dates in the language of the server. The replacements always use
+    US English: a comma groups the digits, a point starts the fraction and month names are English. On a German server,
+    `format(1234.5)` gave `1.234,50`, while `toString(1234.5, "#,##0.00")` gives `1,234.50`.
+  - `toString(date)` without a pattern gives `04/30/2015`, where `format(date)` gave `4/30/15`. The pattern `M/d/yy`
+    keeps the short form.
+  - A replacement returns an empty value where the removed function stopped the call with an error. This is the case
+    for `toString(amount, pattern)` with an invalid pattern, and for `toDate` and `toNumber` with a text they cannot
+    read. `toNumber` also needs the whole text to be a number: `toNumber("12abc")` is empty, while
+    `parseFormattedDouble("12abc")` read `12`.
+  - `parseFormattedDouble(text, pattern)` has no direct replacement. `toNumber` reads the comma that groups the
+    digits. Remove other symbols of the pattern first, such as a currency sign: `toNumber(replace(text, "$", ""))`.
+
 * **A number in a formula or a range is written in digits only.** The `$` sign, the thousands separator and the `K`,
   `M`, `B` multipliers are removed, because they read differently across countries and `$` also starts a reference
   to a spreadsheet step. A formula or a range that still uses one of them no longer compiles. Rewrite the number:
@@ -181,6 +210,21 @@ everyone who calls that API from outside the browser.
   and a request that fails now changes nothing.
 * **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
   `400`.
+* **Java and Groovy code loses the same functions.** `RulesUtils.format`, `dateToString`, `stringToDate`,
+  `parseFormattedDouble`, `addIgnoreNull`, `addArrayElementIgnoreNull` and `DEFAULT_DOUBLE_FORMAT` are removed, and so
+  is `DateTool.dateToString`. The rules functions of `org.openl.rules.util` are not meant for Java code, so call what
+  the removed functions called. These calls keep the old results, including the language of the server, except that
+  the removed date functions returned `null` for a `null` date:
+  - **`format(number, pattern)`** — `new DecimalFormat(pattern).format(number)`, with `"#,##0.00"` when there was no
+    pattern
+  - **`format(date, pattern)`, `dateToString(date, pattern)`** — `new SimpleDateFormat(pattern).format(date)`
+  - **`format(date)`, `dateToString(date)`** — `DateFormat.getDateInstance(DateFormat.SHORT).format(date)`
+  - **`stringToDate(text)`** — `DateFormat.getDateInstance(DateFormat.SHORT).parse(text)`
+  - **`parseFormattedDouble(text, pattern)`** — `new DecimalFormat(pattern).parse(text).doubleValue()`, with
+    `"#,##0.00"` when there was no pattern
+  - **`addIgnoreNull(array, element)`, `addArrayElementIgnoreNull(array, element)`** —
+    `element == null ? array : ArrayUtils.add(array, element)` with `ArrayUtils` of Apache Commons Lang; the form with
+    an index passes it as the second argument of `ArrayUtils.add`
 
 ## Administrators
 
