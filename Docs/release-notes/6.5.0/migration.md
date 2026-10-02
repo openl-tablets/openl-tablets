@@ -72,6 +72,16 @@ everyone who calls that API from outside the browser.
   same. A character counts as a number here, as in `'c' + 1`, so `null + 'c'` and `'c' + null` are `99` instead of the
   texts `nullc` and `cnull`. Multiplying, dividing and comparing with `null` give the same results as before.
 
+* **A math function of an empty value is empty.** `abs`, `acos`, `asin`, `atan`, `atan2`, `cbrt`, `ceil`,
+  `copySign`, `cos`, `cosh`, `exp`, `expm1`, `floor`, `getExponent`, `IEEEremainder`, `log`, `log10`, `log1p`,
+  `nextAfter`, `pow`, `rint`, `scalb`, `signum`, `sin`, `sinh`, `sqrt`, `tan`, `tanh`, `toDegrees`, `toRadians` and
+  `ulp` return an empty value when an argument is empty, as `round(v)`, `quotient(v, 2)` and `mod(v, 2)` already did.
+  Before, they computed with `0` in place of the empty value: `abs(v)` and `sqrt(v)` were `0`, `cos(v)` was `1`,
+  `log(v)` was `-Infinity`, `pow(v, 2)` was `0` and `pow(2, v)` was `2`, while `pow(v, v)` stopped the call with an
+  error. A rule that needs a number checks the value first, for example `v == null ? 0 : sqrt(v)`. A value of a
+  primitive type, such as a `double` parameter, is never empty, so its results do not change. The functions return
+  wrapper types, so a Spreadsheet step that holds such a result is a `Double` instead of a `double`.
+
 * **A percent value equals the fraction it stands for.** `0.07%` is `0.0007` and `99.99%` is `0.9999`, as the
   fractions written out are, both as a percent literal in a formula and as a text in a `Double` cell or in a
   Spreadsheet cell without a type. Before, they were `0.0007000000000000001` and `0.9998999999999999`, so a result
@@ -88,7 +98,7 @@ everyone who calls that API from outside the browser.
   | `x ** y` | `pow(x, y)`       |
 
   `remainder` keeps the sign of the dividend, exactly as `%` did. `mod` keeps the sign of the divisor, so it gives a
-  different result when the operands have opposite signs. `pow` returns a `double`, while `**` kept the operand
+  different result when the operands have opposite signs. `pow` returns a `Double`, while `**` kept the operand
   type. `->` was never backed by an implementation, so no working rule uses it. Percent literals such as `10%` are
   not affected.
 
@@ -350,6 +360,11 @@ everyone who calls that API from outside the browser.
 * **`RulesUtils.flatten` returns `Object`.** It returns a primitive array, such as `int[]`, when the elements are
   primitive, so its Java return type is `Object` instead of `Object[]`. A Java caller casts the result to the array
   type it expects.
+* **The math functions moved from `RulesUtils` to `org.openl.rules.util.Maths`.** `abs`, `sqrt`, `pow`, the other math
+  functions and the `PI` and `E` constants are gone from `org.openl.rules.helpers.RulesUtils`. The rules functions of
+  `org.openl.rules.util` are not meant for Java code, so Java and Groovy code calls `java.lang.Math`, which the
+  removed functions called: `RulesUtils.sqrt(x)` becomes `Math.sqrt(x)`. Two names differ: `getExponent(x, y)` with
+  two arguments is `Math.hypot(x, y)`, and `nextAfter(x)` with one argument is `Math.nextUp(x)`.
 
 ## Administrators
 
