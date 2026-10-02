@@ -1,7 +1,7 @@
 package org.openl.rules.util;
 
 import java.text.DateFormat;
-import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.Year;
 import java.util.Calendar;
@@ -91,20 +91,33 @@ public final class Dates {
     }
 
     /**
-     * Converts a string to a date using a default pattern. The default pattern is system and setting dependent.
+     * Converts a string to a date in the ISO form {@code yyyy-MM-dd} or in the US form {@code MM/dd/yy}.
+     * <p>
+     * The whole string must be a date: more text after the date gives {@code null}. Blanks around the date are
+     * ignored. In the US form, a year of two digits falls within 80 years before and 20 years after the current date,
+     * and any other year is read as written.
+     *
+     * @return the date, or {@code null} for a blank string or a string that is not a date
      */
-    public static Date toDate(String str) {
+    public static @Nullable Date toDate(@Nullable String str) {
         var isoDate = toDate(str, "yyyy-MM-dd");
         return isoDate != null ? isoDate : toDate(str, "MM/dd/yy");
     }
 
     /**
      * Converts a string to a date using a pattern.
+     * <p>
+     * The whole string must match the pattern: more text after the date gives {@code null}. Blanks around the date
+     * are ignored. An empty or blank pattern reads the same forms as {@link #toDate(String)}.
      *
+     * @return the date, or {@code null} for a blank string or a string that does not match the pattern
      * @see SimpleDateFormat
      */
-    public static Date toDate(String str, String pattern) {
-        return isEmpty(str) ? null : parse(str, pattern);
+    public static @Nullable Date toDate(@Nullable String str, @Nullable String pattern) {
+        if (pattern == null || pattern.isBlank()) {
+            return toDate(str);
+        }
+        return str == null || str.isBlank() ? null : parse(str.strip(), pattern);
     }
 
 
@@ -220,13 +233,10 @@ public final class Dates {
         return Year.isLeap(year);
     }
 
-    private static Date parse(String str, String pattern) {
-        try {
-            return getDateFormat(pattern).parse(str);
-        } catch (ParseException e) {
-            // Return null for non-parsable strings
-            return null;
-        }
+    private static @Nullable Date parse(String str, String pattern) {
+        var position = new ParsePosition(0);
+        var date = getDateFormat(pattern).parse(str, position);
+        return position.getIndex() == str.length() ? date : null;
     }
 
     private static DateFormat getDateFormat(String pattern) {

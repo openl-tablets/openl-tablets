@@ -350,7 +350,7 @@ The `like` function provides a versatile tool for string comparison. The pattern
 | ?                         | One character.                  |
 | \*                        | Zero or multiple characters.    |
 | \#                        | One digit.                      |
-| @                         | One letter.                     |
+| @                         | One letter of any alphabet.     |
 | [a-k]                     | One character from the set.     |
 | [!v-z]                    | One character not from the set. |
 | Pattern+                  | Pattern applied at least once.  |
@@ -374,6 +374,15 @@ Examples are as follows:
 `like ("D1010", "[A-D]####")` -\> **TRUE**
 
 `like ("F1010", "[A-D]####")` -\> **FALSE**
+
+`like("Øre", "@@@")` -\> **TRUE**
+
+An empty text matches only a pattern that needs no characters, such as an empty pattern or `*`. A null text is the
+same as an empty one:
+
+`like("", "*")` -\> **TRUE**
+
+`like(null, "?")` -\> **FALSE**
 
 ### Null Elements Usage in Calculations
 

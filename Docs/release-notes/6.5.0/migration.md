@@ -87,8 +87,8 @@ everyone who calls that API from outside the browser.
     keeps the short form.
   - A replacement returns an empty value where the removed function stopped the call with an error. This is the case
     for `toString(amount, pattern)` with an invalid pattern, and for `toDate` and `toNumber` with a text they cannot
-    read. `toNumber` also needs the whole text to be a number: `toNumber("12abc")` is empty, while
-    `parseFormattedDouble("12abc")` read `12`.
+    read. `toDate` and `toNumber` also need the whole text to be a date or a number: `toNumber("12abc")` is empty,
+    while `parseFormattedDouble("12abc")` read `12`.
   - `parseFormattedDouble(text, pattern)` has no direct replacement. `toNumber` reads the comma that groups the
     digits. Remove other symbols of the pattern first, such as a currency sign: `toNumber(replace(text, "$", ""))`.
 
@@ -143,6 +143,26 @@ everyone who calls that API from outside the browser.
 * **`toNumber` reads an exponent with a small `e`.** `toNumber("1.5e3")` is `1500`, like `toNumber("1.5E3")`.
   Before, it was `null`, although `isNumeric("1.5e3")` was already `true`, so a rule that checks the result of
   `toNumber` for `null` now gets the number for such a text.
+
+* **`like` checks an empty text against the pattern, and `@` is a letter of any alphabet.** An empty or `null` text
+  matches a pattern that needs no characters: `like("", "*")` and `like(null, "*")` are `true`, while before an empty
+  text matched only an empty pattern. `@` matches a letter such as `Ø`, `ß` or `Д`, so `like("Øre", "@@@")` and
+  `like("Мова", "@+")` are `true`. Before, `@` matched only the letters A to Z; a rule that has to keep that limit
+  writes the set `[A-Za-z]` instead of `@`.
+
+* **`textSplit` cuts the text at every whole separator.** A separator that starts inside a partial match of it is
+  no longer missed: `textSplit(", ", "a,, b")` is `["a,", "b"]` and `textSplit("ab", "aab")` is `["a"]`, where
+  before the text came back whole. The start of a separator at the end of the text stays in the last part:
+  `textSplit(", ", "a, b,")` is `["a", "b,"]` instead of `["a", "b"]`. An empty text has no parts, so
+  `textSplit(",", "")` is an empty array instead of an array with one empty text. With a separator of one character,
+  or none, only an empty text gives a different result.
+
+* **`toDate` needs the whole text to be the date.** More text after the date gives an empty value instead of the
+  date read from the start: `toDate("04/30/2015abc")`, `toDate("15.03.2024x", "dd.MM.yyyy")` and
+  `toDate("2024-03-15T10:20")` are empty. Blanks around the date are still ignored. For a text with a time, read the
+  time with the pattern, as in `toDate(text, "yyyy-MM-dd'T'HH:mm")`, or cut the date out, as in
+  `toDate(substring(text, 0, 10))`. An empty pattern reads the forms `toDate(text)` reads: `toDate("2024-03-15", "")`
+  is the date instead of empty, and the two-digit year of `toDate("01/11/12", "")` is 2012 instead of the year 12.
 
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
