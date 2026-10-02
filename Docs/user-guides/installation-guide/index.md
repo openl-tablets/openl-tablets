@@ -172,8 +172,7 @@ When you're ready to deploy to production:
 2. **Choose deployment platform**:
    - [Docker](https://openl-tablets.github.io/openl-tablets/DEPLOYMENT#docker-deployment) - Container-based deployment
    - [Kubernetes](https://openl-tablets.github.io/openl-tablets/DEPLOYMENT#kubernetes-deployment) - Orchestrated deployment
-   - [Cloud](https://openl-tablets.github.io/openl-tablets/DEPLOYMENT#cloud-platform-deployments) - AWS, Azure, or GCP
-   - [VM](https://openl-tablets.github.io/openl-tablets/DEPLOYMENT#traditional-application-server) - Traditional VM deployment
+   - [Application server](https://openl-tablets.github.io/openl-tablets/DEPLOYMENT#application-server-deployment) - WAR on Jetty or Tomcat
 3. **Configure for production** - [Configuration Guide](https://openl-tablets.github.io/openl-tablets/configuration/)
 4. **Secure your deployment** - [Security Guide](https://openl-tablets.github.io/openl-tablets/configuration/security)
 
