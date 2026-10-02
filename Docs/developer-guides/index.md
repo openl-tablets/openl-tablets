@@ -23,7 +23,6 @@ This guide is organized into the following sections:
 ### Setup and Onboarding
 - [Development Setup](../onboarding/development-setup.md) - Environment setup and build instructions
 - [Codebase Tour](../onboarding/codebase-tour.md) - Repository structure overview
-- [Common Tasks](../onboarding/common-tasks.md) - Frequently performed operations
 
 ### Architecture & Analysis
 - [Technology Stack](../architecture/technology-stack.md) - Technologies used in OpenL Tablets

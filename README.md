@@ -156,7 +156,7 @@ Call from Java, Python, JavaScript, C#, Go, or any language via REST.
 - **[OpenL Studio REST API](Docs/api/README.md)** - Manage projects, tables, tests and traces over HTTP
 - **[Deployment Guide](Docs/DEPLOYMENT.md)** - Deploy with Docker, Docker Compose, Kubernetes or an application server
 - **[Architecture Overview](Docs/ARCHITECTURE.md)** - System design and components
-- **[Troubleshooting](Docs/onboarding/troubleshooting.md)** - Build and development issues
+- **[Troubleshooting](Docs/user-guides/installation-guide/troubleshooting.md)** - Installation and start-up issues
 
 ### 💻 For Contributors
 - **[Contributing Guide](CONTRIBUTING.md)** - Help improve OpenL Tablets
