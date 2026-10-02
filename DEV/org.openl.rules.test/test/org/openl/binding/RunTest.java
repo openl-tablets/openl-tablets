@@ -136,7 +136,10 @@ class RunTest {
                 arguments("int y = 7; new java.awt.Point(x = y).x", 7),
                 arguments("int x = 3; new java.awt.Point(x = 1, y = x).y", 3),
                 arguments("int x = 5; new java.awt.Point(x = x, y = x + 1).y", 6),
-                arguments("int x = 5; new java.awt.Point(x = 1, y = new java.awt.Point(x = x).x).y", 5));
+                arguments("int x = 5; new java.awt.Point(x = 1, y = new java.awt.Point(x = x).x).y", 5),
+                arguments("int x = 1; int y = 2; new java.awt.Point(y = y, x = x).x", 1),
+                arguments("int x = 1; int y = 2; java.awt.Point p = new java.awt.Point(x = y, y = x); "
+                        + "x + \",\" + y + \",\" + p.x + \",\" + p.y", "1,2,2,1"));
     }
 
     @ParameterizedTest
@@ -148,6 +151,12 @@ class RunTest {
     @Test
     void testNamedConstructorArgumentDoesNotReadNewObject() {
         assertError("new java.awt.Point(x = 1, y = x).y", "Identifier 'x' is not found.");
+    }
+
+    @Test
+    void testNamedConstructorArgumentIsNotAssignment() {
+        assertError("java.awt.Point z = null; new java.awt.Point(z = new java.awt.Point()).x",
+                "Field 'z' is not found.");
     }
 
     static Stream<Arguments> testRun() {

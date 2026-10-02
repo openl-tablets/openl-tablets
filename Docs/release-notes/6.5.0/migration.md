@@ -73,6 +73,14 @@ everyone who calls that API from outside the browser.
   `Customer(name = "Ann", city = name)` fails to compile with `Identifier 'name' is not found.` when the rule has no
   `name` of its own.
 
+* **Named arguments after `new` always set the named fields.** `new Customer(city = city, name = name)` sets the
+  fields as named, as `Customer(city = city, name = name)` does, and leaves the rule variables `name` and `city`
+  unchanged. Before, when the rule had variables with the names of the fields and the type had a constructor for
+  their types, the values went to that constructor in the written order: the fields could be swapped, `name = city`
+  overwrote the variable `name`, and `new Box(city = city)` compiled for a `Box` without a `city` field. Arguments
+  that are all `field = value` pairs are no longer assignments passed by position, so `new BigDecimal(x = 5)` with a
+  variable `x` fails to compile; assign `x` before the call.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
