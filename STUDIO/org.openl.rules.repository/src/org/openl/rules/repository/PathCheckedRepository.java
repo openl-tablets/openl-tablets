@@ -137,6 +137,8 @@ public class PathCheckedRepository implements BranchRepository {
         return delegate.listFiles(path, version);
     }
 
+    // Checking the files first needs a Repository API that reads them twice; checking during the save stops it halfway.
+    @SuppressWarnings("java:S1134")
     @Override
     public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
         validatePath(folderData.getName());

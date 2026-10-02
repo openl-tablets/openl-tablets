@@ -81,6 +81,8 @@ public class JarLocalRepository extends AbstractArchiveRepository {
         return Stream.of(resourceResolver.getResources(locationPattern));
     }
 
+    // Whether a class loader still hands out URIs encoded twice is unverified for every runtime Rule Services runs on.
+    @SuppressWarnings("java:S1134")
     private static Path toPath(URI uri) {
         if ("jar".equals(uri.getScheme())) {
             var path = uri.getRawSchemeSpecificPart();

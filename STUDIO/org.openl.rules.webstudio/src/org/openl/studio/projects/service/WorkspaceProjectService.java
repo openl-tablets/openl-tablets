@@ -761,6 +761,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return builder;
     }
 
+    // The cheaper cached lookup waits for the workspace cache invalidation to be fixed.
+    @SuppressWarnings("java:S1134")
     @Override
     protected Stream<RulesProject> getProjects0(ProjectCriteriaQuery query) {
         var workspace = getUserWorkspace();
@@ -1594,6 +1596,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return wasOpened;
     }
 
+    // Answering for the whole project at once needs an ACL query over all of its artefacts.
+    @SuppressWarnings("java:S1134")
     private boolean hasManageBranchPermissions(RulesProject project) {
         if (project.isSupportsBranches()) {
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.

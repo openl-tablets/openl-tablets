@@ -22,6 +22,8 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 @Order(2)
 public class ProjectNameResolveStrategy implements ProjectResolveStrategy {
 
+    // The cheaper cached lookup waits for the workspace cache invalidation to be fixed.
+    @SuppressWarnings("java:S1134")
     @Override
     public List<RulesProject> resolve(UserWorkspace workspace, String identity) {
         // FIXME: getProjectsByName(identity) force-refreshes the whole user workspace (rebuilds all ~160 RulesProject

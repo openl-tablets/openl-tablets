@@ -35,17 +35,16 @@ class PropertiesTableInExecutionModeTest {
 
     private static final String SRC = "test/rules/PropertyTableTest.xls";
 
+    // The decision table validator cannot build a domain for the range condition of hello1 yet.
+    @SuppressWarnings("java:S1134")
     @Test
     void testPropertyTableLoading() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
+        // FIXME validation issue for Ranges.
         assertEquals(1,
-                compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
-        // validation
-        // issue
-        // for
-        // Ranges.
+                compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());
         IOpenMethod method = compiledOpenClass.getOpenClassWithErrors()
                 .getMethod("hello1", new IOpenClass[]{JavaOpenClass.INT});
         if (method != null) {
@@ -73,17 +72,16 @@ class PropertiesTableInExecutionModeTest {
         }
     }
 
+    // The decision table validator cannot build a domain for the range condition of hello1 yet.
+    @SuppressWarnings("java:S1134")
     @Test
     void testFieldsInOpenClass() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
+        // FIXME validation issue for Ranges.
         assertEquals(1,
-                compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
-        // validation
-        // issue
-        // for
-        // Ranges.
+                compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());
         Collection<IOpenField> fields = compiledOpenClass.getOpenClassWithErrors().getFields();
         // properties table with name will be represented as field
         assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));

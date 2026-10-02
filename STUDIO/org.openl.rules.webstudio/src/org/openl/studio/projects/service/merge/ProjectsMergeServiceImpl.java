@@ -110,6 +110,8 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         }
     }
 
+    // Answering for the whole project at once needs an ACL query over all of its artefacts.
+    @SuppressWarnings("java:S1134")
     private boolean hasMergePermission(RulesProject project) {
         // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
         for (AProjectArtefact artefact : project.getArtefacts()) {

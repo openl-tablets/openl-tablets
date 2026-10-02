@@ -237,6 +237,8 @@ public class Lock {
         return lock;
     }
 
+    // Two lockers that both pass need an atomic lock protocol on the file system to tell them apart.
+    @SuppressWarnings("java:S1134")
     boolean finishLockCreating(Path lock) throws IOException {
         var files = lockPath.toFile().listFiles();
         if (CollectionUtils.isEmpty(files)) {

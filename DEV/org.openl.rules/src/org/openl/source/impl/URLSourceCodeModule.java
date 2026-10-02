@@ -53,6 +53,8 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         return new InputStreamReader(getByteStream());
     }
 
+    // Escaping every character a URI disallows changes the source locations, and a URL may come partly escaped already.
+    @SuppressWarnings("java:S1134")
     @Override
     protected String makeUri() {
         // FIXME spaces are not supported according to the URI specification.
