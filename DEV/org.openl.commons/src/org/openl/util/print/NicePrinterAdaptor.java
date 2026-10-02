@@ -101,7 +101,7 @@ public class NicePrinterAdaptor {
         return isPrimitiveClass(obj.getClass());
     }
 
-    public void printArray(Object ary, int newID, NicePrinter printer) {
+    public void printArray(Object ary, NicePrinter printer) {
         var len = Array.getLength(ary);
         if (len == 0) {
             printer.getBuffer().append("[]");
@@ -122,13 +122,13 @@ public class NicePrinterAdaptor {
         printer.decIdent();
     }
 
-    public void printCollection(Collection<?> c, int newID, NicePrinter printer) {
+    public void printCollection(Collection<?> c, NicePrinter printer) {
         Object[] ary = new Object[c.size()];
         Iterator<?> it = c.iterator();
         for (var i = 0; it.hasNext(); i++) {
             ary[i] = it.next();
         }
-        printArray(ary, newID, printer);
+        printArray(ary, printer);
     }
 
     @SuppressWarnings("unchecked")

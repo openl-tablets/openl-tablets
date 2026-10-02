@@ -24,7 +24,7 @@ public class Argument {
         this.field = field;
     }
 
-    public Object extractValue(Object target, Object[] params, IRuntimeEnv env) {
+    public Object extractValue(Object[] params, IRuntimeEnv env) {
         if (field == null) {
             return params[index];
         } else {

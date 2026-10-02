@@ -56,7 +56,7 @@ public class ReturnAnalyzer {
             if (isMultiline) {
                 suitablityOfNode = analyzeSequence(nodesToAnalyze.get(i).getChildren(), bindingContext);
             } else {
-                if (hasTypeAsReturn(nodesToAnalyze.get(i).getAlgorithmRow().getAction(), bindingContext)) {
+                if (hasTypeAsReturn(nodesToAnalyze.get(i).getAlgorithmRow().getAction())) {
                     suitablityOfNode = SuitablityAsReturn.SUITABLE;
                 } else {
                     suitablityOfNode = SuitablityAsReturn.NONE;
@@ -69,7 +69,7 @@ public class ReturnAnalyzer {
 
     private SuitablityAsReturn analyzeNode(AlgorithmTreeNode nodeToAnalyze, IBindingContext bindingContext) {
         if (TBasicSpecificationKey.RETURN.toString().equals(nodeToAnalyze.getSpecificationKeyword())) {
-            if (hasTypeAsReturn(nodeToAnalyze.getAlgorithmRow().getCondition(), bindingContext)) {
+            if (hasTypeAsReturn(nodeToAnalyze.getAlgorithmRow().getCondition())) {
                 return SuitablityAsReturn.RETURN;
             } else {
                 var errorSource = nodeToAnalyze.getAlgorithmRow().getCondition().asSourceCodeModule();
@@ -84,7 +84,7 @@ public class ReturnAnalyzer {
         } else if (canBeGrouped(nodeToAnalyze)) {
             // for loops and single IF without ELSE
             return SuitablityAsReturn.NONE;
-        } else if (hasTypeAsReturn(nodeToAnalyze.getAlgorithmRow().getAction(), bindingContext)) {
+        } else if (hasTypeAsReturn(nodeToAnalyze.getAlgorithmRow().getAction())) {
             return SuitablityAsReturn.SUITABLE;
         } else {
             return SuitablityAsReturn.NONE;
@@ -142,12 +142,12 @@ public class ReturnAnalyzer {
         return returnType;
     }
 
-    private boolean hasTypeAsReturn(StringValue fieldContent, IBindingContext bindingContext) {
+    private boolean hasTypeAsReturn(StringValue fieldContent) {
         if (returnType == JavaOpenClass.VOID) {
             // for void functions return must be empty
             return fieldContent.getValue().equals("");
         }
-        var typeOfField = compiler.getTypeOfField(fieldContent, bindingContext);
+        var typeOfField = compiler.getTypeOfField(fieldContent);
         return returnType.equals(typeOfField);
     }
 }

@@ -39,11 +39,11 @@ class DispatcherTableReturnColumnTest {
         IMethodSignature signature = new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "key"),
                 new ParameterDeclaration(JavaOpenClass.FLOAT, "value"));
         DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
-        assertEquals("=aMethod$3(arg_key,arg_value)", retColumn.getRuleValue(3, 5));
+        assertEquals("=aMethod$3(arg_key,arg_value)", retColumn.getRuleValue(3));
 
         signature = IMethodSignature.VOID;
         retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
-        assertEquals("=aMethod$7()", retColumn.getRuleValue(7, 9));
+        assertEquals("=aMethod$7()", retColumn.getRuleValue(7));
     }
 
     private DispatcherTableReturnColumn createDTColumn(IOpenClass type, IMethodSignature signature) {

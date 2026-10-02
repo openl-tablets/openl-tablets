@@ -140,7 +140,7 @@ public class AlgorithmCompiler {
 
     // Kept as an open refactoring task: it needs a design change beyond this cleanup.
     @SuppressWarnings("java:S1135")
-    public IOpenClass getTypeOfField(StringValue fieldContent, IBindingContext bindingContext) {
+    public IOpenClass getTypeOfField(StringValue fieldContent) {
         // TODO: make rational type detecting(without creating of
         // CompositeMethod)
         var src = fieldContent.asSourceCodeModule();
@@ -296,8 +296,7 @@ public class AlgorithmCompiler {
             StringValue variableName = AlgorithmCompilerTool
                     .getCellContent(nodesToCompile, variableNameParameter, bindingContext);
             var variableType = getTypeOfField(
-                    AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext),
-                    bindingContext);
+                    AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext));
             initNewInternalVariable(variableName.getValue(), variableType);
         }
     }
@@ -328,8 +327,7 @@ public class AlgorithmCompiler {
             // Extract the type of the iterable array
             //
             var iterableArrayType = getTypeOfField(
-                    AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
-                    bindingContext);
+                    AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext));
             if (!iterableArrayType.isArray()) {
                 var errorSource = nodesToCompile.getFirst()
                         .getAlgorithmRow()
@@ -371,8 +369,7 @@ public class AlgorithmCompiler {
             IOpenClass returnType;
             if (AlgorithmCompilerTool.isOperationFieldInstruction(returnValueInstruction)) {
                 returnType = getTypeOfField(
-                        AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction, bindingContext),
-                        bindingContext);
+                        AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction, bindingContext));
             } else {
                 // TODO add support of specification instruction
                 returnType = discoverFunctionType(nodesToCompile.getFirst().getChildren(), bindingContext);
@@ -388,13 +385,12 @@ public class AlgorithmCompiler {
                 var lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
                         .getAlgorithmRow()
                         .getAction();
-                return getTypeOfField(lastAction, bindingContext);
+                return getTypeOfField(lastAction);
             } else {
                 // get RETURN.condition part of instruction
                 var fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
                 return getTypeOfField(
-                        AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext),
-                        bindingContext);
+                        AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext));
             }
         }
 

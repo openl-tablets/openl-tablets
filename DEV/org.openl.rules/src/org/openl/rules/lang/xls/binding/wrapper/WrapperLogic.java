@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-
 import org.openl.dependency.DependencyBindingContext;
 import org.openl.dependency.DependencyOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;

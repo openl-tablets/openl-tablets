@@ -92,12 +92,12 @@ public class NicePrinter {
         }
 
         if (obj instanceof Collection<?> collection) {
-            adaptor.printCollection(collection, newID, this);
+            adaptor.printCollection(collection, this);
             return;
         }
 
         if (obj.getClass().isArray()) {
-            adaptor.printArray(obj, newID, this);
+            adaptor.printArray(obj, this);
             return;
         }
 

@@ -535,9 +535,7 @@ public class DataTableBindHelper {
         var width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
-        var columnIdentifiers = getColumnIdentifiers(bindingContext,
-                table,
-                descriptorRows);
+        var columnIdentifiers = getColumnIdentifiers(bindingContext, descriptorRows);
         var columnNum = 0;
         for (IdentifierNodesBucket node : columnIdentifiers) {
             var fieldAccessorChainTokens = node.getNode();
@@ -646,10 +644,8 @@ public class DataTableBindHelper {
     /**
      * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be
      *                       <code>null</code>.
-     * @param table          is needed only for error processing. Can be <code>null</code>.
      */
-    public static SequencedSet<IdentifierNodesBucket> getColumnIdentifiers(IBindingContext bindingContext,
-                                                                            ITable table,
+    private static SequencedSet<IdentifierNodesBucket> getColumnIdentifiers(IBindingContext bindingContext,
                                                                             ILogicalTable descriptorRows) {
         var width = descriptorRows.getWidth();
         var identifiers = new LinkedHashSet<IdentifierNodesBucket>();

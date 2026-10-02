@@ -113,14 +113,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         bindingContext.addType(tableType);
 
         if (parsedHeader.length == 4) {
-            return new DatatypeTableBoundNode(tsn,
-                    tableType,
-                    module,
-                    table,
-                    openl,
-                    parsedHeader[PARENT_TYPE_INDEX]);
+            return new DatatypeTableBoundNode(tsn, tableType, module, table, parsedHeader[PARENT_TYPE_INDEX]);
         } else {
-            return new DatatypeTableBoundNode(tsn, tableType, module, table, openl);
+            return new DatatypeTableBoundNode(tsn, tableType, module, table);
         }
     }
 
@@ -142,7 +137,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         // Load data part of table (part where domain values are defined).
         //
-        ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
+        ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, bindingContext);
 
         // Get type name.
         //

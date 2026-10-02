@@ -183,6 +183,6 @@ public class SpreadsheetContext extends ComponentBindingContext {
     @Override
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return RulesModuleBindingContext
-                .isComponentSpecificOpenClass(this, componentOpenClass, xlsModuleOpenClass, cache);
+                .isComponentSpecificOpenClass(componentOpenClass, xlsModuleOpenClass, cache);
     }
 }

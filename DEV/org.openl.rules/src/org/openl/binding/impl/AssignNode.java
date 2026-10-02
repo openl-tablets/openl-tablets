@@ -53,6 +53,6 @@ public final class AssignNode extends MethodBoundNode {
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addAssign(target, this);
+        dependencies.addAssign(target);
     }
 }

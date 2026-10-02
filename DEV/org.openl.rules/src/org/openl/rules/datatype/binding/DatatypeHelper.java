@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
 
-import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.table.ICell;
@@ -41,7 +40,7 @@ public class DatatypeHelper {
     private static final int FIELD_NAME_COLUMN = 1;
     private static final int DEFAULTS_COLUMN = 2;
 
-    public static ILogicalTable getNormalizedDataPartTable(ILogicalTable table, OpenL openl, IBindingContext cxt) {
+    public static ILogicalTable getNormalizedDataPartTable(ILogicalTable table, IBindingContext cxt) {
 
         ILogicalTable dataPart;
         if (PropertiesHelper.getPropertiesTableSection(table) != null) {

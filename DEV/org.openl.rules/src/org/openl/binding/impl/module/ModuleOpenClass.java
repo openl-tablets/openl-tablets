@@ -21,8 +21,6 @@ import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 
 /**
  * {@link IOpenClass} implementation for full module.<br>
@@ -73,14 +71,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
 
         return buf.toString();
-    }
-
-    protected boolean isDependencyMethodInheritable(IOpenMethod method) {
-        return true;
-    }
-
-    protected boolean isDependencyFieldInheritable(IOpenField openField) {
-        return false;
     }
 
     /**
