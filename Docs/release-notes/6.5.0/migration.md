@@ -48,6 +48,15 @@ everyone who calls that API from outside the browser.
 
   To leave NaN out, filter it out first, as in `min(values[(v) @ !isNaN(v)])`.
 
+* **A `DateRange` accepts ISO dates.** A date range in a cell or in `new DateRange(...)` reads `2024-12-31`, with an
+  optional time `2024-12-31 23:59:59` or `2024-12-31T23:59:59`, in every range form, such as
+  `[2024-01-01; 2024-07-01)`, `2024-01-01 - 2024-12-31` or `>= 2024-01-01`. The US form `12/31/2024` keeps working,
+  also next to an ISO date in the same range. Before, only the US form worked: a `DateRange` cell with an ISO date,
+  and a condition of a smart rule or a simple rule over a `Date` parameter with an ISO range or an ISO date and time,
+  failed to compile with `Cannot parse cell value`, and `new DateRange("2024-12-31")` stopped the call with an error.
+  A date in a range is still the local date and time of the server, so a range written with US dates matches the
+  same dates as before.
+
 * **The literal `null` added to or subtracted from a number counts as `0`.** It takes the type of the other operand,
   as an empty value of that type does: `null + 3` is `3` and `null - 3` is `-3`. Before, both were an empty `Date`, so
   `"" + (null + 3)` gave `null` and `null + 3 == 3` gave `false`; a `byte` or `short` operand and `null - 'c'` did the

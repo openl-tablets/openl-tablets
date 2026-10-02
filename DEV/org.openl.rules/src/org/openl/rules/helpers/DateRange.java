@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import lombok.Getter;
 
@@ -20,8 +21,11 @@ import org.openl.rules.range.Range;
 public class DateRange extends Range<Date> {
 
     private static final int TO_DATE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
-    private static final DateTimeFormatter dateTimeParser = DateTimeFormatter.ofPattern("M/d/yyyy[ H:m:s]");
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy[ HH:mm:ss]");
+    private static final DateTimeFormatter US_PARSER = DateTimeFormatter.ofPattern("M/d/yyyy[ H:m:s]", Locale.ROOT);
+    private static final DateTimeFormatter ISO_PARSER = DateTimeFormatter.ofPattern("yyyy-M-d[ H:m:s]['T'H:m:s]",
+            Locale.ROOT);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy[ HH:mm:ss]",
+            Locale.ROOT);
 
     private final long lowerBound;
     private final long upperBound;
@@ -42,8 +46,19 @@ public class DateRange extends Range<Date> {
         validate();
     }
 
+    /**
+     * Creates a range from a text in one of the range forms, such as {@code [2024-01-01; 2024-07-01)},
+     * {@code 2024-01-01 .. 2024-12-31} or {@code >= 12/01/2024}, or from a single date.
+     *
+     * <p>A date is written in the ISO form {@code 2024-12-31} or in the US form {@code 12/31/2024}, with an optional
+     * time {@code 23:59:59}. The time follows a space, or the letter {@code T} in the ISO form. A date without a time
+     * is the start of the day.
+     *
+     * <p>A date is a local date and time of the default time zone, like the other dates of the rules. The language
+     * of the server does not change how a date is read.
+     */
     public DateRange(String source) {
-        var parser = parse(source);
+        var parser = parse(source, DateRangeParser.DATE);
         if (parser == null) {
             this.type = Type.DEGENERATE;
             this.lowerBound = convertToTime(source.trim());
@@ -89,7 +104,7 @@ public class DateRange extends Range<Date> {
     @Override
     protected void format(StringBuilder sb, Date value) {
         var time = Instant.ofEpochMilli(value.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
-        sb.append(dateTimeFormatter.format(time));
+        sb.append(FORMATTER.format(time));
     }
 
     // AUTOCAST METHODS
@@ -120,7 +135,8 @@ public class DateRange extends Range<Date> {
     // END
 
     private static long convertToTime(String text) {
-        var res = dateTimeParser.parseBest(text, LocalDateTime::from, LocalDate::from);
+        var parser = text.indexOf('/') < 0 ? ISO_PARSER : US_PARSER;
+        var res = parser.parseBest(text, LocalDateTime::from, LocalDate::from);
         LocalDateTime localDateTime = res instanceof LocalDate ld ? ld.atStartOfDay() : (LocalDateTime) res;
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }

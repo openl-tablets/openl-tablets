@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class of ranges with utility methods.
@@ -51,8 +52,16 @@ public abstract class Range<T> {
     }
 
     protected RangeParser parse(String text) {
+        return parse(text, null);
+    }
+
+    /**
+     * Parses a range whose left bound keeps a whole match of the pattern, as {@link RangeParser#parse(String, Pattern)}
+     * does.
+     */
+    protected RangeParser parse(String text, @Nullable Pattern bound) {
         try {
-            return RangeParser.parse(text);
+            return RangeParser.parse(text, bound);
         } catch (ParseException e) {
             throw new IllegalArgumentException("Cannot parse a range", e);
         }
