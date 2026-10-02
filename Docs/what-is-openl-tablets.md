@@ -8,8 +8,8 @@ following major components:
 
 - **_Business Rules Engine_** — powerful and business-friendly
 - **_OpenL Studio_** — web-based rules editing and management environment
-- **_Rule Services_** — framework and application to execute rules as services, such as RESTful services, Kafka
-  consumer/producer, and implementation provider for Java interfaces
+- **_Rule Services_** — framework and application to execute rules as services: RESTful services and Kafka
+  consumer/producer
 - **_Rules Repository_** — an enterprise-class rules repository implementation using Git, databases, and blob storage
 
 ## Approach
