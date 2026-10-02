@@ -147,7 +147,7 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 
 1.  To save the changes, click **Save** above the sections.
 
-The **Exposed methods** section of the project filters the methods of the whole project. The **Included Methods** and **Excluded Methods** of a single module are deprecated and kept for backward compatibility only: the module form does not edit them.
+The **Exposed methods** section of the project filters the methods of the whole project. The method filter that a module declares in `rules.xml` is the legacy form of it: the **Modules** section shows its **Includes** and **Excludes** under the module, but the module form does not edit them.
 For more information, refer to the [OpenL Tablets Rule Services Usage and Customization Guide > Dynamic Interface Support](../rule-services/advanced-configuration.md#dynamic-interface-support).
 
 #### Comparing and Reverting Module Changes
