@@ -41,6 +41,7 @@ import org.openl.studio.projects.messaging.SocketRunExecutionProgressListenerFac
 import org.openl.studio.projects.model.run.RunExecutionResult;
 import org.openl.studio.projects.model.run.RunExecutionResultMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
@@ -113,6 +114,7 @@ public class ProjectsRunController {
         }
 
         var parseResult = inputParserService.parseInput(inputJson, method, objectMapperService.createObjectMapper());
+        DispatchedVersionCheck.refuseIfBroken(projectModel, table, parseResult.runtimeContext(), currentOpenedModule);
 
         runResultRegistry.cancelIfAny();
 

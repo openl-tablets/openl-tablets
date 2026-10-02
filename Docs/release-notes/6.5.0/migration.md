@@ -107,6 +107,11 @@ everyone who calls that API from outside the browser.
   admit an anonymous handshake, which is what made the public notification topic readable without signing in;
   that is no longer the case. Connect with the session cookie the browser already holds, or send an
   `Authorization` header on the handshake, as the REST API has always accepted.
+* **A run whose `runtimeContext` picks a table version that does not compile now answers `409`.**
+  `POST /rest/projects/{id}/run` used to answer `202` and then a result with no value and no errors. It now answers
+  `409` with `openl.error.409.run.dispatched.compile.errors.message`, naming the first error of that version. The
+  check covers only the version the requested table is dispatched to: a table it calls is not checked, and a table
+  with a parameter filled in from the runtime context is skipped.
 * **In `oauth2` mode an unauthenticated API call now answers `401` with `WWW-Authenticate: Bearer`** instead
   of a bare `401`. A `Bearer` challenge raises no browser credential dialog, so a browser client is
   unaffected; a scripted client that inspects the header should expect it.

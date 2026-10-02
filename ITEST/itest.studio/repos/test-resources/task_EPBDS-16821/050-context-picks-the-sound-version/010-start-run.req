@@ -1,0 +1,17 @@
+POST /rest/projects/{PROJECT_ID}/run?tableId=e6746f772b7cdaeb24ca53fc409d4509 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "car": {
+    "brand": "BMW",
+    "model": "Z4 sDrive35i"
+  },
+  "billingAddress": {
+    "country": "USA",
+    "region": "Pacific West"
+  },
+  "runtimeContext": {
+    "currentDate": "2009-06-01"
+  }
+}
