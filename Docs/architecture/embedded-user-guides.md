@@ -15,7 +15,7 @@ reachable and holds the guides of the running version:
 - a screen of OpenL Studio cannot open the section of a guide that describes it.
 
 The guides are already plain enough to be rendered by more than Jekyll. `Docs/user-guides` holds 140 Markdown files
-and about 500 images (19 MB) with no Liquid tags and no kramdown attribute lists. The repository Markdown rules keep
+and about 500 images (about 20 MB) with no Liquid tags and no kramdown attribute lists. The repository Markdown rules keep
 them GFM-only, with `> [!Note]` as the only admonition and Mermaid for diagrams.
 
 ## Decision
@@ -73,10 +73,9 @@ file and line of each problem:
 - **Malformed `csv` or `openl` fence** — a record that is not valid CSV, a `<` in the first column, a second `---`
   line, or merged cells that do not form a rectangle.
 
-The quick CI build (`.github/workflows/build-quick.yml`) used to ignore `Docs/**`, so a change to the guides alone
-would never run the test. The guides are build input now, so both its `push` and `pull_request` triggers use a
-`paths` filter that leaves `Docs/**` out and takes `Docs/user-guides/**` back in. GitHub reads such a re-inclusion in
-a `paths` filter only, not in `paths-ignore`. The rest of `Docs/` stays ignored, because the jar does not contain it.
+The quick CI build (`.github/workflows/build-quick.yml`) ignores `Docs/**` except `Docs/user-guides/**`, because the
+guides are build input and the rest of `Docs/` is not in the jar. Both its `push` and `pull_request` triggers use a
+`paths` filter for it: GitHub reads a re-inclusion in a `paths` filter only, not in `paths-ignore`.
 
 ### The servlet
 
@@ -178,7 +177,7 @@ The viewer searches the text of all guides, or of one part of the guides tree.
 - **What is indexed** — the text of a page, the alt text of its images, and the content of code, `csv` and `openl`
   fences. Mermaid sources are not indexed.
 - **Where the index lives** — a client-side full-text index (MiniSearch) in a Web Worker. On the first search the
-  worker fetches the pages listed by `toc.json`, about 1.1 MB of Markdown today, once per session. Later sessions
+  worker fetches the pages listed by `toc.json`, about 1.4 MB of Markdown today, once per session. Later sessions
   revalidate them by their `Last-Modified`. A page that cannot be read is left out rather than failing the search.
 - **Without a worker** — where the browser refuses to start one, the same search runs on the page itself: a page
   whose scripts come from another origin, as from a frontend dev server, or a security policy forbidding workers.
@@ -211,24 +210,18 @@ The viewer searches the text of all guides, or of one part of the guides tree.
 - **Search in the servlet** — keeps the index out of the browser, but needs a second Markdown parser and heading-id
   rule in Java. Its anchors must then match those of the renderer, and the two drift.
 - **Search index built at build time** — saves the first-search download, but needs a JavaScript step in
-  `studio-docs` or makes the `studio-ui` build read `Docs/`. Neither is worth it for 1.1 MB of text.
+  `studio-docs` or makes the `studio-ui` build read `Docs/`. Neither is worth it for 1.4 MB of text.
 - **Pipe tables only, no `csv` or `openl` fence** — no new syntax, but GFM tables cannot merge cells. OpenL tables
   would then stay screenshots that no search finds and no review can diff.
 
 ## Consequences
 
 - **Version accuracy** — every installation, including offline ones, shows the guides of the running version.
-- **War size** — the webstudio war grows by the size of the guides, about 19 MB today.
+- **War size** — the webstudio war grows by the size of the guides, about 20 MB today.
 - **Validated guides** — the guides become build input, so a broken link, a missing image or unsupported syntax fails
   the check before merge, not after publishing.
 - **CI cost** — a change to the guides alone runs the whole quick build, not only the validator. It also builds the
   war that ships them, so a guide change is checked the way it is released.
-- **Guides fixed first** — the validator found what the published site already showed broken or reached outside the
-  guides. Links to `DEPLOYMENT.md`, `configuration/`, `developer-guides/`, `integration-guides/` and `onboarding/`
-  became absolute links to the documentation site, and the link to the missing `MIGRATION_PLAN.md` was removed. The
-  Rule Services images moved from `Docs/assets/images/rule-services` to the guide's `images/` folder. Four links to
-  missing headings, an `sh` code block, a placeholder kramdown hid as an HTML tag, and example addresses written as
-  links were fixed. The HTML tables of the development properties became `openl` fences.
 - **Two renderers** — the Jekyll site and the viewer render the same files. The site does not draw Mermaid diagrams
   or `> [!Note]` alerts yet, and it shows `csv` and `openl` fences as plain code. It gains them through the theme's
   `head/custom.html` include, which needs no Jekyll plugin. Until then, the plain code stays readable.
