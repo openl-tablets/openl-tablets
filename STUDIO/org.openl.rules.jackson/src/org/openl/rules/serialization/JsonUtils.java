@@ -137,6 +137,8 @@ public final class JsonUtils {
         return objectMapper.readValue(jsonString, readType);
     }
 
+    // Part of the public JsonUtils helper, which stays until the whole class is removed.
+    @SuppressWarnings("java:S1133")
     @Deprecated
     public static <T> T fromJSON(String jsonString,
                                  Class<T> readType,

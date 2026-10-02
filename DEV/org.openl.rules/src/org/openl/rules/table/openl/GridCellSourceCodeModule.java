@@ -24,6 +24,8 @@ import org.openl.util.fast.FastStringReader;
  * @author snshor
  * @deprecated It will be removed without replacement.
  */
+// The engine still parses cell expressions through this module; it has no replacement yet.
+@SuppressWarnings("java:S1133")
 @Deprecated(since = "5.23.10")
 public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 

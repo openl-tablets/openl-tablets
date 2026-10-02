@@ -345,6 +345,8 @@ public class ProjectsController {
      * @deprecated Superseded by {@code GET /projects/{projectId}?include=status}, which carries the same status in
      *             the project response.
      */
+    // A published REST endpoint that API clients may still call.
+    @SuppressWarnings("java:S1133")
     @GetMapping("/{projectId}/status")
     @Operation(summary = "projects.status.get.summary", description = "projects.status.get.desc")
     @Deprecated(forRemoval = false)

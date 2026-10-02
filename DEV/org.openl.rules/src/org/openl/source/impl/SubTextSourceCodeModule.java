@@ -25,6 +25,8 @@ import org.openl.util.fast.FastStringReader;
  * negative it is the relative position from the end of the base code
  * @deprecated It will be removed without replacement.
  */
+// The parser and binders still cut code fragments through this module; it has no replacement yet.
+@SuppressWarnings("java:S1133")
 @Deprecated(since = "5.23.10")
 @RequiredArgsConstructor
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
