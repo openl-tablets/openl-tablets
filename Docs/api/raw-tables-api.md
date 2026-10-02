@@ -1,602 +1,289 @@
 # Raw Tables API
 
-## Overview
+The Raw Tables API reads and writes a table as a matrix of cells with merge information. It does not split the table
+into a typed header and body, so it works with every table type, including the types that the other table APIs do not
+model. The `tableType` of the table is `RawSource`.
 
-The Raw Tables API represents any table as a 2D matrix of cells with merge information. Unlike the parsed APIs
-(Data Tables, Test Tables), it does not split the table into a typed header and body model or expose a field schema.
-It preserves the physical matrix while using available cell metadata to represent and round-trip typed multi-value
-cells. Write operations validate the raw value shapes and structural invariants that keep the matrix readable by
-OpenL.
+All table types share the same endpoints and the same rules for the project and the table id; see
+[Table Endpoints](README.md#table-endpoints).
 
-**Use Cases:**
-- Exporting tables in their original Excel structure
-- Reading tables of unknown or custom types
-- Programmatic access to cell-level data
-- Preserving exact cell formatting and merge information
+- **Use cases** — exporting a table as it is in the workbook, reading a table of any type cell by cell, and editing the
+  cells, rows, columns, merges, and styles of a table.
+- **Not covered** — the typed models of the [Data](data-tables-api.md), [Test](test-tables-api.md), and
+  [Lookup](lookup-api.md) tables have their own pages.
 
-## Quick Start
+## Reading a Table
 
-### Get Table in Raw Format
-
-```bash
-# Get raw format (2D matrix with merge information)
-GET /projects/MyProject/tables/DATA_Bank?raw=true
-
-# Get parsed format (default, existing behavior)
-GET /projects/MyProject/tables/DATA_Bank
-GET /projects/MyProject/tables/DATA_Bank?raw=false
+```http
+GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 ```
 
-### Example Response (Raw Format)
+**Query parameters:**
+
+- `raw` — `true` returns the matrix. The default `false` returns the typed model of the table.
+- `startRow`, `maxRows` — read a window of the matrix: the zero-based row to start with and the number of rows. A window
+  never cuts a merged cell in two. Read the next window from the end of the previous one, not from `startRow` plus
+  `maxRows`.
+- `styles` — `true` adds the Excel style of every cell.
+- `metaInfo` — `true` adds what the compiler knows about every cell.
+- `module` — the module to read the table through. The answer is ready once that module is compiled, without waiting
+  for the rest of the project.
+- `runState` — `true` adds whether the table can be run.
+
+**Response** (`200 OK`), shortened:
 
 ```json
 {
-  "id": "DATA_Bank",
+  "id": "5bd8922c903afffdfb749b3841eddcf1",
   "tableType": "RawSource",
-  "kind": "Bank data storage",
-  "name": "Bank",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:D12",
   "source": [
     [
-      {"value": "bankID"},
-      {"value": "bankRatings", "colspan": 2},
+      {"cell": "B4", "value": "Rules String Greeting1 (Integer hour)", "colspan": 3},
+      {"covered": true},
       {"covered": true}
     ],
     [
-      {"value": "bank ID"},
-      {"value": "currentData 1"},
-      {"value": "currentData 2"}
+      {"cell": "B5", "value": "C1", "colspan": 2},
+      {"covered": true},
+      {"cell": "D5", "value": "RET1"}
+    ],
+    [
+      {"cell": "B9", "value": 0},
+      {"cell": "C9", "value": 12},
+      {"cell": "D9", "value": "Good Morning"}
     ]
   ]
 }
 ```
-
-## API Endpoints
-
-### Get Table (Parsed or Raw)
-
-```
-GET /projects/{projectId}/tables/{tableId}[?raw=true|false]
-```
-
-**Parameters:**
-- `projectId` (path, required) - Project identifier
-- `tableId` (path, required) - Table identifier
-- `raw` (query, optional, default: `false`) - Format flag
-  - `false` - Returns parsed EditableTableView (default, existing behavior)
-  - `true` - Returns raw 2D matrix as RawTableView
-
-**Responses:**
-- `raw=false` (default) → `EditableTableView` (DataView, TestView, etc.)
-- `raw=true` → `RawTableView` (2D matrix format)
-
-**Status Codes:**
-- `200 OK` - Table retrieved successfully
-- `404 Not Found` - Table or project not found
-- `409 Conflict` - Project not opened
-
-## Data Models
-
-### EditableTableView and AppendTableView Interfaces
-
-These interfaces define the contract for table models used in create/update and append operations respectively. Both have been updated with comprehensive OpenAPI schema annotations for improved API documentation visibility.
-
-- **EditableTableView** - Marker interface for update/create operations with polymorphic deserialization support via `tableType` discriminator.
-- **AppendTableView** - Marker interface for append operations with polymorphic deserialization support via `tableType` discriminator.
-
-All implementations (DatatypeView, DatatypeAppend, etc.) now include detailed `@Schema` descriptions for their fields, improving OpenAPI documentation in Swagger UI.
 
 ### RawTableView
 
-Represents the entire table in raw 2D matrix format as a structured view. Extends `TableView` and implements `EditableTableView`.
-
-**Fields with OpenAPI Annotations:**
-- `id` (String) - Table identifier (e.g., "DATA_Bank", inherited from TableView). Unique identifier of the table.
-- `tableType` (String) - Always "RawSource" (inherited from TableView, identifies the raw format)
-- `kind` (String) - Table kind/description from table properties (inherited from TableView). Allowed values include: Rules, Spreadsheet, Datatype, Data, Test, TBasic, Column Match, Method, Run, Constants, Conditions, Actions, Returns, Environment, Properties, Other.
-- `name` (String) - Table name (inherited from TableView)
-- `source` (List<List<RawTableCell>>) - 2D matrix of raw table cells with merge information
-
-**Note:** Unlike the parsed APIs which separate headers from data rows, the `source` matrix includes all rows starting from row 0.
+- `id`, `tableType`, `kind`, `name` — as for the other tables. `kind` is the kind of the table: `Rules`,
+  `Spreadsheet`, `Datatype`, `Data`, `Test`, `TBasic`, `Column Match`, `Method`, `Run`, `Constants`, `Conditions`,
+  `Actions`, `Returns`, `Environment`, `Properties`, or `Other`.
+- `source` — the matrix of cells. The first row is the header of the table, followed by its properties and the body.
+- `pos` — the position of the table on its sheet, such as `B4:D12`. Read-only.
+- `totalRows` — the number of rows of the table when the window leaves rows out. Read-only.
+- `headerHeight` — the number of rows at the top that the header takes: the header line, the properties, and the
+  service rows of a decision table. Read-only.
+- `layout` — for a test table: `transposed` is `true` where a case is a column rather than a row, and `firstDataLine` is
+  the line where the data begins. Absent for the other tables and for a test table whose cases have identifiers of their
+  own. Read-only.
+- `messages`, `runState`, `partial` — read-only; see [Table Endpoints](README.md#table-endpoints).
 
 ### RawTableCell
 
-Represents a single cell in raw format with explicit span information.
+- `value` — a string, a number, a boolean, or a one-dimensional array of them; see
+  [Multi-Value Cells](#multi-value-cells). Absent for an empty cell.
+- `colspan`, `rowspan` — the number of columns and rows that the cell spans. Present for a value of 2 or more.
+- `covered` — `true` for a position that another cell's span covers. Such a cell has no other field.
+- `cell` — the address of the cell in A1 notation, such as `B4`. Read-only; the compilation messages use the same
+  address.
+- `formula` — the formula of the cell, such as `=B2*C2`, next to the `value` it computed. Read-only.
+- `comment` — the note that a reader left on the cell. Read-only.
+- `style` — the Excel style of the cell, with `styles=true`. Read-only.
+- `metaInfo` — what the compiler knows about the cell, with `metaInfo=true`. Read-only.
 
-**Fields with OpenAPI Annotations:**
-- `value` (Object) - Cell value: a string, number, boolean, or one-dimensional array of these values (null if covered
-  by another cell's span)
-- `colspan` (Integer) - Number of columns this cell spans (null if single column or covered)
-- `rowspan` (Integer) - Number of rows this cell spans (null if single row or covered)
-- `covered` (Boolean) - True if cell is masked by another cell's span
+The cell of a merged range that holds the value is the top-left one. The other positions of the range are `covered`.
+For a cell of 2 columns and 2 rows at the top-left of a matrix:
 
-**Span Information:**
+```json
+[
+  [{"value": "Header", "colspan": 2, "rowspan": 2}, {"covered": true}],
+  [{"covered": true}, {"covered": true}]
+]
+```
 
-Span information is extracted from the underlying TableModel's rowspan/colspan. Cells are categorized as follows:
+A client reads the matrix row by row and skips the covered cells.
 
-- **Origin Cell** (top-left of merged region):
-  - `value` - contains the actual cell value
-  - `colspan` - integer >= 2 (null if single column, only present if colspan > 1)
-  - `rowspan` - integer >= 2 (null if single row, only present if rowspan > 1)
-  - `covered` - null (not a covered cell)
+### Style of a Cell
 
-- **Covered Cells** (part of merged region but not origin):
-  - `value` - null (the value is in the origin cell)
-  - `colspan` - null (cell is covered by another cell's span)
-  - `rowspan` - null (cell is covered by another cell's span)
-  - `covered` - true (explicitly marks this as a masked cell)
+The `style` of a cell leaves out an attribute that has its default value:
 
-**Example:** If cell (0,0) is merged to span 2 columns and 2 rows:
-- Cell (0,0): `{value: "Header", colspan: 2, rowspan: 2}` (origin cell spans 2x2)
-- Cell (0,1): `{covered: true}` (masked by horizontal span)
-- Cell (1,0): `{covered: true}` (masked by vertical span)
-- Cell (1,1): `{covered: true}` (masked by both spans)
+- `background`, `color` — `#rrggbb`. The default background is white and the default font colour is black.
+- `align`, `valign` — the horizontal and the vertical alignment.
+- `bold`, `italic`, `underline` — `true` for the font attribute.
+- `indent` — the left indent in Excel units.
+- `border` — the borders by side.
 
-**Note:**
+### Meta Information of a Cell
 
-- Fields with `null` values are excluded from JSON response due to `@JsonInclude(NON_NULL)` annotation
-- Covered cells appear in the matrix only with `{covered: true}`
-- Clients can detect merged regions by checking: `colspan > 1 || rowspan > 1`
-- Covered cells should be skipped when processing the matrix
+The `metaInfo` of a cell has these fields, each of which is absent when the compiler has nothing to say:
 
-**Multi-value cells:**
+- `usages` — the pieces of the cell's text that refer to something. Each has the `start` and the `end` in the text, a
+  `description`, a `kind` (`rule`, `datatype`, `data`, `field`, `underlined`, or `other`), and, for a table, its
+  `tableId`, `module`, and `projectId`.
+- `type` — the type that the cell holds.
+- `returnCell` — `true` for the cell that a decision table returns.
+- `editor` — the editor that the cell asks for: `text`, `numeric`, `combo`, `date`, `multiselect`, `formula`,
+  `boolean`, `array`, `range`, `integer`, `double`, or `multiline`.
 
-- A context-parsed multi-value cell is returned as a JSON array, for example
-  `{"value": ["MA2", "FA+", "SPA"]}`.
-- POST into existing or new modules, PUT, append, insert, and cell/row/column/range actions accept the same
-  one-dimensional array representation. The writer converts it to the scalar workbook representation used by the
-  cell's OpenL type, so a representable raw GET response can be submitted unchanged.
-- Array elements can be strings, numbers, booleans, or null. Commas and trailing backslashes in string elements are
+## Multi-Value Cells
+
+- A context-parsed multi-value cell is returned as a JSON array, for example `{"value": ["MA2", "FA+", "SPA"]}`.
+- Creating a table in an existing or a new module, a full update, an append, an insert, and the cell, row, column, and
+  range actions accept the same one-dimensional array. The writer converts it to the scalar workbook representation
+  that the OpenL type of the cell uses, so a representable raw response can be submitted unchanged.
+- Array elements are strings, numbers, booleans, or null. Commas and trailing backslashes in string elements are
   preserved through the workbook representation. Null elements keep their positions, including in enum arrays.
-- When table metadata parses an array into typed values, PUT and source actions convert the JSON values back to that
-  element type. Enum elements are stored by their constant names. Dates use the cell's actual Excel date format,
-  workbook date system, and server locale consistently for formatting and parsing; a General-formatted cell uses the
-  lossless raw API ISO representation. An unchanged raw GET response therefore stays parseable after it is written
-  back.
-- Arrays must contain at least one element and cannot consist of a single null. String elements must be non-empty and
-  have no leading or trailing whitespace because OpenL trims array elements. Invalid arrays, JSON objects, and nested
-  arrays are rejected with a `400` validation response.
+- When the table metadata parses an array into typed values, an update and the source actions convert the JSON values
+  back to that element type. Enum elements are stored by their constant names. Dates use the cell's Excel date format,
+  the workbook date system, and the server locale for formatting and parsing. A cell with the General format uses the
+  lossless ISO representation. So an unchanged raw response stays parseable after it is written back.
+- An array has at least one element and does not consist of a single null. A string element is not empty and has no
+  leading or trailing whitespace, because OpenL trims array elements. An invalid array, a JSON object, or a nested array
+  is refused with `400`.
 
-### JSON Example
+## Writing a Table
 
-```json
+### Replace the Matrix
+
+```http
+PUT /rest/projects/{projectId}/tables/{tableId}
+Content-Type: application/json
+
 {
-  "id": "DATA_Bank",
-  "tableType": "RawSource",
-  "kind": "Bank data storage",
-  "name": "Bank",
-  "source": [
-    [
-      {
-        "value": "Header1"
-      },
-      {
-        "value": "Header2",
-        "colspan": 2
-      },
-      {
-        "value": "Header3"
-      }
-    ],
-    [
-      {
-        "value": "SubHeader"
-      },
-      {
-        "value": "Left",
-        "rowspan": 2
-      },
-      {
-        "value": "Right"
-      },
-      {
-        "value": "SubHeader3"
-      }
-    ],
-    [
-      {
-        "value": "Value1"
-      },
-      {
-        "covered": true
-      },
-      {
-        "value": "Value2"
-      },
-      {
-        "value": "Value3"
-      }
-    ]
-  ]
-}
-```
-
-## Implementation Details
-
-### Architecture
-
-The raw table reading leverages OpenL's existing TableModel from TableEditor component:
-
-```
-RawTableReader (Component)
-  ↓
-  Uses TableModel.initializeTableModel(IGridTable)
-  ↓
-  Extracts cell data from TableModel (including rowspan/colspan)
-  ↓
-  Converts to RawTableView (2D matrix with merge metadata)
-    ↓
-    ProjectsController.getTable(?raw=true)
-    ↓
-    WorkspaceProjectService.getTableRaw(IOpenLTable)
-```
-
-### Why TableModel?
-
-TableModel from TableEditor component provides:
-- **Proper cell merging handling** - rowspan/colspan already calculated
-- **Consistent with UI rendering** - same code path as HTML table editor
-- **All table types supported** - works with Data, Test, Spreadsheet, etc.
-- **Correct dimensions** - handles empty rows/columns properly
-- **No duplication** - reuses existing OpenL infrastructure
-
-### Files
-
-**Models:**
-- `RawTableCell.java` - Single cell representation with explicit colspan/rowspan and covered flag
-- `RawTableView.java` - 2D matrix container extending TableView
-
-**Readers:**
-- `RawTableReader.java` - Converts IOpenLTable via TableModel to raw format
-  - Method: `initialize()` - Reads table as 2D matrix with merge information
-  - Handles cell merging with colspan/rowspan extraction
-  - Works with any table type
-
-**Writers:**
-- `RawTableWriter.java` - Writes RawTableView back to the original table
-  - Method: `updateHeader()` - No special processing (header is part of source matrix)
-  - Method: `updateBusinessBody()` - Two-phase write with merge support
-    - Phase 1: Iterates all rows/cells, writes values, skips covered cells, tracks merge regions
-    - Phase 2: Applies all merge regions using MergeCellsAction
-    - Cleans up extra rows after all writes
-  - Method: `append(RawTableAppend)` - Appends rows with merge support
-    - Gets current table height as starting position
-    - Phase 1: Writes rows, skips covered cells, tracks merges
-    - Phase 2: Applies merge regions
-  - Method: `applyMergeRegions()` - Internal helper to apply tracked merges
-    - Creates MergeCellsAction for each tracked region
-    - Executes as UndoableCompositeAction
-    - Ensures undo/redo support
-  - Works with any table type
-  - Cleans up removed rows automatically (update only)
-
-**Append Models:**
-- **RawTableAppend** - Request model for appending rows to raw tables
-  - Implements AppendTableView interface
-  - Field: `rows` (List<List<RawTableCell>>) - Rows to append as a 2D matrix of raw table cells
-  - Supports polymorphic JSON deserialization via tableType
-
-**Service Integration:**
-- `WorkspaceProjectService.getTableRaw()` - Service method to retrieve raw table
-- `WorkspaceProjectService.updateTable()` - Handles RawTableView updates through RawTableWriter
-- `WorkspaceProjectService.appendTableLines()` - Appends rows using RawTableAppend
-- `WorkspaceProjectService.getTableWriter()` - Factory method supporting RawTableView.TABLE_TYPE
-- `ProjectsController.getTable()` - REST endpoint with `?raw` flag support (GET)
-- `ProjectsController.updateTable()` - REST endpoint for updating tables (PUT, supports raw format)
-- `ProjectsController.appendTableLines()` - REST endpoint for appending rows (POST, supports raw format)
-
-### Merge Detection (Reading)
-
-Merged cell information is automatically handled by TableModel through rowspan/colspan during read:
-1. TableModel is initialized from IGridTable with proper dimension calculation
-2. Each CellModel contains `getRowspan()` and `getColspan()` values
-3. RawTableReader creates cells with:
-   - `colspan` and `rowspan` set to their integer values (>= 1) for origin cells
-   - `colspan` and `rowspan` set to `null` for covered cells (masked by another cell's span)
-4. Covered cells in the matrix represent positions that are part of a merged region but not the origin
-
-This approach ensures perfect alignment with how the table is rendered in the HTML table editor while providing explicit, semantic span information to clients.
-
-### Merge Application (Writing)
-
-Merge cell logic during write uses two-phase approach:
-
-**Phase 1 - Write Values:**
-- All cell values from the source matrix are written to the grid
-- Covered cells (with `covered=true`) are skipped
-- For cells with colspan/rowspan > 1, merge regions are tracked
-- Grid may expand with new rows/columns as needed
-
-**Phase 2 - Apply Merges:**
-- After all cell values are written, tracked merge regions are applied
-- Each merge region creates a MergeCellsAction
-- All actions are combined into UndoableCompositeAction
-- Actions are executed after grid dimensions are finalized
-
-**Why Two-Phase?**
-- Writing before merging ensures grid has all required rows/columns
-- Merging before completing all writes could fail if grid expansion is needed
-- Merge regions can be calculated during cell iteration without separate pass
-- Preserves undo/redo information through UndoableCompositeAction
-
-**MergeCellsAction Behavior:**
-- Automatically removes any existing merges that overlap with new merge region
-- Adds new merged region to the grid
-- Supports undo operation to restore previous merge state
-
-### Dimension Calculation
-
-TableModel handles dimension calculation internally:
-- **Height:** Obtained from `TableModel.getHeight()`
-- **Width:** Determined from `TableModel.getCells()[0].length`
-
-TableModel automatically excludes empty rows and columns, ensuring the matrix only includes relevant content without trailing empty rows/columns.
-
-### Key Methods
-
-**RawTableReader:**
-- `initialize()` - Reads table as raw 2D matrix with merge information, using TableModel to properly handle cell merging, content extraction, and dimensions.
-
-**RawTableWriter:**
-- `updateBusinessBody()` - Writes entire source matrix in two phases: Phase 1 writes cell values and tracks merges, Phase 2 applies merge regions.
-- `append()` - Appends new rows to end of table with merge support, skips covered cells.
-- `applyMergeRegions()` - Internal helper to apply tracked merge regions using MergeCellsAction.
-
-**WorkspaceProjectService:**
-- `getTableRaw()` - Retrieves table in raw format as 2D matrix with merge information
-- `updateTable()` - Updates table with new content (supports any EditableTableView including RawTableView)
-
-## Usage Patterns
-
-### Reading Raw Table Data
-
-```bash
-# Request
-curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Bank?raw=true" \
-  -H "Accept: application/json" \
-  -u <username>:<password>
-
-# Response
-{
-  "id": "DATA_Bank",
-  "tableType": "RawSource",
-  "kind": "Bank information",
-  "source": [[...cells...]]
-}
-```
-
-### Writing Raw Table Data
-
-Raw tables can be updated by sending the modified RawTableView back to the server:
-
-```bash
-# Request: Update table with raw format
-curl -X PUT "http://localhost:8080/projects/MyProject/tables/DATA_Bank" \
-  -H "Content-Type: application/json" \
-  -u <username>:<password> \
-  -d '{
-    "id": "DATA_Bank",
-    "tableType": "RawSource",
-    "kind": "Bank information",
-    "source": [
-      [{"value": "BankID"}, {"value": "Rating"}],
-      [{"value": "BANK1"}, {"value": "A"}],
-      [{"value": "BANK2"}, {"value": "B"}]
-    ]
-  }'
-
-# Response: 204 No Content (success)
-```
-
-**Write Processing:**
-- RawTableWriter iterates through the source matrix row by row, cell by cell
-- Writes each non-covered cell value directly to the table grid
-- Covered cells (marked with `covered: true`) are automatically skipped
-- Merge information (colspan/rowspan) is preserved implicitly through the matrix structure
-- Any rows in the original table beyond the source matrix size are automatically removed
-- Validates each value as a supported scalar or one-dimensional scalar array
-- Converts context-parsed arrays to their canonical workbook representation so raw GET responses round-trip
-
-**Key Characteristics:**
-- Works with any table type (Data, Test, Spreadsheet, etc.)
-- Preserves exact cell positioning and merge regions
-- Treats entire source matrix uniformly (including headers)
-- Does not map headers or rows to a table-kind-specific schema; type conversion is limited to context-parsed arrays
-- Merge regions are applied after all values are written (two-phase)
-
-**Blank lines are refused:**
-
-OpenL reads a table only as far as its first entirely blank row or column, so a write that would leave one inside
-the table is answered with `400` and `openl.error.400.table.action.line.all-empty.message`, and the workbook is
-left unchanged.
-
-- The rule holds for every write — create, full update, append, and each cell, line and range action.
-- It is checked against the table the write produces, not only against the rows the request carries: a single-cell
-  update that empties the last filled cell of its row or column is refused just as a blank row is.
-- A cell a merge spans into is not blank, so a line an existing merge crosses stays valid.
-- Blank lines around the table are not affected — they leave the table smaller than the area it occupies, which
-  loses nothing.
-
-**Example: Writing with merged cells**
-
-```json
-{
-  "id": "DATA_Merged",
   "tableType": "RawSource",
   "source": [
-    [
-      {"value": "Header1", "colspan": 2},
-      {"value": "Header3"}
-    ],
-    [
-      {"value": "Header1.1"},
-      {"covered": true},
-      {"value": "Header3.1"}
-    ],
-    [
-      {"value": "Data1", "rowspan": 2},
-      {"value": "Data2"},
-      {"value": "Data3"}
-    ],
-    [
-      {"covered": true},
-      {"value": "Data2.2"},
-      {"value": "Data3.2"}
-    ]
+    [{"value": "Data Bank bankData", "colspan": 2}, {"covered": true}],
+    [{"value": "bankID"}, {"value": "rating"}],
+    [{"value": "bank ID"}, {"value": "Rating"}],
+    [{"value": "BANK1"}, {"value": "A"}]
   ]
 }
 ```
 
-In this example:
-- Row 0, Col 0: "Header1" spans 2 columns (merges into row 0, cols 0-1)
-- Row 1, Col 1: Covered by Header1's colspan
-- Row 2, Col 0: "Data1" spans 2 rows (merges rows 2-3, col 0)
-- Row 3, Col 0: Covered by Data1's rowspan
+- The writer writes every cell that is not covered, applies the merges, and removes the rows of the table that are
+  below the new matrix.
+- The first cell of the matrix is the header of a table that OpenL recognizes, such as `Rules`, `Datatype`, `Data`,
+  `Spreadsheet`, or `Test`. For the kind `Other` any non-blank text is accepted. An empty matrix, and a header that
+  OpenL does not recognize, are refused with `400`.
+- A table that OpenL recognizes cannot be turned into one that it cannot parse: `400` with
+  `openl.error.400.table.header.unrecognized.message`.
+- A table that is written as several partial tables is read but not written: `400` with
+  `openl.error.400.table.partial.message`. Excel edits such a table.
 
-### Appending Rows to Raw Tables
+### Append Rows
 
-Raw tables can be extended by appending new rows to the end without modifying existing content:
+```http
+POST /rest/projects/{projectId}/tables/{tableId}/lines
+Content-Type: application/json
 
-```bash
-# Request: Append rows to table
-curl -X POST "http://localhost:8080/projects/MyProject/tables/DATA_Bank/append" \
-  -H "Content-Type: application/json" \
-  -u <username>:<password> \
-  -d '{
-    "tableType": "RawSource",
-    "rows": [
-      [{"value": "BANK3"}, {"value": "C"}],
-      [{"value": "BANK4"}, {"value": "D"}]
-    ]
-  }'
-
-# Response: 204 No Content (success)
-```
-
-**Append Behavior:**
-- New rows are added to the end of the existing table
-- Covered cells (with `covered: true`) are skipped
-- Existing table content is not affected
-- Works with any table type
-- Each row in the append request is a list of RawTableCell objects
-
-**Example: Building append request programmatically**
-
-```javascript
-const appendRows = async (tableId, newRows) => {
-  const appendRequest = {
-    tableType: "RawSource",
-    rows: newRows  // Array of row arrays (List<List<RawTableCell>>)
-  };
-
-  const response = await fetch(`/projects/MyProject/tables/${tableId}/append`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(appendRequest)
-  });
-  return response.status === 204;
-};
-
-// Usage
-const newRows = [
-  [
-    {value: "NewBank1"},
-    {value: "Rating1"}
-  ],
-  [
-    {value: "NewBank2"},
-    {value: "Rating2"}
+{
+  "tableType": "RawSource",
+  "rows": [
+    [{"value": "BANK3"}, {"value": "C"}],
+    [{"value": "BANK4"}, {"value": "D"}]
   ]
-];
-
-const success = await appendRows("DATA_Bank", newRows);
+}
 ```
+
+The rows are added to the end of the table and have the cells of the same shape as the `source`. A row must not be wider
+than the table: `400` with `openl.error.400.table.append.column.count.message`.
+
+### Create a Table
+
+```http
+POST /rest/projects/{projectId}/tables
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {"tableType": "RawSource", "source": [[{"value": "Rules String Hello (Integer hour)"}]]}
+}
+```
+
+- `moduleName` — the module that gets the table. It exists, unless `modulePath` is given.
+- `modulePath` — the project-relative path of a new `.xlsx` module. A new module is created only from a raw source.
+- `sheetName` — the sheet for the table. It has 1 to 31 characters and none of `/ \ * ? [ ] :`.
+- `table` — the table. A table of any type of the [Table Endpoints](README.md#table-endpoints) is accepted.
+
+The answer is `201 Created` with the summary of the new table.
+
+### Responses
+
+A replacement and an append answer `204 No Content`, or `200 OK` with the new table id and the `Location` header when
+the table had no room to grow and moved; see [Data Tables API](data-tables-api.md#responses).
+
+### Blank Lines Are Refused
+
+OpenL reads a table only as far as its first entirely blank row or column. A write that would leave one inside the table
+is refused with `400` and `openl.error.400.table.action.line.all-empty.message`, and the workbook stays unchanged.
+
+- The rule holds for every write: create, full update, append, and each cell, line, and range action.
+- It is checked against the table that the write produces, not only against the rows of the request. A single-cell
+  update that empties the last filled cell of its row or column is refused like a blank row.
+- A cell that a merge spans into is not blank, so a line that an existing merge crosses stays valid.
+- Blank lines around the table are not affected.
+
+## Editing the Source
+
+```http
+POST /rest/projects/{projectId}/tables/{tableId}/actions
+Content-Type: application/json
+```
+
+The request applies one edit to the raw source of any table. The `operation` selects the edit, and the `type` of the
+`target` selects what it acts on. Positions are zero-based and address the matrix that the raw read returns.
+
+- **`append`** — adds rows or columns to the end of the table. Target types: `rows`, `columns`, with `cells`.
+- **`insert`** — inserts rows or columns at a `position`. The position of a row is from 1 to the table height, because
+  row 0 is the header. The position of a column is from 0 to the table width. Target types: `rows`, `columns`, with
+  `position` and `cells`.
+- **`delete`** — deletes `count` rows or columns from a `position`. The header row cannot be deleted. Target types:
+  `rows`, `columns`.
+- **`update`** — overwrites a cell, a row, a column, or a rectangle. The table is not resized. Target types: `cell`
+  (`row`, `column`, `value`), `row` and `column` (`position`, `cells`), and `range` (`row`, `column`, `cells`; more than
+  one cell).
+- **`merge`** — merges a rectangle and keeps the value of the top-left cell. Target type `cells` with `row`, `column`,
+  `rowspan`, and `colspan`.
+- **`unmerge`** — splits the merged cell that covers a position. Target type `cells` with `row` and `column`.
+- **`style`** — sets the style of a rectangle; see [Styling Cells](#styling-cells). Target type `cells`.
+
+A cell of a request has a `value`, optional `colspan` and `rowspan`, and `covered`. Examples:
+
+```json
+{"operation": "update", "target": {"type": "cell", "row": 5, "column": 2, "value": "Buenos Dias"}}
+{"operation": "insert", "target": {"type": "rows", "position": 1,
+  "cells": [[{"value": "min <= hour and hour < max", "colspan": 2}, {"covered": true}, {"value": "RET"}]]}}
+{"operation": "merge", "target": {"type": "cells", "row": 3, "column": 0, "rowspan": 1, "colspan": 2}}
+```
+
+The answer is `204 No Content`, or `200 OK` with the new table id and the `Location` header when the table moved.
+
+**Refusals** (`400`):
+
+- `openl.error.400.table.action.position.invalid.message` — a position is out of range.
+- `openl.error.400.table.action.row.width.message`, `openl.error.400.table.action.column.height.message` — a new row
+  is not as wide as the table, or a new column is not as tall.
+- `openl.error.400.table.action.merge.range.invalid.message` — the range to merge covers one cell or leaves the table.
+- `openl.error.400.table.action.merge.overlap.message` — the range overlaps a merged cell.
+- `openl.error.400.table.action.merge.data-loss.message` — the range holds more than one distinct value.
+- `openl.error.400.table.action.style.empty.message` — a style names no attribute.
+- A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
+  of them.
 
 ### Appending and Inserting Structural Blocks
 
-The source action endpoint can append or insert one or more rows or columns in a single request:
+An `append` or an `insert` adds one or more rows or columns in a single request. A span in an earlier row or column may
+cover later rows or columns of the same request. Mark each covered position with `covered: true`. The span is validated
+against the table dimensions after the whole block is added.
 
-```text
-POST /rest/projects/{projectId}/tables/{tableId}/actions
-```
-
-For `append` and `insert` operations, a span in an earlier row or column may cover later rows or columns from the same
-request. Mark each covered position with `covered: true`. The span is validated against the table dimensions after the
-complete block is added.
-
-Span regions declared in the same action must not overlap each other. An overlapping batch is rejected with a `400`
-response before its merge regions are applied.
-
-A raw read after an append or insert returns the added cells and their span structure even when the current compiled
-Datatype model does not yet include those cells. Cells outside that bound logical body are returned without
-Datatype-specific metadata until the table is rebound.
-
-Insert operations allocate the complete block before applying its inline merges. Existing rows or columns at and after
-the insertion position are shifted together and preserved; an inline merge does not expand when another item from the
-same request is inserted.
-
-### Editing a Table
-
-Editing a table begins with one request. It answers how the table's cells take a value — everything the editor
-needs for as long as the user edits — and it locks the project for the caller:
-
-```text
-GET /rest/projects/{projectId}/tables/{tableId}/editors?startRow=0&maxRows=100
-```
-
-```json
-{
-  "editors": [
-    {"editor": "numeric", "min": -2147483648, "max": 2147483647, "intOnly": true},
-    {"editor": "combo", "choices": ["AL", "AZ"], "displayValues": ["Alabama", "Arizona"]}
-  ],
-  "cells": [
-    {"row": 5, "column": 0, "editor": 0},
-    {"row": 5, "column": 2, "editor": 1}
-  ]
-}
-```
-
-The window is the same one the raw read returns, so a cell is pointed at by the same row and column in both. The
-ways of entering a value are listed once and pointed at by index, because a whole column usually asks for the same
-one.
-
-A cell that is not listed is written as plain text — including one holding a formula or several lines, which a
-screen can tell from the value itself, and must tell anyway while a value is being edited and the table has not
-been written yet.
-
-Which fields an editor carries depends on its kind: `combo` and `multiselect` carry the values to choose from,
-`numeric` the bounds of the cell's type, `array` how its entries are written, and `range` the editor one bound is
-entered with.
-
-The lock is why this request and not another: an edit made on screen reaches the workbook only when it is saved,
-and nothing else says when editing begins. While the project is locked its tables are read-only to everybody
-else — their reads of it carry no `canWrite`, and beginning to edit or writing a table answers `409`:
-
-```json
-{
-  "code": "openl.error.409.project.locked.by.message",
-  "message": "The project is locked by user 'admin'."
-}
-```
-
-Editing ends with the other side of the same address:
-
-```text
-DELETE /rest/projects/{projectId}/tables/{tableId}/editors
-```
-
-It releases the lock, **but only where the project has nothing of its own left to protect** — a table saved into
-the workspace and not yet committed keeps it, because another user must not write the project while those
-changes are waiting to be saved. A lock somebody else holds is left alone, so the request is safe to repeat and
-safe to send where editing never began. Saving the project or closing it releases the lock as well.
-
-A client that writes tables without an editor needs none of this: every write endpoint locks the project by
-itself. See [The Project Editing Lock](../architecture/project-editing-lock.md).
+- Spans declared in the same action must not overlap. An overlapping block is refused with `400` before its merges are
+  applied.
+- A raw read after an append or an insert returns the added cells and their spans, even when the compiled Datatype
+  model does not include them yet. Such cells have no Datatype-specific metadata until the table is bound again.
+- An insert allocates the whole block before it applies the inline merges. The rows or columns at and after the
+  position shift together and keep their merges. An inline merge does not expand when another item of the same request
+  is inserted.
 
 ### Styling Cells
 
-The `style` operation sets the styling of every cell of a rectangular range, so the editor's toolbar writes the
-background, the font and the alignment the same way it writes values:
+The `style` operation sets the style of every cell of a rectangle:
 
 ```json
 {
@@ -618,23 +305,18 @@ background, the font and the alignment the same way it writes values:
 }
 ```
 
-Only the attributes the `style` object names are set — an attribute left out is not touched, so a cell keeps the
-styling it already carries. `align` takes `left` to put the cells back to the default alignment and `indent` takes `0`
-to take the indent away. A style that names no attribute at all is rejected.
+- The `style` names the attributes to set: `background` and `color` as `#rrggbb`, `align`, `bold`, `italic`,
+  `underline`, and `indent` from 0 to 15. An attribute that is left out is not touched.
+- `align` set to `left` puts the cells back to the default alignment. `indent` set to `0` takes the indent away.
+- A style that names no attribute is refused.
+- The attributes are the ones of a styled read, except the borders and the vertical alignment, which are read-only.
 
-The attributes are the ones a styled read reports back, except the borders and the vertical alignment, which are
-read-only.
+### Applying Several Edits
 
-### Applying Several Edits in One Request
-
-An editor keeps the actions a user performs and sends them when the user saves, so a whole editing session reaches
-the table as one change:
-
-```text
+```http
 POST /rest/projects/{projectId}/tables/{tableId}/actions/batch
-```
+Content-Type: application/json
 
-```json
 {
   "actions": [
     {"operation": "update", "target": {"type": "cell", "row": 5, "column": 2, "value": "Buenos Dias"}},
@@ -644,274 +326,64 @@ POST /rest/projects/{projectId}/tables/{tableId}/actions/batch
 }
 ```
 
-Each edit takes the same shape as the single-edit request and addresses the table **as the previous edit left it**: an
-insert or a delete shifts the coordinates of everything that follows it in the list.
+- **Order** — each edit has the shape of the single-edit request and addresses the table as the previous edit left it.
+  An insert or a delete shifts the coordinates of everything that follows it.
+- **One write** — the table is written once, after the last edit. An edit that is refused ends the sequence, and nothing
+  of it reaches the table.
+- **Response** — as for a single edit: `204`, or `200` with the new id and the `Location` header.
 
-The table is written once, after the last edit. An edit that is refused ends the sequence and nothing of it reaches the
-table, so a rejected request leaves the table exactly as it was. The response is the same as for a single edit: `204`
-when the table keeps its identifier, or `200` with the new identifier and a `Location` header when the table had to be
-moved to grow.
+## Editing a Table
 
-### Read-Write Cycle
+Editing begins with a request that answers how the cells of the table take a value, and that locks the project for the
+caller:
 
-A complete example of reading a table, modifying it, and writing it back:
-
-```javascript
-// 1. Read raw table
-const getRawTable = async () => {
-  const response = await fetch('/projects/MyProject/tables/DATA_Bank?raw=true');
-  return response.json();
-};
-
-// 2. Modify the table
-const modifyTable = (rawTable) => {
-  // Modify cell values
-  rawTable.source[1][0].value = "New Value";
-
-  // Covered cells are skipped, so just modify origin cells
-  if (rawTable.source[1][1].colspan > 1) {
-    // This is a merged cell
-    rawTable.source[1][1].value = "Merged";
-  }
-
-  return rawTable;
-};
-
-// 3. Write back the modified table
-const updateRawTable = async (rawTable) => {
-  const response = await fetch('/projects/MyProject/tables/DATA_Bank', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(rawTable)
-  });
-  return response.status === 204;
-};
-
-// Full cycle
-const table = await getRawTable();
-const modified = modifyTable(table);
-const success = await updateRawTable(modified);
+```http
+GET /rest/projects/{projectId}/tables/{tableId}/editors?startRow=0&maxRows=100
 ```
 
-**Key Points:**
-- Raw table can be read, modified, and written back without loss of structure
-- Covered cells are preserved in the matrix but skipped during writes
-- Merge information is maintained through colspan/rowspan fields
-- Cell values are validated, and context-parsed arrays are converted to their canonical workbook representation
-
-### Comparing Parsed vs Raw Formats
-
-**Parsed Format (default):**
-```bash
-GET /projects/MyProject/tables/DATA_Bank
-# Returns: DataView {id, name, kind, headers[], rows[]}
-```
-
-**Raw Format:**
-```bash
-GET /projects/MyProject/tables/DATA_Bank?raw=true
-# Returns: RawTableView {id, tableType, kind, source[][]}
-```
-
-### REST API Operations Summary
-
-Raw Tables API supports three main operations via REST endpoints:
-
-| Operation | HTTP Method | Endpoint | Request Body | Response |
-|-----------|------------|----------|--------------|----------|
-| **Read** | GET | `/projects/{projectId}/tables/{tableId}?raw=true` | N/A | RawTableView (200) |
-| **Update** | PUT | `/projects/{projectId}/tables/{tableId}` | RawTableView | 204 No Content |
-| **Append** | POST | `/projects/{projectId}/tables/{tableId}/append` | RawTableAppend | 204 No Content |
-
-**Example: Complete CRUD cycle with fetch API:**
-
-```javascript
-const API_BASE = 'http://localhost:8080/projects/MyProject/tables';
-
-// Create (actually update with full structure)
-const create = async (tableId, rawTable) => {
-  const response = await fetch(`${API_BASE}/${tableId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(rawTable)
-  });
-  return response.status === 204;
-};
-
-// Read
-const read = async (tableId) => {
-  const response = await fetch(`${API_BASE}/${tableId}?raw=true`);
-  return response.json();
-};
-
-// Update (same as create)
-const update = async (tableId, rawTable) => {
-  return create(tableId, rawTable);
-};
-
-// Append
-const append = async (tableId, newRows) => {
-  const response = await fetch(`${API_BASE}/${tableId}/append`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      tableType: 'RawSource',
-      rows: newRows
-    })
-  });
-  return response.status === 204;
-};
-
-// Usage example
-const table = await read('DATA_Bank');
-// Modify table...
-await update('DATA_Bank', table);
-await append('DATA_Bank', [[{value: 'NewRow'}]]);
-```
-
-### Matrix Navigation
-
-```javascript
-// Access cell at row 2, column 3
-const cell = rawTableView.source[2][3];
-
-// Check if cell is covered by another cell's span
-if (cell.covered) {
-  // Cell is masked by another cell's span
-  // Skip this cell - the actual value is in the origin cell
-  continue;
-}
-
-// Check if cell is an origin cell with spanning
-if (cell.colspan > 1 || cell.rowspan > 1) {
-  // Cell is origin of merged region
-  // cell.value contains the actual value for this merged region
-  // When processing row-by-row:
-  //   - Skip next (colspan - 1) columns in current and following rows
-  //   - Process continues after the spanned region
-}
-
-// Process cell normally (single cell with no spanning)
-if (!cell.covered) {
-  // Cell is a normal single cell or origin of merge
-  // cell.value contains the value
-  const value = cell.value;
-}
-
-// Example: Iterating and skipping covered cells
-for (let row = 0; row < matrix.length; row++) {
-  for (let col = 0; col < matrix[row].length; col++) {
-    const cell = matrix[row][col];
-    if (cell.covered) {
-      // Skip covered cells
-      continue;
-    }
-    // Process origin cell or single cell
-    console.log(`Cell at (${row},${col}): ${cell.value}`);
-  }
+```json
+{
+  "kind": "raw",
+  "editors": [
+    {"editor": "numeric", "min": -2147483648, "max": 2147483647, "intOnly": true},
+    {"editor": "combo", "choices": ["AL", "AZ"], "displayValues": ["Alabama", "Arizona"]}
+  ],
+  "cells": [
+    {"row": 5, "column": 0, "editor": 0},
+    {"row": 5, "column": 2, "editor": 1}
+  ]
 }
 ```
 
-## API Differences from Parsed APIs
+- **Window** — `startRow` and `maxRows` are the same window as the raw read, so the same row and column point at a
+  cell in both.
+- **Editors** — the ways of entering a value are listed once and pointed at by index, because a whole column usually
+  asks for the same one. A cell that is not listed is written as plain text.
+- **`kind`** — `raw` lists the cells one by one. `declared` also has `areas`: the parts of the table whose every cell
+  asks for an editor, with the `row`, `column`, `rows`, and `columns` of the part. A part with `null` for `rows` or
+  `columns` runs to the edge of the table and past it, so the cells of a rule added at the end are written the way their
+  column declares.
+- **Fields** — `combo` and `multiselect` carry `choices` and `displayValues`, `numeric` the `min` and `max` of the type,
+  `array` and `range` the `entryEditor`, and `multiselect` and `array` the `separator`.
 
-| Aspect | Parsed (DataView/TestView) | Raw (RawTableView) |
-|--------|---------------------------|-------------------|
-| **Base Class** | AbstractDataView | TableView (EditableTableView) |
-| **Table Type** | "Data" / "Test" | "RawSource" |
-| **Structure** | Headers + Rows collections | 2D Matrix (source) |
-| **Headers** | Parsed list as field | Part of source matrix (row 0+) |
-| **Data Access** | Type-safe field objects | Raw cell values (Object type) |
-| **Type Info** | Field types extracted | Not included |
-| **Validation** | Validated against schema | Structure only: a header OpenL knows, no blank line inside |
-| **Cell Spanning** | Not exposed | Explicit colspan/rowspan |
-| **Covered Cells** | N/A | Marked with covered=true flag |
-| **Use Case** | Type-safe data access | Export/Import/Raw access |
+The lock makes the tables of the project read-only for everybody else, and their writes answer `409`:
 
-## Testing Scenarios
-
-### Test 1: Simple Table
-```bash
-curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Simple?raw=true"
-# Expected: Matrix with simple cells, no merges
+```json
+{
+  "code": "openl.error.409.project.locked.by.message",
+  "message": "The project is locked by user 'admin'."
+}
 ```
 
-### Test 2: Table with Merged Cells
-```bash
-curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Complex?raw=true"
-# Expected: Matrix with merge metadata in RawTableCell
+Editing ends with the other side of the same address:
+
+```http
+DELETE /rest/projects/{projectId}/tables/{tableId}/editors
 ```
 
-### Test 3: Format Validation
-```bash
-# Verify field types
-curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Bank?raw=false"
-# Returns: DataView with typed fields
+It releases the lock, but only where the project has nothing of its own left to protect: a table saved into the
+workspace and not yet committed keeps the lock. A lock that another user holds is left alone, so the request is safe to
+repeat and safe to send where editing never began. Saving or closing the project releases the lock too.
 
-curl -X GET "http://localhost:8080/projects/MyProject/tables/DATA_Bank?raw=true"
-# Returns: RawTableView with runtime JSON cell values instead of typed table fields
-```
-
-## Limitations
-
-1. **Cell Formatting** - Cell styling, colors, fonts, borders not included (future enhancement).
-2. **Formula Preservation** - Formulas are evaluated to values (OpenL behavior, not source formulas).
-3. **Cell Comments** - Cell comments/notes not included (future enhancement).
-
-## Current Capabilities
-
-- ✅ Read tables in raw 2D matrix format
-- ✅ Write/update tables in raw format
-- ✅ Preserve cell merging (colspan/rowspan)
-- ✅ Works with any table type
-- ✅ Full matrix control without mapping the table to a typed header/body DTO
-
-## Future Enhancements
-
-- [ ] Add cell formatting/styling information (colors, fonts, borders)
-- [ ] Support for cell comments/annotations
-- [ ] Preserve source formulas (not just evaluated values)
-- [ ] Batch export/import multiple tables in raw format
-- [ ] Custom cell data type handling
-- [ ] Merge information in write validation
-
-## OpenAPI Schema Documentation
-
-All table model classes have been updated with comprehensive OpenAPI schema annotations to provide detailed field documentation in Swagger UI and API documentation:
-
-### Base Classes with OpenAPI Annotations:
-- **TableView** - Base class for all table views with fields: `id`, `tableType`, `kind`, `name`, `properties`
-- **ExecutableView** - Base class for executable tables with fields: `returnType`, `args`
-
-### EditableTableView Implementations with OpenAPI Annotations:
-- **DatatypeView** - Datatype table with fields: `extendz`, `fields`
-- **VocabularyView** - Vocabulary table with fields: `type`, `values`
-- **SpreadsheetView** - Spreadsheet table with fields: `rows`, `columns`, `cells`
-- **SimpleSpreadsheetView** - Simple spreadsheet table with fields: `steps`
-- **SimpleRulesView** - Simple rules table with fields: `headers`, `rules`
-- **SmartRulesView** - Smart rules table with fields: `headers`, `rules`
-- **LookupView** - Lookup table with fields: `headers`, `rows`
-- **DataView** - Data table with fields: `dataType`
-- **TestView** - Test table with fields: `testedTableName`
-- **RawTableView** - Raw table with fields: `source`
-
-### AppendTableView Implementations with OpenAPI Annotations:
-- **DatatypeAppend** - Append to datatype table with field: `fields`
-- **VocabularyAppend** - Append to vocabulary table with field: `values`
-- **SimpleSpreadsheetAppend** - Append to simple spreadsheet with field: `steps`
-- **SimpleRulesAppend** - Append to simple rules table with field: `rules`
-- **SmartRulesAppend** - Append to smart rules table with field: `rules`
-- **LookupAppend** - Append to lookup table with fields: `tableType`, `rows`
-- **DataAppend** - Append to data table with field: `rows`
-- **TestAppend** - Append to test table with field: `rows`
-- **RawTableAppend** - Append to raw table with field: `rows`
-
-All fields now include descriptive OpenAPI `@Schema` annotations that appear in:
-- Swagger UI at `/swagger-ui/`
-- OpenAPI specification at `/v3/api-docs`
-- Generated API documentation
-
-## See Also
-
-- [DATA_TABLES_API.md](DATA_TABLES_API.md) - Parsed Data Tables API
-- [TEST_TABLES_API.md](TEST_TABLES_API.md) - Parsed Test Tables API
-- [DOCS_INDEX.md](DOCS_INDEX.md) - Complete documentation index
+A client that writes tables without an editor needs none of this, because every write endpoint locks the project by
+itself. See [The Project Editing Lock](../architecture/project-editing-lock.md).

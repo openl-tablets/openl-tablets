@@ -1,138 +1,73 @@
 # Data Tables API
 
-## Overview
+The API reads a Data table as column headers and rows, replaces them, and appends rows. The `tableType` of the table is
+`Data`.
 
-Complete implementation of Data Tables API for OpenL Studio with support for complex table structures (field names, foreign keys, display names) and comprehensive REST API endpoints.
+All table types share the same endpoints and the same rules for the project and the table id; see
+[Table Endpoints](README.md#table-endpoints).
 
-**Supported Operations:**
-- ✅ **GET** - Retrieve complete Data table with all columns and rows
-- ✅ **PUT** - Update entire Data table (replace columns and rows)
-- ✅ **POST** - Append new rows to existing Data table
-
----
-
-## Quick Start
-
-### Example Request (GET)
-
-```bash
-GET /projects/MyProject/tables/DATA_Bank
-Authorization: Bearer {token}
-```
-
-### Example Response
-
-```json
-{
-  "id": "DATA_Bank",
-  "tableType": "Data",
-  "dataType": "Bank",
-  "name": "bankData",
-  "headers": [
-    {"fieldName": "bankID", "foreignKey": null, "displayName": "bank ID"},
-    {"fieldName": "bankRatings", "foreignKey": "bankRatingList", "displayName": "Bank Ratings"}
-  ],
-  "rows": [
-    {"values": ["commerz", "MA2, FA+, SPA"]},
-    {"values": ["deutsche", "FB+, FA+"]}
-  ]
-}
-```
-
----
-
-## Table Structure
-
-### Excel Format (Visual)
-
-**Without Foreign Keys:**
-```
-Row 0: Data QualityIndicators qualityData
-Row 1: _PK_              reportDate    lossesInThisYear
-Row 2: key               Report Date   Losses in This Year
-Row 3: 2010              01/01/2010    no
-Row 4: 2011              01/01/2011    yes
-```
-
-**With Foreign Keys:**
-```
-Row 0: Data Bank bankData
-Row 1: bankID             bankRatings         currentFinancialData
-Row 2:                    >bankRatingList     >bankFinancialData
-Row 3: bank ID            Bank Ratings        Current Financial Data
-Row 4: commerz            MA2, FA+, SPA       2010
-```
-
-### Table Body Structure
-
-The ITable<?> tableBody (from OpenL API) contains:
-
-| Row | No FK | With FK | Purpose |
-|-----|-------|---------|---------|
-| 0 | Field names | Field names | Column identifiers in database |
-| 1 | Display names | Foreign keys (with `>` prefix) | References to other tables |
-| 2 | Data starts | Display names | Human-readable column headers |
-| 3+ | Data rows | Data rows | Table data |
-
-### Key Concepts
-
-- **fieldName** - Database column identifier (row 0)
-- **foreignKey** - Reference to another Data table (row 1, with `>` prefix, null if not present)
-- **displayName** - Human-readable column name shown to users
-
-OpenL reads the display-name row as the column titles whether or not the table titles its columns, so the row is
-always written. A table that supplies no display name at all is therefore refused with `400` and
-`openl.error.400.table.column-title.required.message`: writing it would leave that row blank, which ends the table
-there and leaves every data row below it out of it. A title is a business label, so the server asks for one rather
-than inventing it.
-
-A single column left untitled among titled ones is accepted, because the row still carries the other titles and so
-is not blank. That is also what reading such a table reports, so whatever a `GET` returns can be written back
-unchanged.
-
----
-
-## API Endpoints
-
-### GET - Retrieve Data Table
+## Reading a Table
 
 ```http
-GET /projects/{projectId}/tables/{tableId}
-Authorization: Bearer {token}
+GET /rest/projects/{projectId}/tables/{tableId}
 ```
 
-**Response** (200 OK):
+**Response** (`200 OK`):
+
 ```json
 {
-  "id": "DATA_QualityIndicators",
+  "id": "572eb024e1c3f2b1b94d76740067e605",
   "tableType": "Data",
-  "dataType": "QualityIndicators",
-  "name": "qualityData",
   "kind": "Data",
+  "name": "CoverageFormData",
+  "dataType": "CoverageForm",
   "headers": [
-    {"fieldName": "_PK_", "foreignKey": null, "displayName": "key"},
-    {"fieldName": "reportDate", "foreignKey": null, "displayName": "Report Date"}
+    {"fieldName": "_PK_", "displayName": "_PK_"},
+    {"fieldName": "coverageType", "displayName": "coverageType"},
+    {"fieldName": "limit", "displayName": "limit"}
   ],
   "rows": [
-    {"values": [2010, "01/01/2010"]},
-    {"values": [2011, "01/01/2011"]}
+    {"values": [1, "Basic", 100]},
+    {"values": [2, "Basic", 250]}
   ]
 }
 ```
 
-### PUT - Update Data Table
+The response leaves out the empty values: a column without a foreign key has no `foreignKey`.
+
+## Layout of the Table
+
+A Data table in the workbook, with and without foreign keys:
+
+```
+Data Bank bankData                                Data QualityIndicators qualityData
+bankID           bankRatings      currentData     _PK_   reportDate   lossesInThisYear
+                 >bankRatingList  >bankData       key    Report Date  Losses in This Year
+bank ID          Bank Ratings     Current Data    2010   ...          no
+commerz          MA2, FA+, SPA    2010
+```
+
+- **Header** — `Data <dataType> <name>`. `dataType` is the second word of the header.
+- **First row** — the field names (`fieldName`).
+- **Foreign keys** — a second row, which exists only when a cell of the row starts with `>`. The text after the `>` is
+  the `foreignKey` of the column.
+- **Display names** — the row under the field names, or under the foreign keys (`displayName`).
+- **Data rows** — all the following rows.
+
+## Writing a Table
+
+### Replace the Headers and the Rows
 
 ```http
-PUT /projects/{projectId}/tables/{tableId}
-Authorization: Bearer {token}
+PUT /rest/projects/{projectId}/tables/{tableId}
 Content-Type: application/json
 
 {
   "tableType": "Data",
-  "dataType": "Bank",
   "name": "bankData",
+  "dataType": "Bank",
   "headers": [
-    {"fieldName": "bankID", "foreignKey": null, "displayName": "bank ID"},
+    {"fieldName": "bankID", "displayName": "bank ID"},
     {"fieldName": "bankRatings", "foreignKey": "bankRatingList", "displayName": "Bank Ratings"}
   ],
   "rows": [
@@ -142,363 +77,70 @@ Content-Type: application/json
 }
 ```
 
-**Response** (204 No Content)
+The table in the workbook takes the given columns and rows. The columns and the rows that the request leaves out are
+removed.
 
-### POST - Append Rows
+### Append Rows
 
 ```http
-POST /projects/{projectId}/tables/{tableId}/lines
-Authorization: Bearer {token}
+POST /rest/projects/{projectId}/tables/{tableId}/lines
 Content-Type: application/json
 
 {
   "tableType": "Data",
   "rows": [
-    {"values": ["dresdner", "FA+, FA"]},
-    {"values": ["norddeutsche", "A, A+"]}
+    {"values": ["dresdner", "FA+, FA"]}
   ]
 }
 ```
 
-**Response** (204 No Content)
+A row must not have more values than the table has columns.
 
----
+### Responses
 
-## Data Models
+- **`204 No Content`** — the table was written and keeps its id.
+- **`200 OK`** — the table had no room to grow and moved. The body is `{"id": "<new id>"}`, and the `Location` header
+  is the address of the table under the new id.
+- **`400 Bad Request`** — the request is refused:
+    - `openl.error.400.table.column.required.message` — the request has no column;
+    - `openl.error.400.table.column-title.required.message` — no column has a `displayName`;
+    - `openl.error.400.table.append.column.count.message` — an appended row is wider than the table.
+- **`409 Conflict`** — the project is locked by another user, or is not opened.
+
+A title row left blank would end the table and leave every row below it out, so a table without any `displayName` is
+refused. One untitled column among titled ones is accepted, and a `GET` reports such a table the same way, so what is
+read can be written back unchanged.
+
+## Models
 
 ### DataView
 
-Complete Data table representation including structure and data.
-
-**Fields:**
-- `id` (String) - Table identifier (inherited from TableView)
-- `tableType` (String) - Always "Data"
-- `dataType` (String) - Data type metadata (e.g., "Bank", "QualityIndicators")
-- `name` (String) - Table name
-- `kind` (String) - Table kind from properties
-- `headers` (List<DataHeaderView>) - Column definitions with field names, foreign keys, display names
-- `rows` (List<DataRowView>) - Data rows
-- `properties` (Map) - Additional table properties
-
-**Inheritance:**
-```
-TableView
-└── AbstractDataView
-    └── DataView
-```
+- `id` — the table id. The server fills it in.
+- `tableType` — `Data`.
+- `kind` — `Data`.
+- `name` — the name of the table.
+- `dataType` — the type of the records.
+- `properties` — the table properties, a map of names to values.
+- `headers` — the list of `DataHeaderView`.
+- `rows` — the list of `DataRowView`.
+- `messages`, `runState`, `partial` — read-only; see [Table Endpoints](README.md#table-endpoints).
 
 ### DataHeaderView
 
-Represents a single column header with field definition and metadata.
-
-**Fields:**
-- `fieldName` (String) - Database field name (from table row 0)
-- `foreignKey` (String, nullable) - Reference to another Data table (from row 1, null if not present)
-- `displayName` (String) - Human-readable column name (from row 2 or 3 depending on FK presence)
-
-**JSON Example:**
-```json
-{
-  "fieldName": "bankRatings",
-  "foreignKey": "bankRatingList",
-  "displayName": "Bank Ratings"
-}
-```
+- `fieldName` — the field of the data type the column fills.
+- `foreignKey` — the Data table the column refers to. Absent for an ordinary column.
+- `displayName` — the title of the column.
 
 ### DataRowView
 
-Represents a single data row.
-
-**Fields:**
-- `values` (Collection<Object>) - Column values for this row
-
-**JSON Example:**
-```json
-{
-  "values": ["commerz", "MA2, FA+, SPA", "2010"]
-}
-```
+- `values` — the values of the row in the order of the columns.
 
 ### DataAppend
 
-Request model for appending rows to Data tables.
+- `tableType` — `Data`.
+- `rows` — the list of `DataRowView` to append.
 
-**Fields:**
-- `tableType` (String) - Must be "Data"
-- `rows` (Collection<DataRowView>) - Rows to append
+## Cell Values
 
-**JSON Example:**
-```json
-{
-  "tableType": "Data",
-  "rows": [
-    {"values": ["dresdner", "FA+, FA"]},
-    {"values": ["norddeutsche", "A, A+"]}
-  ]
-}
-```
-
----
-
-## Testing Scenarios
-
-### Scenario 1: Table with Foreign Keys
-
-**Excel Input:**
-```
-Data Bank bankData
-bankID    bankRatings     currentFinancialData
-          >bankRatingList >bankFinancialData
-bank ID   Bank Ratings    Current Financial Data
-commerz   MA2, FA+, SPA   2010
-```
-
-**Expected JSON Response:**
-```json
-{
-  "dataType": "Bank",
-  "name": "bankData",
-  "headers": [
-    {"fieldName": "bankID", "foreignKey": null, "displayName": "bank ID"},
-    {"fieldName": "bankRatings", "foreignKey": "bankRatingList", "displayName": "Bank Ratings"},
-    {"fieldName": "currentFinancialData", "foreignKey": "bankFinancialData", "displayName": "Current Financial Data"}
-  ],
-  "rows": [
-    {"values": ["commerz", "MA2, FA+, SPA", "2010"]}
-  ]
-}
-```
-
-### Scenario 2: Table without Foreign Keys
-
-**Excel Input:**
-```
-Data QualityIndicators qualityData
-_PK_        reportDate      lossesInThisYear
-key         Report Date     Losses in This Year
-2010        01/01/2010      no
-2011        01/01/2011      yes
-```
-
-**Expected JSON Response:**
-```json
-{
-  "dataType": "QualityIndicators",
-  "name": "qualityData",
-  "headers": [
-    {"fieldName": "_PK_", "foreignKey": null, "displayName": "key"},
-    {"fieldName": "reportDate", "foreignKey": null, "displayName": "Report Date"},
-    {"fieldName": "lossesInThisYear", "foreignKey": null, "displayName": "Losses in This Year"}
-  ],
-  "rows": [
-    {"values": [2010, "01/01/2010", "no"]},
-    {"values": [2011, "01/01/2011", "yes"]}
-  ]
-}
-```
-
----
-
-## Implementation Details
-
-### Components
-
-**Models** (3 files):
-- `DataView.java` - Complete Data table representation
-- `DataAppend.java` - Request model for appending rows
-- `DataRowView.java` - Individual row representation
-
-**Operations** (2 files):
-- `DataTableReader.java` - Reads Data tables from OpenL
-- `DataTableWriter.java` - Updates/appends Data tables
-
-**Service Integration** (3 files):
-- `WorkspaceProjectService.java` - Service integration
-- `OpenLTableUtils.java` - Utility methods (isDataTable())
-- `EditableTableView.java` + `AppendTableView.java` - Model registration
-
-### DataTableReader
-
-**Location:** `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/service/tables/read/DataTableReader.java`
-
-**Key Responsibilities:**
-- Parse header to extract dataType (second token from "Data <dataType> <name>")
-- Detect header structure (with or without foreign keys)
-- Extract field names from row 0
-- Extract foreign keys from row 1 (cells starting with `>`)
-- Extract display names from row 2 (no FK) or row 3 (with FK)
-- Extract data rows starting from determined row
-
-**Logic:**
-1. Check row 1 for foreign keys (cells starting with `>`)
-2. If FK present: data starts at row 3, display names at row 2
-3. If no FK: data starts at row 2, display names at row 1
-
-### DataTableWriter
-
-**Location:** `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/service/tables/write/DataTableWriter.java`
-
-**Key Responsibilities:**
-- Write table header with dataType: "Data <dataType> <name>"
-- Write field names and foreign keys to full table body
-- Write display names and data to business body
-- Support appending rows to existing tables
-
-**Architecture:**
-- Separate updates to full table body (field names, FK)
-- Separate updates to business body (display names, data)
-- Prevents data corruption and ensures proper structure
-
-**Methods:**
-- `updateHeader()` - Writes table header with dataType
-- `updateTableHeaders()` - Writes field names and FK to full body
-- `updateBusinessBody()` - Writes display names and data rows
-- `append()` - Appends new rows to data table
-
----
-
-## Design Patterns
-
-### DataAppend Design
-
-**Simple POJO pattern** (not builder):
-- Allows Jackson to properly handle `@JsonTypeInfo` discriminator
-- Uses standard getters/setters for deserialization
-- Method `getTableType()` returns "Data"
-
-### Header Detection
-
-**Intelligent structure detection:**
-- Checks row 1 (index 0 in tableBody) for cells starting with `>`
-- Automatically determines if foreign keys are present
-- Handles both simple and complex structures seamlessly
-
-### Separation of Concerns
-
-- Reader converts OpenL → DataView
-- Writer converts DataView → OpenL
-- Service orchestrates reader/writer calls
-- Models define structure independently
-
----
-
-## Backward Compatibility
-
-✅ **Fully backward compatible:**
-- Existing tables without dataType work fine (null value)
-- JSON fields are optional
-- All previous APIs continue to work
-- No breaking changes to public interfaces
-
----
-
-## Error Handling
-
-### Status Codes
-
-| Status | Meaning |
-|--------|---------|
-| 200 | GET successful |
-| 204 | PUT/POST successful |
-| 400 | Invalid request format/data |
-| 401 | Missing/invalid authentication |
-| 403 | Insufficient permissions |
-| 404 | Table/project not found |
-| 409 | Project locked by another user |
-
-### Common Issues
-
-**Invalid Header Format:**
-- If header cannot be parsed (e.g., "Data tableName")
-- dataType will be extracted as whatever is the second token
-- Reader/writer handle gracefully without errors
-
-**Missing Display Names:**
-- If display names row is missing when FK exists
-- displayName field will be null
-- API returns valid response with null values
-- On write, a table that supplies no display name at all is refused, because the title row would reach the sheet
-  blank and end the table there
-
-**Empty Fields:**
-- Empty or null cells are handled gracefully
-- Converted to null in JSON
-- Trimmed in reader/writer
-
----
-
-## Performance
-
-- **GET**: O(n) where n = rows + columns
-- **PUT**: O(n) - replaces entire table
-- **POST**: O(k) where k = rows being appended
-- Large tables (10k+ rows): Consider pagination (future enhancement)
-- Batch appends: More efficient than individual requests
-
----
-
-## Security
-
-✅ Permission checks (WRITE required for mutations)
-✅ Project locking enforcement
-✅ ACL integration
-✅ User authentication required
-
----
-
-## Type Support
-
-Data table cells support all standard types:
-- String
-- Number (Integer, Double, BigDecimal)
-- Date (ISO 8601 format)
-- Boolean
-- Null/empty values
-
----
-
-## Files Modified
-
-| File | Changes | Status |
-|------|---------|--------|
-| DataView.java | Added dataType field | ✅ |
-| DataTableReader.java | Added extractDataType() and header structure detection | ✅ |
-| DataTableWriter.java | Refactored architecture for full/business body | ✅ |
-| DataAppend.java | Converted to POJO pattern | ✅ |
-| WorkspaceProjectService.java | Service integration | ✅ |
-| OpenLTableUtils.java | Added isDataTable() method | ✅ |
-| EditableTableView.java | Registered DataView | ✅ |
-| AppendTableView.java | Registered DataAppend | ✅ |
-
----
-
-## Compilation Status
-
-✅ **All code compiles successfully**
-
-```bash
-mvn clean compile -DskipTests -q
-```
-
-No errors, only standard Java warnings.
-
----
-
-## Summary
-
-✅ **Complete Implementation:** Full support for complex Data table structures
-✅ **Data Type Support:** Proper metadata handling for table types
-✅ **Architecture:** Clean separation of concerns (full body vs business body)
-✅ **JSON Compatibility:** Proper serialization/deserialization
-✅ **Backward Compatible:** Works with existing tables
-✅ **Production Ready:** Fully tested and documented
-✅ **Extensible:** Pattern can be used for new table types
-✅ **OpenAPI Support:** Auto-generated documentation with @Schema annotations
-
----
-
-## Related Documentation
-
-- [RAW_TABLES_API.md](RAW_TABLES_API.md) - Raw table format API
-- [TEST_TABLES_API.md](TEST_TABLES_API.md) - Test tables API
-- [DOCS_INDEX.md](DOCS_INDEX.md) - Complete documentation index
+A cell is returned as the value the workbook holds: a number, a boolean, or a string. A date is returned as
+`YYYY-MM-DD`, and a date with a time as `YYYY-MM-DDThh:mm:ss`. An empty cell is `null`.
