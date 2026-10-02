@@ -80,10 +80,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         throw new UnsupportedOperationException("Should not be called, this is only used in NicePrinter");
     }
 
-    public Object getRow(int row, IRuntimeEnv env) {
-        return null;
-    }
-
     @Override
     public IOpenClass getType() {
         return spreadsheet.getSpreadsheetType();
