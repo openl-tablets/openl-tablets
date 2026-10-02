@@ -1,29 +1,32 @@
-// Thin, failure-tolerant wrappers around localStorage. A browser that refuses storage (private mode,
+// Thin, failure-tolerant wrappers around the Web Storage. A browser that refuses storage (private mode,
 // quota, disabled) simply does not remember — every read falls back and every write is a no-op, so
 // callers never need their own try/catch.
 
+/** Where a value is kept: `localStorage` for every tab and visit, `sessionStorage` for the tab alone. */
+type StorageArea = 'localStorage' | 'sessionStorage'
+
 /** The stored string for a key, or null when absent or storage is unavailable. */
-export const readStored = (key: string): string | null => {
+export const readStored = (key: string, area: StorageArea = 'localStorage'): string | null => {
     try {
-        return localStorage.getItem(key)
+        return globalThis[area].getItem(key)
     } catch {
         return null
     }
 }
 
 /** Stores a string; does nothing when storage is unavailable. */
-export const writeStored = (key: string, value: string): void => {
+export const writeStored = (key: string, value: string, area: StorageArea = 'localStorage'): void => {
     try {
-        localStorage.setItem(key, value)
+        globalThis[area].setItem(key, value)
     } catch {
         // A browser that refuses storage simply does not remember the value.
     }
 }
 
 /** Removes a key; does nothing when storage is unavailable. */
-export const removeStored = (key: string): void => {
+export const removeStored = (key: string, area: StorageArea = 'localStorage'): void => {
     try {
-        localStorage.removeItem(key)
+        globalThis[area].removeItem(key)
     } catch {
         // Nothing to remember, nothing to remove.
     }

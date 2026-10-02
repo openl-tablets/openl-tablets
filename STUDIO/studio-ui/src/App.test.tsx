@@ -4,16 +4,18 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
+interface Profile {
+    username: string
+    firstName: string
+    lastName: string
+    displayName: string
+    email: string
+}
+
 const appState = vi.hoisted(() => ({
     showLogin: false,
     isLoggedIn: true,
-    userProfile: {
-        username: 'jane',
-        firstName: '',
-        lastName: '',
-        displayName: '',
-        email: '',
-    },
+    userProfile: undefined as Profile | undefined,
     fetchUserInfo: vi.fn(),
     initializeWebSocket: vi.fn(),
     cleanupWebSocket: vi.fn(),
@@ -109,5 +111,98 @@ describe('App profile completion', () => {
         render(<App />)
 
         expect(screen.queryByTestId('profile-completion-modal')).not.toBeInTheDocument()
+    })
+})
+
+describe('App sign-in', () => {
+    const reload = vi.fn()
+    const replace = vi.fn()
+
+    /** Opens the application at a path, as the address bar shows it. */
+    const openAt = (path: string) => {
+        const url = new URL(path, 'http://localhost:3100')
+        vi.stubGlobal('location', { href: url.href, pathname: url.pathname, reload, replace })
+    }
+
+    beforeEach(() => {
+        sessionStorage.clear()
+        appState.showLogin = true
+        appState.isLoggedIn = false
+        appState.userProfile = undefined
+    })
+
+    it('reloads a signed-out page, so that the server answers it with its sign-in', () => {
+        openAt('/webstudio/projects')
+
+        render(<App />)
+
+        expect(reload).toHaveBeenCalledTimes(1)
+        expect(replace).not.toHaveBeenCalled()
+        expect(screen.queryByTestId('router')).not.toBeInTheDocument()
+    })
+
+    it('opens the login page when the reload brings the page back signed out', () => {
+        openAt('/webstudio/projects')
+        render(<App />).unmount()
+
+        render(<App />)
+
+        expect(reload).toHaveBeenCalledTimes(1)
+        expect(replace).toHaveBeenCalledExactlyOnceWith('/webstudio/login')
+        expect(sessionStorage).toHaveLength(0)
+    })
+
+    it('reloads a page once however often it is drawn before it unloads', () => {
+        openAt('/webstudio/projects')
+        const { rerender } = render(<App />)
+
+        rerender(<App />)
+
+        expect(reload).toHaveBeenCalledTimes(1)
+        expect(replace).not.toHaveBeenCalled()
+    })
+
+    it('reloads a page that another page was reloaded before', () => {
+        openAt('/webstudio/projects')
+        render(<App />).unmount()
+        openAt('/webstudio/deployments')
+
+        render(<App />)
+
+        expect(reload).toHaveBeenCalledTimes(2)
+        expect(replace).not.toHaveBeenCalled()
+    })
+
+    it('reloads through the server again a page that lost the session it signed in with', () => {
+        openAt('/webstudio/projects')
+        render(<App />).unmount()
+        appState.showLogin = false
+        appState.isLoggedIn = true
+        const { rerender } = render(<App />)
+
+        appState.showLogin = true
+        rerender(<App />)
+
+        expect(reload).toHaveBeenCalledTimes(2)
+        expect(replace).not.toHaveBeenCalled()
+    })
+
+    it('opens the login page at once from the context root', () => {
+        openAt('/webstudio/')
+
+        render(<App />)
+
+        expect(replace).toHaveBeenCalledExactlyOnceWith('/webstudio/login')
+        expect(reload).not.toHaveBeenCalled()
+    })
+
+    it('draws the login page for a signed-out user who is on it', () => {
+        openAt('/webstudio/login')
+
+        render(<App />)
+
+        expect(screen.getByTestId('router')).toBeInTheDocument()
+        expect(reload).not.toHaveBeenCalled()
+        expect(replace).not.toHaveBeenCalled()
     })
 })

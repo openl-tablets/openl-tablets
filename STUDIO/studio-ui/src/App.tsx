@@ -12,6 +12,33 @@ import { PopupsBridge } from './services/popups'
 import { AppThemeProvider } from './providers/AppThemeProvider'
 import { UserProfileCompletionModal } from './containers/users/UserProfileCompletionModal'
 import { isUserProfileComplete } from './utils/userProfile'
+import { readStored, removeStored, writeStored } from './utils/localStore'
+
+/** Where the tab remembers the page it reloaded for the sign-in. */
+const RELOADED_PAGE_KEY = 'openl.signIn.reloadedPage'
+
+/**
+ * Takes a signed-out user to the sign-in.
+ *
+ * The page is reloaded, so that the server answers its address with the sign-in it is configured for: the login
+ * form or an identity provider (SAML, OAuth2). The server brings the user back to the page afterwards.
+ *
+ * The context root opens the login page at once. So does a page that comes back from that reload still signed out,
+ * instead of reloading again: its server guards no page, as the Vite dev server does not. The login page replaces
+ * the page in the history, as a redirect of the server does.
+ *
+ * The tab remembers the reloaded page until the login page is opened for it or the user signs in.
+ */
+const goToSignIn = (loginPage: string) => {
+    const reloaded = readStored(RELOADED_PAGE_KEY, 'sessionStorage') === location.href
+    if (reloaded || location.pathname === `${CONFIG.CONTEXT}/`) {
+        removeStored(RELOADED_PAGE_KEY, 'sessionStorage')
+        location.replace(loginPage)
+    } else {
+        writeStored(RELOADED_PAGE_KEY, location.href, 'sessionStorage')
+        location.reload()
+    }
+}
 
 function App() {
     const { showLogin } = useAppStore()
@@ -19,7 +46,7 @@ function App() {
     const { initializeWebSocket, cleanupWebSocket } = useNotificationStore()
 
     const loginPage = `${CONFIG.CONTEXT}/login`
-    const isLoginPage = location.pathname === loginPage
+    const leavesForSignIn = showLogin && location.pathname !== loginPage
 
     useEffect(() => {
         // Set up global error handling
@@ -40,15 +67,18 @@ function App() {
         }
     }, [isLoggedIn, initializeWebSocket, cleanupWebSocket])
 
-    if (showLogin && !isLoginPage) {
-        if (location.pathname === `${CONFIG.CONTEXT}/`) {
-            // navigate to the login page
-            window.location.href = loginPage
-            return
+    // Not in the render: a page drawn again before it unloads would take its own reload for one that came back.
+    useEffect(() => {
+        if (leavesForSignIn) {
+            goToSignIn(loginPage)
+        } else if (isLoggedIn) {
+            // Signed in through the server: a session lost later is reloaded through it again.
+            removeStored(RELOADED_PAGE_KEY, 'sessionStorage')
         }
-        // do redirect through the server
-        location.reload()
-        return
+    }, [leavesForSignIn, isLoggedIn, loginPage])
+
+    if (leavesForSignIn) {
+        return null
     }
 
     // The surface is painted at once; the screens wait for the user profile behind it.

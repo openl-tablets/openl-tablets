@@ -63,6 +63,12 @@ The build writes two pages (`build.rollupOptions.input`):
   `/rest`, the one prefix the REST API is served on), handles JSON/text, surfaces validation errors, and updates
   `useAppStore` flags for 401/403/404/500. A call that needs a raw URL instead — a browser download, a viewer
   source — builds it from `CONFIG.API_ROOT` too, never from a literal.
+- **Sign-in**: a 401 sets `showLogin`, and `App` reloads the page. Only the server knows the sign-in it is
+  configured for — the login form or an identity provider (SAML, OAuth2) — and it brings the user back to the page
+  afterwards. The context root opens the login page at once. So does a page that comes back from the reload still
+  signed out: whatever served it guards no page, as the Vite dev server does not. The tab remembers the reloaded
+  page in `sessionStorage` until the login page is opened for it or the user signs in, so a session lost after a
+  sign-in is reloaded through the server again.
 - **WebSocket**: `services/websocket.ts` connects to `${CONTEXT}/ws`, built from `document.baseURI`. The handshake has
   an address of its own, so it is not under `CONFIG.API_ROOT`.
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
