@@ -1,5 +1,7 @@
 package org.openl.rules.project.impl.local;
 
+import static org.openl.rules.common.impl.ArtefactPathImpl.SEGMENT_DELIMITER;
+
 import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileAlreadyExistsException;
@@ -527,7 +529,7 @@ public class MetainfoRegistry {
                                         Path file,
                                         ProjectMetainfo metainfo,
                                         Set<String> unseen) throws IOException {
-        var path = "/" + projectDir.relativize(file).toString().replace('\\', '/');
+        var path = SEGMENT_DELIMITER + projectDir.relativize(file).toString().replace('\\', SEGMENT_DELIMITER);
         var baseline = metainfo.files().get(path);
         if (baseline == null) {
             return true;

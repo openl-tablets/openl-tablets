@@ -6,7 +6,7 @@ import org.openl.util.FileUtils;
  * Helpers for slash-separated, mount-relative file paths.
  *
  * <p>Centralizes the small path operations the files API repeats across services and mounts:
- * the trailing name, the parent directory and slash trimming.
+ * the trailing name, the parent directory, joining and slash trimming.
  *
  * @author Yury Molchan
  */
@@ -31,6 +31,13 @@ final class FilePaths {
         }
         var slash = path.lastIndexOf('/');
         return slash < 0 ? "" : path.substring(0, slash);
+    }
+
+    /**
+     * Appends the child path to the parent directory. An empty parent yields the child path as it is.
+     */
+    static String join(String parent, String child) {
+        return parent.isEmpty() ? child : parent + '/' + child;
     }
 
     /**

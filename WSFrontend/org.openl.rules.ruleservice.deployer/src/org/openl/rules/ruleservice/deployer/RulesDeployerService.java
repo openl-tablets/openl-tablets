@@ -58,6 +58,7 @@ public class RulesDeployerService implements Closeable {
 
 
     private static final String API_VERSION_SEPARATOR = "_V";
+    private static final String PATH_SEPARATOR = "/";
     private static final String RULES_XML = "rules.xml";
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEFAULT_DEPLOYMENT_NAME = "openl_rules_";
@@ -72,8 +73,7 @@ public class RulesDeployerService implements Closeable {
             // NOTE deployment path is not required for LocalRepository. It must be specified within URI
             this.baseDeployPath = "";
         } else {
-            this.baseDeployPath = baseDeployPath.isEmpty() || baseDeployPath.endsWith("/") ? baseDeployPath
-                    : baseDeployPath + "/";
+            this.baseDeployPath = toFolder(baseDeployPath);
         }
     }
 
@@ -98,8 +98,15 @@ public class RulesDeployerService implements Closeable {
             this.baseDeployPath = "";
         } else {
             var deployPath = properties.apply("production-repository.base.path");
-            this.baseDeployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+            this.baseDeployPath = toFolder(deployPath);
         }
+    }
+
+    /**
+     * Returns the path with a trailing separator, so it names a folder. An empty path stays empty.
+     */
+    private static String toFolder(String path) {
+        return path.isEmpty() || path.endsWith(PATH_SEPARATOR) ? path : path + PATH_SEPARATOR;
     }
 
     private static String evaluateXPath(Path path, String expression) {
@@ -191,7 +198,7 @@ public class RulesDeployerService implements Closeable {
         final var isMultiProject = isDeployment || deployRepo.listFolders(fullDeployPath).size() > 1;
 
         final var basePath = (isMultiProject ? fullDeployPath
-                : baseDeployPath + projectsPath.iterator().next()) + "/";
+                : baseDeployPath + projectsPath.iterator().next()) + PATH_SEPARATOR;
         var files = deployRepo.list(basePath);
         try (var target = new ZipOutputStream(output)) {
             for (FileData fileData : files) {

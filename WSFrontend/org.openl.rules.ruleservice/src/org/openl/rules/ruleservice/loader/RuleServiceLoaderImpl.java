@@ -53,6 +53,7 @@ import org.openl.util.ZipUtils;
 @Slf4j
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
     private static final Pattern NOT_ALLOWED_SYMBOLS = Pattern.compile("[^[-.\\w]]");
+    private static final String PATH_SEPARATOR = "/";
 
     private final ProjectResolver projectResolver;
     private final Repository repository;
@@ -286,7 +287,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     public void setDeployPath(String deployPath) {
-        this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+        this.deployPath = deployPath.isEmpty() || deployPath.endsWith(PATH_SEPARATOR) ? deployPath
+                : deployPath + PATH_SEPARATOR;
     }
 
     private boolean isFolderStructure(String deploymentFolderPath) {

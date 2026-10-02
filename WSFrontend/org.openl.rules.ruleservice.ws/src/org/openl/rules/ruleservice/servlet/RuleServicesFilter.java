@@ -44,6 +44,7 @@ public class RuleServicesFilter implements Filter {
 
 
     private static final Pattern ALLOWED_PATH = Pattern.compile("/[a-zA-Z0-9_-]++([./][a-zA-Z0-9_-]++)*+");
+    private static final String WELCOME_PAGE = "/index.html";
 
     private Filter xForwardedFilter;
     // Mapping from the file extension to the MIME type.
@@ -127,7 +128,7 @@ public class RuleServicesFilter implements Filter {
         var method = request.getMethod();
         var path = request.getPathInfo();
         if (path == null || path.equals("/")) {
-            path = "/index.html";
+            path = WELCOME_PAGE;
         }
 
         // UTF-8

@@ -91,6 +91,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
     private static final String VALUE = "value";
     private static final String PATH_PARAMETER = "\\{[^}]*}";
+    private static final String PATH_SEPARATOR = "/";
     private static final String DESCRIPTION = "description";
     private static final String RESPONSE_CODE = "responseCode";
     private static final String SCHEMA = "schema";
@@ -493,10 +494,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         PathParam::value);
                 var pathParams = annotatePathParameters(mv, originalMethod, parameterNames, usedParamNames);
                 if (!originalMethod.isAnnotationPresent(Path.class)) {
-                    var path = "/" + originalMethod.getName() + pathParams;
+                    var path = PATH_SEPARATOR + originalMethod.getName() + pathParams;
                     var c = 1;
                     while (getUsedPaths().contains(normalizePath(path))) {
-                        path = "/" + originalMethod.getName() + c++ + pathParams;
+                        path = PATH_SEPARATOR + originalMethod.getName() + c++ + pathParams;
                     }
                     getUsedPaths().add(normalizePath(path));
                     path = addPathAnnotation(mv, originalMethod, path);
@@ -581,10 +582,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 String path = null;
                 var c = 0;
                 if (!originalMethod.isAnnotationPresent(Path.class)) {
-                    path = "/" + originalMethod.getName();
+                    path = PATH_SEPARATOR + originalMethod.getName();
                     while (getUsedPaths().contains(normalizePath(path))) {
                         c++;
-                        path = "/" + originalMethod.getName() + c;
+                        path = PATH_SEPARATOR + originalMethod.getName() + c;
                     }
                     getUsedPaths().add(normalizePath(path));
                 }

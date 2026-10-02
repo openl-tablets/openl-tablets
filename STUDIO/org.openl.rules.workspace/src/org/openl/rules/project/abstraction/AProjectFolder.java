@@ -209,7 +209,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         String fromProjectVersion = null;
 
         var fromRepository = from.getRepository();
-        var fromFilePath = from.getFolderPath() + "/";
+        var fromFilePath = from.getFolderPath() + ArtefactPathImpl.SEGMENT_DELIMITER;
         List<FileData> fromList;
         if (fromRepository.supports().versions()) {
             if (from.isHistoric()) {
@@ -229,7 +229,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         }
 
         var toRepository = getRepository();
-        var toFilePath = getFolderPath() + "/";
+        var toFilePath = getFolderPath() + ArtefactPathImpl.SEGMENT_DELIMITER;
         List<FileData> toList = isHistoric() ? toRepository.listFiles(toFilePath, getHistoryVersion())
                 : toRepository.list(toFilePath);
 

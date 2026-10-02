@@ -23,6 +23,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
 
     /** The template folder itself, where the walk over its files starts. */
     private static final String ROOT_FOLDER = "";
+    private static final String PATH_SEPARATOR = "/";
 
     private final Path templatesPath;
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(
@@ -82,7 +83,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
             var resources = resourcePatternResolver.getResources(locationPattern);
             for (Resource resource : resources) {
                 var filename = resource.getFilename();
-                String relativePath = folder.isEmpty() ? filename : (folder + "/" + filename);
+                String relativePath = folder.isEmpty() ? filename : (folder + PATH_SEPARATOR + filename);
                 if (resource.getFile().isDirectory()) {
                     templateFiles.addAll(getProjectFilesRecursively(baseUrl, relativePath));
                 } else {

@@ -114,7 +114,7 @@ class FileArchiveSupport {
                     throw new BadRequestException("file.archive.too-many-entries.message");
                 }
                 String entryName = FilePaths.stripLeadingSlashes(entryName(entry).replace('\\', '/'));
-                String fullPath = path.isEmpty() ? entryName : path + "/" + entryName;
+                String fullPath = FilePaths.join(path, entryName);
 
                 var data = readEntry(content, entry);
                 if (data.length > MAX_ARCHIVE_ENTRY_BYTES) {
@@ -189,7 +189,7 @@ class FileArchiveSupport {
             if (!aclProjectsHelper.hasPermission(artefact, BasePermission.READ)) {
                 continue;
             }
-            String entryName = prefix.isEmpty() ? artefact.getName() : prefix + "/" + artefact.getName();
+            String entryName = FilePaths.join(prefix, artefact.getName());
             if (artefact.isFolder()) {
                 zipFolder((AProjectFolder) artefact, entryName, zos);
             } else {

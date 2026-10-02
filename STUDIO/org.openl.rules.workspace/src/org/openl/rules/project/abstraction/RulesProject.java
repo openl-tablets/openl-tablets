@@ -478,7 +478,7 @@ public class RulesProject extends UserWorkspaceProject {
         if (!designRepository.supports().folders() || !designRepository.supports().uniqueFileId()) {
             return Map.of();
         }
-        var fromFilePath = designFolderName + "/";
+        var fromFilePath = designFolderName + ArtefactPathImpl.SEGMENT_DELIMITER;
         var historyVersion = getHistoryVersion();
         List<FileData> designFiles = historyVersion != null
                 ? designRepository.listFiles(fromFilePath, historyVersion)

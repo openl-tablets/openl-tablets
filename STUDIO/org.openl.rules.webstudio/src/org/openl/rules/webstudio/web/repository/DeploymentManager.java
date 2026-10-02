@@ -41,6 +41,7 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class DeploymentManager implements InitializingBean {
     private static final String API_VERSION_SEPARATOR = "_V";
+    private static final String PATH_SEPARATOR = "/";
 
     @Setter
     private String[] initialProductionRepositoryConfigNames;
@@ -77,7 +78,7 @@ public class DeploymentManager implements InitializingBean {
             var deploymentsPath = repositoryFactoryProxy.getBasePath(request.productionRepositoryId());
 
             var deploymentName = deploymentsPath + id.getName();
-            var deploymentPath = deploymentName + "/";
+            var deploymentPath = deploymentName + PATH_SEPARATOR;
 
             var rulesPath = designRepository.getRulesLocation();
             if (deployRepo.supports().folders()) {
