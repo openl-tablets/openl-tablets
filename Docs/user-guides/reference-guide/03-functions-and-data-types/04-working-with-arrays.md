@@ -78,7 +78,7 @@ The SPLIT BY operator returns a two-dimensional array containing arrays of eleme
 
 #### TRANSFORM TO Operators
 
-This operator turns source array elements into another transformed array in a quick way. Assume that a collection of claims is available and **claim ID** and **loss date** information for each claim in the form of array of strings needs to be returned. Use the TRANSFORM TO operator, such as `claims[transform to id + " - " + dateToString(lossDate, "dd.MM.YY")]`.
+This operator turns source array elements into another transformed array in a quick way. Assume that a collection of claims is available and **claim ID** and **loss date** information for each claim in the form of array of strings needs to be returned. Use the TRANSFORM TO operator, such as `claims[transform to id + " - " + toString(lossDate, "dd.MM.yy")]`.
 
 The following table describes methods of transforming:
 

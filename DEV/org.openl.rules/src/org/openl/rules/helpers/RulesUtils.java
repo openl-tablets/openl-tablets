@@ -10,9 +10,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,8 +45,6 @@ public final class RulesUtils {
 
     private RulesUtils() {
     }
-
-    public static final String DEFAULT_DOUBLE_FORMAT = "#,##0.00";
 
     public static final double E = Math.E;
     public static final double PI = Math.PI;
@@ -1248,88 +1243,6 @@ public final class RulesUtils {
         throw new OpenLUserRuntimeException(object);
     }
 
-    /**
-     * method dateToString(Date date) should be used
-     *
-     * @param date
-     * @return formated date value
-     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date)} instead.
-     */
-    @Deprecated(since = "5.10.0")
-    public static String format(Date date) {
-        return dateToString(date);
-    }
-
-    /**
-     * method dateToString (Date date, String format) should be used
-     *
-     * @param date
-     * @param format
-     * @return String formated date value
-     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date, String)} instead.
-     */
-    @Deprecated(since = "5.10.0")
-    public static String format(Date date, String format) {
-        return dateToString(date, format);
-    }
-
-    /**
-     * converts a date to the String according dateFormat
-     *
-     * @param date
-     * @param dateFormat
-     * @return String formated date value
-     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date, String)} instead.
-     */
-    @Deprecated(since = "5.19.8")
-    public static String dateToString(Date date, String dateFormat) {
-        var stringDate = "Incorrect date format";
-        try {
-            stringDate = DateTool.dateToString(date, dateFormat);
-        } catch (Exception e) {
-            throw new OpenLRuntimeException("%s '%s'".formatted(stringDate, dateFormat));
-        }
-        return stringDate;
-    }
-
-    /**
-     * converts a date to the String according dateFormat
-     *
-     * @param date date to format
-     * @return String formated date value
-     * @see DateTool#dateToString;
-     * @deprecated Use {@link org.openl.rules.util.Dates#toString(Date)} instead.
-     */
-    @Deprecated(since = "5.19.8")
-    public static String dateToString(Date date) {
-        var stringDate = "Incorrect date format";
-        try {
-            stringDate = DateTool.dateToString(date);
-        } catch (Exception e) {
-            throw new OpenLRuntimeException(stringDate);
-        }
-        return stringDate;
-    }
-
-    /**
-     * @deprecated Use {@link org.openl.rules.util.Dates#toDate(String)} instead.
-     */
-    @Deprecated(since = "5.19.8")
-    public static Date stringToDate(String value) throws ParseException {
-        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
-
-        return df.parse(value);
-    }
-
-    public static String format(double d) {
-        return format(d, DEFAULT_DOUBLE_FORMAT);
-    }
-
-    public static String format(double d, String fmt) {
-        var df = new DecimalFormat(fmt);
-        return df.format(d);
-    }
-
     public static String[] intersection(String[] ary1, String[] ary2) {
         return ArrayTool.intersection(ary1, ary2);
     }
@@ -1372,32 +1285,6 @@ public final class RulesUtils {
 
     public static void out(boolean output) {
         System.out.println(output);
-    }
-
-    /**
-     * Parse the represented string value to the double. Uses default Locale for it.
-     * <p/>
-     * Shouldn`t be used.
-     *
-     * @deprecated It will be removed without replacement.
-     */
-    @Deprecated(since = "5.8.1")
-    public static double parseFormattedDouble(String s) throws ParseException {
-        return parseFormattedDouble(s, DEFAULT_DOUBLE_FORMAT);
-    }
-
-    /**
-     * Parse the represented string value to the double. Uses default Locale for it. See
-     * {@link DecimalFormat#DecimalFormat(String)}
-     * <p/>
-     * Shouldn`t be used.
-     *
-     * @deprecated It will be removed without replacement.
-     */
-    @Deprecated(since = "5.8.1")
-    public static double parseFormattedDouble(String s, String fmt) throws ParseException {
-        var df = new DecimalFormat(fmt);
-        return df.parse(s).doubleValue();
     }
 
     public static Integer absMonth(Date d) {
@@ -2542,101 +2429,6 @@ public final class RulesUtils {
      */
     public static float ulp(float f) {
         return Math.ulp(f);
-    }
-
-    /**
-     * <p>
-     * Inserts the specified element at the specified position in the array. Shifts the element currently at that
-     * position (if any) and any subsequent elements to the right (adds one to their indices).
-     * </p>
-     * <p/>
-     * <p>
-     * This method returns a new array with the same elements of the input array plus the given element on the specified
-     * position. The component type of the returned array is always the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0, null)      = [null]
-     * ArrayUtils.add(null, 0, "a")       = ["a"]
-     * ArrayUtils.add(["a"], 1, null)     = ["a", null]
-     * ArrayUtils.add(["a"], 1, "b")      = ["a", "b"]
-     * ArrayUtils.add(["a", "b"], 3, "c") = ["a", "b", "c"]
-     * </pre>
-     *
-     * @param array   the array to add the element to, may be <code>null</code>
-     * @param index   the position of the new object
-     * @param element the object to add
-     * @return A new array containing the existing elements and the new element
-     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
-     * @deprecated It will be removed without replacement.
-     */
-    @Deprecated(since = "5.26.1")
-    public static <T> T[] addIgnoreNull(T[] array, int index, T element) {
-        if (element != null) {
-            return ArrayUtils.add(array, index, element);
-        }
-        return array;
-    }
-
-    /**
-     * <p>
-     * Inserts the specified element at the specified position in the array. Shifts the element currently at that
-     * position (if any) and any subsequent elements to the right (adds one to their indices).
-     * </p>
-     * <p/>
-     * <p>
-     * This method returns a new array with the same elements of the input array plus the given element on the specified
-     * position. The component type of the returned array is always the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0, null)      = [null]
-     * ArrayUtils.add(null, 0, "a")       = ["a"]
-     * ArrayUtils.add(["a"], 1, null)     = ["a", null]
-     * ArrayUtils.add(["a"], 1, "b")      = ["a", "b"]
-     * ArrayUtils.add(["a", "b"], 3, "c") = ["a", "b", "c"]
-     * </pre>
-     *
-     * @param array   the array to add the element to, may be <code>null</code>
-     * @param element the object to add
-     * @return A new array containing the existing elements and the new element
-     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
-     * @deprecated It will be removed without replacement.
-     */
-    @Deprecated(since = "5.26.1")
-    public static <T> T[] addIgnoreNull(T[] array, T element) {
-        if (element != null) {
-            return ArrayUtils.add(array, element);
-        }
-        return array;
-    }
-
-    /**
-     * @deprecated Use {@link #addIgnoreNull(Object[], int, Object)} instead.
-     */
-    @Deprecated(since = "5.10.0")
-    public static Object[] addArrayElementIgnoreNull(Object[] array, int index, Object element) {
-        return addIgnoreNull(array, index, element);
-    }
-
-    /**
-     * @deprecated Use {@link #addIgnoreNull(Object[], Object)} instead.
-     */
-    @Deprecated(since = "5.10.0")
-    public static Object[] addArrayElementIgnoreNull(Object[] array, Object element) {
-        return addIgnoreNull(array, element);
     }
 
     /**

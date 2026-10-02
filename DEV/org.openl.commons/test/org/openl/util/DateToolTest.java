@@ -281,32 +281,6 @@ class DateToolTest {
         }
     }
 
-    @Test
-    void test_dateToString_shouldReturnNull_whenDateIsNull() {
-        String actual = DateTool.dateToString(null, "dd/MM/yyyy");
-        assertNull(actual);
-    }
-
-    @Test
-    void test_dateToString_shouldFormatUsingCustomDatePattern() {
-        var date = createCalendar(11, 12, 2013).getTime();
-        String actual = DateTool.dateToString(date, "dd MMM yyyy");
-        assertEquals("11 Dec 2013", actual);
-    }
-
-    @Test
-    void dateToString_shouldReturnNull_whenDateIsNull() {
-        String actual = DateTool.dateToString(null);
-        assertNull(actual);
-    }
-
-    @Test
-    void test_dateToString_shouldFormatUsingShortDatePattern() {
-        var date = createCalendar(11, 12, 2013).getTime();
-        String actual = DateTool.dateToString(date);
-        assertEquals("12/11/13", actual);
-    }
-
     @CsvSource({"2015-05-14,2015",
             "2015-12-31,2015",
             "1789-05-14,1789",

@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -254,10 +253,6 @@ class RulesUtilsTest {
 
         void testError(String string);
 
-        Object formatDouble(double d);
-
-        Object formatDoubleWithFrm(double d, String string);
-
         Object[] testIntersectionStringArr(String[] searchIn, String[] searchFor);
 
         Object testAbsMonth(Date dateNow);
@@ -427,14 +422,6 @@ class RulesUtilsTest {
         Byte[] testByteAdd(Byte[] inputArray, int i, Byte j);
 
         Byte[] testByteAdd(Byte[] inputArray, Byte i);
-
-        Object[] testObjectTypeAddIgnoreNulls(Object[] inputArray, Object objectValue);
-
-        Object[] testObjectTypeAddIgnoreNulls(Object[] inputArray, int i, Object objectValue);
-
-        Object[] testObjectAddIgnoreNulls(Object[] inputArray, Object objectValue);
-
-        Object[] testObjectAddIgnoreNulls(Object[] inputArray, int i, Object objectValue);
 
         byte[] testByteTypeAddAll(byte[] inputArray1, byte[] inputArray2);
 
@@ -2058,16 +2045,6 @@ class RulesUtilsTest {
     }
 
     @Test
-    void testDoubleFormat() {
-        assertEquals("5.50", instance.formatDouble(5.5));
-    }
-
-    @Test
-    void testDoubleFormatWithFrm() {
-        assertEquals("5.5000", instance.formatDoubleWithFrm(5.5, "#,####0.0000"));
-    }
-
-    @Test
     void testStringArrIntersection() {
         String[] searchIn = {"abc", "def", "ghi", "jkl"};
         String[] searchFor = {"def", "jkl"};
@@ -2905,54 +2882,6 @@ class RulesUtilsTest {
         assertEquals(1, (short) outputArray[2]);
         outputArray = instance.testShortAdd(null, 0, (short) 4);
         assertEquals(4, (short) outputArray[0]);
-    }
-
-    @Test
-    void testAddIgnoreNullsInPosition() {
-        Object[] inputArray = {0, 2, 3};
-        Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 2, 1);
-        assertEquals(1, outputArray[2]);
-        inputArray = new Object[]{0, 2, 3};
-        outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 2, null);
-        assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectTypeAddIgnoreNulls(null, 0, 4);
-        assertEquals(4, outputArray[0]);
-    }
-
-    @Test
-    void testAddIgnoreNullsObject() {
-        Object[] inputArray = {0, 1, 2};
-        Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 4);
-        assertEquals(4, outputArray[3]);
-        inputArray = new Object[]{0, 1, 2};
-        outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, null);
-        assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectTypeAddIgnoreNulls(null, 4);
-        assertEquals(4, outputArray[0]);
-    }
-
-    @Test
-    void testObjectAddIgnoreNullsInPosition() {
-        Object[] inputArray = {0, 2, 3};
-        Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, 2, 1);
-        assertEquals(1, outputArray[2]);
-        inputArray = new Object[]{0, 2, 3};
-        outputArray = instance.testObjectAddIgnoreNulls(inputArray, 2, null);
-        assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectAddIgnoreNulls(null, 0, 4);
-        assertEquals(4, outputArray[0]);
-    }
-
-    @Test
-    void testObjectAddIgnoreNullsObject() {
-        Object[] inputArray = {0, 1, 2};
-        Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, 4);
-        assertEquals(4, outputArray[3]);
-        inputArray = new Object[]{0, 1, 2};
-        outputArray = instance.testObjectAddIgnoreNulls(inputArray, null);
-        assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectAddIgnoreNulls(null, 4);
-        assertEquals(4, outputArray[0]);
     }
 
     @Test
@@ -4001,39 +3930,6 @@ class RulesUtilsTest {
         assertEquals("", instance.testReplace("", "value", "text"));
     }
 
-    @SuppressWarnings("deprecation")
-    @Test
-    void testDateFormat() {
-        int year = 2013;
-        int month = 1;
-        int date = 25;
-        int hour = 15;
-        int min = 3;
-        Calendar c = Calendar.getInstance();
-
-        c.set(year, month, date, hour, min);
-
-        assertEquals("2/25/13", RulesUtils.format(c.getTime()));
-        assertEquals("2/25/13", RulesUtils.dateToString(c.getTime()));
-
-        assertEquals("25/13", RulesUtils.format(c.getTime(), "dd/yy"));
-        assertEquals("25/13", RulesUtils.dateToString(c.getTime(), "dd/yy"));
-
-        assertEquals("25/13 15:03", RulesUtils.format(c.getTime(), "dd/yy HH:mm"));
-        assertEquals("25/13 15:03", RulesUtils.dateToString(c.getTime(), "dd/yy HH:mm"));
-
-    }
-
-    @SuppressWarnings("deprecation")
-    @Test
-    void testStringToDate_shouldThrowException() throws ParseException {
-        Calendar c = Calendar.getInstance();
-
-        c.set(2015, 1, 1, 0, 0, 0);
-        c.set(Calendar.MILLISECOND, 0);
-        assertEquals(c.getTime(), RulesUtils.stringToDate("2/1/2015"));
-    }
-
     @Test
     void flattenTest() {
         Object[] res = instance.testFlatten1(1, 2, 3, 4);
@@ -4202,13 +4098,6 @@ class RulesUtilsTest {
                         BigInteger.valueOf(7)}));
         assertNull(instance.testMedianBigInteger(null));
         assertNull(instance.testMedianBigInteger(new BigInteger[]{}));
-    }
-
-    @SuppressWarnings("deprecated")
-    @Test
-    void testParseFormattedDouble() throws ParseException {
-        assertEquals(1.1f, RulesUtils.parseFormattedDouble("1.1"), 0.00001);
-        assertEquals(1441.33f, RulesUtils.parseFormattedDouble("1,441.33", "#,##0.00"), 0.01);
     }
 
     @Test
