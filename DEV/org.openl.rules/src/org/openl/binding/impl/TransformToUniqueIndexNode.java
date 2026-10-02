@@ -36,6 +36,9 @@ class TransformToUniqueIndexNode extends ABoundNode {
         var result = new LinkedHashSet<Object>();
         while (elementsIterator.hasNext()) {
             var element = elementsIterator.next();
+            if (element == null) {
+                continue;
+            }
             element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
             var transformed = transformer.evaluate(env);

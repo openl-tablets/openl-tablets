@@ -206,6 +206,15 @@ everyone who calls that API from outside the browser.
   - `round(x, n)` rounds a large whole `Double` exactly. Before, it could change in its last digit:
     `round(1.0E15, 1)` was `1.0000000000000001E15`.
 
+* **`transform to` skips an empty element of an array, as the other array index operators do.** It does not evaluate
+  the expression for an element that is `null` and gives no value for it, so
+  `new Integer[] {3, null, 1}[(x) transform to x]` is `{3, 1}`, and a position in the result, as in
+  `[transform to name][1]`, can belong to another element. `transform unique to` skips it too. Before, both evaluated
+  the expression for the empty element: the result was `{3, null, 1}`, `(x) transform to isEmpty(x) ? -1 : x` gave
+  `-1` for it, and `transform to length()`, which calls a method of the element without naming it, stopped with a
+  `NullPointerException`. To keep a value for every element, use `array.field`, such as `drivers.name`, or call a
+  rule with the array: the rule runs for every element, an empty one too.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 

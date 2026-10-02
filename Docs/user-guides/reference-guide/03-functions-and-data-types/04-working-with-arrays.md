@@ -35,6 +35,7 @@ This section provides detailed description of index operators along with example
 -   [ORDER BY Operators](#order-by-operators)
 -   [SPLIT BY Operator](#split-by-operator)
 -   [TRANSFORM TO Operators](#transform-to-operators)
+-   [Empty Elements in Array Index Operators](#empty-elements-in-array-index-operators)
 -   [Array Index Operators and Arrays of the SpreadsheetResult Type](#array-index-operators-and-arrays-of-the-spreadsheetresult-type)
 -   [Advanced Usage of Array Index Operators](#advanced-usage-of-array-index-operators)
 
@@ -89,9 +90,27 @@ The following table describes methods of transforming:
 
 The example above produces collection of vehicles, and in this collection, each vehicle is listed only once, without identical vehicles.
 
-The operator returns array of the `<expression> `type. The order of the elements is preserved.
+The operator returns array of the `<expression> `type. The order of the elements is preserved. An empty element of the array gives no value, so the result can be shorter than the array.
 
 Any field, method of the collection element, or any OpenL Tablets function can be used in `<condition>` / `<expression>,` for example: `claims[order by lossDate], `where `lossDate `is a field of the **Claim** array element;`arrayOfCarModels[@ contains("Toyota")],`where `contains` is a method of String element of the `arrayOfCarModels` array.
+
+#### Empty Elements in Array Index Operators
+
+Every array index operator skips the empty elements of an array, which are `null`. The condition or expression is not evaluated for an empty element, and the element is not in the result. For example, for `values = new Integer[] {3, null, 1}`:
+
+| Expression                                | Result       |
+|-------------------------------------------|--------------|
+| `values[(x) select all having x == null]` | `{}`         |
+| `values[(x) order by x]`                  | `{1, 3}`     |
+| `values[(x) split by x]`                  | `{{3}, {1}}` |
+| `values[(x) transform to x]`              | `{3, 1}`     |
+
+An empty field does not make its element empty. `drivers[select all having age == null]` returns the drivers whose age is empty, ORDER BY puts such drivers last in both directions, and SPLIT BY gathers them into one group. TRANSFORM TO keeps an empty result of the expression, while TRANSFORM UNIQUE TO drops it.
+
+To get a value for every element, an empty one included, use one of the following:
+
+-   `array.field`, such as `drivers.name`, returns the field of every element. An empty element gives an empty value, or 0 and false for a field of a primitive type.
+-   A rule called with the array runs for every element, and the rule can check its argument with `isEmpty`. For more information, see [Rules Applied to Array](#rules-applied-to-array).
 
 #### Array Index Operators and Arrays of the SpreadsheetResult Type
 
