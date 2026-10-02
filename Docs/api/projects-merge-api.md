@@ -1,9 +1,10 @@
 # Projects Merge API Documentation
 
-**Version**: 6.0.0-SNAPSHOT
-**Status**: BETA
-**Base Path**: `/projects/{projectId}/merge`
-**Last Updated**: 2026-01-07
+**Status**: BETA — the endpoints form the **Projects: Merge (BETA)** group of the OpenAPI spec (`/rest/openapi.json`)
+**Base Path**: `/rest/projects/{projectId}/merge`
+
+`{projectId}` is the project id the API hands out, or the project name. A name that matches several projects answers
+`409 Conflict` (`project.identifier.ambiguous.message`) and lists the candidates.
 
 ---
 
@@ -17,34 +18,38 @@
 6. [Error Handling](#error-handling)
 7. [Examples](#examples)
 8. [Best Practices](#best-practices)
+9. [Technical Implementation Notes](#technical-implementation-notes)
+10. [Related APIs](#related-apis)
 
 ---
 
 ## Overview
 
-The Projects Merge API provides a comprehensive REST interface for managing Git branch merge operations in OpenL Tablets projects. This API enables developers to check merge feasibility, perform merges, handle conflicts, and resolve conflicts through automated strategies or custom file uploads.
+The Projects Merge API provides a REST interface for merging the Git branches of an OpenL Studio project. It reports
+whether there is anything to merge and whether the user may merge, performs the merge, lists the conflicts the merge
+finds, lets a client download or compare the conflicting versions, and resolves the conflicts with a chosen version
+or an uploaded file.
 
 ### Key Features
 
-- **Pre-merge Validation**: Check if branches can be merged without conflicts
-- **Bidirectional Merging**: Support for both receiving changes from other branches and sending changes to other branches
+- **Pre-merge Check**: Reports whether the target branch already holds every change of the source branch, and
+  whether the current user may perform the merge
+- **Bidirectional Merging**: Support for both receiving changes from other branches and sending changes to other
+  branches
+- **Workbook Auto-resolution**: A conflicted Excel file whose sheets were each changed in one branch only is merged
+  sheet by sheet without a decision from the user
 - **Conflict Detection**: Automatic detection of merge conflicts with detailed file-level information
 - **Conflict Resolution**: Multiple strategies for resolving conflicts (BASE, OURS, THEIRS, CUSTOM)
+- **Conflict Comparison**: The two versions of a conflicted workbook are compared through the Compare API
+- **Protected Branches**: A merge into a protected branch takes an explicit bypass confirmation (`force=true`)
 - **Session Management**: Maintains conflict state across multiple API calls
-- **Excel File Prioritization**: Automatically prioritizes Excel files in conflict lists (business logic importance)
-- **Project State Management**: Handles project lifecycle (open/close/refresh) during merge operations
-
-### Use Cases
-
-1. **Automated Merging**: Integrate branch merging into CI/CD pipelines
-2. **Conflict Management**: Programmatically detect and resolve merge conflicts
-3. **Multi-branch Development**: Coordinate changes across multiple development branches
-4. **Release Management**: Merge feature branches into main/release branches
-5. **Code Review Integration**: Check merge status before approving pull requests
+- **Excel File Prioritization**: Excel files come first in conflict lists
+- **Project State Management**: An opened project is reopened after the merge; a closed project is merged without
+  being opened
 
 ### Architecture Overview
 
-``` mermaid
+```mermaid
 flowchart TB
     %% REST Controller Layer
     subgraph REST["REST Controller Layer"]
@@ -53,20 +58,25 @@ flowchart TB
 
     %% Service Layer
     subgraph SERVICE["Service Layer"]
-        S1[ProjectsMergeService<br/>- Check merge status<br/>- Perform merge<br/>- Handle conflicts]
-        S2[ProjectsMergeConflictsService<br/>- Analyze conflicts<br/>- Group conflicts<br/>- Resolve conflicts]
+        S1[ProjectsMergeService<br/>- Check merge status<br/>- Refuse a merge that is not allowed<br/>- Perform merge]
+        S2[ProjectsMergeConflictsService<br/>- Describe conflicts<br/>- Group conflicts<br/>- Resolve conflicts]
+        S3[ComparisonLauncher<br/>- Compare a conflicted workbook]
     end
 
     %% Repository / Git Layer
     subgraph GIT["Repository / Git Layer"]
-        G[Git Operations<br/>- merge / checkout / commit<br/>- Conflict detection<br/>- File version management]
+        G[GitRepository<br/>- merge / commit / push<br/>- Conflict detection<br/>- File versions]
+        X[XlsWorkbookMerger<br/>- Sheet-level workbook merge]
     end
 
     %% Connections
     C --> S1
     C --> S2
+    C --> S3
     S1 --> G
     S2 --> G
+    S2 --> X
+    G --> X
 ```
 
 ---
@@ -82,7 +92,9 @@ flowchart TB
 - Expose REST endpoints for merge operations
 - Validate incoming requests
 - Manage conflict session lifecycle
-- Handle project state during merge operations
+- Pause the compilation of an opened project for the length of a merge or a resolution, and reopen the project
+  afterwards
+- Hand the two versions of a conflicted workbook to the Compare API
 - Coordinate with service layer
 
 **Dependencies**:
@@ -90,63 +102,72 @@ flowchart TB
 - `ProjectsMergeConflictsService`: Conflict analysis and resolution
 - `WorkspaceProjectService`: Project lifecycle management
 - `ProjectsMergeConflictsSessionHolder`: Session-based conflict storage
+- `ProjectIdentifierMapper`: The project id a stored conflict is kept under
+- `ComparisonLauncher`: Starts the comparison of a conflicted workbook
 
 #### 2. **ProjectsMergeService**
+**Location**: `org.openl.studio.projects.service.merge.ProjectsMergeServiceImpl`
+
 **Responsibilities**:
-- Check merge feasibility
+- Check where the branches stand and what prevents the user from merging them
+- Refuse a merge that must not be performed
 - Execute merge operations
 - Detect merge conflicts
-- Coordinate Git operations
 
 #### 3. **ProjectsMergeConflictsService**
+**Location**: `org.openl.studio.projects.service.merge.ProjectsMergeConflictsServiceImpl`
+
 **Responsibilities**:
-- Analyze merge conflicts
+- Describe merge conflicts: revisions, file availability, default merge message
 - Group conflicts by project
 - Retrieve conflict file versions
-- Apply resolution strategies
+- Apply resolution strategies and merge the workbooks that resolve automatically
 - Generate conflict resolution results
 
 #### 4. **ProjectsMergeConflictsSessionHolder**
+**Location**: `org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder`
+
 **Responsibilities**:
-- Store conflict information in user session
-- Maintain state between check/merge and resolution
-- Clean up resolved conflicts
+- Store the unresolved conflict of one client: the HTTP session of a browser, or the state kept for a credential
+  (see [Client Sessions](../architecture/client-sessions.md))
+- Maintain state between merge and resolution
+- Clean up resolved and canceled conflicts
+
+The holder keeps one conflict at a time. A conflict stored for another project replaces it.
 
 ### Session Management
 
 The API uses session-based storage for conflict information:
 
 ```
-1. User calls /check or /merge → Conflicts detected
-2. Controller stores MergeConflictInfo in session → SessionHolder
-3. User calls /conflicts → Retrieves conflicts from session
+1. User calls POST /merge, or saves the project (PATCH /rest/projects/{projectId}) → Conflicts detected
+2. Conflict stored as MergeConflictInfo → SessionHolder
+3. User calls /conflicts, /conflicts/files or /conflicts/compare → Reads the stored conflict
 4. User calls /conflicts/resolve → Applies resolutions
-5. On success → Clears session data
+5. On success, or on DELETE /conflicts → Clears session data
 ```
 
-**Session Key**: Resolved project ID (combination of repository ID and project name)
+**Session Key**: The project id (`ProjectIdModel`, the repository id and the project name)
 
 ### State Machine
 
-``` mermaid
+```mermaid
 stateDiagram-v2
-    [*] --> Initial
+    [*] --> NoConflict
 
-    Initial --> ConflictsStored: POST /check\n(conflicts detected)
-    Initial --> ConflictsStored: POST /merge\n(conflicts detected)
+    NoConflict --> ConflictStored: POST /merge finds conflicts
+    NoConflict --> ConflictStored: project save finds conflicts
 
-    ConflictsStored --> ConflictsStored: GET /conflicts
-    ConflictsStored --> ConflictsStored: GET /conflicts/files
-    ConflictsStored --> ConflictsStored: POST /conflicts/compare
+    ConflictStored --> ConflictStored: GET /conflicts
+    ConflictStored --> ConflictStored: GET /conflicts/files
+    ConflictStored --> ConflictStored: POST /conflicts/compare
+    ConflictStored --> ConflictStored: POST /conflicts/resolve fails
 
-    ConflictsStored --> Resolving: POST /conflicts/resolve
-
-    Resolving --> ConflictsStored: Resolution fails
-    Resolving --> Cleared: Resolution success
-    Resolving --> Cleared: DELETE /conflicts (cancel)
-
-    Cleared --> [*]
+    ConflictStored --> NoConflict: POST /conflicts/resolve succeeds
+    ConflictStored --> NoConflict: DELETE /conflicts
 ```
+
+While a conflict of the project is stored, `POST /merge/check` and `POST /merge` answer `409 Conflict`.
 
 ---
 
@@ -154,9 +175,10 @@ stateDiagram-v2
 
 ### 1. Check Merge Status
 
-**Endpoint**: `POST /projects/{projectId}/merge/check`
+**Endpoint**: `POST /rest/projects/{projectId}/merge/check`
 
-**Description**: Checks if two branches can be merged without conflicts. Does not modify any data.
+**Description**: Reports where two branches stand and whether the current user may merge them. Does not modify any
+data and does not look for conflicts: only the merge itself finds them.
 
 **HTTP Method**: POST
 
@@ -174,32 +196,49 @@ stateDiagram-v2
 **Response**: `200 OK`
 ```json
 {
-  "sourceBranch": "feature-branch",
+  "sourceBranch": "feature-pricing",
   "targetBranch": "main",
-  "status": "mergeable|up-to-date"
+  "status": "mergeable",
+  "canMerge": false,
+  "blockedBy": "bypass-required"
 }
 ```
 
 **Possible Statuses**:
-- `mergeable`: Branches can be merged without conflicts
+- `mergeable`: The target branch does not hold every change of the source branch yet
 - `up-to-date`: Target branch is already up-to-date
 
+**What Blocks the Merge** (`blockedBy`, absent when `canMerge` is `true`):
+- `bypass-required`: The target branch is protected; the user may merge with `force=true`
+- `protected-branch`: The target branch is protected and the user cannot bypass the protection
+- `locked`: The project is locked on the target branch by another user
+
+The status is reported whatever `blockedBy` says.
+
 **Errors**:
-- `409 Conflict`: Project has unresolved merge conflicts from a previous operation
-- `404 Not Found`: Project or branch not found
+- `409 Conflict`: Project has unresolved merge conflicts from a previous operation, the project cannot take a merge,
+  `otherBranch` is the current branch or does not exist
+- `403 Forbidden`: The user may not write to the project
+- `404 Not Found`: Project not found
+- `400 Bad Request`: The request body is invalid
 
 ---
 
 ### 2. Perform Merge
 
-**Endpoint**: `POST /projects/{projectId}/merge`
+**Endpoint**: `POST /rest/projects/{projectId}/merge`
 
-**Description**: Executes a merge operation between two branches. If conflicts are detected, they are stored in session for later resolution.
+**Description**: Executes a merge operation between two branches. If conflicts are detected, they are stored in session
+for later resolution.
 
 **HTTP Method**: POST
 
 **Path Parameters**:
 - `projectId` (string, required): Project identifier
+
+**Query Parameters**:
+- `force` (boolean, optional, default `false`): Confirms the bypass of the target branch protection. Ignored when the
+  target branch is not protected
 
 **Request Body**:
 ```json
@@ -218,10 +257,11 @@ stateDiagram-v2
 **Success (no conflicts)**:
 ```json
 {
-  "status": "success",
-  "conflictGroups": []
+  "status": "success"
 }
 ```
+
+The API omits empty values, so a successful merge has no `conflictGroups`.
 
 **Conflicts detected**:
 ```json
@@ -230,33 +270,42 @@ stateDiagram-v2
   "conflictGroups": [
     {
       "projectName": "MyProject",
-      "projectPath": "projects/MyProject",
+      "projectPath": "MyProject",
       "files": [
-        "rules/BusinessRules.xlsx",
-        "rules/ValidationRules.xlsx",
-        "rules.xml"
+        "MyProject/rules/Main.xlsx",
+        "MyProject/rules.xml"
       ]
     }
   ]
 }
 ```
 
+A merge whose conflicted files are all workbooks that resolve automatically answers `success`. Its commit message
+lists those workbooks and their sheets under `Automatically resolved conflicts`.
+
 **Errors**:
-- `409 Conflict`: Project has unresolved merge conflicts OR branches cannot be merged
-- `404 Not Found`: Project or branch not found
+- `409 Conflict`: Every refusal of the check, plus: an eligible user merges into a protected branch without
+  `force=true`, the project is locked on the target branch, or there is nothing to merge
+- `403 Forbidden`: The user may not write to the project, or the target branch is protected and the user cannot
+  bypass the protection
+- `404 Not Found`: Project not found
 - `500 Internal Server Error`: Git operation failed
 
 **Side Effects**:
-- On success: Project is merged, workspace refreshed, project reopened if previously open
-- On conflicts: Conflict information stored in session, project state unchanged
+- On success: The merge is committed to the target branch. An opened project is closed, the workspace refreshed and
+  the project reopened on its current branch; a project the merge deleted stays closed. A closed project stays closed
+- On conflicts: Conflict information stored in session, the target branch keeps its commit from before the merge
+- A merge that is refused is refused before the compilation of the project is paused
 
 ---
 
 ### 3. Get Merge Conflicts
 
-**Endpoint**: `GET /projects/{projectId}/merge/conflicts`
+**Endpoint**: `GET /rest/projects/{projectId}/merge/conflicts`
 
-**Description**: Retrieves detailed information about merge conflicts for a project, including revision metadata for all three sides (OURS, THEIRS, BASE) and a default merge message. Requires a previous merge operation that detected conflicts.
+**Description**: Retrieves detailed information about the stored conflict, including revision metadata for all
+three sides (OURS, THEIRS, BASE) and a default merge message. Requires a previous merge or save that detected
+conflicts.
 
 **HTTP Method**: GET
 
@@ -269,66 +318,67 @@ stateDiagram-v2
   "conflictGroups": [
     {
       "projectName": "MyProject",
-      "projectPath": "projects/MyProject",
+      "projectPath": "MyProject",
       "files": [
-        "rules/BusinessRules.xlsx",
-        "rules/ValidationRules.xlsx",
-        "rules.xml"
+        "MyProject/rules/Main.xlsx"
       ]
     }
   ],
   "fileAvailability": {
-    "rules/BusinessRules.xlsx": {
+    "MyProject/rules/Main.xlsx": {
       "ours": false,
       "theirs": true,
       "base": true
     }
   },
   "oursRevision": {
+    "commit": "4f0c2d9a7b1e3c5d8f6a2b4c6d8e0f1a3b5c7d9e",
     "branch": "main",
-    "commit": "abc1234567890def",
-    "author": "John Doe",
-    "modifiedAt": "2025-12-18T10:30:00Z",
-    "exists": true
+    "exists": false
   },
   "theirsRevision": {
+    "commit": "9e7d5c3b1a0f8e6d4c2b0a9f7e5d3c1b9a8f6e4d",
     "branch": "feature-pricing",
-    "commit": "def0987654321abc",
     "author": "Jane Smith",
-    "modifiedAt": "2025-12-17T14:22:00Z",
+    "modifiedAt": "2026-09-17T14:22:00Z",
     "exists": true
   },
   "baseRevision": {
-    "branch": "main",
-    "commit": "base123456789abc",
+    "commit": "1a3c5e7b9d2f4a6c8e0b1d3f5a7c9e2b4d6f8a0c",
     "author": "John Doe",
-    "modifiedAt": "2025-12-10T09:00:00Z",
+    "modifiedAt": "2026-09-10T09:00:00Z",
     "exists": true
   },
-  "defaultMessage": "Merge branch 'feature-pricing' into main"
+  "defaultMessage": "Merge with commit 9e7d5c3b1a0f8e6d4c2b0a9f7e5d3c1b9a8f6e4d\nConflicts:\n\tMyProject/rules/Main.xlsx"
 }
 ```
 
 **Revision Information**:
 - `oursRevision`: Metadata about the current branch version
 - `theirsRevision`: Metadata about the merging branch version
-- `baseRevision`: Metadata about the common ancestor version
+- `baseRevision`: Metadata about the common ancestor version; it names no branch
 - `fileAvailability`: Whether each conflicted file exists in the current, merging, and base revisions
 - `defaultMessage`: Auto-generated merge commit message (can be overridden during resolution)
 
-**RevisionInfo Fields**:
-- `branch`: Branch name
-- `commit`: Full commit hash
+**RevisionDetails Fields**:
+- `commit`: Full commit hash, or the name of the tag that marks the commit
+- `branch`: Branch name; absent for the base revision and for every revision of a save conflict
 - `author`: Commit author name
 - `modifiedAt`: ISO 8601 timestamp of the commit
 - `exists`: Boolean indicating if the revision contains at least one conflicted file
+
+A revision that holds none of the conflicted files has no `author` and no `modifiedAt`.
 
 The `ours`, `theirs`, and `base` fields under each `fileAvailability` entry provide the per-file state. Clients must
 use these fields, rather than the revision-level `exists` field, to decide whether a particular version can be
 downloaded.
 
+**Default Message**: `Merge with commit <their commit>`, then the conflicted files under `Conflicts:`, and the
+workbooks that resolve automatically, with their changed sheets and branches, under `Automatically resolved
+conflicts:`.
+
 **File Ordering**:
-- Excel files (`.xls`, `.xlsx`) appear first (prioritized for business logic importance)
+- Excel files (`.xls`, `.xlsx`, `.xlsm`) appear first
 - Other files sorted alphabetically (case-insensitive)
 
 **Errors**:
@@ -338,7 +388,7 @@ downloaded.
 
 ### 4. Get Conflicted File
 
-**Endpoint**: `GET /projects/{projectId}/merge/conflicts/files`
+**Endpoint**: `GET /rest/projects/{projectId}/merge/conflicts/files`
 
 **Description**: Downloads a specific version of a conflicted file.
 
@@ -348,17 +398,19 @@ downloaded.
 - `projectId` (string, required): Project identifier
 
 **Query Parameters**:
-- `file` (string, required): Relative path to the conflicted file
+- `file` (string, required): Path of the conflicted file exactly as `conflictGroups[].files` lists it
 - `side` (enum, required): Version to retrieve: `BASE`, `OURS`, or `THEIRS`
 
 **Side Definitions**:
 - `BASE`: Common ancestor version (before branches diverged)
-- `OURS`: Version from the current branch
-- `THEIRS`: Version from the merging branch
+- `OURS`: Version from the current branch; in a save conflict, the version being saved
+- `THEIRS`: Version from the merging branch; in a save conflict, the version another user saved first
 
 **Response**: `200 OK`
-- Content-Type: Determined by file extension (e.g., `application/vnd.ms-excel` for .xlsx)
-- Content-Disposition: `attachment; filename="filename.ext"`
+- Content-Type: Determined by file name (e.g.,
+  `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` for `.xlsx`), `application/octet-stream` when
+  the name tells nothing
+- Content-Disposition: `attachment; filename=Main.xlsx; filename*=UTF-8''Main.xlsx`
 - Body: Binary file content
 
 If the file does not exist on the requested side of the conflict, the endpoint returns `404 Not Found`. Clients can
@@ -366,22 +418,21 @@ avoid requesting missing versions by checking `fileAvailability` in the conflict
 
 **Example**:
 ```bash
-GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side=OURS
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=OURS
 ```
 
 **Errors**:
 - `404 Not Found`: No conflict information found, file not in conflict list, or file missing in the requested revision
-- `400 Bad Request`: Invalid side parameter
+- `400 Bad Request`: Missing or invalid side parameter
 
 ---
 
 ### 5. Compare Conflicted File Versions
 
-**Endpoint**: `POST /projects/{projectId}/merge/conflicts/compare`
+**Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/compare`
 
-**Description**: Starts a comparison of the two versions of a conflicted workbook — the version being merged in
-against the version the workspace holds. The comparison itself is read through the Compare API, so this endpoint
-only starts it.
+**Description**: Starts a comparison of the two versions of a conflicted workbook — the THEIRS version against the
+OURS version. The comparison itself is read through the Compare API, so this endpoint only starts it.
 
 **HTTP Method**: POST
 
@@ -389,7 +440,7 @@ only starts it.
 - `projectId` (string, required): Project identifier
 
 **Query Parameters**:
-- `file` (string, required): Relative path to the conflicted file
+- `file` (string, required): Path of the conflicted file exactly as `conflictGroups[].files` lists it
 
 **Response**: `202 Accepted`
 ```json
@@ -398,20 +449,21 @@ only starts it.
 }
 ```
 
-The identifier names the comparison: `/topic/compare/{id}/status` reports how it is going, `GET /compare/{id}`
-reads what the two versions hold, and `DELETE /compare/{id}` releases it. A session holds one comparison at a
-time, so starting another one releases this one.
+The identifier names the comparison: `/topic/compare/{id}/status` reports how it is going (a client subscribes to
+`/user/topic/compare/{id}/status` over the `/ws` WebSocket), `GET /rest/compare/{id}` reads what the two versions
+hold, and `DELETE /rest/compare/{id}` releases it. A session holds one comparison at a time, so starting another one
+releases this one.
 
 Only Excel files are compared this way. A conflicted file of any other format is read line by line by the client
-through `GET /projects/{projectId}/merge/conflicts/files`, which is why this endpoint refuses it.
+through `GET /rest/projects/{projectId}/merge/conflicts/files`, which is why this endpoint refuses it.
 
 **Example**:
 ```bash
-POST /projects/MyProject/merge/conflicts/compare?file=rules/BusinessRules.xlsx
+POST /rest/projects/MyProject/merge/conflicts/compare?file=MyProject%2Frules%2FMain.xlsx
 ```
 
 **Errors**:
-- `400 Bad Request`: The file is not an Excel file
+- `400 Bad Request`: The file is not an Excel file; this is checked before the stored conflict is read
 - `404 Not Found`: No conflict information found, file not in conflict list, or file missing in one of the
   two versions
 
@@ -419,7 +471,7 @@ POST /projects/MyProject/merge/conflicts/compare?file=rules/BusinessRules.xlsx
 
 ### 6. Resolve Conflicts
 
-**Endpoint**: `POST /projects/{projectId}/merge/conflicts/resolve`
+**Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/resolve`
 
 **Description**: Resolves merge conflicts using specified strategies. Can upload custom files for custom resolution.
 
@@ -430,53 +482,57 @@ POST /projects/MyProject/merge/conflicts/compare?file=rules/BusinessRules.xlsx
 **Path Parameters**:
 - `projectId` (string, required): Project identifier
 
-**Request Parameters**:
-- `resolutions` (array, required): JSON array of resolution strategies (minimum 1)
+**Form Fields**:
+- `resolutions[i].filePath` (string, required): Path of the conflicted file exactly as `conflictGroups[].files`
+  lists it
+- `resolutions[i].strategy` (enum, required): `BASE`, `OURS`, `THEIRS`, or `CUSTOM`
+- `resolutions[i].file` (file, conditional): The resolved file for the `CUSTOM` strategy
 - `message` (string, optional): Commit message for the merge resolution
-- `files` (multipart files, conditional): Custom files for CUSTOM strategy
+
+`i` counts the resolutions from `0`; at least one resolution is required.
 
 **Resolution Format**:
-```json
-{
-  "resolutions": [
-    {
-      "filePath": "rules/BusinessRules.xlsx",
-      "strategy": "OURS",
-      "file": null
-    },
-    {
-      "filePath": "rules.xml",
-      "strategy": "CUSTOM",
-      "file": "<multipart-file>"
-    }
-  ],
-  "message": "Resolved merge conflicts: kept business rules from current branch"
-}
+```bash
+curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resolve \
+  -F 'resolutions[0].filePath=MyProject/rules/Main.xlsx' \
+  -F 'resolutions[0].strategy=OURS' \
+  -F 'resolutions[1].filePath=MyProject/rules.xml' \
+  -F 'resolutions[1].strategy=CUSTOM' \
+  -F 'resolutions[1].file=@rules.xml' \
+  -F 'message=Resolved merge conflicts: kept business rules from current branch'
 ```
 
 **Resolution Strategies**:
 - `BASE`: Use the common ancestor version
-- `OURS`: Use the current branch version
+- `OURS`: Use the current branch version; in a save conflict, the version in the workspace
 - `THEIRS`: Use the merging branch version
 - `CUSTOM`: Use a custom uploaded file (file parameter required)
+
+A strategy whose version does not hold the file deletes the file.
 
 **Response**: `200 OK`
 ```json
 {
   "status": "success",
   "resolvedFiles": [
-    "rules/BusinessRules.xlsx",
-    "rules.xml"
+    "MyProject/rules/Main.xlsx",
+    "MyProject/rules.xml"
   ]
 }
 ```
+
+`resolvedFiles` lists the files of the request. The workbooks that resolve automatically are merged and committed
+with them, and are not listed.
 
 **Errors**:
 - `404 Not Found`: No conflict information found in session
 - `400 Bad Request`:
   - CUSTOM strategy without file upload
-  - Empty resolutions array
-  - Invalid file path
+  - Empty resolutions array, or a resolution without a file path or a strategy
+  - Two resolutions for the same file
+  - A file that is not in the conflict list
+  - An uploaded Excel or ZIP file that is damaged or incomplete
+  - A malformed multipart body
 - `413 Payload Too Large`: OpenL Studio receives the multipart request and detects that it exceeds an application or
   embedded Jetty limit. A proxy or container can return a deployment-specific response when it rejects the request
   before Spring receives it
@@ -485,7 +541,9 @@ POST /projects/MyProject/merge/conflicts/compare?file=rules/BusinessRules.xlsx
 **Side Effects**:
 - On success:
   - Conflict session data cleared
-  - Merge completed and committed
+  - Merge completed and committed; for a save conflict, the project is saved
+  - A resolved workbook whose module `rules.xml` of either side declares, while the `rules.xml` of the branch does not,
+    gets its module declared again in a second commit with the same message
   - Workspace refreshed
   - Project reopened if previously open
 - On failure:
@@ -496,7 +554,7 @@ POST /projects/MyProject/merge/conflicts/compare?file=rules/BusinessRules.xlsx
 
 ### 7. Cancel Merge Conflicts
 
-**Endpoint**: `DELETE /projects/{projectId}/merge/conflicts`
+**Endpoint**: `DELETE /rest/projects/{projectId}/merge/conflicts`
 
 **Description**: Cancels an ongoing merge conflict resolution session without applying changes.
 
@@ -519,157 +577,119 @@ POST /projects/MyProject/merge/conflicts/compare?file=rules/BusinessRules.xlsx
 
 ## Data Models
 
+The models are Java records of `org.openl.studio.projects.model.merge`, except `ResolveConflictsRequest`, which is
+bound from the form fields of `org.openl.studio.projects.rest.model`.
+
 ### MergeRequest
 
-```typescript
-interface MergeRequest {
-  mode: 'receive' | 'send';      // Merge direction
-  otherBranch: string;           // Target/source branch name
-}
-```
-
-**Validation**:
-- `mode`: Required, must be 'receive' or 'send'
-- `otherBranch`: Required, non-blank string
+| Field         | Type                    | Description                                         |
+|---------------|-------------------------|-----------------------------------------------------|
+| `mode`        | `receive` \| `send`     | Merge direction; required                           |
+| `otherBranch` | string                  | Target or source branch name; required, non-blank   |
 
 ---
 
 ### CheckMergeResult
 
-```typescript
-interface CheckMergeResult {
-  sourceBranch: string;          // Source branch in the merge
-  targetBranch: string;          // Target branch in the merge
-  status: CheckMergeStatus;      // Merge feasibility status
-}
-```
-
-**CheckMergeStatus Values**:
-- `mergeable`: Branches can be merged without conflicts
-- `up-to-date`: Target is already up-to-date with source
+| Field          | Type                                                  | Description                                  |
+|----------------|-------------------------------------------------------|----------------------------------------------|
+| `sourceBranch` | string                                                | Source branch in the merge                   |
+| `targetBranch` | string                                                | Target branch in the merge                   |
+| `status`       | `mergeable` \| `up-to-date`                           | Where the branches stand                     |
+| `canMerge`     | boolean                                               | Whether the current user may perform it      |
+| `blockedBy`    | `bypass-required` \| `protected-branch` \| `locked`   | What prevents the merge; absent if nothing   |
 
 ---
 
 ### MergeResultResponse
 
-```typescript
-interface MergeResultResponse {
-  status: MergeResultStatus;     // Merge operation result
-  conflictGroups: ConflictGroup[]; // Conflicts if any
-}
-```
-
-**MergeResultStatus Values**:
-- `success`: Merge completed without conflicts
-- `conflicts`: Merge detected conflicts requiring resolution
+| Field            | Type                        | Description                                     |
+|------------------|-----------------------------|-------------------------------------------------|
+| `status`         | `success` \| `conflicts`    | Merge operation result                          |
+| `conflictGroups` | ConflictGroup[]             | Conflicts if any; absent after a success        |
 
 ---
 
 ### ConflictDetailsResponse
 
-```typescript
-interface ConflictDetailsResponse {
-  conflictGroups: ConflictGroup[];  // Array of conflict groups
-  oursRevision?: RevisionInfo;       // Metadata for current branch version
-  theirsRevision?: RevisionInfo;     // Metadata for merging branch version
-  baseRevision?: RevisionInfo;       // Metadata for common ancestor version
-  defaultMessage?: string;           // Auto-generated merge commit message
-}
-```
+| Field              | Type                                     | Description                                      |
+|--------------------|------------------------------------------|--------------------------------------------------|
+| `conflictGroups`   | ConflictGroup[]                          | Array of conflict groups                         |
+| `fileAvailability` | map of file path → ConflictFileAvailability | `ours`, `theirs`, `base`: booleans per file   |
+| `oursRevision`     | RevisionDetails                          | Metadata for current branch version              |
+| `theirsRevision`   | RevisionDetails                          | Metadata for merging branch version              |
+| `baseRevision`     | RevisionDetails                          | Metadata for common ancestor version             |
+| `defaultMessage`   | string                                   | Auto-generated merge commit message              |
 
 **Notes**:
-- Revision info fields may be `null` if metadata cannot be determined
-- `defaultMessage` is auto-generated based on branch names and merge direction
+- `defaultMessage` names the conflicting commit and lists the conflicted files
 - Client can override `defaultMessage` when calling resolve endpoint
 
 ---
 
-### RevisionInfo
+### RevisionDetails
 
-```typescript
-interface RevisionInfo {
-  branch: string;             // Branch name
-  commit: string;             // Full commit hash
-  author?: string;            // Commit author name (may be null)
-  modifiedAt?: string;        // ISO 8601 timestamp (may be null)
-  exists: boolean;            // Whether file exists in this revision
-}
-```
+| Field        | Type    | Description                                                      |
+|--------------|---------|------------------------------------------------------------------|
+| `commit`     | string  | Full commit hash, or the tag that marks the commit               |
+| `branch`     | string  | Branch name; absent for the base revision and in a save conflict |
+| `author`     | string  | Commit author name; absent when `exists` is `false`              |
+| `modifiedAt` | string  | ISO 8601 timestamp; absent when `exists` is `false`              |
+| `exists`     | boolean | Whether the revision holds at least one conflicted file          |
 
 **Use Cases**:
 - Display revision metadata in conflict resolution UI
 - Show who made changes and when
-- Detect added/deleted files (when `exists` is false)
 
 ---
 
 ### ConflictGroup
 
-```typescript
-interface ConflictGroup {
-  projectName: string;           // Project name
-  projectPath: string;           // Repository path to project
-  files: string[];               // Array of conflicted file paths
-}
-```
+| Field         | Type     | Description                                        |
+|---------------|----------|----------------------------------------------------|
+| `projectName` | string   | Project name                                       |
+| `projectPath` | string   | Repository path to project                         |
+| `files`       | string[] | Conflicted file paths, as the repository holds them |
 
-**File Ordering**:
-- Excel files appear first (business logic priority)
+**Ordering**:
+- Groups are sorted by project name (case-insensitive)
+- Files that belong to no project of the workspace form the last group, with an empty `projectName` and `projectPath`
+- Excel files appear first in a group
 - Remaining files sorted alphabetically (case-insensitive)
 
 ---
 
 ### ConflictBase
 
-```typescript
-enum ConflictBase {
-  BASE = 'BASE',                 // Common ancestor version
-  OURS = 'OURS',                 // Current branch version
-  THEIRS = 'THEIRS'              // Merging branch version
-}
-```
+`BASE` (common ancestor version), `OURS` (current branch version), `THEIRS` (merging branch version). The value is
+sent as written.
 
 ---
 
 ### ResolveConflictsRequest
 
-```typescript
-interface ResolveConflictsRequest {
-  resolutions: FileConflictResolution[]; // At least 1 required
-  message?: string;                      // Optional commit message
-}
-
-interface FileConflictResolution {
-  filePath: string;                      // Path to conflicted file
-  strategy: ConflictResolutionStrategy;  // Resolution approach
-  file?: File;                           // Required for CUSTOM strategy
-}
-```
-
-**ConflictResolutionStrategy Values**:
-- `BASE`: Use common ancestor version
-- `OURS`: Use current branch version
-- `THEIRS`: Use merging branch version
-- `CUSTOM`: Use uploaded custom file
+| Form field                | Type                                      | Description                          |
+|---------------------------|-------------------------------------------|--------------------------------------|
+| `resolutions[i].filePath` | string                                    | Path to conflicted file; required    |
+| `resolutions[i].strategy` | `BASE` \| `OURS` \| `THEIRS` \| `CUSTOM`  | Resolution approach; required        |
+| `resolutions[i].file`     | file                                      | Required for CUSTOM strategy         |
+| `message`                 | string                                    | Optional commit message              |
 
 **Validation**:
 - At least one resolution required
-- If strategy is `CUSTOM`, file must be provided
+- If strategy is `CUSTOM`, a non-empty file must be provided
 - File path must match a file in the conflict list
+- A file path appears in one resolution only
+- An uploaded Excel or ZIP file must be complete and readable in the format of its extension
 
 ---
 
 ### ResolveConflictsResponse
 
-```typescript
-interface ResolveConflictsResponse {
-  status: ConflictResolutionStatus; // Resolution result
-  resolvedFiles: string[];          // Successfully resolved files
-}
-```
-
-**ConflictResolutionStatus Values**:
-- `success`: All conflicts resolved successfully
+| Field           | Type      | Description                                              |
+|-----------------|-----------|----------------------------------------------------------|
+| `status`        | `success` | All conflicts resolved successfully; the only value      |
+| `resolvedFiles` | string[]  | The files of the resolutions in the request              |
 
 ---
 
@@ -679,24 +699,22 @@ interface ResolveConflictsResponse {
 
 ```
 1. Check merge status
-   POST /projects/MyProject/merge/check
+   POST /rest/projects/MyProject/merge/check
    {
      "mode": "receive",
      "otherBranch": "feature-123"
    }
 
-   Response: { "status": "mergeable", ... }
+   Response: { "status": "mergeable", "canMerge": true, ... }
 
 2. Perform merge
-   POST /projects/MyProject/merge
+   POST /rest/projects/MyProject/merge
    {
      "mode": "receive",
      "otherBranch": "feature-123"
    }
 
-   Response: { "status": "success", "conflictGroups": [] }
-
-✓ Merge completed successfully
+   Response: { "status": "success" }
 ```
 
 ---
@@ -705,7 +723,7 @@ interface ResolveConflictsResponse {
 
 ```
 1. Attempt merge
-   POST /projects/MyProject/merge
+   POST /rest/projects/MyProject/merge
    {
      "mode": "receive",
      "otherBranch": "feature-123"
@@ -715,41 +733,40 @@ interface ResolveConflictsResponse {
      "status": "conflicts",
      "conflictGroups": [{
        "projectName": "MyProject",
-       "files": ["rules/BusinessRules.xlsx", "rules.xml"]
+       "files": ["MyProject/rules/Main.xlsx", "MyProject/rules.xml"]
      }]
    }
 
 2. Get detailed conflicts
-   GET /projects/MyProject/merge/conflicts
+   GET /rest/projects/MyProject/merge/conflicts
 
    Response: {
-     "conflictGroups": [{ "files": ["rules/BusinessRules.xlsx", "rules.xml"] }],
+     "conflictGroups": [{ "files": ["MyProject/rules/Main.xlsx", "MyProject/rules.xml"] }],
+     "fileAvailability": { "MyProject/rules/Main.xlsx": { "ours": true, "theirs": true, "base": true }, ... },
      "oursRevision": { "branch": "main", "author": "John", ... },
      "theirsRevision": { "branch": "feature-123", "author": "Jane", ... },
-     "baseRevision": { "branch": "main", "commit": "base123...", ... },
-     "defaultMessage": "Merge branch 'feature-123' into main"
+     "baseRevision": { "commit": "1a3c5e7...", ... },
+     "defaultMessage": "Merge with commit 9e7d5c3...\nConflicts:\n\tMyProject/rules/Main.xlsx\n\tMyProject/rules.xml"
    }
 
 3. Download conflict versions for review
-   GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side=OURS
-   GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side=THEIRS
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=OURS
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=THEIRS
 
 4. Resolve conflicts
-   POST /projects/MyProject/merge/conflicts/resolve
+   POST /rest/projects/MyProject/merge/conflicts/resolve
    Content-Type: multipart/form-data
 
-   resolutions=[
-     {"filePath": "rules/BusinessRules.xlsx", "strategy": "OURS"},
-     {"filePath": "rules.xml", "strategy": "THEIRS"}
-   ]
-   message="Merged feature-123: kept our business rules, accepted their config"
+   resolutions[0].filePath=MyProject/rules/Main.xlsx
+   resolutions[0].strategy=OURS
+   resolutions[1].filePath=MyProject/rules.xml
+   resolutions[1].strategy=THEIRS
+   message=Merged feature-123: kept our business rules, accepted their config
 
    Response: {
      "status": "success",
-     "resolvedFiles": ["rules/BusinessRules.xlsx", "rules.xml"]
+     "resolvedFiles": ["MyProject/rules/Main.xlsx", "MyProject/rules.xml"]
    }
-
-✓ Conflicts resolved, merge completed
 ```
 
 ---
@@ -758,30 +775,29 @@ interface ResolveConflictsResponse {
 
 ```
 1. Merge with conflicts detected
-   POST /projects/MyProject/merge
+   POST /rest/projects/MyProject/merge
    { "mode": "receive", "otherBranch": "feature-123" }
 
    Response: { "status": "conflicts", ... }
 
 2. Download all versions for manual merge
-   GET /projects/MyProject/merge/conflicts/files?file=rules.xml&side=BASE
-   GET /projects/MyProject/merge/conflicts/files?file=rules.xml&side=OURS
-   GET /projects/MyProject/merge/conflicts/files?file=rules.xml&side=THEIRS
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=BASE
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=OURS
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=THEIRS
 
 3. Manually merge files locally (external tool)
    - User creates merged-rules.xml combining changes
 
 4. Upload custom resolution
-   POST /projects/MyProject/merge/conflicts/resolve
+   POST /rest/projects/MyProject/merge/conflicts/resolve
    Content-Type: multipart/form-data
 
-   resolutions=[{"filePath": "rules.xml", "strategy": "CUSTOM"}]
-   files[0]=merged-rules.xml
-   message="Custom merge of rules.xml"
+   resolutions[0].filePath=MyProject/rules.xml
+   resolutions[0].strategy=CUSTOM
+   resolutions[0].file=merged-rules.xml
+   message=Custom merge of rules.xml
 
-   Response: { "status": "success", "resolvedFiles": ["rules.xml"] }
-
-✓ Custom merge applied successfully
+   Response: { "status": "success", "resolvedFiles": ["MyProject/rules.xml"] }
 ```
 
 ---
@@ -790,18 +806,38 @@ interface ResolveConflictsResponse {
 
 ```
 1. Merge with conflicts detected
-   POST /projects/MyProject/merge
+   POST /rest/projects/MyProject/merge
    { "mode": "receive", "otherBranch": "feature-123" }
 
    Response: { "status": "conflicts", ... }
 
 2. User decides not to proceed
-   DELETE /projects/MyProject/merge/conflicts
+   DELETE /rest/projects/MyProject/merge/conflicts
 
    Response: 204 No Content
-
-✓ Conflict session cleared, can start new merge
 ```
+
+---
+
+### Workflow 5: Merge into a Protected Branch
+
+```
+1. Check merge status
+   POST /rest/projects/MyProject/merge/check
+   { "mode": "send", "otherBranch": "release-2.0" }
+
+   Response: { "status": "mergeable", "canMerge": false, "blockedBy": "bypass-required", ... }
+
+2. Confirm the bypass
+   POST /rest/projects/MyProject/merge?force=true
+   { "mode": "send", "otherBranch": "release-2.0" }
+
+   Response: { "status": "success" }
+```
+
+A user eligible for the bypass holds the Manager role on the project or its repository while
+`security.allow-bypass-protected-branches` is `true` (default `false`). Without `force=true` the merge answers `409`
+with `protected.branch.bypass.required`; for any other user it answers `403` with or without `force`.
 
 ---
 
@@ -811,12 +847,39 @@ interface ResolveConflictsResponse {
 
 ```json
 {
-  "status": 409,
-  "error": "Conflict",
-  "message": "project.unresolved.merge.conflicts.message",
-  "path": "/projects/MyProject/merge"
+  "code": "openl.error.409.project.unresolved.merge.conflicts.message",
+  "message": "Project has unresolved merge conflicts. Please resolve them first or abort the merge."
 }
 ```
+
+`code` is `openl.error.<status>.<key>`; `message` is the text of the code in `ValidationMessages.properties`. A
+request body that fails validation answers `400` with a `fields` list naming each rejected field.
+
+### Error Codes
+
+| Status | Key                                              | Raised when                                              |
+|--------|--------------------------------------------------|----------------------------------------------------------|
+| 400    | `project.merge.conflict.custom.file.missing.message` | A `CUSTOM` resolution comes without a file or with an empty one |
+| 400    | `project.merge.conflict.duplicate.resolution`    | Two resolutions name the same file                       |
+| 400    | `project.merge.conflict.file.not.in.conflicts`   | A resolution names a file that is not conflicted         |
+| 400    | `project.merge.conflict.custom.file.damaged`     | An uploaded Excel or ZIP file is damaged or incomplete   |
+| 400    | `compare.file.not-excel.message`                 | `/conflicts/compare` is asked for a file that is not Excel |
+| 403    | `default.message`                                | The user may not write to the project, or cannot bypass a protected target |
+| 404    | `project.identifier.message`                     | The project is not found                                 |
+| 404    | `project.merge.result.not.found.message`         | No conflict of the project is stored                     |
+| 404    | `project.merge.conflict.file.not.found`          | The file is not in the conflict list                     |
+| 404    | `project.merge.conflict.file.revision.not.found` | The requested version does not hold the file             |
+| 409    | `project.unresolved.merge.conflicts.message`     | Check or merge while a conflict of the project is stored |
+| 409    | `project.merge.invalid.state.message`            | The project cannot take a merge (see below)              |
+| 409    | `project.merge.same.branches.message`            | `otherBranch` is the current branch                      |
+| 409    | `project.merge.branch.not.found.message`         | `otherBranch` does not exist                             |
+| 409    | `project.merge.repository.unsupported.message`   | The repository does not support branches                 |
+| 409    | `protected.branch.bypass.required`               | Merge into a protected branch without `force=true`       |
+| 409    | `project.merge.branch.locked.message`            | The project is locked on the target branch               |
+| 409    | `project.branch.merge.not.mergeable.message`     | Nothing to merge: the target holds every change already  |
+
+A project cannot take a merge when it exists only in the workspace, has unsaved changes, lives in a repository
+without branches, or its repository has no other branch. A project the user may not read answers `403`.
 
 ---
 
@@ -828,13 +891,14 @@ interface ResolveConflictsResponse {
 
 **Request**:
 ```bash
-POST /projects/MyProject/merge/check
+POST /rest/projects/MyProject/merge/check
 ```
 
 **Response**: `409 Conflict`
 ```json
 {
-  "message": "project.unresolved.merge.conflicts.message"
+  "code": "openl.error.409.project.unresolved.merge.conflicts.message",
+  "message": "Project has unresolved merge conflicts. Please resolve them first or abort the merge."
 }
 ```
 
@@ -850,13 +914,14 @@ POST /projects/MyProject/merge/check
 
 **Request**:
 ```bash
-GET /projects/MyProject/merge/conflicts
+GET /rest/projects/MyProject/merge/conflicts
 ```
 
 **Response**: `404 Not Found`
 ```json
 {
-  "message": "project.merge.result.not.found.message"
+  "code": "openl.error.404.project.merge.result.not.found.message",
+  "message": "The merge result for the project is not found."
 }
 ```
 
@@ -864,24 +929,25 @@ GET /projects/MyProject/merge/conflicts
 
 ---
 
-#### 3. Branches Not Mergeable
+#### 3. Nothing to Merge
 
-**Scenario**: Merge check indicates branches cannot be merged
+**Scenario**: The target branch already holds every change of the source branch
 
 **Request**:
 ```bash
-POST /projects/MyProject/merge
-{"mode": "receive", "otherBranch": "incompatible-branch"}
+POST /rest/projects/MyProject/merge
+{"mode": "receive", "otherBranch": "merged-branch"}
 ```
 
 **Response**: `409 Conflict`
 ```json
 {
-  "message": "project.branch.merge.not.mergeable.message"
+  "code": "openl.error.409.project.branch.merge.not.mergeable.message",
+  "message": "Cannot merge because there are no changes between the source and target branches."
 }
 ```
 
-**Resolution**: Check merge status first, resolve underlying issues
+**Resolution**: Check merge status first; `up-to-date` means there is nothing to merge
 
 ---
 
@@ -891,16 +957,17 @@ POST /projects/MyProject/merge
 
 **Request**:
 ```bash
-POST /projects/MyProject/merge/conflicts/resolve
-resolutions=[{"filePath": "rules.xml", "strategy": "CUSTOM"}]
+POST /rest/projects/MyProject/merge/conflicts/resolve
+resolutions[0].filePath=MyProject/rules.xml
+resolutions[0].strategy=CUSTOM
 # No file uploaded
 ```
 
 **Response**: `400 Bad Request`
 ```json
 {
-  "message": "project.merge.conflict.custom.file.missing.message",
-  "args": ["rules.xml"]
+  "code": "openl.error.400.project.merge.conflict.custom.file.missing.message",
+  "message": "The custom file for 'MyProject/rules.xml' is missing in the uploaded files."
 }
 ```
 
@@ -949,13 +1016,15 @@ enforced by OpenL Studio, the application container, or an upstream proxy.
 
 ## Examples
 
+The examples omit authentication; add the credentials your OpenL Studio accepts.
+
 ### Example 1: Receive Changes from Feature Branch
 
 **Scenario**: Merge changes from `feature-user-auth` into current `main` branch
 
 ```bash
 # Step 1: Check if merge is possible
-curl -X POST http://localhost:8080/projects/MyProject/merge/check \
+curl -X POST http://localhost:8080/rest/projects/MyProject/merge/check \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "receive",
@@ -966,11 +1035,12 @@ curl -X POST http://localhost:8080/projects/MyProject/merge/check \
 {
   "sourceBranch": "feature-user-auth",
   "targetBranch": "main",
-  "status": "mergeable"
+  "status": "mergeable",
+  "canMerge": true
 }
 
 # Step 2: Perform the merge
-curl -X POST http://localhost:8080/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "receive",
@@ -979,8 +1049,7 @@ curl -X POST http://localhost:8080/projects/MyProject/merge \
 
 # Response (success)
 {
-  "status": "success",
-  "conflictGroups": []
+  "status": "success"
 }
 ```
 
@@ -991,7 +1060,7 @@ curl -X POST http://localhost:8080/projects/MyProject/merge \
 **Scenario**: Merge current `main` branch into `release-2.0`
 
 ```bash
-curl -X POST http://localhost:8080/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "send",
@@ -1000,8 +1069,7 @@ curl -X POST http://localhost:8080/projects/MyProject/merge \
 
 # Response (success)
 {
-  "status": "success",
-  "conflictGroups": []
+  "status": "success"
 }
 ```
 
@@ -1013,7 +1081,7 @@ curl -X POST http://localhost:8080/projects/MyProject/merge \
 
 ```bash
 # Step 1: Merge detects conflicts
-curl -X POST http://localhost:8080/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "receive",
@@ -1025,41 +1093,44 @@ curl -X POST http://localhost:8080/projects/MyProject/merge \
   "status": "conflicts",
   "conflictGroups": [{
     "projectName": "MyProject",
+    "projectPath": "MyProject",
     "files": [
-      "rules/PricingRules.xlsx",
-      "rules/ValidationRules.xlsx",
-      "rules.xml",
-      "README.md"
+      "MyProject/rules/PricingRules.xlsx",
+      "MyProject/rules/ValidationRules.xlsx",
+      "MyProject/README.md",
+      "MyProject/rules.xml"
     ]
   }]
 }
 
 # Step 2: Download versions for review
 curl -o ours-pricing.xlsx \
-  "http://localhost:8080/projects/MyProject/merge/conflicts/files?file=rules/PricingRules.xlsx&side=OURS"
+  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=OURS"
 
 curl -o theirs-pricing.xlsx \
-  "http://localhost:8080/projects/MyProject/merge/conflicts/files?file=rules/PricingRules.xlsx&side=THEIRS"
+  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=THEIRS"
 
 # Step 3: Resolve with mixed strategies
-curl -X POST http://localhost:8080/projects/MyProject/merge/conflicts/resolve \
-  -F 'resolutions=[
-    {"filePath":"rules/PricingRules.xlsx","strategy":"OURS"},
-    {"filePath":"rules/ValidationRules.xlsx","strategy":"THEIRS"},
-    {"filePath":"rules.xml","strategy":"CUSTOM"},
-    {"filePath":"README.md","strategy":"THEIRS"}
-  ]' \
-  -F 'message=Merged feature-pricing: kept our pricing rules, accepted their validation rules and docs' \
-  -F 'file=@merged-rules.xml'
+curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resolve \
+  -F 'resolutions[0].filePath=MyProject/rules/PricingRules.xlsx' \
+  -F 'resolutions[0].strategy=OURS' \
+  -F 'resolutions[1].filePath=MyProject/rules/ValidationRules.xlsx' \
+  -F 'resolutions[1].strategy=THEIRS' \
+  -F 'resolutions[2].filePath=MyProject/rules.xml' \
+  -F 'resolutions[2].strategy=CUSTOM' \
+  -F 'resolutions[2].file=@merged-rules.xml' \
+  -F 'resolutions[3].filePath=MyProject/README.md' \
+  -F 'resolutions[3].strategy=THEIRS' \
+  -F 'message=Merged feature-pricing: kept our pricing rules, accepted their validation rules and docs'
 
 # Response (success)
 {
   "status": "success",
   "resolvedFiles": [
-    "rules/PricingRules.xlsx",
-    "rules/ValidationRules.xlsx",
-    "rules.xml",
-    "README.md"
+    "MyProject/rules/PricingRules.xlsx",
+    "MyProject/rules/ValidationRules.xlsx",
+    "MyProject/rules.xml",
+    "MyProject/README.md"
   ]
 }
 ```
@@ -1070,7 +1141,7 @@ curl -X POST http://localhost:8080/projects/MyProject/merge/conflicts/resolve \
 
 ```bash
 # Step 1: Merge detects conflicts
-curl -X POST http://localhost:8080/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
   -H "Content-Type: application/json" \
   -d '{"mode":"receive","otherBranch":"feature-abc"}'
 
@@ -1081,7 +1152,7 @@ curl -X POST http://localhost:8080/projects/MyProject/merge \
 }
 
 # Step 2: User decides to cancel
-curl -X DELETE http://localhost:8080/projects/MyProject/merge/conflicts
+curl -X DELETE http://localhost:8080/rest/projects/MyProject/merge/conflicts
 
 # Response: 204 No Content
 # Conflict session cleared
@@ -1091,117 +1162,35 @@ curl -X DELETE http://localhost:8080/projects/MyProject/merge/conflicts
 
 ## Best Practices
 
-### 1. Always Check Before Merging
+### 1. Check Before Merging
 
-```bash
-# Good practice
-POST /merge/check  # Check first
-POST /merge        # Then merge if safe
-
-# Risky practice
-POST /merge        # Merge directly (may create conflicts)
-```
+`POST /merge/check` tells whether there is anything to merge (`up-to-date`) and whether the user may perform the merge
+(`canMerge`, `blockedBy`). `POST /merge` refuses the same cases with `409` or `403`. Neither call predicts conflicts.
 
 ### 2. Download All Versions Before Custom Resolution
 
-When using CUSTOM strategy, review all three versions:
+When using CUSTOM strategy, review all three versions, and request only the versions `fileAvailability` reports:
 
 ```bash
 # Download BASE (common ancestor)
-GET /conflicts/files?file=rules.xml&side=BASE
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=BASE
 
 # Download OURS (current branch)
-GET /conflicts/files?file=rules.xml&side=OURS
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=OURS
 
 # Download THEIRS (merging branch)
-GET /conflicts/files?file=rules.xml&side=THEIRS
-
-# Create merged version with full context
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=THEIRS
 ```
 
-### 3. Use Descriptive Commit Messages
+### 3. Resolve Every Conflicted File in One Request
 
-```json
-{
-  "resolutions": [...],
-  "message": "Merged feature-auth: kept our login rules (v2.0), accepted their LDAP config"
-}
-```
+Send one resolution for each file of the conflict list. A request whose resolution is refused leaves the stored
+conflict as it was, so the client can fix the request and send it again.
 
-Better than:
-```json
-{
-  "resolutions": [...],
-  "message": "Resolved conflicts"
-}
-```
+### 4. Clean Up Abandoned Conflicts
 
-### 4. Prioritize Excel Files in Conflict Resolution
-
-The API automatically sorts Excel files first because they contain business logic. Review and resolve these first:
-
-```
-Priority order:
-1. BusinessRules.xlsx ← Most important (business logic)
-2. ValidationRules.xlsx ← Important (business logic)
-3. rules.xml ← Configuration
-4. README.md ← Documentation
-```
-
-### 5. Handle Project State Correctly
-
-The API manages project state automatically:
-- Project is frozen during merge
-- Dependencies are paused
-- Project is reopened after successful merge
-
-**Don't** manually modify project state during merge operations.
-
-### 6. Session Cleanup
-
-Always clean up conflict sessions:
-
-```bash
-# If resolution successful → automatic cleanup
-POST /conflicts/resolve
-
-# If canceling → manual cleanup
-DELETE /conflicts
-
-# Don't leave sessions hanging
-```
-
-### 7. Error Recovery
-
-If resolution fails:
-
-```
-1. Review error message
-2. Fix the issue (e.g., upload missing file)
-3. Retry resolution (session preserved)
-4. If unable to fix → cancel session
-```
-
-### 8. Atomic Operations
-
-Each conflict resolution is atomic:
-- All resolutions succeed → merge completes
-- Any resolution fails → entire operation rolls back
-- Session preserved for retry
-
-### 9. Security Considerations
-
-- Validate file paths to prevent directory traversal
-- Limit uploaded file sizes
-- Sanitize commit messages
-- Check user permissions before merge operations
-
-### 10. Performance Tips
-
-- Use `/check` endpoint before `/merge` for large branches
-- Batch conflict resolutions in a single request
-- Download conflict files in parallel for faster review
-- Consider file size limits for CUSTOM uploads
+A stored conflict blocks the next check and merge of the project. Cancel it with `DELETE /conflicts` when the
+resolution is abandoned; otherwise it ends with the client session.
 
 ---
 
@@ -1209,92 +1198,50 @@ Each conflict resolution is atomic:
 
 ### Session Management
 
-**Storage**: HTTP session with project-scoped keys
+**Storage**: `ProjectsMergeConflictsSessionHolder`, a `@ClientSessionScope` bean
 
-**Key Format**: `{repositoryId}:{projectName}`
+**Key**: The project id (`ProjectIdModel`)
 
 **Lifecycle**:
-1. Created: When merge/check detects conflicts
+1. Created: When `POST /merge` or a project save detects conflicts
 2. Accessed: During conflict retrieval and resolution
 3. Cleared: On successful resolution or explicit cancel
-4. Timeout: Follows HTTP session timeout (default: 30 minutes)
+4. Replaced: When a conflict of another project is stored for the same client
+5. Timeout: Ends with the client session, after 30 minutes of inactivity (`session-timeout` in `web.xml`)
+
+While a save conflict is stored, its project id keeps resolving to the conflicted project, even after a workspace
+refresh renamed the project (`MergeConflictProjectResolveStrategy`).
 
 ### Project Lifecycle During Merge
 
-```java
-// Before merge
-studio.freezeProject(projectName);     // Prevent concurrent modifications
-dependencyManager.pause();             // Pause workspace scanning
+1. `validateMergeAllowed` refuses a merge that must not be performed, before anything else happens.
+2. For an opened project, the compilation is paused (`WebStudioWorkspaceRelatedDependencyManager.pause()`).
+3. The Git repository merges the source branch into the target branch; the request waits up to 30 seconds for the
+   project index to publish the target branch.
+4. On success, an opened project is closed, the workspace refreshed, and the project reopened on its branch.
+   `WebStudio` is reset, and the paused compilation is dropped with the editor model.
+5. On conflicts, or when the request fails, the compilation is resumed when the request ends.
 
-try {
-  // Perform merge operation
-  mergeService.merge(...);
-
-  // On success
-  project.close();                     // Close old reference
-  project.open();                      // Reopen with new state
-  workspace.refresh();                 // Update workspace
-  studio.reset();                      // Clear cached data
-
-} finally {
-  studio.releaseProject(projectName);  // Always release lock
-  dependencyManager.resume();          // Resume scanning
-}
-```
+Resolving conflicts follows the same steps.
 
 ### Conflict File Retrieval
 
-Files are retrieved from Git working tree with three-way merge markers:
+Files are read from the commits of the conflict, not from the working tree:
 - `BASE`: Common ancestor from merge base
-- `OURS`: Current branch HEAD
-- `THEIRS`: Other branch HEAD
+- `OURS`: Commit of the current branch
+- `THEIRS`: Commit of the other branch
 
-### Excel File Priority Algorithm
-
-```java
-Comparator<String> excelFirstComparator = (f1, f2) -> {
-  boolean isExcel1 = FileTypeHelper.isExcelFile(f1);
-  boolean isExcel2 = FileTypeHelper.isExcelFile(f2);
-
-  if (isExcel1 && isExcel2) return f1.compareToIgnoreCase(f2);
-  if (isExcel1) return -1;  // Excel files first
-  if (isExcel2) return 1;
-
-  return f1.compareToIgnoreCase(f2);
-};
-```
+In a `send` merge, the branches swap their Git roles, so `OURS` stays the current branch.
 
 ---
 
 ## Related APIs
 
-- **Projects API**: Project management operations
-- **Branches API**: Branch creation and management
-- **Repository API**: Repository configuration
-
----
-
-## Changelog
-
-### Version 6.0.0-SNAPSHOT (BETA)
-- Initial implementation of Projects Merge API
-- Support for bidirectional merging (receive/send)
-- Multiple conflict resolution strategies
-- Session-based conflict management
-- Excel file prioritization
-- Automatic project state management
-- **Enhanced conflict details response**: Added revision metadata (author, date, commit hash) for OURS, THEIRS, and BASE versions
-- **Default merge message**: API now returns auto-generated merge commit message that can be overridden during resolution
-
----
-
-## Support
-
-For issues or questions:
-- **GitHub Issues**: https://github.com/openl-tablets/openl-tablets/issues
-- **Documentation**: https://openl-tablets.org
-- **API Status**: BETA - Subject to changes in future releases
-
----
-
-**Note**: This API is currently in BETA status. The interface may change in future releases. Feedback and bug reports are welcome.
+- **Compare API**: `GET /rest/compare/{id}` and `DELETE /rest/compare/{id}` read and release the comparison of a
+  conflicted workbook
+- **Project branches**: `GET /rest/projects/{projectId}/branches?scope=repository` lists every branch of the repository
+  as a merge target; the default `scope=project` lists the branches that hold the project
+- **Project save**: `PATCH /rest/projects/{projectId}` answers `409` with `project.save.merge.conflict.message` when the
+  save conflicts, and stores the conflict for this API
+- **Architecture**: [Projects Merge API - Architecture Design](projects-merge-architecture.md)
+- **User guide**: [Working with Project Branches](../user-guides/openl-studio/project-branches.md)
