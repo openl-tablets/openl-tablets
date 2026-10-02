@@ -2,7 +2,7 @@
 
 The OpenL Tablets Rule Services web service produces the OpenAPI schema for each deployed service automatically from the
 OpenL projects based on the OpenAPI and JAX-RS annotations.
-To change the output of openapi.json, in the working directory or root of the classpath, create the `openapi-configuration.json` file with the following contents:
+To change the output of openapi.json, create the `openapi-configuration.json` file in the classpath of the service with the following contents:
 
 ```json
 {
@@ -46,7 +46,7 @@ Files are applied in a deterministic order:
 
 Each `openapi-configuration*.json` file may contain Spring-style property placeholders that are resolved against the application environment before JSON parsing:
 
-- `${property.name}` — replaced with the value of `property.name`. Deployment fails if the property is not defined.
+- `${property.name}` — replaced with the value of `property.name`. A placeholder of an undefined property stays in the text as it is written.
 - `${property.name:default-value}` — replaced with the value of `property.name`, or with `default-value` if the property is not defined.
 
 Example:

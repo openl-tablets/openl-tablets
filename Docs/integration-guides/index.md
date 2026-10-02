@@ -1,51 +1,15 @@
 # Integration Guides
 
-Learn how to integrate OpenL Tablets with various technologies and frameworks. These guides cover common integration scenarios and provide practical examples for connecting OpenL Tablets with enterprise systems.
+These pages describe how to extend and observe OpenL Rule Services.
 
-## Available Integration Guides
-
-### Web Services and APIs
-
-#### [Spring Framework](spring.md)
-Spring Framework and Spring Boot integration patterns. Covers:
-- Spring configuration for OpenL Tablets
-- Dependency injection
-- Spring Boot auto-configuration
-- Bean management and lifecycle
-
-#### [OpenAPI/REST](openapi.md)
-REST API generation and OpenAPI specification support. Learn about:
-- Automatic REST API generation
-- OpenAPI 3.0 specification
-- Swagger UI integration
-- API customization options
-
-#### [Apache CXF](cxf.md)
-Customizing REST web services with Apache CXF. Topics include:
-- CXF interceptors and features
-- Custom data bindings
-- WS-Security configuration
-- Performance optimization
-
-### Observability
-
-#### [OpenTelemetry](opentelemetry.md)
-Observability, monitoring, and distributed tracing with OpenTelemetry. Learn how to:
-- Enable telemetry collection
-- Configure exporters
-- Add custom metrics
-- Trace request flows
+- [Spring Framework](spring.md) — add Spring configurations to Rule Services, in Java or in
+  `META-INF/openl/extension-*.xml`.
+- [OpenAPI](openapi.md) — change the OpenAPI schema of a service with `openapi-configuration*.json` files.
+- [Apache CXF](cxf.md) — add CXF features, such as the logging feature, to the REST endpoints.
+- [OpenTelemetry](opentelemetry.md) — trace services with the OpenTelemetry Java agent of the Docker images.
 
 ## Related Documentation
 
-### User Guides
-- [Rule Services Guide](../user-guides/rule-services/index.md) - Runtime deployment and configuration
-- [OpenL Studio User Guide](../user-guides/openl-studio/index.md) - Rule development environment
-
-### Developer Resources
-- [Developer Guide](../developer-guides/index.md) - Core development topics
-- [Architecture Documentation](../architecture/technology-stack.md) - System architecture
-
-### Configuration
-- [Configuration Overview](../configuration/overview.md) - System configuration
-- [Production Deployment](../configuration/deployment.md) - Deployment best practices
+- [Rule Services Guide](../user-guides/rule-services/index.md) — configuration and deployment of Rule Services.
+- [Developer Guide](../developer-guides/index.md) — rules projects, the language and externalized configuration.
+- [Deployment](../DEPLOYMENT.md) — Docker images and their environment variables.
