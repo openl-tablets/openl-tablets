@@ -27,10 +27,6 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
             return makeErrorNode(message, expressionNode.getSyntaxNode(), bindingContext);
         }
         var isUnique = node.getType().contains("unique");
-        if (isUnique) {
-            return new TransformToUniqueIndexNode(node, targetNode, expressionNode, localVar, openCast);
-        } else {
-            return new TransformIndexNode(node, targetNode, expressionNode, localVar, openCast);
-        }
+        return new TransformIndexNode(node, targetNode, expressionNode, localVar, openCast, isUnique);
     }
 }

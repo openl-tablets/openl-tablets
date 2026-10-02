@@ -215,6 +215,10 @@ everyone who calls that API from outside the browser.
   `NullPointerException`. To keep a value for every element, use `array.field`, such as `drivers.name`, or call a
   rule with the array: the rule runs for every element, an empty one too.
 
+* **`transform unique to` returns an empty value for a missing array, as the other array index operators do.**
+  Applied to an array or a collection that is `null`, such as the values of a missing `Map`, it gives `null`. Before,
+  it gave an empty array for a missing array and stopped with a `NullPointerException` for a missing collection.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 

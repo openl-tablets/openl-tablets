@@ -14,7 +14,8 @@ import org.openl.engine.OpenLManager;
 import org.openl.source.impl.StringSourceCodeModule;
 
 /**
- * Checks that every array index operator skips the null elements of an array or a list.
+ * Checks that every array index operator skips the null elements of an array or a list, and returns null for a
+ * missing one.
  * <p>
  * A null result of the expression for an element is not a null element: TRANSFORM TO keeps it.
  *
@@ -75,6 +76,23 @@ class IndexOperatorsNullTest {
     @MethodSource
     void nullResultOfElement(String expression, Object expected) {
         assertResult(expression, expected);
+    }
+
+    static Stream<String> missingArray() {
+        return Stream.of("Integer[] a = null; a[(x) transform unique to x]",
+                "List l = null; l[(Integer x) transform unique to x]",
+                "Map m = null; m.values()[(v) transform unique to v]",
+                "Integer[] a = null; a[(x) transform to x]",
+                "List l = null; l[(Integer x) select all having x > 0]",
+                "Integer[] a = null; a[(x) select first having x > 0]",
+                "List l = null; l[(Integer x) order by x]",
+                "Integer[] a = null; a[(x) split by x]");
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void missingArray(String expression) {
+        assertResult(expression, null);
     }
 
     private static void assertResult(String expression, Object expected) {

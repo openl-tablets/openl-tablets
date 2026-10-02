@@ -16,6 +16,8 @@ import org.openl.types.NullOpenClass;
  * Every operator skips the null elements of the array or collection. Its condition or expression is not evaluated
  * for them, and they are not in its result. A null result of an expression is not an element, so TRANSFORM TO keeps
  * it.
+ * <p>
+ * Every operator returns null for a missing array or collection.
  *
  * @author Yury Molchan
  */
