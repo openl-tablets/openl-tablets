@@ -1,6 +1,6 @@
 package org.openl.rules.repository.zip;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.openl.rules.repository.RepositoryFactory;
 import org.openl.rules.repository.api.Repository;
@@ -25,7 +25,7 @@ public class JarRepositoryFactory implements RepositoryFactory {
     }
 
     @Override
-    public Repository create(Function<String, String> settings) {
+    public Repository create(UnaryOperator<String> settings) {
         var repository = new JarLocalRepository();
         repository.initialize();
         return repository;

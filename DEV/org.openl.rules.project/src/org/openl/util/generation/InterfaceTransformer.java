@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.objectweb.asm.AnnotationVisitor;
@@ -40,10 +40,10 @@ import org.openl.types.java.JavaOpenClass;
  */
 @Slf4j
 public class InterfaceTransformer {
-    public static final Function<Integer, Integer> IGNORE_PARAMETER_ANNOTATIONS = index -> -1;
+    public static final IntUnaryOperator IGNORE_PARAMETER_ANNOTATIONS = index -> -1;
     private final Class<?> classToTransform;
     private final String className;
-    private final Function<Integer, Integer> methodParameterAdaptor;
+    private final IntUnaryOperator methodParameterAdaptor;
 
     private static final Comparator<Method> METHOD_COMPARATOR = Comparator.comparing(Method::getName)
             .thenComparingInt(Method::getParameterCount)
@@ -68,12 +68,12 @@ public class InterfaceTransformer {
     public InterfaceTransformer(Class<?> interfaceToTransform, String className) {
         this.classToTransform = interfaceToTransform;
         this.className = className;
-        this.methodParameterAdaptor = e -> e;
+        this.methodParameterAdaptor = IntUnaryOperator.identity();
     }
 
     public InterfaceTransformer(Class<?> interfaceToTransform,
                                 String className,
-                                Function<Integer, Integer> methodParameterAdaptor) {
+                                IntUnaryOperator methodParameterAdaptor) {
         this.classToTransform = interfaceToTransform;
         this.className = className;
         this.methodParameterAdaptor = methodParameterAdaptor;
@@ -225,7 +225,7 @@ public class InterfaceTransformer {
             }
             var index = 0;
             for (Annotation[] annotations : executable.getParameterAnnotations()) {
-                var i = methodParameterAdaptor.apply(index);
+                var i = methodParameterAdaptor.applyAsInt(index);
                 if (i >= 0 && i < executable.getParameterCount()) {
                     for (Annotation annotation : annotations) {
                         String descriptor = Type.getDescriptor(annotation.annotationType());

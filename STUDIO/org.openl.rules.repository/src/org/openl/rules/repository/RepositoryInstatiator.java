@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +62,7 @@ public class RepositoryInstatiator {
         return List.copyOf(factories);
     }
 
-    public static Repository newRepository(String prefix, Function<String, String> props) {
+    public static Repository newRepository(String prefix, UnaryOperator<String> props) {
         var factoryId = props.apply(prefix + ".factory");
         if (Objects.isNull(factoryId)) {
             throw new IllegalArgumentException(
@@ -107,7 +107,7 @@ public class RepositoryInstatiator {
         return null;
     }
 
-    public static void setParams(Object instance, Function<String, String> props) {
+    public static void setParams(Object instance, UnaryOperator<String> props) {
         Class<?> clazz = instance.getClass();
         try (var stream = Arrays.stream(clazz.getMethods())) {
             stream.filter(method -> method.getParameterCount() == 1 && method.getName().startsWith("set"))

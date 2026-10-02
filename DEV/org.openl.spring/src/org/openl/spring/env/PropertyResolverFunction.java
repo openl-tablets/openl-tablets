@@ -1,12 +1,12 @@
 package org.openl.spring.env;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.PropertyResolver;
 
 @RequiredArgsConstructor
-public class PropertyResolverFunction implements Function<String, String> {
+public class PropertyResolverFunction implements UnaryOperator<String> {
 
     private final PropertyResolver propertyResolver;
 

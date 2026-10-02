@@ -1,6 +1,6 @@
 package org.openl.rules.repository.git;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.openl.rules.repository.RepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -26,7 +26,7 @@ public class GitRepositoryFactory implements RepositoryFactory {
     }
 
     @Override
-    public Repository create(Function<String, String> settings) {
+    public Repository create(UnaryOperator<String> settings) {
         var repository = new GitRepository();
         RepositoryInstatiator.setParams(repository, settings);
         var gitRootFactory = new GitRootFactory();

@@ -1,7 +1,7 @@
 package org.openl.rules.repository.api;
 
 import java.util.Iterator;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
     private final String mergeMessage;
 
     @Override
-    public ConflictResolveData convertPaths(final Function<String, String> converter) {
+    public ConflictResolveData convertPaths(final UnaryOperator<String> converter) {
         Iterable<FileItem> convertedFolders = () -> new Iterator<FileItem>() {
             private final Iterator<FileItem> delegate = resolvedFiles.iterator();
 
