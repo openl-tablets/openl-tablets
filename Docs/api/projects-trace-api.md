@@ -1,14 +1,11 @@
 # Projects Trace API Documentation
 
-**Version**: 6.2.1-SNAPSHOT
-**Status**: BETA
-**Base Path**: `/projects/{projectId}/trace`
-**Last Updated**: 2026-07-02
+**Status**: BETA — the endpoints form the **Projects: Trace (BETA)** group of the OpenAPI spec (`/rest/openapi.json`)
+**Base Path**: `/rest/projects/{projectId}/trace`
 
 > [!Note]
-> This is the **interactive debugger** API. It replaces the previous tree-based Trace (the `/trace/nodes`
-> and `/trace/export` endpoints are gone). See [Architecture Design](projects-trace-architecture.md) for
-> how suspension and the live stack work.
+> This is the **interactive debugger** API. See [Architecture Design](projects-trace-architecture.md) for how suspension
+> and the live stack work.
 
 ---
 
@@ -119,7 +116,7 @@ bounded overview of it in `DebugStackView.profile`.
 
 ### 1. Start a debug session
 
-**Endpoint**: `POST /projects/{projectId}/trace`
+**Endpoint**: `POST /rest/projects/{projectId}/trace`
 
 Starts a session and runs to the first suspension (or to completion when nothing suspends). Any previous
 session for this user is terminated and the parameter registry is cleared. Active breakpoints (set earlier
@@ -143,6 +140,14 @@ via `PUT /breakpoints`) apply immediately.
 - `view` (`full` \| `compact`, default `full`) — per-frame detail. `compact` keeps sub-steps only on the
   **active** frame, so stepping does not re-send every frame's `steps`; read another frame's steps with
   `GET /stack?view=full` or its variables endpoint.
+- `breakOnErrors` (boolean, default `true`) — suspend on the frame that throws an uncaught rule error so it can be
+  inspected. With `false` the error ends the run, and the executed tree with the failed branch is returned whole.
+- `detailedTitles` (boolean, default `false`) — build the detailed titles into the executed tree: each table node reads
+  as its signature and result, and each spreadsheet cell as its value. It carries the values of the run, so it is off
+  by default.
+- `fullTree` (boolean, default `false`) — serialize the whole executed tree in one response, so a client can browse it
+  without paging. It is bounded by a node cap, and a branch beyond the cap is cut and marked truncated. Without it the
+  tree is shallow, and `GET /tree/children` pages its branches.
 
 **Request body** (optional, `application/json`): raw input for a regular method. Supports a structured form
 whose `params` is either a named object or a positional array (`{ "runtimeContext": {...}, "params": [...] }`),
@@ -168,7 +173,7 @@ missing trailing values remain unset. The body is parsed by `TableInputParserSer
 
 ### 2. Get session status
 
-**Endpoint**: `GET /projects/{projectId}/trace/status`
+**Endpoint**: `GET /rest/projects/{projectId}/trace/status`
 
 Lightweight poll. **Response**: `200 OK` — [`DebugStatusView`](#debugstatusview).
 
@@ -178,7 +183,7 @@ Lightweight poll. **Response**: `200 OK` — [`DebugStatusView`](#debugstatusvie
 
 ### 3. Get the execution stack
 
-**Endpoint**: `GET /projects/{projectId}/trace/stack`
+**Endpoint**: `GET /rest/projects/{projectId}/trace/stack`
 
 **Query parameters**: `view` (`full` \| `compact`), `includeTree` (boolean), `profileTop` (integer) —
 same response-shaping params as start (see [Start a debug session](#1-start-a-debug-session)).
@@ -194,7 +199,7 @@ frames as it executes, so the stack is readable only once it has parked or finis
 
 ### 4. Step
 
-**Endpoint**: `POST /projects/{projectId}/trace/step`
+**Endpoint**: `POST /rest/projects/{projectId}/trace/step`
 
 Steps once and returns the new stack once the worker re-suspends (bounded wait, 30 s).
 
@@ -218,7 +223,7 @@ stays on the stack with its result — and the next step continues in the caller
 
 ### 5. Resume
 
-**Endpoint**: `POST /projects/{projectId}/trace/resume`
+**Endpoint**: `POST /rest/projects/{projectId}/trace/resume`
 
 Runs to the next breakpoint or to completion. **Response**: `202 Accepted` (no body); the outcome arrives
 via WebSocket. Read `/stack` on the next `suspended`/terminal status.
@@ -229,7 +234,7 @@ via WebSocket. Read `/stack` on the next `suspended`/terminal status.
 
 ### 6. Pause
 
-**Endpoint**: `POST /projects/{projectId}/trace/pause`
+**Endpoint**: `POST /rest/projects/{projectId}/trace/pause`
 
 Requests suspension at the next safepoint. **Response**: `202 Accepted` (no body).
 
@@ -239,10 +244,13 @@ Requests suspension at the next safepoint. **Response**: `202 Accepted` (no body
 
 ### 7. Get frame variables
 
-**Endpoint**: `GET /projects/{projectId}/trace/frames/{index}/variables`
+**Endpoint**: `GET /rest/projects/{projectId}/trace/frames/{index}/variables`
 
 Freezes (deep-clones) the frame at `index` while suspended and returns its parameters, context, result,
 sub-steps with computed values, spreadsheet grid names, the decision-table outcome, and errors.
+
+**Query parameters**: `includeSchema` (boolean, default `false`) — generate a JSON schema for the type of each value.
+It is expensive for a large result, so it is off by default.
 
 **Response**: `200 OK` — [`DebugFrameVariables`](#debugframevariables).
 
@@ -253,7 +261,7 @@ suspended).
 
 ### 8. Get frame highlights
 
-**Endpoint**: `GET /projects/{projectId}/trace/frames/{index}/highlights`
+**Endpoint**: `GET /rest/projects/{projectId}/trace/frames/{index}/highlights`
 
 Returns the execution highlight overlay for the frame's table, keyed by **A1 cell address**. The client
 renders the table itself (through the shared Tables API raw view) and paints the overlay on top: the
@@ -265,16 +273,11 @@ line executes.
 
 **Errors**: `404 Not Found` (no session, or frame not found); `409 Conflict` (not suspended).
 
-> [!Note]
-> The former `GET /frames/{index}/table` endpoint (server-rendered HTML) was removed. Fetch the table
-> content from `GET /projects/{projectId}/tables/{tableId}?raw=true` (the frame carries its `tableId`)
-> and apply this overlay.
-
 ---
 
 ### 9. List breakpoints
 
-**Endpoint**: `GET /projects/{projectId}/trace/breakpoints`
+**Endpoint**: `GET /rest/projects/{projectId}/trace/breakpoints`
 
 Returns the active breakpoint keys. Works without a running session (breakpoints are kept for the client and
 persist across runs).
@@ -285,7 +288,7 @@ persist across runs).
 
 ### 10. Replace breakpoints
 
-**Endpoint**: `PUT /projects/{projectId}/trace/breakpoints`
+**Endpoint**: `PUT /rest/projects/{projectId}/trace/breakpoints`
 
 Replaces the whole breakpoint set. Effective on the next frame enter / current-line change. Works without
 a running session, so breakpoints can be set before starting.
@@ -301,7 +304,7 @@ a running session, so breakpoints can be set before starting.
 
 ### 11. List breakpoint targets
 
-**Endpoint**: `GET /projects/{projectId}/trace/breakpoint-tables`
+**Endpoint**: `GET /rest/projects/{projectId}/trace/breakpoint-tables`
 
 Returns the rule tables a breakpoint can be set on, **deduplicated by name** (a name key stops on every
 overloaded or dimensional version). With an active session, only tables **reachable from the traced
@@ -317,9 +320,11 @@ the graph, e.g. a test table) every executable table is returned. Sorted by name
 
 ### 12. Get a lazy parameter value
 
-**Endpoint**: `GET /projects/{projectId}/trace/parameters/{parameterId}`
+**Endpoint**: `GET /rest/projects/{projectId}/trace/parameters/{parameterId}`
 
 Fetches the full value of a parameter that was returned lazily (`lazy: true`) in frame variables.
+
+**Query parameters**: `includeSchema` (boolean, default `false`) — as for the frame variables.
 
 **Response**: `200 OK` — [`ParameterValue`](#parametervalue) with the value inlined.
 
@@ -333,13 +338,13 @@ Watch a factor across the whole run: retain the value of named cells on **every*
 table, so a factor can be read across all coverages or iterations without dumping every frame. Watches
 retain values only for the named cells — the one opt-in exception to the values-only-while-suspended rule.
 
-**Set the watch set** — `PUT /projects/{projectId}/trace/watches`, body
+**Set the watch set** — `PUT /rest/projects/{projectId}/trace/watches`, body
 [`WatchesRequest`](#watchesrequest). The set persists across runs and applies on the **next start**, since
 a watch captures from the beginning of a run. `204 No Content`.
 
-**Get the watch set** — `GET /projects/{projectId}/trace/watches` → `string[]`.
+**Get the watch set** — `GET /rest/projects/{projectId}/trace/watches` → `string[]`.
 
-**Get the collected values** — `GET /projects/{projectId}/trace/watch` → [`WatchView`](#watchview). Complete
+**Get the collected values** — `GET /rest/projects/{projectId}/trace/watch` → [`WatchView`](#watchview). Complete
 once the run has finished; carries the executions seen so far while it is still suspended. `409 Conflict`
 while the worker is still `running`.
 
@@ -350,11 +355,71 @@ the response small) → `GET /watch`.
 
 ### 14. Terminate the session
 
-**Endpoint**: `DELETE /projects/{projectId}/trace`
+**Endpoint**: `DELETE /rest/projects/{projectId}/trace`
 
 Terminates the worker and clears the session and parameter registry. Idempotent.
 
 **Response**: `204 No Content`.
+
+---
+
+### 15. Get the inputs of a spreadsheet step
+
+**Endpoint**: `GET /rest/projects/{projectId}/trace/frames/{index}/step-inputs`
+
+Returns one spreadsheet step on its own: the values its formula consumed, the value the step returned, and the address of
+its cell.
+
+**Query parameters**:
+- `ref` (string, required) — the reference of the step in the frame.
+- `includeSchema` (boolean, default `false`) — as for the frame variables.
+
+**Response**: `200 OK` — `StepInputsView`:
+- `inputs` — the values the formula read, named as the formula writes them: sibling steps such as `$LimitIndex`, the
+  parameters of the table, the fields of a parameter opened into the scope of the table, and the constants of the
+  module. A step that has not run yet is left out. Empty for a frame that is not a spreadsheet and for an unknown step.
+- `result` — the value of the step, named `return`. Absent for a formula cell that has not run.
+- `cell` — the A1 address of the step's cell in the raw table.
+- `errors` — the errors the step raised. Present only on the step where the run failed.
+
+**Errors**: `404 Not Found` (no session, or frame not found); `409 Conflict` (not suspended).
+
+---
+
+### 16. Page the executed sub-calls of a step
+
+**Endpoint**: `GET /rest/projects/{projectId}/trace/tree/children`
+
+With `profiling=true` the executed tree is shallow, and this endpoint loads the sub-calls of one step on demand, so the
+tree of a large run is never sent whole.
+
+**Query parameters**:
+- `uri` (string, required) — the source URI of the frame.
+- `instance` (integer, required) — the zero-based execution index of the frame in the run, so a given loop iteration is
+  reachable.
+- `step` (string, required) — the reference of the step whose sub-calls to return.
+- `offset` (integer, default `0`) — the index of the first sub-call.
+- `limit` (integer, default `100`, min `1`) — how many sub-calls to return.
+
+**Response**: `200 OK` — `{ "children": [...], "total": n }`. Each child is a shallow [`CallNodeView`](#callnodeview):
+its own steps but not its sub-calls. `total` is the number of sub-calls of the step, so a client pages through the rest.
+
+---
+
+### 17. Export the trace
+
+**Endpoint**: `GET /rest/projects/{projectId}/trace/export`
+
+Replays the run of the active session with a recording tracer, and answers the whole executed tree as plain text: one
+indented `TRACE:` line for each table frame, spreadsheet cell, and decision table check, with its computed value. The
+tree is capped at a number of nodes, so a huge run gives a truncated trace instead of exhausting the memory.
+
+**Query parameters**:
+- `release` (boolean, default `false`) — drop the session once the trace is written.
+- `smartNumbers` (boolean, default `true`) — the readable number format. With `false` the numbers keep their full
+  precision.
+
+**Response**: `200 OK` — `text/plain`, sent as the attachment `trace.txt`.
 
 ---
 
@@ -772,11 +837,8 @@ sequenceDiagram
 
 ## Error Handling
 
-Errors use the standard problem body:
-
-```json
-{ "status": 404, "message": "trace.execution.task.message", "path": "/projects/MyProject/trace/stack" }
-```
+An error answers a body of the form `{"code": "openl.error.<status>.<key>", "message": "..."}`, where `<key>` is the
+message code of the table below; see [Errors](README.md#errors).
 
 | Scenario | Status | Message code |
 | --- | --- | --- |
@@ -797,37 +859,37 @@ Errors use the standard problem body:
 
 ```bash
 # Start (suspended at entry), capture the stack
-curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=DT_RiskAssessment" \
+curl -X POST "http://localhost:8080/rest/projects/MyProject/trace?tableId=DT_RiskAssessment" \
   -H "Content-Type: application/json" \
   -d '{ "params": { "age": 35, "income": 75000, "creditScore": 720 },
         "runtimeContext": { "lob": "Personal", "usState": "NY" } }'
 
 # Step into
-curl -X POST "http://localhost:8080/projects/MyProject/trace/step?type=into"
+curl -X POST "http://localhost:8080/rest/projects/MyProject/trace/step?type=into"
 
 # Inspect the top frame's variables
-curl "http://localhost:8080/projects/MyProject/trace/frames/0/variables"
+curl "http://localhost:8080/rest/projects/MyProject/trace/frames/0/variables"
 
 # Highlight overlay for the client-rendered table
-curl "http://localhost:8080/projects/MyProject/trace/frames/0/highlights"
+curl "http://localhost:8080/rest/projects/MyProject/trace/frames/0/highlights"
 # → [ { "cell": "C5", "state": "current" } ]
 
 # Run to completion
-curl -X POST "http://localhost:8080/projects/MyProject/trace/resume"   # 202
+curl -X POST "http://localhost:8080/rest/projects/MyProject/trace/resume"   # 202
 
 # Terminate
-curl -X DELETE "http://localhost:8080/projects/MyProject/trace"        # 204
+curl -X DELETE "http://localhost:8080/rest/projects/MyProject/trace"        # 204
 ```
 
 ### Set a breakpoint before running
 
 ```bash
 # By table name — stops on every overloaded/dimensional version of the table
-curl -X PUT "http://localhost:8080/projects/MyProject/trace/breakpoints" \
+curl -X PUT "http://localhost:8080/rest/projects/MyProject/trace/breakpoints" \
   -H "Content-Type: application/json" \
   -d '{ "uris": ["VehiclePremiumCalculation"] }'
 
-curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=DT_RiskAssessment&stopAtEntry=false"
+curl -X POST "http://localhost:8080/rest/projects/MyProject/trace?tableId=DT_RiskAssessment&stopAtEntry=false"
 # Runs to the breakpoint and returns the stack suspended there.
 ```
 
@@ -835,7 +897,7 @@ curl -X POST "http://localhost:8080/projects/MyProject/trace?tableId=DT_RiskAsse
 
 ```bash
 # Only tables reachable from the traced table; names deduplicated
-curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=name"
+curl "http://localhost:8080/rest/projects/MyProject/trace/breakpoint-tables?fields=name"
 # → [ { "name": "SetContext" }, { "name": "VehiclePremiumCalculation" }, ... ]
 ```
 
@@ -846,45 +908,3 @@ curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=na
 - **[Architecture Design](projects-trace-architecture.md)** — how suspension, the live stack, and freezing work.
 - **Tables API** — the raw table view (`?raw=true&styles=true`) the client renders the traced table from.
 - **Test API** — test execution and results.
-
----
-
-## Changelog
-
-### Version 6.2.1-SNAPSHOT (BETA)
-
-- **Profiling** (`profiling=true`): the executed call tree (`DebugStackView.tree`, `StepValueView.children`)
-  with per-frame and per-step timings (`durationMillis`/`selfMillis`) — structure only, no values.
-- **Bounded profile overview** (`DebugStackView.profile`): the slowest tables aggregated across the run,
-  constant-sized regardless of run size. `includeTree=false` returns only this (not the full tree);
-  `profileTop` sets how many hotspots.
-- **Compact stack** (`view=compact` on start/step/stack): keeps sub-steps only on the active frame, so a
-  step returns the frame that changed instead of re-sending every frame's `steps`.
-- **Watch** (`PUT /watches`, `GET /watch`): retain a named cell's value on every execution of its table,
-  so a factor can be read across all coverages or iterations without dumping every frame. The one opt-in
-  exception to structure-only profiling; bounded by the number of watched cells.
-- **Step references**: a formula that computes or re-reads another step records a `stepRef` node pointing
-  at the original step (`CallNodeView.refStep`) — shared steps are never duplicated; calls are attributed
-  to the step whose formula makes them.
-- **Dispatcher badge**: a table chosen from overloaded (dimension-property) versions carries
-  `DispatchInfo` in place; no separate dispatcher frame.
-- **Breakpoints**: by table **name** (any same-named version), on **any fired rule** (`uri#rule`), on a
-  **specific rule** (`uri#{ruleName}`); `GET /breakpoint-tables` lists reachable targets deduped by name.
-- **Client-rendered traced table**: removed `GET /frames/{index}/table` (server HTML); added
-  `GET /frames/{index}/highlights` (A1-keyed overlay) on top of the shared raw Tables API.
-- **Decision explanation**: `DebugFrameVariables.decision` — which rule fired and which conditions matched.
-- **Structured errors**: `DebugStackView.error` (`DebugError`) replaces the flat `errorMessage`.
-- **Step exit and exceptions**: a step finishing a frame suspends at the frame's own exit with its result;
-  an exception suspends at the throwing frame before propagating, and stamps every live caller with
-  the same throwable for inspect (stack `error` stays on the completed thrower).
-- **Steps are executable cells only**; the input is remembered for replay/profiling restarts; idle
-  sessions are reaped after 10 minutes; the legacy tree-trace implementation was removed.
-
-### Version 6.0.0-SNAPSHOT (BETA)
-
-- Reworked Trace into an **interactive debugger**: suspended execution on a worker thread, live call
-  stack, step into/over/out, resume, pause.
-- Breakpoints on tables (`uri`) and spreadsheet sub-steps (`uri#ref`), persisted per session.
-- Lazy per-frame variable freezing; executed-step values for spreadsheets.
-- **Removed** the tree-based endpoints (`/trace/nodes`, `/trace/nodes/{id}`, `/trace/nodes/{id}/table`,
-  `/trace/export`) and lazy-tree retention.
