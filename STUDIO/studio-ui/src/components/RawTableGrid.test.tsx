@@ -60,6 +60,24 @@ describe('RawTableGrid', () => {
         expect(screen.queryByTestId('table-line-number')).not.toBeInTheDocument()
     })
 
+    it('draws a number at the precision Excel keeps, without the binary noise of the double behind it', () => {
+        const table: RawTableCell[][] = [[
+            { cell: 'A1', value: 1.1500000000000001 },
+            { cell: 'B1', value: 1.4500000000000002 },
+            { cell: 'C1', value: -1.1500000000000001 },
+            { cell: 'D1', value: 0.1 + 0.2 },
+            { cell: 'E1', value: 434.99999999999994 },
+            { cell: 'F1', value: 1e-7 },
+            { cell: 'G1', value: 1234567890123456 },
+            { cell: 'H1', value: '1.1500000000000001' },
+        ]]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const cells = Array.from(screen.getByTestId('grid').querySelectorAll('td'), cell => cell.textContent)
+        expect(cells).toEqual(['1.15', '1.45', '-1.15', '0.3', '435', '1e-7', '1234567890123456', '1.1500000000000001'])
+    })
+
     it('paints the cell the way the workbook has it', () => {
         render(<RawTableGrid rows={rows} testId="grid" />)
 
