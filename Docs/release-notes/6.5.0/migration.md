@@ -286,6 +286,9 @@ everyone who calls that API from outside the browser.
   boxed overload and returns an `Integer` instead of an `int`. Code compiled against an earlier version fails with
   `NoSuchMethodError` until it is compiled again. The rules functions of `org.openl.rules.util` are not meant for Java
   code.
+* **`org.openl.source.impl.ModuleFileSourceCodeModule` and `org.openl.syntax.exception.Runnable` are removed.** The
+  source module was deprecated since 5.23.10; build a `URLSourceCodeModule` from the module URL instead. Nothing in
+  OpenL Tablets used the `Runnable` interface; use `java.util.concurrent.Callable` or an interface of your own.
 
 ## Administrators
 
