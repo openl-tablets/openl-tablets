@@ -407,3 +407,7 @@ The next test table provides examples of calculations with null values.
 *Test table for null elements usage in calculations*
 
 If all values are **null**, the result is also **null**.
+
+Functions such as `abs`, `sqrt` and `pow` return `null` when a number they compute with is `null`, so `abs(b)`,
+`sqrt(b)` and `pow(a, b)` are `null`.
+For more information, see [Math Functions](../05-appendices/04-math-functions.md).
