@@ -3,7 +3,7 @@
 ### Common Issues
 
 #### Port 8080 Already in Use
-- Change Tomcat port in `server.xml`
+- Change Tomcat port in the `conf/server.xml` file of Tomcat
 - Or stop conflicting application
 
 #### JAVA_HOME Not Set
@@ -24,9 +24,5 @@ export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
 - Check database URL, username, password
 - Ensure database server is running
 - Verify firewall rules allow connection
-
-#### Encoding Issues
-- Ensure `URIEncoding="UTF-8"` in Tomcat connector
-- Set file encoding: `-Dfile.encoding=UTF-8`
 
 ---
