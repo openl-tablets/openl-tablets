@@ -7,7 +7,6 @@ import java.util.Objects;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
@@ -31,11 +30,6 @@ public abstract class AbstractAlgorithmSubroutineMethodWrapper extends Algorithm
     protected AbstractAlgorithmSubroutineMethodWrapper(AlgorithmSubroutineMethod delegate) {
         super(null);
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
-    }
-
-    @Override
-    public IGridRegion getGridRegion() {
-        return delegate.getGridRegion();
     }
 
     @Override

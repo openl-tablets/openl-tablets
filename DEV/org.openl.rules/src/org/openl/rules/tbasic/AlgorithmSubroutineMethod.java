@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenMethodHeader;
@@ -25,19 +24,6 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
 
     public AlgorithmSubroutineMethod(IOpenMethodHeader header) {
         super(header, null);
-    }
-
-    public IGridRegion getGridRegion() {
-        IGridRegion gridRegion = null;
-        // TODO: rewrite to return more precise grid region
-        if (!algorithmSteps.isEmpty()) {
-            var firstOperation = algorithmSteps.getFirst();
-            gridRegion = firstOperation.getSourceCode().getGridRegion();
-            // TODO: expand till the last operation
-        }
-
-        return gridRegion;
-
     }
 
     @Override
