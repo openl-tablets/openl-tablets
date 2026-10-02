@@ -14,47 +14,25 @@ This section describes OpenL Rule Services advanced services configuration and c
 If a project has specific requirements, OpenL Rule Services customization algorithm is as follows:
 
 1.  Create a Maven project that extends OpenL Rule Services.
-2.  Add or change the required points of configuration.
-3.  Add the following dependency to the `pom.xml` file with the version used in the project specified:
+2.  Add the following dependency to the `pom.xml` file with the version used in the project specified:
 
     ```xml
     <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-        <version>5.X.X</version>
+        <version>${org.openl.version}</version>
         <type>war</type>
         <scope>runtime</scope>
     </dependency>
     ```
 
-1.  Use the following Maven plugin to control the OpenL Rule Services building with user’s custom configurations and classes:
+    To use the Git, Amazon AWS S3, and Azure Blob Storage repositories, or the relational database storage of the request logs, extend the *all* web application `org.openl.rules.ruleservice.ws.all` instead.
 
-    ```xml
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-            <warSourceDirectory>webapps/ws</warSourceDirectory>
-            <!—Define war name here-->
-            <warName>${war.name}-${project.version}</warName>
-            <packaging Excludes>
-                <!—Exclude unnecessary libraries from parent project here-->
-                WEB-INF/lib/org.openl.rules.ruleservice.ws.lib-*.jar
-            </packaging Excludes>
-            <!—Define paths for resources. Developer has to create a file with the same name to overload existing file in the parent project-->
-            <web Resources>
-                <resource>
-                    <directory>src/main/resources</directory>
-                </resource>
-                <resource>
-                    <directory>war-specific-conf</directory>
-                </resource>
-            </web Resources>
-        </configuration>
-    </plugin>
-    ```
-
-1.  If necessary, add customized spring beans into openl-ruleservice-override-beans.xml in src/main/resources.
+3.  Add the required points of configuration:
+    -   Spring configurations in the `org.openl.rules.ruleservice.spring` Java package or in the `META-INF/openl/extension-*.xml` files, as described in [Adding Spring Framework configurations](https://openl-tablets.github.io/openl-tablets/integration-guides/spring).
+    -   Java and Groovy classes, such as interceptors, advices, and listeners, described further in this section.
+    -   Settings in the `application.properties` file in `src/main/resources`.
+4.  Build the project with the `maven-war-plugin`, which adds the files of the project to the web application of the dependency, and deploy the resulting WAR file.
 
 ### Data Source Listeners
 
@@ -66,9 +44,9 @@ Users can add their own listener implementing `org.openl.rules.ruleservice.loade
 
 ### Service Publishing Listeners
 
-Service publishing listeners notify about the deployed or undeployed OpenL Tablets projects. Users can add their own listeners implementing `org.openl.rules.ruleservice.publisher.RuleServicePublisherListener` for additional control of deploying and undeploying projects with the required behavior and add them to the Spring configuration. The system automatically finds and registers all Spring beans implemented `RuleServicePublisherListener` interface as a publishing listener.
+Service publishing listeners notify about the deployed or undeployed OpenL Tablets projects. Users can add their own listeners implementing `org.openl.rules.ruleservice.publish.RuleServicePublisherListener` for additional control of deploying and undeploying projects with the required behavior and add them to the Spring configuration. The system automatically finds and registers all Spring beans implemented `RuleServicePublisherListener` interface as a publishing listener.
 
-The `org.openl.rules.ruleservice.publisher.RuleServicePublisherListener` interface has the following methods:
+The `org.openl.rules.ruleservice.publish.RuleServicePublisherListener` interface has the following methods:
 
 | Inceptor                         | Description                                                                                               |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------|
@@ -406,7 +384,7 @@ The StoreLogDataService interface has the following methods:
 
 | Method                               | Description                                            |
 |--------------------------------------|--------------------------------------------------------|
-| boolean isEnabled()                  | Identifies whether the log storing service is enabled. |
+| boolean isSync(StoreLogData storeLogData) | Identifies whether the data is stored synchronously with the processing of the request. |
 | void save(StoreLogData storeLogData) | Saves storeLogData data to a storage.                  |
 
 The implementation class of this interface must be registered in the application Spring context. The system discovers all implementation of the interface automatically and uses all found services at the same time.
@@ -415,7 +393,7 @@ The implementation class of this interface must be registered in the application
 
 Custom implementation of the StoreLogDataService interface supports all features described in this document.
 
-Annotation on the called method `@org.openl.rules.ruleservice.storelogdata.annotation.SkipFaultStoreLogData` instructs the system to skip storing fault requests and their responds in a storage.
+Annotation `@org.openl.rules.ruleservice.storelogdata.annotation.SkipFault` on the service class or on the called method instructs the system to skip storing fault requests and their responds in a storage.
 
 ##### Collecting Data from Requests and Their Responds and Populating Custom Values
 
