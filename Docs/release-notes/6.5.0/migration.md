@@ -26,6 +26,11 @@ everyone who calls that API from outside the browser.
   that has to reject such a value can end with a rule that leaves the condition cell empty and returns the result of
   the `error()` function.
 
+* **An infinite number matches only the same infinity in a decision table condition.** In a condition over `Double`,
+  `double`, `Float` or `float` values, the input `Infinity` or `-Infinity` matches a rule only when its condition cell
+  holds that infinity or is empty, as `==` compares them. Before, it matched the rule of a number of the column, such
+  as `0`, and a condition cell with `Infinity` could also match `-Infinity` or a number.
+
 * **The literal `null` added to or subtracted from a number counts as `0`.** It takes the type of the other operand,
   as an empty value of that type does: `null + 3` is `3` and `null - 3` is `-3`. Before, both were an empty `Date`, so
   `"" + (null + 3)` gave `null` and `null + 3 == 3` gave `false`; a `byte` or `short` operand and `null - 'c'` did the
