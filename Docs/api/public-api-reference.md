@@ -1120,7 +1120,6 @@ export class OpenLClient {
 
 ## Related Documentation
 
-- [Testing Guide](../guides/testing-guide.md) - API testing
 - [CI/CD Pipeline](../operations/ci-cd.md) - API deployment
 - [Docker Guide](../operations/docker-guide.md) - API containerization
 - [STUDIO AGENTS.md](/STUDIO/AGENTS.md) - REST API development guidelines

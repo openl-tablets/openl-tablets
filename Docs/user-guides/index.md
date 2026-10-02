@@ -62,7 +62,7 @@ Learn how to deploy and use OpenL Tablets rules as web services.
 
 ## Support
 
-Need help? Check our [Troubleshooting Guide](https://openl-tablets.github.io/openl-tablets/onboarding/troubleshooting) or visit the [GitHub Issues](https://github.com/openl-tablets/openl-tablets/issues).
+Need help? Check the [Troubleshooting](installation-guide/troubleshooting.md) page or visit the [GitHub Issues](https://github.com/openl-tablets/openl-tablets/issues).
 
 ---
 

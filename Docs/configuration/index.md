@@ -50,7 +50,6 @@ Production deployment guide and best practices. Covers:
 ### Development
 For development environments, see:
 - [Development Setup](../onboarding/development-setup.md) - Local development configuration
-- [Common Tasks](../onboarding/common-tasks.md) - Development workflows
 
 ### Testing
 For test environments, configuration focuses on:
