@@ -1788,6 +1788,8 @@ public final class RulesUtils {
      * @param f2 the divisor.
      * @return the remainder when {@code f1} is divided by {@code f2}.
      */
+    // IEEEremainder() is a rule function named after Math.IEEEremainder; renaming it breaks the rules that call it.
+    @SuppressWarnings("java:S100")
     public static double IEEEremainder(double f1, double f2) {
         return Math.IEEEremainder(f1, f2);
     }

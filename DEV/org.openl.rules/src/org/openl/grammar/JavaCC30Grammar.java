@@ -94,6 +94,8 @@ public abstract class JavaCC30Grammar implements IGrammar {
 
     public abstract void parseTopNode(String rootType);
 
+    // JavaCC generates this method in the parser it builds and fixes its name.
+    @SuppressWarnings("java:S100")
     public abstract void ReInit(Reader r);
 
     private final LinkedList<ISyntaxNode> stack = new LinkedList<>();

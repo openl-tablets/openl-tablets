@@ -9,6 +9,8 @@ import org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB;
 
 public interface Simple4ServiceAnnotationTemplate {
 
+    // The method is named after the Hello rule it publishes; the request suites call it by this name.
+    @SuppressWarnings("java:S100")
     @StoreLogDataToDB(value = {org.openl.itest.db.HelloEntity1.class,
             org.openl.itest.db.HelloEntity2.class,
             org.openl.itest.db.HelloEntity3.class,
@@ -16,6 +18,8 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(PrepareStoreLogDataValues.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 
+    // The method is named after the Hello2 rule it publishes; the request suites call it by this name.
+    @SuppressWarnings("java:S100")
     @StoreLogDataToDB(org.openl.itest.db.HelloEntity1.class)
     @ServiceCallBeforeInterceptor(Simple4ServiceMethodBeforeAdvice.class)
     @ServiceCallAfterInterceptor(Simple4ServiceMethodAfterAdvice.class)
@@ -27,6 +31,8 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(value = AfterAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class)
     String Hello2(IRulesRuntimeContext runtimeContext, Integer hour);
 
+    // The method is named after the Hello3 rule it publishes; the request suites call it by this name.
+    @SuppressWarnings("java:S100")
     @StoreLogDataToDB(value = HelloEntity9.class, sync = true)
     @PrepareStoreLogData(PrepareStoreLogDataValues9.class)
     String Hello3(IRulesRuntimeContext runtimeContext, Integer hour);

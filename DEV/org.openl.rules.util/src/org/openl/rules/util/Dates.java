@@ -34,6 +34,8 @@ public final class Dates {
      *
      * @see SimpleDateFormat
      */
+    // Date() is a rule function; renaming it breaks the rules that call it.
+    @SuppressWarnings("java:S100")
     public static Date Date(int year, int month, int day) {
         return Date(year, month, day, 0, 0, 0, 0);
     }
@@ -43,6 +45,8 @@ public final class Dates {
      *
      * @see SimpleDateFormat
      */
+    // Date() is a rule function; renaming it breaks the rules that call it.
+    @SuppressWarnings("java:S100")
     public static Date Date(int year, int month, int day, int hours, int minutes) {
         return Date(year, month, day, hours, minutes, 0, 0);
     }
@@ -52,6 +56,8 @@ public final class Dates {
      *
      * @see SimpleDateFormat
      */
+    // Date() is a rule function; renaming it breaks the rules that call it.
+    @SuppressWarnings("java:S100")
     public static Date Date(int year, int month, int day, int hours, int minutes, int seconds) {
         return Date(year, month, day, hours, minutes, seconds, 0);
     }
@@ -61,6 +67,8 @@ public final class Dates {
      *
      * @see SimpleDateFormat
      */
+    // Date() is a rule function; renaming it breaks the rules that call it.
+    @SuppressWarnings("java:S100")
     public static Date Date(int year, int month, int day, int hours, int minutes, int seconds, int milliseconds) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month - 1, day, hours, minutes, seconds);
