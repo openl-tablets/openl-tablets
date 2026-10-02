@@ -467,8 +467,13 @@ class StringsTest {
         assertEquals(-10000000.1, toNumber("-10000000.1"));
         assertEquals(1d, toNumber("1.000000000000000000000000000000000000000000000000000000001"));
         assertEquals(Double.POSITIVE_INFINITY, toNumber("∞"));
+        assertEquals(1500L, toNumber("1.5E3"));
+        assertEquals(1500L, toNumber("1.5e3"));
+        assertEquals(-0.00123, toNumber("-1.23e-3"));
         assertNull(toNumber("X"));
         assertNull(toNumber("13.."));
+        assertNull(toNumber("1e"));
+        assertNull(toNumber("e1"));
     }
 
     @Test

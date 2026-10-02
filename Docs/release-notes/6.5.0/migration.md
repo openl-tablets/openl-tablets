@@ -93,6 +93,10 @@ everyone who calls that API from outside the browser.
   `1e3` is now the `Double` `1000.0` instead of the text `1e3`. Give such a step the type `String`, as in
   `Code : String`, to keep the text.
 
+* **`toNumber` reads an exponent with a small `e`.** `toNumber("1.5e3")` is `1500`, like `toNumber("1.5E3")`.
+  Before, it was `null`, although `isNumeric("1.5e3")` was already `true`, so a rule that checks the result of
+  `toNumber` for `null` now gets the number for such a text.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 

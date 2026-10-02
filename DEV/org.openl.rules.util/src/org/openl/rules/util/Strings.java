@@ -585,7 +585,8 @@ public final class Strings {
             return null;
         }
         var parsePosition = new ParsePosition(0);
-        var parsed = NumberFormat.getInstance(Locale.US).parse(str, parsePosition);
+        // DecimalFormat reads only the capital exponent letter of its symbols
+        var parsed = NumberFormat.getInstance(Locale.US).parse(str.replace('e', 'E'), parsePosition);
         if (parsePosition.getIndex() != str.length()) {
             return null;
         }
