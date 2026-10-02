@@ -48,8 +48,7 @@
 │ ├─ org.openl.rules                  ← CORE ENGINE       │
 │ │   ├─ org.openl.rules.util                             │
 │ │   ├─ org.openl.rules.annotations                      │
-│ │   ├─ org.openl.rules.gen                              │
-│ │   └─ org.openl.rules.constrainer                      │
+│ │   └─ org.openl.rules.gen                              │
 │ └─ org.openl.commons                ← FOUNDATION        │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -67,7 +66,6 @@
 | **org.openl.rules.util** | annotations | None |
 | **org.openl.rules** | commons, annotations, util | POI, ASM, Groovy, Commons |
 | **org.openl.rules.gen** | rules | Velocity |
-| **org.openl.rules.constrainer** | None | None |
 | **org.openl.rules.project** | rules | Commons Lang3, JAXB |
 | **org.openl.spring** | commons | Spring Framework |
 | **org.openl.rules.test** | rules.project | None |
