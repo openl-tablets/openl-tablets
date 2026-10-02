@@ -181,7 +181,7 @@ public final class AlgorithmCompilerTool {
         AlgorithmTreeNode sourceNode;
         String operationValueName = null;
 
-        // TODO: set more precise source reference
+        // An operation points to the cell of the field it evaluates, or to its whole row.
         if (isOperationFieldInstruction(instruction)) {
             sourceNode = extractOperationNode(nodesToCompile, instruction, bindingContext);
             operationValueName = extractFieldName(instruction);

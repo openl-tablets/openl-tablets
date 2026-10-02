@@ -588,8 +588,7 @@ public class ProjectModel {
         status.addModulesCount(1);
         var opened = isOpenedModule(loader, module) ? this.openedModuleCompiledOpenClass.get() : null;
         if (opened != null) {
-            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
-            // rewrite the algorithm to handle with it is required here
+            // The messages of the module include those of its dependencies; the status drops the duplicates.
             status.addMessages(opened.getAllMessages()).addModulesCompiled(1);
             return;
         }

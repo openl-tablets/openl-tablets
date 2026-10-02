@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
@@ -132,12 +131,7 @@ class MergedRegionsTest {
                 Cell expectedXLSCell = PoiExcelHelper.getOrCreateCell(expectedRegion.getLeft() + column,
                         expectedRegion.getTop() + row,
                         grid.getSheetSource().getSheet());
-                // non top left cells of merged regions will be skipped in
-                // comparing by POI due to the second check
-                // TODO:remove the second check when the bug with non empty
-                // cells in merged regions will be resolved
-                if (resultCell != expectedCell && !Objects.equals(resultCell.getStringValue(),
-                        expectedCell.getStringValue())
+                if (resultCell != expectedCell
                         && (!isEqualCells(resultCell, expectedCell, grid) || !isEqualCellsInPOI(resultXLSCell,
                         expectedXLSCell))) {
                     throw new DifferentCellsException(resultCell, expectedCell);

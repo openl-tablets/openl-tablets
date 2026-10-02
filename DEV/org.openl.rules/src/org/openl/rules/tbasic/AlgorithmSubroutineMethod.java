@@ -30,7 +30,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     public String getSourceUrl() {
         String sourceUrl = null;
 
-        // TODO: rewrite to return more precise source code url
+        // A subroutine is located by its first operation.
         if (!algorithmSteps.isEmpty()) {
             var firstOperation = algorithmSteps.getFirst();
             sourceUrl = firstOperation.getSourceCode().getSourceUri();

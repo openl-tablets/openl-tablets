@@ -261,14 +261,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     /**
-     * Indicates if test method has any row rules for testing target table. Finds it by field that contains
-     * {@link TestMethodHelper#EXPECTED_RESULT_NAME} or {@link TestMethodHelper#EXPECTED_ERROR}
-     *
-     * @return true if method expects some return result or some error.
+     * Tells whether the test table checks the tested method.
      * <p>
-     *         TODO: rename it. it is difficult to understand what is it doing
+     * A test case checks it when it defines {@link TestMethodHelper#EXPECTED_RESULT_NAME},
+     * {@link TestMethodHelper#EXPECTED_ERROR} or a spreadsheet cell value. A test case of a spreadsheet always checks
+     * it.
+     *
+     * @return true if any test case checks the tested method
      */
-    public boolean isRunmethodTestable() {
+    public boolean hasChecks() {
         for (var i = 0; i < getNumberOfTestsCases(); i++) {
             if (getTest(i).isExpectedResultDefined() || getTest(i)
                     .isExpectedErrorDefined() || containsFieldsForSprCellTests(

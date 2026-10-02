@@ -1065,7 +1065,6 @@ Generated Proxy
 
 **Feature Gaps**:
 - Security blocking for system classes - `TypeResolver:89`
-- Excel format consideration - `RuleRowHelper:456`
 - Comma-separated array parsing - `RuleRowHelper:523`
 - URL space support - `URLSourceCodeModule:67`
 

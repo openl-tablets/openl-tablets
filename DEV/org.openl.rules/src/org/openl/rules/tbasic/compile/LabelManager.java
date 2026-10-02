@@ -101,7 +101,6 @@ public class LabelManager {
         if (existingLabels.containsKey(labelType)) {
             label = existingLabels.get(labelType);
         } else if (!isLoopOperationSet && labelType.isLoopLabel()) {
-            // TODO not very good we use field for recursive action
             label = getLabelFromStack(labelType);
         }
 

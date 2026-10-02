@@ -515,8 +515,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      * <p>
      * Performance. From the algorithm definition it is clear, that step 1 of algorithm is performed with constant or
      * near constant speed with regard to the number of the rules. The performance of the part 2 is largely dependent
-     * the size of the resulting rules set. The order of initial indexed conditions does not seem to affect performance
-     * much (//TODO this statement needs verification)
+     * the size of the resulting rules set.
      *
      * @return iterator over <b>rule indexes</b> - integer iterator.
      */

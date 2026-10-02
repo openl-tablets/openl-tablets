@@ -59,8 +59,7 @@ public class TestUnit extends BaseTestUnit {
     public List<ComparedResult> getResultParams() {
         var params = new ArrayList<ComparedResult>();
 
-        // Don't modify original ComparedResult!
-        // TODO: Investigate why we need to wrap actual value and expected value with ParameterWithValueDeclaration
+        // Don't modify original ComparedResult! The copy names its values after the field, as the results show them.
         for (ComparedResult comparedResult : getComparisonResults()) {
             var copy = new ComparedResult(comparedResult.getFieldName(),
                     buildParameterDeclaration(comparedResult.getFieldName(),

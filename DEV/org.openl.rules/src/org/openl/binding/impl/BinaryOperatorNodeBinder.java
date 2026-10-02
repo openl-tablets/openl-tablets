@@ -197,11 +197,8 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         IOpenClass[] types2 = {argumentTypes[1]};
 
         // An attempt to find method <methodName>(argumentTypes[1]), using the first argument type as a possible
-        // collection of suitable methods.
-        //
-        // TODO: Investigate which case covers this branch. How the method, e.g. foo(Type2) may be suitable
-        // for foo(Type1, Type2). Why it has more priority than next items for search?
-        // @author DLiauchuk
+        // collection of suitable methods. Such a method is an instance method of the first operand, which
+        // BinaryOpNode invokes on it, e.g. BigDecimal.add(BigDecimal) for a + b.
         //
         methodCaller = MethodSearch.findMethod(methodName, types2, bindingContext, argumentTypes[0], false);
         if (methodCaller != null) {
