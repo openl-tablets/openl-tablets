@@ -1,6 +1,8 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
@@ -10,22 +12,31 @@ import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
+/**
+ * Evaluates TRANSFORM TO and TRANSFORM UNIQUE TO: the values of the expression for the elements of an array or a
+ * collection, in the order of the elements.
+ * <p>
+ * TRANSFORM UNIQUE TO keeps the first of equal values and drops a null value.
+ */
 class TransformIndexNode extends ABoundNode {
     private final ILocalVar tempVar;
     private final IBoundNode transformer;
     private final IBoundNode targetNode;
     private final IOpenCast openCast;
+    private final boolean unique;
 
     TransformIndexNode(ISyntaxNode syntaxNode,
                        IBoundNode targetNode,
                        IBoundNode transformer,
                        ILocalVar tempVar,
-                       IOpenCast openCast) {
+                       IOpenCast openCast,
+                       boolean unique) {
         super(syntaxNode, targetNode, transformer);
         this.tempVar = tempVar;
         this.targetNode = targetNode;
         this.transformer = transformer;
         this.openCast = openCast;
+        this.unique = unique;
     }
 
     @Override
@@ -35,7 +46,7 @@ class TransformIndexNode extends ABoundNode {
             return null;
         }
         var elementsIterator = targetNode.getType().getAggregateInfo().getIterator(target);
-        var result = new ArrayList<Object>();
+        Collection<Object> result = unique ? new LinkedHashSet<>() : new ArrayList<>();
         while (elementsIterator.hasNext()) {
             var element = elementsIterator.next();
             if (element == null) {
@@ -44,7 +55,9 @@ class TransformIndexNode extends ABoundNode {
             element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
             var transformed = transformer.evaluate(env);
-            result.add(transformed);
+            if (!unique || transformed != null) {
+                result.add(transformed);
+            }
         }
         return CollectionUtils.toArray(result, transformer.getType().getInstanceClass());
     }

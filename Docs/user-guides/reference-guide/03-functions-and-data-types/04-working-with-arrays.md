@@ -107,6 +107,8 @@ Every array index operator skips the empty elements of an array, which are `null
 
 An empty field does not make its element empty. `drivers[select all having age == null]` returns the drivers whose age is empty, ORDER BY puts such drivers last in both directions, and SPLIT BY gathers them into one group. TRANSFORM TO keeps an empty result of the expression, while TRANSFORM UNIQUE TO drops it.
 
+An operator applied to a missing array or collection, which is `null`, returns `null`.
+
 To get a value for every element, an empty one included, use one of the following:
 
 -   `array.field`, such as `drivers.name`, returns the field of every element. An empty element gives an empty value, or 0 and false for a field of a primitive type.
