@@ -1,19 +1,15 @@
 # Projects Trace API - Architecture Design
 
-**Version**: 6.2.1-SNAPSHOT
-**Status**: BETA
-**Last Updated**: 2026-07-02
+**Status**: BETA — the Trace API of OpenL Studio, described in [Projects Trace API](projects-trace-api.md)
 
-> [!Note]
-> This describes the **interactive debugger** Trace. It replaces the previous tree-based Trace that ran a
-> rule to completion, built a full execution tree, and used "lazy nodes" that re-executed the calculation.
-> The legacy tree implementation has been removed.
+The Trace is an **interactive debugger**: a rule runs on a worker thread that parks at breakpoints and step points, and
+the client steps through the real execution.
 
 ---
 
 ## Table of Contents
 
-1. [Why this exists](#why-this-exists)
+1. [Purpose](#purpose)
 2. [The core idea](#the-core-idea)
 3. [How suspension works](#how-suspension-works)
 4. [Session lifecycle](#session-lifecycle)
@@ -26,27 +22,19 @@
 11. [Watch: a value across every execution](#watch-a-value-across-every-execution)
 12. [Avoiding the ProjectModel monitor](#avoiding-the-projectmodel-monitor)
 13. [Highlighting in the traced table](#highlighting-in-the-traced-table)
-14. [Memory: old vs new](#memory-old-vs-new)
-15. [REST API](#rest-api)
-16. [Concurrency and isolation](#concurrency-and-isolation)
-17. [Limitations and follow-ups](#limitations-and-follow-ups)
-18. [Key files](#key-files)
+14. [REST API](#rest-api)
+15. [Concurrency and isolation](#concurrency-and-isolation)
+16. [Limitations](#limitations)
+17. [Key files](#key-files)
 
 ---
 
-## Why this exists
+## Purpose
 
-The previous Trace ran a rule **to completion**, built a full in-memory tree of every executed step, and
-**cloned the arguments and result of every node**. A single trace could reach tens of gigabytes. The
-"lazy node" mitigation only *simulated* laziness: expanding a node **re-executed the whole calculation
-from that point to the end**, kept just the first level, discarded the rest, and re-cloned arguments —
-wasteful in both CPU and memory.
-
-The rework replaces this with a **real, Java-debugger-style** model: step into/over/out, breakpoints on
-tables and on individual steps, and **genuinely suspended execution** instead of re-execution. The UI
-shows the **live execution stack** (root to the current point) rather than a full tree, so memory is
-bounded by stack depth, not by the number of executed steps. An optional **profiling** mode retains the
-structure and timings of returned calls — but never their values.
+The Trace works like a Java debugger: step into, over, and out, breakpoints on tables and on individual steps, and a
+**genuinely suspended execution**. The client shows the **live execution stack** (root to the current point), so memory
+is bounded by the stack depth and not by the number of executed steps. An optional **profiling** mode retains the
+structure and the timings of returned calls, but never their values.
 
 ## The core idea
 
@@ -54,8 +42,10 @@ OpenL evaluation is a **synchronous recursive Java call chain**, and every rule-
 through one chokepoint:
 
 ```
-ExecutableRulesMethod.invoke → Tracer.invoke(executor, target, params, env, source) → instance.doInvoke(...)
+ExecutableRulesMethod.invoke → env.getTracer().invoke(executor, target, params, env, source)
 ```
+
+`IRuntimeEnv.getTracer()` answers `Tracer.NONE`, which just calls the executor, unless a run attached its own tracer.
 
 Therefore a **parked worker thread is a live continuation**: if the thread blocks inside a nested
 invocation, its JVM call stack — with every frame and all local state — stays alive, frozen in place. We
@@ -78,7 +68,7 @@ sequenceDiagram
 
     C->>W: start(stopAtEntry)
     W->>R: invoke rule
-    R-->>W: Tracer.invoke (enter table)
+    R-->>W: DebugTracer.invoke (enter table)
     W->>W: StepController.shouldSuspend? yes
     W->>Ch: publish live stack, then park (block)
     Note over W,R: JVM call stack frozen in place
@@ -132,23 +122,22 @@ flowchart TD
     Svc --> Dbg[TraceDebugger]
     Dbg --> W[Virtual-thread worker]
     W --> Hook[DebugHookImpl]
-    Hook -->|ThreadLocal dispatch| DDT[DebugDispatchTracer = Tracer.instance]
-    DDT --> Trc["Tracer.invoke chokepoint (DEV)"]
+    Hook --> DT[DebugTracer]
+    DT -->|attached to the run's IRuntimeEnv| Trc["Tracer.invoke chokepoint (DEV)"]
     Hook --> Ch[DebugChannel park/unpark]
     Hook --> Step[StepController]
     Reaper[DebugSessionReaper] -. reap idle .-> Reg
     Dbg -. status .-> WS[WebSocket /trace/status]
 ```
 
-- **Engine** (`org.openl.rules.webstudio.web.trace.debug`) — the debugger core: `TraceDebugger`
+- **Engine** (`org.openl.studio.projects.service.trace`) — the debugger core: `TraceDebugger`
   (orchestrates the worker), `DebugChannel` (the park/unpark handshake), `DebugHookImpl` (maintains the
   live frame stack and suspends), `StepController` (pure stepping logic), `DebugFrame`, `CallNode` (the
   executed tree in profiling mode), the `SourceClassifier` seam (`DefaultSourceClassifier`),
   `ConditionCheck`, `DebugTerminationError`.
-- **Dispatch** — `DebugDispatchTracer` is the installed `Tracer.instance`. A `ThreadLocal<DebugHook>`
-  routes the worker thread's invocations to the hook; every other thread is a plain passthrough with no
-  tracing overhead. The DEV `Tracer` class is untouched. The legacy tree-building tracer and its node
-  classes were removed — this dispatcher is the only tracer.
+- **Tracer** — `DebugTracer` extends the DEV `Tracer` and forwards every traced table invocation to the `DebugHook`.
+  It is attached to the `IRuntimeEnv` of the debug run (`setTracer`), so no thread-local state is needed. A run without
+  it uses `Tracer.NONE` and carries no tracing overhead.
 - **Service / session** (`org.openl.studio.projects.service.trace`) — `TraceDebugService` builds the test
   suite and spawns the worker; `DebugSession` holds one running session (plus a per-session lock and the
   cached inspection mapper); `DebugSessionRegistry` (`@ClientSessionScope`, at most one session per client)
@@ -159,7 +148,7 @@ flowchart TD
   groups watch captures into per-cell series; `DecisionTableMapper` maps a decision table's rules and the
   explanation of the rules that fired; `FormulaInputs` (in the service package) resolves the values a
   spreadsheet step's formula consumed; `TraceHighlightService` computes the A1-keyed overlay.
-- **REST + WebSocket** — `ProjectsTraceDebugController` under `/projects/{projectId}/trace`; status events
+- **REST + WebSocket** — `ProjectsTraceDebugController` under `/rest/projects/{projectId}/trace`; status events
   reuse the trace topic via `ProjectSocketNotificationService`.
 - **UI** (`STUDIO/studio-ui`) — `TraceView` debugger layout: toolbar, call tree, variables, decision
   panel, spreadsheet grid, watch panel, and the client-rendered traced table.
@@ -338,14 +327,14 @@ the session.
 ## Highlighting in the traced table
 
 The traced table is **rendered by the client** from the shared Tables API raw view
-(`GET /projects/{id}/tables/{tableId}?raw=true&styles=true` — the frame carries its `tableId`), and the
+(`GET /rest/projects/{id}/tables/{tableId}?raw=true&styles=true` — the frame carries its `tableId`), and the
 debugger supplies only a **highlight overlay** keyed by A1 cell address
 (`GET /trace/frames/{i}/highlights`):
 
 - **Spreadsheet** — the active cell (`current`). The cell is resolved from the frame's current location
   reference, so the highlight survives intermediate trace events.
 - **Decision table** — every evaluated condition cell (`conditionTrue` / `conditionFalse`) and the fired
-  rule's returned result (`result`). This requires the debug `Tracer.doWrap` to wrap the `IIntSelector`
+  rule's returned result (`result`). This requires `DebugTracer.wrap` to wrap the `IIntSelector`
   as `IntSelectorTracer`, so the algorithm's per-rule `Tracer.put("condition", condition, rule,
   successful)` events fire and are captured as `ConditionCheck`s on the frame.
 
@@ -353,31 +342,24 @@ The frontend caches the raw table per table id and refetches only the overlay on
 highlight tracks the current line even when stepping within the same frame. There is no server-side HTML
 rendering.
 
-## Memory: old vs new
-
-| Aspect | Legacy tree trace | Interactive debugger |
-| --- | --- | --- |
-| Execution | Run to completion, eagerly | One forward run, paused in place |
-| Retained state | Full tree of every step | Live stack (+ value-free structure in profiling) |
-| Argument cloning | Per node, for the whole tree | Lazy, per inspected live frame, discarded on return |
-| "Deeper" inspection | Re-execute from a point to the end | Continue the same parked execution |
-| Memory bound | Total executed steps (tens of GB) | Live stack depth |
-
 ## REST API
 
-Base path `/projects/{projectId}/trace`. See [Projects Trace API Documentation](projects-trace-api.md)
+Base path `/rest/projects/{projectId}/trace`. See [Projects Trace API Documentation](projects-trace-api.md)
 for request/response details.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| POST | `/` | Start a session (`profiling`/`includeTree`/`profileTop`/`view` optional); returns the initial stack |
+| POST | `/` | Start a session; returns the initial stack |
 | GET | `/stack` | Current execution stack (root → current); the executed tree/profile after completion |
 | GET | `/status` | Lightweight status poll |
 | POST | `/step?type=into\|over\|out` | Step and return the new stack (`view=compact` trims to the active frame) |
 | POST | `/resume` | Run to the next breakpoint (async) |
 | POST | `/pause` | Request a suspend |
 | GET | `/frames/{i}/variables` | Freeze and return a frame's variables, steps, and decision outcome |
+| GET | `/frames/{i}/step-inputs` | The inputs, the result, and the cell of one spreadsheet step |
 | GET | `/frames/{i}/highlights` | A1-keyed highlight overlay for the client-rendered table |
+| GET | `/tree/children` | One page of the executed sub-calls of a step, for a large profiled run |
+| GET | `/export` | The executed tree of the run as plain text |
 | GET / PUT | `/breakpoints` | List / replace breakpoint keys |
 | GET | `/breakpoint-tables` | Breakpoint targets: reachable tables, deduplicated by name |
 | GET / PUT | `/watches` | List / replace watched cell names or refs |
@@ -394,8 +376,8 @@ client then reads the new stack.
 - One dedicated **virtual thread** per session — never the bounded `testSuiteExecutor` pool, which a
   parked worker would exhaust. Idle suspended sessions cost almost nothing and are reaped after 10
   minutes anyway.
-- The tracer dispatch is **per-thread** (`ThreadLocal<DebugHook>`): non-debug executions and other users
-  run a plain passthrough with no tracing overhead, and concurrent debug sessions do not interfere.
+- The tracer is **per run** (`DebugTracer` on the `IRuntimeEnv` of the debug run): non-debug executions and other users
+  run with `Tracer.NONE` and no tracing overhead, and concurrent debug sessions do not interfere.
 - Inspection is serialized against stepping by a **per-session lock**: `step`/`resume` and
   `variables`/`highlights`/`stack` run under it, so a concurrent command cannot wake the worker while a
   frame's mutable step lists are being cloned. Reading the stack while the worker is still `RUNNING` is
@@ -409,7 +391,7 @@ client then reads the new stack.
   also interrupts and briefly joins the worker, then abandons a genuinely hung (cheap) virtual thread
   rather than blocking the HTTP thread.
 
-## Limitations and follow-ups
+## Limitations
 
 - Condition-by-condition stepping inside a decision table is not implemented; the decision panel lists
   only the rules that were actually evaluated, so a specific-rule breakpoint is settable once a rule has
@@ -423,14 +405,17 @@ client then reads the new stack.
 
 ## Key files
 
-- `DEV/.../org/openl/vm/Tracer.java` — the invocation chokepoint (unchanged).
-- `STUDIO/.../web/trace/DebugDispatchTracer.java` — installs `Tracer.instance`; per-thread dispatch to the debug hook.
-- `STUDIO/.../web/trace/debug/` — the engine (`TraceDebugger`, `DebugChannel`, `DebugHookImpl`,
-  `StepController`, `DebugFrame`, `CallNode`, `WatchCapture`, `DefaultSourceClassifier`, `ConditionCheck`).
-- `STUDIO/.../studio/projects/service/trace/` — `TraceDebugService(Impl)`, `DebugSession`,
-  `DebugSessionRegistry`, `DebugSessionReaper`, `TraceHighlightService(Impl)`.
-- `STUDIO/.../studio/projects/model/trace/TraceDebugMapper.java` — stack/tree mapping and variable freezing.
-- `STUDIO/.../studio/projects/model/trace/DecisionTableMapper.java` — decision-table rules and their explanation.
-- `STUDIO/.../studio/projects/service/trace/FormulaInputs.java` — the inputs a spreadsheet step's formula consumed.
-- `STUDIO/.../studio/projects/rest/controller/ProjectsTraceDebugController.java` — the REST API.
-- `STUDIO/studio-ui/src/containers/TraceView/` + `store/traceStore.ts` + `services/traceService.ts` — the UI.
+- `DEV/org.openl.rules/src/org/openl/vm/Tracer.java` — the invocation chokepoint, and the no-op `Tracer.NONE`.
+- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/service/trace/` — the engine (`DebugTracer`,
+  `TraceDebugger`, `DebugChannel`, `DebugHookImpl`, `StepController`, `DebugFrame`, `CallNode`, `WatchCapture`,
+  `DefaultSourceClassifier`, `ConditionCheck`), the service and the session (`TraceDebugService(Impl)`, `DebugSession`,
+  `DebugSessionRegistry`, `DebugSessionReaper`), `TraceHighlightService(Impl)`, `FormulaInputs`, and
+  `TraceExportService(Impl)`.
+- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/model/trace/TraceDebugMapper.java` — stack and tree
+  mapping, and variable freezing.
+- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/model/trace/DecisionTableMapper.java` — the rules of a
+  decision table and the explanation of the rules that fired.
+- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/rest/controller/ProjectsTraceDebugController.java` —
+  the REST API.
+- `STUDIO/studio-ui/src/containers/TraceView/`, `STUDIO/studio-ui/src/store/traceStore.ts`, and
+  `STUDIO/studio-ui/src/services/traceService.ts` — the UI.
