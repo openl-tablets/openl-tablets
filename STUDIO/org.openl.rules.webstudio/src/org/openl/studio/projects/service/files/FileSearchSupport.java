@@ -141,7 +141,7 @@ class FileSearchSupport {
 
     private static List<FsNode> searchAncestors(FileRoot root, FileSearchQuery query) {
         String leaf = StringUtils.isBlank(query.pattern()) ? "" : query.pattern();
-        String lookupPath = StringUtils.isBlank(query.from()) ? leaf : query.from() + "/" + leaf;
+        String lookupPath = StringUtils.isBlank(query.from()) ? leaf : FilePaths.join(query.from(), leaf);
         if (lookupPath.isEmpty()) {
             return List.of();
         }

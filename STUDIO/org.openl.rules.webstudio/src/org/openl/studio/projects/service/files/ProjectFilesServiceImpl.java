@@ -300,7 +300,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             if (name.isEmpty()) {
                 throw new BadRequestException("file.path.invalid.message");
             }
-            String fullPath = path.isEmpty() ? name : path + "/" + name;
+            String fullPath = FilePaths.join(path, name);
             entries.add(new FileEntry(fullPath, file.content()));
         }
         writeEntries(root, path, entries, conflictPolicy, uploadComment("Upload files to ", path));

@@ -65,6 +65,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     private static final Set<String> IGNORED_FIELDS = Set.copyOf(List.of("@class"));
     public static final String SPREADSHEET_RESULT_CLASS_NAME = SpreadsheetResult.class.getName();
     public static final String GET_PREFIX = "get";
+    private static final String PATH_SEPARATOR = "/";
 
     @Override
     public ProjectModel extractProjectModel(String pathTo) {
@@ -390,7 +391,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 }
             }
             model.setSteps(steps);
-            var originalPath = "/" + modelName;
+            var originalPath = PATH_SEPARATOR + modelName;
             model.setPathInfo(new PathInfo(originalPath,
                     modelName,
                     PathInfo.Operation.POST,

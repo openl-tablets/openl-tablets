@@ -21,6 +21,8 @@ import org.openl.util.StringTool;
 
 public class XlsUrlParser {
 
+    private static final String VIRTUAL_GRID_FOLDER = "/unexistingPath/";
+
     @Getter
     private final String wbPath;
     @Getter
@@ -64,7 +66,7 @@ public class XlsUrlParser {
         if ("null".equals(file)) {
             // there is no file representation
             // FIXME temporary hack to support generated dispatch tables
-            wbPath = "/unexistingPath/";
+            wbPath = VIRTUAL_GRID_FOLDER;
             wbName = "unexistingSourceFile.xls";
         } else {
             var f = toCanonicalFile(file);

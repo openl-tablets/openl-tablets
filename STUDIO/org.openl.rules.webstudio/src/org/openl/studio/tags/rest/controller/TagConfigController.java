@@ -1,7 +1,5 @@
 package org.openl.studio.tags.rest.controller;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +21,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
@@ -254,10 +253,10 @@ public class TagConfigController {
     }
 
     private ResponseEntity<Void> created(HttpServletRequest request, Long id) {
-        try {
-            return ResponseEntity.created(new URI(request.getRequestURL() + "/" + id)).build();
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
+        var location = ServletUriComponentsBuilder.fromRequestUri(request)
+                .pathSegment(String.valueOf(id))
+                .build(true)
+                .toUri();
+        return ResponseEntity.created(location).build();
     }
 }

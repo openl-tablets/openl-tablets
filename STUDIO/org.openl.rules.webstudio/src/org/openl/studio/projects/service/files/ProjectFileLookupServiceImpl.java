@@ -138,7 +138,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
             return null;
         }
         String rel = FilePaths.trimSlashes(artefact.getInternalPath());
-        String path = base.isEmpty() ? rel : base + "/" + rel;
+        String path = FilePaths.join(base, rel);
         if (!isAncestorOrSelf(FilePaths.parent(path), anchorDir)
                 || !aclProjectsHelper.hasPermission(artefact, BasePermission.READ)) {
             return null;

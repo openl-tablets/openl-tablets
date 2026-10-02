@@ -37,6 +37,7 @@ public final class RepositoryUtils {
             .thenComparing(AProjectArtefact::getName);
 
     private static final DateTimeFormatter VERSION_MOMENT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+    private static final String PATH_SEPARATOR = "/";
 
     private RepositoryUtils() {
     }
@@ -49,7 +50,7 @@ public final class RepositoryUtils {
                                OutputStream out,
                                Manifest manifest) throws IOException {
         try (ZipOutputStream zipOutputStream = new DeploymentOutputStream(out, manifest)) {
-            var projectPath = rulesPath + projectName + "/";
+            var projectPath = rulesPath + projectName + PATH_SEPARATOR;
             folderRepository = getRepositoryForVersion(
                     designTimeRepository, folderRepository, rulesPath, projectName, version);
             var files = folderRepository.listFiles(projectPath, version);

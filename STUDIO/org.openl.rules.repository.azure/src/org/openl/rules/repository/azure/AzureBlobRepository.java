@@ -65,6 +65,7 @@ public class AzureBlobRepository implements Repository {
     private static final String MODIFICATION_FILE = ".modification";
     static final String CONTENT_PREFIX = "[content]/";
     static final String VERSIONS_PREFIX = ".versions/";
+    private static final String PATH_SEPARATOR = "/";
 
 
     private String id;
@@ -378,7 +379,7 @@ public class AzureBlobRepository implements Repository {
             // TODO: What if name is a file name?
             // Current implementation works only if name is a project name.
             // If will invoke this method for files and project sub-folders, we should improve this method.
-            var pathPrefix = VERSIONS_PREFIX + name + "/" + VERSION_FILE;
+            var pathPrefix = versionFileName(name);
 
             var options = new ListBlobsOptions();
             options.setPrefix(pathPrefix);
@@ -640,7 +641,7 @@ public class AzureBlobRepository implements Repository {
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
-        return getCommit(blobContainerClient.getBlobVersionClient(VERSIONS_PREFIX + path + "/" + VERSION_FILE, version));
+        return getCommit(blobContainerClient.getBlobVersionClient(versionFileName(path), version));
     }
 
     private AzureCommit getCommit(BlobItem item) {
@@ -690,7 +691,7 @@ public class AzureBlobRepository implements Repository {
     }
 
     private void saveCommit(AzureCommit commit, String path) throws IOException {
-        final var blobClient = blobContainerClient.getBlobClient(VERSIONS_PREFIX + path + "/" + VERSION_FILE);
+        final var blobClient = blobContainerClient.getBlobClient(versionFileName(path));
 
         final var response = blobClient
                 .uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromBytes(mapper.writeValueAsBytes(commit)))
@@ -731,7 +732,7 @@ public class AzureBlobRepository implements Repository {
     }
 
     private FileData createFileDataForFolder(String name, String version) {
-        final var folderPath = name + "/";
+        final var folderPath = name + PATH_SEPARATOR;
         var commit = findCommit(folderPath, version);
         if (commit != null) {
             if (commit.getPath().equals(name)) {
@@ -754,9 +755,16 @@ public class AzureBlobRepository implements Repository {
         return null;
     }
 
+    /**
+     * Returns the name of the blob that keeps the version history of the given folder.
+     */
+    private static String versionFileName(String folder) {
+        return VERSIONS_PREFIX + folder + PATH_SEPARATOR + VERSION_FILE;
+    }
+
     private AzureCommit findCommit(String path, String version) {
         String normalizedPath = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
-        final var commitName = VERSIONS_PREFIX + normalizedPath + "/" + VERSION_FILE;
+        final var commitName = versionFileName(normalizedPath);
         if (version != null) {
             synchronized (this) {
                 final var cached = commitsCache.get(new CacheKey(commitName, version));
@@ -770,8 +778,7 @@ public class AzureBlobRepository implements Repository {
                 isCommitName = commitsCache.keySet().stream().anyMatch(k -> k.name.equals(commitName));
             }
             if (isCommitName) {
-                return getCommit(
-                        blobContainerClient.getBlobClient(VERSIONS_PREFIX + normalizedPath + "/" + VERSION_FILE));
+                return getCommit(blobContainerClient.getBlobClient(commitName));
             }
         }
         return getCommit(findCommitBlob(path, version));
@@ -785,7 +792,7 @@ public class AzureBlobRepository implements Repository {
 
         do {
             commitName = commitName.substring(0, commitName.lastIndexOf("/"));
-            var client = blobContainerClient.getBlobVersionClient(VERSIONS_PREFIX + commitName + "/" + VERSION_FILE, version);
+            var client = blobContainerClient.getBlobVersionClient(versionFileName(commitName), version);
             if (Boolean.TRUE.equals(client.exists())) {
                 return client;
             }

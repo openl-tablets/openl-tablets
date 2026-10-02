@@ -41,6 +41,7 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     private static final String DEFAULT_COMMENT_RESTORED_FROM_SUFFIX = ".comment-template.user-message.default.restored-from";
     public static final String BASE_PATH_SUFFIX = ".base.path";
     private static final String DEPLOY_FROM_MAIN_BRANCH_SUFFIX = ".deploy-from-branch";
+    private static final String PATH_SEPARATOR = "/";
 
     public static final String MAIN_BRANCH = "MAIN_BRANCH";
     private final String useCustomCommentsKey;
@@ -192,7 +193,8 @@ public abstract class RepositorySettings implements ConfigPrefixSettingsHolder {
     }
 
     public void setBasePath(String basePath) {
-        this.basePath = basePath.isEmpty() || basePath.endsWith("/") ? basePath : (basePath + "/");
+        this.basePath = basePath.isEmpty() || basePath.endsWith(PATH_SEPARATOR) ? basePath
+                : basePath + PATH_SEPARATOR;
     }
 
     private void load(PropertiesHolder properties) {

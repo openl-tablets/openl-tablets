@@ -254,7 +254,7 @@ public class ProjectFileRoot implements FileRoot {
         // stays within the project. getRealPath() is the project's matching repository-internal path,
         // so the anchor lands in the same namespace the search walks.
         String real = FilePaths.trimSlashes(project.getRealPath());
-        String anchor = real.isEmpty() ? lookupPath : real + "/" + lookupPath;
+        String anchor = FilePaths.join(real, lookupPath);
         try {
             return fileLookupService.lookup(project, project.getDesignRepository(), anchor, true);
         } catch (IOException e) {
