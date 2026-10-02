@@ -1,8 +1,10 @@
 package org.openl.rules.range;
 
 import java.text.ParseException;
+import java.util.regex.Pattern;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.util.StringUtils;
 
@@ -71,6 +73,19 @@ public class RangeParser {
     }
 
     public static RangeParser parse(String text) throws ParseException {
+        return parse(text, null);
+    }
+
+    /**
+     * Parses a range whose bounds can hold the characters of a separator, such as the dashes of the ISO date
+     * {@code 2024-12-31}.
+     *
+     * <p>A left bound that starts with a match of the pattern keeps the whole match, so the separator of the bounds
+     * is searched for only after it. A right bound needs no pattern: it is the rest of the text after the separator.
+     *
+     * @param bound the pattern of a bound, or {@code null} when the bounds hold no separator characters
+     */
+    public static RangeParser parse(String text, @Nullable Pattern bound) throws ParseException {
         var first = 0;
         var last = text.length() - 1;
         //trim from the first
@@ -84,7 +99,7 @@ public class RangeParser {
 
         // bracket form: [x; y]
         if (ch == '[' || ch == '(') {
-            return parseBrackets(text, first, last, ch, ch2);
+            return parseBrackets(text, first, last, ch, ch2, bound);
         }
 
         // comparable form: >=x < y
@@ -126,11 +141,15 @@ public class RangeParser {
         }
 
         // range form: x .. y
-        return parseRangeBySeparator(text, first, last);
+        return parseRangeBySeparator(text, first, last, bound);
     }
 
-    private static RangeParser parseBrackets(String text, int first, int last, char ch, char ch2)
-            throws ParseException {
+    private static RangeParser parseBrackets(String text,
+                                             int first,
+                                             int last,
+                                             char ch,
+                                             char ch2,
+                                             @Nullable Pattern bound) throws ParseException {
         if (ch2 != ']' && ch2 != ')') {
             throw new ParseException("An illegal opening bracket without closing", first);
         }
@@ -143,7 +162,7 @@ public class RangeParser {
         last--;
         last = prevNonSpace(text, first, last);
 
-        RangeParser result = parseRangeBySeparator(text, first, last);
+        RangeParser result = parseRangeBySeparator(text, first, last, bound);
         if (result == null) {
             throw new ParseException("No required bounds separator is found inside the range", first);
         }
@@ -259,8 +278,9 @@ public class RangeParser {
         return new RangeParser(type, text.substring(first, last + 1), text.substring(first2, last2 + 1));
     }
 
-    private static RangeParser parseRangeBySeparator(String text, int first, int last) throws ParseException {
-        var index = findSep(text, first, last);
+    private static RangeParser parseRangeBySeparator(String text, int first, int last, @Nullable Pattern bound)
+            throws ParseException {
+        var index = findSep(text, boundEnd(text, first, last, bound), last);
         if (index < 0) {
             return null;
         }
@@ -285,6 +305,20 @@ public class RangeParser {
             }
         }
         return new RangeParser(sep.getType(), text.substring(first, sepLeft + 1), text.substring(sepRight, last + 1));
+    }
+
+    /**
+     * Returns the position of the last character of the left bound when the bound matches the pattern, otherwise the
+     * position of its first character.
+     */
+    private static int boundEnd(String text, int first, int last, @Nullable Pattern bound) {
+        if (bound != null) {
+            var matcher = bound.matcher(text).region(first, last + 1);
+            if (matcher.lookingAt() && matcher.end() > first) {
+                return matcher.end() - 1;
+            }
+        }
+        return first;
     }
 
     /**

@@ -91,8 +91,24 @@ In OpenL, the following data types are designed to work with ranges:
 
 -   IntRange
 -   DoubleRange
+-   CharRange
+-   StringRange
+-   DateRange
 
 For more information on these data types used for ranges, see [Range Data Types](../../03-functions-and-data-types/02-working-with-data-types.md#range-data-types).
+
+A DateRange bound is a date in the ISO form `2024-12-31` or in the US form `12/31/2024`, with an optional time
+`23:59:59`. The time follows a space, or the letter `T` in the ISO form. The two forms work in every range format and
+can be mixed in one range, for example:
+
+-   `2024-12-25`
+-   `[2024-01-01; 2024-07-01)`
+-   `2024-01-01 - 2024-12-31 23:59:59`
+-   `>= 2024-01-01T08:00:00 < 12/31/2024`
+-   `2024-12-01 and more`
+
+A bound without a time is the start of the day. A date is the local date and time of the server time zone, like other
+date values.
 
 ![Decision table with IntRange](../../ref-guide-images/decisionTableIntrange.png)
 
