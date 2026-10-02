@@ -34,4 +34,37 @@ class String2DoubleConvertorTest {
         assertEquals(Double.NEGATIVE_INFINITY, result);
     }
 
+    @Test
+    void testConvertPercent() {
+        var converter = new String2DoubleConvertor();
+        assertEquals(0.175d, converter.parse("17.5%", null));
+        assertEquals(-0.15d, converter.parse("-15%", null));
+        assertEquals(3d, converter.parse("300%", null));
+
+        // Dividing the parsed double by 100 missed these fractions in the last bit
+        assertEquals(0.0007d, converter.parse("0.07%", null));
+        assertEquals(0.011d, converter.parse("1.1%", null));
+        assertEquals(0.333d, converter.parse("33.3%", null));
+        assertEquals(0.9999d, converter.parse("99.99%", null));
+        assertEquals(-0.0007d, converter.parse("-0.07%", null));
+    }
+
+    @Test
+    void testConvertNegativeZero() {
+        var converter = new String2DoubleConvertor();
+        assertEquals(-0d, converter.parse("-0", null));
+        assertEquals(-0d, converter.parse("-0.0", null));
+        assertEquals(-0d, converter.parse("-0%", null));
+        assertEquals(-0d, converter.parse("-1E-400", null));
+        assertEquals(0d, converter.parse("0", null));
+    }
+
+    @Test
+    void testConvertNegativeZeroOfFormat() {
+        var converter = String2DataConvertorFactory.getConvertor(Double.class);
+        assertEquals(-0d, converter.parse("(0)", "0;(0)"));
+        assertEquals(-1d, converter.parse("(1)", "0;(0)"));
+        assertEquals(0d, converter.parse("0", "0;(0)"));
+    }
+
 }
