@@ -41,7 +41,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
-                return LE(propertyValue, contextValue);
+                return le(propertyValue, contextValue);
             }
 
         });
@@ -59,7 +59,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
-                return GE(propertyValue, contextValue);
+                return ge(propertyValue, contextValue);
             }
 
         });
@@ -77,7 +77,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
-                return LE(propertyValue, contextValue);
+                return le(propertyValue, contextValue);
             }
 
         });
@@ -95,7 +95,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(java.util.Date propertyValue, java.util.Date contextValue) {
-                return GE(propertyValue, contextValue);
+                return ge(propertyValue, contextValue);
             }
 
         });
@@ -113,7 +113,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.CaRegionsEnum[] propertyValue, org.openl.rules.enumeration.CaRegionsEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -131,7 +131,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.CaProvincesEnum[] propertyValue, org.openl.rules.enumeration.CaProvincesEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -149,7 +149,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.CountriesEnum[] propertyValue, org.openl.rules.enumeration.CountriesEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -167,7 +167,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.RegionsEnum[] propertyValue, org.openl.rules.enumeration.RegionsEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -185,7 +185,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.CurrenciesEnum[] propertyValue, org.openl.rules.enumeration.CurrenciesEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -203,7 +203,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.LanguagesEnum[] propertyValue, org.openl.rules.enumeration.LanguagesEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -221,7 +221,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(java.lang.String[] propertyValue, java.lang.String contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -239,7 +239,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.UsRegionsEnum[] propertyValue, org.openl.rules.enumeration.UsRegionsEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -257,7 +257,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(org.openl.rules.enumeration.UsStatesEnum[] propertyValue, org.openl.rules.enumeration.UsStatesEnum contextValue) {
-                return CONTAINS(propertyValue, contextValue);
+                return contains(propertyValue, contextValue);
             }
 
         });
@@ -275,7 +275,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 
             @Override
             protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
-                return EQ(propertyValue, contextValue);
+                return eq(propertyValue, contextValue);
             }
 
         });

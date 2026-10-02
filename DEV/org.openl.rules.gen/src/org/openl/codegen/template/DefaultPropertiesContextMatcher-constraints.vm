@@ -13,7 +13,7 @@
 
             @Override
             protected boolean matchNotNulls($tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass) propertyValue, $tool.getTypeName($contextPropertyDefinitionWrappers.findWrapper($tablePropertyDefinition.ContextVar).Definition.Type.InstanceClass) contextValue) {
-                return ${tablePropertyDefinition.Operation}(propertyValue, contextValue);
+                return ${tablePropertyDefinition.OperationMethod}(propertyValue, contextValue);
             }
 
         });

@@ -39,22 +39,22 @@ public abstract class MatchingConstraint<P, C> {
     protected abstract boolean matchNotNulls(P propValue, C contextValue);
 
     @SuppressWarnings("unchecked")
-    public static <T> boolean LE(Comparable<T> cmp1, Comparable<T> cmp2) {
+    public static <T> boolean le(Comparable<T> cmp1, Comparable<T> cmp2) {
         return cmp1.compareTo((T) cmp2) <= 0;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> boolean GE(Comparable<T> cmp1, Comparable<T> cmp2) {
+    public static <T> boolean ge(Comparable<T> cmp1, Comparable<T> cmp2) {
         return cmp1.compareTo((T) cmp2) >= 0;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> boolean EQ(Comparable<T> cmp1, Comparable<T> cmp2) {
+    public static <T> boolean eq(Comparable<T> cmp1, Comparable<T> cmp2) {
         return cmp1.compareTo((T) cmp2) == 0;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> boolean CONTAINS(Comparable<T>[] cmp1, Comparable<T> cmp2) {
+    public static <T> boolean contains(Comparable<T>[] cmp1, Comparable<T> cmp2) {
 
         for (Comparable<T> element : cmp1) {
             if (element.compareTo((T) cmp2) == 0) {
