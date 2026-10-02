@@ -175,6 +175,19 @@ everyone who calls that API from outside the browser.
   `toDate(substring(text, 0, 10))`. An empty pattern reads the forms `toDate(text)` reads: `toDate("2024-03-15", "")`
   is the date instead of empty, and the two-digit year of `toDate("01/11/12", "")` is 2012 instead of the year 12.
 
+* **`round(x, mode)` stops at the limit of the `Integer` range, as `round(x)` does.** Both return an `Integer`:
+  `round(5000000000.4)` and `round(5000000000.4, DOWN)` are `2147483647`, and `round(-5000000000.4, DOWN)` is
+  `-2147483648`. Before, `round(x, mode)` wrapped around and gave `705032704` and `-705032704`. To round a number beyond
+  the `Integer` range, keep the type of the number with `round(x, 0)` or `round(x, 0, mode)`:
+  `round(5000000000.6, 0, DOWN)` is `5.0E9`. Check also these differences:
+
+  - A whole number, such as an `Integer` or a `Long`, is rounded exactly. `round(16777217)` is `16777217`, and
+    `round(16777217, 0)` is `1.6777217E7`, a `Double` as for a fraction. Before, a whole number was rounded as a
+    `Float`, so they were `16777216` and the `Float` `1.6777216E7`.
+  - `round(-5.0E9f)` is `-2147483648` instead of `-2147483647`, as the limit of the `Integer` range.
+  - `round(x, n)` rounds a large whole `Double` exactly. Before, it could change in its last digit:
+    `round(1.0E15, 1)` was `1.0000000000000001E15`.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
@@ -268,6 +281,11 @@ everyone who calls that API from outside the browser.
   - **`addIgnoreNull(array, element)`, `addArrayElementIgnoreNull(array, element)`** —
     `element == null ? array : ArrayUtils.add(array, element)` with `ArrayUtils` of Apache Commons Lang; the form with
     an index passes it as the second argument of `ArrayUtils.add`
+* **`org.openl.rules.util.Round` has no public methods with primitive arguments.** The overloads that took a `double`
+  or a `float`, such as `round(double)`, are private, so a Java call such as `Round.round(2.5)` compiles against the
+  boxed overload and returns an `Integer` instead of an `int`. Code compiled against an earlier version fails with
+  `NoSuchMethodError` until it is compiled again. The rules functions of `org.openl.rules.util` are not meant for Java
+  code.
 
 ## Administrators
 
