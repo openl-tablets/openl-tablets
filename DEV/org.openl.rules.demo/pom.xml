@@ -3,12 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.studio-pom</artifactId>
+        <artifactId>org.openl.rules.dev-pom</artifactId>
         <version>6.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.demo</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - STUDIO - Demo</name>
+    <name>OpenL - DEV - Demo</name>
     <description>OpenL Tablets Demo Projects</description>
     <url>https://openl-tablets.org</url>
+    <properties>
+        <!-- Ships inside the OpenL Studio war only, so no other build needs it from a remote repository. -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <!-- The root pom skips the install together with the deploy, but a war built outside the reactor still
+             resolves the jar from the local repository. -->
+        <maven.install.skip>false</maven.install.skip>
+    </properties>
 </project>

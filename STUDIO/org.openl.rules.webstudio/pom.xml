@@ -255,9 +255,14 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
+        <!-- The demo projects offered as templates, examples and tutorials. Optional, because the jar is never
+             deployed: a build using the war must not look for it in a remote repository. Packed through the
+             optional-libs web resource. -->
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.demo</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -403,7 +408,7 @@
                             <!-- The optional dependencies the war still ships: the war plugin leaves an optional
                                  dependency out, so they reach WEB-INF/lib as a web resource. -->
                             <outputDirectory>${project.build.directory}/optional-libs</outputDirectory>
-                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j2-impl,studio-docs</includeArtifactIds>
+                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j2-impl,studio-docs,org.openl.rules.demo</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>

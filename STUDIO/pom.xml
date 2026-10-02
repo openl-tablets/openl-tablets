@@ -27,7 +27,6 @@
         <module>org.openl.rules.project.openapi</module>
         <module>org.openl.rules.project.validation.openapi</module>
         <module>org.openl.rules.webstudio</module>
-        <module>org.openl.rules.demo</module>
         <module>org.openl.rules.diff</module>
         <module>org.openl.rules.xls.merge</module>
     </modules>

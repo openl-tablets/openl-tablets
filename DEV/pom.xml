@@ -20,5 +20,7 @@
         <module>org.openl.spring</module>
         <!-- Functional Tests -->
         <module>org.openl.rules.test</module>
+        <!-- Demo projects of OpenL Studio -->
+        <module>org.openl.rules.demo</module>
     </modules>
 </project>
