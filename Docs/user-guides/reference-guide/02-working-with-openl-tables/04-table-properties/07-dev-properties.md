@@ -64,11 +64,17 @@ This section describes how to use the precision property. The property must be u
 
 There are cases when it is impossible or not needed to define the exact numeric value of an expected result in test tables. For example, non-terminating rational numbers such as π (3.1415926535897…) must be approximated so that it can be written in a cell of a table.
 
-The **Precision** property is used as a measure of accuracy of the expected value to the returned value to a certain precision. Assume the precision of the expected value *A* is *N*. The expected value *A* is true only if
-
-\|A – B\| \< 1/10N, where B – returned value.
+The **Precision** property is used as a measure of accuracy of the expected value to the returned value to a certain
+precision. Assume the precision of the expected value *A* is *N*, and *B* is the returned value. The expected value *A*
+is true only if the difference \|A – B\| is not greater than 1/10 to the power of *N*, such as 0.01 for N = 2. For zero
+and a negative *N*, the difference must be smaller than that: below 1 for N = 0 and below 100 for N = -2.
 
 It means that if the expected value is close enough to the returned value, the expected value is considered to be true.
+
+A `BigDecimal` or `BigInteger` result is compared with all its digits. Without a precision, it must equal the expected
+value, and with a precision, the difference is computed without rounding. A `Double` or `Float` result is compared as a
+floating-point number, so the difference is computed in binary and can be a little larger than it looks: with N = 1,
+0.4 does not match 0.3. Without a precision, such a result may differ from the expected value in its last binary digit.
 
 Consider the following examples. A simple rule FinRatioWeight has two tests, FinRatioWeightTest1 and FinRatioWeightTest2:
 

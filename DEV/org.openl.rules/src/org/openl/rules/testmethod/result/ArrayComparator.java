@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod.result;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 
 /**
  * @author Yury Molchan
@@ -9,7 +10,7 @@ class ArrayComparator extends GenericComparator<Object> {
 
     private final TestResultComparator elementComparator;
 
-    ArrayComparator(Class<?> clazz, Double delta) {
+    ArrayComparator(Class<?> clazz, BigDecimal delta) {
         this.elementComparator = TestResultComparatorFactory.getComparator(clazz, delta);
     }
 
