@@ -71,57 +71,16 @@ public final class OpenLService {
         return classLoader;
     }
 
-    /**
-     * Main constructor.
-     *
-     * @param name                  service name
-     * @param url                   url
-     * @param serviceClassName      class name for service
-     * @param provideRuntimeContext define is runtime context should be used
-     * @param modules               a list of modules for load
-     */
-    OpenLService(String name,
-                 String url,
-                 String deployPath,
-                 String serviceClassName,
-                 boolean provideRuntimeContext,
-                 Set<String> publishers,
-                 Collection<Module> modules,
-                 ClassLoader classLoader,
-                 Class<?> serviceClass,
-                 DeploymentDescription deployment) {
-        this.name = Objects.requireNonNull(name, "name cannot be null");
-        this.url = url;
-        this.deployPath = deployPath;
-        if (modules != null) {
-            this.modules = Collections.unmodifiableCollection(modules);
-        } else {
-            this.modules = List.of();
-        }
-        this.serviceClassName = serviceClassName;
-        this.provideRuntimeContext = provideRuntimeContext;
-        if (publishers != null) {
-            this.publishers = Collections.unmodifiableSet(publishers);
-        } else {
-            this.publishers = Set.of();
-        }
-
-        this.classLoader = classLoader;
-        this.serviceClass = serviceClass;
-        this.deployment = deployment;
-    }
-
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
-        this(builder.name,
-                builder.url,
-                builder.deployPath,
-                builder.serviceClassName,
-                builder.provideRuntimeContext,
-                builder.publishers,
-                builder.modules,
-                null,
-                builder.serviceClass,
-                builder.deployment);
+        this.name = Objects.requireNonNull(builder.name, "name cannot be null");
+        this.url = builder.url;
+        this.deployPath = builder.deployPath;
+        this.modules = builder.modules != null ? Collections.unmodifiableCollection(builder.modules) : List.of();
+        this.serviceClassName = builder.serviceClassName;
+        this.provideRuntimeContext = builder.provideRuntimeContext;
+        this.publishers = builder.publishers != null ? Collections.unmodifiableSet(builder.publishers) : Set.of();
+        this.serviceClass = builder.serviceClass;
+        this.deployment = builder.deployment;
         this.initializer = Objects.requireNonNull(initializer, "initializer cannot be null");
     }
 

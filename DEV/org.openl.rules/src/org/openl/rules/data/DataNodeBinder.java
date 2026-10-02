@@ -172,14 +172,15 @@ public class DataNodeBinder extends AXlsTableBinder {
                 dataWithTitleRows = LogicalTableHelper
                         .logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
 
-                var descriptors = makeDescriptors(tableToProcess,
+                var descriptors = DataTableBindHelper.makeDescriptors(bindingContext,
+                        tableToProcess,
                         tableType,
-                        bindingContext,
                         openl,
-                        hasColumnTitleRow,
-                        horizDataTableBody,
                         descriptorRows,
-                        dataWithTitleRows);
+                        dataWithTitleRows,
+                        DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
+                        hasColumnTitleRow,
+                        isConstructorFieldsSupported());
 
                 if (tableType instanceof TestMethodOpenClass) {
                     validateTestTableDescriptors(descriptors, tableToProcess, bindingContext);
@@ -272,23 +273,11 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
     }
 
-    protected ColumnDescriptor[] makeDescriptors(ITable tableToProcess,
-                                                 IOpenClass tableType,
-                                                 IBindingContext bindingContext,
-                                                 OpenL openl,
-                                                 boolean hasColumnTitleRow,
-                                                 ILogicalTable horizDataTableBody,
-                                                 ILogicalTable descriptorRows,
-                                                 ILogicalTable dataWithTitleRows) throws Exception {
-        return DataTableBindHelper.makeDescriptors(bindingContext,
-                tableToProcess,
-                tableType,
-                openl,
-                descriptorRows,
-                dataWithTitleRows,
-                DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
-                hasColumnTitleRow,
-                true);
+    /**
+     * Whether a column of the table can set a field through a constructor.
+     */
+    protected boolean isConstructorFieldsSupported() {
+        return true;
     }
 
     /**

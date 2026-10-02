@@ -89,77 +89,54 @@ public final class PoiExcelHelper {
         return font;
     }
 
-    public static void setCellFont(Cell cell,
-                                   boolean boldWeight,
-                                   short color,
-                                   short fontHeight,
-                                   String name,
-                                   boolean italic,
-                                   boolean strikeout,
-                                   short typeOffset,
-                                   byte underline) {
-        if (cell != null) {
-            var workbook = cell.getSheet().getWorkbook();
-            var font = workbook
-                    .findFont(boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
-            if (font == null) { // Create new font
-                font = cell.getSheet().getWorkbook().createFont();
-                font.setBold(boldWeight);
-                font.setColor(color);
-                font.setFontHeight(fontHeight);
-                font.setFontName(name);
-                font.setItalic(italic);
-                font.setStrikeout(strikeout);
-                font.setTypeOffset(typeOffset);
-                font.setUnderline(underline);
-            }
-            CellUtil.setFont(cell, font);
-        }
-    }
-
     public static void setCellFontBold(Cell cell, boolean boldweight) {
         Font font = getCellFont(cell);
         if (font != null) {
-            setCellFont(cell,
-                    boldweight,
-                    font.getColor(),
-                    font.getFontHeight(),
-                    font.getFontName(),
-                    font.getItalic(),
-                    font.getStrikeout(),
-                    font.getTypeOffset(),
-                    font.getUnderline());
+            setCellFont(cell, font, boldweight, font.getItalic(), font.getUnderline());
         }
     }
 
     public static void setCellFontItalic(Cell cell, boolean italic) {
         Font font = getCellFont(cell);
         if (font != null) {
-            setCellFont(cell,
-                    font.getBold(),
-                    font.getColor(),
-                    font.getFontHeight(),
-                    font.getFontName(),
-                    italic,
-                    font.getStrikeout(),
-                    font.getTypeOffset(),
-                    font.getUnderline());
+            setCellFont(cell, font, font.getBold(), italic, font.getUnderline());
         }
     }
 
     public static void setCellFontUnderline(Cell cell, byte underline) {
         Font font = getCellFont(cell);
         if (font != null) {
-            setCellFont(cell,
-                    font.getBold(),
-                    font.getColor(),
-                    font.getFontHeight(),
-                    font.getFontName(),
-                    font.getItalic(),
-                    font.getStrikeout(),
-                    font.getTypeOffset(),
-                    underline);
+            setCellFont(cell, font, font.getBold(), font.getItalic(), underline);
         }
+    }
+
+    /**
+     * Sets the font of the cell to the given font with other bold, italic and underline settings.
+     *
+     * <p>Reuses a font of the workbook that has the same settings, or creates a new one.
+     */
+    private static void setCellFont(Cell cell, Font base, boolean bold, boolean italic, byte underline) {
+        var workbook = cell.getSheet().getWorkbook();
+        var font = workbook.findFont(bold,
+                base.getColor(),
+                base.getFontHeight(),
+                base.getFontName(),
+                italic,
+                base.getStrikeout(),
+                base.getTypeOffset(),
+                underline);
+        if (font == null) { // Create new font
+            font = workbook.createFont();
+            font.setBold(bold);
+            font.setColor(base.getColor());
+            font.setFontHeight(base.getFontHeight());
+            font.setFontName(base.getFontName());
+            font.setItalic(italic);
+            font.setStrikeout(base.getStrikeout());
+            font.setTypeOffset(base.getTypeOffset());
+            font.setUnderline(underline);
+        }
+        CellUtil.setFont(cell, font);
     }
 
     // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.

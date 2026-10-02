@@ -19,9 +19,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
-import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -272,23 +270,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     }
 
     @Override
-    protected ColumnDescriptor[] makeDescriptors(ITable tableToProcess,
-                                                 IOpenClass tableType,
-                                                 IBindingContext bindingContext,
-                                                 OpenL openl,
-                                                 boolean hasColumnTitleRow,
-                                                 ILogicalTable horizDataTableBody,
-                                                 ILogicalTable descriptorRows,
-                                                 ILogicalTable dataWithTitleRows) throws Exception {
-        return DataTableBindHelper.makeDescriptors(bindingContext,
-                tableToProcess,
-                tableType,
-                openl,
-                descriptorRows,
-                dataWithTitleRows,
-                DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
-                hasColumnTitleRow,
-                false);
+    protected boolean isConstructorFieldsSupported() {
+        return false;
     }
 
 }

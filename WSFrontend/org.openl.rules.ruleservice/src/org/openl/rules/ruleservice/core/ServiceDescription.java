@@ -50,69 +50,30 @@ public final class ServiceDescription {
     @Getter
     private final ProjectDescriptor projectDescriptor;
 
-    /**
-     * Main constructor.
-     *
-     * @param name
-     * @param url
-     * @param serviceClassName
-     * @param provideRuntimeContext
-     * @param modules
-     */
-    ServiceDescription(String name,
-                       String url,
-                       String deployPath,
-                       String serviceClassName,
-                       String annotationTemplateClassName,
-                       boolean provideRuntimeContext,
-                       Collection<Module> modules,
-                       DeploymentDescription deployment,
-                       Map<String, Object> configuration,
-                       String[] publishers,
-                       ResourceLoader resourceLoader,
-                       Manifest manifest,
-                       RulesDeploy rulesDeploy,
-                       ProjectDescriptor projectDescriptor) {
-        this.name = Objects.requireNonNull(name, "name cannot be null");
-        this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
-        this.url = url;
-        this.deployPath = deployPath;
-        this.serviceClassName = serviceClassName;
-        this.provideRuntimeContext = provideRuntimeContext;
-        this.annotationTemplateClassName = annotationTemplateClassName;
-        this.rulesDeploy = rulesDeploy;
-        if (configuration == null) {
+    private ServiceDescription(ServiceDescriptionBuilder builder) {
+        this.name = Objects.requireNonNull(builder.name, "name cannot be null");
+        this.resourceLoader = Objects.requireNonNull(builder.resourceLoader, "resourceLoader cannot be null");
+        this.url = builder.url;
+        this.deployPath = builder.servicePath;
+        this.serviceClassName = builder.serviceClassName;
+        this.provideRuntimeContext = builder.provideRuntimeContext;
+        this.annotationTemplateClassName = builder.annotationTemplateClassName;
+        this.rulesDeploy = builder.rulesDeploy;
+        if (builder.configuration == null) {
             this.configuration = Map.of();
         } else {
-            this.configuration = Collections.unmodifiableMap(configuration);
+            this.configuration = Collections.unmodifiableMap(builder.configuration);
         }
-        if (modules != null) {
-            this.modules = Collections.unmodifiableCollection(modules);
+        if (builder.modules != null) {
+            this.modules = Collections.unmodifiableCollection(builder.modules);
         } else {
             this.modules = Set.of();
         }
 
-        this.publishers = publishers;
-        this.deployment = deployment;
-        this.manifest = manifest;
-        this.projectDescriptor = projectDescriptor;
-    }
-
-    private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name,
-                builder.url,
-                builder.servicePath,
-                builder.serviceClassName,
-                builder.annotationTemplateClassName,
-                builder.provideRuntimeContext,
-                builder.modules,
-                builder.deployment,
-                builder.configuration,
-                builder.publishers.toArray(new String[]{}),
-                builder.resourceLoader,
-                builder.manifest,
-                builder.rulesDeploy,
-                builder.projectDescriptor);
+        this.publishers = builder.publishers.toArray(new String[]{});
+        this.deployment = builder.deployment;
+        this.manifest = builder.manifest;
+        this.projectDescriptor = builder.projectDescriptor;
     }
 
     public String[] getPublishers() {

@@ -486,14 +486,14 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void writeBlock(IGridTable developerView, int top, int left, List<List<RawCellInput>> cells,
                             int width, int height) {
-        var mergeRegions = new ArrayList<IGridRegion>();
+        var pass = new CellWritePass(developerView, true, width, height, new ArrayList<>());
         for (var r = 0; r < cells.size(); r++) {
             var rowCells = cells.get(r);
             for (var c = 0; c < rowCells.size(); c++) {
-                writeCellInput(developerView, top + r, left + c, rowCells.get(c), true, width, height, mergeRegions);
+                writeCellInput(pass, top + r, left + c, rowCells.get(c));
             }
         }
-        applyMergeRegions(developerView, mergeRegions);
+        applyMergeRegions(developerView, pass.mergeRegions());
     }
 
     private void clearBlockMerges(IGridTable developerView, int top, int left, int rangeHeight, int rangeWidth) {
@@ -713,9 +713,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                 : Math.max(GridRegionUtils.width(developerView.getRegion()), fixedIndex + 1);
         int spanHeight = horizontal ? Math.max(GridRegionUtils.height(developerView.getRegion()), fixedIndex + 1)
                 : GridRegionUtils.height(developerView.getRegion());
-        var mergeRegions = new ArrayList<IGridRegion>();
-        writeLineCells(developerView, cells, fixedIndex, horizontal, skipCovered, spanWidth, spanHeight, mergeRegions);
-        applyMergeRegions(developerView, mergeRegions);
+        var pass = new CellWritePass(developerView, skipCovered, spanWidth, spanHeight, new ArrayList<>());
+        writeLineCells(pass, cells, fixedIndex, horizontal);
+        applyMergeRegions(developerView, pass.mergeRegions());
     }
 
     /**
@@ -724,20 +724,27 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     private void writeLines(IGridTable developerView, List<List<RawCellInput>> lines, int startIndex,
                             boolean horizontal, int width, int height) {
-        var mergeRegions = new ArrayList<IGridRegion>();
+        var pass = new CellWritePass(developerView, false, width, height, new ArrayList<>());
         for (var i = 0; i < lines.size(); i++) {
-            writeLineCells(developerView, lines.get(i), startIndex + i, horizontal, false, width, height, mergeRegions);
+            writeLineCells(pass, lines.get(i), startIndex + i, horizontal);
         }
-        applyMergeRegions(developerView, mergeRegions);
+        applyMergeRegions(developerView, pass.mergeRegions());
     }
 
-    private void writeLineCells(IGridTable developerView, List<RawCellInput> cells, int fixedIndex,
-                                boolean horizontal, boolean skipCovered, int width, int height,
-                                List<IGridRegion> mergeRegions) {
+    /**
+     * A pass that writes input cells into a table. It rejects positions covered by a merge when
+     * {@code skipCovered} is set, keeps spans within {@code width} and {@code height}, and collects the merges to
+     * apply once the pass ends.
+     */
+    private record CellWritePass(IGridTable developerView, boolean skipCovered, int width, int height,
+                                 List<IGridRegion> mergeRegions) {
+    }
+
+    private void writeLineCells(CellWritePass pass, List<RawCellInput> cells, int fixedIndex, boolean horizontal) {
         for (var i = 0; i < cells.size(); i++) {
             int row = horizontal ? fixedIndex : i;
             int col = horizontal ? i : fixedIndex;
-            writeCellInput(developerView, row, col, cells.get(i), skipCovered, width, height, mergeRegions);
+            writeCellInput(pass, row, col, cells.get(i));
         }
     }
 
@@ -747,15 +754,15 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * rejected: writing it would leave invisible "orphan" content that later corrupts structural edits, so callers
      * must mark such positions {@code "covered": true}. Insert/append target fresh cells, so they pass it unset.
      */
-    private void writeCellInput(IGridTable developerView, int row, int col, RawCellInput cell, boolean skipCovered,
-                                int width, int height, List<IGridRegion> mergeRegions) {
+    private void writeCellInput(CellWritePass pass, int row, int col, RawCellInput cell) {
         if (cell == null || Boolean.TRUE.equals(cell.covered())) {
             return;
         }
-        if (skipCovered && isCoveredByMerge(developerView, row, col)) {
+        var developerView = pass.developerView();
+        if (pass.skipCovered() && isCoveredByMerge(developerView, row, col)) {
             throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, col});
         }
-        requireSpanInBounds(cell, row, col, width, height);
+        requireSpanInBounds(cell, row, col, pass.width(), pass.height());
         createOrUpdateCell(developerView, buildCellKey(col, row), cell.value());
         // Validate an inline span (colspan/rowspan) against existing and already queued merges, so an update cannot
         // silently create intersecting regions that the spreadsheet library would reject only while applying them.
@@ -763,8 +770,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             requireNoConflictingMerge(developerView, row, col,
                     cell.rowspan() == null ? 1 : cell.rowspan(),
                     cell.colspan() == null ? 1 : cell.colspan());
-            requireNoConflictingMerge(mergeRegions, region, row, col);
-            mergeRegions.add(region);
+            requireNoConflictingMerge(pass.mergeRegions(), region, row, col);
+            pass.mergeRegions().add(region);
         });
     }
 
