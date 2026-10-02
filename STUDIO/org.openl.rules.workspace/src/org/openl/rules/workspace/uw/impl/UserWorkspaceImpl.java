@@ -106,6 +106,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace;
     }
 
+    // Refreshing only when needed waits for the workspace cache invalidation to be fixed.
+    @SuppressWarnings("java:S1134")
     @Override
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
         // FIXME: This method has performance issues and should be optimized.
@@ -148,6 +150,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         branchPreferences.put(repositoryId, projectName, branch);
     }
 
+    // Refreshing only when needed waits for the workspace cache invalidation to be fixed.
+    @SuppressWarnings("java:S1134")
     @Override
     public Collection<RulesProject> getProjects() {
         // FIXME: This method has performance issues and should be optimized.

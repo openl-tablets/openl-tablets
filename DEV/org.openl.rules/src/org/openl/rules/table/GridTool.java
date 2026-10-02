@@ -463,6 +463,8 @@ public class GridTool {
         }
     }
 
+    // Which new property row takes a bottom border depends on the table layout and needs a check in the table editor.
+    @SuppressWarnings("java:S1134")
     private static CellStyle makeNewPropStyle(IGrid grid, int col, int row, int regionLeftCell, int regionWidth) {
         var cell = grid.getCell(col, row);
         var newCellStyle = new CellStyle(cell.getStyle());

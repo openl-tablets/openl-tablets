@@ -36,6 +36,8 @@ public class ComponentOpenClass extends ADynamicClass {
     @Getter
     private final OpenL openl;
 
+    // Acknowledged debt (DEV/AGENTS.md): moving these calls out of the constructor changes how every subclass is built.
+    @SuppressWarnings("java:S1134")
     public ComponentOpenClass(String name, OpenL openl) {
         super(name, DynamicObject.class);
         this.openl = openl;

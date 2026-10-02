@@ -12,8 +12,10 @@ public enum RepositoryMode {
     @JsonProperty("production")
     PRODUCTION;
 
-    //FIXME remove after implementation of unification of default settings
+    // The default settings of the repository modes are named by this id until they are unified.
+    @SuppressWarnings("java:S1134")
     public String getId() {
+        // FIXME remove after implementation of unification of default settings
         return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 }
