@@ -11,34 +11,30 @@ This section describes OpenL Rule Services configuration and includes the follow
 
 ### OpenL Rule Services Default Configuration
 
-All OpenL Rule Services configuration is specified in Spring configuration files and `application*.*properties` files. The `application.properties` file is located inside the application `.war `file (inside WEB-INF/classes folder), in a user’s directory or in a working directory.
+OpenL Rule Services is configured by Spring configuration files and by properties. The properties are read from the sources that [Externalized Configuration](https://openl-tablets.github.io/openl-tablets/developer-guides/externalized-config) describes: the default values, the `application.properties` files, the environment variables, and the Java system properties. The later sources override the earlier ones.
 
-The configuration file located inside the `.war `file contains default settings for all properties. Use it as a reference of possible settings and redefine as required in your configuration file, such as the `application.properties` file located in a user’s home directory.
+A running instance publishes the default values of all properties, with their descriptions, at `<context path>/admin/config/application.properties`. Use it as a reference of possible settings and redefine the required ones in your configuration file, such as the `application.properties` file located in a user’s home directory or in a working directory.
 
-All settings used in `application.properties` file can be defined as JVM options. In this case, JVM options override settings defined in files.
+All settings used in `application.properties` can also be defined as environment variables or JVM options. In this case, they override the settings defined in files.
 
 By default, OpenL Rule Services is configured as follows:
 
-1.  A data source is configured as `FileSystemDataSource` located in the `"${user.home}/.openl/datasource"` folder.
-2.  All services are exposed as REST services using the CXF framework.
+1.  The data source is the `repo-jar` repository, which reads the OpenL projects from the JAR files in the classpath of the application (`production-repository.$ref = repo-jar`).
+2.  All services are exposed as REST services using the CXF framework (`ruleservice.publishers = RESTFUL`).
 3.  `LastVersionProjectsServiceConfigurer` is used as a default service configurer that takes the last version of each deployment and creates the service for each project using all modules contained in the project.
 
 ### OpenL Rule Services Default Configuration Files
 
-If necessary, modify the OpenL Rule Services configuration by overriding the existing configuration files. All overridden Spring beans must be defined in the `openl-ruleservice-override-beans.xml `file. The following table lists Spring configuration files used in OpenL Rule Services:
+If necessary, extend or override the OpenL Rule Services configuration by adding own Spring configurations, as described in [Adding Spring Framework configurations](https://openl-tablets.github.io/openl-tablets/integration-guides/spring). The following table lists the files that configure OpenL Rule Services:
 
-| File                                          | Description                                                                                                                                    |
-|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `openl-ruleservice-beans.xml`                 | Main configuration file that includes all other configuration files. This file is searched by OpenL Rule Services in the classpath root. |
-| `openl-ruleservice-core-beans.xml`            | Configuration for ServiceManager and InstantiationFactory.                                                                                     |
-| `openl-ruleservice-datasource-beans.xml`      | Configuration for data sources.                                                                                                                |
-| `openl-ruleservice-loader-beans.xml`          | Configuration for rules loader.                                                                                                                |
-| `openl-ruleservice-publisher-beans.xml`       | Common publisher configurations.                                                                                                               |
-| `openl-ruleservice-jaxrs-publisher-beans.xml` | Configuration for RESTful services publisher.                                                                                                  |
-| `openl-ruleservice-kafka-publisher-beans.xml` | Configuration for Kafka services publisher.                                                                                                    |
-| `openl-ruleservice-conf-beans.xml`            | Configuration for Service Configurer.                                                                                                          |
-| `openl-ruleservice-store-log-data-beans.xml`  | Configuration for external request and response storages.                                                                                      |
-| `application.properties        `                      | Main configuration file containing properties for OpenL Rule Services configuration.                                                    |
+| File                                         | Description                                                                                                                                                                                              |
+|----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `openl-ruleservice-ws-beans.xml`             | Main configuration file of the web application. It imports `openl-ruleservice-beans.xml` and the CXF configuration, and defines the publishers, the admin API, and the settings of the OpenL Rule Services page. |
+| `openl-ruleservice-beans.xml`                | Imports the other configuration files and loads the extensions: the Spring configurations in the `org.openl.rules.ruleservice.spring` package and the `META-INF/openl/extension-*.xml` files. This file is searched by OpenL Rule Services in the classpath root. |
+| `openl-ruleservice-core-beans.xml`           | Configuration for ServiceManager, InstantiationFactory, and Service Configurer.                                                                                                                          |
+| `openl-ruleservice-datasource-beans.xml`     | Configuration for the data source and the rules loader.                                                                                                                                                  |
+| `openl-ruleservice-property-placeholder.xml` | Configuration for reading the properties.                                                                                                                                                                |
+| `application.properties`                     | Main configuration file containing properties for OpenL Rule Services configuration.                                                                                                                     |
 
 For more information on configuration files, see [Configuration Points](#configuration-points).
 
@@ -77,22 +73,46 @@ The following sections describe how to configure these components:
 
 #### Configuring a Data Source
 
+The data source is a repository that holds the deployments. It is defined by the `production-repository.*` properties in the `application.properties` file. The `production-repository.factory` property names the type of the repository, and the other properties of the type are set with the same prefix. A property that is not set with the prefix is taken from the defaults of the type, such as `repo-file.uri`.
+
 The system supports the following data source implementations:
 
+-   [Classpath JAR](#classpath-jar)
 -   [File System](#file-system)
 -   [Relational Database](#relational-database)
 -   [Amazon AWS S3](#amazon-aws-s3)
+-   [Azure Blob Storage](#azure-blob-storage)
 -   [GIT](#git)
--   [Classpath JAR](#classpath-jar)
+
+The Git, Amazon AWS S3, and Azure Blob Storage repositories are included in the OpenL Rule Services *all* web application only. Use the `org.openl.rules:org.openl.rules.ruleservice.ws.all` web application, which Maven Central publishes as a WAR, or the `openltablets/ws` Docker image with the `-all` suffix of the tag. To download the WAR, use the following Maven command:
+
+```bash
+mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.all:<openl version here>:war -DoutputDirectory=./
+```
+
+The properties of all repository types, with their descriptions, are published by a running instance at `<context path>/admin/config/application.properties`.
+
+##### Classpath JAR
+
+This is the default data source: `production-repository.$ref = repo-jar`. It reads the rule projects that are packed into the JAR files in the classpath of the application. A JAR file is an OpenL project if it contains `rules.xml`, `deployment.xml`, or `deployment.yaml` in its root, and a ZIP archive in the `/openl/` folder of a JAR file is a project as well.
+
+To deploy such projects to another configured data source at the application launch, proceed as follows:
+
+1.  Put the JAR file with the project to the `WEB-INF/lib` folder of the application.
+2.  In the `application.properties` file, set up the `ruleservice.datasource.deploy.classpath.jars = IF_ABSENT`.
+
+By default, this property is set to `NEVER`. The `ALWAYS` value deploys the projects even if they were already deployed.
+
+**Note:** With `IF_ABSENT`, project deployment is skipped if the data source already contains the project with the same name.
 
 ##### File System
 
-Using a file system as a data source for projects means that projects are stored in a local folder. By default, the configuration folder represents a single deployment containing all the projects and does not support multiple deployments and project versions. This data source is used by default.
+Using a file system as a data source for projects means that projects are stored in a local folder. By default, the configuration folder represents a single deployment containing all the projects and does not support multiple deployments and project versions.
 
 To configure a local file system as a data source, proceed as follows:
 
 1.  In `application.properties`, set `production-repository.factory = repo-file`.
-    <br/>By default, the `${user.home}/.openl/openl-ruleservice/datasource` folder is used as a local folder for projects.
+    <br/>By default, the `${user.home}/.openl/repositories/local` folder is used as a local folder for projects. Set `production-repository.uri` to use another folder.
 
     **Note:** For proper parsing of Java properties file, the path to the folder must be defined with a slash (‘/’) as the folders delimiter. Back slash “\\” is not allowed.
 
@@ -100,8 +120,8 @@ To configure a local file system as a data source, proceed as follows:
 
 To use a relational database repository as a data source, proceed as follows:
 
-1.  Add the appropriate driver library for a database.
-    For example, for MySQL 5.6, it is the `mysql-connector-java-5.1.31.jar`.
+1.  Add the appropriate JDBC driver library for a database to the classpath of the application.
+    For example, put the JAR file of the driver to the `lib` folder of the application server, or to `/opt/openl/lib` in the Docker image.
 2.  In the `application.properties` file, set repository settings as follows:
 3.  Set `production-repository.factory = repo-jdbc`.
 4.  Set the value for `production-repository.uri` according to the database as follows:
@@ -111,7 +131,7 @@ To use a relational database repository as a data source, proceed as follows:
     | MySQL, MariaDB | jdbc:mysql://[host][:port]/[schema]                                                         |
     | Oracle         | jdbc:oracle:thin:@//[HOST][:PORT]/SERVICE                                                   |
     | MS SQL         | jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]] |
-    | PostrgeSQL     | jdbc:postrgesql://[host][:port]/[schema]                                                    |
+    | PostgreSQL     | jdbc:postgresql://[host][:port]/[database]                                                  |
 
     For example, for MySQL:
     ```properties
@@ -120,76 +140,25 @@ To use a relational database repository as a data source, proceed as follows:
 
 5.  Set login and password for a connection to the database in production-repository.login and production-repository.password settings.
 
-    **Note:**        The password must be encoded via Base64 encoding schema if the repository.encode.decode.key property is not empty.
+    **Note:** A password can be stored encrypted. For more information, see [Encrypting Passwords](../installation-guide/configuration.md#encrypting-passwords).
 
     ```properties
     production-repository.factory = repo-jdbc
     production-repository.uri = jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1
     production-repository.login = root
     production-repository.password = admin
-    # Secret key for password code/decode
-    secret.key=
-    #secret.cipher=AES/CBC/PKCS5Padding
     ```
+
+To use a database through a JNDI data source of the application server, set `production-repository.factory = repo-jndi` and `production-repository.uri` to the JNDI name of the data source, such as `java:comp/env/jdbc/DB`.
 
 ##### Amazon AWS S3
 
 To use an AWS S3 repository as a data source, proceed as follows:
 
-1.  To build a customized version of OpenL Rule Services with dependencies on `*org.openl.rules.repository.aws`, create a `pom.xml` file with the following content:
+1.  Use the OpenL Rule Services *all* web application, as described in [Configuring a Data Source](#configuring-a-data-source).
+2.  Set the following properties in the `application.properties` file:
 
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-        <modelVersion>4.0.0</modelVersion>
-        <groupId>com.example.openl</groupId>
-        <artifactId>webservice-aws</artifactId>
-        <packaging>war</packaging>
-        <version>1.0-beta</version>
-
-    <properties>
-            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-            <org.openl.version>#Define OpenL Tablets version here#</org.openl.version>
-        </properties>
-        <dependencies>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.repository.aws</artifactId>
-                <version>${org.openl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                <type>war</type>
-                <version>${org.openl.version}</version>
-            </dependency>
-        </dependencies>
-        <dependencyManagement>
-            <dependencies>
-                <dependency>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                    <version>2.9.5</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                    <version>2.9.5</version>
-                </dependency>
-                <dependency>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                    <version>1.11</version>
-                </dependency>
-            </dependencies>
-        </dependencyManagement>
-    </project>
-    ```
-
-1.  Set the following properties in the `application.properties` file:
-
-    ```
-    properties
+    ```properties
     production-repository.factory = repo-aws-s3
     production-repository.bucket-name = yourBucketName
     production-repository.region-name = yourS3Region
@@ -197,45 +166,29 @@ To use an AWS S3 repository as a data source, proceed as follows:
     production-repository.secret-key = yourSecretKey
     ```
 
+3.  Optionally, set `production-repository.service-endpoint` to use a non-standard S3 compatible endpoint, `production-repository.sse-algorithm` to encrypt the objects on the server side (`AES256` or `aws:kms`), and `production-repository.listener-timer-period` to change the interval in seconds in which the repository is checked for changes.
+
+##### Azure Blob Storage
+
+To use an Azure Blob Storage repository as a data source, proceed as follows:
+
+1.  Use the OpenL Rule Services *all* web application, as described in [Configuring a Data Source](#configuring-a-data-source).
+2.  Set the following properties in the `application.properties` file:
+
+    ```properties
+    production-repository.factory = repo-azure-blob
+    production-repository.uri = https://youraccount.blob.core.windows.net/yourcontainer?<SAS token>
+    ```
+
+3.  To use the storage account key instead of a Shared Access Signature (SAS), define `production-repository.account-name` and `production-repository.account-key`. SAS is recommended for production because it limits the access to the resources, the permissions, and the time.
+4.  Optionally, set `production-repository.listener-timer-period` to change the interval in seconds in which the repository is checked for changes.
 
 ##### GIT
 
 To use a Git repository as a data source, proceed as follows:
 
-1.  To build a customized version of OpenL Rule Services with dependencies on `*org.openl.rules.repository.git`, create a `pom.xml` file with the following content:
-
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-        <modelVersion>4.0.0</modelVersion>
-        <groupId>com.example.openl</groupId>
-        <artifactId>webservice-git</artifactId>
-        <packaging>war</packaging>
-        <version>1.0-beta</version>
-
-        <properties>
-            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-            <org.openl.version>>#Define OpenL Tablets version here#</org.openl.version>
-        </properties>
-        <dependencies>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.repository.git</artifactId>
-                <version>${org.openl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                <type>war</type>
-                <version>${org.openl.version}</version>
-            </dependency>
-        </dependencies>
-    </project>
-    ```
-
-1.  Build it with Maven: `mvn clean package`.
-2.  Replace `webservice.war` with the war file you built.
-3.  Set the following properties to the `application.properties` file (change necessary fields):
+1.  Use the OpenL Rule Services *all* web application, as described in [Configuring a Data Source](#configuring-a-data-source).
+2.  Set the following properties to the `application.properties` file (change necessary fields):
 
     ```properties
     production-repository.factory = repo-git
@@ -244,34 +197,18 @@ To use a Git repository as a data source, proceed as follows:
     production-repository.password = your-password
     ```
 
-4.  Additionally, to override default values, add these optional properties:
+3.  Additionally, to override default values, add these optional properties:
 
-    ```xml
-    properties
-    # The branch where deployed projects can be found.
+    ```properties
+    # The branch where deployed projects can be found. If it is not defined, the default branch of the remote repository is used.
     production-repository.branch = master
-    # Committer's display name. If null, username will be “OpenL_Deployer”.
-    production-repository.user-display-name =
-    # Committer's email. If null, email will be empty.
-    production-repository.user-email =
+    # Local path where remote repositories are cloned.
+    production-repository.local-repositories-folder = ${openl.home}/repositories
     # Repository connection timeout in seconds. Must be greater than zero.
     production-repository.connection-timeout = 60
     # Repository changes check interval in seconds. Must be greater than 0.
     production-repository.listener-timer-period = 10
     ```
-
-##### Classpath JAR
-
-If rule projects with the `rules.xml` project descriptor are packed into a JAR file and placed in the classpath, these projects are deployed in the configured data source at the application launch.
-
-Proceed as follows:
-
-1.  Put the JAR file with the project to `\<TOMCAT_HOME>\webapps\<rule services file name>\WEB-INF\lib`.
-2.  In the `application.properties` file, set up the `ruleservice.datasource.deploy.classpath.jars = IF_ABSENT`.
-
-By default, this property is set to `NEVER`.
-
-**Note:** Project deployment is skipped if the data source already contains the project with the same name.
 
 #### Service Configurer
 
@@ -380,11 +317,9 @@ Some services can become unnecessary in the new version of the product.
 1.  Redeploy currently running services that are still in services defined by Service Configurer, such as service update.
 2.  Deploy new services not represented earlier.
 
-To set the method of exposing services, configure a Spring bean with the `ruleServiceManager` name in `openl-ruleservice-publisher-beans.xml`.
+A service is exposed by the publishers listed in the `publishers` element of its `rules-deploy.xml` deployment configuration file. If the element is absent, the publishers of the `ruleservice.publishers` property are used. The default value of the property is `RESTFUL`.
 
-This bean supports mapping a concrete publisher for a service configuration or uses a default publisher if the publisher is not defined in the `rules-deploy.xml `deployment configuration file.
-
-To add a publisher, use any framework by implementations of `org.openl.rules.ruleservice.publish.RuleServicePublisher `interface and register it in the `ruleServicePublisher` bean.
+To add a publisher, use any framework by implementing the `org.openl.rules.ruleservice.publish.RuleServicePublisher` interface and register the implementation as a Spring bean, as described in [Adding Spring Framework configurations](https://openl-tablets.github.io/openl-tablets/integration-guides/spring).
 
 OpenL Rule Services supports following publisher implementations out of the box:
 
@@ -393,11 +328,9 @@ OpenL Rule Services supports following publisher implementations out of the box:
 
 ##### CXF REST Publisher
 
-CXF REST Service Publisher implementation class is org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher. The Spring configuration for this publisher is located in the `openl-ruleservice-jaxrs-publisher-beans.xml `file.
+CXF REST Service Publisher implementation class is `org.openl.rules.ruleservice.jaxrs.JAXRSRuleServicePublisher`.
 
-The following URL can be used to retrieve a list of methods for a service:
-
-`webserver_context_path/ws_app_war_name/admin/services/{serviceName}/methods/`
+The OpenAPI document of a REST service, which lists its methods, is available at `<service URL>/openapi.json` and `<service URL>/openapi.yaml`. The services and their URLs are listed at `<context path>/admin/services`. For more information, see the [Rule Services Admin API](https://openl-tablets.github.io/openl-tablets/api/rule-services-admin-api).
 
 ###### Defining a Date Format for JSON Serialization and Deserialization
 
@@ -490,14 +423,14 @@ JSON payload of the same datatype with different `serializationInclusion` proper
 
 OpenL Rule Services uses a Jackson library to serialize an object to JSON and deserialize JSON to an object. This library supports configuration via MixIn annotation. For more information on MixIn annotations, see Jackson documentation <https://github.com/FasterXML/jackson-docs/wiki/JacksonMixInAnnotations>.
 
-To register MixIn classes for a project, annotate the MixIn class with the org.openl.rules.ruleservice.databinding.annotation.MixInClassFor or org.openl.rules.ruleservice.databinding.annotation.MixInClassFor annotation and add this class to the rules-deploy.xml deployment configuration file as described further in this section. These annotations expect the class name that is used for registering MixIn class in the object mapper.
+To register MixIn classes for a project, annotate the MixIn class with the `org.openl.rules.ruleservice.databinding.annotation.MixInClass` annotation and add this class to the rules-deploy.xml deployment configuration file as described further in this section. The annotation expects the class names that are used for registering MixIn class in the object mapper.
 
 JAXB annotations is supported in the MixIn classes out of the box because the system is configured to use com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector as a secondary annotation interceptor in the object mapper for the deployed service.
 
 Example of the Jackson MixIn class implementation is as follows:
 
 ```groovy
-@MixInClass(“org.openl.generated.beans.Customer”)
+@MixInClass("org.openl.generated.beans.Customer")
 public abstract class CustomerMixIn {
 
     @JsonProperty(required = true)
@@ -506,11 +439,11 @@ public abstract class CustomerMixIn {
     @JsonIgnore
     protected Integer privateField;
 
-    @JsonFormat(pattern = “yyyy-MM-dd”)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     protected Date dob;
 
-    @JsonProperty(“genderCd”)
-    @ApiModelProperty(example = “male”)
+    @JsonProperty("genderCd")
+    @Schema(example = "male")
     protected String gender;
 }
 ```
@@ -537,8 +470,6 @@ such as `jackson.propertyNamingStrategy`.
 ##### Kafka Publisher
 
 The system handles messages from the Kafka input topic and publishes rules calculation results to an output topic or dead letter topic if any error occurs during message processing.
-
-Only Kafka brokers 0.11.0 and later are supported.
 
 The following topics are included in this section:
 
@@ -665,8 +596,9 @@ By default, Kafka Publisher uses the JSON format.
 
 To use custom serializers and deserializers, do the following:
 
--   Implement custom deserializer for input parameters via the implementation `org.openl.rules.ruleservice.kafka.ser.MessageDeserializer` class.
--   Register a custom implemented deserializer in the `value.serializer` Kafka configuration property for particular consumers.
+-   Implement a custom deserializer of the input messages as the `org.apache.kafka.common.serialization.Deserializer` interface. The default one is `org.openl.rules.ruleservice.kafka.ser.RequestMessageDeserializer`.
+-   Register the custom deserializer in the `value.deserializer` property of `consumer.configs` for particular consumers.
+-   To serialize the results in another way, register a custom `org.apache.kafka.common.serialization.Serializer` in the `value.serializer` property of `producer.configs`. The default one is `org.openl.rules.ruleservice.kafka.ser.ResultSerializer`.
 
 ###### Date Format Definition and JSON Serialization and Deserialization Configuration
 
@@ -695,14 +627,14 @@ These settings are defined in the `application.properties` configuration file.
 
 An explanation of table dispatching validation is as follows.
 
-Consider a rule table for which some business dimension properties are set up. There is only one version of this rule table. The following table describes options of versioning functionality behavior for this case depending on the dispatching.validation property value located in webstudio\\WEB-INF\\conf:
+Consider a rule table for which some business dimension properties are set up. There is only one version of this rule table. The following table describes options of versioning functionality behavior for this case depending on the `dispatching.validation` property value:
 
 | **Value** | **Versioning behavior description**                                                                                                                                                                                                                                                              |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | True      | Versioning functionality works as for a rule that has only one version. <br/>OpenL Tablets reviews properties values of this rule table and executes the rule if the specified properties values match runtime context. <br/>Otherwise, the **No matching methods for context** error message is returned. |
 | False     | OpenL Tablets ignores properties of this rule table, and this rule is always executed and returns the result value despite of runtime context.                                                                                                                                                   |
 
-For table testing, dispatching validation is enabled by setting the dispatching.validation property value to true. The property is located in the application.properties file. In this case, versioning functionality works as for a rule that has only one version, and OpenL Tablets reviews properties values of this rule table and executes the rule if the specified properties values match runtime context. In production, this property value must be set to false.
+For table testing, dispatching validation is enabled by setting the `dispatching.validation` property value to true in the `application.properties` file. In this case, versioning functionality works as for a rule that has only one version, and OpenL Tablets reviews properties values of this rule table and executes the rule if the specified properties values match runtime context. In production, this property value must be set to false.
 
 By default, the dispatching.validation value is set to false in OpenL Rule Services and to true in OpenL Studio.
 
@@ -760,41 +692,37 @@ The system provides an ability to store all requests to OpenL Rule Services and 
 
 ##### Understanding Logging to an External Storage
 
-OpenL Rule Services supports storing requests and responses for the REST and Kafka publishers in the external storage. This feature is designed to support any external storage and use the Apache Casandra out of the box.
+OpenL Rule Services supports storing requests and responses for the REST and Kafka publishers in an external storage. The relational database is supported out of the box, and any other storage can be added by an own implementation.
 
 For each request to OpenL Rule Services, the system creates an object of the `org.openl.rules.ruleservice.storelogdata.StoreLogData` class, which is populated with data during request processing and then can be stored in the configured storage. It contains the following data:
 
-| Field name           | Description                                                                                                                |
-|----------------------|----------------------------------------------------------------------------------------------------------------------------|
-| requestMessage       | Request data for logging, such as request body, URL, request header, and request content type.                             |
-| responseMessage      | Response data for logging, such as response body, response status, and response header.                                    |
-| incomingMessageTime  | Time when request is received by the server.                                                                               |
-| outcomingMessageTime | Time when response message preparation is completed and the message is ready to be sent to the client.                     |
-| service              | OpenL Tablets service used for the call. Data includes service name, compiled OpenL Tablets rules, and other information.  |
-| inputName            | Method used for the call.                                                                                                  |
-| parameters           | Parameters of the call, which is an array of objects after binding request message to models.                              |
+| Field name           | Description                                                                                                                        |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| requestMessage       | Request data of the REST publisher for logging, such as request body, URL, request header, and request content type.               |
+| responseMessage      | Response data of the REST publisher for logging, such as response body, response status, and response header.                       |
+| consumerRecord       | Received Kafka record of the Kafka publisher.                                                                                      |
+| producerRecord       | Sent Kafka record with the result of the Kafka publisher.                                                                          |
+| dltRecord            | Record sent to the dead letter topic if an error occurs.                                                                           |
+| incomingMessageTime  | Time when request is received by the server.                                                                                       |
+| outcomingMessageTime | Time when response message preparation is completed and the message is ready to be sent to the client.                             |
+| serviceName          | Name of the service used for the call.                                                                                             |
+| serviceClass         | Class of the service used for the call.                                                                                            |
+| serviceMethod        | Method used for the call.                                                                                                          |
+| publisherType        | Publisher that received the request, such as `RESTFUL` or `KAFKA`.                                                                 |
+| parameters           | Parameters of the call, which is an array of objects after binding request message to models.                                      |
+| customValues         | Values that are added by the annotations of the service, as described in [Service Customization through Annotations](advanced-configuration.md#service-customization-through-annotations). |
 
-When the logging data is collected, the system invokes the storing service responsible for saving logging data. The storing service must implement the `org.openl.rules.ruleservice.storelogdata.StoreLogDataService` interface.
+When the logging data is collected, the system invokes the storing services responsible for saving logging data. A storing service is a Spring bean that implements the `org.openl.rules.ruleservice.storelogdata.StoreLogDataService` interface. Logging is enabled when at least one such bean exists.
 
 ##### Enabling Logging to an External Storage
 
-By default, logging requests to OpenL Rule Services and their responds is disabled:
-
-```properties
-ruleservice.store.logs.enabled = false
-```
-
-To enable logging, set `ruleservice.store.logs.enabled = true`.
+By default, there is no storing service, and logging requests to OpenL Rule Services and their responds is disabled. The storing service of the relational database is enabled by its own property, which is described in the next section. To add another storage, register an own `StoreLogDataService` implementation as a Spring bean, as described in [Adding Spring Framework configurations](https://openl-tablets.github.io/openl-tablets/integration-guides/spring).
 
 ##### Storing Log Records in the Relational Database
 
 To start using a relational database, proceed as follows:
 
-1.  Download the OpenL Rule Services full web application at <https://openl-tablets.org/downloads> or use the following Maven command:
-
-    ```bash
-    mvn dependency:copy -Dartifact=org.openl.rules:org.openl.rules.ruleservice.ws.full:<openl version here>:war -DoutputDirectory=./
-    ```
+1.  Use the OpenL Rule Services *all* web application, as described in [Configuring a Data Source](#configuring-a-data-source).
 
 1.  Enable the relational database Storing Log feature using the `ruleservice.store.logs.db.enabled=true` setting` `in the `application.properties` file.
 2.  Set up the Hibernate connection settings defined in the `application.properties` file as described in the following lines:
@@ -819,14 +747,14 @@ If table creating is enabled in Hibernate, the system creates the following tabl
 
 | Column name    | Type      | Description                                                    |
 |----------------|-----------|----------------------------------------------------------------|
-| ID             | TEXT      | Unique ID for the request. It is a primary key for the record. |
+| ID             | Number    | Unique ID for the request. It is a primary key for the record. |
 | INCOMINGTIME   | TIMESTAMP | Incoming request time.                                         |
-| METHOD_NAME    | TEXT      | Method of a service that was called.                           |
+| METHOD_NAME    | Text      | Method of a service that was called.                           |
 | OUTCOMINGTIME  | TIMESTAMP | Outgoing response time.                                        |
-| PUBLISHER_TYPE | TEXT      | Request source, such as web service or REST service.           |
-| REQUEST        | TEXT      | Request body.                                                  |
-| RESPONSE       | TEXT      | Response body.                                                 |
-| SERVICE_NAME   | TEXT      | Deployment service that was called.                            |
-| URL            | TEXT      | URL of the request.                                            |
+| PUBLISHER_TYPE | Text      | Request source, such as REST service or Kafka.                 |
+| REQUEST        | Large text | Request body.                                                 |
+| RESPONSE       | Large text | Response body.                                                |
+| SERVICE_NAME   | Text      | Deployment service that was called.                            |
+| URL            | Text      | URL of the request.                                            |
 
 **Note:** Only methods annotated with `org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB `are used for storing their requests and responses in a relational database. The system supports customization to use different tables for each OpenL Tablets project, use product specific table names, and configure a set of columns for tables. For more information on customization using annotations, see [Service Customization through Annotations](advanced-configuration.md#service-customization-through-annotations).
