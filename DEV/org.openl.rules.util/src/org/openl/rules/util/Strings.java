@@ -172,11 +172,11 @@ public final class Strings {
      * Checks if a String is NOT empty ("") or null or blank (" ").<br />
      * <br />
      * <code>
-     * isEmpty(null)      = false <br />
-     * isEmpty("")        = false <br />
-     * isEmpty(" ")       = false <br />
-     * isEmpty("bob")     = true <br />
-     * isEmpty("  bob  ") = true <br />
+     * isNotEmpty(null)      = false <br />
+     * isNotEmpty("")        = false <br />
+     * isNotEmpty(" ")       = false <br />
+     * isNotEmpty("bob")     = true <br />
+     * isNotEmpty("  bob  ") = true <br />
      * </code>
      *
      * @param str the String to check, may be null

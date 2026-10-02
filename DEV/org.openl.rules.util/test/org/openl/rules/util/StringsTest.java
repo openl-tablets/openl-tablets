@@ -117,6 +117,7 @@ class StringsTest {
         assertTrue(isEmpty(null));
         assertTrue(isEmpty(""));
         assertTrue(isEmpty(" "));
+        assertTrue(isEmpty(" \t\r\n"));
         assertFalse(isEmpty("  str  "));
         assertFalse(isEmpty("str"));
     }
@@ -126,6 +127,7 @@ class StringsTest {
         assertFalse(isNotEmpty(null));
         assertFalse(isNotEmpty(""));
         assertFalse(isNotEmpty(" "));
+        assertFalse(isNotEmpty(" \t\r\n"));
         assertTrue(isNotEmpty("  str  "));
         assertTrue(isNotEmpty("str"));
     }
