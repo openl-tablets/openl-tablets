@@ -93,9 +93,9 @@ During execution, the system takes default values from FinancialData data type.
 
 *Datatype table with default values*
 
-**Note:** For array types \_DEFAULT\_ creates an empty array.
-
-**Note:** A default value can be defined for String fields of the Datatype table by assigning the "" empty string.
+> [!Note]
+> \_DEFAULT\_ creates an empty array for an array field and an empty string for a String field. A String default
+> written as "" is the text of two quotation marks, not an empty string.
 
 For more information on using runtime context properties in Datatype tables, see [Runtime Context Properties in Datatype Tables](../../04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
 
