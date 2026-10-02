@@ -40,6 +40,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private final String comment;
     private final Repository repository;
 
+    // The creator takes the target repository and every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public ZipFileProjectCreator(String repositoryId,
                                  String uploadedFileName,
                                  InputStream uploadedFileStream,
@@ -62,6 +64,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 tags);
     }
 
+    // The creator takes the target repository and every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public ZipFileProjectCreator(Repository repository,
                                  String uploadedFileName,
                                  InputStream uploadedFileStream,

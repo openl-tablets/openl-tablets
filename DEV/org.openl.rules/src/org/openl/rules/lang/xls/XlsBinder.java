@@ -719,6 +719,8 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
+    // The module binder threads the module, the table and the binding state through each table it binds.
+    @SuppressWarnings("java:S107")
     private OpenMethodHeader addMethodHeaderToContext(XlsModuleOpenClass module,
                                                       TableSyntaxNode tableSyntaxNode,
                                                       CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
@@ -839,6 +841,8 @@ public class XlsBinder implements IOpenBinder {
         @Getter
         final CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
+        // The pre-binder keeps what it needs to bind the method when another method calls it first.
+        @SuppressWarnings("java:S107")
         XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
                                       OpenL openl,
                                       TableSyntaxNode tableSyntaxNode,

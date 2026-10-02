@@ -24,6 +24,8 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
     private final CellStyle dateFieldStyle;
     private final CellStyle dateTimeFieldStyle;
 
+    // The style keeps every cell style and font of the table template.
+    @SuppressWarnings("java:S107")
     public SpreadsheetTableStyleImpl(RichTextString headerTextTemplate,
                                      CellStyle headerStyle,
                                      CellRangeSettings headerSettings,

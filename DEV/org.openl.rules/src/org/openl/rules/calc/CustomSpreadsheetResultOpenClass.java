@@ -118,6 +118,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     @Getter
     private final boolean spreadsheet;
 
+    // The type is built from the row and column model of the spreadsheet result.
+    @SuppressWarnings("java:S107")
     public CustomSpreadsheetResultOpenClass(String name,
                                             String[] rowNames,
                                             String[] columnNames,
@@ -234,6 +236,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return description1.compareTo(description2) < 0 ? description1 : description2;
     }
 
+    // Extending takes the same row and column model the type is built from.
+    @SuppressWarnings("java:S107")
     private void extendSpreadsheetResult(String[] rowNames,
                                          String[] columnNames,
                                          String[] rowNamesForResultModel,

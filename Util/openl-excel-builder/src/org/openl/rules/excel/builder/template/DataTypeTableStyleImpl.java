@@ -17,6 +17,8 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
     private final DataTypeRowStyle lastRowStyle;
     private final Font datatypeFont;
 
+    // The style keeps every cell style and font of the table template.
+    @SuppressWarnings("java:S107")
     public DataTypeTableStyleImpl(RichTextString headerTextTemplate,
                                   CellStyle headerStyle,
                                   CellRangeSettings headerSizeSettings,

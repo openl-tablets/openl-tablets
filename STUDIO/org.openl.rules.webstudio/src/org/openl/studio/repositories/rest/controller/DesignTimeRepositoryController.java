@@ -292,6 +292,8 @@ public class DesignTimeRepositoryController {
         }
     }
 
+    // The method takes every field of the project creation form.
+    @SuppressWarnings("java:S107")
     private FileData createFromContent(Repository repository, String projectName, String path, String comment,
                                        List<MultipartFile> files, String templateType, String templateCategory,
                                        String templateName, String modelsPath, String algorithmsPath,

@@ -44,10 +44,14 @@ public class FieldDescription {
         this(typeName, defaultValue, defaultValueAsString, contextPropertyName, xmlName, null, null, null, false, isTransient, null, null);
     }
 
+    // The constructor takes the properties of the generated datatype field.
+    @SuppressWarnings("java:S107")
     public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, String xmlName, String description, String[] allowableValues, String example, boolean mandatory, boolean isTransient) {
         this(typeName, defaultValue, defaultValueAsString, contextPropertyName, xmlName, description, allowableValues, example, mandatory, isTransient, null, null);
     }
 
+    // The constructor takes the properties of the generated datatype field.
+    @SuppressWarnings("java:S107")
     public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, String xmlName, String description, String[] allowableValues, String example, boolean mandatory, boolean isTransient, Collection<Consumer<FieldVisitor>> fieldVisitorWriters, Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
         this(typeName, fieldVisitorWriters, getterVisitorWriters);
         this.description = description;

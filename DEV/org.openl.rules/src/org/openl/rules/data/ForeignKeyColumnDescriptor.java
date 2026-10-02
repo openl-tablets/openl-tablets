@@ -56,6 +56,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     @Getter
     private final CellKey foreignKeyCellCoordinate;
 
+    // The descriptor keeps the field and the foreign key parts the column header is parsed into.
+    @SuppressWarnings("java:S107")
     public ForeignKeyColumnDescriptor(IOpenField field,
                                       IdentifierNode foreignKeyTable,
                                       IdentifierNode foreignKey,
@@ -495,6 +497,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return isValuesAnArray() ? fieldType.getAggregateInfo().getComponentType(fieldType) : JavaOpenClass.OBJECT;
     }
 
+    // Each row value resolves against the foreign table with the binding and runtime state of the load.
+    @SuppressWarnings("java:S107")
     private void populateLiteralByForeignKeyWithMultiRowSupport(Object target,
                                                                 ILogicalTable valuesTable,
                                                                 IBindingContext cxt,

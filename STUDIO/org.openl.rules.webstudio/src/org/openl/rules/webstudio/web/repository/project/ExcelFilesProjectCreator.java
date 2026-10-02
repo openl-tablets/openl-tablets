@@ -23,6 +23,8 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     private final PathFilter pathFilter;
     private final String comment;
 
+    // The creator takes the target repository and every field of the project creation request.
+    @SuppressWarnings("java:S107")
     public ExcelFilesProjectCreator(Repository repository,
                                     String projectName,
                                     String projectFolder,

@@ -755,6 +755,8 @@ public class Table implements ITable {
         dataIdxToTableRowNum.put(idx, rowNum);
     }
 
+    // A column value loads with its descriptor, the row and the state of the row being built.
+    @SuppressWarnings("java:S107")
     private Object processColumn(ColumnDescriptor columnDescriptor,
                                  OpenlToolAdaptor openlAdapter,
                                  boolean constructor,

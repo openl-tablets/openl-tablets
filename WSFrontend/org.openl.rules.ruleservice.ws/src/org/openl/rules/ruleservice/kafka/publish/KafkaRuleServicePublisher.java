@@ -235,6 +235,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         return new KafkaConsumer<>(configs, keyDeserializer, valueDeserializer);
     }
 
+    // A Kafka service is created from the service, its configurations and the collections that track its clients.
+    @SuppressWarnings("java:S107")
     private void createKafkaService(OpenLService service,
                                                                 Collection<KafkaService> kafkaServices,
                                                                 Collection<KafkaConsumer<?, ?>> kafkaConsumers,

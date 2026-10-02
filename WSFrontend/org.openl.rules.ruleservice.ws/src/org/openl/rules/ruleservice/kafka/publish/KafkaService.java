@@ -81,6 +81,8 @@ public final class KafkaService implements Runnable {
     private StoreLogDataManager storeLogDataManager;
     private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
+    // The service owns its topics, its Kafka clients and the log storage it writes to.
+    @SuppressWarnings("java:S107")
     public static KafkaService createService(OpenLService service,
                                              String requestIdHeaderKey,
                                              String inTopic,
@@ -107,6 +109,8 @@ public final class KafkaService implements Runnable {
                 rulesDeploy);
     }
 
+    // The service owns its topics, its Kafka clients and the log storage it writes to.
+    @SuppressWarnings("java:S107")
     private KafkaService(OpenLService service,
                          String requestIdHeaderKey,
                          String inTopic,

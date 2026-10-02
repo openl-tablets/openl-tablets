@@ -19,6 +19,8 @@ class FuzzyDTHeader extends DTHeader {
     private final int topColumn;
     private final boolean returnDTHeader;
 
+    // The header keeps its position, size and the fuzzy match it comes from.
+    @SuppressWarnings("java:S107")
     FuzzyDTHeader(int methodParameterIndex,
                   String statement,
                   String title,
@@ -39,6 +41,8 @@ class FuzzyDTHeader extends DTHeader {
         this.fuzzyResult = fuzzyResult;
     }
 
+    // The header keeps its position, size and the fuzzy match it comes from.
+    @SuppressWarnings("java:S107")
     FuzzyDTHeader(String statement,
                   String title,
                   IOpenField[] fieldsChain,

@@ -101,7 +101,8 @@ public abstract class AbstractFilesController {
      * and parameters.
      */
     // The endpoint answers with a listing, a file node or the file content, depending on the path and the view.
-    @SuppressWarnings("java:S1452")
+    // The handler takes every request parameter of the file endpoints that delegate to it.
+    @SuppressWarnings({"java:S107", "java:S1452"})
     protected ResponseEntity<?> handleGetFile(FileRoot root, String path, String view, String download,
                                               Set<String> extensions, String namePattern, boolean foldersOnly,
                                               boolean recursive, FileViewMode viewMode, String version,
