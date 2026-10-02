@@ -38,6 +38,9 @@ class TransformIndexNode extends ABoundNode {
         var result = new ArrayList<Object>();
         while (elementsIterator.hasNext()) {
             var element = elementsIterator.next();
+            if (element == null) {
+                continue;
+            }
             element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
             var transformed = transformer.evaluate(env);
