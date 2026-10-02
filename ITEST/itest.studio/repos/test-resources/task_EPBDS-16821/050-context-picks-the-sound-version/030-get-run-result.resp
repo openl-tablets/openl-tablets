@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "CarPrice",
+  "tableId": "***",
+  "executionTimeMs": "***",
+  "result": 51650.0,
+  "resultSchema": "***",
+  "parameters": "***",
+  "contextParameters": "***"
+}
