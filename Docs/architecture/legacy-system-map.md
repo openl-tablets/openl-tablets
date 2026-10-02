@@ -120,7 +120,6 @@ public static int add(int a, int b) { ... }
 **3. Legacy Source Code Modules**
 ```java
 // ❌ Deprecated
-ModuleFileSourceCodeModule
 CompositeSourceCodeModule
 SubTextSourceCodeModule
 VirtualSourceCodeModule
