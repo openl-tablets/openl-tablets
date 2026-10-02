@@ -21,11 +21,17 @@ public final class Numbers {
     }
 
     /**
-     * Default {@code toString} method for numbers. Default format is {@code "#.###"}. See {@link #toString(Number, String)}
-     * for details.
+     * Converts a number to a string with all its digits and without an exponent.
+     * <p>
+     * Trailing zeros after the decimal point are omitted: {@code 1234.5678} gives {@code "1234.5678"} and
+     * {@code 1000.0} gives {@code "1000"}. Infinite values give {@code "∞"} and {@code "-∞"}, a not-a-number value
+     * gives {@code "NaN"}. A {@link BigDecimal} whose scale is beyond ±10000 keeps the exponent, as in
+     * {@code "1E+10001"}.
+     * <p>
+     * Use {@link #toString(Number, String)} to round a number or to group its digits.
      *
      * @param number any instance of {@link Number}
-     * @return string representation of a given number.
+     * @return string representation of a given number, or {@code null} for {@code null}
      */
     public static String toString(Number number) {
         if (number == null) {

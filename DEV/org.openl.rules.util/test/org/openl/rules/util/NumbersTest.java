@@ -72,6 +72,7 @@ class NumbersTest {
         assertEquals("0", Numbers.toString(0.0));
         assertEquals("1000", Numbers.toString(1000d));
         assertEquals("-1000", Numbers.toString(-1000d));
+        assertEquals("1234.5678", Numbers.toString(1234.5678));
         assertEquals("0.01", Numbers.toString(0.01d));
         assertEquals("-0.01", Numbers.toString(-0.01d));
 
