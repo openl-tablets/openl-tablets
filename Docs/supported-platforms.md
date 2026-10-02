@@ -6,7 +6,7 @@ description: Supported platforms, application servers, databases, browsers, Java
 ## Supported Environments
 
 #### Application/Web Server
-* Eclipse Jetty 12.0
+* Eclipse Jetty 12.1
 * Apache Tomcat 10.1
 
 #### Operating System
@@ -65,9 +65,8 @@ depending on the size and complexity of the projects being developed, on the cou
 * OAuth 2.0
 * OpenID Connect 1.0
 * OpenAPI 3.0
-* Java 21
+* Java 21 or later
 * Groovy 6.0
-* JavaScript ES2023
 
 ## Java Version Compatibility Matrix
 
