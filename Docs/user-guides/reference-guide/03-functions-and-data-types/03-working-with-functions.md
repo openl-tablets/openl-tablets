@@ -114,6 +114,8 @@ The ROUND function syntax is as follows:
 | `round(number,int,int)`    | Rounds to the fractional number and enables to get results different from usual mathematical rules: <br/>- The first `int` stands for a number of digits after decimal point. <br/>- The second `int` stands for a rounding mode represented by a constant, for example, `1- round_DOWN, 4-` `ROUND_HALF_UP`. <br/>The corresponding string value, such as `DOWN`, can be used instead of the second `int`. |
 | `round(number,int,String)` | Rounds to the fractional number considering the specified rounding mode.                                                                                                                                                                                                                                                                                                                 |
 
+An empty number gives an empty result. An empty number of digits after the decimal point counts as 0, and an empty rounding mode constant counts as 0, which is UP: when `s` and `r` are empty, `round(2.567, s)` is 3.0 and `round(2.561, 2, r)` is 2.57. An empty rounding mode string, such as an empty variable of the RoundingMode type, stops the calculation with an error.
+
 The following topics are included in this section:
 
 -   [round(number)](#roundnumber)

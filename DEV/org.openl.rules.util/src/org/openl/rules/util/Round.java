@@ -9,6 +9,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * A set of rounding util methods.
  * <p>
+ * In a rule, an empty number of decimal places counts as {@code 0}, and so does an empty rounding mode given by its
+ * number, which makes it {@link #UP}. An empty {@link RoundingMode} stops the calculation with an error.
+ * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
  * @author Yury Molchan
