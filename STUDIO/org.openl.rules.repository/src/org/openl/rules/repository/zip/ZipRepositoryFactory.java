@@ -1,6 +1,6 @@
 package org.openl.rules.repository.zip;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.openl.rules.repository.RepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -25,7 +25,7 @@ public class ZipRepositoryFactory implements RepositoryFactory {
     }
 
     @Override
-    public Repository create(Function<String, String> settings) {
+    public Repository create(UnaryOperator<String> settings) {
         var repository = new ZippedLocalRepository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();

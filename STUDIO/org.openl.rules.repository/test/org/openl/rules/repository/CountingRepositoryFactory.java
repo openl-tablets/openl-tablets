@@ -1,7 +1,7 @@
 package org.openl.rules.repository;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.openl.rules.repository.api.Repository;
 
@@ -30,7 +30,7 @@ public class CountingRepositoryFactory implements RepositoryFactory {
     }
 
     @Override
-    public Repository create(Function<String, String> settings) {
+    public Repository create(UnaryOperator<String> settings) {
         throw new UnsupportedOperationException("This factory accepts no repository type.");
     }
 }

@@ -1,6 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -49,7 +49,7 @@ public class FileMappingData implements AdditionalData<FileMappingData> {
     }
 
     @Override
-    public FileMappingData convertPaths(Function<String, String> converter) {
+    public FileMappingData convertPaths(UnaryOperator<String> converter) {
         // We don't need to convert internalPath so return this.
         return this;
     }

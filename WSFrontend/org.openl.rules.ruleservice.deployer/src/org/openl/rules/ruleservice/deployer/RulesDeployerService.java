@@ -90,7 +90,7 @@ public class RulesDeployerService implements Closeable {
     }
 
     public RulesDeployerService(Function<String, String> properties) {
-        this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties);
+        this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties::apply);
         if (deployRepo.supports().isLocal()) {
             // NOTE deployment path is not required for LocalRepository. It must be specified within URI
             this.baseDeployPath = "";

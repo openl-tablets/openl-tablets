@@ -3,7 +3,7 @@ package org.openl.util;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public final class ArrayUtils {
 
@@ -56,7 +56,7 @@ public final class ArrayUtils {
         }
     }
 
-    public static Object convert(Object o, Function<Object, Object> converter) {
+    public static Object convert(Object o, UnaryOperator<Object> converter) {
         if (o == null || !o.getClass().isArray()) {
             return converter.apply(o);
         }

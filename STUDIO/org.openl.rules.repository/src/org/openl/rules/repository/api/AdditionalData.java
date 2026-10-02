@@ -1,7 +1,7 @@
 package org.openl.rules.repository.api;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public interface AdditionalData<T extends AdditionalData> {
-    T convertPaths(Function<String, String> converter);
+    T convertPaths(UnaryOperator<String> converter);
 }

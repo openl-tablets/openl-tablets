@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Array;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.junit.jupiter.api.Test;
 
@@ -137,18 +137,20 @@ class ArrayUtilsTest {
 
     @Test
     void convertTest() {
-        assertNull(ArrayUtils.convert(null, Function.identity()));
-        assertEquals(10, ArrayUtils.convert(10, Function.identity()));
+        assertNull(ArrayUtils.convert(null, UnaryOperator.identity()));
+        assertEquals(10, ArrayUtils.convert(10, UnaryOperator.identity()));
         assertEquals("10", ArrayUtils.convert(10, String::valueOf));
         assertConvert(new String[]{"10"}, ArrayUtils.convert(new int[]{10}, String::valueOf));
-        assertConvert(new Integer[]{1, 25, 30}, ArrayUtils.convert(new int[]{1, 25, 30}, Function.identity()));
+        assertConvert(new Integer[]{1, 25, 30}, ArrayUtils.convert(new int[]{1, 25, 30}, UnaryOperator.identity()));
         assertConvert(new Number[]{1, 2.5, 3.0}, ArrayUtils.convert(new int[]{1, 25, 30}, x -> ((int) x) > 10 ? ((int) x) / 10.0 : x));
         assertConvert(new String[]{"null"}, ArrayUtils.convert(new Integer[]{null}, String::valueOf));
-        assertConvert(new Integer[]{null, 5}, ArrayUtils.convert(new Integer[]{null, 5}, Function.identity()));
-        assertConvert(new Integer[]{10, 5}, ArrayUtils.convert(new Object[]{10, 5}, Function.identity()));
-        assertConvert(new Number[]{10, 5.5}, ArrayUtils.convert(new Object[]{10, 5.5}, Function.identity()));
-        assertConvert(new Number[][]{null, {10, 5.5}, null}, ArrayUtils.convert(new Object[][]{null, {10, 5.5}, null}, Function.identity()));
-        assertConvert(new Double[][]{null, {10.5, 5.5}, null}, ArrayUtils.convert(new Object[][]{null, {10.5, 5.5}, null}, Function.identity()));
+        assertConvert(new Integer[]{null, 5}, ArrayUtils.convert(new Integer[]{null, 5}, UnaryOperator.identity()));
+        assertConvert(new Integer[]{10, 5}, ArrayUtils.convert(new Object[]{10, 5}, UnaryOperator.identity()));
+        assertConvert(new Number[]{10, 5.5}, ArrayUtils.convert(new Object[]{10, 5.5}, UnaryOperator.identity()));
+        assertConvert(new Number[][]{null, {10, 5.5}, null},
+                ArrayUtils.convert(new Object[][]{null, {10, 5.5}, null}, UnaryOperator.identity()));
+        assertConvert(new Double[][]{null, {10.5, 5.5}, null},
+                ArrayUtils.convert(new Object[][]{null, {10.5, 5.5}, null}, UnaryOperator.identity()));
     }
 
     private static void assertConvert(Object[] expected, Object actual) {

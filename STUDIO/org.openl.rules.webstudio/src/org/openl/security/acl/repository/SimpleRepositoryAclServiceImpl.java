@@ -6,7 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -352,7 +351,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     }
 
     protected void movePermissions(ObjectIdentity oldObjectIdentity,
-                                   Function<ObjectIdentity, ObjectIdentity> mapFunction,
+                                   UnaryOperator<ObjectIdentity> mapFunction,
                                    boolean deleteChildren) {
         var newObjectIdentity = mapFunction.apply(oldObjectIdentity);
         var oldAcl = getOrCreateAcl(oldObjectIdentity);
