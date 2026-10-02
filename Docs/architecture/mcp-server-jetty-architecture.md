@@ -1,5 +1,9 @@
 # Built-in MCP Server for OpenL Studio on Standalone Jetty
 
+> [!Note]
+> This page is the design of EPBDS-16523. The code of this repository does not contain the built-in MCP server yet.
+> Section 1.1 describes what exists today, and the other sections describe the target.
+
 How OpenL Studio exposes its MCP server as a built-in endpoint. The existing openl-mcp server runs as a supervised
 Node.js sidecar of the Studio web application behind the same Jetty origin, and MCP clients authenticate the way the
 `user.mode` of the installation prescribes.
@@ -513,7 +517,7 @@ What the existing security code dictates:
   `consentPage` points at a React route backed by a REST endpoint that names the client (the host of its `client_id`
   URL) and the requested scopes.
 - **Persistence** — the JDBC stores of SAS live in the Studio security database. They need Flyway scripts for every
-  supported database in `org.openl.security.standalone/resources/db/flyway/`. The signing keys are persisted too, so
+  supported database in `STUDIO/org.openl.rules.webstudio/resources/db/flyway/`. The signing keys are persisted too, so
   issued tokens survive restarts, context refreshes and — when several Studio instances share the database — other
   nodes.
 
