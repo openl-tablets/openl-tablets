@@ -15,7 +15,9 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -171,6 +173,18 @@ class ProjectFileLookupServiceImplTest {
     }
 
     // --- helpers ---
+
+    @Test
+    void reportsEachModificationTimeInUtc() throws IOException {
+        var root = fileData("AGENTS.md");
+        root.setModifiedAt(new Date(1_721_000_000_123L));
+        listReturns(fileData("a/AGENTS.md"), root);
+
+        var files = service.lookup(repository, "a/AGENTS.md", false);
+
+        assertNull(((FileNode) files.getFirst()).getLastModified());
+        assertEquals(ZonedDateTime.parse("2024-07-14T23:33:20.123Z"), ((FileNode) files.get(1)).getLastModified());
+    }
 
     private void listReturns(FileData... files) {
         try {

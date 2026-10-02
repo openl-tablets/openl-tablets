@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.servlet;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,14 +29,14 @@ public class ServiceInfo {
         FAILED
     }
 
-    public ServiceInfo(Date startedTime,
+    public ServiceInfo(Instant startedTime,
                        String name,
                        boolean failed,
                        Map<String, String> urls,
                        String servicePath,
                        boolean hasManifest,
                        String deploymentName) {
-        this.startedTime = Objects.requireNonNull(startedTime, "startedTime cannot be null");
+        this.startedTime = Date.from(Objects.requireNonNull(startedTime, "startedTime cannot be null"));
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.status = failed ? ServiceStatus.FAILED : ServiceStatus.DEPLOYED;
         this.servicePath = servicePath;

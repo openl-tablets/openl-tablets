@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import javax.xml.stream.XMLOutputFactory;
@@ -50,7 +51,7 @@ class JUnitReportWriter {
     }
 
     private String getCurrentDateTime() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
+        return LocalDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
     }
 
     private String getTime(long nanos) {

@@ -1,12 +1,9 @@
 package org.openl.studio.projects.service.files;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Date;
-
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FolderNode;
 import org.openl.studio.projects.model.files.FsNode;
@@ -41,7 +38,7 @@ class FileNodeMapperImpl implements FileNodeMapper {
         var fileData = artefact.getFileData();
         if (fileData != null) {
             builder.size(fileData.getSize());
-            builder.lastModified(toZonedDateTime(fileData.getModifiedAt()));
+            builder.lastModified(DateTimes.atUtc(fileData.getModifiedAt()));
         }
 
         return builder.build();
@@ -52,12 +49,5 @@ class FileNodeMapperImpl implements FileNodeMapper {
             return null;
         }
         return FilePaths.parent(path);
-    }
-
-    private static ZonedDateTime toZonedDateTime(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return date.toInstant().atZone(ZoneOffset.UTC);
     }
 }
