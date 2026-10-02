@@ -1,0 +1,2 @@
+ERROR: Cannot parse cell value '5%'. Expected value of type 'Integer'.
+ERROR: Cannot parse cell value '250%'. Expected value of type 'Long'.

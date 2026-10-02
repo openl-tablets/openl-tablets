@@ -1,5 +1,6 @@
 package org.openl.rules.convertor;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
@@ -16,6 +17,9 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
 
     /**
      * Parse an input string to a number. If the input string is null then null will be returned.
+     * <p>
+     * A percent value, such as {@code 17.5%}, is divided by 100. A whole number type takes it only when the result has
+     * no fraction, so {@code 300%} is 3 and {@code 250%} cannot be parsed.
      *
      * @param data   an input string to parse
      * @param format a format of parsed string. If it is null then a default format will be used.
@@ -34,18 +38,25 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
             throw new NumberFormatException("Cannot convert '%' to a number.");
         }
         var df = getFormatter(format);
+        var text = data;
         if (data.endsWith("%")) {
             // Configure to parse percents
             df.setMultiplier(100);
-            data = data.substring(0, data.length() - 1);
+            text = data.substring(0, data.length() - 1);
         }
         var position = new ParsePosition(0);
-        var number = df.parse(data, position);
-        var index = position.getIndex();
-        if (index < data.length()) {
+        var number = df.parse(text, position);
+        if (position.getIndex() < text.length() || df.isParseIntegerOnly() && hasFraction(number)) {
             throw new NumberFormatException("Cannot convert '%s' to a number.".formatted(data));
         }
-        return convert(number, data);
+        return convert(number, text);
+    }
+
+    /**
+     * Checks whether a number parsed as {@link BigDecimal} has a fraction, as the quotient of {@code 250%} has.
+     */
+    private static boolean hasFraction(Number number) {
+        return number instanceof BigDecimal decimal && decimal.stripTrailingZeros().scale() > 0;
     }
 
     /**

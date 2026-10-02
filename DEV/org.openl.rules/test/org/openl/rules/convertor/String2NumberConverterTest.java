@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.math.BigInteger;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -78,6 +79,40 @@ class String2NumberConverterTest {
     void testParseInvalid(String text) {
         String2NumberConverter<Number> converter = getNumberConverter();
         assertThrows(NumberFormatException.class, () -> converter.parse(text, null));
+    }
+
+    // A percent value without a fraction is a whole number
+    static Stream<Arguments> testParseWholePercent() {
+        return Stream.of(
+                arguments(Byte.class, "-300%", (byte) -3),
+                arguments(Short.class, "100%", (short) 1),
+                arguments(Integer.class, "0%", 0),
+                arguments(Long.class, "1200%", 12L),
+                arguments(BigInteger.class, "12345678901234567890000%", new BigInteger("123456789012345678900")));
+    }
+
+    @ParameterizedTest(name = "\"{1}\" is parsed as {2}")
+    @MethodSource
+    void testParseWholePercent(Class<?> type, String text, Number expected) {
+        assertEquals(expected, String2DataConvertorFactory.parse(type, text, null));
+    }
+
+    // A percent value or an exponent that leaves a fraction is not a whole number
+    static Stream<Arguments> testParseWholePercentWithFraction() {
+        return Stream.of(
+                arguments(Byte.class, "-150%"),
+                arguments(Short.class, "250%"),
+                arguments(Integer.class, "5%"),
+                arguments(Long.class, "250%"),
+                arguments(Long.class, "25E-1"),
+                arguments(BigInteger.class, "12345678901234567890001%"));
+    }
+
+    @ParameterizedTest(name = "\"{1}\" is not parsed")
+    @MethodSource
+    void testParseWholePercentWithFraction(Class<?> type, String text) {
+        var e = assertThrows(NumberFormatException.class, () -> String2DataConvertorFactory.parse(type, text, null));
+        assertEquals("Cannot convert '%s' to a number.".formatted(text), e.getMessage());
     }
 
     private String2NumberConverter<Number> getNumberConverter() {
