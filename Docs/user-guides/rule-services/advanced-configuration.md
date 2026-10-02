@@ -257,11 +257,11 @@ By default, URLs and HTTP method type for methods are determined automatically b
 
 The following JAX-RS annotations can be used to override the default behavior of service method publishing:
 
-| Annotation | Import details             |
-|------------|----------------------------|
-| `@POST`    | `import javax.ws.rs.POST;` |
-| `@GET`     | `import javax.ws.rs.GET;`  |
-| `@Path`    | `import javax.ws.rs.Path;` |
+| Annotation | Import details               |
+|------------|------------------------------|
+| `@POST`    | `import jakarta.ws.rs.POST;` |
+| `@GET`     | `import jakarta.ws.rs.GET;`  |
+| `@Path`    | `import jakarta.ws.rs.Path;` |
 
 -   `@POST` annotation overrides a default method type.
 
@@ -286,7 +286,7 @@ MyResponse someMethod(MyType myType);
 Usage example is as follows:
 
 ```java
-@Path(“/customPrefix/someMethod”)
+@Path("/customPrefix/someMethod")
 MyResponse someMethod(MyType myType);
 ```
 
@@ -296,14 +296,14 @@ Required Maven dependency is as follows:
 <dependency>
     <groupId>jakarta.ws.rs</groupId>
     <artifactId>jakarta.ws.rs-api</artifactId>
-    <version>2.1.5</version>
+    <version>4.0.0</version>
     <scope>provided</scope>
 </dependency>
 ```
 
 **Note:** It is not necessary to declare pairs of `@POST` + `@Path` or `@GET` + `@Path` because OpenL Tablets provides the capability to define a single annotation and generate the other one automatically.
 
-All other JAX-RS annotations, such as `@PUT`, `@DELETE`, `@QueryParam`, and `@PathParam,` are also supported by OpenL Tablets. For more information on JAX-RS annotation, see <https://docs.oracle.com/javaee/7/api/javax/ws/rs/package-summary.html>.
+All other JAX-RS annotations, such as `@PUT`, `@DELETE`, `@QueryParam`, and `@PathParam,` are also supported by OpenL Tablets. For more information on JAX-RS annotation, see <https://jakarta.ee/specifications/restful-ws/4.0/apidocs/jakarta.ws.rs/jakarta/ws/rs/package-summary.html>.
 
 #### Customization through Annotations for Dynamic Generated Interfaces
 
