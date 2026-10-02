@@ -186,31 +186,12 @@ class DataTypeConverterTest {
                 .extractProjectModel("test.converter/datatype/EPBDS-10415-types_values.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         var datatypeModel = findDataTypeModel(datatypeModels, "Dynamo");
-        List<FieldModel> fields = datatypeModel.getFields();
-        var aField = findField(fields, "A");
-        assertEquals("A", aField.getName());
-        assertEquals("Double", aField.getType());
-        assertEquals("0", aField.getDefaultValue());
-        var bField = findField(fields, "B");
-        assertEquals("B", bField.getName());
-        assertEquals("Integer", bField.getType());
-        assertEquals(0, bField.getDefaultValue());
-        var cField = findField(fields, "C");
-        assertEquals("C", cField.getName());
-        assertEquals("Integer", cField.getType());
-        assertEquals(0, cField.getDefaultValue());
-        var dField = findField(fields, "D");
-        assertEquals("D", dField.getName());
-        assertEquals("Double", dField.getType());
-        assertEquals("2975671681509007947508815", dField.getDefaultValue());
-        var eField = findField(fields, "E");
-        assertEquals("E", eField.getName());
-        assertEquals("Integer", eField.getType());
-        assertEquals(2147483647, eField.getDefaultValue());
-        var fField = findField(fields, "F");
-        assertEquals("F", fField.getName());
-        assertEquals("Integer", fField.getType());
-        assertEquals(0, fField.getDefaultValue());
+        assertEquals(List.of(new FieldModel("A", "Double", "0"),
+                new FieldModel("B", "Integer", 0),
+                new FieldModel("C", "Integer", 0),
+                new FieldModel("D", "Double", "2975671681509007947508815"),
+                new FieldModel("E", "Integer", 2147483647),
+                new FieldModel("F", "Integer", 0)), datatypeModel.getFields());
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> apiTodo = spreadsheetResultModels.stream()

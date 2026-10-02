@@ -64,18 +64,13 @@ class FileSystemRepositoryTest {
     }
 
     @Test
-    void testRepo() throws IOException {
-        var repo = new FileSystemRepository();
-        repo.setRoot(tmpDir);
-        repo.initialize();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2018, Calendar.NOVEMBER, 25, 10, 11, 12);
-        calendar.set(Calendar.MILLISECOND, 0);
+    void saveReadAndList() throws IOException {
+        var repo = createRepository();
 
         assertList(repo, "", 0);
         assertSave(repo, ".override", "The original content");
         assertSave(repo, "first.txt", "The first file in the repository");
-        assertSave(repo, "second.txt", "The second file in the repository", calendar.getTime());
+        assertSave(repo, "second.txt", "The second file in the repository", modifiedAt());
         assertSave(repo, "third#3", "The third file");
         assertSave(repo, "folder1/text", "The file in the folder");
         assertSave(repo, "very/very/very/deep/folder/text", "The file in the deep folder");
@@ -91,6 +86,13 @@ class FileSystemRepositoryTest {
         assertList(repo, "very/", 4);
         assertList(repo, "folder1/text", 0);
         assertList(repo, "absent/", 0);
+    }
+
+    @Test
+    void deleteFiles() throws IOException {
+        var repo = createRepository();
+
+        assertSave(repo, ".override", "This new content");
         assertDelete(repo, "absent", false);
         assertSave(repo, ".exist", "should be deleted");
         assertDelete(repo, ".exist", true);
@@ -102,17 +104,21 @@ class FileSystemRepositoryTest {
         assertNoRead(repo, "deep/deep/deep/deep/folder/exist");
         assertSave(repo, "deep/deep/deep", "Should be able to save after deleting empty folders");
         assertDelete(repo, "deep/deep", true);
-        assertList(repo, "", 10);
+        assertList(repo, "", 2);
         assertNoRead(repo, "absent");
         assertRead(repo, ".override", "This new content");
+    }
 
-        var stream = createZipInputStream("first", "second", "folder/name", "very/deep/folder/file");
-        assertSaveFromZip(repo, stream);
-        stream.close();
+    @Test
+    void saveFromZipAndFolders() throws IOException {
+        var repo = createRepository();
 
-        assertSave(repo, "folder", "multiple", calendar.getTime(), "folder/file1");
-        assertSave(repo, "fol/der/", "text", calendar.getTime(), "fol/der/file1", "fol/der/file2");
+        try (var stream = createZipInputStream("first", "second", "folder/name", "very/deep/folder/file")) {
+            assertSaveFromZip(repo, stream);
+        }
 
+        assertSave(repo, "folder", "multiple", modifiedAt(), "folder/file1");
+        assertSave(repo, "fol/der/", "text", modifiedAt(), "fol/der/file1", "fol/der/file2");
     }
 
     @Test
@@ -133,6 +139,20 @@ class FileSystemRepositoryTest {
         // Valid relative paths keep working.
         assertList(repo, "", 1);
         assertList(repo, "folder/", 1);
+    }
+
+    private FileSystemRepository createRepository() {
+        var repo = new FileSystemRepository();
+        repo.setRoot(tmpDir);
+        repo.initialize();
+        return repo;
+    }
+
+    private static Date modifiedAt() {
+        var calendar = Calendar.getInstance();
+        calendar.set(2018, Calendar.NOVEMBER, 25, 10, 11, 12);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 
     private void assertNoRead(Repository repo, String name) throws IOException {

@@ -28,6 +28,7 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 class OpenAPIConverterTest {
 
     private static final String SPREADSHEET_RESULT = "SpreadsheetResult";
+    private static final String GENERATED_INPUT_TYPES = "test.converter/spreadsheets/EPBDS-10939-parameters.json";
 
     private OpenAPIModelConverter converter;
 
@@ -284,7 +285,7 @@ class OpenAPIConverterTest {
     }
 
     @Test
-    void testSimpleTypes() throws IOException {
+    void testSimpleTypesInRequestBody() throws IOException {
         var pm = converter.extractProjectModel("test.converter/problems/simpleTypes.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
@@ -333,6 +334,12 @@ class OpenAPIConverterTest {
                 "java.lang.Long",
                 longParam.getType().getJavaName());
         assertEquals("long", longParam.getFormattedName());
+    }
+
+    @Test
+    void testSimpleTypesInParameters() throws IOException {
+        var pm = converter.extractProjectModel("test.converter/problems/simpleTypes.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
         var testWithParams = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams");
         List<InputParameter> parametersList = testWithParams.getParameters();
@@ -419,8 +426,8 @@ class OpenAPIConverterTest {
     }
 
     @Test
-    void testGeneratedInputTypes() throws IOException {
-        var pm = converter.extractProjectModel("test.converter/spreadsheets/EPBDS-10939-parameters.json");
+    void testGeneratedInputTypesOfPrimitiveParameters() throws IOException {
+        var pm = converter.extractProjectModel(GENERATED_INPUT_TYPES);
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
         var caseWithPrimitiveParams = findSpreadsheetByName(spreadsheetResultModels, "Case13");
@@ -449,6 +456,12 @@ class OpenAPIConverterTest {
         validateParameter(primitiveParamsForWrappedReturn, "a", "int", "int");
         validateParameter(primitiveParamsForWrappedReturn, "b", "double", "double");
         validateParameter(primitiveParamsForWrappedReturn, "c", "boolean", "boolean");
+    }
+
+    @Test
+    void testGeneratedInputTypesOfExpandedRequest() throws IOException {
+        var pm = converter.extractProjectModel(GENERATED_INPUT_TYPES);
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
         var spreadsheetWithExpandedRequest = findSpreadsheetByName(spreadsheetResultModels, "Case23");
         assertEquals("Integer", spreadsheetWithExpandedRequest.getType());
@@ -475,6 +488,12 @@ class OpenAPIConverterTest {
         validateParameter(parameters, "b", "java.lang.Double", "Double");
         validateParameter(parameters, "c", "java.lang.Boolean", "Boolean");
         validateParameter(parameters, "d", "java.lang.Float", "Float");
+    }
+
+    @Test
+    void testGeneratedInputTypesOfDatatypeAndPrimitiveParameters() throws IOException {
+        var pm = converter.extractProjectModel(GENERATED_INPUT_TYPES);
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
         var sprWithDataTypeAndPrimitiveRequest = findSpreadsheetByName(spreadsheetResultModels, "Case51");
         assertEquals("String", sprWithDataTypeAndPrimitiveRequest.getType());
@@ -496,7 +515,10 @@ class OpenAPIConverterTest {
         List<InputParameter> requestOrderParameters = sprWithDataTypeAndPrimitiveRequestOrder.getParameters();
         validateParameter(requestOrderParameters, "param", "MyTestDatatype", "MyTestDatatype");
         validateParameter(requestOrderParameters, "a", "java.lang.Integer", "Integer");
+    }
 
+    @Test
+    void testGeneratedInputTypesWithRuntimeContext() throws IOException {
         var pmWithRuntimeContext = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10939-with-runtime-context.json");
         List<SpreadsheetModel> spreadsheetsWithRuntimeContext = pmWithRuntimeContext.getSpreadsheetResultModels();
@@ -543,7 +565,10 @@ class OpenAPIConverterTest {
         List<InputParameter> rcDatatypeAndPrimitiveParamOrder = caseWithDTAndPrimitiveWithRCOrder.getParameters();
         validateParameter(rcDatatypeAndPrimitiveParamOrder, "a", "java.lang.Integer", "Integer");
         validateParameter(rcDatatypeAndPrimitiveParamOrder, "param", "MyTestDatatype", "MyTestDatatype");
+    }
 
+    @Test
+    void testGeneratedDoubleResult() throws IOException {
         var pmWithDoubleResult = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10939_doubleResult.json");
         List<SpreadsheetModel> spreadsheetModels = pmWithDoubleResult.getSpreadsheetResultModels();

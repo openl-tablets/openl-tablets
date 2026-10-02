@@ -312,84 +312,21 @@ class TestResultExportTest {
 
                 // Test the case when parameter is referenced by primary key
                 var sheet = workbook.getSheetAt(0);
-                var rowNum = BaseExport.FIRST_ROW;
-                assertRowText(sheet.getRow(rowNum), "DriverPremiumTest1");
-
-                rowNum++;
-                assertRowText(sheet.getRow(rowNum), "3 test cases (1 failed)");
-
-                rowNum += 2;
-                var row = sheet.getRow(rowNum);
-                assertRowText(row,
-                        "ID",
-                        "Status",
-                        "Driver",
-                        "Expected Age Type",
-                        "Expected Eligibility",
-                        "Expected Risk");
-                assertRowColors(row,
-                        HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
-
-                row = sheet.getRow(++rowNum);
-                assertRowText(row, "1", "Passed", "a1", "Standard Driver", "Eligible", "Standard Risk Driver");
-                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
-                assertComments(row, 3, null, null, null);
-
-                row = sheet.getRow(++rowNum);
-                assertRowText(row, "2", "Failed", "b2", "Young Driver", "Eligible", "Standard Risk Driver");
-                assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
-                assertComments(row, 3, null, "Expected: Provisional", null);
-
-                row = sheet.getRow(++rowNum);
-                assertRowText(row, "3", "Passed", "c3", "Young Driver", "Not Eligible", "High Risk Driver");
-                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
-                assertComments(row, 3, null, null, null);
+                var rowNum = checkDriverPremiumTest(sheet,
+                        BaseExport.FIRST_ROW,
+                        "DriverPremiumTest1",
+                        "a1",
+                        "b2",
+                        "c3");
 
                 // Test the case when parameter is referenced by field name despite that data table is with primary key
                 rowNum += BaseExport.SPACE_BETWEEN_RESULTS + 1;
-                assertRowText(sheet.getRow(rowNum), "DriverPremiumTest2");
-
-                rowNum++;
-                assertRowText(sheet.getRow(rowNum), "3 test cases (1 failed)");
-
-                rowNum += 2;
-                row = sheet.getRow(rowNum);
-                assertRowText(row,
-                        "ID",
-                        "Status",
-                        "Driver",
-                        "Expected Age Type",
-                        "Expected Eligibility",
-                        "Expected Risk");
-                assertRowColors(row,
-                        HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
-
-                row = sheet.getRow(++rowNum);
-                assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
-                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
-                assertComments(row, 3, null, null, null);
-
-                row = sheet.getRow(++rowNum);
-                assertRowText(row,
-                        "2",
-                        "Failed",
+                rowNum = checkDriverPremiumTest(sheet,
+                        rowNum,
+                        "DriverPremiumTest2",
+                        "Sara",
                         "Spencer, Sara's Son",
-                        "Young Driver",
-                        "Eligible",
-                        "Standard Risk Driver");
-                assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
-                assertComments(row, 3, null, "Expected: Provisional", null);
-
-                row = sheet.getRow(++rowNum);
-                assertRowText(row,
-                        "3",
-                        "Passed",
-                        "Spencer, No Training",
-                        "Young Driver",
-                        "Not Eligible",
-                        "High Risk Driver");
-                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
-                assertComments(row, 3, null, null, null);
+                        "Spencer, No Training");
 
                 assertEquals(rowNum, sheet.getLastRowNum());
             }
@@ -474,7 +411,21 @@ class TestResultExportTest {
     }
 
     private int checkDriverPremiumTest(XSSFSheet sheet, int rowNum) {
-        assertRowText(sheet.getRow(rowNum), "DriverPremiumTest");
+        return checkDriverPremiumTest(sheet,
+                rowNum,
+                "DriverPremiumTest",
+                "Sara",
+                "Spencer, Sara's Son",
+                "Spencer, No Training");
+    }
+
+    private int checkDriverPremiumTest(XSSFSheet sheet,
+                                       int rowNum,
+                                       String testName,
+                                       String firstDriver,
+                                       String secondDriver,
+                                       String thirdDriver) {
+        assertRowText(sheet.getRow(rowNum), testName);
 
         rowNum++;
         assertRowText(sheet.getRow(rowNum), "3 test cases (1 failed)");
@@ -486,17 +437,17 @@ class TestResultExportTest {
                 HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
         row = sheet.getRow(++rowNum);
-        assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
+        assertRowText(row, "1", "Passed", firstDriver, "Standard Driver", "Eligible", "Standard Risk Driver");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
         assertComments(row, 3, null, null, null);
 
         row = sheet.getRow(++rowNum);
-        assertRowText(row, "2", "Failed", "Spencer, Sara's Son", "Young Driver", "Eligible", "Standard Risk Driver");
+        assertRowText(row, "2", "Failed", secondDriver, "Young Driver", "Eligible", "Standard Risk Driver");
         assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
         assertComments(row, 3, null, "Expected: Provisional", null);
 
         row = sheet.getRow(++rowNum);
-        assertRowText(row, "3", "Passed", "Spencer, No Training", "Young Driver", "Not Eligible", "High Risk Driver");
+        assertRowText(row, "3", "Passed", thirdDriver, "Young Driver", "Not Eligible", "High Risk Driver");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
         assertComments(row, 3, null, null, null);
 

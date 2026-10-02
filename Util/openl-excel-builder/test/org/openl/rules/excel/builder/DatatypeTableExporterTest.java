@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static org.openl.rules.excel.builder.SheetCells.cell;
+import static org.openl.rules.excel.builder.SheetCells.rowTexts;
+import static org.openl.rules.excel.builder.SheetCells.text;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -87,163 +93,38 @@ class DatatypeTableExporterTest {
                 new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
             var dtsSheet = wb.getSheet("Datatypes");
             assertNotNull(dtsSheet);
-            var headerRow = dtsSheet.getRow(TOP_MARGIN);
-            assertNotNull(headerRow);
-            var headerText = headerRow.getCell(1).getStringCellValue();
-            assertEquals("Datatype Test", headerText);
+            assertEquals("Datatype Test", text(dtsSheet, TOP_MARGIN, 1));
 
-            var stringFieldRow = dtsSheet.getRow(TOP_MARGIN + 1);
-            assertNotNull(stringFieldRow);
-            var dtCell = stringFieldRow.getCell(DT_TYPE_CELL);
-            assertNotNull(dtCell);
-            var typeCell = dtCell.getStringCellValue();
-            var nameCell = stringFieldRow.getCell(DT_NAME_CELL);
-            assertNotNull(nameCell);
-            var name = nameCell.getStringCellValue();
-            var dvCell = stringFieldRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(dvCell);
-            var defaultValue = dvCell.getStringCellValue();
-            assertEquals(STRING_TYPE, typeCell);
-            assertEquals("type", name);
-            assertEquals("Hello, World", defaultValue);
+            assertEquals(List.of(STRING_TYPE, "type", "Hello, World"), fieldTexts(dtsSheet, TOP_MARGIN + 1));
 
-            var doubleFieldRow = dtsSheet.getRow(TOP_MARGIN + 2);
-            assertNotNull(doubleFieldRow);
-            var doubleTypeCell = doubleFieldRow.getCell(DT_TYPE_CELL);
-            assertNotNull(doubleTypeCell);
-            var doubleTypeCellValue = doubleTypeCell.getStringCellValue();
-            var doubleNameCell = doubleFieldRow.getCell(DT_NAME_CELL);
-            assertNotNull(doubleNameCell);
-            var doubleNameCellValue = doubleNameCell.getStringCellValue();
-            var doubleDefaultValueCell = doubleFieldRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(doubleDefaultValueCell);
-            var doubleDefaultValue = doubleDefaultValueCell.getNumericCellValue();
-            assertEquals("Double", doubleTypeCellValue);
-            assertEquals("sum", doubleNameCellValue);
-            assertEquals(0.0d, doubleDefaultValue, 1e-8);
+            assertEquals(List.of("Double", "sum"), typeAndName(dtsSheet, TOP_MARGIN + 2));
+            assertEquals(0.0d, defaultValueCell(dtsSheet, TOP_MARGIN + 2).getNumericCellValue(), 1e-8);
 
-            var dateRow = dtsSheet.getRow(TOP_MARGIN + 3);
-            assertNotNull(dateRow);
-            var dateTypeCell = dateRow.getCell(DT_TYPE_CELL);
-            assertNotNull(dateTypeCell);
-            var dateCellType = dateTypeCell.getStringCellValue();
-            var dateNameCell = dateRow.getCell(DT_NAME_CELL);
-            assertNotNull(dateNameCell);
-            var dateCellName = dateNameCell.getStringCellValue();
-            var dateDefaultValueCell = dateRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(dateDefaultValueCell);
-            var dateCellValue = dateDefaultValueCell.getDateCellValue();
-            assertEquals("Date", dateCellType);
-            assertEquals("registrationDate", dateCellName);
-            assertEquals(dateValue, dateCellValue);
+            assertEquals(List.of("Date", "registrationDate"), typeAndName(dtsSheet, TOP_MARGIN + 3));
+            assertEquals(dateValue, defaultValueCell(dtsSheet, TOP_MARGIN + 3).getDateCellValue());
 
-            var booleanRow = dtsSheet.getRow(TOP_MARGIN + 4);
-            assertNotNull(booleanRow);
-            var boolTypeCell = booleanRow.getCell(DT_TYPE_CELL);
-            assertNotNull(boolTypeCell);
-            var booleanCellType = boolTypeCell.getStringCellValue();
-            var boolNameCell = booleanRow.getCell(DT_NAME_CELL);
-            assertNotNull(boolNameCell);
-            var booleanCellName = boolNameCell.getStringCellValue();
-            var boolDefaultCell = booleanRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(boolDefaultCell);
-            var booleanCellValue = boolDefaultCell.getBooleanCellValue();
-            assertEquals("Boolean", booleanCellType);
-            assertEquals("isOk", booleanCellName);
-            assertTrue(booleanCellValue);
+            assertEquals(List.of("Boolean", "isOk"), typeAndName(dtsSheet, TOP_MARGIN + 4));
+            assertTrue(defaultValueCell(dtsSheet, TOP_MARGIN + 4).getBooleanCellValue());
 
-            var customRow = dtsSheet.getRow(TOP_MARGIN + 5);
-            assertNotNull(customRow);
-            var customTypeCell = customRow.getCell(DT_TYPE_CELL);
-            assertNotNull(customTypeCell);
-            var customCellType = customTypeCell.getStringCellValue();
-            var customNameCell = customRow.getCell(DT_NAME_CELL);
-            assertNotNull(customNameCell);
-            var customCellName = customNameCell.getStringCellValue();
-            var customDefaultValueCell = customRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(customDefaultValueCell);
-            var customCellValue = customDefaultValueCell.getStringCellValue();
-            assertEquals("Human", customCellType);
-            assertEquals("driver", customCellName);
-            assertEquals("", customCellValue);
+            assertEquals(List.of("Human", "driver", ""), fieldTexts(dtsSheet, TOP_MARGIN + 5));
 
-            var dateTimeRow = dtsSheet.getRow(TOP_MARGIN + 6);
-            assertNotNull(dateTimeRow);
-            var dateTimeCell = dateTimeRow.getCell(DT_TYPE_CELL);
-            assertNotNull(dateTimeCell);
-            var dateTimeCellType = dateTimeCell.getStringCellValue();
-            var dateTimeNameCell = dateTimeRow.getCell(DT_NAME_CELL);
-            assertNotNull(dateTimeNameCell);
-            var dateTimeCellName = dateTimeNameCell.getStringCellValue();
-            var dateTimeDefaultValueCell = dateTimeRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(dateTimeDefaultValueCell);
-            var offsetDateTime = dateTimeDefaultValueCell.getLocalDateTimeCellValue()
+            assertEquals(List.of("Date", "registrationDateTime"), typeAndName(dtsSheet, TOP_MARGIN + 6));
+            var offsetDateTime = defaultValueCell(dtsSheet, TOP_MARGIN + 6).getLocalDateTimeCellValue()
                     .atZone(ZoneId.systemDefault())
                     .toOffsetDateTime();
-            assertEquals("Date", dateTimeCellType);
-            assertEquals("registrationDateTime", dateTimeCellName);
             assertNotNull(offsetDateTime);
 
-            var floatFieldRow = dtsSheet.getRow(TOP_MARGIN + 7);
-            assertNotNull(floatFieldRow);
-            var floatTypeCell = floatFieldRow.getCell(DT_TYPE_CELL);
-            assertNotNull(floatTypeCell);
-            var floatTypeCellValue = floatTypeCell.getStringCellValue();
-            var floatNameCell = floatFieldRow.getCell(DT_NAME_CELL);
-            assertNotNull(floatNameCell);
-            var floatNameCellValue = floatNameCell.getStringCellValue();
-            var floatDefaultValueCell = floatFieldRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(floatDefaultValueCell);
-            var floatDefaultCell = floatDefaultValueCell.getNumericCellValue();
-            assertEquals("Float", floatTypeCellValue);
-            assertEquals("weight", floatNameCellValue);
-            assertEquals(1.3124124, floatDefaultCell, 1e-8);
+            assertEquals(List.of("Float", "weight"), typeAndName(dtsSheet, TOP_MARGIN + 7));
+            assertEquals(1.3124124, defaultValueCell(dtsSheet, TOP_MARGIN + 7).getNumericCellValue(), 1e-8);
 
-            var bigDecimalRow = dtsSheet.getRow(TOP_MARGIN + 8);
-            assertNotNull(bigDecimalRow);
-            var bigDecimalTypeCell = bigDecimalRow.getCell(DT_TYPE_CELL);
-            assertNotNull(bigDecimalTypeCell);
-            var bigDecimalTypeCellValue = bigDecimalTypeCell.getStringCellValue();
-            var bigDecimalNameCell = bigDecimalRow.getCell(DT_NAME_CELL);
-            assertNotNull(bigDecimalNameCell);
-            var bigDecimalNameCellValue = bigDecimalNameCell.getStringCellValue();
-            var bdDefaultValueCell = bigDecimalRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(bdDefaultValueCell);
-            var bdDefValue = bdDefaultValueCell.getStringCellValue();
-            assertEquals("BigDecimal", bigDecimalTypeCellValue);
-            assertEquals("bigNum", bigDecimalNameCellValue);
-            assertEquals("2975671681509007947508815", bdDefValue);
+            assertEquals(List.of("BigDecimal", "bigNum", "2975671681509007947508815"),
+                    fieldTexts(dtsSheet, TOP_MARGIN + 8));
 
-            var bigIntegerRow = dtsSheet.getRow(TOP_MARGIN + 9);
-            assertNotNull(bigIntegerRow);
-            var bigIntegerTypeCell = bigIntegerRow.getCell(DT_TYPE_CELL);
-            assertNotNull(bigIntegerTypeCell);
-            var bigIntegerTypeCellValue = bigIntegerTypeCell.getStringCellValue();
-            var bigIntegerNameCell = bigIntegerRow.getCell(DT_NAME_CELL);
-            assertNotNull(bigIntegerNameCell);
-            var bigIntegerNameCellValue = bigIntegerNameCell.getStringCellValue();
-            var biDefaultValueCell = bigIntegerRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(biDefaultValueCell);
-            var biDefValue = biDefaultValueCell.getNumericCellValue();
-            assertEquals("BigInteger", bigIntegerTypeCellValue);
-            assertEquals("bigInt", bigIntegerNameCellValue);
-            assertEquals(10.0, biDefValue, 1e-8);
+            assertEquals(List.of("BigInteger", "bigInt"), typeAndName(dtsSheet, TOP_MARGIN + 9));
+            assertEquals(10.0, defaultValueCell(dtsSheet, TOP_MARGIN + 9).getNumericCellValue(), 1e-8);
 
-            var nextModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 12);
-            assertNotNull(nextModelHeaderRow);
-            var nextModelHeaderCell = nextModelHeaderRow.getCell(1);
-            assertNotNull(nextModelHeaderCell);
-            assertEquals("Datatype NextModel extends Test", nextModelHeaderCell.getStringCellValue());
-            var nextModelRow = dtsSheet.getRow(TOP_MARGIN + 13);
-            var nextModelDtCell = nextModelRow.getCell(DT_TYPE_CELL);
-            assertNotNull(nextModelDtCell);
-            var nextModelNameCell = nextModelRow.getCell(DT_NAME_CELL);
-            assertNotNull(nextModelNameCell);
-            var nextModelDVCell = nextModelRow.getCell(DT_DEFAULT_VALUE_CELL);
-            assertNotNull(nextModelDVCell);
-            assertEquals(STRING_TYPE, nextModelDtCell.getStringCellValue());
-            assertEquals("color", nextModelNameCell.getStringCellValue());
-            assertEquals("red", nextModelDVCell.getStringCellValue());
+            assertEquals("Datatype NextModel extends Test", text(dtsSheet, TOP_MARGIN + 12, 1));
+            assertEquals(List.of(STRING_TYPE, "color", "red"), fieldTexts(dtsSheet, TOP_MARGIN + 13));
         }
 
     }
@@ -286,6 +167,21 @@ class DatatypeTableExporterTest {
                 break;
             }
         }
+    }
+
+    /**
+     * Returns the type, the name and the default value of a field whose default value is written as a text.
+     */
+    private static List<String> fieldTexts(Sheet sheet, int row) {
+        return rowTexts(sheet, row, DT_TYPE_CELL, DT_DEFAULT_VALUE_CELL);
+    }
+
+    private static List<String> typeAndName(Sheet sheet, int row) {
+        return rowTexts(sheet, row, DT_TYPE_CELL, DT_NAME_CELL);
+    }
+
+    private static Cell defaultValueCell(Sheet sheet, int row) {
+        return cell(sheet, row, DT_DEFAULT_VALUE_CELL);
     }
 
     @SafeVarargs

@@ -3,6 +3,8 @@ package org.openl.rules.excel.builder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import static org.openl.rules.excel.builder.SheetCells.rowTexts;
+import static org.openl.rules.excel.builder.SheetCells.text;
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
 
 import java.io.File;
@@ -58,78 +60,16 @@ class SpreadsheetTableExporterTest {
         try (var wb = new XSSFWorkbook(new FileInputStream("../openl-excel-builder/spr_test_project.xlsx"))) {
             var dtsSheet = wb.getSheet(SPR_RESULT_SHEET);
             assertNotNull(dtsSheet);
-            var headerRow = dtsSheet.getRow(TOP_MARGIN);
-            assertNotNull(headerRow);
-            var headerText = headerRow.getCell(1).getStringCellValue();
-            assertEquals("Spreadsheet Double TestDoubleSpr ( String name )", headerText);
-            var sprSubHeaderRow = dtsSheet.getRow(TOP_MARGIN + 1);
-            assertNotNull(sprSubHeaderRow);
-            var stepHeaderCell = sprSubHeaderRow.getCell(1);
-            assertNotNull(stepHeaderCell);
-            assertEquals("Step", stepHeaderCell.getStringCellValue());
-            var valueHeaderCell = sprSubHeaderRow.getCell(2);
-            assertNotNull(valueHeaderCell);
-            assertEquals("Formula", valueHeaderCell.getStringCellValue());
-
-            var firstStepRow = dtsSheet.getRow(TOP_MARGIN + 2);
-            assertNotNull(firstStepRow);
-            var nameCell = firstStepRow.getCell(1);
-            assertNotNull(nameCell);
-            assertEquals("simpleCalculation", nameCell.getStringCellValue());
-            var valueCell = firstStepRow.getCell(2);
-            assertNotNull(valueCell);
-            assertEquals("=0.0d", valueCell.getStringCellValue());
-
-            var secondStepRow = dtsSheet.getRow(TOP_MARGIN + 3);
-            assertNotNull(secondStepRow);
-            var secondNameCell = secondStepRow.getCell(1);
-            assertNotNull(secondNameCell);
-            assertEquals("calculateName", secondNameCell.getStringCellValue());
-            var secondValueCell = secondStepRow.getCell(2);
-            assertNotNull(secondValueCell);
-            assertEquals("=\"\"", secondValueCell.getStringCellValue());
-
-            var sprCallStepRow = dtsSheet.getRow(TOP_MARGIN + 4);
-            assertNotNull(sprCallStepRow);
-            var sprNameCell = sprCallStepRow.getCell(1);
-            assertNotNull(sprNameCell);
-            assertEquals("calculateIndex", sprNameCell.getStringCellValue());
-            var sprCellCall = sprCallStepRow.getCell(2);
-            assertNotNull(sprCellCall);
-            assertEquals("=new IndexCalculation()", sprCellCall.getStringCellValue());
-
-            var booleanRow = dtsSheet.getRow(TOP_MARGIN + 5);
-            assertNotNull(booleanRow);
-            var boolCell = booleanRow.getCell(1);
-            assertNotNull(boolCell);
-            assertEquals("booleanStep", boolCell.getStringCellValue());
-            var boolValueCell = booleanRow.getCell(2);
-            assertNotNull(boolValueCell);
-            assertEquals("=false", boolValueCell.getStringCellValue());
-
-            var dateRow = dtsSheet.getRow(TOP_MARGIN + 6);
-            assertNotNull(dateRow);
-            var dateNameCell = dateRow.getCell(1);
-            assertNotNull(dateNameCell);
-            assertEquals("dateStep", dateNameCell.getStringCellValue());
-            var dateValueCell = dateRow.getCell(2);
-            assertEquals("=new Date()", dateValueCell.getStringCellValue());
-
-            var integerStepRow = dtsSheet.getRow(TOP_MARGIN + 7);
-            assertNotNull(integerStepRow);
-            var integerNameCell = integerStepRow.getCell(1);
-            assertNotNull(integerNameCell);
-            assertEquals("integerStep", integerNameCell.getStringCellValue());
-            var integerValueCell = integerStepRow.getCell(2);
-            assertEquals("=0", integerValueCell.getStringCellValue());
-
-            var longStepRow = dtsSheet.getRow(TOP_MARGIN + 8);
-            assertNotNull(longStepRow);
-            var longNameCell = longStepRow.getCell(1);
-            assertNotNull(longNameCell);
-            assertEquals("longStep", longNameCell.getStringCellValue());
-            var longValueCell = longStepRow.getCell(2);
-            assertEquals("=0L", longValueCell.getStringCellValue());
+            assertEquals("Spreadsheet Double TestDoubleSpr ( String name )", text(dtsSheet, TOP_MARGIN, 1));
+            assertEquals(List.of("Step", "Formula"), rowTexts(dtsSheet, TOP_MARGIN + 1, 1, 2));
+            assertEquals(List.of("simpleCalculation", "=0.0d"), rowTexts(dtsSheet, TOP_MARGIN + 2, 1, 2));
+            assertEquals(List.of("calculateName", "=\"\""), rowTexts(dtsSheet, TOP_MARGIN + 3, 1, 2));
+            assertEquals(List.of("calculateIndex", "=new IndexCalculation()"),
+                    rowTexts(dtsSheet, TOP_MARGIN + 4, 1, 2));
+            assertEquals(List.of("booleanStep", "=false"), rowTexts(dtsSheet, TOP_MARGIN + 5, 1, 2));
+            assertEquals(List.of("dateStep", "=new Date()"), rowTexts(dtsSheet, TOP_MARGIN + 6, 1, 2));
+            assertEquals(List.of("integerStep", "=0"), rowTexts(dtsSheet, TOP_MARGIN + 7, 1, 2));
+            assertEquals(List.of("longStep", "=0L"), rowTexts(dtsSheet, TOP_MARGIN + 8, 1, 2));
         }
 
     }

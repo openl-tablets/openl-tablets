@@ -2,6 +2,9 @@ package org.openl.rules.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -16,26 +19,30 @@ class TablesTest {
 
     @Test
     void testSplitter() {
-
-        var source = new URLSourceCodeModule("./test/rules/Test2.xls");
-        var wbSrc = new XlsWorkbookSourceCodeModule(source);
-
-        var wb = wbSrc.getWorkbook();
-
-        var nsheets = wb.getNumberOfSheets();
-
-        for (var i = 0; i < nsheets; i++) {
-
-            var sheetSrc = new XlsSheetSourceCodeModule(i, wbSrc);
-
-            var xsGrid = new XlsSheetGridModel(sheetSrc);
-
+        for (var xsGrid : sheetGrids()) {
             var tables = xsGrid.getTables();
 
             assertEquals(17, xsGrid.getNumberOfMergedRegions());
             assertEquals(6, tables.length);
 
-            ILogicalTable lt = LogicalTableHelper.logicalTable(tables[5]);
+            assertEquals(2, tables[0].getRegion().getRight());
+            assertEquals(4, tables[0].getRegion().getBottom());
+
+            assertEquals(7, tables[1].getRegion().getTop());
+            assertEquals(1, tables[1].getRegion().getLeft());
+
+            assertEquals(28, tables[3].getRegion().getBottom());
+            assertEquals(4, tables[3].getRegion().getRight());
+
+            assertEquals(35, tables[4].getRegion().getBottom());
+            assertEquals(1, tables[4].getRegion().getLeft());
+        }
+    }
+
+    @Test
+    void testLogicalTable() {
+        for (var xsGrid : sheetGrids()) {
+            ILogicalTable lt = LogicalTableHelper.logicalTable(xsGrid.getTables()[5]);
 
             subtestRegion(lt.getRows(1));
 
@@ -70,6 +77,13 @@ class TablesTest {
 
             assertEquals(1, row222.getHeight());
             assertEquals(3, row222.getWidth());
+        }
+    }
+
+    @Test
+    void testTransposedTable() {
+        for (var xsGrid : sheetGrids()) {
+            var row2 = LogicalTableHelper.logicalTable(xsGrid.getTables()[5]).getRow(1);
 
             ILogicalTable invRow2 = LogicalTableHelper.logicalTable(new TransposedGridTable(row2.getSource()));
 
@@ -85,19 +99,17 @@ class TablesTest {
 
             assertEquals(3, invRow222.getHeight());
             assertEquals(1, invRow222.getWidth());
-
-            assertEquals(2, tables[0].getRegion().getRight());
-            assertEquals(4, tables[0].getRegion().getBottom());
-
-            assertEquals(7, tables[1].getRegion().getTop());
-            assertEquals(1, tables[1].getRegion().getLeft());
-
-            assertEquals(28, tables[3].getRegion().getBottom());
-            assertEquals(4, tables[3].getRegion().getRight());
-
-            assertEquals(35, tables[4].getRegion().getBottom());
-            assertEquals(1, tables[4].getRegion().getLeft());
         }
+    }
+
+    private static List<XlsSheetGridModel> sheetGrids() {
+        var wbSrc = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule("./test/rules/Test2.xls"));
+        var nsheets = wbSrc.getWorkbook().getNumberOfSheets();
+        var grids = new ArrayList<XlsSheetGridModel>(nsheets);
+        for (var i = 0; i < nsheets; i++) {
+            grids.add(new XlsSheetGridModel(new XlsSheetSourceCodeModule(i, wbSrc)));
+        }
+        return grids;
     }
 
     private void subtestRegion(ILogicalTable testHeader1) {
