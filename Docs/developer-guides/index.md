@@ -17,6 +17,8 @@ This guide is organized into the following sections:
 - [OpenL Tablets Business Expression Language](business-language.md) - Programming with the OpenL business rules language
 - [Externalized Configuration](externalized-config.md) - Managing external configuration for OpenL projects
 - [Extending OpenL Tablets Functionality](extending.md) - Customization and extension points
+- [Invoking OpenL Rules from Java](invoking-openl.md) - Run deployed rules with `OpenLService`, including serverless functions and Apache Spark
+- [Extending OpenL Studio UI](studio-extension.md) - Load an external JavaScript file with the Studio UI
 
 ## Additional Developer Resources
 

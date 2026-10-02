@@ -7,9 +7,11 @@ This class is located in the following Maven dependency:
 <dependency>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.ruleservice</artifactId>
-    <version>5.27.7</version>
+    <version>${openl.version}</version>
 </dependency>
 ```
+
+`openl.version` stands for the version of OpenL Tablets.
 
 Here's a Java example of how to invoke OpenL rules::
 
@@ -23,7 +25,7 @@ public class Example {
         // Before the first call, it is necessary to establish certain configurations,
         // such as through the utilization of environment variables.
         System.setProperty("production-repository.uri", "/path/to/deployment/repository/folder");
-        System.setProperty("production-repository.factory", "repo-file");
+        System.setProperty("production-repository.$ref", "repo-file");
         System.setProperty("ruleservice.isProvideRuntimeContext", "false");
 
         // The first call initializes lazily OpenL Rules engine.
@@ -38,7 +40,7 @@ public class Example {
 ```
 
 The above Java example uses a filesystem as a repository of OpenL Rules deployments. You can provide configuration in
-any way described in the [Configuration](../configuration/overview.md) article.
+any way described in [Externalized Configuration](../developer-guides/externalized-config.md).
 
 In some cases, it can introduce complexity due to dependency on the filesystem. OpenL supports different repositories
 where deployments can be stored. One of these is `repo-jar`, which is the default repository of the OpenL Rule Service.
@@ -69,7 +71,7 @@ To package an OpenL project into a JAR file, you can use the `openl-maven-plugin
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <version>5.27.7</version>
+                <version>${openl.version}</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -162,7 +164,7 @@ from pyspark import SparkConf
 import pyspark.sql.functions as sf
 
 conf = SparkConf()
-conf.set("spark.jars.packages", "org.openl.rules:org.openl.rules.ruleservice:5.27.6")
+conf.set("spark.jars.packages", "org.openl.rules:org.openl.rules.ruleservice:<version>")
 spark = SparkSession.builder.config(conf=conf).getOrCreate()
 df = spark.read.json("requests.json")
 
