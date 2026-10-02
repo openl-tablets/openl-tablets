@@ -37,6 +37,12 @@ everyone who calls that API from outside the browser.
   rule whose condition cell is empty. At a negative bound that is a power of two, such as `-1` or `-4`, the number
   next to the bound fell on the wrong side.
 
+* **`min` returns NaN when one of the values is NaN, as `max` does.** A NaN value makes the result of both functions
+  NaN, whatever its position among the values or in an array of `Double`, `double`, `Float` or `float` values:
+  `min(Double.NaN, 1.5)` and `min(new Double[] {3, Double.NaN, 1})` are `NaN`. Before, `min` skipped NaN and returned
+  `1.5` and `1.0`. Empty values are still skipped. To skip NaN as before, filter it out first, as in
+  `min(values[(v) @ !isNaN(v)])`.
+
 * **The literal `null` added to or subtracted from a number counts as `0`.** It takes the type of the other operand,
   as an empty value of that type does: `null + 3` is `3` and `null - 3` is `-3`. Before, both were an empty `Date`, so
   `"" + (null + 3)` gave `null` and `null + 3 == 3` gave `false`; a `byte` or `short` operand and `null - 'c'` did the

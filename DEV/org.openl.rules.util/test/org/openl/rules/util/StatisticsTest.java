@@ -43,6 +43,25 @@ class StatisticsTest {
     }
 
     @Test
+    void testNaN() {
+        var nan = Double.NaN;
+        assertEquals(nan, max(1.5, nan));
+        assertEquals(nan, max(nan, 1.5));
+        assertEquals(nan, max(3.0, nan, 1.0));
+        assertEquals(nan, max(Double.POSITIVE_INFINITY, nan));
+        assertEquals(nan, min(nan, 1.5));
+        assertEquals(nan, min(1.5, nan));
+        assertEquals(nan, min(3.0, nan, 1.0));
+        assertEquals(nan, min(Double.NEGATIVE_INFINITY, nan));
+        assertEquals(nan, min(null, nan, -1.0));
+        assertEquals(nan, min(nan, nan));
+
+        assertEquals(Float.NaN, max(1.5f, Float.NaN));
+        assertEquals(Float.NaN, min(Float.NaN, 1.5f));
+        assertEquals(Float.NaN, min(1.5f, Float.NaN, -1f));
+    }
+
+    @Test
     void testSum() {
         assertNull(sum((Integer[]) null));
         assertNull(sum(new Integer[0]));
