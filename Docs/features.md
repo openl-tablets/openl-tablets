@@ -12,7 +12,7 @@ Use any styles and formats you need.
 
 **Excel Based**
 
-All versions of Excel are supported starting from 97. Work with Excel 97-2003 and Excel 2007 and 2010 formats.
+Rules are written in Excel workbooks of the `.xls`, `.xlsx` and `.xlsm` formats.
 
 **Simple Rules Definition Language**
 
@@ -82,13 +82,13 @@ Give anyone access to the rules platform, from any web browser.
 
 **Search**
 
-Use search to find anything in your rules and residing documentation. Full text search and indexes are available for all
-Excel and Word documents. Look for rules by their metadata.
+Find tables by name, header, cell text and properties in a module, in a project, or in all compiled projects. Find
+projects by name, author, branch or tag.
 
 **Rules Repository**
 
 Store rules in a centralized repository. Collaborate using the repository to prevent rules conflicts. The rules
-repository supports versions, metadata and WebDAV access.
+repository keeps versions and metadata, and it is backed by Git, a database, AWS S3 or Azure Blob storage.
 
 **Any File in Rules Repository**
 
@@ -104,25 +104,13 @@ Control access and allow operations to any rules assets through fine-grained sec
 
 Manage your rules deployments with the rules repository.
 
-**Isolated Datasource**
-
-Create local versioned datasources that are isolated.
-
 **Live Rules Updates**
 
 Change rules instances from one version to the next, as you work.
 
-**Consistency Checking**
-
-Verify that all deployed rules artifacts are consistent and properly integrated.
-
-**Easy Staging Support**
-
-Run rules in a sandbox environment before promoting to production.
-
 **Repository Interface**
 
-Manage rules projects and deployments from third-party tools using the rules repository API.
+Manage rules projects and deployments from third-party tools using the OpenL Studio REST API.
 
 ## Development Support
 
@@ -143,7 +131,7 @@ There are many ways to customize and extend OpenL Tablets.
 
 **SOA Ready**
 
-Expose rules as efficient, scalable and standardized services using Service Frontend.
+Expose rules as efficient, scalable and standardized services using OpenL Rule Services.
 
 **Java Wrappers**
 
@@ -160,10 +148,6 @@ Create tables in one window with a type-aware editable skeleton, signature build
 Use powerful table editor with inline cell editors matching cell type and Excel like formatting.
 
 ## Cool Features
-
-**What If Analysis**
-
-Try hypothetical rules and develop relevant insight.
 
 **Gap Analysis**
 
@@ -188,11 +172,7 @@ Store data in rules files and access it from application. Maintain it in databas
 
 **Trace**
 
-See how your rules execute with all intermediate results and values.
-
-**Explanation**
-
-Explore how the value was calculated.
+See how your rules execute with all intermediate results and values, in a business view or step by step in a debugger.
 
 **Unit Tests**
 
