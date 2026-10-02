@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.junit.jupiter.api.Test;
 
@@ -76,8 +77,14 @@ class DatesTest {
         assertEquals(new Date(-1820, 6, 12), Dates.toDate("7/12/080"));
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980"));
         assertEquals(new Date(80, 6, 12), Dates.toDate("1980-07-12"));
+        assertEquals(date(1980, 7, 12), Dates.toDate(" 1980-07-12\t"));
+        assertEquals(date(1980, 7, 12), Dates.toDate("\n07/12/1980 "));
 
         assertNull(Dates.toDate("13/13/2013"));
+        assertNull(Dates.toDate("04/30/2015abc"));
+        assertNull(Dates.toDate("2024-03-15T10:20"));
+        assertNull(Dates.toDate("2024-03-15 x"));
+        assertNull(Dates.toDate("x 2024-03-15"));
     }
 
     @Test
@@ -87,20 +94,41 @@ class DatesTest {
         assertNull(Dates.toDate(" ", " "));
         assertNull(Dates.toDate("  \t  ", "  \t"));
 
+        assertEquals(new Date(80, 6, 12), Dates.toDate("7/12/80", "MM/dd/yy"));
+        assertEquals(new Date(-1820, 6, 12), Dates.toDate("7/12/80", "M/d/yyyy"));
+        assertEquals(new Date(-1820, 6, 12), Dates.toDate("07/12/0080", "M/d/yyyy"));
+        assertNull(Dates.toDate("Date is: 12 Jul 1980 [+]", "'Date is: 'dd MMM yyyy"));
+        assertEquals(date(1980, 7, 12), Dates.toDate("Date is: 12 Jul 1980", "'Date is: 'dd MMM yyyy"));
+        assertEquals(new Date(80, 6, 12), Dates.toDate("Date is: 12 Jul 1980 year", "'Date is: 'dd MMM yyyy 'year'"));
+        assertEquals(new Date(80, 0, 1), Dates.toDate("Date: 1980 year", "'Date: 'yyyy 'year'"));
+        assertNull(Dates.toDate("Date: 19 days from the 1th January 1970", "'Date: 'd 'days'"));
+        assertEquals(date(1970, 1, 19), Dates.toDate("Date: 19 days", "'Date: 'd 'days'"));
+        assertEquals(date(2024, 3, 15), Dates.toDate(" 15.03.2024 ", "dd.MM.yyyy"));
+        assertEquals(date(2024, 3, 15, 10, 20), Dates.toDate("2024-03-15T10:20", "yyyy-MM-dd'T'HH:mm"));
+
+        assertNull(Dates.toDate("12/12/2013", "a"));
+        assertNull(Dates.toDate("15.03.2024x", "dd.MM.yyyy"));
+        assertNull(Dates.toDate("2024-03-15 10:20", "yyyy-MM-dd"));
+    }
+
+    @Test
+    void testToDateWithBlankFormat() {
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980", null));
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980", ""));
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980", " "));
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980", "  \t"));
+        assertEquals(date(1980, 7, 12), Dates.toDate("1980-07-12", null));
+        assertEquals(date(1980, 7, 12), Dates.toDate("1980-07-12", ""));
+        assertEquals(date(1980, 7, 12), Dates.toDate("1980-07-12", " "));
+        assertEquals(date(2012, 1, 11), Dates.toDate("01/11/12", ""));
+    }
 
-        assertEquals(new Date(80, 6, 12), Dates.toDate("7/12/80", "MM/dd/yy"));
-        assertEquals(new Date(-1820, 6, 12), Dates.toDate("7/12/80", "M/d/yyyy"));
-        assertEquals(new Date(-1820, 6, 12), Dates.toDate("07/12/0080", "M/d/yyyy"));
-        assertEquals(new Date(80, 6, 12), Dates.toDate("Date is: 12 Jul 1980 [+]", "'Date is: 'dd MMM yyyy"));
-        assertEquals(new Date(80, 6, 12), Dates.toDate("Date is: 12 Jul 1980 year", "'Date is: 'dd MMM yyyy 'year'"));
-        assertEquals(new Date(80, 0, 1), Dates.toDate("Date: 1980 year", "'Date: 'yyyy 'year'"));
-        assertEquals(new Date(70, 0, 19), Dates.toDate("Date: 19 days from the 1th January 1970", "'Date: 'd 'days'"));
+    private static Date date(int year, int month, int day) {
+        return date(year, month, day, 0, 0);
+    }
 
-        assertNull(Dates.toDate("12/12/2013", "a"));
+    private static Date date(int year, int month, int day, int hours, int minutes) {
+        return new GregorianCalendar(year, month - 1, day, hours, minutes).getTime();
     }
 
     private static final Date DEF_DATE = new Date();

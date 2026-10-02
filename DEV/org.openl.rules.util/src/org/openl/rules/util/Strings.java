@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A set of util methods to work with strings.
  * <p>
@@ -627,21 +629,26 @@ public final class Strings {
      * # - matches any single digit
      * ? - matches any single character
      * * - matches any character 0 or more times
-     * &#64; - matches any single alphabetic character
+     * &#64; - matches any single letter of any alphabet
      * [charlist] - matches any single character in {@code charlist}
      * [!charlist]- matches any single character not in {@code charlist}
      * X+ - matches {@code X} one or more times
      * </pre>
+     * <p>
+     * A {@code null} String or pattern is the same as an empty one. An empty String matches every pattern that
+     * accepts no characters, such as an empty pattern or {@code *}.
      * <p>
      * <br/>
      * Examples:<br/>
      * <br/>
      * <code>
      * like(null, "")      = true<br/>
+     * like(null, "*")     = true<br/>
      * like("", "#")       = false<br/>
      * like("9", "#")      = true<br/>
      * like("a", "?")      = true<br/>
      * like("a", "@")      = true<br/>
+     * like("Øre", "@@@")  = true<br/>
      * like("1a23", "*")   = true<br/>
      * like("foo@bar.com", "?+\@?+\.?+")                = true<br/>
      * like("+38(099) 123-12-12", "+##(###) ###-##-##") = true<br/>
@@ -651,17 +658,12 @@ public final class Strings {
      * @param pattern pattern
      * @return {@code true} if the String matches given pattern
      */
-    public static boolean like(String str, String pattern) {
-        if (isEmpty0(str)) {
-            return isEmpty0(pattern);
+    public static boolean like(@Nullable String str, @Nullable String pattern) {
+        var text = str == null ? "" : str;
+        if (pattern == null || pattern.isEmpty()) {
+            return text.isEmpty();
         }
-        if (isEmpty0(pattern)) {
-            return false;
-        }
-
-        String likePattern = parseLikePattern(pattern);
-        Pattern regex = Pattern.compile(likePattern);
-        return regex.matcher(str).matches();
+        return Pattern.compile(parseLikePattern(pattern)).matcher(text).matches();
     }
 
     private static String parseLikePattern(String pattern) {
@@ -703,7 +705,7 @@ public final class Strings {
             case '?' -> ".";
             case '*' -> ".*";
             case '#' -> "\\d";
-            default -> "\\p{Alpha}"; // '@'
+            default -> "\\p{L}"; // '@'
         };
     }
 
@@ -778,49 +780,42 @@ public final class Strings {
     /**
      * Splits string by given delimiter.<br/>
      * <br/>
+     * The string is cut at every occurrence of the whole delimiter, found from left to right. Empty parts are
+     * dropped, so an empty string has no parts. Without a delimiter, a non-empty string is the only part.<br/>
+     * <br/>
      * Examples:<br/>
      * <br/>
      * <code>
      * textSplit(null, null)           = null<br/>
      * textSplit(",", null)            = null<br/>
+     * textSplit(",", "")              = []<br/>
      * textSplit(null, "a,b,c")        = ["a,b,c"]<br/>
      * textSplit(",", "a,b,c")         = ["a", "b", "c"]<br/>
      * textSplit(",", ",,a,,b,,c,,")   = ["a", "b", "c"]<br/>
+     * textSplit(", ", "a,, b")        = ["a,", "b"]<br/>
      * </code>
      *
      * @param delimiter the delimiting string
      * @param str       string to split
      * @return the array of strings computing by splitting target string by given delimiter
      */
-    public static String[] textSplit(String delimiter, String str) {
+    public static String @Nullable [] textSplit(@Nullable String delimiter, @Nullable String str) {
         if (str == null) {
             return null;
         }
-        if (isEmpty0(str) || isEmpty0(delimiter)) {
-            return new String[]{str};
+        if (delimiter == null || delimiter.isEmpty()) {
+            return str.isEmpty() ? new String[0] : new String[]{str};
         }
-        var list = new ArrayList<String>();
-        final var len = str.length();
-        final var lenDelim = delimiter.length();
-        int start = 0;
-        int pos = 0;
-        while (pos < len) {
-            var posDelim = 0;
-            var matched = true;
-            var end = pos;
-            while (posDelim < lenDelim && pos < len) {
-                if (delimiter.charAt(posDelim++) != str.charAt(pos++)) {
-                    matched = false;
-                    break;
-                }
-            }
-            if (matched) {
-                addToken(list, str, start, end);
-                start = pos;
-            }
+        var parts = new ArrayList<String>();
+        var start = 0;
+        var end = str.indexOf(delimiter);
+        while (end >= 0) {
+            addToken(parts, str, start, end);
+            start = end + delimiter.length();
+            end = str.indexOf(delimiter, start);
         }
-        addToken(list, str, start, len);
-        return list.toArray(new String[0]);
+        addToken(parts, str, start, str.length());
+        return parts.toArray(new String[0]);
     }
 
     private static void addToken(List<String> list, String str, int start, int end) {

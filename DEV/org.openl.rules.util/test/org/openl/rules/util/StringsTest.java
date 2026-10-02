@@ -588,6 +588,13 @@ class StringsTest {
                 arguments("F", null, false),
                 arguments(null, "F", false),
 
+                arguments("", "*", true),
+                arguments(null, "*", true),
+                arguments("", "**", true),
+                arguments("", "?", false),
+                arguments(null, "#", false),
+                arguments("", "*#", false),
+
                 arguments(" ", " ", true),
                 arguments(" ", "", false),
                 arguments("", " ", false),
@@ -603,6 +610,11 @@ class StringsTest {
                 arguments("aTa", "a#a", false),
                 arguments("aTa", "a@a", true),
                 arguments("a2a", "a@a", false),
+                arguments("Øre", "@@@", true),
+                arguments("Мова", "@+", true),
+                arguments("日本", "@@", true),
+                arguments("Øre", "[A-Z]@@", false),
+                arguments("a٣a", "a@a", false),
                 arguments("aM5b", "a[L-P]#[!c-e]", true),
                 arguments("BAT123khg", "B?T*", true),
                 arguments("CAT123khg", "B?T*", false),
@@ -654,7 +666,16 @@ class StringsTest {
     @Test
     void testTextSplit() {
         assertNull(Strings.textSplit(null, null));
-        assertArrayEquals(new String[]{""}, Strings.textSplit(null, ""));
+        assertNull(Strings.textSplit(",", null));
+        assertArrayEquals(new String[0], Strings.textSplit(null, ""));
+        assertArrayEquals(new String[0], Strings.textSplit("", ""));
+        assertArrayEquals(new String[0], Strings.textSplit(",", ""));
+        assertArrayEquals(new String[0], Strings.textSplit(" ", "   "));
+        assertArrayEquals(new String[]{"a,", "b"}, Strings.textSplit(", ", "a,, b"));
+        assertArrayEquals(new String[]{"a"}, Strings.textSplit("ab", "aab"));
+        assertArrayEquals(new String[]{"a", "b,"}, Strings.textSplit(", ", "a, b,"));
+        assertArrayEquals(new String[]{"a"}, Strings.textSplit("aa", "aaa"));
+        assertArrayEquals(new String[]{"ba"}, Strings.textSplit("aba", "ababa"));
         assertArrayEquals(new String[]{"abc", ", def", ", xyz"}, Strings.textSplit(" , ", "abc , , def , , xyz"));
         assertArrayEquals(new String[]{"abc", "def", "xyz"}, Strings.textSplit(".", "abc..def.xyz"));
         assertArrayEquals(new String[]{"abc", "def.xyz "}, Strings.textSplit("..", "abc..def.xyz "));
