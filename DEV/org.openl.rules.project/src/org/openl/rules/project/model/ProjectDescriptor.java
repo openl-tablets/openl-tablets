@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.Cleaner;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
@@ -122,22 +121,6 @@ public class ProjectDescriptor {
         }
     }
 
-    private URI fixJarURI(URI jarURI) {
-        if ("jar".equals(jarURI.getScheme())) {
-            var uriToZip = jarURI;
-            if (uriToZip.getSchemeSpecificPart().contains("%")) {
-                // FIXME workaround to fix double URI encoding for URIs from ZipPath
-                try {
-                    uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
-                } catch (URISyntaxException ignored) {
-                    // it's ok. let's use original one
-                }
-            }
-            return uriToZip;
-        }
-        return jarURI;
-    }
-
     public URL[] getClassPathUrls() {
         if (projectFolder == null) {
             return new URL[]{};
@@ -166,7 +149,7 @@ public class ProjectDescriptor {
     }
 
     private URL resolveProjectUrl() throws MalformedURLException {
-        var projectUrl = fixJarURI(projectFolder.toUri()).normalize().toURL();
+        var projectUrl = projectFolder.toUri().normalize().toURL();
         var file = projectUrl.getPath();
         // jar URLs must be ended with '!/' or '/' for proper URLClassLoader work
         if (!"jar".equals(projectUrl.getProtocol()) || file.endsWith("/")) {
@@ -224,7 +207,6 @@ public class ProjectDescriptor {
         } catch (URISyntaxException | MalformedURLException e2) {
             return null;
         }
-        // FIXME
         if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
             return new ClassPathEntry(extractNestedJar(url, path), url);
         }

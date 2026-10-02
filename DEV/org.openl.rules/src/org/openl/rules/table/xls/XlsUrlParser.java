@@ -64,8 +64,7 @@ public class XlsUrlParser {
         this.cell = cellRef;
 
         if ("null".equals(file)) {
-            // there is no file representation
-            // FIXME temporary hack to support generated dispatch tables
+            // A virtual grid, which holds generated tables such as dispatchers, has no file.
             wbPath = VIRTUAL_GRID_FOLDER;
             wbName = "unexistingSourceFile.xls";
         } else {

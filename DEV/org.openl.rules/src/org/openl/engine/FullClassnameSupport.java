@@ -207,8 +207,8 @@ class FullClassnameSupport {
                 fullClassName,
                 nodeToChange.getChild(0).getModule());
         switch (nodeToChange) {
-            case BinaryNode node1 -> node1.left = newIdentifierNode;
-            case UnaryNode node -> node.left = newIdentifierNode;
+            case BinaryNode node1 -> node1.replaceLeft(newIdentifierNode);
+            case UnaryNode node -> node.replaceLeft(newIdentifierNode);
             case null, default -> throw new IllegalStateException();
         }
     }

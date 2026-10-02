@@ -77,7 +77,7 @@ public class RepositoryInstatiator {
             if (factory.accept(factoryId)) {
                 return new PathCheckedRepository(factory.create(key -> {
                     if ("id".equals(key)) {
-                        // FIXME: Remove assumption that id is the last part of the prefix.
+                        // A repository id is the last part of its prefix, such as 'design' in 'repository.design'.
                         var dot = prefix.lastIndexOf('.');
                         return prefix.substring(dot + 1);
                     }

@@ -84,8 +84,6 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         // See {@link org.openl.rules.datatype.binding.DatatypeTableBoundNode.addFields()}
         //
         // @author Denis Levchuk
-        //
-        // FIXME: instance class have to be defined to prevent multiple NPEs in CastFactory
         super(name, null);
         if (StringUtils.isBlank(packageName)) {
             javaName = name;

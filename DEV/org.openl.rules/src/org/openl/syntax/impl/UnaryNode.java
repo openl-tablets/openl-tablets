@@ -14,12 +14,21 @@ import org.openl.util.text.ILocation;
  * @author snshor
  */
 public class UnaryNode extends ASyntaxNode {
-    public ISyntaxNode left; //FIXME: Refactor code to not use a public access
+    private ISyntaxNode left;
 
     public UnaryNode(String type, ILocation pos, ISyntaxNode left, IOpenSourceCodeModule module) {
         super(type, pos, module);
         this.left = left;
         left.setParent(this);
+    }
+
+    /**
+     * Replaces the operand.
+     * <p>
+     * The parent of the new operand is not changed.
+     */
+    public void replaceLeft(ISyntaxNode operand) {
+        left = operand;
     }
 
     @Override

@@ -14,15 +14,14 @@ public class XlsCellFormulaWriter extends XlsCellStringWriter {
         var formula = getStringValue();
         var cellToWrite = getCellToWrite();
         /*
-         * FIXME if cell has a RichText content like:
+         * The cell is blanked first, so that a formula fully overrides an inline rich text value like:
          * <xml-fragment t="inlineStr" xmlns:main="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
          *   <main:is>
          *    <main:t>= ""</main:t>
          *  </main:is>
          * </xml-fragment>
-         * Apache POI 5.0 doesn't remove it and set new values next to <main:is> element.
-         * As a result cell is in invalid state because contains old values and new.
-         * Set cell to blank to fix this issue and fully override old values
+         * Apache POI 5.0 keeps such a value and writes the new one next to the <main:is> element, which leaves the cell
+         * holding both.
          */
         cellToWrite.setBlank();
         try {

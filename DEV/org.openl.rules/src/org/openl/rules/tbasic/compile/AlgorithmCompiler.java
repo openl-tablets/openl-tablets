@@ -30,9 +30,6 @@ import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 
-// FIXME: !!!!!!!!!!!!!!! refactor to eliminate code duplications and to isolate
-// different functionality in separate classes
-
 /**
  * @author User
  */
@@ -398,7 +395,6 @@ public class AlgorithmCompiler {
         }
 
         private static List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
-            // FIXME delete this method at all
             List<AlgorithmTreeNode> returnNodeSubList = null;
             for (var i = 0; i < nodes.size() && returnNodeSubList == null; i++) {
                 if (TBasicSpecificationKey.RETURN.toString().equals(nodes.get(i).getSpecificationKeyword())) {

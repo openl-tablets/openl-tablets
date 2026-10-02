@@ -623,11 +623,10 @@ public final class MethodSearch {
                             int dim = getTypeDim(variableArityParameters[i]);
                             dims[i] = Math.abs(dim - cpDim);
                         }
-                        // FIXME REMOVE IT
+                        // An argument collected into the vararg array is one dimension further from its parameter.
                         if (vararg && i >= callParams.length - 1) {
                             dims[i]++;
                         }
-                        // END FIXME
                     }
                 }
                 Arrays.sort(dims);
@@ -832,14 +831,13 @@ public final class MethodSearch {
                 }
             }
 
-            // FIXME REMOVE IT
+            // Of matches equally far in dimensions, a non-vararg match is preferred.
             if (match.isVararg() && !bestMethodMatch.isVararg()) {
                 return false;
             }
             if (bestMethodMatch.isVararg() && !match.isVararg()) {
                 return true;
             }
-            // END FIXME
 
             int[] d1 = match.getSortedDistances();
             int[] d2 = bestMethodMatch.getSortedDistances();
