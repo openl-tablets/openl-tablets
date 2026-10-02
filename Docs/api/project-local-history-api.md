@@ -6,10 +6,11 @@ in OpenL Studio. It is separate from the committed project revisions stored in t
 ## Read Local History
 
 ```http
-GET /projects/{projectId}/local-history?module={moduleName}
+GET /rest/projects/{projectId}/local-history?module={moduleName}
 ```
 
-- **projectId** — URL-safe project identifier. The project must be opened in the caller's workspace.
+- **projectId** — the project id the API hands out, or the project name. The project must be opened in the caller's
+  workspace.
 - **module** — optional module name. A missing or blank value selects the first module in the project descriptor.
 
 The project and module are resolved from the request. The endpoint does not use the project or module selected
@@ -37,7 +38,7 @@ An empty array means the module has no earlier local version to compare or resto
 ## Restore a Local Version
 
 ```http
-POST /projects/{projectId}/local-history/restore?module={moduleName}
+POST /rest/projects/{projectId}/local-history/restore?module={moduleName}
 Content-Type: application/json
 
 {
@@ -50,10 +51,36 @@ module are resolved from the request before the workbook is replaced. The caller
 selected module. If that workbook is also open in the HTTP session, OpenL Studio reloads its compiled model. A
 different module open in the same session is left unchanged.
 
+## Compare Two Local Versions
+
+```http
+POST /rest/projects/{projectId}/local-history/compare?module={moduleName}
+Content-Type: application/json
+
+{
+  "first": "Revision Version",
+  "second": "1787821200000_current"
+}
+```
+
+The request body names two entries by the `id` that the read endpoint returns. The endpoint starts the comparison of
+the two workbooks and answers `202 Accepted` with the identifier of the comparison:
+
+```json
+{
+  "id": "b1b0c2e0-0a3f-4e52-9f0a-7a1d7d6a0f11"
+}
+```
+
+- **Progress** — a client subscribes to `/user/topic/compare/{id}/status` over the `/ws` WebSocket.
+- **Result** — `GET /rest/compare/{id}` reads what the two versions hold, and `DELETE /rest/compare/{id}` releases the
+  comparison.
+- **One comparison** — a session holds one comparison at a time, so starting another one releases this one.
+
 ## Clear Project Local History
 
 ```http
-DELETE /projects/{projectId}/local-history
+DELETE /rest/projects/{projectId}/local-history
 ```
 
 The endpoint removes the local edit history of every module in the named project from the caller's workspace. It does
@@ -61,7 +88,7 @@ not affect another project or another user's workspace. The project must be open
 permission on it.
 
 Administrators can still clear local history for every user and project from the System settings screen. That global
-operation is explicitly exposed as `DELETE /admin/local-history`; it is separate from the project API.
+operation is `DELETE /rest/admin/local-history`; it is separate from the project API.
 
 ## Errors
 
@@ -69,6 +96,3 @@ operation is explicitly exposed as `DELETE /admin/local-history`; it is separate
   the project.
 - `404 Not Found` — the project identifier, module name, or local history entry does not resolve.
 - `409 Conflict` — the project is not opened in the caller's workspace.
-
-The former `GET /history/project`, `POST /history/restore`, and `DELETE /history` endpoints are removed. Callers must
-use the project-scoped endpoints or the explicit administrator endpoint.
