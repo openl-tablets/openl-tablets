@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static org.openl.rules.excel.builder.SheetCells.cell;
+import static org.openl.rules.excel.builder.SheetCells.columnTexts;
+import static org.openl.rules.excel.builder.SheetCells.rowTexts;
+import static org.openl.rules.excel.builder.SheetCells.text;
 import static org.openl.rules.excel.builder.export.DataTableExporter.DATA_SHEET;
 
 import java.io.ByteArrayOutputStream;
@@ -83,172 +87,28 @@ class DataTableExporterTest {
             var dtsSheet = wb.getSheet(DATA_SHEET);
             assertNotNull(dtsSheet);
 
-            var emptyModelRow = dtsSheet.getRow(TOP_MARGIN);
-            assertNotNull(emptyModelRow);
-            var headerCell = emptyModelRow.getCell(1);
-            assertNotNull(headerCell);
-            var emptyModelHeaderText = headerCell.getStringCellValue();
-            assertEquals("Data Object emptyDataTAble", emptyModelHeaderText);
+            assertEquals(List.of("Data Object emptyDataTAble", "this", "result"),
+                    columnTexts(dtsSheet, TOP_MARGIN, TOP_MARGIN + 2, 1));
 
-            var emptyModelSubheaderRow = dtsSheet.getRow(TOP_MARGIN + 1);
-            assertNotNull(emptyModelSubheaderRow);
-            var subheaderCell = emptyModelSubheaderRow.getCell(1);
-            assertNotNull(subheaderCell);
-            assertEquals("this", subheaderCell.getStringCellValue());
+            assertEquals("Data Test getTest", text(dtsSheet, TOP_MARGIN + 6, 1));
+            assertEquals(List.of("type", "sum", "registrationDate", "isOk", "driver"),
+                    rowTexts(dtsSheet, TOP_MARGIN + 7, 1, 5));
+            assertEquals(List.of("Type", "Sum", "Registration Date", "Is Ok", "Driver"),
+                    rowTexts(dtsSheet, TOP_MARGIN + 8, 1, 5));
+            var valueRow = TOP_MARGIN + 9;
+            assertEquals("Hello, World", text(dtsSheet, valueRow, 1));
+            assertEquals(0.0, cell(dtsSheet, valueRow, 2).getNumericCellValue(), 1e-8);
+            assertNotNull(cell(dtsSheet, valueRow, 3).getDateCellValue());
+            assertTrue(cell(dtsSheet, valueRow, 4).getBooleanCellValue());
+            assertTrue(StringUtils.isBlank(text(dtsSheet, valueRow, 5)));
 
-            var emptyModelSubheaderColumnRow = dtsSheet.getRow(TOP_MARGIN + 2);
-            assertNotNull(emptyModelSubheaderColumnRow);
-            var subheaderColumnCell = emptyModelSubheaderColumnRow.getCell(1);
-            assertNotNull(subheaderColumnCell);
-            assertEquals("result", subheaderColumnCell.getStringCellValue());
-
-            var headerRow = dtsSheet.getRow(TOP_MARGIN + 6);
-            assertNotNull(headerRow);
-            var headerText = headerRow.getCell(1).getStringCellValue();
-            assertEquals("Data Test getTest", headerText);
-
-            var subheaderRow = dtsSheet.getRow(TOP_MARGIN + 7);
-            assertNotNull(subheaderRow);
-
-            var typeSbCell = subheaderRow.getCell(1);
-            assertNotNull(typeSbCell);
-            var typeSubheader = typeSbCell.getStringCellValue();
-            assertEquals("type", typeSubheader);
-
-            var sumSbCell = subheaderRow.getCell(2);
-            assertNotNull(sumSbCell);
-            var sumSubheader = sumSbCell.getStringCellValue();
-            assertEquals("sum", sumSubheader);
-
-            var registrationSbCell = subheaderRow.getCell(3);
-            assertNotNull(registrationSbCell);
-            var registrationDateSubheader = registrationSbCell.getStringCellValue();
-            assertEquals("registrationDate", registrationDateSubheader);
-
-            var isOkSbCell = subheaderRow.getCell(4);
-            assertNotNull(isOkSbCell);
-            var isOkSubheader = isOkSbCell.getStringCellValue();
-            assertEquals("isOk", isOkSubheader);
-
-            var driverSbCell = subheaderRow.getCell(5);
-            assertNotNull(driverSbCell);
-            var driverSubheader = driverSbCell.getStringCellValue();
-            assertEquals("driver", driverSubheader);
-
-            var columnHeaderRow = dtsSheet.getRow(TOP_MARGIN + 8);
-            assertNotNull(columnHeaderRow);
-
-            var typeColumnHeaderCell = columnHeaderRow.getCell(1);
-            assertNotNull(typeColumnHeaderCell);
-            var typeColumnHeader = typeColumnHeaderCell.getStringCellValue();
-            assertEquals("Type", typeColumnHeader);
-
-            var sumColumnHeaderCell = columnHeaderRow.getCell(2);
-            assertNotNull(sumColumnHeaderCell);
-            var sumColumnHeader = sumColumnHeaderCell.getStringCellValue();
-            assertEquals("Sum", sumColumnHeader);
-
-            var registrationColumnHeaderCell = columnHeaderRow.getCell(3);
-            assertNotNull(registrationColumnHeaderCell);
-            var registrationColumnHeader = registrationColumnHeaderCell.getStringCellValue();
-            assertEquals("Registration Date", registrationColumnHeader);
-
-            var isOkColumnHeaderCell = columnHeaderRow.getCell(4);
-            assertNotNull(isOkColumnHeaderCell);
-            var isOkColumnHeader = isOkColumnHeaderCell.getStringCellValue();
-            assertEquals("Is Ok", isOkColumnHeader);
-
-            var driverColumnHeaderCell = columnHeaderRow.getCell(5);
-            assertNotNull(driverColumnHeaderCell);
-            var driverColumnHeader = driverColumnHeaderCell.getStringCellValue();
-            assertEquals("Driver", driverColumnHeader);
-
-            var valueRow = dtsSheet.getRow(TOP_MARGIN + 9);
-            assertNotNull(valueRow);
-
-            var typeValueCell = valueRow.getCell(1);
-            assertNotNull(typeValueCell);
-            var typeValue = typeValueCell.getStringCellValue();
-            assertEquals("Hello, World", typeValue);
-
-            var sumValueCell = valueRow.getCell(2);
-            assertNotNull(sumValueCell);
-            var numericCellValue = sumValueCell.getNumericCellValue();
-            assertEquals(0.0, numericCellValue, 1e-8);
-
-            var registrationDateCell = valueRow.getCell(3);
-            assertNotNull(registrationDateCell);
-            var registrationTime = registrationDateCell.getDateCellValue();
-            assertNotNull(registrationTime);
-
-            var isOkCell = valueRow.getCell(4);
-            assertNotNull(isOkCell);
-            var isOk = isOkCell.getBooleanCellValue();
-            assertTrue(isOk);
-
-            var driverCell = valueRow.getCell(5);
-            assertNotNull(driverCell);
-            var driverValue = driverCell.getStringCellValue();
-            assertTrue(StringUtils.isBlank(driverValue));
-
-            var getMyModelRow = dtsSheet.getRow(TOP_MARGIN + 12);
-            assertNotNull(getMyModelRow);
-            var myModelHeaderText = getMyModelRow.getCell(1).getStringCellValue();
-            assertEquals("Data Test getMyModel", myModelHeaderText);
-
-            var myModelSubheaderRow = dtsSheet.getRow(TOP_MARGIN + 13);
-            assertNotNull(myModelSubheaderRow);
-
-            var typeMyModelSb = myModelSubheaderRow.getCell(1);
-            assertNotNull(typeMyModelSb);
-            var typeMyModelSubheader = typeMyModelSb.getStringCellValue();
-            assertEquals("java_name", typeMyModelSubheader);
-
-            var sumMyModelSb = myModelSubheaderRow.getCell(2);
-            assertNotNull(sumMyModelSb);
-            var sumMyModelSubheader = sumMyModelSb.getStringCellValue();
-            assertEquals("height", sumMyModelSubheader);
-
-            var isOkMyModelSb = myModelSubheaderRow.getCell(3);
-            assertNotNull(isOkMyModelSb);
-            var isOkMyModelSbText = isOkMyModelSb.getStringCellValue();
-            assertEquals("isOk", isOkMyModelSbText);
-
-            var columnMyModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 14);
-            assertNotNull(columnMyModelHeaderRow);
-
-            var javaNameMyModelColumnHeaderCell = columnMyModelHeaderRow.getCell(1);
-            assertNotNull(javaNameMyModelColumnHeaderCell);
-            var javaNameColumnHeader = javaNameMyModelColumnHeaderCell.getStringCellValue();
-            assertEquals("Java _ Name", javaNameColumnHeader);
-
-            var sumMyModelColumnHeaderCell = columnMyModelHeaderRow.getCell(2);
-            assertNotNull(sumMyModelColumnHeaderCell);
-            var sumMyModelColumnHeader = sumMyModelColumnHeaderCell.getStringCellValue();
-            assertEquals("Height", sumMyModelColumnHeader);
-
-            var isOkMyModelColumnHeaderCell = columnMyModelHeaderRow.getCell(3);
-            assertNotNull(isOkMyModelColumnHeaderCell);
-            var isOkMyModelColumnHeader = isOkMyModelColumnHeaderCell.getStringCellValue();
-            assertEquals("Is Ok", isOkMyModelColumnHeader);
-
-            var myModelValueRow = dtsSheet.getRow(TOP_MARGIN + 15);
-            assertNotNull(myModelValueRow);
-
-            var javaNameCell = myModelValueRow.getCell(1);
-            assertNotNull(javaNameCell);
-            var javaName = javaNameCell.getStringCellValue();
-            assertEquals("object", javaName);
-
-            var heightCell = myModelValueRow.getCell(2);
-            assertNotNull(heightCell);
-            var heightCellValue = heightCell.getNumericCellValue();
-            assertEquals(134.44d, heightCellValue, 1e-8);
-
-            var isOkCellMyModel = myModelValueRow.getCell(3);
-            var myModelIsOk = isOkCellMyModel.getBooleanCellValue();
-            assertFalse(myModelIsOk);
-
+            assertEquals("Data Test getMyModel", text(dtsSheet, TOP_MARGIN + 12, 1));
+            assertEquals(List.of("java_name", "height", "isOk"), rowTexts(dtsSheet, TOP_MARGIN + 13, 1, 3));
+            assertEquals(List.of("Java _ Name", "Height", "Is Ok"), rowTexts(dtsSheet, TOP_MARGIN + 14, 1, 3));
+            var myModelValueRow = TOP_MARGIN + 15;
+            assertEquals("object", text(dtsSheet, myModelValueRow, 1));
+            assertEquals(134.44d, cell(dtsSheet, myModelValueRow, 2).getNumericCellValue(), 1e-8);
+            assertFalse(cell(dtsSheet, myModelValueRow, 3).getBooleanCellValue());
         }
     }
 

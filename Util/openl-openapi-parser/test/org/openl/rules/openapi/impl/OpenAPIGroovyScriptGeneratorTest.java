@@ -8,7 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -109,52 +111,46 @@ class OpenAPIGroovyScriptGeneratorTest {
 
         var method1 = interfaceClass.getDeclaredMethod("apipolicyProxy2", Object[].class);
         assertEquals(Object[].class, method1.getReturnType());
-        assertEquals(5, method1.getDeclaredAnnotations().length);
-        assertNotNull(method1.getAnnotation(POST.class));
-        assertEquals("/api/policyProxy2", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+        assertJsonPost(method1, 5, "/api/policyProxy2");
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
-
-        assertEquals(1, method1.getParameters()[0].getAnnotations().length);
-        assertEquals("Policy", method1.getParameters()[0].getAnnotation(RulesType.class).value());
+        assertPolicyParameter(method1.getParameters()[0]);
 
         var method2 = interfaceClass.getDeclaredMethod("apipolicyProxy3", Object.class, Object.class);
         assertEquals(Object[].class, method2.getReturnType());
-        assertEquals(5, method2.getDeclaredAnnotations().length);
-        assertNotNull(method2.getAnnotation(POST.class));
-        assertEquals("/api/policyProxy3", method2.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Produces.class).value());
+        assertJsonPost(method2, 5, "/api/policyProxy3");
         assertEquals("Policy", method2.getAnnotation(RulesType.class).value());
-
-        assertEquals(1, method2.getParameters()[0].getAnnotations().length);
-        assertEquals("Policy", method2.getParameters()[0].getAnnotation(RulesType.class).value());
-        assertEquals(1, method2.getParameters()[1].getAnnotations().length);
-        assertEquals("Policy", method2.getParameters()[1].getAnnotation(RulesType.class).value());
+        assertPolicyParameter(method2.getParameters()[0]);
+        assertPolicyParameter(method2.getParameters()[1]);
 
         var method3 = interfaceClass.getDeclaredMethod("apipolicyProxy", Object.class);
         assertEquals(Object.class, method3.getReturnType());
-        assertEquals(5, method3.getDeclaredAnnotations().length);
-        assertNotNull(method3.getAnnotation(POST.class));
-        assertEquals("/api/policyProxy", method3.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Produces.class).value());
+        assertJsonPost(method3, 5, "/api/policyProxy");
         assertEquals("Policy", method3.getAnnotation(RulesType.class).value());
-
-        assertEquals(1, method3.getParameters()[0].getAnnotations().length);
-        assertEquals("Policy", method3.getParameters()[0].getAnnotation(RulesType.class).value());
+        assertPolicyParameter(method3.getParameters()[0]);
 
         var method4 = interfaceClass.getDeclaredMethod("apidoSomething", Object.class);
         assertEquals(SpreadsheetResult.class, method4.getReturnType());
-        assertEquals(4, method4.getDeclaredAnnotations().length);
-        assertNotNull(method4.getAnnotation(POST.class));
-        assertEquals("/api/doSomething", method4.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Produces.class).value());
+        assertJsonPost(method4, 4, "/api/doSomething");
+        assertPolicyParameter(method4.getParameters()[0]);
+    }
 
-        assertEquals(1, method4.getParameters()[0].getAnnotations().length);
-        assertEquals("Policy", method4.getParameters()[0].getAnnotation(RulesType.class).value());
+    /**
+     * Checks that the method is a POST at the given path that consumes and produces JSON.
+     */
+    private static void assertJsonPost(Method method, int annotationCount, String path) {
+        assertEquals(annotationCount, method.getDeclaredAnnotations().length);
+        assertNotNull(method.getAnnotation(POST.class));
+        assertEquals(path, method.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method.getAnnotation(Produces.class).value());
+    }
+
+    /**
+     * Checks that the only annotation of the parameter declares the {@code Policy} rules type.
+     */
+    private static void assertPolicyParameter(Parameter parameter) {
+        assertEquals(1, parameter.getAnnotations().length);
+        assertEquals("Policy", parameter.getAnnotation(RulesType.class).value());
     }
 
     @Test

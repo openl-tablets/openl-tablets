@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -144,53 +145,22 @@ class SpreadsheetsConverterTest {
                 .filter(x -> x.getName().equals("apiBla"))
                 .findFirst();
         assertTrue(apiBla.isPresent());
-        List<StepModel> steps = apiBla.get().getSteps();
-        assertEquals(11, steps.size());
-
-        var boolStep = findStep(steps, "numAccidents");
-        assertEquals("Boolean", boolStep.getType());
-        assertEquals("= false", boolStep.getValue());
-
-        var dateStep = findStep(steps, "numAccidentsOne");
-        assertEquals("Date", dateStep.getType());
-        assertEquals("= new Date()", dateStep.getValue());
-
-        var dateTimeStep = findStep(steps, "numAccidentsTwo");
-        assertEquals("Date", dateTimeStep.getType());
-        assertEquals("= new Date()", dateTimeStep.getValue());
-
-        var floatStep = findStep(steps, "numAccidentsThree");
-        assertEquals("Float", floatStep.getType());
-        assertEquals("= 0.0f", floatStep.getValue());
-
-        var integerStep = findStep(steps, "numAccidentsFour");
-        assertEquals("Integer", integerStep.getType());
-        assertEquals("= 0", integerStep.getValue());
-
-        var objectStep = findStep(steps, "numAccidentsFive");
-        assertEquals("Object", objectStep.getType());
-        assertEquals("= new Object()", objectStep.getValue());
-
-        var typedStep = findStep(steps, "numAccidentsSix");
-        assertEquals("XItem", typedStep.getType());
-        assertEquals("= new XItem()", typedStep.getValue());
-
-        var doubleStep = findStep(steps, "numAccidentsSeven");
-        assertEquals("Double", doubleStep.getType());
-        assertEquals("= 0.0", doubleStep.getValue());
-
-        var longStep = findStep(steps, "numAccidentsEight");
-        assertEquals("Long", longStep.getType());
-        assertEquals("= 0L", longStep.getValue());
-
-        var arrStep = findStep(steps, "numAccidentsNine");
-        assertEquals("Boolean[]", arrStep.getType());
-        assertEquals("= new Boolean[]{}", arrStep.getValue());
-
-        var nArrStep = findStep(steps, "numAccidentsTen");
-        assertEquals("Integer[][][][][]", nArrStep.getType());
-        assertEquals("= new Integer[][][][][]{}", nArrStep.getValue());
-
+        var typesAndValues = apiBla.get()
+                .getSteps()
+                .stream()
+                .collect(Collectors.toMap(StepModel::getName, step -> List.of(step.getType(), step.getValue())));
+        var expected = Map.ofEntries(Map.entry("numAccidents", List.of("Boolean", "= false")),
+                Map.entry("numAccidentsOne", List.of("Date", "= new Date()")),
+                Map.entry("numAccidentsTwo", List.of("Date", "= new Date()")),
+                Map.entry("numAccidentsThree", List.of("Float", "= 0.0f")),
+                Map.entry("numAccidentsFour", List.of("Integer", "= 0")),
+                Map.entry("numAccidentsFive", List.of("Object", "= new Object()")),
+                Map.entry("numAccidentsSix", List.of("XItem", "= new XItem()")),
+                Map.entry("numAccidentsSeven", List.of("Double", "= 0.0")),
+                Map.entry("numAccidentsEight", List.of("Long", "= 0L")),
+                Map.entry("numAccidentsNine", List.of("Boolean[]", "= new Boolean[]{}")),
+                Map.entry("numAccidentsTen", List.of("Integer[][][][][]", "= new Integer[][][][][]{}")));
+        assertEquals(expected, typesAndValues);
     }
 
     @Test
@@ -738,68 +708,20 @@ class SpreadsheetsConverterTest {
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10848_wrong_call.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
 
-        var midStepSome1 = findSpreadsheet(spreadsheetResultModels, "MidStepSome1");
-        List<StepModel> midStepSome1Steps = midStepSome1.getSteps();
-        var ageBandSome1 = findStep(midStepSome1Steps, "AgeBand");
-        validateGeneratedModel("String",
-                ageBandSome1.getType(),
-                "AgeBand",
-                ageBandSome1.getName(),
-                "= \"\"",
-                ageBandSome1.getValue());
-        var ageBandInfoSome1 = findStep(midStepSome1Steps, "AgeBandInfo");
-        validateGeneratedModel("StepSome[]",
-                ageBandInfoSome1.getType(),
-                "AgeBandInfo",
-                ageBandInfoSome1.getName(),
-                "= new StepSome[]{}",
-                ageBandInfoSome1.getValue());
-        var someFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "SomeFromAllMyPerAgeBand");
-        validateGeneratedModel("Double",
-                someFromAllMyPerAgeBandSome1.getType(),
-                "SomeFromAllMyPerAgeBand",
-                someFromAllMyPerAgeBandSome1.getName(),
-                "= 0.0",
-                someFromAllMyPerAgeBandSome1.getValue());
-        var cpFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "CPFromAllMyPerAgeBand");
-        validateGeneratedModel("Double",
-                cpFromAllMyPerAgeBandSome1.getType(),
-                "CPFromAllMyPerAgeBand",
-                cpFromAllMyPerAgeBandSome1.getName(),
-                "= 0.0",
-                someFromAllMyPerAgeBandSome1.getValue());
-        var someMultiplyCPSome1 = findStep(midStepSome1Steps, "SomeMultiplyCP");
-        validateGeneratedModel("Double",
-                someMultiplyCPSome1.getType(),
-                "SomeMultiplyCP",
-                someMultiplyCPSome1.getName(),
-                "= 0.0",
-                someMultiplyCPSome1.getValue());
-        var blendedSome1 = findStep(midStepSome1Steps, "BlendedSome");
-        validateGeneratedModel("MiddleStepSome[]",
-                blendedSome1.getType(),
-                "BlendedSome",
-                blendedSome1.getName(),
-                "= new SpreadsheetResultMiddleStepSome[]{MiddleStepSome(null, null, null)}",
-                blendedSome1.getValue());
+        var expectedSteps = List.of(new StepModel("AgeBand", "String", "= \"\""),
+                new StepModel("AgeBandInfo", "StepSome[]", "= new StepSome[]{}"),
+                new StepModel("SomeFromAllMyPerAgeBand", "Double", "= 0.0"),
+                new StepModel("CPFromAllMyPerAgeBand", "Double", "= 0.0"),
+                new StepModel("SomeMultiplyCP", "Double", "= 0.0"),
+                new StepModel("BlendedSome",
+                        "MiddleStepSome[]",
+                        "= new SpreadsheetResultMiddleStepSome[]{MiddleStepSome(null, null, null)}"));
+        assertEquals(expectedSteps, findSpreadsheet(spreadsheetResultModels, "MidStepSome1").getSteps());
 
         var middleStepSome = findSpreadsheet(spreadsheetResultModels, "MiddleStepSome");
         assertEquals(2, middleStepSome.getSteps().size());
 
-        var midStepSome = findSpreadsheet(spreadsheetResultModels, "MidStepSome");
-        List<StepModel> midStepSomeSteps = midStepSome.getSteps();
-        var ageBandSome = findStep(midStepSomeSteps, "AgeBand");
-        assertEquals(ageBandSome1, ageBandSome);
-        var ageBandInfoSome = findStep(midStepSomeSteps, "AgeBandInfo");
-        assertEquals(ageBandInfoSome1, ageBandInfoSome);
-        var someFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "SomeFromAllMyPerAgeBand");
-        assertEquals(someFromAllMyPerAgeBandSome1, someFromAllMyPerAgeBandSome);
-        var cpFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "CPFromAllMyPerAgeBand");
-        assertEquals(cpFromAllMyPerAgeBandSome1, cpFromAllMyPerAgeBandSome);
-        var someMultiplyCPSome = findStep(midStepSomeSteps, "SomeMultiplyCP");
-        assertEquals(someMultiplyCPSome1, someMultiplyCPSome);
-        var blendedSome = findStep(midStepSomeSteps, "BlendedSome");
-        assertEquals(blendedSome1, blendedSome);
+        assertEquals(expectedSteps, findSpreadsheet(spreadsheetResultModels, "MidStepSome").getSteps());
 
         var setStepSome = findSpreadsheet(spreadsheetResultModels, "SetStepSome");
         assertEquals(4, setStepSome.getSteps().size());

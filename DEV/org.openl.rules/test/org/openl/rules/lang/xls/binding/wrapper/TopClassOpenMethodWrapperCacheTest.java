@@ -3,9 +3,8 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import static org.awaitility.Awaitility.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.lang.ref.Reference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -22,78 +21,55 @@ class TopClassOpenMethodWrapperCacheTest {
 
     @Test
     void test() {
-        var openClass1 = new SomeOpenClass("Class1");
-        var m1 = new SomeOpenMethod();
-
-        var openClass2 = new SomeOpenClass("Class2");
-        var m2 = new SomeOpenMethod();
-
-        var openClass3 = new SomeOpenClass("Class3");
-        var m3 = new SomeOpenMethod();
+        // The test keeps its own references in arrays: clearing an element is what makes its object unreachable.
+        var classes = new SomeOpenClass[]{new SomeOpenClass("Class1"),
+                new SomeOpenClass("Class2"),
+                new SomeOpenClass("Class3")};
+        var methods = new SomeOpenMethod[]{new SomeOpenMethod(), new SomeOpenMethod(), new SomeOpenMethod()};
 
         var cache = new TopClassOpenMethodWrapperCache(null);
-        cache.put(openClass1, m1);
-        cache.put(openClass2, m2);
-        cache.put(openClass3, m3);
+        for (var i = 0; i < classes.length; i++) {
+            cache.put(classes[i], methods[i]);
+        }
 
         JavaOpenClassCache.getInstance().resetClassloader(Thread.currentThread().getContextClassLoader());
 
         // Initial test
         assertEquals(3, cache.cache.size());
-        assertNotNull(openClass1);
-        assertNotNull(openClass2);
-        assertNotNull(openClass3);
-        assertNotNull(m1);
-        assertNotNull(m2);
-        assertNotNull(m3);
-
-        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(3));
-        assertNotNull(openClass1);
-        assertNotNull(openClass2);
-        assertNotNull(m1);
-        assertNotNull(m2);
+        awaitCacheSize(cache, 3, classes, methods);
 
         // Check cache when a method has dependency on a class
-        // There is no reason to keep openClass2 in the cache, if no reference exists to the key.
+        // There is no reason to keep Class2 in the cache, if no reference exists to the key.
         // Zulu JVM cleans weak references eager.
-        openClass2 = null;
-        m2 = null;
-        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(2));
-        assertNotNull(openClass1);
-        assertNull(openClass2);
-        assertNotNull(m1);
-        assertNull(m2);
+        classes[1] = null;
+        methods[1] = null;
+        awaitCacheSize(cache, 2, classes, methods);
 
         // Check when a method can be GC-ed, but class is still used
-        m1 = null;
-        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(2));
-        assertNotNull(openClass1);
-        assertNull(openClass2);
-        assertNull(m1);
-        assertNull(m2);
+        methods[0] = null;
+        awaitCacheSize(cache, 2, classes, methods);
 
-        openClass1 = null;
-        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(1));
-        assertNull(openClass1);
-        assertNull(openClass2);
-        assertNull(m1);
-        assertNull(m2);
-        assertNotNull(openClass3);
-        assertNotNull(m3);
+        classes[0] = null;
+        awaitCacheSize(cache, 1, classes, methods);
 
         // Check when a class can be GC-ed, but method is still used
-        openClass3 = null;
-        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(0));
-        assertNull(openClass3);
-        assertNotNull(m3);
+        classes[2] = null;
+        awaitCacheSize(cache, 0, classes, methods);
 
-        m3 = null;
-        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(0));
-        assertNull(openClass3);
-        assertNull(m3);
+        methods[2] = null;
+        awaitCacheSize(cache, 0, classes, methods);
     }
 
-    private Callable<Integer> getCacheSize(TopClassOpenMethodWrapperCache cache) {
+    /**
+     * Waits until the cache holds the expected number of entries. The given objects stay strongly reachable until the
+     * wait is over, so the garbage collector can clear only what the test has already released.
+     */
+    private static void awaitCacheSize(TopClassOpenMethodWrapperCache cache, int expected, Object... strongRefs) {
+        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(expected));
+        Reference.reachabilityFence(strongRefs);
+    }
+
+    private static Callable<Integer> getCacheSize(TopClassOpenMethodWrapperCache cache) {
         return () -> {
             System.gc();
             return cache.cache.size();
