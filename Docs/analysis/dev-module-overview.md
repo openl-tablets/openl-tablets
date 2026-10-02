@@ -40,7 +40,7 @@ Foundation (commons) → Core Engine (rules) → Project Management → Integrat
 ├──────────────────────────────────────────────────┤
 │  org.openl.rules.annotations  │  org.openl.rules.util  │
 ├──────────────────────────────────────────────────┤
-│  org.openl.rules.gen  │  org.openl.rules.constrainer  │
+│           org.openl.rules.gen                    │
 ├──────────────────────────────────────────────────┤
 │           org.openl.commons                      │
 │           (Foundation)                           │
@@ -58,7 +58,6 @@ Foundation (commons) → Core Engine (rules) → Project Management → Integrat
 | `org.openl.rules.annotations` | 200 | 5 | Custom annotations | None |
 | `org.openl.rules.util` | 5,000+ | 20+ | Built-in rule functions | annotations |
 | `org.openl.rules.gen` | 2,000+ | 30+ | Code generation (build-time) | rules, Velocity |
-| `org.openl.rules.constrainer` | 1,800 | 23 | Gap/overlap check of decision tables | None |
 | `org.openl.rules.project` | 15,000+ | 100+ | Project management | rules, JAXB |
 | `org.openl.spring` | 3,000+ | 25+ | Spring integration | commons, Spring |
 | `org.openl.rules.test` | 500+ | 5+ | Testing framework | rules.project |
@@ -346,6 +345,7 @@ Decision Table: Calculate Premium
 - `DecisionTableAnalyzer` - Detects overlaps and gaps
 - `DecisionTableUncovered` - Uncovered scenarios
 - `DecisionTableOverlapping` - Overlapping rules
+- `ValidationAlgorithm` - Runs the gap/overlap check (see 2.15)
 
 ### 2.6 Data Tables
 
@@ -509,6 +509,34 @@ OpenLException
 - **`OpenLWarnMessage`** - Warning messages
 - **`OpenLMessagesUtils`** - Message utilities
 
+### 2.15 Decision Table Gap/Overlap Check
+
+**Location**: `/home/user/openl-tablets/DEV/org.openl.rules/src/org/openl/ie/constrainer/`
+**Purpose**: Searches for the gaps and overlaps of the decision tables that have the `validateDT` property set to `on`
+**Package**: `org.openl.ie.constrainer` — the engine behind the API below is package-private
+
+**API**:
+- **`Constrainer`** — owns the variables and expressions of a check, and searches for their values
+- **`IntExp`**, **`IntBoolExp`**, **`IntBoolVar`** — integer and boolean expressions. The condition formulas are
+  compiled with the parameters of these types, and OpenL binds the operators to the methods by their names: `+` to
+  `add`, `==` to `eq`, `<`, `<=`, `>`, `>=` to `lt`, `le`, `gt`, `ge`, and `&&`, `||` to `and`, `or`
+- **`DTChecker`** — takes the condition expressions of every rule. `checkCompleteness()` returns an `Uncovered` input,
+  and `checkOverlappings()` returns the `Overlapping` pairs of rules with the status `BLOCK`, `PARTIAL` or `OVERRIDE`
+
+```java
+var constrainer = new Constrainer();
+var x = constrainer.addIntVar(0, 10, "x");
+var checker = new DTChecker(constrainer, new IntBoolExp[][]{{x.lt(5)}, {x.gt(5)}}, List.of(x), true);
+checker.checkCompleteness(); // x = 5 is uncovered
+```
+
+**Search Model**:
+- A variable keeps every value of a domain under 128 values, and only the bounds of a larger domain
+- Observers propagate a change of a variable to the expressions made of it
+- The search binds the variables to their smallest values first and undoes the changes on backtracking, so it reports
+  the smallest inputs
+- The search for overlappings stops after 50 of them
+
 ### Dependencies
 
 **External**:
@@ -523,7 +551,6 @@ OpenLException
 - `org.openl.commons`
 - `org.openl.rules.annotations`
 - `org.openl.rules.util`
-- `org.openl.rules.constrainer`
 
 ### Entry Points Reference
 
@@ -662,49 +689,13 @@ Strings.join(list, ",") // Join strings
 
 ---
 
-## 6. org.openl.rules.constrainer - Decision Table Gap/Overlap Check
-
-**Location**: `/home/user/openl-tablets/DEV/org.openl.rules.constrainer/`
-**Purpose**: Searches for the gaps and overlaps of the decision tables that have the `validateDT` property set to `on`
-**Package**: `org.openl.ie.constrainer` — only `org.openl.rules` uses it, so the engine behind the API below is
-package-private
-
-### API
-
-- **`Constrainer`** — owns the variables and expressions of a check, and searches for their values
-- **`IntExp`**, **`IntBoolExp`**, **`IntBoolVar`** — integer and boolean expressions. The condition formulas are
-  compiled with the parameters of these types, and OpenL binds the operators to the methods by their names: `+` to
-  `add`, `==` to `eq`, `<`, `<=`, `>`, `>=` to `lt`, `le`, `gt`, `ge`, and `&&`, `||` to `and`, `or`
-- **`DTChecker`** — takes the condition expressions of every rule. `checkCompleteness()` returns an `Uncovered` input,
-  and `checkOverlappings()` returns the `Overlapping` pairs of rules with the status `BLOCK`, `PARTIAL` or `OVERRIDE`
-
-```java
-var constrainer = new Constrainer();
-var x = constrainer.addIntVar(0, 10, "x");
-var checker = new DTChecker(constrainer, new IntBoolExp[][]{{x.lt(5)}, {x.gt(5)}}, List.of(x), true);
-checker.checkCompleteness(); // x = 5 is uncovered
-```
-
-### Search Model
-
-- A variable keeps every value of a domain under 128 values, and only the bounds of a larger domain
-- Observers propagate a change of a variable to the expressions made of it
-- The search binds the variables to their smallest values first and undoes the changes on backtracking, so it reports
-  the smallest inputs
-- The search for overlappings stops after 50 of them
-
-### Dependencies
-- None
-
----
-
-## 7. org.openl.rules.project - Project Management
+## 6. org.openl.rules.project - Project Management
 
 **Location**: `/home/user/openl-tablets/DEV/org.openl.rules.project/`
 **Purpose**: Manages OpenL projects - loading, configuration, instantiation
 **Size**: ~100 Java files, 15,000+ LOC
 
-### 7.1 Project Model
+### 6.1 Project Model
 
 **Location**: `/home/user/openl-tablets/DEV/org.openl.rules.project/src/org/openl/rules/project/model/`
 
@@ -757,14 +748,14 @@ class Module {
 
 **`ProjectDependencyDescriptor`** - External project dependency
 
-### 7.2 Project Serialization
+### 6.2 Project Serialization
 
 **`XmlProjectDescriptorSerializer`** - JAXB-based XML serialization
 - Reads/writes `rules.xml`
 - Tag constants: `PROJECT_DESCRIPTOR_TAG`, `DEPENDENCY_TAG`
 - Custom adapters for whitespace handling
 
-### 7.3 Project Instantiation (CRITICAL)
+### 6.3 Project Instantiation (CRITICAL)
 
 **Location**: `/home/user/openl-tablets/DEV/org.openl.rules.project/src/org/openl/rules/project/instantiation/`
 
@@ -803,7 +794,7 @@ MyRules instance = factory.newInstance();
 - `AbstractDependencyManager` - Base manager
 - `RuntimeContextInstantiationStrategyEnhancer` - Context injection
 
-### 7.4 Project Resolution
+### 6.4 Project Resolution
 
 **`ProjectResolver`** - Finds projects in filesystem
 **`ProjectResourceLoader`** - Loads project resources
@@ -811,7 +802,7 @@ MyRules instance = factory.newInstance();
 - `SimpleXlsResolvingStrategy` - Simple Excel discovery
 - `ProjectDescriptorBasedResolvingStrategy` - Descriptor-based
 
-### 7.5 File Name Processing
+### 6.5 File Name Processing
 
 **`PropertiesFileNameProcessor`** - Processes properties files
 **`DefaultPropertiesFileNameProcessor`** - Default implementation
@@ -840,13 +831,13 @@ new SimpleProjectEngineFactory<>(projectPath, interfaceClass)
 
 ---
 
-## 8. org.openl.spring - Spring Integration
+## 7. org.openl.spring - Spring Integration
 
 **Location**: `/home/user/openl-tablets/DEV/org.openl.spring/`
 **Purpose**: Spring Framework integration for OpenL
 **Size**: ~25 classes, 3,000+ LOC
 
-### 8.1 Conditional Configuration
+### 7.1 Conditional Configuration
 
 **`@ConditionalOnEnable`** - Conditional bean registration
 
@@ -860,7 +851,7 @@ public class MyConfig {
 
 **Implementation**: `EnableCondition` evaluates properties
 
-### 8.2 Property Sources Framework
+### 7.2 Property Sources Framework
 
 **Location**: `/home/user/openl-tablets/DEV/org.openl.spring/src/org/openl/spring/env/`
 
@@ -908,7 +899,7 @@ public class AppConfig {
 
 ---
 
-## 9. org.openl.rules.test - Testing Framework
+## 8. org.openl.rules.test - Testing Framework
 
 **Location**: `/home/user/openl-tablets/DEV/org.openl.rules.test/`
 **Purpose**: Testing framework for OpenL rules
@@ -964,12 +955,12 @@ Located in `/test-resources/`:
          ┌───────────────────▼────────────────────┐
          │         org.openl.rules                │
          │           (CORE ENGINE)                │
-         └───┬──────┬──────────────┬──────────────┘
-             │      │              │
-    ┌────────▼──┐ ┌▼──────────┐  ┌▼────────────────┐
-    │org.openl. │ │org.openl. │  │org.openl.rules. │
-    │  rules.   │ │  rules.   │  │  constrainer    │
-    │annotations│ │   util    │  └─────────────────┘
+         └───┬──────┬─────────────────────────────┘
+             │      │
+    ┌────────▼──┐ ┌▼──────────┐
+    │org.openl. │ │org.openl. │
+    │  rules.   │ │  rules.   │
+    │annotations│ │   util    │
     └───────────┘ └───────────┘
              │      │
              └──────┼──────────┐

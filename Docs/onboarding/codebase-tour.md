@@ -86,6 +86,7 @@ openl-tablets/
   - `org.openl.types` - Type system (`IOpenClass`, `IOpenMethod`, `IOpenField`)
   - `org.openl.binding` - Binds syntax to types
   - `org.openl.rules.dt` - Decision tables
+  - `org.openl.ie.constrainer` - Gap/overlap check of decision tables
   - `org.openl.rules.calc` - Spreadsheet tables
   - `org.openl.rules.runtime` - Execution engine
   - `org.openl.rules.lang.xls` - Excel parsing
@@ -117,14 +118,13 @@ MyRules rules = factory.newInstance();
 - `org.openl.rules.annotations` - Custom annotations
 - `org.openl.rules.util` - Built-in functions for rules
 - `org.openl.rules.gen` - Code generation (build-time only)
-- `org.openl.rules.constrainer` - Gap/overlap check of decision tables
 - `org.openl.rules.test` - Testing framework
 
 **Dependency Flow**:
 ```
 commons → rules → project → spring
     ↓
-constrainer, annotations, util, gen, test
+annotations, util, gen, test
 ```
 
 ---

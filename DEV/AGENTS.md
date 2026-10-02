@@ -15,11 +15,10 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
 
 ## Submodules
 
-- **org.openl.rules** — Main engine: type system, parser, binding, bytecode gen, runtime
+- **org.openl.rules** — Main engine: type system, parser, binding, bytecode gen, runtime, decision table
+  gap/overlap check
 - **org.openl.commons** — Shared utilities (`org.openl.util`, `org.openl.message`)
 - **org.openl.rules.annotations** — Annotation processing for rules
-- **org.openl.rules.constrainer** — Gap/overlap check of the decision tables with `validateDT` on; only
-  `org.openl.rules` uses it, so everything beyond its API is package-private
 - **org.openl.rules.gen** — Code generation for bindings
 - **org.openl.rules.project** — Project model, instantiation strategies, resource resolution
 - **org.openl.rules.test** — Functional test framework (test table implementations)
@@ -88,10 +87,12 @@ a cell at index -1. `ParsedGrid` hands the writable grid to the thread that took
 everybody else with the sheet as it was parsed; Studio queues the writes of one session behind one another
 (`WorkbookWrites`). Anything new that changes a workbook belongs inside that queue.
 
-### Decision Table Gap/Overlap Check (`org.openl.rules.constrainer`)
+### Decision Table Gap/Overlap Check (`org.openl.rules/src/org/openl/ie/constrainer/`)
 
 `ValidationAlgorithm` compiles the condition formulas of a decision table with parameters of the types `IntExp`,
-`IntBoolExp` and `IntBoolVar`, and `DTChecker` searches the results for gaps and overlaps.
+`IntBoolExp` and `IntBoolVar`, and `DTChecker` searches the results for gaps and overlaps. Only `Constrainer`,
+these expression types, `DTChecker` and its results `Uncovered` and `Overlapping` are public; the rest of the
+package is package-private.
 
 **Rules**: OpenL binds the operators of the formulas to the public methods of these types by name — `add`, `eq`, `lt`,
 `le`, `gt`, `ge`, `and`, `or` — so no Java code calls most of them. Never rename or remove them. `CastFactory` refuses
