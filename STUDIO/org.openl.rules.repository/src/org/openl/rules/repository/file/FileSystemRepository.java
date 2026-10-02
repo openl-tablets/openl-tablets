@@ -165,7 +165,8 @@ public class FileSystemRepository implements Repository, Closeable {
     public boolean delete(FileData data) throws IOException {
         var file = resolveInRoot(data.getName());
         try {
-            FileUtils.delete(file); //FIXME: Use Files.delete() because this API should delete only one file
+            // A folder is deleted with everything in it, which deleting a project relies on.
+            FileUtils.delete(file);
         } catch (FileNotFoundException e) {
             return false;
         }

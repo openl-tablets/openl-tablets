@@ -14,7 +14,7 @@ import org.openl.util.text.ILocation;
  * @author snshor
  */
 public class BinaryNode extends ASyntaxNode {
-    public ISyntaxNode left; //FIXME: Refactor code to not use a public access
+    private ISyntaxNode left;
     private final ISyntaxNode right;
 
     public BinaryNode(String type, ILocation pos, ISyntaxNode left, ISyntaxNode right, IOpenSourceCodeModule module) {
@@ -23,6 +23,15 @@ public class BinaryNode extends ASyntaxNode {
         this.right = right;
         left.setParent(this);
         right.setParent(this);
+    }
+
+    /**
+     * Replaces the left operand.
+     * <p>
+     * The parent of the new operand is not changed.
+     */
+    public void replaceLeft(ISyntaxNode operand) {
+        left = operand;
     }
 
     @Override

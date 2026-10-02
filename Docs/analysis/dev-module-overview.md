@@ -1062,8 +1062,6 @@ Generated Proxy
 **Code Quality**:
 - String interning review - `RuleRowHelper:234`
 - Cache implementation (memory leak risk) - `JavaOpenClassCache:156`
-- Public field refactoring - `BinaryNode`, `UnaryNode`
-- Legacy method search - `MethodSearch:445`
 
 **Feature Gaps**:
 - Security blocking for system classes - `TypeResolver:89`

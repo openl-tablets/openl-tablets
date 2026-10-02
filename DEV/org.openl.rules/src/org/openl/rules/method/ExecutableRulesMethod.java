@@ -23,9 +23,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, IModuleInfo {
 
     private ITableProperties properties;
-    // FIXME: it should be AMethodBasedNode but currently it will be
-    // ATableBoundNode due to TestSuiteMethod instance of
-    // ExecutableRulesMethod(but test table is firstly data table)
+    // Not an AMethodBasedNode: the bound node of a TestSuiteMethod is the node of a data table.
     private ATableBoundNode boundNode;
     private boolean hasAliasTypeParams;
     private IOpenCast[] aliasDatatypeCasts;

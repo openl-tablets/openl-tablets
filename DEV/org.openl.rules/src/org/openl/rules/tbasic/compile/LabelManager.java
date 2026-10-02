@@ -120,30 +120,24 @@ public class LabelManager {
         return label;
     }
 
+    /**
+     * Finds a loop label in the operation sets that enclose the current one, the innermost first.
+     *
+     * @throws IllegalStateException if no enclosing operation set has the label
+     */
     private String getLabelFromStack(LabelType labelType) {
-        Map<LabelType, String> stackedLabels; // get from stack previous piece
-
-        // FIXME eliminate pop and push to stack, just iterate
-        if (!labelsStack.isEmpty()) {
-            stackedLabels = labelsStack.pop();
-        } else {
-            throw new IllegalStateException("Smth wrong in labels.....");
+        for (var stackedLabels : labelsStack.reversed()) {
+            var label = stackedLabels.get(labelType);
+            if (label != null) {
+                return label;
+            }
         }
-        var label = getExistingLabel(stackedLabels, labelType);
-
-        labelsStack.push(stackedLabels);
-
-        return label;
+        throw new IllegalStateException("No enclosing operation has the '%s' label.".formatted(labelType.getName()));
     }
 
-    /**
-     * @param labelInstruction
-     * @return
-     */
     private LabelType getLabelType(String labelInstruction) {
         if (!isLabelInstruction(labelInstruction)) {
-            // FIXME
-            throw new IllegalArgumentException("Smth wrong.........");
+            throw new IllegalArgumentException("'%s' is not a label instruction.".formatted(labelInstruction));
         }
 
         return getLabelTypeByInstruction(labelInstruction);
@@ -161,8 +155,9 @@ public class LabelManager {
         // loop keyword
         if (instructionParts.length < 1 || instructionParts.length > 2 || instructionParts.length == 2 && !loopKeyword
                 .equals(instructionParts[1])) {
-            // FIXME
-            throw new IllegalArgumentException("Bad gen label instruction....");
+            throw new IllegalArgumentException(
+                    "The label instruction '%s' must name a label, optionally followed by '_loop'.".formatted(
+                            labelInstruction));
         }
 
         labelType.setLabelType(instructionParts[0]);

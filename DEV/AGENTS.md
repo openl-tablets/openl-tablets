@@ -130,7 +130,6 @@ cd ITEST/itest.smoke && mvn verify
 - `JavaOpenClassCache` (`types/java/`) — potential memory leak (needs review)
 - `RuleRowHelper` (`rules/binding/`) — string interning may cause memory issues
 - `ComponentOpenClass` (`binding/impl/component/`) — calls methods in constructor
-- `BinaryNode`, `UnaryNode` (`syntax/impl/`) — public fields should be private
 - `TypeBoundNode` (`binding/impl/`) — static method access design issue
 - `TypeResolver` (`conf/`) — missing security blocking for system class access
 - `CastToWiderType` (`binding/impl/`) — missing generic type support

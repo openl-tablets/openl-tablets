@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -320,6 +322,21 @@ class ProjectDescriptorTest {
             var projectDescriptor = ProjectDescriptor.read(fs.getPath("/internal/rules-clspth.xml")).expand();
             assertEquals(10, projectDescriptor.getClassPathUrls().length);
             assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
+        }
+    }
+
+    @Test
+    void zipArchive_classPathReadsArchiveInFolderNamedWithPercentEscape(@TempDir Path tempDir) throws Exception {
+        var zip = Files.createDirectories(tempDir.resolve("a%41b")).resolve("project.zip");
+        try (FileSystem fs = FileSystems.newFileSystem(zip, Map.of("create", "true"))) {
+            Files.writeString(Files.createDirectories(fs.getPath("/project")).resolve("resource.txt"), "content");
+        }
+        try (FileSystem fs = openZipFile(zip)) {
+            var projectDescriptor = new ProjectDescriptor();
+            projectDescriptor.setProjectFolder(fs.getPath("/project"));
+            try (var classLoader = new URLClassLoader(projectDescriptor.getClassPathUrls(), null)) {
+                assertNotNull(classLoader.getResource("resource.txt"));
+            }
         }
     }
 
