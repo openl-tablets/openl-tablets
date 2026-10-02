@@ -251,7 +251,7 @@ public class Table implements ITable {
     }
 
     @Override
-    public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
+    public void populate(IDataBase dataBase, IBindingContext bindingContext) {
 
         var rows = logicalTable.getHeight();
         var columns = logicalTable.getWidth();
@@ -311,7 +311,7 @@ public class Table implements ITable {
                                         ILogicalTable valuesTable,
                                         IDataBase dataBase,
                                         IBindingContext bindingContext,
-                                        IRuntimeEnv env) throws Exception {
+                                        IRuntimeEnv env) {
         try {
             if (fkDescriptor.isConstructor()) {
                 return fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
@@ -426,7 +426,7 @@ public class Table implements ITable {
     }
 
     @Override
-    public void preLoad(OpenlToolAdaptor openlAdapter) throws Exception {
+    public void preLoad(OpenlToolAdaptor openlAdapter) throws OpenLCompilationException {
         var rows = logicalTable.getHeight();
         var startRow = getStartRowForData();
 
@@ -543,7 +543,7 @@ public class Table implements ITable {
     private Object[][] parseRootRowValues(List<ColumnDescriptor> descriptors,
                                           OpenlToolAdaptor openlAdapter,
                                           int startRow,
-                                          int rows) throws SyntaxNodeException {
+                                          int rows) {
         Object[][] rowValues = new Object[rows - startRow][descriptors.size()];
         for (var rowNum = startRow; rowNum < rows; rowNum++) {
             for (var colNum = 0; colNum < descriptors.size(); colNum++) {
@@ -586,7 +586,7 @@ public class Table implements ITable {
                                              OpenlToolAdaptor openlAdapter,
                                              IRuntimeEnv env,
                                              int rowNum,
-                                             int height) throws OpenLCompilationException {
+                                             int height) {
 
         if (descriptors.isEmpty()) {
             return;
@@ -628,7 +628,7 @@ public class Table implements ITable {
     private Object[][] parseRowValues(List<ColumnDescriptor> descriptors,
                                       OpenlToolAdaptor openlAdapter,
                                       int rowNum,
-                                      int height) throws SyntaxNodeException {
+                                      int height) {
         Object[][] rowValues = null;
         for (var colNum = 0; colNum < descriptors.size(); colNum++) {
             var descriptor = descriptors.get(colNum);
@@ -760,7 +760,7 @@ public class Table implements ITable {
                                  boolean constructor,
                                  int rowNum,
                                  Object literal,
-                                 IRuntimeEnv env, boolean hasError, boolean hasValue) throws SyntaxNodeException {
+                                 IRuntimeEnv env, boolean hasError, boolean hasValue) {
 
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
@@ -768,17 +768,13 @@ public class Table implements ITable {
                         logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1),
                         openlAdapter);
             } else {
-                try {
-                    var lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1);
-                    if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
-                            .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default value.
-                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, false);
-                    } else if (columnDescriptor.getField() != null && columnDescriptor.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
-                            !columnDescriptor.isValuesAnArray() && !hasError && hasValue) {
-                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, true);
-                    }
-                } catch (SyntaxNodeException ex) {
-                    openlAdapter.getBindingContext().addError(ex);
+                var lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1);
+                if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
+                        .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default value.
+                    return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, false);
+                } else if (columnDescriptor.getField() != null && columnDescriptor.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
+                        !columnDescriptor.isValuesAnArray() && !hasError && hasValue) {
+                    return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, true);
                 }
             }
         }

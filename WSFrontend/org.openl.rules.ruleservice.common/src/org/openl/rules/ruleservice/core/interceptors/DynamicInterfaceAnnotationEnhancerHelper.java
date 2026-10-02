@@ -224,7 +224,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
     public static Class<?> decorate(Class<?> originalClass,
                                     Class<?> templateClass,
                                     IOpenClass openClass,
-                                    ClassLoader classLoader) throws Exception {
+                                    ClassLoader classLoader) throws ReflectiveOperationException {
         if (!templateClass.isInterface() && !Modifier.isAbstract(templateClass.getModifiers())) {
             throw new InstantiationException("Only interfaces or abstract classes are supported");
         }

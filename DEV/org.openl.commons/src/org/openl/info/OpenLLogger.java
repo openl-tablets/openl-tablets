@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
+import javax.naming.NamingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ abstract class OpenLLogger {
         logComplexObject(arg2);
     }
 
-    protected abstract void discover() throws Exception;
+    protected abstract void discover() throws NamingException;
 
     private String toString(Object o) {
         if (o == null) {

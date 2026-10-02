@@ -15,6 +15,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -199,7 +200,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                                String tableName,
                                XlsModuleOpenClass module,
                                RulesModuleBindingContext bindingContext,
-                               OpenL openl) throws Exception {
+                               OpenL openl) throws OpenLCompilationException {
         bindingContext.pushErrors();
         bindingContext.pushMessages();
         try {

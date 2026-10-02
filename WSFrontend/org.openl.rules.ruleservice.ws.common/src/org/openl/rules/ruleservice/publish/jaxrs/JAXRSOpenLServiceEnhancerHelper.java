@@ -236,7 +236,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                         IOpenMember openMember,
                                                         Method originalMethod,
                                                         int suffix,
-                                                        io.swagger.v3.oas.models.Operation operation) throws Exception {
+                                                        io.swagger.v3.oas.models.Operation operation)
+                                                                throws ClassNotFoundException {
             var parameterWrapperClass = generateWrapperClass(openMember, originalMethod, suffix, operation);
             var types = new ArrayList<Type>();
             types.add(Type.getType(parameterWrapperClass));
@@ -1131,7 +1132,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
     }
 
     public static Map<Method, Method> buildMethodMap(Class<?> serviceClass,
-                                                     Class<?> enhancedServiceClass) throws Exception {
+                                                     Class<?> enhancedServiceClass)
+                                                             throws ReflectiveOperationException {
         var methodMap = new HashMap<Method, Method>();
         for (Method method : enhancedServiceClass.getMethods()) {
             var methodName = method.getName();
@@ -1159,7 +1161,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                             Object targetService,
                                             ClassLoader classLoader,
                                             OpenAPI openApi,
-                                            boolean provideRuntimeContext) throws Exception {
+                                            boolean provideRuntimeContext) throws ClassNotFoundException {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
         }

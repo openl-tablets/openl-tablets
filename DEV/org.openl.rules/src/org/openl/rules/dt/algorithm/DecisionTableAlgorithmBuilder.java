@@ -34,6 +34,7 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -165,7 +166,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     @Override
-    public IDecisionTableAlgorithm prepareAndBuildAlgorithm(IBindingContext bindingContext) throws Exception {
+    public IDecisionTableAlgorithm prepareAndBuildAlgorithm(IBindingContext bindingContext) throws SyntaxNodeException {
         prepareCondAndActionParams(bindingContext);
         var ruleExecutionType = new DecisionTableDataType(table,
                 table.getName() + "Type",
@@ -196,7 +197,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private void prepareActions(DecisionTableDataType ruleExecutionType,
-                                IBindingContext bindingContext) throws Exception {
+                                IBindingContext bindingContext) throws SyntaxNodeException {
         var actionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
         var nActions = table.getNumberOfActions();
         for (var i = 0; i < nActions; i++) {
@@ -207,7 +208,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     private void prepareAction(IAction action,
                                IBindingContext actionBindingContext,
-                               DecisionTableDataType ruleExecutionType) throws Exception {
+                               DecisionTableDataType ruleExecutionType) throws SyntaxNodeException {
         action.prepareAction(table,
                 header,
                 signature,

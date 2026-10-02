@@ -1,5 +1,6 @@
 package org.openl.rules.maven.migration;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
@@ -49,5 +50,5 @@ public interface Migrator {
      * @return absolute paths of the files this migrator actually changed. An empty list means the migrator
      * was a no-op for this project and the caller may skip creating an SCM commit.
      */
-    List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws Exception;
+    List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException;
 }

@@ -280,7 +280,7 @@ public class AlgorithmBuilder {
 
     private Map<String, AlgorithmColumn> columns;
 
-    public void build(IBindingContext cxt, ILogicalTable tableBody) throws Exception {
+    public void build(IBindingContext cxt, ILogicalTable tableBody) throws SyntaxNodeException {
 
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Invalid table. Provide table body", null, tsn);

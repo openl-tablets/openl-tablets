@@ -233,7 +233,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     public Object getLiteralByForeignKey(IOpenClass fieldType,
                                          ILogicalTable valuesTable,
                                          IDataBase db,
-                                         IBindingContext bindingContext) throws Exception {
+                                         IBindingContext bindingContext) throws SyntaxNodeException {
 
         var foreignKeyTableName = foreignKeyTable.getIdentifier();
         var foreignTable = db.getTable(foreignKeyTableName);
@@ -315,7 +315,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                                             ILogicalTable valuesTable,
                                             IDataBase db,
                                             IBindingContext cxt,
-                                            IRuntimeEnv env) throws Exception {
+                                            IRuntimeEnv env) throws SyntaxNodeException {
         if (getField() != null && foreignKeyTable != null) {
 
             var foreignKeyTableName = foreignKeyTable.getIdentifier();

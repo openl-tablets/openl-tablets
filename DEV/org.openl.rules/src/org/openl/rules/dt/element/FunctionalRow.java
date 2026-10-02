@@ -222,7 +222,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                         IBindingContext bindingContext,
                         RuleRow ruleRow,
                         IOpenClass ruleExecutionType,
-                        TableSyntaxNode tableSyntaxNode) throws Exception {
+                        TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException {
         this.ruleExecutionType = ruleExecutionType;
         var source = getExpressionSource(tableSyntaxNode,
                 signature,

@@ -17,6 +17,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.ExceptionType;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -47,7 +48,8 @@ public class OpenLService {
      * @param params      Parameters for method execution.
      * @return Result of execution
      */
-    public static Object call(String serviceName, String ruleName, Object... params) throws Exception {
+    public static Object call(String serviceName, String ruleName, Object... params)
+            throws RuleServiceInstantiationException, ReflectiveOperationException {
         if (params == null) {
             params = new Object[0];
         }
@@ -260,7 +262,7 @@ public class OpenLService {
      * @param serviceName Name of deployed service.
      * @return the OpenL rules object instance
      */
-    public static <T> T get(String serviceName) throws Exception {
+    public static <T> T get(String serviceName) throws RuleServiceInstantiationException {
         var service = getService(serviceName);
         return service != null ? (T) service.getServiceBean() : null;
     }
@@ -303,7 +305,8 @@ public class OpenLService {
     private static Object execute(String serviceName,
                                   String ruleName,
                                   Class<?>[] inputParamsTypes,
-                                  Object[] params) throws Exception {
+                                  Object[] params) throws RuleServiceInstantiationException,
+            ReflectiveOperationException {
         var instance = get(serviceName);
         if (instance == null) {
             throw new IllegalArgumentException(SERVICE_NOT_FOUND.formatted(serviceName));

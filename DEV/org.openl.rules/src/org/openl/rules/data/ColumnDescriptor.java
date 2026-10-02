@@ -20,7 +20,6 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -135,7 +134,7 @@ public class ColumnDescriptor {
      */
     public Object getLiteral(IOpenClass paramType,
                              ILogicalTable valuesTable,
-                             OpenlToolAdaptor ota) throws SyntaxNodeException {
+                             OpenlToolAdaptor ota) {
 
         var isValuesAnArray = isValuesAnArray(paramType);
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
@@ -188,7 +187,7 @@ public class ColumnDescriptor {
     public Object populateLiteral(Object literal,
                                   ILogicalTable valuesTable,
                                   OpenlToolAdaptor toolAdapter,
-                                  IRuntimeEnv env, boolean allowsNullObject) throws SyntaxNodeException {
+                                  IRuntimeEnv env, boolean allowsNullObject) {
 
         if (field == null) {
             /*
@@ -247,7 +246,7 @@ public class ColumnDescriptor {
                                              OpenlToolAdaptor toolAdapter,
                                              IRuntimeEnv env,
                                              IOpenClass aggregateType,
-                                             IOpenClass paramType) throws SyntaxNodeException {
+                                             IOpenClass paramType) {
 
         var datatypeArrayMultiRowElementContext =
                 (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
@@ -284,7 +283,7 @@ public class ColumnDescriptor {
         }
     }
 
-    Object parseCellValue(ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
+    Object parseCellValue(ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) {
         var aggregateType = field.getType();
         var paramType = aggregateType;
 
@@ -323,7 +322,7 @@ public class ColumnDescriptor {
     private Object getArrayValues(ILogicalTable valuesTable,
                                   OpenlToolAdaptor ota,
                                   IOpenClass aggregateType,
-                                  IOpenClass paramType) throws SyntaxNodeException {
+                                  IOpenClass paramType) {
 
         if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
             String fieldName = field == null ? RuleRowHelper.CONSTRUCTOR : field.getName();

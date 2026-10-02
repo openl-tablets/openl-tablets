@@ -32,7 +32,8 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private Charset encoding = StandardCharsets.UTF_8;
 
-    public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
+    public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper, Method method)
+            throws RuleServiceInstantiationException {
         this.service = Objects.requireNonNull(service, "service cannot be null");
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
         if (method != null) {
@@ -44,7 +45,8 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         }
     }
 
-    public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper) throws Exception {
+    public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper)
+            throws RuleServiceInstantiationException {
         this(service, objectMapper, null);
     }
 

@@ -53,7 +53,7 @@ public class InterfaceClassGenerator {
 
     public Class<?> generateInterface(String className,
                                       IOpenClass openClass,
-                                      ClassLoader classLoader) throws Exception {
+                                      ClassLoader classLoader) throws ClassNotFoundException {
         if (!className.contains(".")) {
             className = "org.openl.generated.interfaces." + className;
         }
