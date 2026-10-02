@@ -714,9 +714,7 @@ Supported user modes: `oauth2`, `saml`, `ad`, `multi` (every mode except `single
 ## Related Documentation
 
 - [Personal Access Token Architecture](./personal-access-token-architecture.md) - Implementation details and design decisions
-- [API Guide](../API_GUIDE.md) - General API usage guidelines
-- [Security Guide](../developer-guide/security.md) - OpenL Tablets security architecture
-- [OAuth2 Configuration](../configuration/oauth2.md) - Setting up OAuth2 authentication
+- [Security configuration](../configuration/security.md) - Security extensions of Rule Services
 
 ---
 

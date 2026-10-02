@@ -153,10 +153,10 @@ Call from Java, Python, JavaScript, C#, Go, or any language via REST.
 - **[Testing Guide](Docs/user-guides/reference-guide/)** - Test your rules thoroughly
 
 ### 🔌 For Developers
-- **[REST API Guide](Docs/API_GUIDE.md)** - Integrate rules into your applications
-- **[Deployment Guide](Docs/DEPLOYMENT.md)** - Deploy to Docker, Kubernetes, AWS, Azure, GCP
+- **[OpenL Studio REST API](Docs/api/README.md)** - Manage projects, tables, tests and traces over HTTP
+- **[Deployment Guide](Docs/DEPLOYMENT.md)** - Deploy with Docker, Docker Compose, Kubernetes or an application server
 - **[Architecture Overview](Docs/ARCHITECTURE.md)** - System design and components
-- **[Troubleshooting](Docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Troubleshooting](Docs/onboarding/troubleshooting.md)** - Build and development issues
 
 ### 💻 For Contributors
 - **[Contributing Guide](CONTRIBUTING.md)** - Help improve OpenL Tablets
