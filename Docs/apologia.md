@@ -15,16 +15,16 @@ best choice for business rules. Sophisticated pattern-matching algorithms like R
 are inappropriate for business and are for general purpose rules, e.g. biology simulations (so we believe).
 
 As the simplest classification, one might be tempted to say OpenL Tablets Rules Engine is a "table processor". To some
-extent it is a table processor. It takes documents (Excel, Word, or clones), extracts tables and then makes them
+extent it is a table processor. It takes Excel documents, extracts tables and then makes them
 available to access from your application. What features set OpenL apart from the competition?
 
 1. OpenL Tablets removes the gap between business documents (rules and policies) and software implementation
 2. OpenL Tablets checks all data in project documents for syntax and type errors, providing convenient and detailed
-   error reporting. Its ability to point to the problem directly within Word and Excel documents is unique among other
+   error reporting. Its ability to point to the problem directly within Excel documents is unique among other
    similar products
-3. OpenL Tablets provides calculation explanation capabilities, making it possible to actually drill down any
-   calculation result while showing all the source arguments within original documents
-4. OpenL provides cross-indexing and search capabilities within all project documents
+3. OpenL Tablets provides tracing capabilities, making it possible to actually drill down any
+   calculation result while showing all the source arguments within the original tables
+4. OpenL provides search capabilities within all project tables
 5. OpenL Tablets makes this process transparent to developers. For example, in Java wrappers, Decision Tables become
    available as methods and Data Tables become accessible as data arrays through the familiar getter/setter Beans
    mechanism. All this is done automatically without any manual effort. This feature makes integration with any
@@ -77,7 +77,7 @@ because business logic is independent of implementing APIs.
 
 ## OpenL Tablets Advantage
 
-OpenL Tablets treats tables in Excel and Word files as source code. It means that Excel and Word documents become source
+OpenL Tablets treats tables in Excel files as source code. It means that Excel documents become source
 code files, the same as `.java` files for a Java program. This approach may be unusual, but it has its own unique
 advantages. In particular, it allows closing the gap between the business world and the IT world. Let's consider a
 typical scenario where a Business Analyst (BA) creates design documents, including business model, business rules, and
@@ -93,7 +93,6 @@ solve this problem completely, it allows significantly reducing the costs of thi
 - Spreadsheet Tables — for Excel-like calculators
 - Data Tables for reference data and test cases
 - Datatype Tables — to define problem domain inside rules files
-- Finite State Machine (FSM) Event Transition Tables for business process/lifecycle modeling
 
 Our experience shows that these areas cover a significant part of development efforts, and these are the areas where
 OpenL Tablets indeed outshines the competition. Let's imagine a scenario where most of your business knowledge is
@@ -101,7 +100,7 @@ presented in the form of the tables mentioned above. For our competitors, Excel 
 import data; their support for the tables is minimal, usually through an "import" function in a menu. Needless to say,
 that this treatment of the medium where most of your business knowledge is contained is neither sufficient nor
 acceptable. OpenL Tablets provides both business users and IT specialists with a rich and comprehensive set of tools to
-make maintenance of your business knowledge presented in Excel and Word documents a simple task. Business users have a
+make maintenance of your business knowledge presented in Excel documents a simple task. Business users have a
 choice of working either in the familiar Excel application or through the Web interface. IT specialists can also use the
 Maven Plugin that will provide them with nice error navigation display during compile or runtime, Java integration tools
 that automatically generate Java wrapper classes, unit tests, debug facilities, version control, etc.
@@ -227,22 +226,6 @@ Or like this:
 *... 50 or more rows of similar nature*
 
 For us the answer is obvious, and we rest our case.
-
-## The Road Ahead
-
-The following is the list of tasks the OpenL team will concentrate its efforts on in the near future. They will provide
-users with even more advanced capabilities and an enhanced experience:
-
-- Improve Web Admin Interface — **on the way (5.9.0 introduces new UI)**
-- Use Tables Meta-Information to provide features like Effective/Expiration Dates — **done (extremely powerful
-  versioning is available starting with 5.5.0)**
-- Add Advanced Lookup Tables (multi-dimensional) — **done (since 5.3.0)**
-- Add Database Connectivity module
-- Enhance Rules Data Type Library
-- Enhance Domain Model definition — **done (more convenient than custom Java code, since 5.7.2)**
-- Add code-generation capability to OpenL — **partial (Datatypes are generated as Java bytecode since 5.7.3)**
-- Add generics and convenient Smalltalk-like Collection and Iterator operations
-- Add RDF/OWL Type Library, inference engine, move configuration to OWL format
 
 ## Conclusion
 
