@@ -20,6 +20,8 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * <p>
      * A percent value, such as {@code 17.5%}, is divided by 100. A whole number type takes it only when the result has
      * no fraction, so {@code 300%} is 3 and {@code 250%} cannot be parsed.
+     * <p>
+     * An exponent is written with a small or a capital letter, so {@code 1.5e3} and {@code 1.5E3} are the same number.
      *
      * @param data   an input string to parse
      * @param format a format of parsed string. If it is null then a default format will be used.
@@ -45,11 +47,28 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
             text = data.substring(0, data.length() - 1);
         }
         var position = new ParsePosition(0);
-        var number = df.parse(text, position);
+        var number = parseNumber(df, text, position);
         if (position.getIndex() < text.length() || df.isParseIntegerOnly() && hasFraction(number)) {
             throw new NumberFormatException("Cannot convert '%s' to a number.".formatted(data));
         }
         return convert(number, text);
+    }
+
+    /**
+     * Parses the text from the start of the position, as {@link DecimalFormat#parse(String, ParsePosition)} does.
+     * <p>
+     * An exponent may also be written with a small letter. A small letter in a prefix or a suffix of the format is read
+     * as written.
+     */
+    private static Number parseNumber(DecimalFormat df, String text, ParsePosition position) {
+        var number = df.parse(text, position);
+        var stop = position.getIndex();
+        if (stop < text.length() && text.charAt(stop) == 'e') {
+            // DecimalFormat reads only the capital exponent letter of its symbols
+            position.setIndex(0);
+            number = df.parse(text.substring(0, stop) + 'E' + text.substring(stop + 1), position);
+        }
+        return number;
     }
 
     /**
