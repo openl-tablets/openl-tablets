@@ -896,7 +896,7 @@ Proceed as follows:
     The settings are written to `rules-deploy.xml`. The file is a project file, so the project status changes to **In Editing**. Save the project to store the settings in Design repository.
 
 > [!Note]
-> In OpenL Tablets versions prior to 5.24.1, separate settings for **Intercepting template class** and **Annotation template class** are supported. Since **Annotation template class** completely covers **Intercepting template class** and has a higher priority, only **Annotation Template Class** is displayed. If the existing configuration has both, only **Annotation template class** is displayed and saved in the file after editing.
+> Only **Annotation Template Class** is offered. When `rules-deploy.xml` names the class in the `interceptingTemplateClassName` element, the value is shown in this field, and the file is saved with the `annotationTemplateClassName` element.
 
 A `rules-deploy.xml` that keeps settings in a legacy form shows the **Migrate** button. It brings the file to the current minimal form: drops the default runtime-context flag and renames the legacy template class setting. The file is written anew, so its comments and layout are not kept.
 
