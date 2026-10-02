@@ -1,587 +1,171 @@
-# OpenL Tablets Codebase Tour
+# Codebase Tour
 
-**Last Updated**: 2025-11-05
-**Target Audience**: New developers, contributors, architects
+OpenL Tablets compiles Excel workbooks into Java classes at run time and exposes them as services. The repository is a
+multi-module Maven project; every module inherits the version of the root `pom.xml`.
 
----
+## Core Flow
 
-## Quick Start
-
-Welcome to OpenL Tablets! This guide will help you navigate the codebase and understand how everything fits together.
-
-### 5-Minute Overview
-
-**What is OpenL Tablets?**
-An enterprise business rules engine that allows business analysts to write executable rules in Excel spreadsheets. The system compiles these Excel files into Java bytecode and exposes them as web services.
-
-**Core Flow**:
-```
-Excel Rules → Parser → Type Binding → Java Beans and Interfaces Bytecode Generation → REST Services
+```mermaid
+flowchart LR
+    Excel["Excel workbook"] --> Parse["Parser (JavaCC grammar)"]
+    Parse --> Bind["Binder: types and methods"]
+    Bind --> Gen["Generated classes (ASM)"]
+    Gen --> Engine["Rules engine instance"]
+    Engine --> Studio["OpenL Studio"]
+    Engine --> Services["OpenL Rule Services"]
+    Engine --> App["Java application"]
 ```
 
-**Key Directories**:
-- `/DEV/` - Core rules engine
-- `/STUDIO/` - Web-based IDE for rule authoring
-- `/WSFrontend/` - Rule deployment and web services
-- `/Util/` - Maven plugins and utilities
-- `/ITEST/` - Integration tests
+## Repository Layout
 
----
-
-## Repository Structure
-
-```
+```text
 openl-tablets/
-├── DEV/                          # Core Rules Engine (9 modules)
-│   ├── org.openl.commons/       # Foundation utilities
-│   ├── org.openl.rules/         # ⭐ MAIN ENGINE - parsing, compilation, execution
-│   ├── org.openl.rules.project/ # Project management
-│   ├── org.openl.spring/        # Spring integration
-│   └── ...                      # 5 other support modules
-│
-├── STUDIO/                       # OpenL Studio (16 modules)
-│   ├── org.openl.rules.webstudio/   # ⭐ Main WAR application
-│   ├── studio-ui/                    # ⭐ React/TypeScript frontend
-│   ├── org.openl.rules.repository*/  # Repository backends (Git, AWS, Azure)
-│   └── ...                           # OpenAPI, Jackson, table editor
-│
-├── WSFrontend/                   # Rule Services (12 modules)
-│   ├── org.openl.rules.ruleservice/     # ⭐ Core service engine
-│   ├── org.openl.rules.ruleservice.ws/  # ⭐ Web services WAR
-│   ├── org.openl.rules.ruleservice.kafka/ # Kafka integration
-│   └── ...                              # Deployment, logging
-│
-├── Util/                         # Tools & Utilities (9 modules)
-│   ├── openl-maven-plugin/       # Maven plugin for OpenL
-│   ├── openl-openapi-parser/     # OpenAPI tooling
-│   └── ...                       # Archetypes
-│
-├── ITEST/                        # Integration Tests (18+ modules)
-│   ├── itest.smoke/
-│   ├── itest.security/
-│   └── ...
-│
-├── DEMO/                         # Demo Application
-├── Docs/                         # Documentation
-├── docs/                         # 🆕 New documentation (this file)
-├── pom.xml                       # Root POM
-└── README.md                     # Build instructions
+  DEV/          Rules engine
+  STUDIO/       OpenL Studio: Spring backend and React frontend, repositories, workspace
+  WSFrontend/   OpenL Rule Services
+  Util/         Maven plugin, archetypes, OpenAPI tools, OpenTelemetry extension
+  ITEST/        Integration tests
+  DEMO/         The demo package
+  Docs/         The documentation site and the user guides
+  Dockerfile    The image of OpenL Studio and Rule Services
+  compose.yaml  Studio, Rule Services, PostgreSQL and a proxy for development
 ```
 
----
-
-## Module Groups Deep Dive
-
-### 1. DEV Module - Core Rules Engine
-
-**Location**: `/home/user/openl-tablets/DEV/`
-**Purpose**: The heart of OpenL - compiles and executes business rules
-
-#### Key Submodules:
-
-**`org.openl.rules`** - The Main Engine (⭐ START HERE)
-- **Size**: 1,200+ Java files
-- **What it does**: Parses Excel, resolves types, generates bytecode, executes rules
-- **Key packages**:
-  - `org.openl.types` - Type system (`IOpenClass`, `IOpenMethod`, `IOpenField`)
-  - `org.openl.binding` - Binds syntax to types
-  - `org.openl.rules.dt` - Decision tables
-  - `org.openl.ie.constrainer` - Gap/overlap check of decision tables
-  - `org.openl.rules.calc` - Spreadsheet tables
-  - `org.openl.rules.runtime` - Execution engine
-  - `org.openl.rules.lang.xls` - Excel parsing
-
-**Entry Point**: `org.openl.rules.runtime.RulesEngineFactory`
-```java
-// Example: Compile and instantiate rules
-RulesEngineFactory<MyRules> factory =
-    new RulesEngineFactory<>("rules/MyRules.xlsx", MyRules.class);
-MyRules rules = factory.newInstance();
-```
-
-**`org.openl.rules.project`** - Project Management
-- Loads project descriptors (rules.xml)
-- Manages multi-module projects
-- Handles dependencies between modules
-- **Entry Point**: `SimpleProjectEngineFactory`
-
-**`org.openl.commons`** - Foundation
-- Common utilities, formatters, file handling
-- Domain abstractions
-- Logging and version info
-
-**`org.openl.spring`** - Spring Integration
-- Property sources
-- Conditional bean registration (`@ConditionalOnEnable`)
-
-**Other Modules**:
-- `org.openl.rules.annotations` - Custom annotations
-- `org.openl.rules.util` - Built-in functions for rules
-- `org.openl.rules.gen` - Code generation (build-time only)
-- `org.openl.rules.test` - Testing framework
-
-**Dependency Flow**:
-```
-commons → rules → project → spring
-    ↓
-annotations, util, gen, test
-```
-
----
-
-### 2. STUDIO Module - Web-Based IDE
-
-**Location**: `/home/user/openl-tablets/STUDIO/`
-**Purpose**: Web interface for creating, editing, and managing rules
-
-#### Key Submodules:
-
-**`org.openl.rules.webstudio`** - Main Web Application
-- **Artifact**: `webapp.war`
-- **Technology**: Spring Boot (REST API) + React (every screen)
-- **What it does**:
-  - Rule authoring and editing
-  - Project management
-  - Repository integration (Git, AWS S3, Azure)
-  - User management
-  - Table editor
-
-**Build Output**: `/STUDIO/org.openl.rules.webstudio/target/webapp.war`
-
-**`studio-ui`** - Modern Frontend
-- **Technology**: React 19, TypeScript, Ant Design
-- **Location**: `/STUDIO/studio-ui/src/`
-- **Structure**:
-  ```
-  studio-ui/src/
-  ├── components/      # React components
-  ├── pages/          # Page components
-  ├── services/       # API services
-  ├── stores/         # Zustand state management
-  └── utils/          # Utilities
-  ```
-- **Build**: Uses Webpack, produces static assets
-
-**`org.openl.rules.repository*`** - Repository Backends
-- `org.openl.rules.repository` - Base abstraction
-- `org.openl.rules.repository.git` - Git support (uses JGit)
-- `org.openl.rules.repository.aws` - AWS S3 backend
-- `org.openl.rules.repository.azure` - Azure Blob backend
-
-**Security Framework** (packages of `org.openl.rules.webstudio`)
-- `org.openl.rules.security` - Base framework
-- `org.openl.rules.security.standalone` - Built-in user management
-- `org.openl.security.acl` - Access Control Lists
+A folder-specific `AGENTS.md` describes the conventions of `DEV/`, `STUDIO/`, `STUDIO/org.openl.rules.webstudio/`,
+`STUDIO/studio-ui/`, `WSFrontend/` and `ITEST/`; read it before changing a folder.
+
+## DEV — Rules Engine
+
+| Module                       | Content                                                                         |
+|------------------------------|---------------------------------------------------------------------------------|
+| `org.openl.rules`            | The engine: type system, parser, binder, bytecode generation, runtime, tables   |
+| `org.openl.commons`          | Shared utilities (`org.openl.util`, `org.openl.message`)                        |
+| `org.openl.rules.project`    | Project model (`rules.xml`, `rules-deploy.xml`), instantiation strategies        |
+| `org.openl.rules.util`       | Functions that rules call                                                       |
+| `org.openl.rules.annotations`| Annotations for extending rules                                                 |
+| `org.openl.rules.gen`        | Code generation for bindings                                                    |
+| `org.openl.rules.test`       | Functional tests of the engine                                                  |
+| `org.openl.rules.demo`       | The demo projects of OpenL Studio: templates, examples and tutorials, tested in the build |
+| `org.openl.spring`           | Spring integration: property sources, conditional beans                         |
+
+Packages of `org.openl.rules` (`DEV/org.openl.rules/src/org/openl/`):
+
+- **`types`** — the type system: `IOpenClass`, `IOpenMethod`, `IOpenField`.
+- **`binding`** — binds syntax to types and methods.
+- **`rules/lang/xls`** — reads workbooks and binds the tables (`Parser`, `XlsBinder`).
+- **`rules/dt`**, **`rules/calc`**, **`rules/data`**, **`rules/tbasic`**, **`rules/testmethod`** — decision tables,
+  spreadsheets, data tables, algorithms, tests.
+- **`rules/runtime`** — `RulesEngineFactory`, the entry point to compile a workbook.
+- **`ie/constrainer`** — the gap and overlap check of decision tables.
+- **`conf`** — configuration of the function libraries (`LibrariesRegistry`).
+
+The grammar of the expression language is `DEV/org.openl.rules/grammar/bexgrammar.jj`.
+
+## STUDIO — OpenL Studio
+
+The server renders no page: a Spring backend serves the REST API under `/rest`, a WebSocket under `/ws`, and one
+page of the React application for every other address.
+
+| Module                                   | Content                                                              |
+|------------------------------------------|----------------------------------------------------------------------|
+| `org.openl.rules.webstudio`              | The backend and the WAR; security, ACL, OpenAPI and table packages   |
+| `studio-ui`                              | The React and TypeScript frontend                                    |
+| `studio-docs`                            | The user guides packed for the viewer at `/docs`                     |
+| `org.openl.rules.repository`             | The repository abstraction; JDBC repositories                        |
+| `org.openl.rules.repository.git`, `.aws`, `.azure` | Git, AWS S3 and Azure Blob repositories                    |
+| `org.openl.rules.workspace`              | Workspaces and project management                                    |
+| `org.openl.rules.diff`, `org.openl.rules.xls.merge` | Comparison and merge of workbooks                         |
+| `org.openl.rules.jackson`, `.jackson.configuration` | JSON serialization                                        |
+| `org.openl.rules.project.openapi`, `.validation.openapi` | OpenAPI generation and validation of projects        |
+
+Packages of `org.openl.rules.webstudio` (`STUDIO/org.openl.rules.webstudio/src/org/openl/`):
+
+- **`studio`** — the REST controllers, services and models by area: `projects`, `repositories`, `deployment`, `users`,
+  `tags`, `settings`, `security`, `socket` (WebSocket), `session`, `compare`, `openapi`, `config`, `common`.
+- **`rules/webstudio`** — the application core: configuration and services.
+- **`rules/rest`** — models and handlers of the REST API.
+- **`rules/spring`** — the OpenAPI integration of Spring.
+- **`rules/ui`**, **`rules/table`**, **`rules/tableeditor`** — the compile status, the formatting of cell values, and the
+  cell editor model that the table REST API reads.
+- **`rules/security`**, **`security/acl`** — users and groups, authentication, and access control lists.
+
+The Flyway scripts of the user database are in `STUDIO/org.openl.rules.webstudio/resources/db/flyway/`. The folders of
+`STUDIO/studio-ui/src` are `components`, `containers`, `pages`, `layouts`, `routes`, `services`, `store`, `hooks`,
+`contexts`, `locales`, `types` and `utils`.
+
+## WSFrontend — Rule Services
+
+| Module                                       | Content                                                     |
+|----------------------------------------------|-------------------------------------------------------------|
+| `org.openl.rules.ruleservice`                | Loading, compiling and publishing of services               |
+| `org.openl.rules.ruleservice.ws`             | REST services (CXF), the admin API, servlets, Spring config |
+| `org.openl.rules.ruleservice.ws.all`         | The WAR with the extra repositories and the log storage     |
+| `org.openl.rules.ruleservice.deployer`       | Deployment of rule artifacts                                |
+| `org.openl.rules.ruleservice.kafka`          | Kafka integration                                           |
+| `org.openl.rules.ruleservice.ws.storelogdata`, `.db`, `.db.annotation` | Storage of requests and responses |
+| `org.openl.rules.ruleservice.annotation`, `.ws.annotation`, `.common`, `.ws.common` | Annotations and shared types |
+
+`RuleServiceLoader` (`org.openl.rules.ruleservice.loader`) loads the rules from a repository.
+
+## Util
+
+- **`openl-maven-plugin`** — group `org.openl.rules`; the goals are `compile`, `generate`, `test`, `package`, `verify`,
+  `deploy`, `migrate`, `pomless`, `prepare-pom`, `prepare-bom`, `sync-versions` and `help`. See
+  [OpenL Maven Plugin](../ref/openl-maven-plugin.md).
+- **`openl-project-archetype`**, **`openl-simple-project-archetype`** — Maven archetypes of rules projects.
+- **`openl-openapi-parser`**, **`openl-openapi-model-scaffolding`**, **`openl-excel-builder`** — read an OpenAPI file and
+  scaffold the model and the workbook of a project.
+- **`openl-rules-opentelemetry`** — the OpenTelemetry agent extension that traces rules.
+- **`openl-yaml`** — YAML data format for rules.
+
+## ITEST
+
+Declarative HTTP suites (`*.req` and `*.resp`) run against a real web application, with TestContainers for the
+databases, Keycloak and S3. The suites are the `ITEST/itest.*` modules, and `ITEST/server-core` is the shared test
+server. The suites of OpenL Studio are the modules of `ITEST/itest.studio`. See
+[`ITEST/AGENTS.md`](https://github.com/openl-tablets/openl-tablets/blob/main/ITEST/AGENTS.md).
+
+## Where to Start Reading
+
+1. `DEV/org.openl.rules/src/org/openl/rules/runtime/RulesEngineFactory.java` — compiles a workbook into an instance.
+2. `DEV/org.openl.rules.project/src/org/openl/rules/project/instantiation/SimpleProjectEngineFactory.java` — compiles a
+   whole project.
+3. `DEV/org.openl.rules/src/org/openl/types/IOpenClass.java` — the type system.
+4. `DEV/org.openl.rules/src/org/openl/rules/dt/IDecisionTable.java` — decision tables.
+5. `STUDIO/org.openl.rules.webstudio/src/org/openl/rules/webstudio/web/servlet/` — the servlets that answer `/rest`,
+   `/ws`, `/docs` and the page of the React application.
 
-**Other Important Modules**:
-- `org.openl.rules.workspace` - Workspace management
-- `org.openl.rules.jackson*` - JSON serialization
-- `org.openl.rules.project.openapi*` - OpenAPI generation
-- `org.openl.rules.diff` - Diff calculation
-- `org.openl.rules.xls.merge` - Excel merge
-
-**Entry URL**: http://localhost:8080 (when running locally)
-
----
-
-### 3. WSFrontend Module - Rule Services
-
-**Location**: `/home/user/openl-tablets/WSFrontend/`
-**Purpose**: Deploys rules as REST web services
+## Concepts
 
-#### Key Submodules:
+### Rules project
 
-**`org.openl.rules.ruleservice`** - Core Service Engine
-- Loads rules from repositories
-- Manages rule lifecycle
-- Handles versioning and deployment
-- **Key classes**:
-  - `RuleServiceLoader` - Loads rules
-  - `RuleServiceDeployer` - Deploys services
-  - `RuleServiceManager` - Manages lifecycle
+A rules project holds Excel workbooks and the optional descriptors `rules.xml` and `rules-deploy.xml`. Without a
+`modules` list in `rules.xml`, every `.xlsx` file under `rules/` and `tests/` is a module. See
+[Rules Project Structure](../ref/project-structure.md), [rules.xml](../ref/rules.xml.md) and
+[rules-deploy.xml](../ref/rules-deploy.xml.md).
 
-**`org.openl.rules.ruleservice.ws`** - Web Services
-- **Artifact**: `webapp.war`
-- **Protocols**: REST (CXF)
-- **Features**:
-  - Auto-generates service endpoints from rules
-  - Swagger/OpenAPI documentation
-  - Request/response logging
-  - Authentication integration
+### Table types
 
-**Build Output**: `/WSFrontend/org.openl.rules.ruleservice.ws/target/webapp.war`
+The table type is the first word of the table header. The keywords are the constants of `IXlsTableNames`: `Rules`,
+`SimpleRules`, `SmartRules`, `SimpleLookup`, `SmartLookup`, `Spreadsheet`, `Method`, `TBasic`, `ColumnMatch`, `Data`,
+`Datatype`, `Test`, `Run`, `Properties`, `Environment`, `Constants` and others. See [Table Types](../ref/table-types.md).
 
-**`org.openl.rules.ruleservice.kafka`** - Kafka Integration
-- Message-driven rule execution
-- Async rule invocation
-- Event-driven architecture support
+### Type system
 
-**`org.openl.rules.ruleservice.deployer`** - Deployment Manager
-- Hot deployment
-- Zero-downtime updates
-- Deployment filters
+OpenL has its own types parallel to Java: `IOpenClass` for a class, `IOpenMethod` for a method and `IOpenField` for a
+field. Types can be built from tables, for example from a Datatype table.
 
-**Logging Modules**:
-- `org.openl.rules.ruleservice.ws.storelogdata*` - Request/response logging
-- Database-backed log storage
+### Runtime context
 
-**Entry URL**: http://localhost:8081 (when running locally)
-
----
-
-### 4. Util Module - Tools & Utilities
-
-**Location**: `/home/user/openl-tablets/Util/`
-**Purpose**: Developer tools, Maven plugins, archetypes
-
-#### Key Submodules:
-
-**`openl-maven-plugin`** - Maven Plugin
-- Compiles OpenL rules during Maven build
-- Generates Java classes from rules
-- Goal: `openl:compile`
-
-**Usage**:
-```xml
-<plugin>
-    <groupId>org.openl</groupId>
-    <artifactId>openl-maven-plugin</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
-</plugin>
-```
-
-**`openl-*-archetype`** - Maven Archetypes
-- Project templates
-- Quick start scaffolding
-
-**`openl-openapi-*`** - OpenAPI Tools
-- Parses OpenAPI specs
-- Generates OpenL types from OpenAPI models
-- Scaffolds Excel tables from API definitions
-
-**`openl-rules-opentelemetry`** - OpenTelemetry
-- Distributed tracing
-- Observability integration
-
----
-
-### 5. ITEST Module - Integration Tests
-
-**Location**: `/home/user/openl-tablets/ITEST/`
-**Purpose**: End-to-end testing of OpenL components
-
-**Test Coverage**:
-- Smoke tests
-- Security tests (SAML, CAS, JWT)
-- OpenL Studio tests
-- Kafka integration
-- Cloud storage (S3)
-- Spring Boot integration
-- Health checks
-- Performance tests
-
-**Test Infrastructure**:
-- **TestContainers**: Docker-based tests
-- **server-core**: Shared test server
-
----
-
-## Common Navigation Patterns
-
-### Finding Core Engine Code
-
-**Question**: Where is rule compilation logic?
-
-**Answer**:
-1. Start: `/DEV/org.openl.rules/src/org/openl/engine/OpenLCompileManager.java`
-2. Parser: `/DEV/org.openl.rules/src/org/openl/rules/lang/xls/Parser.java`
-3. Binding: `/DEV/org.openl.rules/src/org/openl/binding/`
-4. Bytecode gen: `/DEV/org.openl.rules/src/org/openl/rules/runtime/` (uses ASM)
-
-### Finding UI Code
-
-**Question**: Where is the OpenL Studio UI?
-
-**Answer**:
-1. **The UI**: `/STUDIO/studio-ui/src/`
-2. **Table layout and cell editor model** (read by the table REST API):
-   `/STUDIO/org.openl.rules.webstudio/src/org/openl/rules/tableeditor/`
-
-### Finding REST API Code
-
-**Question**: Where are REST endpoints defined?
-
-**Answer**:
-1. **RuleService**: `/WSFrontend/org.openl.rules.ruleservice.ws/src/` (CXF-based)
-2. **OpenL Studio**: `/STUDIO/org.openl.rules.webstudio/src/` (Spring REST controllers)
-
-### Finding Configuration
-
-**Question**: Where is system configuration?
-
-**Answer**:
-1. **Project config**: `rules.xml` (project descriptors)
-2. **Application properties**: `application.properties` in WAR modules
-3. **Spring config**: `@Configuration` classes in each module
-4. **Maven config**: `pom.xml` files
-
----
-
-## Key Concepts
-
-### 1. Project Structure
-
-OpenL projects have this structure:
-```
-my-rules-project/
-├── rules.xml                    # Project descriptor
-├── rules/                       # Rules files
-│   ├── MyDecisionTable.xlsx
-│   ├── MyDataTable.xlsx
-│   └── MySpreadsheet.xlsx
-└── pom.xml                      # Maven config (optional)
-```
-
-**rules.xml** example:
-```xml
-<project>
-    <name>My Rules</name>
-    <modules>
-        <module>
-            <name>main</name>
-            <rules-root path="rules"/>
-        </module>
-    </modules>
-</project>
-```
-
-### 2. Table Types
-
-OpenL supports multiple table types in Excel:
-
-| Table Type | Purpose | Example |
-|------------|---------|---------|
-| **Decision Table** | Condition-action rules | Insurance premium calculation |
-| **Data Table** | Structured data | Rate tables, lookup tables |
-| **Spreadsheet** | Excel-like calculations | Financial calculations |
-| **Method Table** | Custom methods | Business logic methods |
-| **Test Table** | Unit tests | Test cases for rules |
-| **Datatype Table** | Custom types | Domain objects |
-
-### 3. Type System
-
-OpenL has its own type system parallel to Java:
-
-- **`IOpenClass`** - Equivalent to Java `Class`
-- **`IOpenMethod`** - Equivalent to Java `Method`
-- **`IOpenField`** - Equivalent to Java `Field`
-
-**Why?** Allows dynamic types from Excel tables.
-
-### 4. Compilation Flow
-
-```
-1. Excel File
-   ↓
-2. Parser (JavaCC BExGrammar) → Syntax Tree (ISyntaxNode)
-   ↓
-3. Binder → Bound Tree (IBoundNode)
-   ↓
-4. Type Resolution → IOpenClass hierarchy
-   ↓
-5. Code Generation (ASM) → Java bytecode
-   ↓
-6. Proxy Generation → Service interface
-   ↓
-7. Execution → Method invocation
-```
-
-### 5. Execution Model
-
-**At runtime**:
-1. Generated proxy intercepts method calls
-2. Proxy looks up compiled rule method
-3. Method executes in `SimpleRulesVM` environment
-4. Result returned to caller
-
-**Context Management**:
-- `IRulesRuntimeContext` - Holds execution context (date, region, etc.)
-- Used for rule versioning and variant selection
-
----
+`IRulesRuntimeContext` (`org.openl.rules.context`) carries the values that select a version of a table, such as the
+current date or the region.
 
 ## Build Artifacts
 
-### Main Artifacts
+| Artifact                | Location                                                      |
+|-------------------------|---------------------------------------------------------------|
+| OpenL Studio web app    | `STUDIO/org.openl.rules.webstudio/target/webapp`              |
+| Rule Services web app   | `WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`     |
+| The demo package        | `DEMO/target`                                                 |
 
-| Artifact | Location | Type | Purpose |
-|----------|----------|------|---------|
-| OpenL Studio | `STUDIO/org.openl.rules.webstudio/target/webapp.war` | WAR | Web IDE |
-| RuleService WS | `WSFrontend/org.openl.rules.ruleservice.ws/target/webapp.war` | WAR | Rule services |
-| Demo App | `DEMO/target/openl-tablets-demo.zip` | ZIP | Demo application |
-
-### Library Artifacts
-
-All modules publish to Maven Central:
-- Group ID: `org.openl`
-- Artifact IDs: `org.openl.core`, `org.openl.rules`, etc.
-
----
-
-## Development Workflows
-
-### Running Locally
-
-**Option 1: Docker Compose** (Easiest)
-```bash
-docker compose up
-# Open http://localhost
-```
-
-**Option 2: Build and Run**
-```bash
-# Build
-mvn clean install -DskipTests
-
-# Run Studio
-cd STUDIO/org.openl.rules.webstudio
-mvn jetty:run
-
-# Open http://localhost:8080
-```
-
-### Running Tests
-
-```bash
-# All tests
-mvn test
-
-# Quick tests only
-mvn test -Dquick
-
-# Specific module
-cd DEV/org.openl.rules
-mvn test
-
-# Integration tests
-cd ITEST/itest.smoke
-mvn verify
-```
-
-### Making Changes
-
-1. **Modify code** in relevant module
-2. **Run tests** to verify
-3. **Build** the module
-4. **Test integration** if needed
-
----
-
-## Common Tasks
-
-### Task: Add a New Table Type
-
-**Modules**: `org.openl.rules`
-**Steps**:
-1. Define table syntax in Excel
-2. Create node binder in `org.openl.rules.lang.xls.binding`
-3. Create bound node in `org.openl.rules.binding`
-4. Register in `XlsDefinitions`
-5. Add tests
-
-### Task: Add REST Endpoint to Studio
-
-**Modules**: `org.openl.rules.webstudio`
-**Steps**:
-1. Create `@RestController` in `org.openl.rules.webstudio.web.rest`
-2. Implement endpoint logic
-3. Add tests
-
-### Task: Add UI Feature
-
-**Modules**: `studio-ui`
-**Steps**:
-1. Create React component in `studio-ui/src/components`
-2. Add routing if needed
-3. Connect to backend API
-4. Add i18n translations
-5. Test
-
-### Task: Extend Security
-
-**Packages**: `org.openl.rules.security*`, `org.openl.security.acl`
-**Steps**:
-1. Extend `org.openl.rules.security` base classes
-2. Implement authentication provider
-3. Configure in Spring Security
-4. Test with integration tests
-
----
-
-## Important Files to Know
-
-| File | Location | Purpose |
-|------|----------|---------|
-| `pom.xml` | `/` | Root Maven configuration |
-| `README.md` | `/` | Build instructions |
-| `docker-compose.yaml` | `/` | Docker setup |
-| `bexgrammar.jj` | `/DEV/org.openl.rules/grammar/` | Parser grammar (JavaCC) |
-| `rules.xml` | (project-specific) | Project descriptor |
-| `application.properties` | (each WAR module) | Spring configuration |
-
----
-
-## Code Quality & Standards
-
-### Design Patterns
-- **Factory**: `RulesEngineFactory`, node binder factories
-- **Builder**: `SimpleProjectEngineFactoryBuilder`
-- **Strategy**: Instantiation strategies, resolving strategies
-- **Proxy**: ASM runtime proxies
-- **Visitor**: Syntax node traversal
-
-### Coding Conventions
-- **Java**: Standard Java conventions
-- **TypeScript**: Standard TS conventions (ESLint)
-- **Testing**: JUnit 5, Mockito for mocking
-- **Logging**: SLF4J facade
-
-### Architecture Principles
-- **Separation of Concerns**: Clear module boundaries
-- **Dependency Injection**: Spring-based DI where applicable
-- **Extensibility**: Plugin-based architecture for new features
-- **Convention over Configuration**: Sensible defaults
-
----
-
-## Getting Help
-
-### Documentation
-- **Project Docs**: `/home/user/openl-tablets/Docs/`
-- **Architecture Docs**: `/home/user/openl-tablets/docs/architecture/`
-- **Module Analysis**: `/home/user/openl-tablets/docs/analysis/`
-
-### Key Resources
-- **Website**: https://openl-tablets.org
-- **GitHub**: https://github.com/openl-tablets/openl-tablets
-- **Maven Central**: Search for `org.openl`
-
-### Where to Start Reading Code
-1. **Core Engine**: `/DEV/org.openl.rules/src/org/openl/rules/runtime/RulesEngineFactory.java`
-2. **Project Loading**: `/DEV/org.openl.rules.project/src/org/openl/rules/project/instantiation/SimpleProjectEngineFactory.java`
-3. **Decision Tables**: `/DEV/org.openl.rules/src/org/openl/rules/dt/IDecisionTable.java`
-4. **Type System**: `/DEV/org.openl.rules/src/org/openl/types/IOpenClass.java`
-
----
-
-## Next Steps
-
-1. **Read**: [Technology Stack](/docs/architecture/technology-stack.md) - Understand the tech
-2. **Setup**: [Development Setup](/docs/onboarding/development-setup.md) - Get environment ready
-3. **Deep Dive**: [DEV Module Overview](/docs/analysis/dev-module-overview.md) - Understand core engine
-4. **Build**: Follow `/README.md` to build the project
-5. **Explore**: Clone and navigate the code
-
----
-
-**Welcome to OpenL Tablets! Happy coding!**
+Next: [Development Setup](development-setup.md) and [Architecture](../ARCHITECTURE.md).
