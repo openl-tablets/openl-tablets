@@ -484,8 +484,6 @@ mvn dependency:analyze-duplicate
 ## See Also
 
 - [Technology Stack](/docs/architecture/technology-stack.md) - Detailed technology overview
-- [DEV Module Overview](/docs/analysis/dev-module-overview.md) - Core engine dependencies
-- [Repository Layer](/docs/analysis/repository-layer-overview.md) - Storage dependencies
 
 ---
 

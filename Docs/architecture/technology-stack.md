@@ -417,4 +417,4 @@ OpenL maintains custom forks of:
 - [Codebase Tour](/docs/onboarding/codebase-tour.md) - Navigate the codebase
 - [Development Setup](/docs/onboarding/development-setup.md) - Get started developing
 - [Dependencies](/docs/architecture/dependencies.md) - Dependency graph
-- [DEV Module Overview](/docs/analysis/dev-module-overview.md) - Core engine details
+

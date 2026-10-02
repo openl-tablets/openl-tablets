@@ -28,8 +28,6 @@ This guide is organized into the following sections:
 - [Architecture](../ARCHITECTURE.md) - System overview
 - [Technology Stack](../architecture/technology-stack.md) - Technologies used in OpenL Tablets
 - [Dependencies](../architecture/dependencies.md) - Module relationships and dependencies
-- [DEV Module Overview](../analysis/dev-module-overview.md) - Core engine details
-- [Repository Layer](../analysis/repository-layer-overview.md) - Data layer architecture
 
 ### Integration Guides
 - [Spring Framework](../integration-guides/spring.md) - Spring integration
