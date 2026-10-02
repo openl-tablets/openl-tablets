@@ -242,6 +242,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         imports = Set.copyOf(xlsModuleSyntaxNode.getImports());
     }
 
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     // TODO: should be placed to ModuleOpenClass
     public IDataBase getDataBase() {
         return dataBase;

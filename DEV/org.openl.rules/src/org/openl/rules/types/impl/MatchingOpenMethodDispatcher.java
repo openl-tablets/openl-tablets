@@ -25,9 +25,10 @@ import org.openl.types.IOpenMethod;
 
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
- * <p>
- * TODO: refactor invoke functionality. Use {@link org.openl.rules.method.RulesMethodInvoker}.
  */
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
+// TODO: refactor invoke functionality. Use org.openl.rules.method.RulesMethodInvoker.
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     // The fields below hold only algorithms and they don't change during
     // application lifetime. There is no need

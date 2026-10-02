@@ -138,6 +138,8 @@ public class AlgorithmCompiler {
         return nodesToCompile.subList(0, currentOperationIndex);
     }
 
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     public IOpenClass getTypeOfField(StringValue fieldContent, IBindingContext bindingContext) {
         // TODO: make rational type detecting(without creating of
         // CompositeMethod)
@@ -358,6 +360,8 @@ public class AlgorithmCompiler {
 
     private final class DeclareFunctionPreprocessor implements OperationPreprocessor {
 
+        // Declaring the type of a function by a specification instruction is a feature TBasic does not have yet.
+        @SuppressWarnings("java:S1135")
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
                                ConversionRuleStep conversionStep,

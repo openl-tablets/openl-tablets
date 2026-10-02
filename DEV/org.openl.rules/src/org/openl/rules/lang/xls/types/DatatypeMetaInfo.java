@@ -11,8 +11,11 @@ import org.openl.meta.IMetaInfo;
  * Implementation of {@link IMetaInfo} for datatypes. First of all to handle the url to source. Display name is
  * implemented to return the same name for all modes. Should be updated if needed.
  *
- * @author DLiauchuk TODO: Replace with org.openl.meta.TableMetaInfo
+ * @author DLiauchuk
  */
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
+// TODO: Replace with org.openl.meta.TableMetaInfo
 @RequiredArgsConstructor
 public class DatatypeMetaInfo implements IMetaInfo {
 

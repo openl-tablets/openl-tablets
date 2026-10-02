@@ -344,6 +344,8 @@ public class DataTableBindHelper {
         return count;
     }
 
+    // Data tables of existing projects use the _PK_ column, so it stays until its removal is decided.
+    @SuppressWarnings("java:S1135")
     public static IOpenField findField(String fieldName, ITable table, IOpenClass tableType) {
 
         if (FPK.equals(fieldName)) {

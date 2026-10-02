@@ -420,6 +420,8 @@ public class TypeResolver implements INameSpacedTypeFactory {
         return cls2;
     }
 
+    // Acknowledged debt (DEV/AGENTS.md): blocking system classes is a security feature that needs a design.
+    @SuppressWarnings("java:S1135")
     private static IOpenClass loadClass(ClassLoader classLoader, String fullName) {
         // TODO add security ability to block access to system classes.
         try {

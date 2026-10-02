@@ -32,6 +32,8 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
 // TODO: refactor
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode {

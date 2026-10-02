@@ -33,8 +33,10 @@ public class OpenL {
      * @return instance of OpenL
      * @throws OpenLConfigurationException
      */
-    // TODO: Do not use this method! Should be removed!
+    // Its removal is planned for 7.0.0 (Docs/architecture/legacy-system-map.md).
+    @SuppressWarnings("java:S1135")
     public static synchronized OpenL getInstance() {
+        // TODO: Do not use this method! Should be removed!
 
         var librariesRegistry = new LibrariesRegistry();
         var castFactory = new CastFactory();

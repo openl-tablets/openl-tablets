@@ -36,9 +36,11 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
     private final BooleanTypeAdaptor adaptor;
 
-    // TODO fix
+    // Validating an IN or NOT IN array condition needs a constraint expression the solver can evaluate.
+    @SuppressWarnings("java:S1135")
     @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
+        // TODO fix
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 

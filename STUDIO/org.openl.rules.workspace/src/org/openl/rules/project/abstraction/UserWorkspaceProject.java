@@ -99,8 +99,10 @@ public abstract class UserWorkspaceProject extends AProject {
         setFileData(null);
     }
 
-    // TODO Cache status in the field
+    // A cached status needs invalidation on every lock, workspace and repository change.
+    @SuppressWarnings("java:S1135")
     public ProjectStatus getStatus() {
+        // TODO Cache status in the field
         if (isLocalOnly()) {
             return ProjectStatus.LOCAL;
         } else if (isDeleted()) {

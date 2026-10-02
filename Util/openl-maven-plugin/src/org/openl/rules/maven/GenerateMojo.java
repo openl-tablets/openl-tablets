@@ -119,6 +119,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
     @Parameter
     private Map<String, Object> externalParameters;
 
+    // Choosing a project by its name is a new plugin parameter, which is a product decision.
+    @SuppressWarnings("java:S1135")
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         if (outputDirectory.isDirectory()) {

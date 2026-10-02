@@ -123,6 +123,8 @@ public class RuleServicesFilter implements Filter {
         }
     }
 
+    // Locking per service needs the redeployment to tell which service a request goes to.
+    @SuppressWarnings("java:S1135")
     private void process(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         var method = request.getMethod();

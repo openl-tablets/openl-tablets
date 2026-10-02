@@ -23,6 +23,8 @@ public class OperationFactory {
 
     private final ParameterConverterManager parameterConverter;
 
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     public RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile,
                                             ConversionRuleStep conversionStep,
                                             IBindingContext bindingContext) {

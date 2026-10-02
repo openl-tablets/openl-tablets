@@ -195,6 +195,8 @@ public class XlsDiff2 {
         return builder.compare();
     }
 
+    // Tables that differ in both width and height need a two-dimensional alignment the diff does not have yet.
+    @SuppressWarnings("java:S1135")
     private void checkGrid(DiffPair pair) {
         var grid1 = pair.getTable1().getTable().getGridTable();
         var grid2 = pair.getTable2().getTable().getGridTable();
@@ -383,6 +385,8 @@ public class XlsDiff2 {
         }
     }
 
+    // Which cell attributes besides the value count as a change is a product decision of the diff.
+    @SuppressWarnings("java:S1135")
     private boolean notEquals(ICell c1, ICell c2) {
         var o1 = c1.getObjectValue();
         var o2 = c2.getObjectValue();
