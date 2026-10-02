@@ -229,7 +229,7 @@ public class Action extends FunctionalRow implements IAction {
                               IBindingContext bindingContext,
                               RuleRow ruleRow,
                               IOpenClass ruleExecutionType,
-                              TableSyntaxNode tableSyntaxNode) throws Exception {
+                              TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException {
 
         IOpenClass methodType = getActionMethodType(decisionTable, header, bindingContext, tableSyntaxNode);
 

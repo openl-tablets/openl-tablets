@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonLauncher;
@@ -65,7 +67,8 @@ public class ProjectHistoryController {
             @Parameter(description = "history.get-local-history.param.module.desc")
             @RequestParam(value = "module", required = false) @Nullable String module,
             @Parameter(description = "history.restore.req-body.desc")
-            @Valid @RequestBody RestoreProjectHistoryRequest request) throws Exception {
+            @Valid @RequestBody RestoreProjectHistoryRequest request)
+            throws IOException, ProjectException, ProjectResolvingException {
         projectHistoryService.restore(project,
                 StringUtils.trimToNull(module),
                 request.version().strip(),

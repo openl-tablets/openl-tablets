@@ -8,6 +8,7 @@ package org.openl.rules.data;
 
 import java.util.Collection;
 
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.binding.DuplicatedTableException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -31,7 +32,7 @@ public interface IDataBase {
     void preLoadTable(ITable table,
                       ITableModel dataModel,
                       ILogicalTable dataWithHeader,
-                      OpenlToolAdaptor ota) throws Exception;
+                      OpenlToolAdaptor ota) throws OpenLCompilationException;
 
     void clearOddDataForExecutionMode();
 }

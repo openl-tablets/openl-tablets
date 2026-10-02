@@ -19,6 +19,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.OpenlToolAdaptor;
@@ -157,7 +158,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                              IOpenClass tableType,
                              IBindingContext bindingContext,
                              OpenL openl,
-                             boolean hasColumnTitleRow) throws Exception {
+                             boolean hasColumnTitleRow) throws OpenLCompilationException {
 
         if (tableBody == null) {
             var message = "There is no body in 'Data' table.";
@@ -324,7 +325,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                                IOpenClass tableType,
                                IBindingContext bindingContext,
                                OpenL openl,
-                               boolean useRegistered) throws Exception {
+                               boolean useRegistered) throws OpenLCompilationException {
 
         ITable resultTable;
         if (useRegistered) {

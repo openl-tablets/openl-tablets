@@ -35,6 +35,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
@@ -607,7 +608,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                             boolean verifying,
                             boolean rewritten,
                             boolean anotherProjectOpened,
-                            boolean anotherModuleOpened) throws Exception {
+                            boolean anotherModuleOpened) throws ProjectResolvingException {
         if (forcedCompile) {
             reset(ReloadType.FORCED);
         } else if (needCompile || verifying) {

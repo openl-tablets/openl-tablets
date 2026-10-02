@@ -8,6 +8,7 @@ import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -51,7 +52,7 @@ public interface IDecisionRow extends IBaseDecisionRow {
                  IBindingContext bindingContext,
                  RuleRow ruleRow,
                  IOpenClass ruleExecutionType,
-                 TableSyntaxNode tableSyntaxNode) throws Exception;
+                 TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException;
 
     void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env);
 

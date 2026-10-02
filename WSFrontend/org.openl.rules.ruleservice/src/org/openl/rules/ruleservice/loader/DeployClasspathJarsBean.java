@@ -137,7 +137,7 @@ public class DeployClasspathJarsBean {
     }
 
     @PreDestroy
-    public void destroy() throws Exception {
+    public void destroy() throws InterruptedException {
         deployThread.interrupt();
         deployThread.join(TimeUnit.SECONDS.toMillis(retryPeriod * 3));
     }

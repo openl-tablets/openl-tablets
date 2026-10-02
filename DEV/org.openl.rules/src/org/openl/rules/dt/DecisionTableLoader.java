@@ -93,7 +93,7 @@ public class DecisionTableLoader {
                             OpenL openl,
                             ModuleOpenClass module,
                             boolean transpose,
-                            IBindingContext bindingContext) throws Exception {
+                            IBindingContext bindingContext) throws SyntaxNodeException {
         TableStructure tableStructure = loadTableStructure(tableSyntaxNode,
                 decisionTable,
                 transpose,

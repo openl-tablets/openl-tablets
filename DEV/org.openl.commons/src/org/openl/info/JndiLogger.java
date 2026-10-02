@@ -13,7 +13,7 @@ final class JndiLogger extends OpenLLogger {
     }
 
     @Override
-    protected void discover() throws Exception {
+    protected void discover() throws NamingException {
         log("JNDI Context:");
         try {
             var ctx = new InitialContext();

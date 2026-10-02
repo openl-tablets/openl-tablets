@@ -885,11 +885,11 @@ public class ProjectModel {
         publishStatusChanged();
     }
 
-    public void reset(ReloadType reloadType) throws Exception {
+    public void reset(ReloadType reloadType) throws ProjectResolvingException {
         reset(reloadType, moduleInfo);
     }
 
-    public synchronized void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
+    public synchronized void reset(ReloadType reloadType, Module moduleToOpen) throws ProjectResolvingException {
         switch (reloadType) {
             case FORCED:
                 moduleToOpen = studio.getCurrentModule();
@@ -1002,7 +1002,7 @@ public class ProjectModel {
         xlsModuleSyntaxNode = null;
     }
 
-    public void setModuleInfo(Module moduleInfo) throws Exception {
+    public void setModuleInfo(Module moduleInfo) throws ProjectResolvingException {
         setModuleInfo(moduleInfo, ReloadType.NO);
     }
 
@@ -1077,7 +1077,7 @@ public class ProjectModel {
         }
     }
 
-    public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
+    public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws ProjectResolvingException {
         if (moduleInfo == null || reloadType == ReloadType.NO && isSameModule(this.moduleInfo, moduleInfo)) {
             return;
         }

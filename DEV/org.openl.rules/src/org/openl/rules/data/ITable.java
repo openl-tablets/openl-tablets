@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -65,9 +66,9 @@ public interface ITable {
 
     Collection<Object> getUniqueValues(int colIdx) throws SyntaxNodeException;
 
-    void populate(IDataBase db, IBindingContext bindingContext) throws Exception;
+    void populate(IDataBase db, IBindingContext bindingContext);
 
-    void preLoad(OpenlToolAdaptor ota) throws Exception;
+    void preLoad(OpenlToolAdaptor ota) throws OpenLCompilationException;
 
     void setData(ILogicalTable dataWithHeader);
 

@@ -21,6 +21,7 @@ import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -124,7 +125,7 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
                           OpenL openl,
                           ModuleOpenClass module,
                           IBindingContext bindingContext,
-                          int columns) throws Exception {
+                          int columns) throws SyntaxNodeException {
         delegate.bindTable(conditionRows, actionRows, ruleRow, openl, module, bindingContext, columns);
     }
 

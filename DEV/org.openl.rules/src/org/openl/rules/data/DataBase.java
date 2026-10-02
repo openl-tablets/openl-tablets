@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.DuplicatedTableException;
@@ -97,7 +98,7 @@ public class DataBase implements IDataBase {
     public void preLoadTable(ITable table,
                              ITableModel dataModel,
                              ILogicalTable dataWithTitles,
-                             OpenlToolAdaptor openlAdapter) throws Exception {
+                             OpenlToolAdaptor openlAdapter) throws OpenLCompilationException {
 
         table.setModel(dataModel);
         table.setData(dataWithTitles);

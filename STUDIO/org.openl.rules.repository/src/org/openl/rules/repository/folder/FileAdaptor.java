@@ -1,5 +1,6 @@
 package org.openl.rules.repository.folder;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
@@ -9,5 +10,5 @@ public interface FileAdaptor {
 
     boolean accept(Path path);
 
-    InputStream apply(InputStream inputStream) throws Exception;
+    InputStream apply(InputStream inputStream) throws IOException;
 }

@@ -27,6 +27,7 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -173,7 +174,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
                           OpenL openl,
                           ModuleOpenClass module,
                           IBindingContext bindingContext,
-                          int columns) throws Exception {
+                          int columns) throws SyntaxNodeException {
 
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;
@@ -212,7 +213,8 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return false;
     }
 
-    private void prepare(IOpenMethodHeader header, OpenL openl, IBindingContext bindingContext) throws Exception {
+    private void prepare(IOpenMethodHeader header, OpenL openl, IBindingContext bindingContext)
+            throws SyntaxNodeException {
         var algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
         algorithm = algorithmBuilder.prepareAndBuildAlgorithm(bindingContext);
     }

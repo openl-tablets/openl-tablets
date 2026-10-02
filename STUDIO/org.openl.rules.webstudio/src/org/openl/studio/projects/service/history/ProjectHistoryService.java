@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -103,7 +104,7 @@ public class ProjectHistoryService {
     public void restore(RulesProject project,
                         @Nullable String moduleName,
                         String versionToRestore,
-                        WebStudio webStudio) throws Exception {
+                        WebStudio webStudio) throws IOException, ProjectException, ProjectResolvingException {
         var location = resolveHistoryLocation(project, moduleName);
         requireWriteAccess(project.getArtefact(location.module().getRulesRootPath()));
         var fileToRestore = getHistoryVersion(location.historyFolder(), versionToRestore);
@@ -124,7 +125,8 @@ public class ProjectHistoryService {
         removeCurrentVersion(currentVersion);
     }
 
-    private static void reloadOpenedModule(WebStudio webStudio, File restoredSource) throws Exception {
+    private static void reloadOpenedModule(WebStudio webStudio, File restoredSource)
+            throws IOException, ProjectResolvingException {
         var currentModule = webStudio.getCurrentModule();
         if (currentModule == null || !Files.isSameFile(currentModule.getRulesPath(), restoredSource.toPath())) {
             return;

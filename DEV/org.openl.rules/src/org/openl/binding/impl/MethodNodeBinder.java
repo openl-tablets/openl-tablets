@@ -127,7 +127,7 @@ public class MethodNodeBinder extends ANodeBinder {
                                              IOpenClass[] argumentTypes,
                                              IBoundNode[] children,
                                              int childrenCount,
-                                             IBindingContext bindingContext) throws Exception {
+                                             IBindingContext bindingContext) throws FieldNotFoundException {
         if (childrenCount > 1) {
             // Get the root component type and dimension of the array.
             var argumentType = argumentTypes[0];
@@ -204,7 +204,7 @@ public class MethodNodeBinder extends ANodeBinder {
                                                   int childrenCount,
                                                   IOpenClass argumentType,
                                                   int dims,
-                                                  IBindingContext bindingContext) throws Exception {
+                                                  IBindingContext bindingContext) throws FieldNotFoundException {
         // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {

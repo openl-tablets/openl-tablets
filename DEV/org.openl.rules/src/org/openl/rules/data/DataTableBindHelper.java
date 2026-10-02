@@ -527,7 +527,8 @@ public class DataTableBindHelper {
                                                      ILogicalTable dataWithTitleRows,
                                                      boolean hasForeignKeysRow,
                                                      boolean hasColumnTitleRow,
-                                                     boolean supportConstructorFields) throws Exception {
+                                                     boolean supportConstructorFields)
+                                                             throws OpenLCompilationException {
 
         var width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];

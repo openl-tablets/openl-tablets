@@ -9,5 +9,5 @@ package org.openl.studio.projects.service.trace;
 @FunctionalInterface
 public interface DebugBody {
 
-    void execute() throws Exception;
+    void execute();
 }
