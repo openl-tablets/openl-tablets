@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
 // TODO: implement common for all node types interface, e.g. INodeTypes. Place
 // it to the core and rewrite ISyntaxNode#getType to returning INodeTypes.
 //

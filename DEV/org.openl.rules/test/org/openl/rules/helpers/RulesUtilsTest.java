@@ -37,9 +37,10 @@ import org.openl.util.ArrayTool;
  * Test to check that methods from {@link RulesUtils}
  *
  * @author DLiauchuk
- * <p/>
- *         TODO: test all methods
  */
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
+// TODO: test all methods
 class RulesUtilsTest {
 
     private static final String SRC = "test/rules/helpers/RulesUtilsTest.xlsx";

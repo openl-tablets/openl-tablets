@@ -58,8 +58,10 @@ public final class CastToWiderType {
         return new CastToWiderType(widerType, castToParent1, castToParent2);
     }
 
-    // TODO remove after adding a support of generics to OpenL
+    // Acknowledged debt (DEV/AGENTS.md): it waits for the support of generics in OpenL.
+    @SuppressWarnings("java:S1135")
     public static IOpenClass defineCollectionWiderType(Collection<?> collection) {
+        // TODO remove after adding a support of generics to OpenL
         if (collection == null) {
             return NullOpenClass.the;
         }

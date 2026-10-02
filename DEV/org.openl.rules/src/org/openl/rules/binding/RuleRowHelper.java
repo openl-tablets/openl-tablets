@@ -134,6 +134,8 @@ public final class RuleRowHelper {
         return arrayValues;
     }
 
+    // Acknowledged debt (DEV/AGENTS.md): interning short cell values needs a review of its memory cost.
+    @SuppressWarnings("java:S1135")
     public static Object loadSingleParam(IOpenClass paramType,
                                          String paramName,
                                          String ruleName,

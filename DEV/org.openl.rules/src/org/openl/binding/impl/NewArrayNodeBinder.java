@@ -21,6 +21,8 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class NewArrayNodeBinder extends ANodeBinder {
 
+    // Acknowledged debt (DEV/AGENTS.md): moving the dimensions into BExGrammar changes the grammar.
+    @SuppressWarnings("java:S1135")
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 

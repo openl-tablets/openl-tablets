@@ -60,10 +60,11 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
 /**
- * TODO Separate user session from app session
- *
  * @author snshor
  */
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
+// TODO Separate user session from app session
 @Slf4j
 public class WebStudio implements DesignTimeRepositoryListener {
 

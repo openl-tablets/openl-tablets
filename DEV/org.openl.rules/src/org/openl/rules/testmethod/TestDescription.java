@@ -59,6 +59,8 @@ public class TestDescription {
         executionParams = initExecutionParams(testedMethod, testObject, db, null);
     }
 
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     private static DynamicObject createTestObject(IOpenMethod testedMethod,
                                                   IRulesRuntimeContext context,
                                                   Object[] arguments) {

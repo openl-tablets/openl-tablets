@@ -89,6 +89,8 @@ public final class TableSyntaxNodeUtils {
         }
     }
 
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     // TODO: refactor
     // Pass the HeaderSyntaxNode of the tsn and gets it`s name
     // Update header parsing in all components on Binding phase

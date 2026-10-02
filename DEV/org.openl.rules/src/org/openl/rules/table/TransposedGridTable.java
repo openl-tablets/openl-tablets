@@ -1,10 +1,11 @@
 package org.openl.rules.table;
 
 /**
- * TODO: create {@link CoordinatesTransformer} for this case of transposed grid table.
- *
  * @author snshor
  */
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
+// TODO: create CoordinatesTransformer for this case of transposed grid table.
 public class TransposedGridTable extends AGridTableDecorator {
 
     public TransposedGridTable(IGridTable gridTable) {

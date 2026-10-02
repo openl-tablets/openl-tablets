@@ -18,6 +18,8 @@ public class TypeBoundNode extends ABoundNode {
         this.type = type;
     }
 
+    // Acknowledged debt (DEV/AGENTS.md): a node of its own for static access changes how static calls are bound.
+    @SuppressWarnings("java:S1135")
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         // TODO probably create another class for static method access

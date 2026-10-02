@@ -7,6 +7,8 @@ import org.openl.vm.SimpleRuntimeEnv;
 
 abstract class AbstractContextPropertyInjector implements IContextPropertyInjection {
 
+    // Telling an undefined request value from null is a product decision about the runtime context.
+    @SuppressWarnings("java:S1135")
     @Override
     public IRulesRuntimeContext inject(Object[] params,
                                        IRuntimeEnv env,

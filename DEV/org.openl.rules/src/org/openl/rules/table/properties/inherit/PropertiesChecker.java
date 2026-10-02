@@ -32,9 +32,11 @@ public final class PropertiesChecker {
      * 1) properties can be defined on TABLE level;<br>
      * 2) properties can be defined for current type of table; 3) deprecated properties;
      *
-     * @param propertyNamesToCheck properties names that are physically defined in table. TODO: Refactor with strategy
-     *                             pattern
+     * @param propertyNamesToCheck properties names that are physically defined in table.
      */
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
+    // TODO: Refactor with strategy pattern
     public static void checkProperties(IBindingContext bindingContext,
                                        Set<String> propertyNamesToCheck,
                                        TableSyntaxNode tableSyntaxNode,

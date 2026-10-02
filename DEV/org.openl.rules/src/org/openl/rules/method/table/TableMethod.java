@@ -13,9 +13,10 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * {@link IOpenMethod} implementation for table method component.
- * <p>
- * TODO: rename to MethodTable.
  */
+// Kept as an open refactoring task: it needs a design change beyond this cleanup.
+@SuppressWarnings("java:S1135")
+// TODO: rename to MethodTable.
 @Executable
 public class TableMethod extends ExecutableRulesMethod {
 

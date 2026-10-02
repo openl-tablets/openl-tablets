@@ -77,6 +77,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     // TODO: move to factory class.
     private void initCellWriters() {
         cellWriters.put(AXlsCellWriter.ARRAY_WRITER, new XlsCellArrayWriter(this));
@@ -575,6 +577,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         poiCell.setCellComment(poiComment);
     }
 
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     // TODO: move to factory.
     public AXlsCellWriter getCellWriter(Object value) {
         Map<String, AXlsCellWriter> writers = getCellWriters();

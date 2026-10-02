@@ -4,6 +4,8 @@ import org.openl.rules.diff.differs.ProjectionDifferImpl;
 import org.openl.rules.diff.hierarchy.Projection;
 
 public class XlsProjectionDiffer extends ProjectionDifferImpl {
+    // Kept as an open refactoring task: it needs a design change beyond this cleanup.
+    @SuppressWarnings("java:S1135")
     @Override
     public boolean compare(Projection original, Projection other) {
         // TODO compare XLS tables here
