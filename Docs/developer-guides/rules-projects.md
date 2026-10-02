@@ -100,7 +100,7 @@ The project configurations are as follows:
 | classpath                      | no       | Project relative classpath.                                                                                                                     |
 | exposed-methods                | no       | The ant-style pattern (* and ?) filters of the allowed methods in the generated interface.                                                      |
 | properties-file-name-pattern   | no       | File name pattern to be used by the file name processor. <br/>The file name processor adds extracted module properties from a module file name. |
-| properties-file-name-processor | no       | Custom implementation of `org.openl.rules.project.PropertiesFileNameProcessor` used instead of default implementation.                          |
+| properties-file-name-processor | no       | Custom implementation of `org.openl.rules.project.resolving.PropertiesFileNameProcessor` used instead of default implementation.                          |
 
 ##### Module Configurations
 The module configurations are as follows:
@@ -192,7 +192,7 @@ To create a project using the Maven archetype, proceed as follows:
     ```
     After executing this command, the following files can be found in the target folder:
 1.  zip file with "-deployable" suffix for importing the project to OpenL Studio.
-    For more information, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
+    For more information, see [OpenL Studio Guide](../user-guides/openl-studio/index.md).
 1.  zip file (with "-runnable" suffix) that can be executed after extracting it.
     It demonstrates how OpenL Tablets rules can be invoked from Java code.
 1.  jar file that contains only compiled Java classes.
@@ -215,7 +215,7 @@ When a user starts editing a project, it is extracted from Design Repository and
 
 OpenL Rule Services use separate repository instance, Production Repository. OpenL Studio can be configured to deploy complete and tested rules projects to that repository.
 
-For more information, see [OpenL Studio Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide).
+For more information, see [OpenL Studio Guide](../user-guides/openl-studio/index.md).
 
 #### Creating a Project Manually
 OpenL does not oblige a user to use predefined ways of project creation and enables using the user’s own project structure. The [Project Resolving](#project-resolving) mechanism can be used as a base for the project structure definition. Depending on the resolving strategy, more or less files and folders are to be created, but several project elements definition is mandatory. For more information on manually creating a project, see [OpenL Rules Project](#openl-rules-project).
@@ -355,7 +355,7 @@ var projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFac
             .build();
 var instance = projectEngineFactory.newInstance();
 ```
-The above example instantiates the OpenL Tablets project generated in runtime interface. A method from instantiated project can be invoked via reflection mechanism. `ProjectEngineFactory` returns generated interface via the getInterfaceClass() method.
+The above example instantiates the OpenL Tablets project generated in runtime interface. A method from instantiated project can be invoked via reflection mechanism. `SimpleProjectEngineFactory` returns generated interface via the getInterfaceClass() method.
 
 If a static interface must be used, the interface must be specified in SimpleProjectEngineFactoryBuilder. The following example illustrates how to instantiate a project with a static interface.
 
@@ -380,7 +380,7 @@ By default, execution mode is set to `true` - it skips gathering meta informatio
 Test results can be accessed through the test table API. For example, the following code fragment executes all test runs in a test table called **insuranceTest** and displays the number of failed test runs:
 
 ```java
-import org.openl.openclass.IOpenClass;
+import org.openl.types.IOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -398,7 +398,7 @@ TestUnitsResults result = (TestUnitsResults) testMethod.invoke(instance, new Obj
 ##### Generating Java Classes from Datatype Tables
 Some rules require complex data models as input parameters. Developers have to generate classes for each datatype defined in an Excel file for using them in a static interface as method arguments. The static interface can be used in engine factory. For more information on how to create and use a wrapper, see [Using OpenL Tablets Rules from Java Code](#using-openl-tablets-rules-from-java-code).
 
-**Note:** Datatype is an OpenL table of the Datatype type created by a business user. It defines a custom data type. Using these data types inside the OpenL Tablets rules is recommended as the best practice. For more information on datatypes, see [OpenL Tablets Reference Guide > Datatype Table](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#datatype-table).
+**Note:** Datatype is an OpenL table of the Datatype type created by a business user. It defines a custom data type. Using these data types inside the OpenL Tablets rules is recommended as the best practice. For more information on datatypes, see [OpenL Tablets Reference Guide > Datatype Table](../user-guides/reference-guide/02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md).
 To generate datatype classes, proceed as follows:
 
 1.  For Maven, configure the OpenL Maven plugin as described in [Configuring the OpenL Maven Plugin](#configuring-the-openl-maven-plugin) and run the Maven script.
@@ -453,7 +453,7 @@ Each `<generateInterface>` section has a number of parameters described in the f
 | `userHome`             | `String`  | `false`  | Location of user-defined resources relative to the current OpenL Tablets project. The default value is ..                                                                                                                                                         |
 | `userClassPath`        | `String`  | `false`  | Reference to the folder with additional compiled classes imported by the module when the interface is generated. <br/>The default value is null.                                                                                                                  |
 
-For more configuration options, see [OpenL Tablets Maven Plugin Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/maven_plugin_guide/).
+For more configuration options, see [OpenL Tablets Maven Plugin](../ref/openl-maven-plugin.md).
 
 #### Handling Data and Data Types in OpenL Tablets
 This section includes the following `topics` about data and data types handling in OpenL Tablets:
@@ -534,20 +534,14 @@ This section describes how to customize table properties and introduces table pr
 -   [Tables Priority Rules](#tables-priority-rules)
 
 #### Understanding Table Properties Customization
-The OpenL Tablets design allows customizing available table properties. OpenL Tablets Engine employs itself to provide support of properties customization. The `TablePropertiesDefinitions.xlsx` file contains all declaration required to handle and process table properties.
+The declaration of all table properties is in the `DEV/org.openl.rules/doc/TablePropertyDefinition.xlsx` workbook. The `org.openl.rules.gen` module generates the Java code of the properties from it, for example `DefaultPropertyDefinitions`, by running `org.openl.codegen.tools.GenRulesCode`.
 
-Updating table properties requires recompiling the OpenL Tablets product. The developer has to contact the OpenL Tablets provider to retrieve the table properties file. When the changes are made, the developer has to send the file back to the provider, and a new OpenL Tablets package is delivered to the developer.
-
-Alternatively, the developer can recompile OpenL Tablets from sources of their own.
+Updating table properties requires regenerating this code and recompiling OpenL Tablets.
 
 #### Tables Priority Rules
-To make tables dispatching more flexible, **tablesPriorityRules** DataTable in `TablePropertiesDefinitions.xlsx `is used. Each element of this table defines one rule of how to compare two tables using their properties to find more suitable table if several tables are matched by properties. Priority rules are used sequentially in comparison of two tables: if one priority rule gives result of the same priority of tables, the next priority rule is used.
+To make tables dispatching more flexible, **tablesPriorityRules** DataTable in `TablePropertyDefinition.xlsx` is used. Each element of this table defines one rule of how to compare two tables using their properties to find more suitable table if several tables are matched by properties. Priority rules are used sequentially in comparison of two tables: if one priority rule gives result of the same priority of tables, the next priority rule is used.
 
-Priority rules are used differently in the Dispatcher table approach and Java code dispatching but have the same sense: select suitable table if there are several tables matched by dimension Properties.
-
-In case of the Dispatching table, priority rules are used to sort methods of an overloaded group. Each row of the Dispatcher table represents a rule, so after sorting, high priority rules are at the top of decision tables, and if several rows of the decision table are fired, only the first one, of the highest priority, is executed.
-
-In case of Java code, dispatching priority rules is used after selecting tables that correspond to the current runtime context: all matched tables are sorted in order to select one with the highest priority. If it is impossible to find the priority with the highest rule when several tables have the same priority and are of a higher priority than all other tables, `AmbiguousMethodException` is thrown.
+Priority rules select a suitable table if there are several tables matched by dimension Properties. They are used after the tables that correspond to the current runtime context are selected: all matched tables are sorted in order to select one with the highest priority. If it is impossible to find the priority with the highest rule when several tables have the same priority and are of a higher priority than all other tables, `AmbiguousMethodException` is thrown.
 
 There are two predefined priority rules and possibility to implement Java class that compares two tables using their properties:
 
@@ -616,7 +610,7 @@ The root module contains references to all its dependencies classloaders. When l
 
 *Load class from root module*
 
-For the dependency management feature, provide an appropriate `DependencyManager` object to the entry point for the OpenL Tablets compilation.
+For the dependency management feature, provide an appropriate `IDependencyManager` object to the entry point for the OpenL Tablets compilation.
 
 **Note:** Using the same class in two classloaders can cause an error because the class will be loaded by two different classloaders.
 
