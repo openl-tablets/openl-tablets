@@ -96,7 +96,7 @@ public class MathUtils {
         var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
-        return v[index];
+        return nanOrAt(v, index);
     }
 
     public static Byte small(byte[] values, int position) {
@@ -146,7 +146,7 @@ public class MathUtils {
         var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
-        return v[index];
+        return nanOrAt(v, index);
     }
 
     public static Double small(double[] values, int position) {
@@ -156,7 +156,7 @@ public class MathUtils {
         var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
-        return v[index];
+        return nanOrAt(v, index);
     }
 
     // BIG
@@ -168,7 +168,7 @@ public class MathUtils {
         var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
-        return v[v.length - 1 - index];
+        return nanOrAt(v, v.length - 1 - index);
     }
 
     public static Byte big(byte[] values, int position) {
@@ -218,7 +218,7 @@ public class MathUtils {
         var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
-        return v[v.length - 1 - index];
+        return nanOrAt(v, v.length - 1 - index);
     }
 
     public static Double big(double[] values, int position) {
@@ -228,7 +228,7 @@ public class MathUtils {
         var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
-        return v[v.length - 1 - index];
+        return nanOrAt(v, v.length - 1 - index);
     }
 
     // SMALL and BIG reject a position outside the array, an empty array included, by contract.
@@ -240,6 +240,26 @@ public class MathUtils {
                     "There is no position '%d' in the given array.".formatted(position));
         }
         return index;
+    }
+
+    /**
+     * Returns the element at the index of the sorted values, or NaN when the values hold it. A sort puts NaN last.
+     */
+    private static <T> T nanOrAt(T[] sorted, int index) {
+        var last = sorted[sorted.length - 1];
+        return isNaN(last) ? last : sorted[index];
+    }
+
+    private static Float nanOrAt(float[] sorted, int index) {
+        return Float.isNaN(sorted[sorted.length - 1]) ? Float.NaN : sorted[index];
+    }
+
+    private static Double nanOrAt(double[] sorted, int index) {
+        return Double.isNaN(sorted[sorted.length - 1]) ? Double.NaN : sorted[index];
+    }
+
+    private static boolean isNaN(Object value) {
+        return (value instanceof Double d && d.isNaN()) || (value instanceof Float f && f.isNaN());
     }
 
     // SUM
@@ -393,6 +413,9 @@ public class MathUtils {
         }
         double[] copy = Arrays.copyOf(values, length);
         Arrays.sort(copy);
+        if (Double.isNaN(copy[length - 1])) {
+            return Double.NaN;
+        }
         length--;
         var index = length >> 1;
         if (length % 2 == 0) {

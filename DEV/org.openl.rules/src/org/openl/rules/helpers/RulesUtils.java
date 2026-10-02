@@ -110,7 +110,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in ascending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -124,7 +124,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in ascending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -222,7 +222,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in ascending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -236,7 +236,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in ascending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -308,7 +308,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in descending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -322,7 +322,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in descending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -420,7 +420,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in descending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -434,7 +434,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes null values from array, sorts an array in descending order and returns the value at position
-     * <i>'position'</i>
+     * <i>'position'</i>. A NaN value makes the result NaN.
      * </p>
      *
      * @param values   an array, must not be null or empty
@@ -448,140 +448,112 @@ public final class RulesUtils {
     // MEDIAN
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(Byte[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(Short[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(Integer[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(Long[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped. A NaN value makes the result NaN.
      */
     public static Float median(Float[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped. A NaN value makes the result NaN.
      */
     public static Double median(Double[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static BigDecimal median(BigInteger[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static BigDecimal median(BigDecimal[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(byte[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(short[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(int[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped.
      */
     public static Double median(long[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped. A NaN value makes the result NaN.
      */
     public static Float median(float[] values) {
         return MathUtils.median(values);
     }
 
     /**
-     * "Method median is not implemented yet"
-     *
-     * @param values
-     * @return
+     * Returns the median of the values: the middle one, or the average of the two middle ones. Empty values are
+     * skipped. A NaN value makes the result NaN.
      */
     public static Double median(double[] values) {
         return MathUtils.median(values);
