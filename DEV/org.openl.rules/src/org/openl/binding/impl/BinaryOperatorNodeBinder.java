@@ -5,12 +5,17 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.domain.IDomain;
 import org.openl.rules.operator.Comparison;
@@ -22,6 +27,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
 
 /**
@@ -34,12 +40,43 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         INVERSE_METHOD = Map.of("le", "ge", "lt", "gt", "ge", "le", "gt", "lt", "eq", "eq", "add", "add");
     }
 
+    private static final Set<String> STRICT_OPERATORS = Set
+            .of("strict_eq", "strict_ne", "strict_lt", "strict_gt", "strict_le", "strict_ge");
+
+    private static final Set<Class<?>> NUMBERS = Set.of(byte.class,
+            short.class,
+            int.class,
+            long.class,
+            float.class,
+            double.class,
+            Byte.class,
+            Short.class,
+            Integer.class,
+            Long.class,
+            Float.class,
+            Double.class,
+            BigInteger.class,
+            BigDecimal.class);
+
+    private static final Set<Class<?>> FLOATING_POINT_NUMBERS = Set
+            .of(float.class, double.class, Float.class, Double.class, BigDecimal.class);
+
+    private static final Set<Class<?>> WIDER_THAN_FLOAT = Set
+            .of(double.class, Double.class, BigDecimal.class, BigInteger.class);
+
+    private static final Set<Class<?>> DOUBLES = Set.of(double.class, Double.class);
+
     public static IBoundNode bindOperator(ISyntaxNode node,
                                           String operatorName,
-                                          IBoundNode b1,
-                                          IBoundNode b2,
+                                          IBoundNode operand1,
+                                          IBoundNode operand2,
                                           IBindingContext bindingContext) {
 
+        var operands = STRICT_OPERATORS.contains(operatorName)
+                ? strictOperands(operand1, operand2, bindingContext)
+                : new Operands(operand1, operand2);
+        var b1 = operands.left();
+        var b2 = operands.right();
         IOpenClass[] types = {b1.getType(), b2.getType()};
         IMethodCaller methodCaller = findOperatorMethodCaller(operatorName, types, bindingContext);
         if (methodCaller == null) {
@@ -63,6 +100,77 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         }
 
         return new BinaryOpNode(node, b1, b2, methodCaller);
+    }
+
+    private record Operands(IBoundNode left, IBoundNode right) {
+    }
+
+    /**
+     * Prepares the operands of a strict comparison. Numbers of different types, one of them a floating point number,
+     * are converted to one type, so that they are compared by value.
+     *
+     * <p>A float compared with a double, a BigDecimal or a BigInteger keeps its binary value, as Java widens it. So
+     * 4.3f is compared as 4.300000190734863, not as the double 4.3 that other operators make of it. The other numbers
+     * are converted as in the not strict operators: 4 becomes 4.0 next to a double, and a BigInteger becomes a
+     * BigDecimal. A double stays a double next to a BigDecimal, because the operators of the two compare NaN and the
+     * infinities, which no BigDecimal holds.
+     *
+     * <p>Any other operands are returned as they are.
+     */
+    private static Operands strictOperands(IBoundNode operand1, IBoundNode operand2, IBindingContext bindingContext) {
+        var left = widenFloat(operand1, operand2.getType());
+        var right = widenFloat(operand2, operand1.getType());
+        var leftType = left.getType();
+        var rightType = right.getType();
+        if (isIn(NUMBERS, leftType) && isIn(NUMBERS, rightType)
+                && (isIn(FLOATING_POINT_NUMBERS, leftType) || isIn(FLOATING_POINT_NUMBERS, rightType))) {
+            var wider = CastToWiderType.create(bindingContext, leftType, rightType);
+            var widerType = wider.getWiderType();
+            var decimal = widerType != null && widerType.getInstanceClass() == BigDecimal.class;
+            left = decimal && isIn(DOUBLES, leftType) ? left : wider.castFirst(left);
+            right = decimal && isIn(DOUBLES, rightType) ? right : wider.castSecond(right);
+        }
+        return new Operands(left, right);
+    }
+
+    /**
+     * Returns a float operand as a double with the same binary value when the other operand is a double, a BigDecimal
+     * or a BigInteger. Any other operand is returned as it is.
+     */
+    private static IBoundNode widenFloat(IBoundNode operand, @Nullable IOpenClass otherType) {
+        var type = operand.getType() == null ? null : operand.getType().getInstanceClass();
+        if ((type == float.class || type == Float.class) && isIn(WIDER_THAN_FLOAT, otherType)) {
+            var doubleType = type == float.class ? JavaOpenClass.DOUBLE : JavaOpenClass.getOpenClass(Double.class);
+            return new CastNode(null, operand, BinaryFloatCast.INSTANCE, doubleType);
+        }
+        return operand;
+    }
+
+    private static boolean isIn(Set<Class<?>> classes, @Nullable IOpenClass type) {
+        var instanceClass = type == null ? null : type.getInstanceClass();
+        return instanceClass != null && classes.contains(instanceClass);
+    }
+
+    /**
+     * Converts a float to the double with the same binary value. An absent value stays absent.
+     */
+    private enum BinaryFloatCast implements IOpenCast {
+        INSTANCE;
+
+        @Override
+        public @Nullable Object convert(@Nullable Object from) {
+            return from == null ? null : ((Number) from).doubleValue();
+        }
+
+        @Override
+        public int getDistance() {
+            return CastFactory.PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+        }
+
+        @Override
+        public boolean isImplicit() {
+            return true;
+        }
     }
 
     private static void validateComparisonLiteralWithDomainType(IBoundNode b1,

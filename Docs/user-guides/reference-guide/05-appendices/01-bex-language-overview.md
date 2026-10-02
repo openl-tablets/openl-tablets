@@ -107,6 +107,13 @@ The full list of OpenL Tablets operators in order of priority is as follows:
 | ! or not                                      | Logical NOT operator reverses the logical state of its operand. <br/>If a condition is true, then Logical NOT operator will make it false.                                                                                                                                                                                                                                                                                                                                                |
 | (Datatype) x                                  | Cast operator converts the operand value `x` to the specified `Datatype` type.                                                                                                                                                                                                                                                                                                                                                                                                       |
 
+The strict operators `====`, `!===`, `<==`, `>==`, `<===` and `>===` compare numbers exactly, while the other comparison operators ignore the tiny error of binary rounding: `0.1 + 0.2 == 0.3` is true, but `0.1 + 0.2 ==== 0.3` is false. Numbers of different types are converted to one type first:
+
+- A `Float` compared with a `Double`, a `BigDecimal` or a `BigInteger` keeps its binary value, as in Java. The `Float` `4.3f` is `4.300000190734863`, so `4.3f ==== 4.3` is false, while `4.3f == 4.3` is true. `0.5f ==== 0.5` is true, because `0.5` has an exact binary value.
+- A whole number compared with a `Float` or a `Double` becomes a `Float` or a `Double`, so `4f ==== 4` is true.
+- A `Double` compared with a `BigDecimal` is taken by its digits, so `new BigDecimal("4.3") ==== 4.3` is true. An infinity lies beyond any `BigDecimal`.
+- NaN is not equal to any number, itself included, and `-0.0` equals `0.0`.
+
 When comparing elements of different types, such as an array and an element of the array, or different datatypes, or string and integer, a warning message is displayed. An example is as follows:
 
 `Warning: Compared elements have different types ('java.lang.String[]', 'java.lang.String'). Comparing these types always returns true. banks.bankRatings[select all having rating == "A"]`

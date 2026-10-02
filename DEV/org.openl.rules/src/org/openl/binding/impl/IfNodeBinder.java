@@ -2,7 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.cast.CastFactory;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -56,16 +55,10 @@ public class IfNodeBinder extends ANodeBinder {
                                          IBoundNode elseNode,
                                          IOpenClass elseType) {
         CastToWiderType castToWiderType = CastToWiderType.create(bindingContext, type, elseType);
-
-        type = castToWiderType.getWiderType();
-        var cast1 = castToWiderType.getCast1();
-        if (cast1 != null && cast1.getDistance() != CastFactory.NO_CAST_DISTANCE) {
-            thenNode = new CastNode(null, thenNode, cast1, type);
-        }
-        var cast2 = castToWiderType.getCast2();
-        if (cast2 != null && cast2.getDistance() != CastFactory.NO_CAST_DISTANCE) {
-            elseNode = new CastNode(null, elseNode, cast2, type);
-        }
-        return new IfNode(node, conditionNode, thenNode, elseNode, type);
+        return new IfNode(node,
+                conditionNode,
+                castToWiderType.castFirst(thenNode),
+                castToWiderType.castSecond(elseNode),
+                castToWiderType.getWiderType());
     }
 }

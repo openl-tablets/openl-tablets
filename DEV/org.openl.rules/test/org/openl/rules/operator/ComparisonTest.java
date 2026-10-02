@@ -632,6 +632,101 @@ class ComparisonTest {
     }
 
     @Test
+    void testFloatStrictEq() {
+        final Float nan = Float.NaN;
+        final Float nil = null;
+        final Float pos = 1.1f;
+
+        assertTrue(Comparison.strict_eq(pos, Float.valueOf(1.1f)));
+        assertFalse(Comparison.strict_eq(pos, Float.valueOf(Math.nextUp(1.1f))));
+        assertFalse(Comparison.strict_eq(nan, nan));
+        assertFalse(Comparison.strict_eq(Float.NaN, Float.NaN));
+        assertTrue(Comparison.strict_ne(nan, nan));
+        assertTrue(Comparison.strict_eq(Float.valueOf(-0.0f), Float.valueOf(0.0f)));
+        assertTrue(Comparison.strict_eq(-0.0f, 0.0f));
+        assertTrue(Comparison.strict_eq(nil, nil));
+        assertFalse(Comparison.strict_eq(pos, nil));
+        assertFalse(Comparison.strict_eq(nil, pos));
+    }
+
+    @Test
+    void testDoubleStrictEq() {
+        final Double nan = Double.NaN;
+        final Double nil = null;
+        final Double sum = 0.1 + 0.2;
+
+        assertFalse(Comparison.strict_eq(sum, Double.valueOf(0.3)));
+        assertTrue(Comparison.strict_eq(sum, Double.valueOf(0.30000000000000004)));
+        assertFalse(Comparison.strict_eq(nan, nan));
+        assertFalse(Comparison.strict_eq(Double.NaN, Double.NaN));
+        assertTrue(Comparison.strict_ne(nan, nan));
+        assertTrue(Comparison.strict_eq(Double.valueOf(-0.0), Double.valueOf(0.0)));
+        assertTrue(Comparison.strict_eq(-0.0, 0.0));
+        assertFalse(Comparison.strict_ne(Double.valueOf(-0.0), Double.valueOf(0.0)));
+        assertTrue(Comparison.strict_eq(nil, nil));
+        assertFalse(Comparison.strict_eq(sum, nil));
+        assertFalse(Comparison.strict_eq(nil, sum));
+    }
+
+    @Test
+    void testBigDecimalStrictOrder() {
+        final BigDecimal one = BigDecimal.ONE;
+        final BigDecimal oneWithScale = new BigDecimal("1.00");
+        final BigDecimal two = BigDecimal.TWO;
+        final BigDecimal nil = null;
+
+        assertTrue(Comparison.strict_lt(one, two));
+        assertFalse(Comparison.strict_lt(two, one));
+        assertFalse(Comparison.strict_lt(one, oneWithScale));
+        assertTrue(Comparison.strict_gt(two, one));
+        assertFalse(Comparison.strict_gt(one, two));
+        assertFalse(Comparison.strict_gt(oneWithScale, one));
+        assertTrue(Comparison.strict_le(one, oneWithScale));
+        assertFalse(Comparison.strict_le(two, one));
+        assertTrue(Comparison.strict_ge(oneWithScale, one));
+        assertFalse(Comparison.strict_ge(one, two));
+        assertNull(Comparison.strict_lt(nil, one));
+        assertNull(Comparison.strict_gt(one, nil));
+        assertNull(Comparison.strict_le(nil, nil));
+        assertNull(Comparison.strict_ge(nil, nil));
+    }
+
+    @Test
+    void testDoubleAndBigDecimalStrict() {
+        final BigDecimal decimal = new BigDecimal("4.3");
+        final Double nil = null;
+        final BigDecimal nilDecimal = null;
+        final Double nan = Double.NaN;
+        final Double infPos = Double.POSITIVE_INFINITY;
+        final Double infNeg = Double.NEGATIVE_INFINITY;
+
+        assertTrue(Comparison.strict_eq(Double.valueOf(4.3), decimal));
+        assertTrue(Comparison.strict_eq(decimal, Double.valueOf(4.3)));
+        assertFalse(Comparison.strict_ne(Double.valueOf(4.3), decimal));
+        assertFalse(Comparison.strict_eq(Double.valueOf(4.300000190734863), decimal));
+        assertFalse(Comparison.strict_eq(nan, decimal));
+        assertTrue(Comparison.strict_ne(decimal, nan));
+        assertFalse(Comparison.strict_eq(infPos, decimal));
+        assertTrue(Comparison.strict_eq(nil, nilDecimal));
+        assertFalse(Comparison.strict_eq(nil, decimal));
+        assertFalse(Comparison.strict_eq(decimal, nil));
+
+        assertTrue(Comparison.strict_gt(infPos, decimal));
+        assertTrue(Comparison.strict_ge(infPos, decimal));
+        assertTrue(Comparison.strict_lt(infNeg, decimal));
+        assertTrue(Comparison.strict_gt(decimal, infNeg));
+        assertTrue(Comparison.strict_ge(decimal, Double.valueOf(4.3)));
+        assertTrue(Comparison.strict_le(Double.valueOf(4.3), decimal));
+        assertFalse(Comparison.strict_lt(Double.valueOf(4.3), decimal));
+        assertFalse(Comparison.strict_gt(nan, decimal));
+        assertFalse(Comparison.strict_ge(decimal, nan));
+        assertFalse(Comparison.strict_le(nan, decimal));
+        assertFalse(Comparison.strict_lt(decimal, nan));
+        assertNull(Comparison.strict_gt(nil, decimal));
+        assertNull(Comparison.strict_le(decimal, nil));
+    }
+
+    @Test
     void testStringEq() {
         assertTrue(Comparison.string_eq("aaa111aaa", "aaa111aaa"));
         assertTrue(Comparison.string_eq("11", "11"));

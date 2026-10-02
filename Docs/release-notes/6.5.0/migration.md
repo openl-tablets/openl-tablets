@@ -72,6 +72,17 @@ everyone who calls that API from outside the browser.
   same. A character counts as a number here, as in `'c' + 1`, so `null + 'c'` and `'c' + null` are `99` instead of the
   texts `nullc` and `cnull`. Multiplying, dividing and comparing with `null` give the same results as before.
 
+* **The strict operators take a `Float` by its binary value and compare numbers of different types by value.**
+  `====`, `!===`, `<==`, `>==`, `<===` and `>===` compare a `Float` or `float` with a `Double`, a `BigDecimal` or a
+  `BigInteger` as Java does: `4.3f` is `4.300000190734863`, so `4.3f ==== 4.3` and `float f = 4.3f; f ==== 4.3` are
+  `false` and `4.3f >== 4.3` is `true`. Before, a `float` was compared as the `Double` with the same digits, while
+  `Float f = 4.3f; f ==== 4.3` was already `false`. A `Float`, a `Double` or a `BigDecimal` compared with a number of
+  another type is converted to one type first, as for `==`: `Float f = 0.5f; f ==== 0.5`, `Double d = 4.0; d ==== 4`
+  and `BigDecimal b = 4.3; b ==== 4.3` are `true`, where they were `false` whatever the values. NaN is not strictly
+  equal to NaN and `-0.0` is strictly equal to `0.0` for `Float` and `Double` values too, as for `float` and `double`.
+  `<==`, `>==`, `<===` and `>===` now compile for `BigDecimal`. To compare a `float` by its digits as before, cast it:
+  `(double) f ==== 4.3` is `true`.
+
 * **A percent value equals the fraction it stands for.** `0.07%` is `0.0007` and `99.99%` is `0.9999`, as the
   fractions written out are, both as a percent literal in a formula and as a text in a `Double` cell or in a
   Spreadsheet cell without a type. Before, they were `0.0007000000000000001` and `0.9998999999999999`, so a result

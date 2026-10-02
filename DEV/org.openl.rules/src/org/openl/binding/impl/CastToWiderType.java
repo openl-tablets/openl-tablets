@@ -4,7 +4,9 @@ import java.util.Collection;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.binding.IBoundNode;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -41,6 +43,25 @@ public final class CastToWiderType {
      */
     public IOpenCast getCast2() {
         return cast2;
+    }
+
+    /**
+     * Returns the node of the first type converted to {@link #widerType}, or the node itself when it needs no cast.
+     */
+    public IBoundNode castFirst(IBoundNode node) {
+        return castToWiderType(node, cast1);
+    }
+
+    /**
+     * Returns the node of the second type converted to {@link #widerType}, or the node itself when it needs no cast.
+     */
+    public IBoundNode castSecond(IBoundNode node) {
+        return castToWiderType(node, cast2);
+    }
+
+    private IBoundNode castToWiderType(IBoundNode node, @Nullable IOpenCast cast) {
+        return cast == null || cast.getDistance() == CastFactory.NO_CAST_DISTANCE ? node
+                : new CastNode(null, node, cast, widerType);
     }
 
     /**

@@ -26,8 +26,15 @@ import org.openl.rules.annotations.Operator;
  * <li>&gt;=== - strict great or equals then</li>
  * <li>&lt;=== - strict less or equals than</li>
  * </ul>
- * The difference between the strict and the not strict is that not strict comparison is usual (more human) comparison,
- * where 10.0 and 10 are equals. In the strict comparison such numbers can be not equals.
+ * The not strict operators ignore the rounding error of binary fractions, so {@code 0.1 + 0.2 == 0.3} is true. The
+ * strict operators compare the exact values, so {@code 0.1 + 0.2 ==== 0.3} is false.
+ *
+ * <p>The strict operators compare floating point numbers as Java does. A float compared with a double, a BigDecimal or
+ * a BigInteger keeps its binary value, so {@code 4.3f ==== 4.3} is false: 4.3f is 4.300000190734863. NaN is not equal
+ * to any number, itself included, and -0.0 equals 0.0.
+ *
+ * <p>A double compared with a BigDecimal is taken by its decimal digits, as in the not strict operators, so
+ * {@code new BigDecimal("4.3") ==== 4.3} is true. An infinity lies beyond any BigDecimal.
  *
  * @author Yury Molchan
  */
@@ -482,15 +489,27 @@ public class Comparison {
     }
 
     public static boolean strict_eq(Float x, Float y) {
-        return equals(x, y);
+        return x == null ? y == null : y != null && strict_eq(x.floatValue(), y.floatValue());
     }
 
     public static boolean strict_eq(Double x, Double y) {
-        return equals(x, y);
+        return x == null ? y == null : y != null && strict_eq(x.doubleValue(), y.doubleValue());
     }
 
     public static boolean strict_eq(BigDecimal x, BigDecimal y) {
         return equals(x, y);
+    }
+
+    public static boolean strict_eq(@Nullable Double x, @Nullable BigDecimal y) {
+        if (x == null || y == null) {
+            return x == null && y == null;
+        }
+        var order = compare(x, y);
+        return order != null && order == 0;
+    }
+
+    public static boolean strict_eq(@Nullable BigDecimal x, @Nullable Double y) {
+        return strict_eq(y, x);
     }
 
     public static boolean strict_eq(Object x, Object y) {
@@ -514,6 +533,14 @@ public class Comparison {
     }
 
     public static boolean strict_ne(BigDecimal x, BigDecimal y) {
+        return !strict_eq(x, y);
+    }
+
+    public static boolean strict_ne(@Nullable Double x, @Nullable BigDecimal y) {
+        return !strict_eq(x, y);
+    }
+
+    public static boolean strict_ne(@Nullable BigDecimal x, @Nullable Double y) {
         return !strict_eq(x, y);
     }
 
@@ -545,6 +572,32 @@ public class Comparison {
         return res;
     }
 
+    public static @Nullable Boolean strict_gt(@Nullable BigDecimal x, @Nullable BigDecimal y) {
+        Boolean res = null;
+        if (x != null && y != null) {
+            res = x.compareTo(y) > 0;
+        }
+        return res;
+    }
+
+    public static @Nullable Boolean strict_gt(@Nullable Double x, @Nullable BigDecimal y) {
+        Boolean res = null;
+        if (x != null && y != null) {
+            var order = compare(x, y);
+            res = order != null && order > 0;
+        }
+        return res;
+    }
+
+    public static @Nullable Boolean strict_gt(@Nullable BigDecimal x, @Nullable Double y) {
+        Boolean res = null;
+        if (x != null && y != null) {
+            var order = compare(y, x);
+            res = order != null && order < 0;
+        }
+        return res;
+    }
+
     public static boolean strict_lt(float x, float y) {
         return strict_gt(y, x);
     }
@@ -558,6 +611,18 @@ public class Comparison {
     }
 
     public static Boolean strict_lt(Double x, Double y) {
+        return strict_gt(y, x);
+    }
+
+    public static @Nullable Boolean strict_lt(@Nullable BigDecimal x, @Nullable BigDecimal y) {
+        return strict_gt(y, x);
+    }
+
+    public static @Nullable Boolean strict_lt(@Nullable Double x, @Nullable BigDecimal y) {
+        return strict_gt(y, x);
+    }
+
+    public static @Nullable Boolean strict_lt(@Nullable BigDecimal x, @Nullable Double y) {
         return strict_gt(y, x);
     }
 
@@ -585,6 +650,32 @@ public class Comparison {
         return res;
     }
 
+    public static @Nullable Boolean strict_ge(@Nullable BigDecimal x, @Nullable BigDecimal y) {
+        Boolean res = null;
+        if (x != null && y != null) {
+            res = x.compareTo(y) >= 0;
+        }
+        return res;
+    }
+
+    public static @Nullable Boolean strict_ge(@Nullable Double x, @Nullable BigDecimal y) {
+        Boolean res = null;
+        if (x != null && y != null) {
+            var order = compare(x, y);
+            res = order != null && order >= 0;
+        }
+        return res;
+    }
+
+    public static @Nullable Boolean strict_ge(@Nullable BigDecimal x, @Nullable Double y) {
+        Boolean res = null;
+        if (x != null && y != null) {
+            var order = compare(y, x);
+            res = order != null && order <= 0;
+        }
+        return res;
+    }
+
     public static boolean strict_le(float x, float y) {
         return strict_ge(y, x);
     }
@@ -601,7 +692,35 @@ public class Comparison {
         return strict_ge(y, x);
     }
 
+    public static @Nullable Boolean strict_le(@Nullable BigDecimal x, @Nullable BigDecimal y) {
+        return strict_ge(y, x);
+    }
+
+    public static @Nullable Boolean strict_le(@Nullable Double x, @Nullable BigDecimal y) {
+        return strict_ge(y, x);
+    }
+
+    public static @Nullable Boolean strict_le(@Nullable BigDecimal x, @Nullable Double y) {
+        return strict_ge(y, x);
+    }
+
     /* Commons */
+    /**
+     * Compares a double with a BigDecimal. A finite double is taken by its decimal digits, an infinity lies beyond
+     * any BigDecimal.
+     *
+     * @return the sign of the comparison, or {@code null} for NaN, which is not ordered against any number
+     */
+    private static @Nullable Integer compare(double x, BigDecimal y) {
+        if (Double.isNaN(x)) {
+            return null;
+        }
+        if (Double.isInfinite(x)) {
+            return x > 0 ? 1 : -1;
+        }
+        return BigDecimal.valueOf(x).compareTo(y);
+    }
+
     private static <T extends Comparable<T>> Boolean greatOrEquals(T x, T y) {
         Boolean res = null;
         if (x == y) {
