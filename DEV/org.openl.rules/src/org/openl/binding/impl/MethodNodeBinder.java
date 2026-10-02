@@ -85,7 +85,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 // if there are any parameters, try to bind it some additional ways
                 // someMethod( parameter1, ... )
                 //
-                var field = bindAsFieldAccess(node, methodName, argumentTypes, children, childrenCount, bindingContext);
+                var field = bindAsFieldAccess(node, methodName, argumentTypes, children, bindingContext);
                 if (field != null) {
                     bindingContext.addMessages(openLMessages);
                     return field;
@@ -126,9 +126,8 @@ public class MethodNodeBinder extends ANodeBinder {
                                              String methodName,
                                              IOpenClass[] argumentTypes,
                                              IBoundNode[] children,
-                                             int childrenCount,
                                              IBindingContext bindingContext) throws FieldNotFoundException {
-        if (childrenCount > 1) {
+        if (children.length > 0) {
             // Get the root component type and dimension of the array.
             var argumentType = argumentTypes[0];
             var dims = 0;
@@ -136,14 +135,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 dims++;
                 argumentType = argumentType.getComponentClass();
             }
-            return bindAsFieldBoundNode(node,
-                    methodName,
-                    argumentTypes,
-                    children,
-                    childrenCount,
-                    argumentType,
-                    dims,
-                    bindingContext);
+            return bindAsFieldBoundNode(node, methodName, argumentTypes, children, argumentType, dims, bindingContext);
         }
         return null;
     }
@@ -197,19 +189,16 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.validateDomainValue(methodArgumentNode, parameterType, bindingContext);
     }
 
-    protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
-                                                  String methodName,
-                                                  IOpenClass[] argumentTypes,
-                                                  IBoundNode[] children,
-                                                  int childrenCount,
-                                                  IOpenClass argumentType,
-                                                  int dims,
-                                                  IBindingContext bindingContext) throws FieldNotFoundException {
+    private FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
+                                                String methodName,
+                                                IOpenClass[] argumentTypes,
+                                                IBoundNode[] children,
+                                                IOpenClass argumentType,
+                                                int dims,
+                                                IBindingContext bindingContext) throws FieldNotFoundException {
         // Try to bind method call Name(driver) as driver.Name;
         //
-        if (childrenCount == 2) {
-            // only one child, as there are 2 nodes, one of them is the function itself.
-            //
+        if (children.length == 1) {
             var field = argumentType.getField(methodName, false);
             if (field != null) {
                 if (!Objects.equals(field.getName(), methodName)) {

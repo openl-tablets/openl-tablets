@@ -76,42 +76,28 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
             result = Array.newInstance(componentType, resultLength);
         }
 
-        if (resultLength > 0) {
-            callDelegateAndPopulateResult(target, env, params, callParameters, 0, result, resultLength, 0);
+        for (var callIndex = 0; callIndex < resultLength; callIndex++) {
+            putCallElements(params, callParameters, callIndex);
+            invokeMethodAndSetResultToArray(target, env, callParameters, result, resultLength, callIndex);
         }
 
         return result;
     }
 
-    private int callDelegateAndPopulateResult(Object target,
-                                              IRuntimeEnv env,
-                                              Object[] params,
-                                              Object[] callParameters,
-                                              int iteratedArg,
-                                              Object result,
-                                              int resultLength,
-                                              int callIndex) {
-        var iteratedParamNum = multiCallParameterIndexes[iteratedArg];
-        var iteratedParameter = params[iteratedParamNum];
-        var length = Array.getLength(iteratedParameter);
-        for (var i = 0; i < length; i++) {
-            callParameters[iteratedParamNum] = Array.get(iteratedParameter, i);
-            if (iteratedArg < multiCallParameterIndexes.length - 1) {
-                callIndex = callDelegateAndPopulateResult(target,
-                        env,
-                        params,
-                        callParameters,
-                        iteratedArg + 1,
-                        result,
-                        resultLength,
-                        callIndex);
-            } else {
-                invokeMethodAndSetResultToArray(target, env, callParameters, result, resultLength, callIndex);
-                callIndex++;
-            }
+    /**
+     * Puts the array elements of the call with the given index into the call parameters.
+     *
+     * <p>The calls run through every combination of the array elements. The last array argument changes the fastest.
+     */
+    private void putCallElements(Object[] params, Object[] callParameters, int callIndex) {
+        var rest = callIndex;
+        for (var i = multiCallParameterIndexes.length - 1; i >= 0; i--) {
+            var paramNum = multiCallParameterIndexes[i];
+            var array = params[paramNum];
+            var length = Array.getLength(array);
+            callParameters[paramNum] = Array.get(array, rest % length);
+            rest /= length;
         }
-
-        return callIndex;
     }
 
     // The multithreaded subclass overrides it and reads the result length to decide whether to call in parallel.

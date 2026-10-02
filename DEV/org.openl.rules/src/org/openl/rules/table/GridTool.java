@@ -131,9 +131,10 @@ public class GridTool {
         var top = region.getTop();
         // shift cells by column, copy cells of inserted column and resize merged regions after
         actions.addAll(shiftColumns(colTo, nCols, INSERT, region, grid, metaInfoWriter));
-        actions.addAll(copyCells(firstToMove, top, colTo, top, nCols, h, grid, metaInfoWriter));
+        var block = new CellBlock(firstToMove, top, colTo, top, nCols, h);
+        actions.addAll(copyCells(block, grid, metaInfoWriter));
         actions.addAll(resizeMergedRegions(grid, beforeColumns, nCols, INSERT, COLUMNS, region, metaInfoWriter));
-        actions.addAll(emptyCells(firstToMove, top, colTo, top, nCols, h, grid, true, COLUMNS, metaInfoWriter));
+        actions.addAll(emptyCells(block, grid, true, COLUMNS, metaInfoWriter));
 
         return new UndoableCompositeAction(actions);
     }
@@ -163,28 +164,30 @@ public class GridTool {
         var left = region.getLeft();
         // Shift cells by row, copy cells of inserted row and resize merged regions after
         actions.addAll(shiftRows(rowTo, nRows, INSERT, region, grid, metaInfoWriter));
-        actions.addAll(copyCells(left, firstToMove, left, rowTo, w, nRows, grid, metaInfoWriter));
+        var block = new CellBlock(left, firstToMove, left, rowTo, w, nRows);
+        actions.addAll(copyCells(block, grid, metaInfoWriter));
         actions.addAll(resizeMergedRegions(grid, row, nRows, INSERT, ROWS, region, metaInfoWriter));
-        actions.addAll(emptyCells(left, firstToMove, left, rowTo, w, nRows, grid, before, ROWS, metaInfoWriter));
+        actions.addAll(emptyCells(block, grid, before, ROWS, metaInfoWriter));
 
         return new UndoableCompositeAction(actions);
     }
 
-    private static List<IUndoableGridTableAction> copyCells(int colFrom,
-                                                            int rowFrom,
-                                                            int colTo,
-                                                            int rowTo,
-                                                            int nCols,
-                                                            int nRows,
+    /**
+     * A block of cells that moves from one top-left cell to another.
+     */
+    private record CellBlock(int colFrom, int rowFrom, int colTo, int rowTo, int nCols, int nRows) {
+    }
+
+    private static List<IUndoableGridTableAction> copyCells(CellBlock block,
                                                             IGrid grid,
                                                             MetaInfoWriter metaInfoWriter) {
         var actions = new ArrayList<IUndoableGridTableAction>();
-        for (var i = nCols - 1; i >= 0; i--) {
-            for (var j = nRows - 1; j >= 0; j--) {
-                var cFrom = colFrom + i;
-                var rFrom = rowFrom + j;
-                var cTo = colTo + i;
-                var rTo = rowTo + j;
+        for (var i = block.nCols() - 1; i >= 0; i--) {
+            for (var j = block.nRows() - 1; j >= 0; j--) {
+                var cFrom = block.colFrom() + i;
+                var rFrom = block.rowFrom() + j;
+                var cTo = block.colTo() + i;
+                var rTo = block.rowTo() + j;
                 if (!grid.isInOneMergedRegion(cFrom, rFrom, cTo, rTo)) {
                     actions.add(new UndoableCopyValueAction(cFrom, rFrom, cTo, rTo, metaInfoWriter));
                 }
@@ -193,28 +196,23 @@ public class GridTool {
         return actions;
     }
 
-    private static List<IUndoableGridTableAction> emptyCells(int colFrom,
-                                                             int rowFrom,
-                                                             int colTo,
-                                                             int rowTo,
-                                                             int nCols,
-                                                             int nRows,
+    private static List<IUndoableGridTableAction> emptyCells(CellBlock block,
                                                              IGrid grid,
                                                              boolean before,
                                                              boolean isColumns,
                                                              MetaInfoWriter metaInfoWriter) {
         var actions = new ArrayList<IUndoableGridTableAction>();
-        for (var i = nCols - 1; i >= 0; i--) {
-            for (var j = nRows - 1; j >= 0; j--) {
-                var cFrom = colFrom + i;
-                var rFrom = rowFrom + j;
+        for (var i = block.nCols() - 1; i >= 0; i--) {
+            for (var j = block.nRows() - 1; j >= 0; j--) {
+                var cFrom = block.colFrom() + i;
+                var rFrom = block.rowFrom() + j;
                 if (isColumns) {
-                    if (isClearable(grid, cFrom, rFrom, nCols, nRows)) {
+                    if (isClearable(grid, cFrom, rFrom, block.nCols(), block.nRows())) {
                         actions.add(new UndoableSetValueAction(cFrom, rFrom, null, metaInfoWriter));
                     }
                 } else {
-                    var cTo = colTo + i;
-                    var rTo = rowTo + j;
+                    var cTo = block.colTo() + i;
+                    var rTo = block.rowTo() + j;
                     if (!grid.isInOneMergedRegion(cFrom, rFrom, cTo, rTo)) {
                         actions.add(emptyCellAction(before, cFrom, rFrom, cTo, rTo, metaInfoWriter));
                     }

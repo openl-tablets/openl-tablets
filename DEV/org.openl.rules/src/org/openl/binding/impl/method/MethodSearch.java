@@ -12,7 +12,9 @@ import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -489,51 +491,30 @@ public final class MethodSearch {
         return count;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class Match {
         @Getter
         private final IOpenMethod method;
+        private final IOpenClass[] originalCallParams;
         @Getter
         private final IOpenClass[] callParams;
-        private final IOpenClass[] originalCallParams;
         @Getter
         private final IOpenCast[] paramCasts;
         @Getter
         private final boolean[] multiCallParams;
-        @Getter
-        private final IOpenClass varargElementType;
         @Getter
         private final IOpenCast returnCast;
         @Getter
         private final IOpenClass returnType;
         @Getter
         private final int[] sortedDistances;
-        private int[] sortedDims;
         @Getter
         private final boolean vararg;
+        @Getter
+        private final IOpenClass varargElementType;
 
+        private int[] sortedDims;
         private IOpenClass[] mostSpecificParamsToCompare;
-
-        private Match(IOpenMethod method,
-                      IOpenClass[] originalCallParams,
-                      IOpenClass[] callParams,
-                      IOpenCast[] paramCasts,
-                      boolean[] multiCallParams,
-                      IOpenCast returnCast,
-                      IOpenClass returnType,
-                      int[] distances,
-                      boolean vararg,
-                      IOpenClass varargElementType) {
-            this.method = method;
-            this.originalCallParams = originalCallParams;
-            this.paramCasts = paramCasts;
-            this.callParams = callParams;
-            this.multiCallParams = multiCallParams;
-            this.returnCast = returnCast;
-            this.returnType = returnType;
-            this.sortedDistances = distances;
-            this.vararg = vararg;
-            this.varargElementType = varargElementType;
-        }
 
         public IOpenClass[] getVariableArityParameters() {
             if (mostSpecificParamsToCompare == null) {
