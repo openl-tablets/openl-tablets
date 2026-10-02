@@ -13,7 +13,8 @@ public class ResultSerializer implements Serializer<Object> {
     private final ObjectMapper objectMapper;
     private Charset encoding = StandardCharsets.UTF_8;
 
-    // Do not remove first argument. It is used by reflection.
+    // KafkaRuleServicePublisher creates serializers reflectively through the (OpenLService, ObjectMapper) constructor.
+    @SuppressWarnings("java:S1172")
     public ResultSerializer(OpenLService service, ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }

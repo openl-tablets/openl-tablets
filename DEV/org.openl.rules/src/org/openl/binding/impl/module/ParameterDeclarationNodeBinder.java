@@ -22,6 +22,8 @@ public class ParameterDeclarationNodeBinder extends ANodeBinder {
         // A hook for subclasses: a plain parameter has no metadata to validate.
     }
 
+    // A hook: the context parameter binder overrides it and reports context property errors to the binding context.
+    @SuppressWarnings("java:S1172")
     protected IBoundNode makeParameterNode(ISyntaxNode node,
                                            String name,
                                            IOpenClass type,

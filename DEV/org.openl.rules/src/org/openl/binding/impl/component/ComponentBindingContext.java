@@ -126,6 +126,8 @@ public class ComponentBindingContext extends BindingContextDelegator {
         return openClass;
     }
 
+    // A hook: the module and spreadsheet contexts override it and check the class against their module.
+    @SuppressWarnings("java:S1172")
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return false;
     }

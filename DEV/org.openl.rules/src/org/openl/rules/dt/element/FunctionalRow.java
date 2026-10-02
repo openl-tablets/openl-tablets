@@ -606,6 +606,8 @@ public abstract class FunctionalRow implements IDecisionRow {
      *
      * @throws SyntaxNodeException if a row finds its expression invalid
      */
+    // A hook: conditions and actions override it and compile their parameters against the method header.
+    @SuppressWarnings("java:S1172")
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
                                                         IMethodSignature signature,
                                                         IOpenClass methodType,

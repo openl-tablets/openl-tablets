@@ -168,6 +168,8 @@ public class NicePrinterAdaptor {
         printer.getBuffer().append("null");
     }
 
+    // Subclasses print the object with its id; the default prints the object alone.
+    @SuppressWarnings("java:S1172")
     public void printObject(Object obj, int newID, NicePrinter printer) {
         printer.getBuffer().append(obj);
     }

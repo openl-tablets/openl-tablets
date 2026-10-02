@@ -42,6 +42,8 @@ public class RulesInFolderTestRunner {
         this.allTestsMustFails = allTestsMustFails;
     }
 
+    // A hook: the OpenAPI validating runner overrides it and validates the project with its instantiation strategy.
+    @SuppressWarnings("java:S1172")
     protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,
                                          ProjectDescriptor projectDescriptor,
                                          RulesInstantiationStrategy rulesInstantiationStrategy) {

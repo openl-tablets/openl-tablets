@@ -24,6 +24,8 @@ public class Tracer {
         return false;
     }
 
+    // The no-op tracer ignores what a tracing subclass observes.
+    @SuppressWarnings("java:S1172")
     public <T, E extends IRuntimeEnv, R> R invoke(Invokable<? super T, E> executor,
                                                   T target,
                                                   Object[] params,
@@ -32,6 +34,8 @@ public class Tracer {
         return executor.invoke(target, params, env);
     }
 
+    // The no-op tracer ignores what a tracing subclass observes.
+    @SuppressWarnings("java:S1172")
     public <T, E extends IRuntimeEnv> boolean resolveTraceNode(Invokable<? super T, E> executor,
                                                                T target,
                                                                Object[] params,
@@ -40,6 +44,8 @@ public class Tracer {
         return false;
     }
 
+    // The no-op tracer ignores what a tracing subclass observes.
+    @SuppressWarnings("java:S1172")
     public <T> T wrap(Object source, T target, Object arg1) {
         return target;
     }

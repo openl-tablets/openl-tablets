@@ -11,6 +11,8 @@ public class AssignVariableOperation extends RuntimeOperation {
 
     private final String elementName;
 
+    // OperationFactory passes the operation parameters to the constructor by position, so the label stays first.
+    @SuppressWarnings("java:S1172")
     public AssignVariableOperation(String label, String elementName) {
         this.elementName = elementName;
     }

@@ -16,7 +16,8 @@ import org.openl.rules.range.RangeParser;
  * using of ".." and "..." requires spaces between numbers and separator).
  */
 // Range.equals already compares the bounds this range keeps, reading them through getType, getLeft and getRight.
-@SuppressWarnings("java:S2160")
+// A parameter that is not read selects the overload by its type: the engine resolves casts and distances by signature.
+@SuppressWarnings({"java:S1172", "java:S2160"})
 @XmlRootElement
 public class IntRange extends Range<Long> implements INumberRange {
     private static final int TO_INT_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
