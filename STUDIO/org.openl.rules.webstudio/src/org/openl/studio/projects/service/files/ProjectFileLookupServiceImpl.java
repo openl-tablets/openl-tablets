@@ -3,11 +3,9 @@ package org.openl.studio.projects.service.files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -29,6 +27,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.projects.model.files.FileNode;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.FileUtils;
@@ -276,8 +275,7 @@ public class ProjectFileLookupServiceImpl implements ProjectFileLookupService {
     }
 
     private static ZonedDateTime modifiedOf(FileData data) {
-        Date date = data == null ? null : data.getModifiedAt();
-        return date == null ? null : date.toInstant().atZone(ZoneOffset.UTC);
+        return data == null ? null : DateTimes.atUtc(data.getModifiedAt());
     }
 
     private static String readContent(AProjectResource resource) throws IOException {

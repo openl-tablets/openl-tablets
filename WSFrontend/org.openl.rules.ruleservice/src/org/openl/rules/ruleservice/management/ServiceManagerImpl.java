@@ -1,10 +1,10 @@
 package org.openl.rules.ruleservice.management;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private RuleServiceLoader ruleServiceLoader;
     private final Map<String, ServiceDescription> services = new ConcurrentHashMap<>();
     private final Map<String, OpenLService> services2 = new ConcurrentHashMap<>();
-    private final Map<String, Date> startDates = new ConcurrentHashMap<>();
+    private final Map<String, Instant> startDates = new ConcurrentHashMap<>();
 
     @Setter(onMethod_ = @Autowired)
     private Collection<RuleServicePublisher> supportedPublishers;
@@ -242,7 +242,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             this.serviceDescriptionInProcess = null;
             // Register a service even it was deployed unsuccessfully.
             services.put(servicePath, serviceDescription);
-            startDates.put(servicePath, new Date());
+            startDates.put(servicePath, Instant.now());
         }
     }
 

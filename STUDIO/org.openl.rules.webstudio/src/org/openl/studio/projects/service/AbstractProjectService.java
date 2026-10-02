@@ -1,7 +1,7 @@
 package org.openl.studio.projects.service;
 
+import java.time.ZonedDateTime;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -100,7 +100,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         var filtered = scope.stream()
                 .filter(buildStatusFilterCriteria(query, statuses))
                 .toList();
-        var modifiedAt = modifiedAtNeeded(query) ? resolveModifiedAt(filtered) : Map.<AProject, Date>of();
+        var modifiedAt = modifiedAtNeeded(query) ? resolveModifiedAt(filtered) : Map.<AProject, ZonedDateTime>of();
 
         var matched = filtered.stream()
                 .sorted(comparatorFor(query.sort(), statuses, modifiedAt))
@@ -181,19 +181,19 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
                 .forEach(project -> statusOf(project).ifPresent(status -> statuses.put(project, status)));
     }
 
-    private Map<AProject, Date> resolveModifiedAt(List<? extends AProject> projects) {
-        var modifiedAt = new IdentityHashMap<AProject, Date>();
+    private Map<AProject, ZonedDateTime> resolveModifiedAt(List<? extends AProject> projects) {
+        var modifiedAt = new IdentityHashMap<AProject, ZonedDateTime>();
         projects.forEach(project -> modifiedAt.put(project, modifiedAtOf(project)));
         return modifiedAt;
     }
 
     private Comparator<AProject> comparatorFor(@Nullable String sort,
                                                Map<AProject, ProjectStatus> statuses,
-                                               Map<AProject, Date> modifiedAt) {
+                                               Map<AProject, ZonedDateTime> modifiedAt) {
         return switch (sort == null ? "" : sort) {
             case "status" -> Comparator.<AProject, String>comparing(p -> statusSortKey(p, statuses),
                     String.CASE_INSENSITIVE_ORDER).thenComparing(PROJECT_BUSINESS_NAME_ORDER);
-            case "updated" -> Comparator.<AProject, Date>comparing(modifiedAt::get,
+            case "updated" -> Comparator.<AProject, ZonedDateTime>comparing(modifiedAt::get,
                     Comparator.nullsLast(Comparator.reverseOrder())).thenComparing(PROJECT_BUSINESS_NAME_ORDER);
             default -> PROJECT_BUSINESS_NAME_ORDER;
         };
@@ -204,9 +204,9 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         return status == null ? "" : status.name();
     }
 
-    private static Date modifiedAtOf(AProject project) {
+    private static ZonedDateTime modifiedAtOf(AProject project) {
         // An unreadable project (getFileData may throw a repository I/O failure) simply has no timestamp.
-        return readFileData(project).map(FileData::getModifiedAt).orElse(null);
+        return readFileData(project).map(FileData::getModifiedAt).map(DateTimes::atSystemZone).orElse(null);
     }
 
     @Nonnull

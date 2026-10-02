@@ -4,9 +4,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -45,7 +46,7 @@ final class SysInfoLogger extends OpenLLogger {
         }
         try {
             log("    Time : {} ({} - {})",
-                    new SimpleDateFormat("yyyy-MM-dd   HH:mm:ss.SSS XXX (z)").format(new Date()),
+                    ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd   HH:mm:ss.SSS XXX (z)")),
                     TimeZone.getDefault().getID(),
                     TimeZone.getDefault().getDisplayName());
             log("  Locale : {}", Locale.getDefault());
