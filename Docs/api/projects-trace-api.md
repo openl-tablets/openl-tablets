@@ -157,7 +157,12 @@ missing trailing values remain unset. The body is parsed by `TableInputParserSer
 
 **Response**: `200 OK` — a [`DebugStackView`](#debugstackview) at the first suspension (or terminal state).
 
-**Errors**: `404 Not Found` (`table.message`) when the table or its method is not found.
+**Errors**:
+
+- `404 Not Found` (`table.message`) — the table or its method is not found.
+- `409 Conflict` (`trace.table.compile.errors.message`) — the table has compilation errors, or, for a test table,
+  a table it tests has. The errors are read from the whole project, or from the module named by `fromModule`. The
+  message carries the first line of the first error.
 
 ---
 
@@ -776,6 +781,7 @@ Errors use the standard problem body:
 | Scenario | Status | Message code |
 | --- | --- | --- |
 | Table or method not found (start) | `404` | `table.message` |
+| Table, or a table it tests, does not compile (start) | `409` | `trace.table.compile.errors.message` |
 | No active session | `404` | `trace.execution.task.message` |
 | Frame index out of range | `404` | `trace.frame.not.found.message` |
 | Lazy parameter id not found | `404` | `trace.parameter.not.found.message` |

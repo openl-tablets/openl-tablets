@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "55fb2e40e388612edbd1cebf1b306942",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "doCompileError",
+      "returnType": "Integer",
+      "signature": "doCompileError(Integer x)",
+      "file": "*",
+      "sheet": "doCompileError",
+      "pos": "*",
+      "errors": 1,
+      "module": "Bank Rating",
+      "project": "EPBDS-15551",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

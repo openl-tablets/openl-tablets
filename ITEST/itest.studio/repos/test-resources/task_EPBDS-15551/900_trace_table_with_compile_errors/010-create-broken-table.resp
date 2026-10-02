@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "doCompileError",
+  "returnType": "Integer",
+  "signature": "doCompileError(Integer x)",
+  "file": "*",
+  "sheet": "doCompileError",
+  "pos": "*"
+}
