@@ -45,6 +45,7 @@
 │ ├─ org.openl.rules.project                              │
 │ ├─ org.openl.spring                                     │
 │ ├─ org.openl.rules.test                                 │
+│ ├─ org.openl.rules.demo             ← DEMO PROJECTS     │
 │ ├─ org.openl.rules                  ← CORE ENGINE       │
 │ │   ├─ org.openl.rules.util                             │
 │ │   ├─ org.openl.rules.annotations                      │
@@ -69,6 +70,7 @@
 | **org.openl.rules.project** | rules | Commons Lang3, JAXB |
 | **org.openl.spring** | commons | Spring Framework |
 | **org.openl.rules.test** | rules.project | None |
+| **org.openl.rules.demo** | rules.test (tests only) | None |
 
 ### STUDIO Module Dependencies
 

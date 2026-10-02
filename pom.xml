@@ -992,12 +992,12 @@
                 <artifactId>org.openl.rules</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- STUDIO -->
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.demo</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- STUDIO -->
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.diff</artifactId>
