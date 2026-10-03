@@ -2,7 +2,8 @@
 
 ## Resume point
 
-- PR #2257 is open with one commit: the `jekyll-redirect-from` plugin, which no page uses.
+- No PR is open: #2257 merged the day it opened. Cut a fresh branch off a re-fetched `origin/main` once a
+  finding is proven.
 - All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect near zero),
   spend the rest on a NEW vein. Only documentation, build config, i18n keys and dead TS imports have ever paid.
 - `main` now carries the maintainers' own `sweep:` commits, so the Java vein is harvested upstream before a run
@@ -33,13 +34,11 @@
 
 ## Open PR
 
-- `dead-code/jekyll-redirect-from`, PR #2257, head c71bb5c. One commit: drop the `jekyll-redirect-from` plugin from
-  `Docs/_config.yml` and `Docs/Gemfile`, proven by zero `redirect_from` anywhere in the repository.
-- No thread is open.
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72)
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2)
   — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
   rather than non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
@@ -294,4 +293,4 @@
 - 2026-10-03: delta was 221 files — a 40-commit Docs rewrite wave and a Sonar S107 refactor wave. Reactor green
   in 31:14 from a cold `~/.m2`. Ten veins re-ran at zero (images, release notes, Docs links and tokens, orphan
   pages, allowed-links, Jekyll partials, @Profile, Error Prone, dependency:analyze-only's 69 hits). One finding:
-  the `jekyll-redirect-from` plugin, PR #2257. The wave also cleared thirteen Docs human follow-ups.
+  the `jekyll-redirect-from` plugin; #2257 MERGED (-2). The wave also cleared thirteen Docs human follow-ups.
