@@ -5,7 +5,7 @@ import { UnresolvedProjectLink } from './UnresolvedProjectLink'
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useNavigate: () => navigateMock,
 }))
 

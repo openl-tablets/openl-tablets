@@ -6,7 +6,7 @@ import { getDeployments, getProductionRepositories } from '../services/deploymen
 
 const navigate = vi.fn()
 
-vi.mock('react-router-dom', async () => {
+vi.mock('react-router', async () => {
     const { useState } = await import('react')
     return {
         useNavigate: () => navigate,

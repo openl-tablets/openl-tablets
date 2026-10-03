@@ -41,7 +41,7 @@ vi.mock('../hooks', async () => ({
     useWindowFocus: () => {},
 }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useNavigate: () => navigateMock,
     useParams: () => routeParams,
     useSearchParams: () => [searchParamsMock, setSearchParamsMock],

@@ -5,7 +5,7 @@ import { getDeployment } from '../services/deployments'
 
 const navigate = vi.fn()
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     Link: ({ children, to }: Record<string, unknown>) => <a href={to as string}>{children as never}</a>,
     useNavigate: () => navigate,
     useParams: () => ({ deploymentId: 'd1' }),

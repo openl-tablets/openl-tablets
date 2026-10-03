@@ -1,7 +1,7 @@
 import React from 'react'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from 'react-router'
 import { fetchGuidePage, fetchGuidesContents, type GuideEntry } from 'services/userGuides'
 import UserGuides from './UserGuides'
 

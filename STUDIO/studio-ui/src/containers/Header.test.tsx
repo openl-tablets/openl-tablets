@@ -13,7 +13,7 @@ vi.mock('../services/deployments', () => ({ hasDeploymentRepositories: vi.fn() }
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     Link: ({ children }: { children?: unknown }) => <a href="/">{children as never}</a>,
     useLocation: () => ({ pathname: pathnameRef.current }),
 }))

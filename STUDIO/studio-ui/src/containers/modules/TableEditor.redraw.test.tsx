@@ -11,7 +11,7 @@ vi.mock('../../services/modules', async importOriginal => ({
     ...await importOriginal<typeof import('../../services/modules')>(),
     getTableEditors: vi.fn(),
 }))
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useBlocker: () => ({ state: 'unblocked', proceed: vi.fn(), reset: vi.fn() }),
 }))
 vi.mock('react-i18next', () => {

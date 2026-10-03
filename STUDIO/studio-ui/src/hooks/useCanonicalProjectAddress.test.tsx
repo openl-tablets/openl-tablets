@@ -4,7 +4,7 @@ import { useCanonicalProjectAddress } from './useCanonicalProjectAddress'
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useNavigate: () => navigateMock,
 }))
 

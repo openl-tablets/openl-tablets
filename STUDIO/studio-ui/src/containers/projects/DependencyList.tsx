@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'

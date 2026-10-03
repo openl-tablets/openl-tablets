@@ -1,30 +1,25 @@
 import reactHooks from 'eslint-plugin-react-hooks'
 import perfectionist from 'eslint-plugin-perfectionist'
 import stylistic from '@stylistic/eslint-plugin'
-import tsParser from '@typescript-eslint/parser'
-import globals from 'globals'
-import tsPlugin from '@typescript-eslint/eslint-plugin'
+import tseslint from 'typescript-eslint'
 
 export default [
     {
         files: ['./src/**/*.{js,jsx,ts,tsx}'],
         ignores: ['./dist/**', './node_modules/**'],
         languageOptions: {
-            parser: tsParser,
+            parser: tseslint.parser,
             parserOptions: {
                 ecmaVersion: 'latest',
                 sourceType: 'module',
                 ecmaFeatures: { jsx: true },
                 project: './tsconfig.json',
             },
-            globals: {
-                ...globals.browser
-            },
         },
         plugins: {
             '@stylistic': stylistic,
             'react-hooks': reactHooks,
-            '@typescript-eslint': tsPlugin,
+            '@typescript-eslint': tseslint.plugin,
             'perfectionist': perfectionist,
         },
         rules: {

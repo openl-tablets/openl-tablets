@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { Alert, Button, Form, Input } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CONFIG } from '../services'

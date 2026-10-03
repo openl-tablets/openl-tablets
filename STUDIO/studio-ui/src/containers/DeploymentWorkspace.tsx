@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Button, Empty, Pagination, Skeleton, Tabs, Tooltip, Typography } from 'antd'
 import { RocketOutlined } from '@ant-design/icons'

@@ -16,7 +16,7 @@ const launchWith = (advanced?: boolean): void => {
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useParams: () => ({ projectId: 'p1' }),
     useSearchParams: () => [search.current],
 }))
