@@ -280,6 +280,7 @@ const SimpleTraceTree: React.FC = () => {
             <div
                 key={row.key}
                 aria-selected={selected}
+                className={cx(styles.row, styles.frame, styles.runnable, selected && styles.selected)}
                 data-failed={failed || undefined}
                 data-rowkey={row.key}
                 data-testid={`simple-node-${row.key}`}
@@ -288,7 +289,6 @@ const SimpleTraceTree: React.FC = () => {
                 role="treeitem"
                 style={indent(row.depth)}
                 tabIndex={0}
-                className={cx(styles.row, styles.frame, styles.runnable, selected && styles.selected)}
             >
                 {twisty(row.expandKey)}
                 {kindIcon(node.kind)}
@@ -317,6 +317,7 @@ const SimpleTraceTree: React.FC = () => {
             <div
                 key={row.key}
                 aria-selected={selected}
+                className={cx(styles.row, styles.runnable, selected && styles.selected)}
                 data-failed={failed || undefined}
                 data-rowkey={row.key}
                 data-testid={`simple-step-${row.key}`}
@@ -325,7 +326,6 @@ const SimpleTraceTree: React.FC = () => {
                 role="treeitem"
                 style={indent(row.depth)}
                 tabIndex={0}
-                className={cx(styles.row, styles.runnable, selected && styles.selected)}
             >
                 {twisty(row.expandKey)}
                 {stepIcon(row.owner?.kind)}

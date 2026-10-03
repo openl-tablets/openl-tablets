@@ -12,7 +12,7 @@ import { SystemContext } from '../contexts'
 import { useAppNavigate, useScript } from '../hooks'
 import { useNotificationStore } from 'store'
 
-type MenuItem = Required<MenuProps>['items'][number];
+type MenuItem = Required<MenuProps>['items'][number]
 
 const { Header: AntHeader } = Layout
 

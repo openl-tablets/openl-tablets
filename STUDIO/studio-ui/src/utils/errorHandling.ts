@@ -1,14 +1,14 @@
 // Error handling utilities for consistent error management across the application
 
 export interface ErrorInfo {
-  message: string;
-  stack?: string | undefined;
-  componentStack?: string | undefined;
-  timestamp: Date;
-  userId?: string | undefined;
-  sessionId?: string | undefined;
-  url?: string | undefined;
-  userAgent?: string | undefined;
+    message: string;
+    stack?: string | undefined;
+    componentStack?: string | undefined;
+    timestamp: Date;
+    userId?: string | undefined;
+    sessionId?: string | undefined;
+    url?: string | undefined;
+    userAgent?: string | undefined;
 }
 
 class ErrorHandler {

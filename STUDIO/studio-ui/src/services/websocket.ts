@@ -2,7 +2,7 @@ import { Client, IMessage, StompConfig } from '@stomp/stompjs'
 
 export interface WebSocketMessage {
     body: string
-    headers: { [key: string]: string }
+    headers: Record<string, string>
     command: string
     destination: string
 }
@@ -184,7 +184,7 @@ class WebSocketService {
         }
     }
 
-    public send(destination: string, body: string, headers?: { [key: string]: string }) {
+    public send(destination: string, body: string, headers?: Record<string, string>) {
         if (!this.client || !this.isConnected) {
             return
         }

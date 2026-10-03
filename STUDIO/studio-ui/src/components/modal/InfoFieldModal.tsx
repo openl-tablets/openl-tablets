@@ -4,7 +4,7 @@ import { InfoCircleOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 
 interface InfoFieldModalProps {
-  text: React.ReactNode;
+    text: React.ReactNode;
 }
 
 export const InfoFieldModal: React.FC<InfoFieldModalProps> = ({ text }) => {

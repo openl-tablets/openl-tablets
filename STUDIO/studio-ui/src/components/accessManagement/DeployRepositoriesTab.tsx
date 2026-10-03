@@ -8,7 +8,7 @@ import { SelectOption } from '../form/Select'
 import { Repository } from '../../types/repositories'
 import { useTranslation } from 'react-i18next'
 
-export const DeployRepositoriesTab: React.FC<{selectedRepositories: string[]}> = ({ selectedRepositories }) => {
+export const DeployRepositoriesTab: React.FC<{ selectedRepositories: string[] }> = ({ selectedRepositories }) => {
     const { t } = useTranslation()
     const [deployRepositories, setDeployRepositories] = React.useState<SelectOption[]>([])
 
