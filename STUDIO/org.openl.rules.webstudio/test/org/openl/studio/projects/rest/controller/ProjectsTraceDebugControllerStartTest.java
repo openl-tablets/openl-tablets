@@ -68,7 +68,8 @@ class ProjectsTraceDebugControllerStartTest {
     void init() {
         var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
         when(projectIdentifierMapper.map(project)).thenReturn(projectId);
-        when(projectService.getUserWorkspace()).thenReturn(mock(UserWorkspace.class));
+        var workspace = mock(UserWorkspace.class);
+        when(projectService.getUserWorkspace()).thenReturn(workspace);
         when(table.getUri()).thenReturn(TABLE_URI);
         when(traceDebugService.startSession(any())).thenThrow(sessionStarted);
         controller = new ProjectsTraceDebugController(
@@ -296,7 +297,8 @@ class ProjectsTraceDebugControllerStartTest {
         givenTable(fromModule, suite);
         when(table.getType()).thenReturn(XlsNodeTypes.XLS_TEST_METHOD.toString());
         if (testedTableIsInTheProject) {
-            when(projectModel.getTableByUri(any())).thenReturn(mock(TableSyntaxNode.class));
+            var testedTable = mock(TableSyntaxNode.class);
+            when(projectModel.getTableByUri(any())).thenReturn(testedTable);
         }
     }
 
