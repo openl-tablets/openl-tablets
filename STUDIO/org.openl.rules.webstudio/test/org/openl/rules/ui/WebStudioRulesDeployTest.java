@@ -46,6 +46,13 @@ class WebStudioRulesDeployTest {
     }
 
     @Test
+    void hasNoDeployConfigurationWithoutAnOpenedProject() {
+        doReturn(null).when(studio).getCurrentProject();
+
+        assertNull(studio.getCurrentProjectRulesDeploy());
+    }
+
+    @Test
     void hasNoDeployConfigurationWhenItsFileHasGone() throws ProjectException {
         when(project.hasArtefact(RulesDeploy.FILE_NAME)).thenReturn(true);
         when(project.getArtefact(RulesDeploy.FILE_NAME)).thenThrow(new ProjectException("Gone"));

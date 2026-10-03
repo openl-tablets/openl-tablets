@@ -282,7 +282,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public RulesDeploy getCurrentProjectRulesDeploy() {
         try {
             RulesProject project = getCurrentProject();
-            if (project.hasArtefact(RulesDeploy.FILE_NAME)) {
+            if (project != null && project.hasArtefact(RulesDeploy.FILE_NAME)) {
                 return readRulesDeploy(project);
             }
             return null;
