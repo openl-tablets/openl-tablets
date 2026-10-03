@@ -51,7 +51,8 @@ dependencies of `STUDIO/studio-ui/package.json`; they are not repeated here.
 ## Frontend
 
 - **React**, **TypeScript**, **Ant Design** with **antd-style**, **React Router**, **Zustand**, **i18next**, **Day.js**.
-- **@stomp/stompjs** — the WebSocket client. **CodeMirror** — code editors. **dnd-kit** — drag and drop.
+- **@stomp/stompjs** — the WebSocket client. **CodeMirror** — code editors, and the code in the user guides.
+  **dnd-kit** — drag and drop.
 - **Cytoscape** with **dagre** and **Mermaid** — graphs and diagrams. **RapiDoc** — the API documentation page.
 - **react-markdown**, **unified**, **remark** and **rehype**, and **MiniSearch** — the user guides viewer.
 - **Vite** — dev server and bundler. **Vitest**, **Testing Library**, **jsdom** — tests. **ESLint** — linting.

@@ -18,9 +18,9 @@ Use almost the latest versions when possible.
   missing hook dependencies as warnings (`eslint-plugin-react-hooks`), JSX props sorted by `perfectionist`
 - **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
 - **Vitest** + React Testing Library (`jsdom` environment)
-- **react-markdown** with remark/rehype plugins, **lowlight** and **Mermaid** draw the user guides
-  (`containers/userGuides`). Mermaid stays on 11.x: Mermaid 12 depends on `elkjs` (EPL-2.0), which the license
-  check of `npm run build` rejects
+- **react-markdown** with remark/rehype plugins, the CodeMirror grammars through **`@lezer/highlight`** and **Mermaid**
+  draw the user guides (`containers/userGuides`). Mermaid stays on 11.x: Mermaid 12 depends on `elkjs` (EPL-2.0),
+  which the license check of `npm run build` rejects
 
 ## Project Structure
 
@@ -74,7 +74,8 @@ The build writes two pages (`build.rollupOptions.input`):
 - **WebSocket**: `services/websocket.ts` connects to `${CONTEXT}/ws`, built from `document.baseURI`. The handshake has
   an address of its own, so it is not under `CONFIG.API_ROOT`.
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
-  with; Mermaid is a chunk of its own, loaded with the first diagram. The guides are files rather than REST, so
+  with; Mermaid is a chunk of its own, loaded with the first diagram, and so are the code grammars, shared with the
+  code editor and loaded with the first code block (`HighlightedCode`). The guides are files rather than REST, so
   `services/userGuides.ts` reads them with `fetch` from `${CONFIG.CONTEXT}/docs` instead of `apiCall`. The syntax a page
   may use is set by the validator of `STUDIO/studio-docs`, see `Docs/architecture/embedded-user-guides.md`. The search
   indexes the pages in a module worker (`guideSearch.worker.ts`), and on the page itself where no worker starts —
