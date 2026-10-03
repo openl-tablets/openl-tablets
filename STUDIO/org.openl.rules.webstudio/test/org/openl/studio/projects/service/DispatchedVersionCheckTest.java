@@ -20,6 +20,7 @@ import static org.openl.studio.projects.service.tables.TableTestProjects.row;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -285,8 +286,8 @@ class DispatchedVersionCheckTest {
         row(sheet, top, 1, header);
         row(sheet, top + 1, 1, "properties", "effectiveDate");
         row(sheet, top + 2, 2, "expirationDate");
-        dateCell(sheet, top + 1, 3, LocalDate.of(year, 1, 1));
-        dateCell(sheet, top + 2, 3, LocalDate.of(year + 1, 1, 1));
+        dateCell(sheet, top + 1, 3, LocalDate.of(year, Month.JANUARY, 1));
+        dateCell(sheet, top + 2, 3, LocalDate.of(year + 1, Month.JANUARY, 1));
         sheet.addMergedRegion(new CellRangeAddress(top + 1, top + 2, 1, 1));
         sheet.addMergedRegion(new CellRangeAddress(top, top, 1, 3));
         body(sheet, top + 3, argument, price);
