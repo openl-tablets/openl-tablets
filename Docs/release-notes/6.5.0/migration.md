@@ -236,6 +236,10 @@ everyone who calls that API from outside the browser.
   the array type, so `2.5` was cut to `2` and the empty element became `0`. A boxed array stays boxed:
   `add(new Integer[] {1, null}, 2.5)` is a `Double[]` that keeps its empty element.
 
+* **`flatten` gives an empty value when every array it gets is missing.** `flatten((Integer[]) null)` is `null`
+  instead of an empty array, as `slice`, `sort` and the other array functions give for a missing array. A missing
+  array next to another one still adds no elements, so `flatten((Integer[]) null, new Integer[] {1})` is `[1]`.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
@@ -343,6 +347,9 @@ everyone who calls that API from outside the browser.
   an `IndexOutOfBoundsException`. Java code that passes an array of a boxed type compiles unchanged, but code compiled
   against an earlier version fails with `NoSuchMethodError` until it is compiled again. Code that removes an element
   of a primitive array calls `ArrayUtils.remove` of Apache Commons Lang, which the removed overloads called.
+* **`RulesUtils.flatten` returns `Object`.** It returns a primitive array, such as `int[]`, when the elements are
+  primitive, so its Java return type is `Object` instead of `Object[]`. A Java caller casts the result to the array
+  type it expects.
 
 ## Administrators
 

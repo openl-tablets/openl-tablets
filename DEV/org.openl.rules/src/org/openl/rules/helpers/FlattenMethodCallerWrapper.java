@@ -1,5 +1,7 @@
 package org.openl.rules.helpers;
 
+import java.util.Arrays;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.JavaNoCast;
@@ -8,12 +10,16 @@ import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
 import org.openl.binding.impl.method.AutoCastableResultOpenMethod;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Implementation of {@link MethodCallerWrapper} for flatten method from {@link RulesUtils}.
+ * <p>
+ * The flattened array has the closest common element type of the arguments, see
+ * {@link OpenClassUtils#findClosestElementClass}: {@code int[][]} gives {@code int[]}, and an {@code int[]} with an
+ * {@code Integer[]} gives {@code Integer[]}.
  */
 public class FlattenMethodCallerWrapper implements MethodCallerWrapper {
 
@@ -23,7 +29,6 @@ public class FlattenMethodCallerWrapper implements MethodCallerWrapper {
                                 IOpenClass[] callParams,
                                 ICastFactory castFactory) {
         final int[] dims = new int[callParams.length];
-        IOpenClass t = null;
         IOpenClass[] rootComponentClasses = new IOpenClass[callParams.length];
         for (var i = 0; i < callParams.length; i++) {
             var g = callParams[i];
@@ -34,15 +39,9 @@ public class FlattenMethodCallerWrapper implements MethodCallerWrapper {
             }
             rootComponentClasses[i] = g;
             dims[i] = dim;
-            if (t == null) {
-                t = g;
-            } else {
-                t = castFactory.findClosestClass(t, g);
-            }
         }
-        if (t == null || NullOpenClass.isAnyNull(t)) {
-            t = JavaOpenClass.OBJECT;
-        }
+        var element = OpenClassUtils.findClosestElementClass(castFactory, Arrays.asList(rootComponentClasses));
+        final var t = element == null ? JavaOpenClass.OBJECT : element;
         final IOpenCast[] openCasts = new IOpenCast[callParams.length];
         for (var i = 0; i < callParams.length; i++) {
             openCasts[i] = castFactory.getCast(rootComponentClasses[i], t);
