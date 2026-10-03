@@ -219,6 +219,23 @@ everyone who calls that API from outside the browser.
   Applied to an array or a collection that is `null`, such as the values of a missing `Map`, it gives `null`. Before,
   it gave an empty array for a missing array and stopped with a `NullPointerException` for a missing collection.
 
+* **`remove` gives an empty value for a missing array.** `remove((Integer[]) null, 0)` is `null`, as `removeElement`,
+  `slice` and `removeNulls` already give for a missing array. Before, it stopped the call with `Index: 0, Length: 0`.
+  A position outside an existing array still stops the call.
+
+* **An array function keeps the type of the array.** `removeElement`, `slice`, `removeNulls` and `sort` applied to
+  a primitive array, such as `int[]`, return an `int[]` instead of an `Integer[]`, as `remove` already did, and
+  `sort(3, 1, 2)` sorts an `int[]`. `addElement` keeps the type when the added element fits it:
+  `addElement(new int[] {1, 2}, 1, 5)` is an `int[]`, while an element of another type gives the closest common type,
+  so `2.5` in an `int[]` gives a `double[]` instead of a `Double[]`. A rule, a field or a parameter declared as
+  `Integer[]` still gets an `Integer[]`, while a Spreadsheet step without a type takes the type of the result.
+
+* **`add` and `addAll` take the added elements into the type of the result.** An element that does not fit the
+  array widens it, as for `addElement`: `add(new int[] {1}, 2.5)` is the `double[]` `[1.0, 2.5]`, and
+  `add(new int[] {1, 2}, (Integer) null)` is an `Integer[]` that ends with an empty element. Before, the result kept
+  the array type, so `2.5` was cut to `2` and the empty element became `0`. A boxed array stays boxed:
+  `add(new Integer[] {1, null}, 2.5)` is a `Double[]` that keeps its empty element.
+
 * **A source-compatibility check is needed only for a project with a `groovy/` folder.** Rules in Excel are not
   compiled by Groovy, so they need no re-save and no re-compile for the language changes below.
 
@@ -320,6 +337,12 @@ everyone who calls that API from outside the browser.
 * **`org.openl.source.impl.ModuleFileSourceCodeModule` and `org.openl.syntax.exception.Runnable` are removed.** The
   source module was deprecated since 5.23.10; build a `URLSourceCodeModule` from the module URL instead. Nothing in
   OpenL Tablets used the `Runnable` interface; use `java.util.concurrent.Callable` or an interface of your own.
+* **`RulesUtils.remove` has one generic form.** Its overloads for `int[]`, `long[]`, `double[]`, `float[]`, `short[]`,
+  `byte[]`, `char[]` and `boolean[]` and for the arrays of their boxed types are removed; rules still get an array of
+  the type they pass. The generic `remove(T[] array, int index)` returns `null` for a `null` array instead of throwing
+  an `IndexOutOfBoundsException`. Java code that passes an array of a boxed type compiles unchanged, but code compiled
+  against an earlier version fails with `NoSuchMethodError` until it is compiled again. Code that removes an element
+  of a primitive array calls `ArrayUtils.remove` of Apache Commons Lang, which the removed overloads called.
 
 ## Administrators
 

@@ -27,6 +27,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodCallerWrapper;
 import org.openl.binding.impl.cast.MethodFilter;
 import org.openl.binding.impl.cast.MethodSearchTuner;
+import org.openl.rules.annotations.ArrayResultType;
 import org.openl.rules.annotations.IgnoreNonVarargsMatching;
 import org.openl.rules.annotations.IgnoreVarargsMatching;
 import org.openl.rules.annotations.NonNullLiteral;
@@ -909,8 +910,8 @@ public final class MethodSearch {
     }
 
     /**
-     * Wraps the caller of the selected method to pass the vararg parameters, to apply the method search tuner of a
-     * Java method, and to call the method with multiple values of the parameters.
+     * Wraps the caller of the selected method to pass the vararg parameters, to apply the method search tuner and the
+     * array result type of a Java method, and to call the method with multiple values of the parameters.
      */
     private static IMethodCaller wrapMethodCaller(IMethodCaller methodCaller,
                                                   Match selectedMatch,
@@ -993,6 +994,15 @@ public final class MethodSearch {
                     // a wrapper that cannot be created leaves the method caller as it is
                 }
             }
+        }
+        var arrayResultType = javaMethod.getAnnotation(ArrayResultType.class);
+        if (arrayResultType != null) {
+            methodCaller = ArrayResultTypes.wrap(arrayResultType.value(),
+                    methodCaller,
+                    javaOpenMethod,
+                    callParams,
+                    selectedMatch.isVararg(),
+                    castFactory);
         }
         return methodCaller;
     }

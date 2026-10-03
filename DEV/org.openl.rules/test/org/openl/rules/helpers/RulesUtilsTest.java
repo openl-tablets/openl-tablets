@@ -3140,9 +3140,7 @@ class RulesUtilsTest {
 
     @Test
     void testRemoveBooleanType_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testBooleanTypeRemove(null, 1);
-        });
+        assertNull(instance.testBooleanTypeRemove(null, 1));
     }
 
     @Test
@@ -3161,9 +3159,7 @@ class RulesUtilsTest {
 
     @Test
     void testRemoveBoolean_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testBooleanRemove(null, 1);
-        });
+        assertNull(instance.testBooleanRemove(null, 1));
     }
 
     @Test
@@ -3182,9 +3178,7 @@ class RulesUtilsTest {
 
     @Test
     void testByteTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testByteTypeRemove(null, 1);
-        });
+        assertNull(instance.testByteTypeRemove(null, 1));
     }
 
     @Test
@@ -3203,9 +3197,7 @@ class RulesUtilsTest {
 
     @Test
     void testByteRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testByteRemove(null, 1);
-        });
+        assertNull(instance.testByteRemove(null, 1));
     }
 
     @Test
@@ -3224,9 +3216,7 @@ class RulesUtilsTest {
 
     @Test
     void testCharTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testCharTypeRemove(null, 1);
-        });
+        assertNull(instance.testCharTypeRemove(null, 1));
     }
 
     @Test
@@ -3245,9 +3235,7 @@ class RulesUtilsTest {
 
     @Test
     void testCharRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testCharRemove(null, 1);
-        });
+        assertNull(instance.testCharRemove(null, 1));
     }
 
     @Test
@@ -3266,9 +3254,7 @@ class RulesUtilsTest {
 
     @Test
     void testDoubleTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testDoubleTypeRemove(null, 1);
-        });
+        assertNull(instance.testDoubleTypeRemove(null, 1));
     }
 
     @Test
@@ -3287,9 +3273,7 @@ class RulesUtilsTest {
 
     @Test
     void testDoubleRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testDoubleRemove(null, 1);
-        });
+        assertNull(instance.testDoubleRemove(null, 1));
     }
 
     @Test
@@ -3308,9 +3292,7 @@ class RulesUtilsTest {
 
     @Test
     void testFloatTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testFloatTypeRemove(null, 1);
-        });
+        assertNull(instance.testFloatTypeRemove(null, 1));
     }
 
     @Test
@@ -3329,9 +3311,7 @@ class RulesUtilsTest {
 
     @Test
     void testFloatRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testFloatRemove(null, 1);
-        });
+        assertNull(instance.testFloatRemove(null, 1));
     }
 
     @Test
@@ -3350,9 +3330,7 @@ class RulesUtilsTest {
 
     @Test
     void testIntegerTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testIntegerTypeRemove(null, 1);
-        });
+        assertNull(instance.testIntegerTypeRemove(null, 1));
     }
 
     @Test
@@ -3371,9 +3349,7 @@ class RulesUtilsTest {
 
     @Test
     void testIntegerRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testIntegerRemove(null, 1);
-        });
+        assertNull(instance.testIntegerRemove(null, 1));
     }
 
     @Test
@@ -3392,9 +3368,7 @@ class RulesUtilsTest {
 
     @Test
     void testLongTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testLongTypeRemove(null, 1);
-        });
+        assertNull(instance.testLongTypeRemove(null, 1));
     }
 
     @Test
@@ -3413,9 +3387,7 @@ class RulesUtilsTest {
 
     @Test
     void testLongRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testLongRemove(null, 1);
-        });
+        assertNull(instance.testLongRemove(null, 1));
     }
 
     @Test
@@ -3434,9 +3406,7 @@ class RulesUtilsTest {
 
     @Test
     void testObjectTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testObjectTypeRemove(null, 1);
-        });
+        assertNull(instance.testObjectTypeRemove(null, 1));
     }
 
     @Test
@@ -3455,9 +3425,7 @@ class RulesUtilsTest {
 
     @Test
     void testShortTypeRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testShortTypeRemove(null, 1);
-        });
+        assertNull(instance.testShortTypeRemove(null, 1));
     }
 
     @Test
@@ -3476,9 +3444,7 @@ class RulesUtilsTest {
 
     @Test
     void testShortRemove_whenSourceIsNull() {
-        assertThrows(OpenLRuntimeException.class, () -> {
-            instance.testShortRemove(null, 1);
-        });
+        assertNull(instance.testShortRemove(null, 1));
     }
 
     @Test
