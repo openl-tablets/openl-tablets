@@ -91,8 +91,9 @@ class DispatchedVersionCheckTest {
     @Test
     void refusesARunWhoseContextPicksTheVersionThatDoesNotCompile() {
         var requested = version("Price", 2009);
+        var context = on(2010, 6, 1);
 
-        var refusal = assertThrows(ConflictException.class, () -> refuse(requested, on(2010, 6, 1), true));
+        var refusal = assertThrows(ConflictException.class, () -> refuse(requested, context, true));
 
         assertEquals(REFUSAL, refusal.getErrorCode());
         assertEquals(1, refusal.getArgs().length);
@@ -104,8 +105,9 @@ class DispatchedVersionCheckTest {
     @Test
     void refusesTheSameRunAcrossTheWholeProject() {
         var requested = version("Price", 2009);
+        var context = on(2010, 6, 1);
 
-        var refusal = assertThrows(ConflictException.class, () -> refuse(requested, on(2010, 6, 1), false));
+        var refusal = assertThrows(ConflictException.class, () -> refuse(requested, context, false));
 
         assertEquals(REFUSAL, refusal.getErrorCode());
     }
@@ -113,8 +115,9 @@ class DispatchedVersionCheckTest {
     @Test
     void refusesWhenTheVersionNamedInTheRequestIsTheOneThatDoesNotCompile() {
         var requested = version("Price", 2010);
+        var context = on(2010, 6, 1);
 
-        assertThrows(ConflictException.class, () -> refuse(requested, on(2010, 6, 1), true));
+        assertThrows(ConflictException.class, () -> refuse(requested, context, true));
     }
 
     @Test
@@ -175,9 +178,10 @@ class DispatchedVersionCheckTest {
         var requested = version("Price", 2009);
         var model = spy(module);
         doReturn(List.of()).when(model).getMessagesByTsn(anyString(), eq(Severity.ERROR));
+        var context = on(2010, 6, 1);
 
-        assertThrows(ConflictException.class, () -> refuse(model, requested, on(2010, 6, 1), true));
-        assertDoesNotThrow(() -> refuse(model, requested, on(2010, 6, 1), false));
+        assertThrows(ConflictException.class, () -> refuse(model, requested, context, true));
+        assertDoesNotThrow(() -> refuse(model, requested, context, false));
     }
 
     @Test
@@ -185,9 +189,10 @@ class DispatchedVersionCheckTest {
         var requested = version("Price", 2009);
         var model = spy(module);
         doReturn(List.of()).when(model).getOpenedModuleMessagesByTsn(anyString(), eq(Severity.ERROR));
+        var context = on(2010, 6, 1);
 
-        assertThrows(ConflictException.class, () -> refuse(model, requested, on(2010, 6, 1), false));
-        assertDoesNotThrow(() -> refuse(model, requested, on(2010, 6, 1), true));
+        assertThrows(ConflictException.class, () -> refuse(model, requested, context, false));
+        assertDoesNotThrow(() -> refuse(model, requested, context, true));
     }
 
     @Test
