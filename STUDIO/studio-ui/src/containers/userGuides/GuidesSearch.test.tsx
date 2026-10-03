@@ -38,7 +38,7 @@ const RESULT: GuideSearchResult = {
     title: 'Using Rules Editor',
     heading: 'Viewing Tables',
     anchor: 'viewing-tables',
-    snippet: [{ text: 'A decision ', match: false }, { text: 'table', match: true }],
+    snippet: [{ text: 'A decision ', match: false, at: 0 }, { text: 'table', match: true, at: 11 }],
 }
 
 describe('GuidesSearch', () => {

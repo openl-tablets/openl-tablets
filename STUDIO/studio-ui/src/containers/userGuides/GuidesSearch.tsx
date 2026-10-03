@@ -56,10 +56,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
                             <span className={styles.resultPage}>{result.title}</span>
                         )}
                         <span className={styles.snippet}>
-                            {/* The parts of a snippet never move, so their place is their key. */}
-                            {result.snippet.map((part, i) => (part.match
-                                ? <mark key={i}>{part.text}</mark>
-                                : <React.Fragment key={i}>{part.text}</React.Fragment>))}
+                            {result.snippet.map(part => (part.match
+                                ? <mark key={part.at}>{part.text}</mark>
+                                : <React.Fragment key={part.at}>{part.text}</React.Fragment>))}
                         </span>
                     </Link>
                 </li>

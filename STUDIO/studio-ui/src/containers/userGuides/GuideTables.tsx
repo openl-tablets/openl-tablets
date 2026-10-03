@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { RawTableGrid } from 'components/RawTableGrid'
 import type { RawTableCell } from 'types/tables'
-import { csvRecords } from './csvRecords'
+import { type CsvRow, csvRecords } from './csvRecords'
 import { openlTableOf } from './openlTable'
 import { useStyles } from './UserGuides.styles'
 
@@ -13,19 +13,22 @@ interface TableBlockProps {
 /** A `csv` code block, drawn as a table whose first record is the column header. */
 export const CsvTable: React.FC<TableBlockProps> = ({ text }) => {
     const { styles } = useStyles()
-    const [header = [], ...rows] = useMemo(() => csvRecords(text).map(row => row.cells.map(cell => cell.value)), [text])
-    const width = Math.max(header.length, ...rows.map(cells => cells.length))
-    const padded = (cells: string[]) => [...cells, ...Array.from({ length: width - cells.length }, () => '')]
+    const [header, ...rows] = useMemo(() => csvRecords(text), [text])
+    // The table is as wide as its longest record; a shorter record leaves its last cells blank.
+    const width = Math.max(header?.cells.length ?? 0, ...rows.map(row => row.cells.length))
+    const columns = Array.from({ length: width }, (unused, column) => column)
+    const valueAt = (row: CsvRow | undefined, column: number) => row?.cells[column]?.value ?? ''
 
     return (
         <div className={styles.tableScroll}>
             <table className={styles.table} data-testid="guide-csv-table">
                 <thead>
-                    <tr>{padded(header).map((value, column) => <th key={column}>{value}</th>)}</tr>
+                    <tr>{columns.map(column => <th key={column}>{valueAt(header, column)}</th>)}</tr>
                 </thead>
                 <tbody>
-                    {rows.map((cells, row) => (
-                        <tr key={row}>{padded(cells).map((value, column) => <td key={column}>{value}</td>)}</tr>
+                    {/* A record starts on a line of its own, so its line tells it apart. */}
+                    {rows.map(row => (
+                        <tr key={row.line}>{columns.map(column => <td key={column}>{valueAt(row, column)}</td>)}</tr>
                     ))}
                 </tbody>
             </table>
