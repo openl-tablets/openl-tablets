@@ -59,23 +59,23 @@ describe('snippetOf', () => {
     it('shows the text around the first match, every match marked', () => {
         const snippet = snippetOf(text, ['table'])
 
-        expect(snippet[0]).toEqual({ text: '…', match: false })
-        expect(snippet.at(-1)).toEqual({ text: '…', match: false })
+        expect(snippet[0]).toEqual({ text: '…', match: false, at: 0 })
+        expect(snippet.at(-1)).toMatchObject({ text: '…', match: false })
         expect(snippet.filter(part => part.match).map(part => part.text)).toEqual(['Table', 'table'])
         expect(snippet.map(part => part.text).join('')).toContain('the matched Table is here')
     })
 
     it('starts a short text at its beginning, and shows it whole', () => {
         expect(snippetOf('A Table.', ['table'])).toEqual([
-            { text: 'A ', match: false },
-            { text: 'Table', match: true },
-            { text: '.', match: false },
+            { text: 'A ', match: false, at: 0 },
+            { text: 'Table', match: true, at: 2 },
+            { text: '.', match: false, at: 7 },
         ])
-        expect(snippetOf('Nothing matched here.', [])).toEqual([{ text: 'Nothing matched here.', match: false }])
+        expect(snippetOf('Nothing matched here.', [])).toEqual([{ text: 'Nothing matched here.', match: false, at: 0 }])
     })
 
     it('reads a term literally, whatever characters it holds', () => {
-        expect(snippetOf('Cost (USD) + tax', ['(usd)']).filter(part => part.match)).toEqual([{ text: '(USD)', match: true }])
+        expect(snippetOf('Cost (USD) + tax', ['(usd)']).filter(part => part.match)).toEqual([{ text: '(USD)', match: true, at: 5 }])
     })
 })
 
@@ -111,7 +111,11 @@ describe('indexGuides', () => {
         const [result] = index.search('merged', '')
 
         expect(result).toMatchObject({ title: 'Decision Tables', heading: 'Merged Cells', anchor: 'merged-cells' })
-        expect(result?.snippet).toEqual([{ text: 'Cells are ', match: false }, { text: 'merged', match: true }, { text: '.', match: false }])
+        expect(result?.snippet).toEqual([
+            { text: 'Cells are ', match: false, at: 0 },
+            { text: 'merged', match: true, at: 10 },
+            { text: '.', match: false, at: 16 },
+        ])
     })
 })
 

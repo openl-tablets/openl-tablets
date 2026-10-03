@@ -39,6 +39,8 @@ export interface GuideSection {
 export interface SnippetPart {
     text: string
     match: boolean
+    /** Where the piece starts in the text shown; no two pieces of a snippet start at the same place. */
+    at: number
 }
 
 /** A part of a page matching a search, with the text around the first word it matched. */
@@ -127,7 +129,7 @@ export const snippetOf = (text: string, terms: string[]): SnippetPart[] => {
     const start = first < SNIPPET_LENGTH / 2 ? 0 : text.lastIndexOf(' ', first - SNIPPET_LENGTH / 4) + 1
     const end = Math.min(text.length, start + SNIPPET_LENGTH)
     const shown = text.slice(start, end)
-    const parts: SnippetPart[] = []
+    const parts: Omit<SnippetPart, 'at'>[] = []
     let from = 0
     for (const match of words ? shown.matchAll(words) : []) {
         parts.push({ text: shown.slice(from, match.index), match: false }, { text: match[0], match: true })
@@ -140,7 +142,12 @@ export const snippetOf = (text: string, terms: string[]): SnippetPart[] => {
     if (end < text.length) {
         parts.push({ text: '…', match: false })
     }
-    return parts.filter(part => part.text !== '')
+    let at = 0
+    return parts.filter(part => part.text !== '').map(part => {
+        const placed = { ...part, at }
+        at += part.text.length
+        return placed
+    })
 }
 
 /** Reads the pages to index; a page that cannot be read is left out rather than failing the search of the others. */
