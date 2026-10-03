@@ -5,9 +5,13 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
+import org.openl.binding.ICastFactory;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public final class OpenClassUtils {
@@ -47,10 +51,38 @@ public final class OpenClassUtils {
      * @return wrapper class for the provided primitive class or provided object as input parameter
      */
     public static IOpenClass toWrapperIfPrimitive(IOpenClass openClass) {
-        if (openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive()) {
+        if (isPrimitive(openClass)) {
             return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(openClass.getInstanceClass()));
         }
         return openClass;
+    }
+
+    /**
+     * Returns the closest common class of the classes, as the element class of an array that holds a value of each.
+     * <p>
+     * The class is primitive only when every class is primitive. A wrapper, another class or an empty value among
+     * them makes it a wrapper, so that an empty element keeps its place: {@code int} and {@code double} give
+     * {@code double}, while {@code Integer} and {@code double} give {@code Double}.
+     *
+     * @param castFactory the casts that give the closest class of two classes
+     * @param classes     the classes of the values, {@link NullOpenClass} for an empty value
+     * @return the element class, or {@code null} when no class is given or every value is empty
+     */
+    public static @Nullable IOpenClass findClosestElementClass(ICastFactory castFactory, Iterable<IOpenClass> classes) {
+        IOpenClass closest = null;
+        var primitive = true;
+        for (var openClass : classes) {
+            closest = closest == null ? openClass : castFactory.findClosestClass(closest, openClass);
+            primitive &= isPrimitive(openClass);
+        }
+        if (closest == null || NullOpenClass.isAnyNull(closest)) {
+            return null;
+        }
+        return primitive ? closest : toWrapperIfPrimitive(closest);
+    }
+
+    private static boolean isPrimitive(IOpenClass openClass) {
+        return openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive();
     }
 
     public static boolean isVoid(IOpenClass type) {

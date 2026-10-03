@@ -1,5 +1,7 @@
 package org.openl.rules.helpers;
 
+import java.util.ArrayList;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodFilter;
@@ -7,6 +9,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Implementation of {@link MethodFilter} for addAll method from {@link RulesUtils}. The implementation controls that if
@@ -14,40 +17,29 @@ import org.openl.types.java.JavaOpenMethod;
  */
 public class AddAllMethodFilter implements MethodFilter {
 
+    /**
+     * Works out the joined array for the arguments: its type and the casts of the arguments to its elements.
+     * <p>
+     * The arguments with the most dimensions are arrays to join, and the others are elements to add. The element type
+     * of the result is the closest common type of the array elements and the added elements, see
+     * {@link OpenClassUtils#findClosestElementClass}: an {@code int[]} with an {@code int} gives an {@code int[]}, with
+     * an {@code Integer} or an empty value an {@code Integer[]}, and with a {@code double} a {@code double[]}.
+     */
     public static AddAllMethodDetails resolve(IOpenClass[] callParams, ICastFactory castFactory) {
         int[] dims = getDimensions(callParams);
-        boolean[] paramAsElement = new boolean[callParams.length];
-        var maxDim = 0;
-        for (var i = 0; i < callParams.length; i++) {
-            if (maxDim < dims[i]) {
-                maxDim = dims[i];
-            }
+        var maxDim = 1;
+        for (var dim : dims) {
+            maxDim = Math.max(maxDim, dim);
         }
-        if (maxDim == 0) {
-            maxDim = 1;
-        }
-
         var minDim = getMinDimension(callParams, dims, maxDim);
-        IOpenClass t = null;
+        boolean[] paramAsElement = new boolean[callParams.length];
+        var elementClasses = new ArrayList<IOpenClass>();
         for (var i = 0; i < callParams.length; i++) {
-            if (t == null && maxDim == dims[i]) {
-                t = callParams[i];
-            } else if (t != null && maxDim == dims[i]) {
-                t = castFactory.findClosestClass(t, callParams[i]);
-            }
             paramAsElement[i] = maxDim != dims[i];
+            elementClasses.add(paramAsElement[i] ? callParams[i] : callParams[i].getComponentClass());
         }
-        if (t == null) {
-            t = getDefaultType(callParams);
-        }
-
-        var dim = 0;
-        var g = t;
-        while (g.isArray()) {
-            g = g.getComponentClass();
-            dim++;
-        }
-        var type = g.getArrayType(dim);
+        var element = OpenClassUtils.findClosestElementClass(castFactory, elementClasses);
+        var type = (element == null ? JavaOpenClass.OBJECT : element).getArrayType(1);
         IOpenCast[] openCasts = getOpenCasts(callParams, paramAsElement, type, castFactory);
         return new AddAllMethodDetails(minDim, maxDim, type, paramAsElement, openCasts);
     }
@@ -89,22 +81,6 @@ public class AddAllMethodFilter implements MethodFilter {
             }
         }
         return minDim;
-    }
-
-    /**
-     * Returns the array type of the last parameter of a known type, or an array of objects when there is none.
-     */
-    private static IOpenClass getDefaultType(IOpenClass[] callParams) {
-        IOpenClass t = null;
-        for (IOpenClass callParam : callParams) {
-            if (callParam != null && !NullOpenClass.isAnyNull(callParam)) {
-                t = callParam.getArrayType(1);
-            }
-        }
-        if (t == null) {
-            t = JavaOpenClass.OBJECT.getArrayType(1);
-        }
-        return t;
     }
 
     private static IOpenCast[] getOpenCasts(IOpenClass[] callParams,

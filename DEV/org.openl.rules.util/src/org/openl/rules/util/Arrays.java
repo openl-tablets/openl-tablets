@@ -4,10 +4,15 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import org.openl.rules.annotations.ArrayResultType;
 import org.openl.rules.annotations.NonNullLiteral;
 
 /**
  * A set of util methods to work with arrays.
+ * <p>
+ * A function that returns an array keeps the type of the array it gets, a primitive array such as {@code int[]}
+ * included, while {@code addElement} takes the closest common type of the array and the added elements, see
+ * {@link ArrayResultType}.
  * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
@@ -76,6 +81,7 @@ public final class Arrays {
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
      */
+    @ArrayResultType(ArrayResultType.Kind.WIDENED)
     public static <T> T[] addElement(T[] array, int index, @NonNullLiteral T... elements) {
         if (elements == null) {
             return array;
@@ -103,6 +109,7 @@ public final class Arrays {
 
     // Rule function: a null array with a null element gives a null result, which rules rely on.
     @SuppressWarnings("java:S1168")
+    @ArrayResultType(ArrayResultType.Kind.WIDENED)
     public static <T> T[] addElement(T[] array, int index, T element) {
         if (array == null && element == null) {
             return null;
@@ -116,10 +123,12 @@ public final class Arrays {
     }
 
     // SLICE
+    @ArrayResultType(ArrayResultType.Kind.SAME)
     public static <T> T[] slice(T[] values, int startIndexInclusive) {
         return slice(values, startIndexInclusive, Integer.MAX_VALUE);
     }
 
+    @ArrayResultType(ArrayResultType.Kind.SAME)
     public static <T> T[] slice(T[] values, int startIndexInclusive, int endIndexExclusive) {
         if (isEmpty(values)) {
             return values;
@@ -181,6 +190,7 @@ public final class Arrays {
      */
     // Rule function: a null array gives a null result, as documented.
     @SuppressWarnings("java:S1168")
+    @ArrayResultType(ArrayResultType.Kind.SAME)
     public static <T, E extends T> T[] removeElement(T[] array, E... elements) {
         if (array == null) {
             return null;
@@ -199,6 +209,7 @@ public final class Arrays {
      * @param elements whose null elements should be removed
      * @return array without null elements
      */
+    @ArrayResultType(ArrayResultType.Kind.SAME)
     public static <T> T[] removeNulls(T... elements) {
         if (isEmpty(elements)) {
             return elements;
@@ -260,6 +271,7 @@ public final class Arrays {
      * @return a sorted array
      */
     @SuppressWarnings("unchecked")
+    @ArrayResultType(ArrayResultType.Kind.SAME)
     public static <T extends Comparable<T>> T[] sort(T... values) {
         if (isEmpty(values)) {
             return values;

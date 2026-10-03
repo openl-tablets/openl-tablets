@@ -117,6 +117,12 @@ non-deprecated built-in function to users.
 
 **Boxed-type-only public API**: never expose primitive overloads (`int`, `long`, `float`, `double`, `byte`, `short`). OpenL compiles rule variables to boxed types internally, so primitive variants add no performance benefit and bloat the method-dispatch search space. Keep primitive arithmetic in **private** helpers; public methods accept and return `Byte` / `Short` / `Integer` / `Long` / `Float` / `Double` / `BigInteger` / `BigDecimal`.
 
+**Array result types**: a function that returns an array keeps the type of the array it gets, so `int[]` gives
+`int[]`. Only `add`, `addAll` and `addElement` change it, to the closest common type of the array and the added
+elements: an `Integer` gives `Integer[]`, a `double` gives `double[]`, and a boxed type keeps the result boxed. Write
+such a function generically and mark it `@ArrayResultType` (`org.openl.rules.annotations`): the engine reports the
+array type and converts the boxed result back, so no primitive overload is needed.
+
 ## After Significant Changes
 
 Verify downstream modules still build:
