@@ -86,7 +86,6 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-relative-links
-  - jekyll-redirect-from
 
 # ── Markdown & highlighting ────────────────────────────────────────────────────
 markdown: kramdown
