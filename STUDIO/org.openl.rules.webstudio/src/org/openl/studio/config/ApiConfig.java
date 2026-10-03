@@ -31,10 +31,12 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
+import org.openl.studio.common.projection.FieldProjectionInterceptor;
 
 /**
  * Spring OpenL Studio API Configuration
@@ -60,6 +62,8 @@ public class ApiConfig implements WebMvcConfigurer {
 
     private final ObjectProvider<ObjectMapper> objectMapperProvider;
 
+    private final FieldProjectionInterceptor fieldProjectionInterceptor;
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new ByteArrayHttpMessageConverter());
@@ -69,6 +73,11 @@ public class ApiConfig implements WebMvcConfigurer {
         jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON,
                 new MediaType("application", "merge-patch+json")));
         converters.add(jacksonMessageConverter);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(fieldProjectionInterceptor);
     }
 
     @Override

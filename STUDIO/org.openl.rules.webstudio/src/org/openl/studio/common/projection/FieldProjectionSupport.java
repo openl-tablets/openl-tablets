@@ -6,6 +6,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import org.jspecify.annotations.NonNull;
@@ -16,6 +17,7 @@ import org.springframework.util.ClassUtils;
 
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.util.StringUtils;
 
 /**
  * Shared logic for the REST response field projection feature.
@@ -52,6 +54,9 @@ public class FieldProjectionSupport {
     static final int MAX_RAW_LENGTH = 4096;
     static final int MAX_DEPTH = 16;
     static final int MAX_NODES = 256;
+
+    /** The request attribute holding the selection once it has been read. */
+    private static final String SELECTION_ATTRIBUTE = FieldProjectionSupport.class.getName() + ".selection";
 
     private static final String OPENL_RULES_PREFIX = "org.openl.rules.";
     private static final String OPENL_STUDIO_PREFIX = "org.openl.studio.";
@@ -187,6 +192,22 @@ public class FieldProjectionSupport {
     }
 
     /**
+     * The selection the request asks for, read from its {@value #PARAMETER_NAME} parameter once per request.
+     *
+     * <p>Empty when the parameter is missing or blank.
+     *
+     * @throws BadRequestException as {@link #parseSelection(String)} does
+     */
+    public @NonNull FieldNode selectionOf(HttpServletRequest request) {
+        if (request.getAttribute(SELECTION_ATTRIBUTE) instanceof FieldNode selection) {
+            return selection;
+        }
+        var selection = parseSelection(request.getParameter(PARAMETER_NAME));
+        request.setAttribute(SELECTION_ATTRIBUTE, selection);
+        return selection;
+    }
+
+    /**
      * Parses the raw {@code fields} query value into a selection tree.
      *
      * <p>Grammar: {@code selection := field (',' field)*}, {@code field := name ('(' selection ')')?}.
@@ -201,12 +222,14 @@ public class FieldProjectionSupport {
      * {@code child(a,b)}. The {@link #MAX_NODES} cap counts requested tokens (including duplicates),
      * not unique tree nodes, so heavily repeated input still hits the cap.
      *
+     * <p>A missing or blank value selects nothing.
+     *
      * @throws BadRequestException for malformed input or when {@link #MAX_RAW_LENGTH},
      *                             {@link #MAX_DEPTH} or {@link #MAX_NODES} is exceeded
      */
     public @NonNull FieldNode parseSelection(@Nullable String raw) {
         var root = new FieldNode();
-        if (raw == null) {
+        if (StringUtils.isBlank(raw)) {
             return root;
         }
         if (raw.length() > MAX_RAW_LENGTH) {
