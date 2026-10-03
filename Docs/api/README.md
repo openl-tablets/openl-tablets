@@ -61,7 +61,8 @@ total is not known.
 
 A response carries the fields of its type, minus the empty values. The query parameter `fields` keeps only some of them:
 `fields=name,owner(email)` keeps `name` and the `email` of `owner`. An unknown field is dropped. A malformed selection, or
-one longer than 4096 characters, deeper than 16 levels, or with more than 256 names, answers `400`.
+one longer than 4096 characters, deeper than 16 levels, or with more than 256 names, answers `400`, and a request that
+creates or changes data then changes nothing.
 
 ### Errors
 

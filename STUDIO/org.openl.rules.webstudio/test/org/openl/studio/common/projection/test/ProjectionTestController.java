@@ -3,10 +3,12 @@ package org.openl.studio.common.projection.test;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.Getter;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +19,10 @@ import org.openl.studio.common.projection.NoFieldProjection;
 @RequestMapping("/projection-test")
 public class ProjectionTestController {
 
+    /** How many projects {@link #create()} has made. */
+    @Getter
+    private final AtomicInteger created = new AtomicInteger();
+
     private static ProjectTestView project(String id) {
         return new ProjectTestView(id, "name-" + id, "OPENED", "secret-" + id, "writeOnly-" + id,
                 new UserTestView("login-" + id, id + "@example.com"),
@@ -26,6 +32,11 @@ public class ProjectionTestController {
     @GetMapping("/single")
     public ProjectTestView single() {
         return project("1");
+    }
+
+    @PostMapping("/create")
+    public ProjectTestView create() {
+        return project(String.valueOf(created.incrementAndGet()));
     }
 
     @GetMapping("/list")

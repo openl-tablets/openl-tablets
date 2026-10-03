@@ -13,8 +13,6 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.AbstractMappingJacksonResponseBodyAdvice;
 
-import org.openl.util.StringUtils;
-
 /**
  * Reduces JSON responses to the fields requested by the {@code ?fields=} query parameter.
  *
@@ -29,6 +27,9 @@ import org.openl.util.StringUtils;
  *
  * <p>Projection only removes properties -- it never exposes hidden ones. {@code @JsonIgnore} and
  * {@code @JsonProperty(access = WRITE_ONLY)} stay in effect.
+ *
+ * <p>An endpoint declaring a projectable type has its selection read before it runs, by
+ * {@link FieldProjectionInterceptor}, so a malformed selection changes nothing.
  *
  * @author Vladyslav Pikus
  */
@@ -52,11 +53,7 @@ public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonRes
         if (!isProjectableEndpoint(returnType, bodyContainer.getValue())) {
             return;
         }
-        var rawFields = servletRequest.getServletRequest().getParameter(FieldProjectionSupport.PARAMETER_NAME);
-        if (StringUtils.isBlank(rawFields)) {
-            return;
-        }
-        var selection = support.parseSelection(rawFields);
+        var selection = support.selectionOf(servletRequest.getServletRequest());
         if (selection.isEmpty()) {
             return;
         }
