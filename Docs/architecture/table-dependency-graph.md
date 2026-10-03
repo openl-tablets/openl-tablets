@@ -162,3 +162,13 @@ requests the combined graph and lets its legend hide a kind from the view.
 They do not, on purpose. A rules table that takes a `Policy` is **not** linked to the `Policy` datatype: the data
 model is its own layer of the graph, so a whole-project graph does not turn into a mesh where every table hangs
 off every type. Asking what a datatype is built from, or what is built on it, walks datatypes only.
+
+## When the drawing engine loads
+
+The graph screen draws with Cytoscape and its dagre layout, about 480 KB of minified script. Both load with the first graph a
+user opens, together with the graph itself, rather than with the application:
+
+- **Every screen starts lighter** — the entry chunk of OpenL Studio carries neither library, and a user who never
+  opens the graph never downloads them.
+- **A failed load reads as a failed graph** — the screen says the graph could not be loaded, and the next opening
+  loads the engine again.

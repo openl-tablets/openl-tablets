@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import * as services from 'services'
 import cytoscape from 'cytoscape'
+import dagre from 'cytoscape-dagre'
 import { useThemeMode } from 'antd-style'
 import { AppThemeProvider } from 'providers/AppThemeProvider'
 import type { MockedFunction } from 'vitest'
@@ -148,9 +149,10 @@ describe('TableGraphModal', () => {
         window.location.hash = ''
     })
 
-    it('does not render without an event', () => {
+    it('does not render without an event, nor load Cytoscape', () => {
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        expect(cytoscape.use).not.toHaveBeenCalled()
     })
 
     it('loads the project graph and renders it with cytoscape', async () => {
@@ -169,6 +171,27 @@ describe('TableGraphModal', () => {
         const options = mockCytoscape.mock.calls[0]?.[0]
         const ids = (options?.elements ?? []).map(element => element.data.id)
         expect(ids).toEqual(expect.arrayContaining(['a', 'b', 'b->a']))
+    })
+
+    it('says the graph failed when Cytoscape does not load, and loads it again on the next opening', async () => {
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
+        vi.mocked(cytoscape.use).mockImplementationOnce(() => {
+            throw new Error('The chunk did not load')
+        })
+
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
+        await dispatchOpen({ projectId: 'proj-1' })
+
+        expect(await screen.findByText('graph:load_failed')).toBeInTheDocument()
+        expect(mockCytoscape).not.toHaveBeenCalled()
+
+        await dispatchOpen(null)
+        await dispatchOpen({ projectId: 'proj-1' })
+
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+        expect(cytoscape.use).toHaveBeenLastCalledWith(dagre)
+        expect(screen.queryByText('graph:load_failed')).not.toBeInTheDocument()
     })
 
     it('scopes the graph to the opened module when one is given', async () => {

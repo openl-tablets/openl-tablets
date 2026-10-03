@@ -13,9 +13,8 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import cytoscape, { type Core } from 'cytoscape'
+import type { Core, StylesheetCSS } from 'cytoscape'
 import type { GlobalToken } from 'antd'
-import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { moduleRoute } from '../services/projectId'
@@ -34,7 +33,17 @@ import {
 } from './tableGraph'
 import { graphPalette, kindColor, kindRules } from './tableGraphTheme'
 
-cytoscape.use(dagre)
+/**
+ * Cytoscape with its dagre layout. The two are loaded with the graph, from the server only the first time, so the entry
+ * chunk of the application carries neither.
+ */
+const loadCytoscape = async () => {
+    const [{ default: cytoscape }, { default: dagre }] = await Promise.all([import('cytoscape'), import('cytoscape-dagre')])
+    cytoscape.use(dagre)
+    return cytoscape
+}
+
+type Cytoscape = Awaited<ReturnType<typeof loadCytoscape>>
 
 const GRAPH_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
@@ -254,7 +263,7 @@ const buildStyle = (maxWeight: number, token: GlobalToken) => {
         },
         // @types/cytoscape's StylesheetCSS types each property narrowly and omits several used here (mapData() expressions,
         // text/loop/underlay properties, the :loop selector), so the stylesheet is cast rather than fought field by field.
-    ] as unknown as cytoscape.StylesheetCSS[]
+    ] as unknown as StylesheetCSS[]
 }
 
 /**
@@ -297,6 +306,7 @@ export const TableGraphModal: React.FC = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const [nodes, setNodes] = useState<GraphNode[]>([])
+    const [cytoscape, setCytoscape] = useState<Cytoscape>()
     const [hiddenKinds, setHiddenKinds] = useState<Set<string>>(new Set())
     const [explore, setExplore] = useState<{ id: string, direction: Direction, via?: string }>()
     const [selectedId, setSelectedId] = useState<string>()
@@ -334,9 +344,13 @@ export const TableGraphModal: React.FC = () => {
         setCycles(null)
         setActiveCycle(undefined)
         const slice = next === 'module' && moduleRef.current ? `?module=${encodeURIComponent(moduleRef.current)}` : ''
-        apiCall(`/projects/${projectIdRef.current}/tables/graph${slice}`, { method: 'GET' }, GRAPH_API_OPTIONS)
-            .then((data: GraphNode[]) => {
+        Promise.all([
+            apiCall(`/projects/${projectIdRef.current}/tables/graph${slice}`, { method: 'GET' }, GRAPH_API_OPTIONS),
+            loadCytoscape(),
+        ])
+            .then(([data, engine]: [GraphNode[], Cytoscape]) => {
                 if (seq === loadSeqRef.current) {
+                    setCytoscape(() => engine)
                     setNodes(Array.isArray(data) ? data : [])
                 }
             })
@@ -430,7 +444,7 @@ export const TableGraphModal: React.FC = () => {
 
     // Create the Cytoscape instance whenever the graph changes; wire selection and open-on-double-tap.
     useEffect(() => {
-        if (!visible || loading || !containerRef.current || model.elements.length === 0) {
+        if (!visible || loading || !cytoscape || !containerRef.current || model.elements.length === 0) {
             return
         }
         const cy = cytoscape({ container: containerRef.current, elements: model.elements, style: buildStyle(maxWeight, token) })
@@ -475,7 +489,7 @@ export const TableGraphModal: React.FC = () => {
             cy.destroy()
             cyRef.current = null
         }
-    }, [visible, loading, model, maxWeight, token])
+    }, [visible, loading, cytoscape, model, maxWeight, token])
 
     // Apply the kind filter / exploration scope.
     useEffect(() => {
