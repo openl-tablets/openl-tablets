@@ -1,5 +1,11 @@
 package org.openl.rules.table.xls;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import lombok.Builder;
+import lombok.With;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -13,10 +19,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.xssf.model.ThemesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
 public final class PoiExcelHelper {
 
@@ -32,6 +41,9 @@ public final class PoiExcelHelper {
      * The alpha of a colour that hides nothing, which is the only one a cell style uses.
      */
     private static final byte OPAQUE = (byte) 0xFF;
+
+    /** The font an {@code .xls} workbook has no font at: its fonts are numbered past it. */
+    private static final int HSSF_MISSING_FONT = 4;
 
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         var row = sheet.getRow(rowIndex);
@@ -113,30 +125,127 @@ public final class PoiExcelHelper {
     /**
      * Sets the font of the cell to the given font with other bold, italic and underline settings.
      *
-     * <p>Reuses a font of the workbook that has the same settings, or creates a new one.
+     * <p>Reuses a font of the workbook that has the same settings, or creates a new one. The text keeps its colour.
      */
     private static void setCellFont(Cell cell, Font base, boolean bold, boolean italic, byte underline) {
         var workbook = cell.getSheet().getWorkbook();
-        var font = workbook.findFont(bold,
-                base.getColor(),
-                base.getFontHeight(),
-                base.getFontName(),
-                italic,
-                base.getStrikeout(),
-                base.getTypeOffset(),
-                underline);
-        if (font == null) { // Create new font
-            font = workbook.createFont();
-            font.setBold(bold);
-            font.setColor(base.getColor());
-            font.setFontHeight(base.getFontHeight());
-            font.setFontName(base.getFontName());
-            font.setItalic(italic);
-            font.setStrikeout(base.getStrikeout());
-            font.setTypeOffset(base.getTypeOffset());
-            font.setUnderline(underline);
+        var font = FontAttributes.of(base, workbook).withBold(bold).withItalic(italic).withUnderline(underline);
+        CellUtil.setFont(cell, findOrCreateFont(workbook, font));
+    }
+
+    /**
+     * What tells two fonts of a workbook apart, so a font the workbook has is found again rather than made twice.
+     *
+     * <p>The colour is compared as it is drawn. An {@code .xlsx} font coloured with an RGB or a theme colour has no
+     * indexed colour, so comparing indexes would take a font of another colour for this one.
+     *
+     * @param name       the name of the font
+     * @param height     the size in twentieths of a point, which tells a font of 10.5 points from one of 10
+     * @param bold       whether the font is bold
+     * @param italic     whether the font is italic
+     * @param underline  the underline, as {@link Font} names it
+     * @param strikeout  whether the font is struck out
+     * @param typeOffset the superscript or subscript, as {@link Font} names it
+     * @param charset    the character set of the font
+     * @param color      the colour as {@code 0xRRGGBB}, or {@code null} for the automatic colour
+     */
+    @Builder
+    @With
+    public record FontAttributes(String name,
+                                 short height,
+                                 boolean bold,
+                                 boolean italic,
+                                 byte underline,
+                                 boolean strikeout,
+                                 short typeOffset,
+                                 int charset,
+                                 @Nullable Integer color) {
+
+        /**
+         * The attributes of a font of a workbook.
+         *
+         * @param font     the font
+         * @param workbook the workbook the font belongs to
+         * @return the attributes of the font
+         */
+        public static FontAttributes of(Font font, Workbook workbook) {
+            var rgb = getFontColor(font, workbook);
+            return uncoloured(font).withColor(rgb == null ? null : rgb[0] << 16 | rgb[1] << 8 | rgb[2]);
         }
-        CellUtil.setFont(cell, font);
+
+        /** The attributes of a font but its colour, which is the costly one to read. */
+        private static FontAttributes uncoloured(Font font) {
+            return FontAttributes.builder()
+                    .name(font.getFontName())
+                    .height(font.getFontHeight())
+                    .bold(font.getBold())
+                    .italic(font.getItalic())
+                    .underline(font.getUnderline())
+                    .strikeout(font.getStrikeout())
+                    .typeOffset(font.getTypeOffset())
+                    .charset(font.getCharSet())
+                    .build();
+        }
+    }
+
+    /**
+     * Every font of a workbook. An {@code .xls} workbook has no font 4: its fonts are numbered past it.
+     *
+     * @param workbook the workbook
+     * @return the fonts of the workbook
+     */
+    static List<Font> getFonts(Workbook workbook) {
+        var count = workbook.getNumberOfFonts();
+        var fonts = new ArrayList<Font>(count);
+        var skipsFour = workbook instanceof HSSFWorkbook;
+        for (var index = 0; fonts.size() < count; index++) {
+            if (!skipsFour || index != HSSF_MISSING_FONT) {
+                fonts.add(workbook.getFontAt(index));
+            }
+        }
+        return fonts;
+    }
+
+    /**
+     * The font of a workbook with the given attributes: the one the workbook has, or a new one.
+     *
+     * @param workbook   the workbook
+     * @param attributes the attributes of the font
+     * @return the font
+     */
+    private static Font findOrCreateFont(Workbook workbook, FontAttributes attributes) {
+        var uncoloured = attributes.withColor(null);
+        return getFonts(workbook).stream()
+                // The colour is read only for a font alike in every other attribute.
+                .filter(font -> FontAttributes.uncoloured(font).equals(uncoloured)
+                        && FontAttributes.of(font, workbook).equals(attributes))
+                .findFirst()
+                .orElseGet(() -> createFont(workbook, attributes));
+    }
+
+    /**
+     * A new font of a workbook with the given attributes.
+     *
+     * @param workbook   the workbook
+     * @param attributes the attributes of the font
+     * @return the font
+     */
+    private static Font createFont(Workbook workbook, FontAttributes attributes) {
+        var font = workbook.createFont();
+        font.setFontName(attributes.name());
+        font.setFontHeight(attributes.height());
+        font.setBold(attributes.bold());
+        font.setItalic(attributes.italic());
+        font.setUnderline(attributes.underline());
+        font.setStrikeout(attributes.strikeout());
+        font.setTypeOffset(attributes.typeOffset());
+        font.setCharSet(attributes.charset());
+        var color = attributes.color();
+        if (color != null) {
+            setFontColor(font, new short[]{(short) (color >> 16 & 0xFF), (short) (color >> 8 & 0xFF),
+                    (short) (color & 0xFF)}, workbook);
+        }
+        return font;
     }
 
     // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.
@@ -237,12 +346,31 @@ public final class PoiExcelHelper {
 
     public static short[] getFontColor(Font font, Workbook workbook) {
         if (font instanceof XSSFFont fFont) {
-            var color = fFont.getXSSFColor();
-            return toRgb(color);
+            return toRgb(colourOf(fFont, workbook));
         } else {
             short x = font.getColor();
             return toRgb(x, (HSSFWorkbook) workbook);
         }
+    }
+
+    /**
+     * The colour of an {@code .xlsx} font, or {@code null} for a font that names none.
+     *
+     * <p>The colour of a font of a workbook is read from a copy. POI writes the RGB of a theme colour into a colour it
+     * reads ({@link ThemesTable#inheritFromThemeAsRequired}), so reading the font itself would change it, and a
+     * workbook saved then would keep that RGB in every font that was only read.
+     *
+     * <p>A font read without its workbook, which is never saved, resolves its theme colour itself.
+     */
+    private static @Nullable XSSFColor colourOf(XSSFFont font, @Nullable Workbook workbook) {
+        var written = font.getCTFont();
+        if (!(workbook instanceof XSSFWorkbook xssf) || written.sizeOfColorArray() == 0) {
+            return font.getXSSFColor();
+        }
+        var styles = xssf.getStylesSource();
+        var colour = XSSFColor.from((CTColor) written.getColorArray(0).copy(), styles.getIndexedColors());
+        Optional.ofNullable(styles.getTheme()).ifPresent(theme -> theme.inheritFromThemeAsRequired(colour));
+        return colour;
     }
 
     public static short[][] getCellBorderColors(CellStyle style, Workbook workbook) {
