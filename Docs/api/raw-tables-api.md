@@ -24,7 +24,11 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 - `startRow`, `maxRows` — read a window of the matrix: the zero-based row to start with and the number of rows. A window
   never cuts a merged cell in two. Read the next window from the end of the previous one, not from `startRow` plus
   `maxRows`.
-- `styles` — `true` adds the Excel style of every cell.
+- `styles` — `true` adds the Excel style of every cell and the pieces of its text formatted with fonts of their own; see
+  [Style of a Cell](#style-of-a-cell).
+- `tableTheme` — the identifier of a table theme. Reports, for a Datatype or a Vocabulary table, the look that the theme
+  gives every cell in place of its Excel style, with or without `styles=true`; see [Table Theme](#table-theme). An
+  empty value draws no theme, as the empty setting draws the formatting of the Excel file. Only with `raw=true`.
 - `metaInfo` — `true` adds what the compiler knows about every cell.
 - `module` — the module to read the table through. The answer is ready once that module is compiled, without waiting
   for the rest of the project.
@@ -84,7 +88,10 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   address.
 - `formula` — the formula of the cell, such as `=B2*C2`, next to the `value` it computed. Read-only.
 - `comment` — the note that a reader left on the cell. Read-only.
-- `style` — the Excel style of the cell, with `styles=true`. Read-only.
+- `style` — the Excel style of the cell, with `styles=true`, or the look the table theme gives it, with `tableTheme`.
+  Read-only.
+- `runs` — the pieces of the text formatted with fonts of their own, with `styles=true` or `tableTheme`, when the text
+  does not take the font of the cell; see [Style of a Cell](#style-of-a-cell). Read-only.
 - `metaInfo` — what the compiler knows about the cell, with `metaInfo=true`. Read-only.
 
 The cell of a merged range that holds the value is the top-left one. The other positions of the range are `covered`.
@@ -105,9 +112,31 @@ The `style` of a cell leaves out an attribute that has its default value:
 
 - `background`, `color` — `#rrggbb`. The default background is white and the default font colour is black.
 - `align`, `valign` — the horizontal and the vertical alignment.
-- `bold`, `italic`, `underline` — `true` for the font attribute.
+- `bold`, `italic`, `underline`, `strikeout` — `true` for the font attribute.
 - `indent` — the left indent in Excel units.
-- `border` — the borders by side.
+- `border` — the borders by side. Each side the workbook draws has its `style` (`solid`, `dashed`, `dotted`, `double`),
+  its `width` in pixels, and its `color`, absent when black. A side without a border is absent.
+- `fontFamily`, `fontSize` — set by the table theme only. A style read from the workbook has neither.
+- `source` — `theme` for the look of a table theme, which a read with `tableTheme` reports in place of the style of
+  the workbook; absent for the style the workbook holds, `workbook`. The style of a run names its source the same way.
+
+A text formatted in pieces, such as a header with a grey keyword and a bold name, is read as `runs`, and so is a text
+formatted whole in a font of its own, as one run. Put together, the texts of the runs give the text of the cell as the
+workbook writes it, spaces around the value included. A run with a `style` draws its text with that style alone: an
+attribute absent from it is at its default rather than taken from the cell. A run without a `style` takes the font of
+the cell.
+
+```json
+{
+  "cell": "B2",
+  "value": "Datatype Commission",
+  "runs": [
+    {"text": "Datatype", "style": {"color": "#808080"}},
+    {"text": " "},
+    {"text": "Commission", "style": {"bold": true}}
+  ]
+}
+```
 
 ### Meta Information of a Cell
 
@@ -243,6 +272,8 @@ The request applies one edit to the raw source of any table. The `operation` sel
   `rowspan`, and `colspan`.
 - **`unmerge`** — splits the merged cell that covers a position. Target type `cells` with `row` and `column`.
 - **`style`** — sets the style of a rectangle; see [Styling Cells](#styling-cells). Target type `cells`.
+- **`theme`** — writes a table theme into the table; see [Table Theme](#table-theme). The edit names the `theme` and has
+  no `target`.
 
 A cell of a request has a `value`, optional `colspan` and `rowspan`, and `covered`. Examples:
 
@@ -310,6 +341,74 @@ The `style` operation sets the style of every cell of a rectangle:
 - `align` set to `left` puts the cells back to the default alignment. `indent` set to `0` takes the indent away.
 - A style that names no attribute is refused.
 - The attributes are the ones of a styled read, except the borders and the vertical alignment, which are read-only.
+
+### Table Theme
+
+A table theme gives Datatype and Vocabulary tables one look. OpenL Studio offers every theme file in the
+`table-themes` folder of its classpath and ships `default` and `green`. A theme is asked for by its identifier, the
+name of its file without the extension. How a theme file is written is described in
+[Appendix E: Table Themes](../user-guides/openl-studio/appendices/table-themes.md).
+
+**Listing the themes.** Two endpoints list the themes, each with its identifier and the name it is shown by:
+
+```http
+GET /rest/table-themes
+GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
+```
+
+```json
+[{"id": "default", "name": "Default"}, {"id": "green", "name": "Green"}]
+```
+
+- The first lists every theme OpenL Studio offers, ordered by name.
+- The second lists the themes that have a look for the table. A theme styles only the kinds of table it has a look
+  for, so a theme without a Vocabulary look is not listed for a Vocabulary table. The list is empty for a table of
+  any kind other than Datatype.
+
+**Drawing the theme.** A read with `tableTheme=<id>` reports every cell the theme reaches in the look of the theme, in
+place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:
+
+- `style` — the cell style with the attributes the theme sets laid over it, and `source` set to `theme`.
+- `runs` — the pieces the theme formats the header text in, each style of theirs with `source` set to `theme`. Any
+  other text keeps the pieces the workbook formats it in.
+
+The theme is a view only: a client edits a table from a read without `tableTheme`, whose styles are the ones the
+workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table the theme
+has no look for is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with
+`400`.
+
+**Writing the theme into a table.** The `theme` action writes a theme into the table, alone or with other edits in
+a batch:
+
+```json
+{"operation": "theme", "theme": "default"}
+```
+
+In a batch, the theme is written over the table as the edits before it left it, so the rows the batch adds are
+themed with the rest. A `style` action that follows sets its styling over the theme. A table the theme has no look
+for is refused with `400`, and so is a theme OpenL Studio does not offer.
+
+**Writing the theme into the project.** One endpoint writes a theme into every Datatype and Vocabulary table of
+every module of the project that the theme has a look for, and recompiles what it changes:
+
+```http
+POST /rest/projects/{projectId}/theme?theme={id}
+```
+
+It answers `200` with the identifiers of the tables themed and of the ones left as they are, which are written as
+several partial tables. A table the theme has no look for is in neither list. A project compiled only in part, such
+as one whose module compiles alone, is compiled whole first, so the theme reaches every module; a project whose
+compilation was stopped is refused with `409`. Where OpenL Studio records who edits a table and when, each table
+themed is noted as edited, as any edit of a table is; a table without room for the note moves, and is named by where
+it stands once written:
+
+```json
+{ "themed": ["f55d6ff710d930c7cf6d43a377446bcd"], "skipped": [] }
+```
+
+Writing changes only the look of a table. Each cell keeps its value and every attribute the theme does not set, such
+as its number format. The header keeps its text, cells outside the table are not touched, and a table of a
+dependency project is left as it is. Writing the theme again adds no styles or fonts to the workbook.
 
 ### Applying Several Edits
 

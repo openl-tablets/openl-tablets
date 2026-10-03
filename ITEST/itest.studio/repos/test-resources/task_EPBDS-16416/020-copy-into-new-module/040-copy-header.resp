@@ -23,7 +23,8 @@ Content-Type: application/json
             },
             "bottom": {
               "style": "solid",
-              "width": 1
+              "width": 1,
+              "color": "#c4bd97"
             },
             "left": {
               "style": "solid",

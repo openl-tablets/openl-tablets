@@ -59,6 +59,11 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
+    public UserProfileModel setTableTheme(@Nullable String tableTheme) {
+        return (UserProfileModel) super.setTableTheme(tableTheme);
+    }
+
+    @Override
     public UserProfileModel setTestsPerPage(@Nullable Integer testsPerPage) {
         return (UserProfileModel) super.setTestsPerPage(testsPerPage);
     }

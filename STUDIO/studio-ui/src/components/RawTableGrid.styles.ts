@@ -41,9 +41,18 @@ export const useStyles = createStyles(({ css, token }) => ({
      * <p>A cell with nothing written in it keeps the room of one that has: a workbook gives every row and
      * column a size of its own whether anything stands there or not, and a row of empty cells drawn to its
      * padding alone reads as a crack between the rules rather than as a line to write in.
+     *
+     * <p>A cell draws the line of the grid on its right and below it, and above it and on its left only along
+     * the edge of the table it lies on, as its `data-edge` names it. Where two cells meet, the browser draws one
+     * line. Of two alike, it keeps the line of the cell it lays out first, which is not always the upper or the
+     * left one: a cell merged down from a row above comes before the cells on its left. A dotted or a dashed line
+     * loses to a solid one. Either way a line of the workbook would lose to the line of the grid. With the grid
+     * line drawn by one of the two cells only, the line two cells share is the one the upper or the left cell
+     * has, which is where the reader of the workbook hands it.
      */
     cell: css`
-        border: 1px solid ${paperToken().colorBorderSecondary};
+        border-right: 1px solid ${paperToken().colorBorderSecondary};
+        border-bottom: 1px solid ${paperToken().colorBorderSecondary};
         padding: ${token.paddingXXS}px ${token.paddingXS}px;
         text-align: left;
         vertical-align: top;
@@ -60,6 +69,14 @@ export const useStyles = createStyles(({ css, token }) => ({
             display: inline-block;
             width: 0;
             height: ${Math.round(token.fontSizeSM * token.lineHeightSM)}px;
+        }
+
+        &[data-edge~='top'] {
+            border-top: 1px solid ${paperToken().colorBorderSecondary};
+        }
+
+        &[data-edge~='left'] {
+            border-left: 1px solid ${paperToken().colorBorderSecondary};
         }
     `,
     /**

@@ -1,0 +1,4 @@
+name: Fractional Size
+base:
+  style:
+    fontSize: 10.5

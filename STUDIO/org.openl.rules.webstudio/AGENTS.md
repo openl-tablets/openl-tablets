@@ -151,6 +151,80 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 - A rejection is a `BadRequestException` carrying the file name and the reason: `file.content.damaged.message`
   for a file, `file.archive.invalid.message` for an expanded archive.
 
+## Table Theme
+
+The looks OpenL Studio gives Datatype and Vocabulary tables are the `table-themes/*.yaml` files of its classpath
+(`resources/table-themes/` ships `default` and `green`). `TableThemeService` reads them once at startup, with the
+YAML anchors, aliases and merge keys resolved by SnakeYAML, then binds them strictly with Jackson. See
+`Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md` for
+the endpoints.
+
+- **A theme is known by its file name.** The file name without `.yaml` is the identifier the settings, the read
+  parameter and the write actions carry; the `name` the file declares is only what the screen shows. Of two files of
+  one identifier the first read is offered and the other logged as a warning (`TableThemeService`); two themes
+  declaring one name are both offered.
+- **No theme means the Excel formatting.** The `table.theme` user setting is empty by default, and a setting that
+  is empty or names a theme Studio no longer offers draws the tables as the workbook formats them: the screen asks a
+  read for the theme only when it is offered (`offeredTheme`). A read naming a theme Studio does not offer is refused
+  with `400`. The REST mapper leaves the empty value out of the
+  profile (`NON_EMPTY`), so the screen reads a missing `tableTheme` as **Excel Formatting** and sends `""` to choose
+  it again.
+- **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
+  writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
+  logged as an error and not offered; Studio starts with the rest.
+- **A theme styles the kinds it names.** `TableTheme.lookOf` answers the `datatype` or `vocabulary` look, `base` is
+  only a template the kinds merge in, and a kind without a look is neither offered (`GET .../tables/{id}/themes`)
+  nor written. The server decides which themes suit a table: the screen never keeps a list of themed kinds.
+- **One table is themed through its edit.** The `theme` action of `RawTableSourceAction` writes the theme inside the
+  edit batch, after the values and before the styling, so the rows the batch added are themed and the styling the
+  user set stands over the theme. Only the whole project has an endpoint of its own (`POST /projects/{id}/theme`).
+  It takes the tables from what the session compiled, so a project compiled only in part — its module set to compile
+  alone — is compiled whole first, and a project whose compilation the reader stopped is refused (`409`): the tables
+  of the modules left out would be missed without a word.
+  It reaches the other modules of the project through the dependency compile of the module open, whose workbooks
+  nothing listens to, so it has `ProjectModel.initProjectHistory(TableSyntaxNode, Module)` listen to the workbook of
+  each table first: a write there is kept in the history of its module and marks the project modified, as an edit
+  of the table does.
+- **One layout for both uses.** `DatatypeThemeLayout` decides the look of every cell, and both the screen overlay and
+  `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives. It drops every cell past the edge of the
+  table: `GridSplitter` does not widen a table for a region of empty cells, so such a region may be merged past its
+  edge.
+- **A transposed Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, so the
+  layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`, `isNormalOrientation()`): the
+  places follow the fields, and `lastRow` stays the last row as written. A table that did not compile is themed as
+  written, which is how the structured Datatype reader and writer read every table.
+- **The overlay is a view only.** A read naming a theme reports the look of the theme in `RawTableCell.style` and
+  `runs`, in place of the formatting of the workbook, and every style the theme gives names it as its source
+  (`RawTableCellStyle.source`, `RawTableStyleSource.THEME`; a style of the workbook leaves it out). Both fields are
+  read-only and no request model carries a source, so a table sent back as it was read writes no style. No edit
+  starts from such a read: when the user edits a table drawn with a theme, `TableEditor` reads it again without the
+  theme and edits that read, whose `style` is what the workbook holds. The one exception is the preview of a theme the
+  user chose to write, which the save sends as a `theme` action, never as styles. The preview is laid over a copy of
+  the rows that is only drawn: the toolbar and the save read the edited rows, so a theme drawn on the screen never
+  reaches the workbook through an edit. Keep it that way: never edit the rows of a read naming a theme, and never
+  fold the theme into the `style` of the edited rows. The preview is the look of the table as it was read,
+  matched by the address each cell was read at, so it is approximate once the edit inserts or deletes rows or
+  columns; the user guide says so. An exact preview would need a dry run of the edit on the server, which is
+  deliberately not done.
+- **A written theme is not kept up to date.** An edit after the theme was written, such as rows or columns inserted
+  or deleted, writes no theme by itself: laying the theme out needs the table compiled, and its cost grows with the
+  table, so the user applies the theme again by hand once the edits are finished; the user guide says so. Only the
+  overlay follows the edits, since every read lays the theme out over the table as it is then. Do not make the edits
+  write the theme again on their own.
+- **One look on the screen and in the workbook.** A piece of the header starts from the font of the cell on both
+  sides (`ThemeStyles.fontOf`, `ThemeExcelWriter`). A look is reported through the same colour, font and border
+  mappings as a style read from the workbook (`RawTableStyles`, `BorderStyle.of`), so a line the theme draws looks
+  like the one the written workbook shows. The writer tells fonts apart by `PoiExcelHelper.FontAttributes`, with
+  the size in twips and the colour as RGB, and a theme colour must be `#rrggbb`, which the theme model checks when
+  the file is read.
+- **Writing keeps what the theme does not set.** `ThemeExcelWriter` clones the style of each cell and sets only
+  the attributes the theme names, keeps a cell that already has the look, and reuses the fonts the workbook has.
+  Writing the theme again adds no styles or fonts, which matters because unused `cellXfs` are never compacted. A
+  colour is compared as the workbook holds it (`PoiExcelHelper.toStoredRgb`): the full palette of an `.xls`
+  workbook holds a colour of the theme as the nearest one it has. A batch (`writeAll`) saves every workbook it
+  reaches once, and notes the edit on each table it themes as a save of the table does (`TableWriter.recordEdit`),
+  after the theme, naming the table by where it stands once written.
+
 ## Regenerating OpenAPI Goldens
 
 Adding a description, changing an enum's wire codes, adding a `required`/`@NotBlank` field, or moving a leaked

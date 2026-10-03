@@ -388,6 +388,13 @@ i18next.addResourceBundle('en', 'repository', {
             copy: 'Copy',
             update: 'Update',
             remove: 'Remove',
+            apply_theme: 'Apply Theme',
+            apply_theme_project: 'Apply Table Theme to Project',
+            apply_theme_project_confirm: 'Apply a table theme to the project',
+            apply_theme_project_body: 'The theme is written into every Datatype and Vocabulary table of every '
+                + 'module that it has a look for. Values stay as they are; only the look of the tables changes. '
+                + 'Save the project to carry the change to the Design repository.',
+            apply_theme_project_theme: 'Theme',
             overwrite_revision: 'Overwrite the newer revision?',
             overwrite_revision_body: 'You are editing an older revision of the project. Saving it will overwrite everything committed since.',
             overwrite_revision_ok: 'Overwrite',
@@ -530,6 +537,9 @@ i18next.addResourceBundle('en', 'repository', {
             edit_font_colour: 'Font Color',
             edit_outdent: 'Decrease Indent',
             edit_indent: 'Increase Indent',
+            edit_theme: 'Apply Theme',
+            edit_theme_failed: 'Failed to draw the table with the theme',
+            edit_read_failed: 'Failed to read the table as the Excel file holds it',
             related_more_one: '{{count}} more',
             related_more_other: '{{count}} more',
             edit_saving: 'Saving the table…',

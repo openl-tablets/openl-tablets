@@ -1,0 +1,47 @@
+# A table theme of OpenL Studio: the look it gives Datatype and Vocabulary tables.
+# The format and every attribute: OpenL Studio User Guide > Table Themes.
+#
+# Every attribute is optional: one the theme leaves out keeps what the cell has in the workbook.
+# A theme styles only the kinds of table it names a look for (datatype, vocabulary). The base styles nothing by
+# itself: a kind extends it with the merge key "<<: *base", and a key the kind writes itself replaces the base one.
+
+name: Default
+
+base: &base
+  # The look every cell of the table starts from.
+  style:
+    fontFamily: Franklin Gothic Book
+    fontSize: 10
+  header:
+    style:
+      background: "#b4c6e7"
+      align: center
+      border:
+        top: thin
+        bottom: thin
+    # The header text is formatted in pieces; the text itself is never changed.
+    keyword:
+      color: "#808080"
+    name:
+      bold: true
+      color: "#000000"
+    # What follows the name: the type of a Vocabulary, "<String>", or "extends Parent".
+    type:
+      color: "#808080"
+  lastRow:
+    border:
+      bottom: thin
+
+datatype:
+  <<: *base
+  titles:
+    bold: true
+  name:
+    background: "#ddebf7"
+  values:
+    align: center
+
+vocabulary:
+  <<: *base
+  values:
+    align: center

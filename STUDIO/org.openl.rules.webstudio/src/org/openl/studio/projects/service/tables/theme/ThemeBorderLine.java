@@ -1,0 +1,65 @@
+package org.openl.studio.projects.service.tables.theme;
+
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * One side of a cell border a theme draws.
+ *
+ * <p>The theme file writes a side either as the name of a line, such as {@code thin}, or with its colour:
+ * {@code {style: thin, color: "#7f7f7f"}}. A side without a colour is black.
+ *
+ * @param style the line
+ * @param color the colour of the line as {@code #rrggbb}, or {@code null} for black
+ */
+@JsonDeserialize(using = ThemeBorderLine.Reader.class)
+public record ThemeBorderLine(ThemeLineStyle style, @Nullable String color) {
+
+    /** The colour of a line that names none. */
+    public static final String BLACK = "#000000";
+
+    /**
+     * A side, its colour written as {@code #rrggbb}.
+     *
+     * @throws IllegalArgumentException when the colour is written another way
+     */
+    public ThemeBorderLine {
+        ThemeStyle.requireColour(color);
+    }
+
+    /** The colour of the line as {@code #rrggbb}. */
+    public String colorOrBlack() {
+        return color == null ? BLACK : color;
+    }
+
+    /** A side written with its colour. */
+    private record Written(@Nullable ThemeLineStyle style, @Nullable String color) {
+    }
+
+    /** Reads a side written either way. */
+    static final class Reader extends StdDeserializer<ThemeBorderLine> {
+
+        Reader() {
+            super(ThemeBorderLine.class);
+        }
+
+        @Override
+        public ThemeBorderLine deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+            if (parser.currentToken() == JsonToken.VALUE_STRING) {
+                return new ThemeBorderLine(context.readValue(parser, ThemeLineStyle.class), null);
+            }
+            var written = context.readValue(parser, Written.class);
+            var style = written.style();
+            if (style == null) {
+                return context.reportInputMismatch(ThemeBorderLine.class, "A border side names no line style");
+            }
+            return new ThemeBorderLine(style, written.color());
+        }
+    }
+}

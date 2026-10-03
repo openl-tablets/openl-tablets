@@ -15,6 +15,12 @@ public class UserProfileBaseModel extends UserInfoModel {
     private @Nullable Boolean showFormulas;
 
     @Getter
+    @Parameter(description = "Identifier of the table theme Datatype and Vocabulary tables are drawn with and that is "
+            + "offered first when a theme is applied; empty to draw them with the formatting of the Excel file. The "
+            + "workbook is not changed")
+    private @Nullable String tableTheme;
+
+    @Getter
     @Parameter(description = "Test results per page, or -1 for all")
     private @Nullable Integer testsPerPage;
 
@@ -61,6 +67,11 @@ public class UserProfileBaseModel extends UserInfoModel {
 
     public UserProfileBaseModel setShowFormulas(@Nullable Boolean showFormulas) {
         this.showFormulas = showFormulas;
+        return this;
+    }
+
+    public UserProfileBaseModel setTableTheme(@Nullable String tableTheme) {
+        this.tableTheme = tableTheme;
         return this;
     }
 

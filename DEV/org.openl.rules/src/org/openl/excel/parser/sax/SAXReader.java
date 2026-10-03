@@ -4,21 +4,37 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ooxml.POIXMLTypeLoader;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.CommentsTable;
+import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.model.ThemesTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.jspecify.annotations.Nullable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -30,10 +46,19 @@ import org.openl.excel.parser.ParserDateUtil;
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ui.TextRun;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 
 public class SAXReader implements ExcelReader {
+
+    /** The element of the shared strings that holds one string. */
+    private static final String SHARED_STRING = "si";
+
+    /** Reads one shared string from where the stream stands: what its element holds, without the element. */
+    private static final XmlOptions SHARED_STRING_OPTIONS = new XmlOptions(POIXMLTypeLoader.DEFAULT_XML_OPTIONS)
+            .setLoadReplaceDocumentElement(null);
 
     private final ParserDateUtil parserDateUtil = new ParserDateUtil();
 
@@ -139,13 +164,86 @@ public class SAXReader implements ExcelReader {
                 parser.parse(new InputSource(sheetData));
             }
 
+            var stylesTable = r.getStylesTable();
             return new SAXTableStyles(tableRegion,
                     styleIndexHandler.getCellIndexes(),
-                    r.getStylesTable(),
+                    stylesTable,
                     getSheetComments(pkg.pck, saxSheet),
-                    styleIndexHandler.getFormulas());
+                    styleIndexHandler.getFormulas(),
+                    readTextRuns(r, stylesTable, styleIndexHandler.getSharedStrings()));
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
+        }
+    }
+
+    /**
+     * Reads the runs of the shared strings the cells of a table hold. A cell whose text takes the font of its cell
+     * is left out.
+     *
+     * <p>The shared strings of the whole workbook are streamed, and only the strings the table holds are read with
+     * their runs: the strings of a large workbook are never held at once.
+     */
+    private static Map<CellAddress, List<TextRun>> readTextRuns(XSSFReader r,
+                                                               StylesTable stylesTable,
+                                                               Map<CellAddress, Integer> sharedStrings)
+            throws IOException, InvalidFormatException {
+        if (sharedStrings.isEmpty()) {
+            return Map.of();
+        }
+        var items = readItemRuns(r, stylesTable, new HashSet<>(sharedStrings.values()));
+        var runs = new HashMap<CellAddress, List<TextRun>>();
+        sharedStrings.forEach((cell, index) -> {
+            var textRuns = items.get(index);
+            if (textRuns != null) {
+                runs.put(cell, textRuns);
+            }
+        });
+        return runs;
+    }
+
+    /**
+     * The runs of the shared strings asked for, by their index; a string with no font of its own is left out.
+     *
+     * @param wanted the indexes of the strings to read; each is taken out once its string is read
+     */
+    private static Map<Integer, List<TextRun>> readItemRuns(XSSFReader r,
+                                                           StylesTable stylesTable,
+                                                           Set<Integer> wanted) throws IOException,
+            InvalidFormatException {
+        var themes = stylesTable.getTheme();
+        var items = new HashMap<Integer, List<TextRun>>();
+        try (var data = r.getSharedStringsData()) {
+            var reader = XMLHelper.newXMLInputFactory().createXMLStreamReader(data);
+            try {
+                var index = 0;
+                // The reading stops once the last string asked for is read.
+                while (!wanted.isEmpty() && reader.hasNext()) {
+                    if (reader.next() == XMLStreamConstants.START_ELEMENT
+                            && SHARED_STRING.equals(reader.getLocalName())) {
+                        if (wanted.remove(index)) {
+                            readItemRuns(reader, index, themes, items);
+                        }
+                        index++;
+                    }
+                }
+            } finally {
+                reader.close();
+            }
+        } catch (XMLStreamException | XmlException e) {
+            throw new ExcelParseException(e);
+        }
+        return items;
+    }
+
+    /** Reads the runs of the shared string the reader stands at; a string with no font of its own is left out. */
+    private static void readItemRuns(XMLStreamReader reader,
+                                     int index,
+                                     @Nullable ThemesTable themes,
+                                     Map<Integer, List<TextRun>> items) throws XmlException {
+        var item = CTRst.Factory.parse(reader, SHARED_STRING_OPTIONS);
+        var runs = PoiExcelHelper.getTextRuns(new XSSFRichTextString(item), null, themes);
+        if (!runs.isEmpty()) {
+            items.put(index, runs);
         }
     }
 

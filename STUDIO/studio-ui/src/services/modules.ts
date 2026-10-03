@@ -90,17 +90,28 @@ export const getRawTable = async (
     projectId: string,
     tableId: string,
     options: {
-        module?: string
-        startRow?: number
-        maxRows?: number
+        module?: string | undefined
+        startRow?: number | undefined
+        maxRows?: number | undefined
         metaInfo?: boolean
         /** Ask what the table is as something to run: the editor offers Run and Trace on the answer. */
         runState?: boolean
+        /**
+         * Draw the cells with this table theme, by its identifier: each cell the theme reaches comes in its look, in
+         * `style` and `runs`, the style naming the theme as its source. A view only, which no edit starts from: a table
+         * is edited from a read without the theme.
+         */
+        tableTheme?: string | undefined
+        /** Leave out the styles the workbook has; asked for by default. A read naming a theme reports the styles. */
+        styles?: boolean
     } = {}
 ): Promise<RawTableView> => {
-    const params = new URLSearchParams({ raw: 'true', styles: 'true' })
+    const params = new URLSearchParams({ raw: 'true', styles: String(options.styles ?? true) })
     if (options.metaInfo) {
         params.set('metaInfo', 'true')
+    }
+    if (options.tableTheme !== undefined) {
+        params.set('tableTheme', options.tableTheme)
     }
     if (options.runState) {
         params.set('runState', 'true')

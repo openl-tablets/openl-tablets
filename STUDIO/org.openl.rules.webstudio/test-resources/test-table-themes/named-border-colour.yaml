@@ -1,0 +1,5 @@
+name: Named Border Colour
+datatype:
+  lastRow:
+    border:
+      bottom: {style: thin, color: red}

@@ -14,7 +14,7 @@ import lombok.Builder;
  * @param bottom bottom border, absent when none
  * @param left   left border, absent when none
  */
-@Builder
+@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Cell borders per side; a side is absent when the cell has no border there")
 public record RawTableCellBorder(

@@ -3,6 +3,7 @@ import { Tooltip } from 'antd'
 import type { RawTableCell, TableLayout } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { type RawTableGridStyles, useStyles } from './RawTableGrid.styles'
+import { borders, fontFamilyOf, fontSizeOf, textDecoration, tinted } from './rawTableStyle'
 
 /** How the screen showing a table marks one of its cells. */
 export interface CellDecoration {
@@ -65,39 +66,6 @@ const rowKey = (row: RawTableCell[], index: number): string => {
     return address ?? `r${index}`
 }
 
-/** How much of its brightness a muted colour keeps. */
-const MUTED_BRIGHTNESS = 0.8
-
-const HEX_COLOUR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
-
-/**
- * The grey a colour reads as when its cell is beside the point: the brightness of the colour itself,
- * dimmed, so that what the cell is filled with still tells light from dark.
- *
- * A colour written in any other way is left alone, and so is a colour the cell does not carry - an
- * unfilled cell stays unfilled rather than turning grey.
- */
-const mute = (colour: string | undefined): string | undefined => {
-    if (!colour || !HEX_COLOUR.test(colour)) {
-        return colour
-    }
-    const digits = colour.length === 4
-        ? Array.from(colour.slice(1), digit => digit + digit).join('')
-        : colour.slice(1)
-    const value = Number.parseInt(digits, 16)
-    const average = (((value >> 16) & 0xff) + ((value >> 8) & 0xff) + (value & 0xff)) / 3
-    const grey = Math.round(average * MUTED_BRIGHTNESS)
-    return `rgb(${grey}, ${grey}, ${grey})`
-}
-
-/** A colour of the cell as it is drawn: its own, or the grey it reads as when the cell is muted. */
-const tinted = (colour: string | undefined, muted: boolean): string | undefined => (muted ? mute(colour) : colour)
-
-/**
- * The cell's Excel styling. A cell the screen paints keeps its font and alignment but not its own
- * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
- * which are drawn in grey.
- */
 /** Given to every cell the workbook styled in no way at all, rather than a fresh object each. */
 const PLAIN: React.CSSProperties = {}
 
@@ -109,6 +77,27 @@ const PLAIN: React.CSSProperties = {}
 const verticalAlignOf = (valign: string | undefined): React.CSSProperties['verticalAlign'] =>
     valign === 'center' ? 'middle' : valign as React.CSSProperties['verticalAlign']
 
+/**
+ * The edges of the table a cell lies along, or undefined for a cell inside it. A cell draws the line of the grid
+ * above it and on its left only along an edge: inside the table, the cell above it and the one on its left draw
+ * those lines.
+ */
+const edgeOf = (row: number, column: number): string | undefined => {
+    if (row === 0) {
+        return column === 0 ? 'top left' : 'top'
+    }
+    return column === 0 ? 'left' : undefined
+}
+
+/**
+ * The cell's Excel styling. A cell the screen paints keeps its font and alignment but not its own
+ * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
+ * which are drawn in grey.
+ *
+ * A side of the cell the workbook draws a border on is drawn with that border; any other side keeps the line of
+ * the grid, which the cell above or on the left draws where there is one. The font and its size are drawn only
+ * where the table theme sets them: a read naming a theme reports the look of the theme as the style of the cell.
+ */
 const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean): React.CSSProperties => {
     // Most cells of a workbook are written in no style at all, and a table holds thousands of them.
     if (style === undefined && !painted && !muted) {
@@ -121,7 +110,11 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
         verticalAlign: verticalAlignOf(style?.valign),
         fontWeight: style?.bold ? 'bold' : undefined,
         fontStyle: style?.italic ? 'italic' : undefined,
-        textDecoration: style?.underline ? 'underline' : undefined,
+        textDecoration: textDecoration(style),
+        // A font the machine does not have falls back to a sans-serif one, not to the browser's serif default.
+        fontFamily: fontFamilyOf(style),
+        fontSize: fontSizeOf(style),
+        ...borders(style?.border, muted),
     }
 }
 
@@ -132,17 +125,28 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
  * cell shown as the formula it was written with is another text altogether, so it is drawn plain — which is
  * what the legacy editor did, where the formula replaced the marked content.
  */
-const cellText = (cell: RawTableCell, formulas: boolean, styles: RawTableGridStyles,
+const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles: RawTableGridStyles,
     onOpenUsage?: OpenUsage) => {
     const asFormula = formulas && Boolean(cell.formula)
     const text = formatValue(asFormula ? cell.formula : cell.value)
     const metaInfo = asFormula ? undefined : cell.metaInfo
+    // A formula is another text than the value, so the pieces the value is formatted in do not apply to it.
+    const runs = asFormula ? undefined : cell.runs
     // Most cells have nothing marked — what the compiler knows about them is the type behind them and the
     // editor they ask for. Those are drawn as the text they are, rather than through a component of their own.
-    if (!metaInfo?.usages?.length && !metaInfo?.returnCell) {
+    if (!metaInfo?.usages?.length && !metaInfo?.returnCell && !runs?.length) {
         return text
     }
-    return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} styles={styles} text={text} />
+    return (
+        <RawTableCellText
+            metaInfo={metaInfo}
+            muted={muted}
+            onOpenUsage={onOpenUsage}
+            runs={runs}
+            styles={styles}
+            text={text}
+        />
+    )
 }
 
 /**
@@ -209,19 +213,22 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                     {row.map((cell, columnIndex) => {
                         if (cell.covered) return null
                         const decoration = decorate?.(cell, rowIndex, columnIndex)
+                        const muted = !!decoration?.muted
+                        const painted = !!decoration?.painted
                         const key = cell.cell ?? `c${columnIndex}`
                         const drawn = (
                             <td
                                 colSpan={cell.colspan}
                                 data-cell={cell.cell}
+                                data-edge={edgeOf(rowIndex, columnIndex)}
                                 onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
                                 onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                 rowSpan={cell.rowspan}
-                                style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
+                                style={cellStyle(cell.style, painted, muted)}
                                 className={cx(styles.cell, cell.comment !== undefined && styles.commented,
                                     decoration?.className)}
                             >
-                                {decoration?.content ?? cellText(cell, !!formulas, styles, onOpenUsage)}
+                                {decoration?.content ?? cellText(cell, !!formulas, muted, styles, onOpenUsage)}
                             </td>
                         )
                         // The note is shown while the cell is read. A cell the screen has taken over — one

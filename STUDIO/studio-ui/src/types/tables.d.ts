@@ -2,7 +2,16 @@ import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
 
 import type { TraceParameterValue } from './trace'
 
-/** Excel cell style read from the workbook; every field is optional and absent when it is the default. */
+/**
+ * Where a style comes from: the workbook, the default a read leaves out, or the table theme the read named, whose look
+ * is a view only that no edit writes.
+ */
+export type RawTableStyleSource = 'workbook' | 'theme'
+
+/**
+ * Excel cell style read from the workbook, or the look a table theme draws the cell with where the read named one;
+ * every field is optional and absent when it is the default.
+ */
 export interface RawTableCellStyle {
     /** Background colour as #rrggbb (absent when white) */
     background?: string
@@ -15,7 +24,44 @@ export interface RawTableCellStyle {
     bold?: boolean
     italic?: boolean
     underline?: boolean
+    strikeout?: boolean
     indent?: number
+    /** The cell borders per side; a side is absent where the cell has no border */
+    border?: RawTableCellBorder
+    /** The name of the font; set by the table theme only */
+    fontFamily?: string
+    /** The size of the font in points; set by the table theme only */
+    fontSize?: number
+    /** Where the style comes from: `theme` for the look of a table theme; absent for the style of the workbook */
+    source?: RawTableStyleSource
+}
+
+/** One side of a cell border. */
+export interface RawTableCellBorderSide {
+    style?: 'solid' | 'dashed' | 'dotted' | 'double'
+    /** Line width in pixels */
+    width?: number
+    /** Line colour as #rrggbb (absent when black) */
+    color?: string
+}
+
+/** The cell borders, one entry per side. */
+export interface RawTableCellBorder {
+    top?: RawTableCellBorderSide
+    right?: RawTableCellBorderSide
+    bottom?: RawTableCellBorderSide
+    left?: RawTableCellBorderSide
+}
+
+/**
+ * A piece of a cell text formatted with a font of its own.
+ *
+ * A run with a style draws its text with that style alone: an attribute absent from it is at its default. A run
+ * without a style takes the font of the cell.
+ */
+export interface RawTableTextRun {
+    text: string
+    style?: RawTableCellStyle
 }
 
 /** One cell of a raw table grid (Tables API `?raw=true`). */
@@ -34,10 +80,18 @@ export interface RawTableCell {
     rowspan?: number
     /** True for a cell masked by another cell's span */
     covered?: boolean
-    /** Excel cell style, present only when the raw table was requested with `styles=true` */
+    /**
+     * Excel cell style, present only when the raw table was requested with `styles=true`; the look of the table theme
+     * instead, with the theme as its `source`, where the read named the theme with `tableTheme=<id>`
+     */
     style?: RawTableCellStyle
     /** What the compiler knows about the cell, present only when the read asked with `metaInfo=true` */
     metaInfo?: RawTableCellMetaInfo
+    /**
+     * Pieces of the text formatted with fonts of their own; read with the styles, absent for the cell font. Where the
+     * read named a table theme, the pieces the theme draws the text in instead
+     */
+    runs?: RawTableTextRun[]
 }
 
 /** What a piece of a cell's text refers to, as the compiler read it. */
@@ -110,6 +164,16 @@ export type TableEdit =
             style: RawCellStyleInput
         }
     }
+    /** Writes a table theme into a Datatype or a Vocabulary table, as the edits before it left the table. */
+    | { operation: 'theme', theme: string }
+
+/** A table theme OpenL Studio offers. */
+export interface TableThemeOption {
+    /** What the theme is asked for by: the name of its file */
+    id: string
+    /** What the theme is shown by */
+    name: string
+}
 
 export interface RawTableCellInput {
     value: string | number | boolean | null

@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Getter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -17,6 +18,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.TextRun;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringUtils;
@@ -99,6 +101,20 @@ public class XlsCell implements ICell {
                 .getWorkbook()
                 .getFontAt(cell.getCellStyle().getFontIndexAsInt());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
+    }
+
+    @Override
+    public List<TextRun> getTextRuns() {
+        if (region != null && !isCurrentCellATopLeftCellInRegion()) {
+            return getTopLeftCellFromRegion().getTextRuns();
+        }
+        var cell = getCell();
+        if (cell == null || cell.getCellType() != CellType.STRING) {
+            return List.of();
+        }
+        return PoiExcelHelper.getTextRuns(cell.getRichStringCellValue(),
+                gridModel.getSheetSource().getSheet().getWorkbook(),
+                null);
     }
 
     @Override

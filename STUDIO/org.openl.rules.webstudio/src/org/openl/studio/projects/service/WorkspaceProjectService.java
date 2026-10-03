@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -44,6 +45,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -71,6 +73,7 @@ import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
+import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -124,6 +127,8 @@ import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
+import org.openl.studio.projects.model.tables.TableThemeResultView;
+import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -145,9 +150,11 @@ import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableStatuses;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
+import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.TableEditorsReader;
+import org.openl.studio.projects.service.tables.theme.TableThemeService;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -215,6 +222,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectTagsCache projectTagsCache;
     private final ProjectListingContext listingContext;
     private final ObjectFactory<UserWorkspace> userWorkspaceFactory;
+    private final TableThemeService tableThemeService;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -249,7 +257,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectTagsCache projectTagsCache,
             ProjectListingContext listingContext,
             ModuleCompilationLauncher moduleCompilationLauncher,
-            ObjectFactory<UserWorkspace> userWorkspaceFactory) {
+            ObjectFactory<UserWorkspace> userWorkspaceFactory,
+            TableThemeService tableThemeService) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
@@ -269,6 +278,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableVersionService = tableVersionService;
         this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
+        this.tableThemeService = tableThemeService;
         this.tableWritersFactory = tableWritersFactory;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
@@ -2068,7 +2078,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, null, null, false, false, null);
+        return getTableRaw(project, tableId, RawTableRead.builder().build(), null, null);
     }
 
     /**
@@ -2080,19 +2090,23 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * @param project    project
      * @param tableId    table id
-     * @param startRow   zero-based index of the first row to return, or {@code null} for the top
-     * @param maxRows    maximum number of rows to return from {@code startRow}, or {@code null} for every
-     *                   remaining row
-     * @param withStyles   whether to attach each cell's Excel style (background, font, alignment)
-     * @param withMetaInfo whether to attach what the compiler knows about each cell — the pieces of its text
-     *                     that refer to something, the type it holds, the editor it asks for
+     * @param read       the window of rows to return, and whether to attach each cell's Excel style and what the
+     *                   compiler knows about each cell. The modules and the theme of the read are those of the
+     *                   module the table is read through and of {@code tableTheme}
+     * @param tableTheme the theme whose look to report in the style of each cell it draws, by its identifier, or
+     *                   {@code null} or empty to draw none, as the empty setting draws the formatting of the Excel
+     *                   file. A view only: a table is edited from a read without the theme
+     * @param moduleName the module to read the table through, or {@code null} for the one that holds it
      * @return raw table data, with {@code totalRows} set when the window omits rows
      */
-    public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
-            @Nullable Integer maxRows, boolean withStyles, boolean withMetaInfo, @Nullable String moduleName) {
+    public RawTableView getTableRaw(RulesProject project, String tableId, RawTableRead read,
+            @Nullable String tableTheme, @Nullable String moduleName) {
         var context = getOpenLTableInModule(project, tableId, moduleName);
-        var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles, withMetaInfo,
-                TableModules.ofWorkspace(context.module(), projectIdentifierMapper));
+        var theme = StringUtils.isEmpty(tableTheme) ? null : tableThemeService.layoutOf(context.table(), tableTheme);
+        var tableView = rawTableReader.read(context.table(), read.toBuilder()
+                .modules(TableModules.ofWorkspace(context.module(), projectIdentifierMapper))
+                .theme(theme)
+                .build());
         // Only a screen drawing the cells has anything to do with where they sit, so only the grid is told.
         tableView.layout = TableLayouts.of(context.module(), context.table());
         return described(tableView, context);
@@ -2240,6 +2254,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * The table themes that have a look for the given table: the ones a screen offers to draw over it or write into
+     * it.
+     *
+     * @param project    project owning the table
+     * @param tableId    table the themes are asked about
+     * @param moduleName module the table is asked for through
+     * @return the themes with a look for the table, by name; none for a table no theme styles
+     */
+    public List<TableThemeView> getTableThemes(RulesProject project, String tableId, @Nullable String moduleName) {
+        return tableThemeService.getThemes(getOpenLTableInModule(project, tableId, moduleName).table());
+    }
+
+    /**
      * The tests and runs that exercise the given table.
      *
      * <p>Each is a table of its own, named by the id the Tables API addresses it by, so the screen showing them can
@@ -2380,6 +2407,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return whatever the write answers
      */
     private <T> T writing(Supplier<T> write) {
+        return writing(write, WebStudio::rebuildCurrentModule);
+    }
+
+    /**
+     * Runs a write of the workbooks of the session, and reads them again as the recovery says when the write is
+     * refused. The recovery runs before the next write may start, so it never reads a workbook another write is
+     * changing.
+     */
+    private <T> T writing(Supplier<T> write, Consumer<WebStudio> recovery) {
         var studio = getWebStudio();
         return studio.getWorkbookWrites().writing(() -> {
             try {
@@ -2387,7 +2423,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             } catch (RuntimeException refused) {
                 // Read again now, not when the reader next asks for it: what the session holds is a workbook no
                 // author wrote, and every request that follows would be judged against it.
-                studio.rebuildCurrentModule();
+                recovery.accept(studio);
                 throw refused;
             }
         });
@@ -2487,6 +2523,77 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
         return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
+    }
+
+    /**
+     * Writes a table theme into every Datatype and Vocabulary table of every module of the project.
+     *
+     * <p>A table of a project this one depends on is left as it is, as is a table gathered from several partial
+     * tables: neither can be written here. Every workbook the theme reaches is saved once.
+     *
+     * <p>The theme reaches every module, so a project compiled only in part, such as one whose module compiles
+     * alone, is compiled whole first. A project whose compilation the reader stopped is refused.
+     *
+     * <p>Each table themed is noted as edited, as any edit of a table is, where the installation records who edits
+     * tables and when.
+     *
+     * <p>Each workbook written keeps the change in the local history of its module, and the project is marked
+     * modified, as an edit of a table of the module does.
+     *
+     * <p>A theme that fails while it is written saves no workbook, and every module of the project is read from its
+     * file again. The workbooks are saved one after another: a workbook that cannot be saved stops the theme, and the
+     * workbooks saved before it keep the theme.
+     *
+     * @param project project to theme
+     * @param themeId the theme, by its identifier
+     * @return the tables themed, by their identifiers once written, and the tables left as they are
+     * @throws BadRequestException when no theme has the identifier
+     * @throws ConflictException   if the project is held by another user, or its compilation was stopped
+     */
+    @LockForEditing
+    public TableThemeResultView applyProjectTableTheme(RulesProject project, String themeId) {
+        var writer = tableThemeService.writer(themeId);
+        var model = compiledWhole(openProject(project).awaitCompiled());
+        var modules = getProjectDescriptor(project).getModules();
+        var themed = new ArrayList<IOpenLTable>();
+        var skipped = new ArrayList<String>();
+        for (var node : model.getAllTableSyntaxNodes()) {
+            var table = new TableSyntaxNodeAdapter(node);
+            var owner = OpenLTableUtils.isDatatypeTable(table)
+                    ? CollectionUtils.findFirst(modules, module -> module.containsTable(node.getUri()))
+                    : null;
+            if (owner != null) {
+                // A table gathered from several partial tables stands on a grid made of them.
+                if (node.getGridTable().getGrid() instanceof CompositeGrid) {
+                    skipped.add(node.getId());
+                } else {
+                    themed.add(table);
+                    // The other modules of the project are compiled as dependencies of the one open, and nothing
+                    // listens to their workbooks: the workbook of each table is listened to, as the open module's are.
+                    model.initProjectHistory(node, owner);
+                }
+            }
+        }
+        // A write refused halfway may have changed the workbooks of other modules too: every module is read again.
+        var written = writing(() -> writer.writeAll(themed, systemPropertiesService.onEdit()), WebStudio::reset);
+        return new TableThemeResultView(written, skipped);
+    }
+
+    /**
+     * The project with every module of it compiled.
+     *
+     * <p>A module set to compile alone leaves the other modules of the project uncompiled, and so does a compilation
+     * the reader stopped. The project is compiled whole when it is not, but a compilation the reader stopped is not
+     * started again here: the project is refused instead.
+     */
+    private static ProjectModel compiledWhole(ProjectModel model) {
+        if (!model.isProjectCompilationCompleted()) {
+            model.compileProject(true, false);
+        }
+        if (!model.isProjectCompilationCompleted()) {
+            throw new ConflictException("table.theme.project.stopped.message");
+        }
+        return model;
     }
 
     /**

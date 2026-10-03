@@ -1,0 +1,180 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "f55d6ff710d930c7cf6d43a377446bcd",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Person",
+  "pos": "B2:D5",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Datatype Person",
+        "colspan": 3,
+        "style": {
+          "background": "#b4c6e7",
+          "align": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        },
+        "runs": [
+          {
+            "text": "Datatype",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": " ",
+            "style": {
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "Person",
+            "style": {
+              "bold": true,
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "String",
+        "style": {
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "C3",
+        "value": "name",
+        "style": {
+          "background": "#ddebf7",
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "D3",
+        "value": "Bob",
+        "style": {
+          "align": "center",
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Double",
+        "style": {
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "C4",
+        "value": "rate",
+        "style": {
+          "background": "#ddebf7",
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "D4",
+        "style": {
+          "align": "center",
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Integer",
+        "style": {
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "C5",
+        "value": "age",
+        "style": {
+          "background": "#ddebf7",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "D5",
+        "style": {
+          "align": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

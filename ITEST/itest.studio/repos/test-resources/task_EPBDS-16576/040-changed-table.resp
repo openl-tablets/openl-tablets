@@ -10,122 +10,30 @@ Content-Type: application/json
       [
         {
           "cell": "A1",
-          "value": "Datatype Person",
-          "style": {
-            "border": {
-              "top": {
-                "style": "solid",
-                "width": 1
-              },
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "Datatype Person"
         },
         {
-          "cell": "B1",
-          "style": {
-            "border": {
-              "top": {
-                "style": "solid",
-                "width": 1
-              },
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "cell": "B1"
         }
       ],
       [
         {
           "cell": "A2",
-          "value": "String",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "String"
         },
         {
           "cell": "B2",
-          "value": "name",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "name"
         }
       ],
       [
         {
           "cell": "A3",
-          "value": "int",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "int"
         },
         {
           "cell": "B3",
-          "value": "age",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "age"
         }
       ]
     ],
@@ -138,122 +46,30 @@ Content-Type: application/json
       [
         {
           "cell": "A1",
-          "value": "Datatype Person",
-          "style": {
-            "border": {
-              "top": {
-                "style": "solid",
-                "width": 1
-              },
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "Datatype Person"
         },
         {
-          "cell": "B1",
-          "style": {
-            "border": {
-              "top": {
-                "style": "solid",
-                "width": 1
-              },
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "cell": "B1"
         }
       ],
       [
         {
           "cell": "A2",
-          "value": "String",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "String"
         },
         {
           "cell": "B2",
-          "value": "name",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "name"
         }
       ],
       [
         {
           "cell": "A3",
-          "value": "double",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "double"
         },
         {
           "cell": "B3",
-          "value": "age",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "age"
         }
       ]
     ],
@@ -262,4 +78,3 @@ Content-Type: application/json
     ]
   }
 }
-

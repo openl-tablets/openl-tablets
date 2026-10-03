@@ -54,6 +54,8 @@ i18next.addResourceBundle('en', 'users', {
         table_settings: 'Table Settings',
         show_header: 'Show Header',
         show_formulas: 'Show Formulas',
+        table_theme: 'Table Theme',
+        excel_formatting: 'Excel Formatting',
         testing_settings: 'Testing Settings',
         tests_per_page: 'Tests Per Page',
         failures_only: 'Failures Only',

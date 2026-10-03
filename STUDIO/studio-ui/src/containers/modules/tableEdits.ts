@@ -20,6 +20,7 @@ export type EditStep =
     | { kind: 'removeRow', at: number, lines: number }
     | { kind: 'insertColumn', at: number }
     | { kind: 'removeColumn', at: number, lines: number }
+    | { kind: 'theme', theme: string }
 
 /** What the reader has done, and what they took back and may put again. */
 interface EditBuffer {
@@ -46,6 +47,8 @@ export interface EditedTable {
     touched: Set<string>
     /** The styling the reader asked for, cell by cell, named by what they are. */
     styled: Map<string, RawCellStyleInput>
+    /** The table theme the reader asked to write into the table, or null when they asked for none. */
+    theme: string | null
 }
 
 /**
@@ -250,6 +253,10 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
         case 'removeColumn':
             removeLines(state, ACROSS, step.at, step.lines)
             return added
+        case 'theme':
+            // Choosing another theme replaces the one chosen before: a table is written with one theme.
+            state.theme = step.theme
+            return added
     }
 }
 
@@ -286,6 +293,7 @@ export const replay = (rows: RawTableCell[][], steps: EditStep[]): EditedTable =
         columnIds: idsOf(rows[0]?.length ?? 0),
         touched: new Set(),
         styled: new Map(),
+        theme: null,
     }
     let added = 0
     for (const step of steps) {
@@ -440,7 +448,10 @@ const styleEdits = (state: EditedTable): TableEdit[] => {
  * <p>What the reader did is not sent step by step: the table as they left it is compared with the table that was
  * read, and only the difference crosses the wire. Rows and columns they took away go first, highest position
  * first so the ones before them do not move; what they added follows, carrying the values it ended with; then
- * the cells they wrote, and last the styling they asked for.
+ * the cells they wrote, the table theme they chose, and last the styling they asked for.
+ *
+ * <p>The theme is written over the table as it then stands, so the rows the reader added are themed with the rest;
+ * the styling the reader asked for comes after it, so what they set on a cell stands over the theme.
  *
  * <p>A cell written and written back to what it held produces nothing at all.
  */
@@ -454,6 +465,7 @@ export const compile = (original: RawTableCell[][], state: EditedTable): TableEd
     // An added row carries a cell per column, the added ones among them, so it goes in once they are there.
     ...rowInserts(state),
     ...valueEdits(original, state),
+    ...(state.theme === null ? [] : [{ operation: 'theme' as const, theme: state.theme }]),
     ...styleEdits(state),
 ]
 

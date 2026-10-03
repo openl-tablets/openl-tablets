@@ -129,6 +129,12 @@ describe('TableToolbar', () => {
         expect(onWritten).toHaveBeenCalledWith({ id: 'copy-1' }, 'Claims')
     })
 
+    it('offers no table theme to write while the table is read: the theme is written while it is edited', async () => {
+        await draw({ canWrite: true, table: table('Datatype') })
+
+        expect(screen.queryByTestId('table-theme')).toBeNull()
+    })
+
     it('copies no table that carries no properties of its own', async () => {
         const { unmount } = await draw({ canWrite: true, table: table('Datatype') })
         expect(screen.queryByTestId('table-copy')).toBeNull()

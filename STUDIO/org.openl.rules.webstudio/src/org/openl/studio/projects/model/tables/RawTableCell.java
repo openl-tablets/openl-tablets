@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model.tables;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -48,8 +50,13 @@ import org.jspecify.annotations.Nullable;
  * @param rowspan Number of rows this cell spans (>= 2 means merging, null if single row or covered)
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
  * @param comment note a reader left on the cell in Excel, if any
- * @param style   Excel styling of the cell, when the read asked for it
+ * @param style   Excel styling of the cell, when the read asked for the styles or named a table theme. Where the
+ *                theme draws the cell, the look the theme gives it instead: a view only, which no edit takes the
+ *                style from
  * @param metaInfo What the compiler knows about the cell, when the read asked for it
+ * @param runs    Pieces of the cell text formatted with fonts of their own, when the read asked for the styles or
+ *                named a table theme and the text does not take the font of the cell. Where the theme draws the
+ *                cell, the pieces the theme draws the text in instead
  * @author Vladyslav Pikus
  */
 @Builder
@@ -89,6 +96,10 @@ public record RawTableCell(
         @Schema(description = "Whether this cell is covered by another cell's span (true for masked cells, null otherwise)")
         Boolean covered,
 
+        @Parameter(description = """
+                Excel style of the cell, read when the read asks for the styles or names a table theme. Where \
+                the theme draws the cell, the look the theme gives it instead, its source naming the theme: a \
+                view only, which no edit writes.""")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         RawTableCellStyle style,
 
@@ -97,7 +108,14 @@ public record RawTableCell(
                 type it holds, whether a decision table returns it, and the editor it asks for. Read only \
                 when the read asks for it, and absent when the compiler has nothing to say.""")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        @Nullable RawTableCellMetaInfo metaInfo
+        @Nullable RawTableCellMetaInfo metaInfo,
+
+        @Parameter(description = """
+                Pieces of the cell text formatted with fonts of their own, such as a header with a grey keyword \
+                and a bold name. Read with the styles or a table theme, and absent when the text takes the font \
+                of the cell. Where the theme draws the cell, the pieces the theme draws the text in instead.""")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        @Nullable List<RawTableTextRun> runs
 ) {
 
     public static final RawTableCell COVERED_CELL = RawTableCell.builder().covered(true).build();
@@ -111,6 +129,7 @@ public record RawTableCell(
             rowspan = null;
             style = null;
             metaInfo = null;
+            runs = null;
         } else {
             colspan = (colspan != null && colspan > 1) ? colspan : null;
             rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;

@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.write;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -20,9 +21,14 @@ import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestView;
 import org.openl.studio.projects.model.tables.VocabularyView;
+import org.openl.studio.projects.service.tables.theme.TableThemeService;
 
 @Component
+@RequiredArgsConstructor
 public class TableWritersFactory {
+
+    /** The themes a raw-source edit can write into a table. */
+    private final TableThemeService tableThemeService;
 
     // Each writer writes the view of its own table type.
     @SuppressWarnings("java:S1452")
@@ -51,7 +57,7 @@ public class TableWritersFactory {
     public TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
         // RawTableView can be used for any table type, so check it first
         if (RawTableView.TABLE_TYPE.equals(tableType)) {
-            return new RawTableWriter(table);
+            return new RawTableWriter(table, tableThemeService);
         }
 
         if (Objects.equals(XlsNodeTypes.XLS_DATATYPE.toString(), table.getType())) {

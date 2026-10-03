@@ -1,0 +1,14 @@
+# A theme with a look for Datatype tables only: Vocabulary tables are left as they are.
+name: Datatype Only
+
+base: &base
+  style:
+    italic: true
+  lastRow:
+    border:
+      bottom: {style: medium, color: "#ff0000"}
+
+datatype:
+  <<: *base
+  name:
+    background: "#fff2cc"

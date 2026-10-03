@@ -224,6 +224,11 @@
             <artifactId>openl-yaml</artifactId>
         </dependency>
         <dependency>
+            <!-- Table themes are read with their anchors, aliases and merge keys resolved -->
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
         </dependency>

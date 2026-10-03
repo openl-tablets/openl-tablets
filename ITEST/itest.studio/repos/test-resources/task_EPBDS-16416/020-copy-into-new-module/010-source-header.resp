@@ -23,14 +23,33 @@ Content-Type: application/json
             },
             "bottom": {
               "style": "solid",
-              "width": 1
+              "width": 1,
+              "color": "#c4bd97"
             },
             "left": {
               "style": "solid",
               "width": 1
             }
           }
-        }
+        },
+        "runs": [
+          {
+            "text": "Rules Double ",
+            "style": {
+              "color": "#800000"
+            }
+          },
+          {
+            "text": "BankLimitIndex",
+            "style": {}
+          },
+          {
+            "text": " (Bank bank, RatingGroup bankRatingGroup)",
+            "style": {
+              "color": "#800000"
+            }
+          }
+        ]
       },
       {
         "covered": true

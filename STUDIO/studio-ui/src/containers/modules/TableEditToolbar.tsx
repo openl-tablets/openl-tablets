@@ -9,6 +9,7 @@ import {
     DeleteColumnOutlined,
     DeleteRowOutlined,
     FontColorsOutlined,
+    FormatPainterOutlined,
     InsertRowBelowOutlined,
     InsertRowLeftOutlined,
     ItalicOutlined,
@@ -19,9 +20,9 @@ import {
     UnderlineOutlined,
     UndoOutlined,
 } from '@ant-design/icons'
-import { Button, Tooltip } from 'antd'
+import { Button, Dropdown, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
-import type { RawCellStyleInput, RawTableCell } from 'types/tables'
+import type { RawCellStyleInput, RawTableCell, TableThemeOption } from 'types/tables'
 import type { CellAt } from './tableEdits'
 import { CellColourPicker } from './CellColourPicker'
 import { useStyles } from './TableEditToolbar.styles'
@@ -55,6 +56,12 @@ interface TableEditToolbarProps {
      * <p>What is shown this way is not an edit: nothing of it is kept, taken back or saved.
      */
     onPreview: (style: RawCellStyleInput | null) => void
+    /** The table themes the reader may write into the table, the one they start from first; absent for none. */
+    themes?: TableThemeOption[] | undefined
+    /** The theme the reader chose to write into the table, or null when they chose none. */
+    theme?: string | null | undefined
+    /** Chooses a theme to write into the table with the rest when the reader saves. */
+    onTheme?: ((theme: string) => void) | undefined
 }
 
 /** How far one press of the indent buttons moves a cell, as the legacy editor moved it. */
@@ -89,6 +96,9 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     onStyle,
     onPreview,
     whole,
+    themes,
+    theme,
+    onTheme,
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -195,6 +205,24 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('indent', <MenuFoldOutlined />,
                 () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
                 { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
+            {themes !== undefined && themes.length > 0 && (
+                <>
+                    {rule}
+                    {/* A theme is written into the whole table, so it needs no cell picked. */}
+                    <Dropdown
+                        trigger={['click']}
+                        menu={{
+                            items: themes.map(option => ({ key: option.id, label: option.name })),
+                            onClick: ({ key }) => onTheme?.(key),
+                            selectable: true,
+                            selectedKeys: theme ? [theme] : [],
+                        }}
+                    >
+                        {/* The menu opens on a click, so the button itself does nothing more. */}
+                        {action('theme', <FormatPainterOutlined />, () => undefined, { disabled: false, on: !!theme })}
+                    </Dropdown>
+                </>
+            )}
             <span className={styles.pending} />
             <Tooltip title={t('browser.module.edit_close')}>
                 <Button

@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
 import { getTableEditors, NO_EDITORS } from '../../services/modules'
-import { applyTableActions } from '../../services/tables'
+import { applyTableActions, getTableThemesOf } from '../../services/tables'
 import { TableEditor } from './TableEditor'
 
-vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
+vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn(), getTableThemesOf: vi.fn() }))
 vi.mock('../../services/modules', async importOriginal => ({
     ...await importOriginal<typeof import('../../services/modules')>(),
     getTableEditors: vi.fn(),
@@ -49,6 +49,7 @@ describe('TableEditor redrawing', () => {
         grid.drawn = 0
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
         vi.mocked(getTableEditors).mockResolvedValue(NO_EDITORS)
+        vi.mocked(getTableThemesOf).mockResolvedValue([])
     })
 
     const draw = () => render(

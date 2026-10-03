@@ -63,8 +63,10 @@ class RawTableMetaInfoTest {
     void marksWhatACellRefersToAndWhereItLeads() {
         var person = table("Person");
 
-        var read = new RawTableReader().read(person, null, null, false, true,
-                TableModules.ofWorkspace(projectModel));
+        var read = new RawTableReader().read(person, RawTableRead.builder()
+                .withMetaInfo(true)
+                .modules(TableModules.ofWorkspace(projectModel))
+                .build());
 
         var typeCell = cellOf(read.source, "Address");
         var metaInfo = typeCell.metaInfo();
@@ -83,7 +85,7 @@ class RawTableMetaInfoTest {
 
     @Test
     void offersNoWayIntoATableNoModuleHolds() {
-        var read = new RawTableReader().read(table("Person"), null, null, false, true, TableModules.none());
+        var read = new RawTableReader().read(table("Person"), RawTableRead.builder().withMetaInfo(true).build());
 
         var usage = cellOf(read.source, "Address").metaInfo().usages().getFirst();
         // A word can resolve to a table the engine wrote itself while compiling — the one that chooses between
@@ -96,7 +98,7 @@ class RawTableMetaInfoTest {
 
     @Test
     void saysNothingAboutCellsUntilItIsAsked() {
-        var read = new RawTableReader().read(table("Person"), null, null, false, false, TableModules.none());
+        var read = new RawTableReader().read(table("Person"), RawTableRead.builder().build());
 
         assertTrue(read.source.stream().flatMap(List::stream).allMatch(cell -> cell.metaInfo() == null),
                 "the compiler's knowledge is read only when the read asks for it");
@@ -104,7 +106,7 @@ class RawTableMetaInfoTest {
 
     @Test
     void keepsQuietAboutACellItKnowsNothingAbout() {
-        var read = new RawTableReader().read(table("Person"), null, null, false, true, TableModules.none());
+        var read = new RawTableReader().read(table("Person"), RawTableRead.builder().withMetaInfo(true).build());
 
         // The header line is the table's own; nothing in it refers anywhere.
         assertNull(cellOf(read.source, "Datatype Person").metaInfo());

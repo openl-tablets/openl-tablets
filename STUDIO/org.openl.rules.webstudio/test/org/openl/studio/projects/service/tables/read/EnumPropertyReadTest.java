@@ -15,7 +15,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.tables.RawTableCell;
-import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -86,7 +85,10 @@ class EnumPropertyReadTest {
 
     /** The table as the table screen reads it: every cell with its style and what the compiler knows about it. */
     private static List<List<RawTableCell>> read(IOpenLTable table) {
-        return new RawTableReader().read(table, null, null, true, true, TableModules.none()).source;
+        return new RawTableReader().read(table, RawTableRead.builder()
+                .withStyles(true)
+                .withMetaInfo(true)
+                .build()).source;
     }
 
     /** The one table with the given type of the given module. */
