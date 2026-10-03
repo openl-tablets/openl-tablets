@@ -1,14 +1,6 @@
 import GithubSlugger from 'github-slugger'
 import { toString } from 'hast-util-to-string'
 import type { Element, ElementContent, Root } from 'hast'
-import bash from 'highlight.js/lib/languages/bash'
-import groovy from 'highlight.js/lib/languages/groovy'
-import java from 'highlight.js/lib/languages/java'
-import json from 'highlight.js/lib/languages/json'
-import properties from 'highlight.js/lib/languages/properties'
-import xml from 'highlight.js/lib/languages/xml'
-import yaml from 'highlight.js/lib/languages/yaml'
-import { createLowlight } from 'lowlight'
 import { defaultSchema, type Options as SanitizeSchema } from 'rehype-sanitize'
 import { visit } from 'unist-util-visit'
 
@@ -17,9 +9,6 @@ export const NOTE_TAG = 'aside'
 
 const NOTE_MARKER = /^\s*\[!note\]\s*/i
 const HEADING = /^h[1-6]$/
-
-/** Only the languages the guides use, so no other grammar is bundled. */
-const lowlight = createLowlight({ bash, groovy, java, json, properties, xml, yaml })
 
 /**
  * What raw HTML of a page is kept: GitHub's rules, plus a YouTube player in an `iframe`.
@@ -70,17 +59,6 @@ export const rehypeNoteAlerts = () => (tree: Root) => {
                 node.children = node.children.filter(child => child !== paragraph)
             }
             node.tagName = NOTE_TAG
-        }
-    })
-}
-
-/** Highlights a code block written in one of the languages the guides use; any other stays plain text. */
-export const rehypeHighlightCode = () => (tree: Root) => {
-    visit(tree, 'element', (node: Element, _index, parent) => {
-        const language = languageOf(node)
-        if (node.tagName === 'code' && parent?.type === 'element' && parent.tagName === 'pre'
-            && language && lowlight.registered(language)) {
-            node.children = lowlight.highlight(language, toString(node)).children as ElementContent[]
         }
     })
 }

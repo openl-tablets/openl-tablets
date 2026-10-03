@@ -106,11 +106,12 @@ The guides viewer is part of the `studio-ui` application, its single `index` ent
 
 - **Loaded on demand** — the `/docs/*` route loads the viewer as a lazy chunk, the way `ProjectWorkspace` is loaded.
   A user who never opens the guides downloads none of its code.
-- **Chunk content** — the Markdown renderer, the sanitizer, the CSV parser, and lowlight with the grammars of the
-  languages the guides use. lowlight is used directly rather than through `rehype-highlight`, which imports the
-  grammars of 37 languages whichever are asked for.
-- **Nested chunks** — the Mermaid library loads with the first diagram, and the search index loads with the first
-  search, so reading a page without diagrams pays for neither.
+- **Chunk content** — the Markdown renderer, the sanitizer and the CSV parser.
+- **Nested chunks** — the Mermaid library loads with the first diagram, the code grammars with the first code block,
+  and the search index with the first search, so reading a page without diagrams or code pays for none of them.
+- **One set of grammars** — code is highlighted with the CodeMirror grammars of the code editor, through
+  `@lezer/highlight`, so the editor and the viewer share one chunk instead of bundling two highlighters. Until the
+  grammars arrive, a code block shows as plain text.
 
 The viewer shows a sidebar from `toc.json`, and beside the page its outline: the two highest heading levels below the
 heading the page opens with, which the site takes for the title. A page without a heading of its own is given the
@@ -137,7 +138,7 @@ The guides use only this syntax, and the validator holds them to it:
   a screenshot. See [The `openl` fence](#the-openl-fence).
 - **Syntax highlighting** — fenced code is highlighted for the languages the guides use: `bash`, `groovy`, `java`,
   `json`, `properties`, `xml` and `yaml`. A fence without a language renders as plain text. Only these grammars are
-  bundled.
+  loaded.
 
 ### The `openl` fence
 

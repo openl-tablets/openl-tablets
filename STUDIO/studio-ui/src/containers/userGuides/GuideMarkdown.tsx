@@ -14,11 +14,11 @@ import {
     languageOf,
     NOTE_TAG,
     rehypeHeadingIds,
-    rehypeHighlightCode,
     rehypeNoteAlerts,
     SANITIZE_SCHEMA,
 } from './markdownPlugins'
 import { CsvTable, OpenLTable } from './GuideTables'
+import { HighlightedCode } from './HighlightedCode'
 import { MermaidDiagram } from './MermaidDiagram'
 import { useStyles } from './UserGuides.styles'
 
@@ -32,7 +32,6 @@ const REHYPE_PLUGINS: Options['rehypePlugins'] = [
     [rehypeSanitize, SANITIZE_SCHEMA],
     rehypeHeadingIds,
     rehypeNoteAlerts,
-    rehypeHighlightCode,
 ]
 
 interface GuideLinkProps {
@@ -80,8 +79,12 @@ const componentsOf = (file: string, styles: Styles, noteTitle: string): Componen
     ),
     pre: ({ node, children }) => {
         const code = codeOf(node)
-        const Drawn = DRAWN_BLOCKS[languageOf(code) ?? '']
-        return code && Drawn ? <Drawn text={toString(code)} /> : <pre>{children}</pre>
+        const language = languageOf(code)
+        const Drawn = DRAWN_BLOCKS[language ?? '']
+        if (code && Drawn) {
+            return <Drawn text={toString(code)} />
+        }
+        return code && language ? <HighlightedCode code={toString(code)} language={language} /> : <pre>{children}</pre>
     },
     table: ({ children }) => (
         <div className={styles.tableScroll}>

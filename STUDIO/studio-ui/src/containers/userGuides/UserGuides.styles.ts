@@ -240,36 +240,36 @@ export const useStyles = createStyles(({ css, token }) => ({
             list-style: none;
         }
 
-        .hljs-comment, .hljs-quote {
+        .tok-comment {
             color: ${token.colorTextTertiary};
             font-style: italic;
         }
 
-        .hljs-keyword, .hljs-selector-tag, .hljs-doctag {
+        .tok-keyword {
             color: ${token.purple6};
         }
 
-        .hljs-string, .hljs-regexp, .hljs-addition {
+        .tok-string, .tok-string2, .tok-inserted {
             color: ${token.green7};
         }
 
-        .hljs-number, .hljs-literal, .hljs-variable, .hljs-template-variable {
+        .tok-number, .tok-bool, .tok-atom, .tok-literal, .tok-variableName2 {
             color: ${token.blue6};
         }
 
-        .hljs-title, .hljs-section, .hljs-type, .hljs-class {
+        .tok-typeName, .tok-className, .tok-namespace {
             color: ${token.geekblue6};
         }
 
-        .hljs-attr, .hljs-attribute, .hljs-property, .hljs-params {
+        .tok-propertyName, .tok-definition {
             color: ${token.orange7};
         }
 
-        .hljs-tag, .hljs-name, .hljs-built_in, .hljs-symbol {
+        .tok-labelName, .tok-macroName {
             color: ${token.cyan7};
         }
 
-        .hljs-meta, .hljs-deletion {
+        .tok-meta, .tok-deleted, .tok-invalid {
             color: ${token.volcano6};
         }
     `,

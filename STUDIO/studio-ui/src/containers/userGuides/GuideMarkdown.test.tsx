@@ -99,13 +99,29 @@ describe('GuideMarkdown', () => {
         expect(screen.queryByRole('link', { name: 'Click' })).not.toBeInTheDocument()
     })
 
-    it('highlights the code of a language the guides use and leaves any other as plain text', () => {
+    it('highlights the code of a language the guides use and leaves any other as plain text', async () => {
         const { container } = renderPage('```java\npublic class Rules {}\n```\n\n```text\npublic class Plain {}\n```')
 
         const [java, text] = Array.from(container.querySelectorAll('pre code'))
-        expect(java?.querySelector('.hljs-keyword')).toHaveTextContent('public')
-        expect(text?.querySelector('[class^="hljs"]')).toBeNull()
+        await waitFor(() => expect(java?.querySelector('.tok-keyword')).toHaveTextContent('public'))
+        expect(java).toHaveTextContent('public class Rules {}')
+        expect(text?.querySelector('[class^="tok-"]')).toBeNull()
         expect(text).toHaveTextContent('public class Plain {}')
+    })
+
+    it.each([
+        ['bash', '# Build\nmvn install', '.tok-comment', '# Build'],
+        ['groovy', 'def total = 1', '.tok-keyword', 'def'],
+        ['json', '{"name": 1}', '.tok-propertyName', '"name"'],
+        ['properties', 'openl.home = /data', '.tok-definition', 'openl.home'],
+        ['xml', '<project name="x"/>', '.tok-string', '"x"'],
+        ['yaml', 'server:\n  port: 8080', '.tok-definition', 'server'],
+    ])('highlights %s code and keeps its lines', async (language, code, selector, token) => {
+        const { container } = renderPage(`\`\`\`${language}\n${code}\n\`\`\``)
+
+        const block = container.querySelector('pre code')
+        await waitFor(() => expect(block?.querySelector(selector)).toHaveTextContent(token))
+        expect(block?.textContent).toBe(`${code}\n`)
     })
 
     it('draws a csv block as a table whose first record is the column header', () => {
