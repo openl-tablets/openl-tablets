@@ -2456,20 +2456,35 @@ public final class RulesUtils {
 
     // <<< replace functions for Strings >>>
 
+    /**
+     * Returns the elements of the arrays and the values in one array, in their order. An array of arrays gives the
+     * elements of every level, and a missing array gives no elements. When every argument is a missing array, the
+     * result is missing too.
+     * <p>
+     * The result has the closest common type of the elements: {@code int[][]} gives {@code int[]}, and an
+     * {@code int[]} with an {@code Integer[]} gives {@code Integer[]}.
+     */
     @MethodSearchTuner(wrapper = FlattenMethodCallerWrapper.class, methodFilter = FlattenMethodFilter.class)
     @IgnoreNonVarargsMatching
-    public static Object[] flatten(Object... data) {
+    public static @Nullable Object flatten(Object... data) {
         var flattenMethodDetails = (FlattenMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
         var dims = flattenMethodDetails.getDims();
         var values = new ArrayList<Object>();
+        var missing = true;
         for (var i = 0; i < data.length; i++) {
+            missing &= dims[i] > 0 && data[i] == null;
             var openCast = flattenMethodDetails.getOpenCasts()[i];
-            values
-                    .addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).toList());
+            values.addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).toList());
         }
-        var result = (Object[]) Array
-                .newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(), 0);
-        return values.toArray(result);
+        if (missing) {
+            return null;
+        }
+        var result = Array.newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(),
+                values.size());
+        for (var i = 0; i < values.size(); i++) {
+            Array.set(result, i, values.get(i));
+        }
+        return result;
     }
 
     private static List<Object> flattenInternal(int dim, Object v) {
