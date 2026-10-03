@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openl.OpenL;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
@@ -44,9 +45,9 @@ public class PropertiesLoader {
      * Load properties from source table as data table.
      *
      * @param tableSyntaxNode Tsn to load properties.
-     * @throws Exception when there problems loading properties with data table mechanism.
+     * @throws OpenLCompilationException when the properties section cannot be bound as a data table.
      */
-    private void loadPropertiesAsDataTable(TableSyntaxNode tableSyntaxNode) throws Exception {
+    private void loadPropertiesAsDataTable(TableSyntaxNode tableSyntaxNode) throws OpenLCompilationException {
 
         var propertySectionName = PROPERTIES_SECTION_NAME + tableSyntaxNode.getUri();
         var dataNodeBinder = new DataNodeBinder();
@@ -180,7 +181,7 @@ public class PropertiesLoader {
         tableSyntaxNode.setTableProperties(properties);
     }
 
-    public void loadProperties(TableSyntaxNode tsn) throws Exception {
+    public void loadProperties(TableSyntaxNode tsn) throws OpenLCompilationException {
         // Don`t need to load properties for Properties tables,
         // it will be processed during its binding.
         // author: DLiauchuk

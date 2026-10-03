@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.OpenAPIFileUtils;
 import org.openl.runtime.ASMProxyFactory;
@@ -27,7 +28,8 @@ public final class JAXRSOpenLServiceEnhancer {
         return null;
     }
 
-    public Object decorateServiceBean(OpenLService service) throws Exception {
+    public Object decorateServiceBean(OpenLService service)
+            throws RuleServiceInstantiationException, ReflectiveOperationException {
         Class<?> serviceClass = service.getServiceClass();
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         var classLoader = service.getClassLoader();
