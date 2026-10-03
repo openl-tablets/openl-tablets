@@ -1,6 +1,5 @@
 package org.openl.studio.common.projection;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -50,10 +49,6 @@ public final class FieldNode {
 
     public FieldNode child(String name) {
         return children.get(name);
-    }
-
-    public Map<String, FieldNode> children() {
-        return Collections.unmodifiableMap(children);
     }
 
     FieldNode getOrAdd(String name) {
