@@ -1,0 +1,66 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "f55d6ff710d930c7cf6d43a377446bcd",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Person",
+  "pos": "B2:D5",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Datatype Person",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "String"
+      },
+      {
+        "cell": "C3",
+        "value": "name"
+      },
+      {
+        "cell": "D3",
+        "value": "Bob"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Double"
+      },
+      {
+        "cell": "C4",
+        "value": "rate"
+      },
+      {
+        "cell": "D4"
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Integer"
+      },
+      {
+        "cell": "C5",
+        "value": "age"
+      },
+      {
+        "cell": "D5"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

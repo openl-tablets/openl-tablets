@@ -1,11 +1,13 @@
 package org.openl.rules.table;
 
 import java.util.Date;
+import java.util.List;
 
 import org.jspecify.annotations.NonNull;
 
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.TextRun;
 
 public interface ICell {
 
@@ -46,6 +48,18 @@ public interface ICell {
     @SuppressWarnings("java:S1135")
     // TODO: move this method to ICellStyle
     ICellFont getFont();
+
+    /**
+     * Returns the pieces of the cell text that are formatted with fonts of their own.
+     *
+     * <p>A cell whose text takes the font of the cell returns an empty list. Its text is drawn with
+     * {@link #getFont()}.
+     *
+     * @return the runs of the cell text, or an empty list when the text takes the font of the cell
+     */
+    default @NonNull List<TextRun> getTextRuns() {
+        return List.of();
+    }
 
     /**
      * @return grid region, if cell belongs to any merged region. In other cases <code>null</code>.

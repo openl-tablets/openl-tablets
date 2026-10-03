@@ -1,0 +1,36 @@
+# A table theme of OpenL Studio: the look it gives Datatype and Vocabulary tables.
+# The format and every attribute: OpenL Studio User Guide > Table Themes.
+
+name: Green
+
+base: &base
+  header: &header
+    style:
+      background: "#c6e0b4"
+      align: center
+      border:
+        top: {style: thin, color: "#548235"}
+        bottom: {style: thin, color: "#548235"}
+    keyword: &muted
+      color: "#548235"
+    name:
+      bold: true
+    type: *muted
+  lastRow:
+    border:
+      bottom: {style: thin, color: "#548235"}
+
+datatype:
+  <<: *base
+  name:
+    background: "#e2efda"
+
+vocabulary:
+  <<: *base
+  # A Vocabulary keeps the header of the base, without the bold name.
+  header:
+    <<: *header
+    name:
+      bold: false
+  values:
+    align: center

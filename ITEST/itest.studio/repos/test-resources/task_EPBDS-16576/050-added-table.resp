@@ -10,87 +10,22 @@ Content-Type: application/json
       [
         {
           "cell": "A8",
-          "value": "Datatype Address",
-          "style": {
-            "border": {
-              "top": {
-                "style": "solid",
-                "width": 1
-              },
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "Datatype Address"
         },
         {
-          "cell": "B8",
-          "style": {
-            "border": {
-              "top": {
-                "style": "solid",
-                "width": 1
-              },
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "cell": "B8"
         }
       ],
       [
         {
           "cell": "A9",
-          "value": "String",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              },
-              "left": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "String"
         },
         {
           "cell": "B9",
-          "value": "city",
-          "style": {
-            "border": {
-              "right": {
-                "style": "solid",
-                "width": 1
-              },
-              "bottom": {
-                "style": "solid",
-                "width": 1
-              }
-            }
-          }
+          "value": "city"
         }
       ]
     ]
   }
 }
-

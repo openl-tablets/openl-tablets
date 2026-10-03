@@ -1,11 +1,13 @@
 package org.openl.rules.table;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Getter;
 
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.TextRun;
 
 class GridTableCell implements ICell {
 
@@ -58,6 +60,11 @@ class GridTableCell implements ICell {
     @Override
     public ICellFont getFont() {
         return cell.getFont();
+    }
+
+    @Override
+    public List<TextRun> getTextRuns() {
+        return cell.getTextRuns();
     }
 
     @Override

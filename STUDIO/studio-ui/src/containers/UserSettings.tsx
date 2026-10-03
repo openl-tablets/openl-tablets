@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { App, Button, Divider, Form, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
@@ -7,19 +7,30 @@ import { UserProfileFormFields } from '../types/user'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { useUserStore } from 'store'
 import { changedValues } from 'utils/userProfile'
+import { toThemeOptions, useTableThemes } from '../hooks/useTableThemes'
+
+/** The table theme a profile names when its tables are drawn with the formatting of the Excel file. */
+const EXCEL_FORMATTING = ''
 
 export const UserSettings: React.FC = () => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
     const { userProfile, fetchUserProfile } = useUserStore()
     const [form] = Form.useForm()
+    const tableThemes = useTableThemes()
+    // A profile that names no theme draws its tables with the formatting of the Excel file. Built once per read of
+    // the profile: the fields are set from it again whenever it changes.
+    const profile = useMemo(() => userProfile && {
+        ...userProfile,
+        tableTheme: userProfile.tableTheme ?? EXCEL_FORMATTING,
+    }, [userProfile])
 
     // The fields follow every read of the profile, so they show what a save compares them with.
     useEffect(() => {
-        if (userProfile) {
-            form.setFieldsValue(userProfile)
+        if (profile) {
+            form.setFieldsValue(profile)
         }
-    }, [form, userProfile])
+    }, [form, profile])
 
     const testsPerPageOptions = [
         {
@@ -46,7 +57,7 @@ export const UserSettings: React.FC = () => {
         try {
             setSaving(true)
             // Only what was changed here: the rest of the profile keeps what is stored, whatever was saved meanwhile.
-            const body = changedValues(values, userProfile)
+            const body = changedValues(values, profile)
             await apiCall('/users/profile', {
                 method: 'PUT',
                 headers: {
@@ -67,7 +78,7 @@ export const UserSettings: React.FC = () => {
         <Form
             labelWrap
             form={form}
-            {...(userProfile && { initialValues: userProfile })}
+            {...(profile && { initialValues: profile })}
             labelAlign="right"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={handleSubmit}
@@ -76,6 +87,14 @@ export const UserSettings: React.FC = () => {
             <Divider titlePlacement="start">{t('users:settings.table_settings')}</Divider>
             <Checkbox label={t('users:settings.show_header')} name="showHeader" />
             <Checkbox label={t('users:settings.show_formulas')} name="showFormulas" />
+            <Select
+                label={t('users:settings.table_theme')}
+                name="tableTheme"
+                options={[
+                    { value: EXCEL_FORMATTING, label: t('users:settings.excel_formatting') },
+                    ...toThemeOptions(tableThemes),
+                ]}
+            />
             <Divider titlePlacement="start">{t('users:settings.testing_settings')}</Divider>
             <Select label={t('users:settings.tests_per_page')} name="testsPerPage" options={testsPerPageOptions} />
             <Checkbox label={t('users:settings.failures_only')} name="testsFailuresOnly" />

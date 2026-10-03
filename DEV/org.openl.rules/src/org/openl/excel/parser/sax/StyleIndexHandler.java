@@ -29,11 +29,19 @@ public class StyleIndexHandler extends DefaultHandler {
     private final int[][] cellIndexes;
     @Getter
     private final Map<CellAddress, String> formulas = new HashMap<>();
+    /**
+     * The shared strings the cells of the table hold, by the cell that holds each.
+     */
+    @Getter
+    private final Map<CellAddress, Integer> sharedStrings = new HashMap<>();
     private final int sheetIndex;
 
     private CellAddress current;
     private boolean readFormula;
     private final StringBuilder formula = new StringBuilder();
+    private boolean sharedString;
+    private boolean readSharedString;
+    private final StringBuilder sharedStringIndex = new StringBuilder();
     private final Map<String, SharedFormulaDefinition> sharedFormulas = new HashMap<>();
     private String sharedFormulaIndex;
     private String sharedFormulaRef;
@@ -58,7 +66,12 @@ public class StyleIndexHandler extends DefaultHandler {
                 var internalRow = current.getRow() - tableRegion.getTop();
                 var internalCol = current.getColumn() - tableRegion.getLeft();
                 cellIndexes[internalRow][internalCol] = styleIndex;
+                sharedString = "s".equals(attributes.getValue("t"));
+            } else {
+                sharedString = false;
             }
+        } else if ("v".equals(localName)) {
+            readSharedString = sharedString;
         } else if ("f".equals(localName)) {
             sharedFormulaIndex = attributes.getValue("si");
             sharedFormulaRef = attributes.getValue("ref");
@@ -74,12 +87,18 @@ public class StyleIndexHandler extends DefaultHandler {
     public void characters(char[] ch, int start, int length) {
         if (readFormula) {
             formula.append(ch, start, length);
+        } else if (readSharedString) {
+            sharedStringIndex.append(ch, start, length);
         }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) {
-        if ("f".equals(localName)) {
+        if ("v".equals(localName) && readSharedString) {
+            readSharedString = false;
+            sharedStrings.put(current, Integer.parseInt(sharedStringIndex.toString().trim()));
+            sharedStringIndex.setLength(0);
+        } else if ("f".equals(localName)) {
             readFormula = false;
             if (sharedFormulaIndex != null && sharedFormulaRef != null) {
                 sharedFormulas.put(sharedFormulaIndex,

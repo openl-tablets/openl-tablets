@@ -29,6 +29,7 @@ import org.openl.rules.table.actions.style.font.SetBoldAction;
 import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.actions.style.font.SetItalicAction;
 import org.openl.rules.table.actions.style.font.SetUnderlineAction;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.DeleteTarget;
@@ -44,6 +45,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.theme.TableThemeService;
 
 /**
  * Writes {@link RawTableView} back to the original table preserving the exact 2D matrix structure.
@@ -78,12 +80,27 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private static final String ROW_WIDTH_MESSAGE = "table.action.row.width.message";
     private static final String COLUMN_HEIGHT_MESSAGE = "table.action.column.height.message";
 
+    /** The themes a {@code theme} edit is written with, or {@code null} where this writer is given none. */
+    private final @Nullable TableThemeService themes;
+
     public RawTableWriter(IOpenLTable table) {
+        this(table, null);
+    }
+
+    /**
+     * A writer of the raw source of a table that can also write a table theme into it.
+     *
+     * @param table  the table to write
+     * @param themes the themes a {@code theme} edit is written with, or {@code null} to refuse such an edit
+     */
+    public RawTableWriter(IOpenLTable table, @Nullable TableThemeService themes) {
         super(table);
+        this.themes = themes;
     }
 
     public RawTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
         super(gridTable, metaInfoWriter);
+        this.themes = null;
     }
 
     /**
@@ -311,6 +328,22 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             case RawTableSourceAction.Merge(var target) -> merge(target);
             case RawTableSourceAction.Unmerge(var target) -> unmerge(target);
             case RawTableSourceAction.Style(var target) -> style(target);
+            case RawTableSourceAction.Theme(String theme) -> theme(theme);
+        }
+    }
+
+    /**
+     * Writes a table theme into the table, as the edits before it left the table.
+     *
+     * <p>The theme is laid over the cells as they stand: a row added by an earlier edit gets the look of its place,
+     * and the line that closes the table moves to its new last row.
+     */
+    private void theme(String themeId) {
+        if (themes == null) {
+            throw new IllegalStateException("This writer is given no table themes.");
+        }
+        if (!themes.writer(themeId).write(table, developerView())) {
+            throw new BadRequestException("table.theme.unsupported.message");
         }
     }
 
@@ -584,7 +617,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void styleCell(IGridTable developerView, int col, int row, RawCellStyleInput style) {
         var metaInfoWriter = getMetaInfoWriter();
         if (style.background() != null) {
-            run(developerView, new SetFillColorAction(col, row, rgb(style.background()), metaInfoWriter));
+            run(developerView, new SetFillColorAction(col, row, PoiExcelHelper.toRgb(style.background()),
+                    metaInfoWriter));
         }
         if (style.align() != null) {
             run(developerView, new SetAlignmentAction(col, row, alignment(style.align()), metaInfoWriter));
@@ -602,21 +636,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             run(developerView, new SetUnderlineAction(col, row, style.underline(), metaInfoWriter));
         }
         if (style.color() != null) {
-            run(developerView, new SetColorAction(col, row, rgb(style.color()), metaInfoWriter));
+            run(developerView, new SetColorAction(col, row, PoiExcelHelper.toRgb(style.color()), metaInfoWriter));
         }
     }
 
     /** Applies an action, the way every other edit of this writer is applied. */
     private void run(IGridTable developerView, IUndoableGridTableAction action) {
         action.doAction(developerView);
-    }
-
-    /** The colour as the workbook takes it: one component per entry. The request shape is already validated. */
-    private static short[] rgb(String hex) {
-        return new short[]{
-                (short) Integer.parseInt(hex.substring(1, 3), 16),
-                (short) Integer.parseInt(hex.substring(3, 5), 16),
-                (short) Integer.parseInt(hex.substring(5, 7), 16)};
     }
 
     private static HorizontalAlignment alignment(RawTableHorizontalAlign align) {

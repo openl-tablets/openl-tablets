@@ -9,6 +9,10 @@ import static org.mockito.Mockito.mock;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -22,7 +26,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
-import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.model.tables.RawTableTextRun;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.write.RawTableWriter;
 
@@ -39,7 +43,7 @@ class RawTableReaderTest {
         IOpenLTable table = multiRowTable();
         var fullHeight = new RawTableReader().read(table).source.size();
 
-        var capped = new RawTableReader().read(table, null, 1, false, false, TableModules.none());
+        var capped = new RawTableReader().read(table, RawTableRead.builder().maxRows(1).build());
 
         assertEquals(1, capped.source.size(), "the result must be capped to maxRows");
         assertNotNull(capped.totalRows, "a truncated read must report the full row count");
@@ -54,7 +58,7 @@ class RawTableReaderTest {
         assertNull(full.totalRows, "a full read carries no truncation marker");
 
         // A cap at or above the height is non-regressive: same rows, no marker.
-        var wide = new RawTableReader().read(table, null, full.source.size() + 10, false, false, TableModules.none());
+        var wide = new RawTableReader().read(table, RawTableRead.builder().maxRows(full.source.size() + 10).build());
         assertEquals(full.source.size(), wide.source.size());
         assertNull(wide.totalRows);
     }
@@ -69,7 +73,7 @@ class RawTableReaderTest {
                 "the default read must carry no cell styles");
 
         // With styles requested, the shape is unchanged and Excel formatting is attached.
-        var styled = new RawTableReader().read(table, null, null, true, false, TableModules.none());
+        var styled = new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build());
         assertEquals(plain.source.size(), styled.source.size());
         assertTrue(styled.source.stream().flatMap(List::stream).anyMatch(c -> c.style() != null),
                 "a styled read must attach at least one cell style");
@@ -86,7 +90,7 @@ class RawTableReaderTest {
         // Slice from a plain data row, so no merged region is cut at the boundary, and confirm the window
         // lines up one-to-one with the whole-table read while keeping absolute cell addresses.
         var startRow = firstPlainRow(full);
-        var window = reader.read(table, startRow, null, false, false, TableModules.none());
+        var window = reader.read(table, RawTableRead.builder().startRow(startRow).build());
 
         assertEquals(fullHeight - startRow, window.source.size(), "the window must skip the rows before startRow");
         assertEquals(cellAddresses(full.get(startRow)), cellAddresses(window.source.getFirst()),
@@ -103,7 +107,7 @@ class RawTableReaderTest {
 
         // startRow and maxRows compose into a bounded slice taken from the middle of the table.
         var startRow = firstPlainRow(full);
-        var oneRow = reader.read(table, startRow, 1, false, false, TableModules.none());
+        var oneRow = reader.read(table, RawTableRead.builder().startRow(startRow).maxRows(1).build());
 
         assertEquals(1, oneRow.source.size(), "the window must be capped to maxRows counted from startRow");
         assertEquals(cellAddresses(full.get(startRow)), cellAddresses(oneRow.source.getFirst()));
@@ -116,7 +120,7 @@ class RawTableReaderTest {
         var reader = new RawTableReader();
         var fullHeight = reader.read(table).source.size();
 
-        var beyond = reader.read(table, fullHeight + 5, null, false, false, TableModules.none());
+        var beyond = reader.read(table, RawTableRead.builder().startRow(fullHeight + 5).build());
 
         assertTrue(beyond.source.isEmpty(), "an offset past the last row yields an empty matrix");
         assertEquals(fullHeight, beyond.totalRows, "the empty window still reports the full row count");
@@ -171,7 +175,7 @@ class RawTableReaderTest {
         new RawTableWriter(firstTable(project))
                 .apply(new RawTableSourceAction.Merge(new MergeTarget.Cells(2, 0, 2, 1)));
 
-        var window = new RawTableReader().read(firstTable(project), null, 3, false, false, TableModules.none());
+        var window = new RawTableReader().read(firstTable(project), RawTableRead.builder().maxRows(3).build());
 
         // Three rows would end halfway down the group. Answered so, the group would come back twice — clamped
         // here and rooted in the next window at a cell that holds nothing — and a screen reading the table
@@ -182,15 +186,55 @@ class RawTableReaderTest {
         assertNotNull(window.totalRows, "the window still says how many rows the table has");
 
         // The next window starts where this one ended, so it starts on no merge either.
-        var next = new RawTableReader().read(firstTable(project), 4, 3, false, false, TableModules.none());
+        var next = new RawTableReader().read(firstTable(project), RawTableRead.builder()
+                .startRow(4)
+                .maxRows(3)
+                .build());
         assertEquals(1, next.source.size());
         assertNull(next.source.getFirst().getFirst().rowspan(), "the row after the group stands on its own");
 
         // A window placed by hand halfway down the group opens on the group instead: answered from where it
         // was asked for, its first cell would stand for the whole group while holding only half of it.
-        var halfway = new RawTableReader().read(firstTable(project), 3, 2, false, false, TableModules.none());
+        var halfway = new RawTableReader().read(firstTable(project), RawTableRead.builder()
+                .startRow(3)
+                .maxRows(2)
+                .build());
         assertEquals(Integer.valueOf(2), halfway.source.getFirst().getFirst().rowspan());
         assertEquals("same", halfway.source.getFirst().getFirst().value());
+    }
+
+    @Test
+    void readsTheBordersAndTheFontsOfThePiecesOfATextTheWorkbookDraws(@TempDir Path tempDir) throws Exception {
+        var model = TableTestProjects.projectModel(tempDir.resolve("drawn"), "Drawn", sheet -> {
+            var workbook = (XSSFWorkbook) sheet.getWorkbook();
+            var grey = workbook.createFont();
+            grey.setColor(new XSSFColor(new byte[]{(byte) 0x80, (byte) 0x80, (byte) 0x80}));
+            var bold = workbook.createFont();
+            bold.setBold(true);
+            var header = new XSSFRichTextString("Datatype Greeting");
+            header.applyFont(0, 9, grey);
+            header.applyFont(9, 17, bold);
+            sheet.createRow(1).createCell(1).setCellValue(header);
+            TableTestProjects.row(sheet, 2, 1, "String", "code");
+            var closed = workbook.createCellStyle();
+            closed.setBorderBottom(BorderStyle.THIN);
+            closed.setBottomBorderColor(new XSSFColor(new byte[]{(byte) 0xFF, 0, 0}));
+            sheet.getRow(2).getCell(1).setCellStyle(closed);
+        });
+
+        var source = new RawTableReader().read(TableTestProjects.table(model, "Greeting"), RawTableRead.builder()
+                .withStyles(true)
+                .build()).source;
+
+        var runs = source.getFirst().getFirst().runs();
+        assertEquals(List.of("Datatype ", "Greeting"), runs.stream().map(RawTableTextRun::text).toList());
+        assertEquals("#808080", runs.getFirst().style().color());
+        assertEquals(Boolean.TRUE, runs.get(1).style().bold());
+        var bottom = source.get(1).getFirst().style().border().bottom();
+        assertEquals("#ff0000", bottom.color());
+        assertNull(source.get(1).getFirst().style().border().top(),
+                "A side the workbook draws nothing on has no border");
+        assertNull(source.get(1).get(1).style(), "A cell the workbook draws no border around carries none");
     }
 
     private static List<String> cellAddresses(List<RawTableCell> row) {

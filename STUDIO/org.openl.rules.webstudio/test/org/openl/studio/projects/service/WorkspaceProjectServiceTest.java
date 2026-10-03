@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,6 +80,9 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectCompilationStatus;
@@ -134,9 +138,11 @@ import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
+import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.TableEditorsReader;
+import org.openl.studio.projects.service.tables.theme.TableThemeService;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -1654,6 +1660,160 @@ class WorkspaceProjectServiceTest {
         verify(project, never()).forceUnlock();
     }
 
+    @Test
+    void a_table_theme_studio_does_not_offer_is_refused_before_anything_is_written() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+
+        var refused = assertThrows(BadRequestException.class, () -> service.applyProjectTableTheme(project, "purple"));
+
+        assertEquals("openl.error.400.table.theme.unknown.message", refused.getErrorCode());
+        verify(service, never()).openProject(project);
+    }
+
+    @Test
+    void a_table_theme_failing_halfway_has_every_module_read_from_its_file_again(@TempDir Path dir) throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var compiled = TableTestProjects.projectModel(dir, "Model", sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Datatype Person");
+            TableTestProjects.row(sheet, 2, 1, "String", "name");
+        });
+        // The Datatype after the one themed first is a table of another module that cannot be written.
+        var broken = datatype("broken");
+        var brokenGrid = mock(IGridTable.class);
+        var grid = mock(IGrid.class);
+        when(brokenGrid.getGrid()).thenReturn(grid);
+        doThrow(new IllegalStateException("The sheet cannot be written")).when(brokenGrid).edit();
+        when(broken.getGridTable()).thenReturn(brokenGrid);
+        var person = TableTestProjects.table(compiled, "Person").getSyntaxNode();
+        stubCompiledProject(service, project, new LinkedHashSet<>(List.of(person, broken)));
+
+        assertThrows(IllegalStateException.class, () -> service.applyProjectTableTheme(project, "green"));
+
+        // The first table was themed and not saved: what the session holds of it is read from its file again, once.
+        verify(webStudio).reset();
+        verify(webStudio, never()).rebuildCurrentModule();
+    }
+
+    @Test
+    void the_table_theme_reaches_every_datatype_of_the_project_but_a_partial_one(@TempDir Path dir) throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var compiled = TableTestProjects.projectModel(dir, "Model", sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Datatype Person");
+            TableTestProjects.row(sheet, 2, 1, "String", "name");
+            TableTestProjects.row(sheet, 5, 1, "Datatype Code <String>");
+            TableTestProjects.row(sheet, 6, 1, "A");
+            TableTestProjects.row(sheet, 9, 1, "Data Person people");
+            TableTestProjects.row(sheet, 10, 1, "name");
+            TableTestProjects.row(sheet, 11, 1, "Name");
+        });
+        // A Datatype gathered from partial tables stands on a grid made of them.
+        var part = datatype("part");
+        var partGrid = mock(IGridTable.class);
+        var composite = mock(CompositeGrid.class);
+        when(partGrid.getGrid()).thenReturn(composite);
+        when(part.getGridTable()).thenReturn(partGrid);
+        var nodes = new LinkedHashSet<>(compiled.getAllTableSyntaxNodes());
+        nodes.add(part);
+        var model = stubCompiledProject(service, project, nodes);
+
+        var result = service.applyProjectTableTheme(project, "green");
+
+        var themed = List.of("Person", "Code").stream()
+                .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
+                .toList();
+        assertEquals(themed, result.themed());
+        assertEquals(List.of("part"), result.skipped());
+        // The other modules are compiled as dependencies of the one open: the workbook of each table themed is
+        // listened to first, and a table left as it is has nothing written.
+        var module = service.getProjectDescriptor(project).getModules().getFirst();
+        verify(model).initProjectHistory(TableTestProjects.table(compiled, "Person").getSyntaxNode(), module);
+        verify(model, never()).initProjectHistory(eq(part), any());
+        // The theme named is the one written.
+        var header = new RawTableReader().read(TableTestProjects.table(TableTestProjects.projectModel(dir), "Person"),
+                RawTableRead.builder().withStyles(true).build()).source.getFirst().getFirst();
+        assertEquals("#c6e0b4", header.style().background());
+    }
+
+    @Test
+    void the_table_theme_compiles_a_project_compiled_only_in_part_whole_first(@TempDir Path dir) throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var compiled = TableTestProjects.projectModel(dir, "Model", sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Datatype Person");
+            TableTestProjects.row(sheet, 2, 1, "String", "name");
+        });
+        var person = TableTestProjects.table(compiled, "Person").getSyntaxNode();
+        var model = stubCompiledProject(service, project, new LinkedHashSet<>(List.of(person)));
+        // The open module compiles alone: the other modules are compiled once the project is.
+        when(model.isProjectCompilationCompleted()).thenReturn(false, true);
+
+        var result = service.applyProjectTableTheme(project, "green");
+
+        var order = inOrder(model);
+        order.verify(model).compileProject(true, false);
+        order.verify(model).getAllTableSyntaxNodes();
+        assertEquals(List.of(person.getId()), result.themed());
+    }
+
+    @Test
+    void the_table_theme_refuses_a_project_whose_compilation_was_stopped() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var model = stubCompiledProject(service, project, new LinkedHashSet<>());
+        // A compilation the reader stopped is not started again, so the project stays compiled in part.
+        when(model.isProjectCompilationCompleted()).thenReturn(false);
+
+        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project, "green"));
+
+        assertEquals("openl.error.409.table.theme.project.stopped.message", refused.getErrorCode());
+        verify(model, never()).getAllTableSyntaxNodes();
+    }
+
+    /** A Datatype of the project that only tells its kind, its address and its identifier. */
+    private static TableSyntaxNode datatype(String id) {
+        var node = mock(TableSyntaxNode.class);
+        when(node.getType()).thenReturn(XlsNodeTypes.XLS_DATATYPE.toString());
+        when(node.getUri()).thenReturn(id);
+        when(node.getId()).thenReturn(id);
+        return node;
+    }
+
+    /** Stubs the project as compiled with the given tables, every one of them in a module of the project. */
+    private static ProjectModel stubCompiledProject(WorkspaceProjectService service, RulesProject project,
+                                                    Set<TableSyntaxNode> nodes) {
+        var model = mock(ProjectModel.class);
+        when(model.getAllTableSyntaxNodes()).thenReturn(nodes);
+        when(model.isProjectCompilationCompleted()).thenReturn(true);
+        var handle = mock(ProjectHandle.class);
+        when(handle.awaitCompiled()).thenReturn(model);
+        doReturn(handle).when(service).openProject(project);
+        var module = mock(Module.class);
+        when(module.containsTable(any())).thenReturn(true);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setModules(List.of(module));
+        doReturn(descriptor).when(service).getProjectDescriptor(project);
+        return model;
+    }
+
     /** Stubs the source-resolution chain so {@code getOpenLTable(project, "src-id")} returns {@code source}. */
     private ProjectModel stubResolvedSource(WorkspaceProjectService service,
                                             RulesProject project,
@@ -2586,7 +2746,8 @@ class WorkspaceProjectServiceTest {
                 new ProjectTagsCache(mock(CacheManager.class)),
                 new ProjectListingContext(),
                 moduleCompilationLauncher,
-                () -> userWorkspace) {
+                () -> userWorkspace,
+                new TableThemeService()) {
 
             @Override
             public WebStudio getWebStudio() {

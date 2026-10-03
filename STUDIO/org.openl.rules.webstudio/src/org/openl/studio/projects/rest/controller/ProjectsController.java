@@ -14,6 +14,7 @@ import java.util.function.Function;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -109,6 +110,8 @@ import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
+import org.openl.studio.projects.model.tables.TableThemeResultView;
+import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
@@ -130,6 +133,7 @@ import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
+import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.RetainedTestUnit;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -554,15 +558,34 @@ public class ProjectsController {
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
                                       @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
+                                      @RequestParam(value = "tableTheme", required = false)
+                                      @Parameter(description = "projects.table.get.param.table-theme.desc")
+                                      String tableTheme,
                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
                                       @RequestParam(value = "runState", defaultValue = "false") @Parameter(description = "projects.table.get.param.run-state.desc") boolean runState) {
         var read = raw
-                ? projectService.getTableRaw(project, tableId, startRow, maxRows, styles, metaInfo, module)
+                ? projectService.getTableRaw(project, tableId, RawTableRead.builder()
+                        .startRow(startRow)
+                        .maxRows(maxRows)
+                        .withStyles(styles)
+                        .withMetaInfo(metaInfo)
+                        .build(), tableTheme, module)
                 : (EditableTableView) projectService.getTable(project, tableId, module);
         if (runState && read instanceof TableView view) {
             view.runState = projectService.getTableRunState(project, tableId, module);
         }
         return read;
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/themes")
+    @Operation(summary = "projects.table.themes.summary", description = "projects.table.themes.desc")
+    public List<TableThemeView> getTableThemes(@ProjectId @PathVariable("projectId") RulesProject project,
+                                               @PathVariable("tableId")
+                                               @Parameter(description = "project.table.id.desc") String tableId,
+                                               @RequestParam(value = "module", required = false)
+                                               @Parameter(description = "projects.table.get.param.module.desc")
+                                               String module) {
+        return projectService.getTableThemes(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/tests")
@@ -767,6 +790,19 @@ public class ProjectsController {
         var newTableId = projectService.editTableSource(project, tableId, actions.actions(), module);
         recompileWrittenModule();
         return tableWriteResponse(tableId, newTableId);
+    }
+
+    @Operation(summary = "project.theme.apply.summary", description = "project.theme.apply.desc")
+    @ApiResponse(responseCode = "200", description = "project.theme.apply.200.desc")
+    @PostMapping("/{projectId}/theme")
+    public TableThemeResultView applyProjectTableTheme(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                       @RequestParam("theme") @NotBlank
+                                                       @Parameter(description = "project.theme.apply.param.theme.desc")
+                                                       String theme) {
+        var result = projectService.applyProjectTableTheme(project, theme);
+        // The theme reaches every module of the project, so each is built again rather than the open one alone.
+        recompileWrittenModule(false);
+        return result;
     }
 
     @Operation(summary = "project.table.properties.update.summary", description = "project.table.properties.update.desc")

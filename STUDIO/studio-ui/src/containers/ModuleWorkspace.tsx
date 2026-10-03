@@ -24,6 +24,7 @@ import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/proje
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
 import { useCanonicalProjectAddress, useLoadGeneration, useReleaseOnClose } from '../hooks'
+import { offeredTheme, useTableThemes } from '../hooks/useTableThemes'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
@@ -196,6 +197,14 @@ export const ModuleWorkspace = () => {
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
+    const namedTheme = useUserStore(state => state.userProfile?.tableTheme)
+    // The table themes Studio offers, and the one this reader starts from: drawn over the tables they read, and
+    // offered first when they apply one. A reader whose settings name no theme Studio offers reads the tables with
+    // the formatting of the Excel file.
+    const tableThemes = useTableThemes()
+    const drawnTheme = offeredTheme(tableThemes, namedTheme)
+    // A reader who names a theme has the table read once the themes are known: read before, it is drawn twice.
+    const themeKnown = !namedTheme || tableThemes !== undefined
     // Bumped by Refresh, so the module is compiled again and its tables read afresh.
     // What the reader asked to be compiled again, and how many times. A refresh belongs to the module it was
     // pressed on: carried over to the next module, it would rebuild that one from the workbook as well.
@@ -620,7 +629,7 @@ export const ModuleWorkspace = () => {
     // that — two reads of the same module of the same session, each of them opening it.
     const listed = selected !== null
     useEffect(() => {
-        if (!projectId || selectedId === null || !listed) {
+        if (!projectId || selectedId === null || !listed || !themeKnown) {
             setTable(null)
             setTableError(null)
             return
@@ -635,6 +644,7 @@ export const ModuleWorkspace = () => {
             metaInfo: true,
             // What the band offers to run is what the read says can be run.
             runState: true,
+            tableTheme: drawnTheme,
         })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
@@ -646,7 +656,7 @@ export const ModuleWorkspace = () => {
                     setTableError(errorMessage(error))
                 }
             })
-    }, [projectId, selectedId, listed, moduleName, tableLoads])
+    }, [projectId, selectedId, listed, moduleName, tableLoads, drawnTheme, themeKnown])
 
     // The run state a table is read with can age. Read while the rest of the project was still being built -
     // which is where a switch to another module leaves it - it says a run must stay inside the module, and
@@ -693,6 +703,7 @@ export const ModuleWorkspace = () => {
             startRow: table.source.length,
             maxRows: TABLE_PAGE_ROWS,
             metaInfo: true,
+            tableTheme: drawnTheme,
         })
             .then(next => setTable(shown => (shown === null || !tableLoads.isLatest(generation) ? shown : {
                 ...shown,
@@ -704,7 +715,7 @@ export const ModuleWorkspace = () => {
                 }
             })
             .finally(() => setMoreLoading(false))
-    }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads])
+    }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads, drawnTheme])
 
     if (linkProblem) {
         return (
@@ -935,6 +946,7 @@ export const ModuleWorkspace = () => {
                     rows={table.source}
                     tableId={selected.id}
                     testId="module-table"
+                    theme={drawnTheme}
                     whole={shown >= total}
                 >
                     {shown < total && (

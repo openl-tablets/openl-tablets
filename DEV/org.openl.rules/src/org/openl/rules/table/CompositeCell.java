@@ -1,11 +1,13 @@
 package org.openl.rules.table;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Getter;
 
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.TextRun;
 
 public class CompositeCell implements ICell {
 
@@ -57,6 +59,11 @@ public class CompositeCell implements ICell {
     @Override
     public ICellFont getFont() {
         return delegate.getFont();
+    }
+
+    @Override
+    public List<TextRun> getTextRuns() {
+        return delegate.getTextRuns();
     }
 
     @Override

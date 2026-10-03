@@ -167,8 +167,18 @@ public abstract class TableWriter<T extends TableView> {
      * @return current table identifier
      */
     public String getTableId() {
-        originalTable.resetUri();
-        return TableUtils.makeTableId(originalTable.getUri());
+        return tableIdOf(originalTable);
+    }
+
+    /**
+     * The identifier of a table as it stands now: a table an edit moved is named by its new place.
+     *
+     * @param table the table, header included
+     * @return the identifier of the table
+     */
+    public static String tableIdOf(IGridTable table) {
+        table.resetUri();
+        return TableUtils.makeTableId(table.getUri());
     }
 
     protected abstract void updateHeader(T tableView);
@@ -303,11 +313,26 @@ public abstract class TableWriter<T extends TableView> {
      * which is a creation and noted as one.
      */
     private void recordEdit() {
-        if (stampedOnEdit.isEmpty() || table == null || !isUpdateMode() || !table.isCanContainProperties()) {
+        if (table != null && isUpdateMode()) {
+            recordEdit(table, stampedOnEdit);
+        }
+    }
+
+    /**
+     * Writes onto a table what OpenL Studio notes about an edit of it, such as who made it and when.
+     *
+     * <p>Nothing is written where the installation records nothing, and nothing onto a table of a kind that carries no
+     * properties. A table without room for the note moves to where it has room.
+     *
+     * @param table      the table edited, opened for writing
+     * @param properties what is noted about the edit, in the order it is written; empty when nothing is
+     */
+    public static void recordEdit(IOpenLTable table, Map<String, Object> properties) {
+        if (properties.isEmpty() || !table.isCanContainProperties()) {
             return;
         }
         var editor = new TableEditorModel(table);
-        stampedOnEdit.forEach(editor::setProperty);
+        properties.forEach(editor::setProperty);
     }
 
     /**

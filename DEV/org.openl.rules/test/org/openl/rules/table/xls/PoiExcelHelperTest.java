@@ -145,6 +145,19 @@ class PoiExcelHelperTest {
     }
 
     @Test
+    void holdsAColourTheXlsPaletteHasNoRoomForAsTheNearestOneItHas() throws IOException {
+        try (var xls = new HSSFWorkbook(); var xlsx = new XSSFWorkbook()) {
+            // The palette of an .xls workbook is full: a colour it lacks is held as the nearest one it has.
+            var nearest = xls.getCustomPalette().findSimilarColor(0xB4, 0xC6, 0xE7).getTriplet();
+            assertArrayEquals(nearest, PoiExcelHelper.toStoredRgb("#b4c6e7", xls));
+            assertArrayEquals(new short[]{0x80, 0x80, 0x80}, PoiExcelHelper.toStoredRgb("#808080", xls));
+            // An .xlsx workbook holds every colour as it is.
+            assertArrayEquals(new short[]{0xB4, 0xC6, 0xE7}, PoiExcelHelper.toStoredRgb("#b4c6e7", xlsx));
+            assertEquals(0xB4C6E7, PoiExcelHelper.toRgbValue(new short[]{0xB4, 0xC6, 0xE7}));
+        }
+    }
+
+    @Test
     void readsTheColourOfAnXlsxFontWithoutWritingIntoTheFont() throws IOException {
         try (var workbook = themedWorkbook()) {
             // White, Background 1: a font coloured by the theme alone, with no RGB of its own.

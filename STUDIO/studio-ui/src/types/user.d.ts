@@ -65,6 +65,11 @@ export interface UserProfile {
     showFormulas: boolean
     showHeader: boolean
     showRealNumbers: boolean
+    /**
+     * The table theme Datatype and Vocabulary tables are drawn with and that is offered first when a theme is applied,
+     * by its identifier. Absent or empty, the tables are drawn with the formatting of the Excel file.
+     */
+    tableTheme?: string
     testsFailuresOnly: boolean
     testsFailuresPerTest: number
     testsPerPage: number

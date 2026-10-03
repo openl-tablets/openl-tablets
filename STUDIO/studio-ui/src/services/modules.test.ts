@@ -63,4 +63,12 @@ describe('modules service', () => {
         expect(url).toContain('maxRows=120')
         expect(url).not.toContain('formulas')
     })
+
+    it('reads the look of a table theme alone, without the styles the workbook has', async () => {
+        await getRawTable('p1', 'table-1', { tableTheme: 'green', styles: false })
+
+        const [url] = mockApiCall.mock.calls[0] as [string]
+        expect(url).toContain('styles=false')
+        expect(url).toContain('tableTheme=green')
+    })
 })

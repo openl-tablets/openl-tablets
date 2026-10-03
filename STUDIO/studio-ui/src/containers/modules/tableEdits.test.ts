@@ -296,6 +296,36 @@ describe('tableEdits', () => {
                 },
             ])
         })
+
+        it('sends no table theme while the reader chose none', () => {
+            expect(after().theme).toBeNull()
+            expect(sent(write(1, 0, '6')).some(edit => edit.operation === 'theme')).toBe(false)
+        })
+
+        it('writes the theme over the rows the reader added, and the styling they asked for over the theme', () => {
+            const edits = sent(
+                { kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } },
+                { kind: 'theme', theme: 'default' },
+                { kind: 'insertRow', at: 3 }
+            )
+
+            expect(edits.map(edit => edit.operation)).toEqual(['insert', 'theme', 'style'])
+            expect(edits[1]).toEqual({ operation: 'theme', theme: 'default' })
+        })
+
+        it('writes the table with the theme the reader chose last', () => {
+            const edits = sent({ kind: 'theme', theme: 'default' }, { kind: 'theme', theme: 'green' })
+
+            expect(edits).toEqual([{ operation: 'theme', theme: 'green' }])
+        })
+
+        it('takes the theme back with the step that chose it', () => {
+            const chosen = withStep(withStep(NO_EDITS, { kind: 'theme', theme: 'default' }),
+                { kind: 'theme', theme: 'green' })
+
+            expect(replay(table, undo(chosen).steps).theme).toBe('default')
+            expect(replay(table, undo(undo(chosen)).steps).theme).toBeNull()
+        })
     })
 
     describe('the merges a line laid down or taken away leaves behind', () => {

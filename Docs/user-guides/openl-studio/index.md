@@ -29,6 +29,7 @@ This guide is organized into the following sections:
 - [Appendix B: OpenAPI Project Generation Algorithm](appendices/openapi-generation.md) - How OpenAPI projects are generated
 - [Appendix C: Access to OpenL Studio for Experienced Users](appendices/experienced-users.md) - Advanced user access information
 - [Appendix D: Error Pages](appendices/error-pages.md) - Error pages displayed when access or system issues occur
+- [Appendix E: Table Themes](appendices/table-themes.md) - How a table theme file is written
 
 ## Additional Resources
 

@@ -6,9 +6,17 @@ import { PaperTheme } from '../../components/PaperTheme'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { notifyLoadFailure } from '../../services/apiCall'
-import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
+import { getRawTable, getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
-import type { RawCellStyleInput, RawTableCell, TableLayout } from 'types/tables'
+import { useTableThemesOf } from '../../hooks/useTableThemes'
+import type {
+    RawCellStyleInput,
+    RawTableCell,
+    RawTableCellStyle,
+    RawTableTextRun,
+    TableLayout,
+    TableThemeOption,
+} from 'types/tables'
 import type { EditorKind } from './CellValueEditor'
 import { OpenCell } from './OpenCell'
 import { TableEditToolbar } from './TableEditToolbar'
@@ -169,7 +177,10 @@ interface TableEditorProps {
     maxRows?: number | undefined
     /** Whether the whole table is on screen, which adding a column needs: it carries a cell per row. */
     whole?: boolean | undefined
-    /** The table body as it was read, which the pending edits are replayed over. */
+    /**
+     * The table body as it was read, which the pending edits are replayed over. A body read with a table theme carries
+     * the look of the theme in its cells, which no edit starts from: the table is read again without it for editing.
+     */
     rows: RawTableCell[][]
     /**
      * How many rows at the top of the table are kept out of sight — what "Show Header" puts away.
@@ -182,6 +193,8 @@ interface TableEditorProps {
     layout?: TableLayout | undefined
     /** Draw the formula a cell was written with rather than the value it computed. */
     formulas?: boolean | undefined
+    /** The table theme the table is read with, which is offered first among the themes the table has a look in. */
+    theme?: string | undefined
     /** Follows a piece of a cell's text to the table it names. */
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
@@ -209,6 +222,67 @@ interface TableEditorProps {
     testId?: string | undefined
 }
 
+/** How a table theme draws a cell: the style and the pieces of text a read naming the theme reports for it. */
+interface ThemeLook {
+    style: RawTableCellStyle
+    runs?: RawTableTextRun[]
+}
+
+/**
+ * How the themes chosen while editing one table draw its cells, for the rows it was read as: by theme, then by the
+ * address of each cell.
+ */
+interface ThemePreviews {
+    tableId: string
+    maxRows: number | undefined
+    looks: ReadonlyMap<string, Map<string, ThemeLook>>
+}
+
+/** The table read as the workbook holds it, for editing a table drawn with a theme, and the window it was read as. */
+interface HeldTable {
+    tableId: string
+    maxRows: number | undefined
+    rows: RawTableCell[][]
+}
+
+/** Whether a table theme draws a cell: its style is the look of the theme, which names the theme as its source. */
+const inTheme = (cell: RawTableCell): cell is RawTableCell & { style: RawTableCellStyle } =>
+    cell.style?.source === 'theme'
+
+/** The look a theme gives each cell of a table read with it, by the address of the cell. */
+const themeCellsOf = (rows: RawTableCell[][]): Map<string, ThemeLook> => {
+    const cells = new Map<string, ThemeLook>()
+    rows.forEach(row => row.forEach(cell => {
+        if (cell.cell !== undefined && inTheme(cell)) {
+            cells.set(cell.cell, { style: cell.style, ...(cell.runs !== undefined && { runs: cell.runs }) })
+        }
+    }))
+    return cells
+}
+
+/**
+ * The table as it is being edited, drawn with a theme the reader chose: each cell read with the table takes the
+ * look the theme gives it, with the styling the reader asked for laid over it — which is what the save writes.
+ *
+ * <p>Only the drawing takes the look. What the toolbar and the save read is the table as it is edited, whose cells
+ * keep the style the workbook has.
+ */
+const withTheme = (edited: EditedTable, looks: Map<string, ThemeLook>): RawTableCell[][] =>
+    edited.rows.map((cells, row) => cells.map((cell, column) => {
+        const theme = cell.cell === undefined ? undefined : looks.get(cell.cell)
+        if (theme === undefined) {
+            return cell
+        }
+        const asked = edited.styled.get(keyOf(edited, { row, column }))
+        return { ...cell, style: { ...theme.style, ...asked }, ...(theme.runs && { runs: theme.runs }) }
+    }))
+
+/** The themes in the order they are offered: the one the reader starts from first. */
+const firstTheme = (themes: TableThemeOption[], first: string | undefined): TableThemeOption[] => [
+    ...themes.filter(theme => theme.id === first),
+    ...themes.filter(theme => theme.id !== first),
+]
+
 /**
  * The table, and the editing of it.
  *
@@ -227,6 +301,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     hiddenRows,
     layout,
     formulas,
+    theme,
     onOpenUsage,
     canWrite,
     editing,
@@ -243,6 +318,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
+    // Whether the table was read in the look of a table theme: a kind of table no theme styles is read with the
+    // formatting of the workbook, whatever theme the read named.
+    const drawnInTheme = useMemo(() => rows.some(row => row.some(inTheme)), [rows])
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
     const [buffer, setBuffer] = useState(NO_EDITS)
@@ -252,6 +330,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // The colour the reader is holding the pointer over in a palette, shown on the picked cell until they
     // take the pointer away or choose it.
     const [preview, setPreview] = useState<RawCellStyleInput | null>(null)
+    // How each theme chosen while editing draws each cell, read once per theme for this table and the rows it was read
+    // as. It is a drawing only: what the save writes is the theme the reader chose, laid over the table as the save
+    // leaves it.
+    const [themePreviews, setThemePreviews] = useState<ThemePreviews | null>(null)
     const [open, setOpen] = useState<OpenAt | null>(null)
     const [saving, setSaving] = useState(false)
     const [asked, setAsked] = useState<TableEditors | null>(null)
@@ -326,7 +408,48 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // answer would let the reader fill in cells of a project somebody else may have taken in the meantime.
     useEffect(() => { setAsked(null) }, [tableId, maxRows, editing])
 
-    const edited = useMemo(() => replay(rows, buffer.steps), [rows, buffer.steps])
+    // The table themes that have a look for this table, asked for when the reader starts editing it.
+    const themes = useTableThemesOf(projectId, tableId, moduleName, editing)
+    const offeredThemes = themes === undefined ? undefined : firstTheme(themes, theme)
+
+    // A table drawn with a table theme carries the look of the theme in its cells, which no edit may start from: what
+    // the reader styles and saves is the style the workbook holds. So the table is read again without the theme when
+    // the reader starts editing it, for the rows it was read as, and edited from that read. Until it is read, nothing
+    // the reader could style is offered.
+    const [asHeld, setAsHeld] = useState<HeldTable | null>(null)
+    const held = asHeld?.tableId === tableId && asHeld.maxRows === maxRows ? asHeld.rows : undefined
+    const holding = editing && drawnInTheme
+    const reading = holding && held === undefined
+    useEffect(() => {
+        if (!reading) {
+            return undefined
+        }
+        let current = true
+        getRawTable(projectId, tableId, { module: moduleName, maxRows, metaInfo: true })
+            .then(read => {
+                if (current) {
+                    setAsHeld({ tableId, maxRows, rows: read.source })
+                }
+            })
+            .catch((error: unknown) => {
+                if (current) {
+                    notifyLoadFailure(t('browser.module.edit_read_failed'), error)
+                    onEditingChange(false)
+                }
+            })
+        return () => {
+            current = false
+        }
+    }, [maxRows, moduleName, onEditingChange, projectId, reading, t, tableId])
+    // The next time the reader edits the table, it is read as the workbook then holds it, a save of theirs included.
+    useEffect(() => {
+        if (!editing) {
+            setAsHeld(null)
+        }
+    }, [editing])
+    const base = holding ? held ?? rows : rows
+
+    const edited = useMemo(() => replay(base, buffer.steps), [base, buffer.steps])
 
     /**
      * What the cell now sitting here asks to be written with, as the table said when editing started.
@@ -410,6 +533,42 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         setPicked(fitted)
     }
 
+    const chosenTheme = editing ? edited.theme : null
+    // The looks read for the rows on screen: rows read since are drawn by none of them, so they are read again.
+    const previews = themePreviews?.tableId === tableId && themePreviews.maxRows === maxRows
+        ? themePreviews.looks
+        : undefined
+    const previewed = chosenTheme === null ? undefined : previews?.get(chosenTheme)
+    const themedRows = useMemo(() => (previewed === undefined ? written : withTheme(edited, previewed)),
+        [edited, previewed, written])
+
+    // The look of the theme the reader chose is read whichever way they came to it: by choosing it, or by taking a
+    // later choice back. Each theme is read once; an answer for a theme no longer chosen is dropped.
+    const previewMissing = chosenTheme !== null && previewed === undefined
+    useEffect(() => {
+        if (!previewMissing || chosenTheme === null) {
+            return undefined
+        }
+        let current = true
+        // Only the look of the theme is kept: the cells the theme draws, by their address.
+        getRawTable(projectId, tableId, { module: moduleName, maxRows, tableTheme: chosenTheme })
+            .then(read => {
+                if (current) {
+                    setThemePreviews(known => ({
+                        tableId,
+                        maxRows,
+                        looks: new Map([
+                            ...(known?.tableId === tableId && known.maxRows === maxRows ? known.looks : []),
+                            [chosenTheme, themeCellsOf(read.source)],
+                        ]),
+                    }))
+                }
+            })
+            .catch((error: unknown) => notifyLoadFailure(t('browser.module.edit_theme_failed'), error))
+        return () => {
+            current = false
+        }
+    }, [chosenTheme, maxRows, moduleName, previewMissing, projectId, t, tableId])
     /**
      * The table as the screen draws it, which is the table the reader has plus whatever colour they are
      * holding the pointer over in the palette.
@@ -417,16 +576,26 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * <p>A colour shown this way is not an edit: it is not kept, cannot be taken back, and reaches no save.
      */
     const shown = useMemo(() => {
-        const cell = preview === null || picked === null ? undefined : written[picked.row]?.[picked.column]
+        const cell = preview === null || picked === null ? undefined : themedRows[picked.row]?.[picked.column]
         if (cell === undefined || picked === null) {
-            return written
+            return themedRows
         }
-        const rowsShown = [...written]
+        const rowsShown = [...themedRows]
         const row = [...(rowsShown[picked.row] ?? [])]
         row[picked.column] = { ...cell, style: { ...cell.style, ...preview } }
         rowsShown[picked.row] = row
         return rowsShown
-    }, [written, picked, preview])
+    }, [themedRows, picked, preview])
+
+    /**
+     * Writes a theme into the table when the reader saves, and draws it over the table until then.
+     *
+     * <p>The look is read from the server, which knows how the table is laid out, for the table as it was read. Each
+     * cell takes the look of the address it was read at. So until the save, a row the reader has added is drawn
+     * plain, and a cell that a row or a column inserted or deleted has moved shows the look of its old place. The
+     * save themes the table as it then stands.
+     */
+    const chooseTheme = (theme: string) => step({ kind: 'theme', theme })
     /**
      * How the grid numbers the lines of data it draws.
      *
@@ -570,6 +739,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         unsaved.current = false
         setOpen(null)
         setBuffer(NO_EDITS)
+        setThemePreviews(null)
         setClosing(false)
         onEditingChange(false)
     }
@@ -729,9 +899,13 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onRedo={() => setBuffer(redo)}
                     onSave={save}
                     onStyle={(style: RawCellStyleInput) => step({ kind: 'style', at, style })}
+                    onTheme={chooseTheme}
                     onUndo={() => setBuffer(undo)}
-                    picked={picked}
+                    // A table still being read as the workbook holds it has nothing to style yet.
+                    picked={reading ? null : picked}
                     saving={saving}
+                    theme={edited.theme}
+                    themes={offeredThemes}
                     whole={whole}
                     // The reader stays where they were, on the line that takes the place of the one gone, so
                     // several lines are taken away one after another without picking a cell each time. Picking
@@ -757,10 +931,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         layout={numbering}
                         // While the table is being edited its cells lead nowhere: a click is meant for the cell
                         // under it, and a reader aiming at one must not be taken to another table by mistake.
-                        onKeyDown={canWrite ? onKeyDown : undefined}
-                        onOpenCell={canWrite ? (row, column) => openCell(row + hidden, column) : undefined}
+                        onKeyDown={canWrite && !reading ? onKeyDown : undefined}
+                        onOpenCell={canWrite && !reading ? (row, column) => openCell(row + hidden, column) : undefined}
                         onOpenUsage={editing ? undefined : onOpenUsage}
-                        onPickCell={canWrite ? (row, column) => pick(row + hidden, column) : undefined}
+                        onPickCell={canWrite && !reading ? (row, column) => pick(row + hidden, column) : undefined}
                         rows={drawn}
                         tableRef={grid}
                         testId={testId}

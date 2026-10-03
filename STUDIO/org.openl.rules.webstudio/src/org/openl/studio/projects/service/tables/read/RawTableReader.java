@@ -2,7 +2,7 @@ package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -16,13 +16,12 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.TextRun;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ui.BorderStyle;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
-import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellBorder;
 import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
@@ -30,10 +29,13 @@ import org.openl.studio.projects.model.tables.RawTableCellMetaInfo;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableCellUsage;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
+import org.openl.studio.projects.model.tables.RawTableTextRun;
 import org.openl.studio.projects.model.tables.RawTableUsageKind;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.service.tables.theme.ThemeStyles;
+import org.openl.studio.projects.service.tables.theme.ThemedTable;
 import org.openl.util.StringUtils;
 
 /**
@@ -72,11 +74,12 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     @Override
     protected void initialize(RawTableView.Builder builder, IOpenLTable openLTable) {
-        initialize(builder, openLTable, null, null, false, false, TableModules.none());
+        initialize(builder, openLTable, RawTableRead.builder().build());
     }
 
     /**
-     * Read a window of a table in raw format, optionally including each cell's Excel style.
+     * Read a window of a table in raw format, with what the read asks to report besides the values of the cells:
+     * the Excel style of each cell, what the compiler knows about it, the look the table theme gives it.
      * <p>
      * The window is the {@code maxRows} rows starting at {@code startRow}, so a caller can page through a
      * large table in slices — read a chunk, edit it through the table actions API, then read the next chunk.
@@ -85,21 +88,19 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * Cell addresses stay absolute, so a sliced cell keeps the same address it has in the whole table.
      * {@link RawTableView#totalRows} reports the full row count whenever the window omits rows. The matrix is
      * empty when {@code startRow} is past the last row.
+     * <p>
+     * A read naming a table theme reports the look the theme gives each cell in its style and its runs, in place of
+     * the formatting of the workbook, the theme named as the source of the style. Such a read is a view only: an edit
+     * is made from a read of the workbook, so it never writes the theme. A cell the theme does not reach keeps the
+     * style the workbook holds.
      *
      * @param openLTable the table to read
-     * @param startRow   the zero-based index of the first row to return; {@code null} starts at the top
-     * @param maxRows    the maximum number of rows to return from {@code startRow}; {@code null} returns every
-     *                   remaining row
-     * @param withStyles   whether to attach each cell's Excel style (background, font, alignment)
-     * @param withMetaInfo whether to attach what the compiler knows about each cell — the pieces of its text
-     *                     that refer to something, the type it holds, the editor it asks for
-     * @param modules      the modules a usage's table is looked up in, so a reader can be sent to it
+     * @param read       the window of rows to read, and what to report besides the values of the cells
      * @return the raw table view
      */
-    public RawTableView read(IOpenLTable openLTable, @Nullable Integer startRow, @Nullable Integer maxRows,
-            boolean withStyles, boolean withMetaInfo, TableModules modules) {
+    public RawTableView read(IOpenLTable openLTable, RawTableRead read) {
         RawTableView.Builder builder = RawTableView.builder();
-        initialize(builder, openLTable, startRow, maxRows, withStyles, withMetaInfo, modules);
+        initialize(builder, openLTable, read);
         return builder.build();
     }
 
@@ -117,7 +118,8 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var metaInfoReader = metaInfoReaderOf(openLTable);
         var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), TableWindow.EVERY_ROW, metaInfoReader);
         return tableModel == null ? List.of()
-                : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, false, TableModules.none());
+                : convertTableModelToMatrix(tableModel, metaInfoReader,
+                        RawTableRead.builder().withStyles(withStyles).build());
     }
 
     /** The table's meta info, or an empty one when the table carries none. */
@@ -126,21 +128,20 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         return metaInfoReader == null ? EmptyMetaInfoReader.getInstance() : metaInfoReader;
     }
 
-    private void initialize(RawTableView.Builder builder, IOpenLTable openLTable, @Nullable Integer startRow,
-            @Nullable Integer maxRows, boolean withStyles, boolean withMetaInfo, TableModules modules) {
+    private void initialize(RawTableView.Builder builder, IOpenLTable openLTable, RawTableRead read) {
         super.initialize(builder, openLTable);
         builder.pos(openLTable.getUriParser().getRange());
         var metaInfoReader = metaInfoReaderOf(openLTable);
         var fullHeight = openLTable.getGridTable().getHeight();
         // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
         // region, so rows outside the window are never materialised and cell addresses stay absolute.
-        var window = TableWindow.of(openLTable.getGridTable(), startRow, maxRows);
+        var window = TableWindow.of(openLTable.getGridTable(), read.startRow(), read.maxRows());
         var gridTable = sliceFrom(openLTable.getGridTable(), window.startRow());
         var tableModel = gridTable == null ? null
                 : TableModel.initializeTableModel(gridTable, window.rows(), metaInfoReader);
 
         List<List<RawTableCell>> source = tableModel == null ? List.of()
-                : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, withMetaInfo, modules);
+                : convertTableModelToMatrix(tableModel, metaInfoReader, read);
         // The grid model keeps one extra row rather than hiding a single row; trim to exactly the window so
         // its size is predictable for paging.
         if (window.rows() != TableWindow.EVERY_ROW && source.size() > window.rows()) {
@@ -202,8 +203,8 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * @param tableModel The TableModel containing cell layout and span information
      * @return 2D list of RawTableCell objects representing the table matrix
      */
-    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel, boolean withStyles,
-            MetaInfoReader metaInfoReader, boolean withMetaInfo, TableModules modules) {
+    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel, MetaInfoReader metaInfoReader,
+            RawTableRead read) {
         var cellValueReader = new CellValueReader(metaInfoReader);
         var matrix = new ArrayList<List<RawTableCell>>();
 
@@ -224,7 +225,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 }
                 var cellModel = (CellModel) cells[row][col];
                 var cell = tableModel.getGridTable().getCell(cellModel.getColumn(), cellModel.getRow());
-                rowCells.add(readCell(cell, cellModel, withStyles, metaInfoReader, withMetaInfo, modules, cellValueReader));
+                rowCells.add(readCell(cell, cellModel, read, metaInfoReader, cellValueReader));
                 coveredCells.mark(row, col, cellModel);
             }
             matrix.add(rowCells);
@@ -234,13 +235,12 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     }
 
     /** One cell as the API reports it: what it holds, what it was written with, and how far it reaches. */
-    private RawTableCell readCell(ICell cell, CellModel cellModel, boolean withStyles,
-            MetaInfoReader metaInfoReader, boolean withMetaInfo, TableModules modules,
-            CellValueReader cellValueReader) {
+    private RawTableCell readCell(ICell cell, CellModel cellModel, RawTableRead read,
+            MetaInfoReader metaInfoReader, CellValueReader cellValueReader) {
         // A cell carries both what it computes and what it was written with, so a screen showing formulas
         // chooses between them without asking for the table again.
         var formula = cell.getFormula();
-        return RawTableCell.builder()
+        var builder = RawTableCell.builder()
                 // Cell address in A1 notation, matching the address reported by compilation messages
                 .cell(cell.getUri())
                 .value(cellValueReader.apply(cell))
@@ -248,9 +248,54 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .comment(commentOf(cell))
                 .colspan(cellModel.getColspan())
                 .rowspan(cellModel.getRowspan())
-                .style(withStyles ? styleOf(cellModel) : null)
-                .metaInfo(withMetaInfo ? metaInfoOf(cell, metaInfoReader, modules) : null)
-                .build();
+                .metaInfo(read.withMetaInfo() ? metaInfoOf(cell, metaInfoReader, read.modules()) : null);
+        var themed = Optional.ofNullable(read.theme())
+                .map(theme -> theme.at(cell.getAbsoluteRow(), cell.getAbsoluteColumn()))
+                .orElse(null);
+        if (themed != null) {
+            drawInTheme(builder, cell, styleOf(cellModel), themed);
+        } else if (read.withStyles() || read.theme() != null) {
+            builder.style(styleOf(cellModel)).runs(runsOf(cell));
+        }
+        return builder.build();
+    }
+
+    /** The pieces of the cell text formatted with fonts of their own, or {@code null} when it takes the cell font. */
+    private static @Nullable List<RawTableTextRun> runsOf(ICell cell) {
+        var runs = cell.getTextRuns();
+        if (runs.isEmpty()) {
+            return null;
+        }
+        return runs.stream()
+                .map(run -> new RawTableTextRun(run.text(), fontOf(run)))
+                .toList();
+    }
+
+    /** The font of a run, or {@code null} when the run takes the font of the cell. */
+    private static @Nullable RawTableCellStyle fontOf(TextRun run) {
+        var font = run.font();
+        return font == null ? null : RawTableStyles.font(RawTableCellStyle.builder(), font).build();
+    }
+
+    /**
+     * Reports a cell as the table theme draws it: in the style and the pieces of text the theme gives it, in place of
+     * the formatting of the workbook.
+     *
+     * <p>The style is the cell style with the attributes the theme sets laid over it. The text is drawn in the pieces
+     * the theme formats it in, and in the pieces the workbook formats it in where the theme formats none.
+     *
+     * @param style  the style the cell has in the workbook, or {@code null} when it has none
+     * @param themed how the theme draws the cell
+     */
+    private static void drawInTheme(RawTableCell.RawTableCellBuilder builder, ICell cell,
+            @Nullable RawTableCellStyle style, ThemedTable.ThemedCell themed) {
+        var text = cell.getStringValue();
+        var runs = themed.runs(text).stream()
+                .map(run -> new RawTableTextRun(text.substring(run.start(), run.end()),
+                        ThemeStyles.fontOf(style, run.style())))
+                .toList();
+        builder.style(ThemeStyles.over(style, themed.style()))
+                .runs(runs.isEmpty() ? runsOf(cell) : runs);
     }
 
     /** The note a reader left on the cell in Excel, which a screen marks the cell by. */
@@ -312,26 +357,18 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     /** The cell's Excel style, or {@code null} when every attribute is at its default. */
     private static @Nullable RawTableCellStyle styleOf(CellModel cm) {
-        var font = cm.getFont();
-
         var style = RawTableCellStyle.builder()
-                .background(nonDefault(cm.getRgbBackground(), "#ffffff"))
-                .color(font == null ? null : nonDefault(font.getFontColor(), "#000000"))
+                .background(RawTableStyles.hex(cm.getRgbBackground(), RawTableStyles.WHITE))
                 .align(horizontalAlign(cm.getHalign()))
                 .valign(verticalAlign(cm.getValign()))
-                .bold(flag(font, ICellFont::isBold))
-                .italic(flag(font, ICellFont::isItalic))
-                .underline(flag(font, ICellFont::isUnderlined))
                 .indent(positive(cm.getIndent()))
-                .border(borderOf(cm))
-                .build();
-
-        return style.isEmpty() ? null : style;
-    }
-
-    /** The font flag as {@link Boolean#TRUE}, or {@code null} when the font is absent or the flag is off. */
-    private static @Nullable Boolean flag(@Nullable ICellFont font, Predicate<ICellFont> predicate) {
-        return font != null && predicate.test(font) ? Boolean.TRUE : null;
+                .border(borderOf(cm));
+        var font = cm.getFont();
+        if (font != null) {
+            RawTableStyles.font(style, font);
+        }
+        var read = style.build();
+        return read.isEmpty() ? null : read;
     }
 
     /** The value when positive, or {@code null} otherwise. */
@@ -381,30 +418,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     /** One border side, or {@code null} when that side has no border. */
     private static @Nullable RawTableCellBorderSide borderSide(BorderStyle[] sides, int side) {
-        if (side >= sides.length) {
-            return null;
-        }
-        var bs = sides[side];
-        if (bs == null || bs == BorderStyle.NONE || bs.getWidth() == 0) {
-            return null;
-        }
-        var style = switch (bs.getStyle() == null ? "solid" : bs.getStyle()) {
-            case "dashed" -> RawTableBorderLineStyle.DASHED;
-            case "dotted" -> RawTableBorderLineStyle.DOTTED;
-            case "double" -> RawTableBorderLineStyle.DOUBLE;
-            default -> RawTableBorderLineStyle.SOLID;
-        };
-        return RawTableCellBorderSide.builder().style(style).width(bs.getWidth()).build();
-    }
-
-    /** Hex form of an RGB triple, or {@code null} when it is missing or equals the given default colour. */
-    private static @Nullable String nonDefault(short @Nullable [] rgb, String defaultHex) {
-        if (rgb == null || rgb.length < 3) {
-            return null;
-        }
-        // Mask each component to an unsigned byte so a negative short never sign-extends to 8 hex digits.
-        String hex = "#%02x%02x%02x".formatted(rgb[0] & 0xff, rgb[1] & 0xff, rgb[2] & 0xff);
-        return hex.equals(defaultHex) ? null : hex;
+        return side >= sides.length ? null : RawTableStyles.borderSide(sides[side]);
     }
 
 }

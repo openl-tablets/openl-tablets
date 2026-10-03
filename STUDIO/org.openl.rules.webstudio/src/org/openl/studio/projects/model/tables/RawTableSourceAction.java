@@ -1,10 +1,12 @@
 package org.openl.studio.projects.model.tables;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -31,7 +33,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
         @JsonSubTypes.Type(value = RawTableSourceAction.Update.class, name = "update"),
         @JsonSubTypes.Type(value = RawTableSourceAction.Merge.class, name = "merge"),
         @JsonSubTypes.Type(value = RawTableSourceAction.Unmerge.class, name = "unmerge"),
-        @JsonSubTypes.Type(value = RawTableSourceAction.Style.class, name = "style")
+        @JsonSubTypes.Type(value = RawTableSourceAction.Style.class, name = "style"),
+        @JsonSubTypes.Type(value = RawTableSourceAction.Theme.class, name = "theme")
 })
 public sealed interface RawTableSourceAction
         permits RawTableSourceAction.Append,
@@ -40,7 +43,8 @@ public sealed interface RawTableSourceAction
         RawTableSourceAction.Update,
         RawTableSourceAction.Merge,
         RawTableSourceAction.Unmerge,
-        RawTableSourceAction.Style {
+        RawTableSourceAction.Style,
+        RawTableSourceAction.Theme {
 
     @Schema(name = "Append", description = "Adds one or more rows or columns to the end of the table.")
     record Append(@NotNull @Valid AppendTarget target) implements RawTableSourceAction {
@@ -68,6 +72,20 @@ public sealed interface RawTableSourceAction
 
     @Schema(name = "Style", description = "Sets the styling of a rectangular range of cells.")
     record Style(@NotNull @Valid StyleTarget target) implements RawTableSourceAction {
+    }
+
+    /**
+     * Writes a table theme into a Datatype or a Vocabulary table, as the table stands after the edits before it.
+     *
+     * @param theme the identifier of the theme, as the list of table themes names it
+     */
+    @Schema(name = "Theme", description = """
+            Writes a table theme into a Datatype or a Vocabulary table, as the table stands after the edits before \
+            it. Only the look of the table changes: each cell keeps its value and every attribute the theme does \
+            not set. A table of any other kind is refused.""")
+    record Theme(
+            @Parameter(description = "Identifier of the theme, as the list of table themes names it")
+            @NotBlank String theme) implements RawTableSourceAction {
     }
 
 }

@@ -164,4 +164,32 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-save')).toBeDisabled()
         expect(screen.getByTestId('table-edit-undo')).toBeDisabled()
     })
+
+    const THEMES = [{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]
+
+    it('offers the table themes by name, and chooses one with no cell picked', async () => {
+        const onTheme = vi.fn()
+        draw({ picked: null, cell: undefined, themes: THEMES, theme: null, onTheme })
+
+        await userEvent.click(screen.getByTestId('table-edit-theme'))
+        await userEvent.click(await screen.findByText('Green'))
+
+        // A theme is written into the whole table, so no cell has to be picked for it.
+        expect(onTheme).toHaveBeenCalledWith('green')
+    })
+
+    it('marks the theme the reader chose', async () => {
+        draw({ themes: THEMES, theme: 'green', onTheme: vi.fn() })
+
+        await userEvent.click(screen.getByTestId('table-edit-theme'))
+
+        expect((await screen.findByText('Green')).closest('li')).toHaveClass('ant-dropdown-menu-item-selected')
+        expect(screen.getByText('Default').closest('li')).not.toHaveClass('ant-dropdown-menu-item-selected')
+    })
+
+    it('offers no theme for a table no theme has a look for', () => {
+        draw({ themes: []})
+
+        expect(screen.queryByTestId('table-edit-theme')).toBeNull()
+    })
 })

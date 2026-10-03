@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.write;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,9 +45,10 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
-import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TableTestProjects;
+import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
+import org.openl.studio.projects.service.tables.theme.TableThemeService;
 
 /**
  * Verifies the raw-source edits applied by {@link RawTableWriter#apply}. Each test starts from a freshly written
@@ -56,6 +58,9 @@ import org.openl.studio.projects.service.tables.read.RawTableReader;
 class RawTableWriterTest {
 
     private static final String HEADER = "Datatype Greeting";
+
+    /** The themes a {@code theme} edit is written with. */
+    private static final TableThemeService THEMES = new TableThemeService();
 
     @TempDir
     Path tempDir;
@@ -166,9 +171,69 @@ class RawTableWriterTest {
         assertEquals(2, styled.indent().intValue());
         // the far corner of the range carries it too
         assertEquals("#ffff00", styleOf(source, 3, 1).background());
-        // and the column just outside the range is left as it was
-        assertNull(styleOf(source, 1, 2).background());
-        assertNull(styleOf(source, 1, 2).bold());
+        // and the column just outside the range is left as it was: plain, so it carries no style at all
+        assertNull(styleOf(source, 1, 2));
+    }
+
+    @Test
+    void writesATableThemeIntoTheTable() {
+        apply(new RawTableSourceAction.Theme("default"));
+
+        var source = reloadStyled(mainProject);
+        assertEquals("#b4c6e7", styleOf(source, 0, 0).background());
+        assertEquals("#ddebf7", styleOf(source, 1, 1).background(), "The field names take the look of their column");
+        assertNull(styleOf(source, 2, 0), "A row before the last is not closed: a plain type carries no look");
+        assertNotNull(styleOf(source, 3, 0).border().bottom(), "The last row is closed");
+        assertEquals("alpha", value(source, 1, 2), "The theme changes no value");
+    }
+
+    @Test
+    void writesATableThemeIntoTheTableAsTheEditsBeforeItLeftIt() {
+        apply(List.of(
+                appendRow(row("double", "rate", "delta")),
+                new RawTableSourceAction.Theme("default")));
+
+        var source = reloadStyled(mainProject);
+        // The row added in the same change is themed with the rest, and the line closing the table is under it.
+        assertEquals("#ddebf7", styleOf(source, 4, 1).background());
+        assertNotNull(styleOf(source, 4, 0).border().bottom());
+        assertNull(styleOf(source, 3, 0), "The row that was last before the change is closed no more");
+    }
+
+    @Test
+    void writesTheStylingAskedForAfterTheTableThemeOverIt() {
+        apply(List.of(
+                new RawTableSourceAction.Theme("default"),
+                style(1, 1, 1, 1, new RawCellStyleInput("#ffff00", null, null, null, null, null, null))));
+
+        assertEquals("#ffff00", styleOf(reloadStyled(mainProject), 1, 1).background());
+    }
+
+    @Test
+    void refusesATableThemeForATableOtherThanADatatype() throws IOException {
+        var environment = writeProject("environment", new String[][]{{"Environment"}, {"import", "java.lang"}});
+
+        var theme = new RawTableSourceAction.Theme("default");
+        var refused = assertThrows(BadRequestException.class, () -> apply(environment, theme));
+
+        assertEquals("openl.error.400.table.theme.unsupported.message", refused.getErrorCode());
+    }
+
+    @Test
+    void refusesATableThemeStudioDoesNotOffer() {
+        var unknown = new RawTableSourceAction.Theme("purple");
+        var refused = assertThrows(BadRequestException.class, () -> apply(unknown));
+
+        assertEquals("openl.error.400.table.theme.unknown.message", refused.getErrorCode());
+        assertNull(styleOf(reloadStyled(mainProject), 0, 0), "Nothing of the change is written");
+    }
+
+    @Test
+    void refusesATableThemeWhereTheWriterIsGivenNoThemes() {
+        var writer = new RawTableWriter(load(mainProject));
+
+        var theme = new RawTableSourceAction.Theme("default");
+        assertThrows(IllegalStateException.class, () -> writer.apply(theme));
     }
 
     @Test
@@ -1222,19 +1287,19 @@ class RawTableWriterTest {
     }
 
     private void apply(RawTableSourceAction action) {
-        new RawTableWriter(load(mainProject)).apply(action);
+        new RawTableWriter(load(mainProject), THEMES).apply(action);
     }
 
     private void apply(List<RawTableSourceAction> actions) {
-        new RawTableWriter(load(mainProject)).apply(actions);
+        new RawTableWriter(load(mainProject), THEMES).apply(actions);
     }
 
     private void apply(Path project, RawTableSourceAction action) {
-        new RawTableWriter(load(project)).apply(action);
+        new RawTableWriter(load(project), THEMES).apply(action);
     }
 
     private void apply(Path project, List<RawTableSourceAction> actions) {
-        new RawTableWriter(load(project)).apply(actions);
+        new RawTableWriter(load(project), THEMES).apply(actions);
     }
 
     private void write(Path project, List<List<RawTableCell>> source) {
@@ -1245,7 +1310,8 @@ class RawTableWriterTest {
     private static void create(Path project, String sheetName, List<List<RawTableCell>> source) {
         var view = RawTableView.builder().source(source).build();
         var grid = TableTestProjects.sheetGrid(project, sheetName);
-        ((RawTableWriter) new TableWritersFactory().getNewTableWriter(view, grid)).write(view);
+        var factory = new TableWritersFactory(new TableThemeService());
+        ((RawTableWriter) factory.getNewTableWriter(view, grid)).write(view);
     }
 
     private static RawTableCell cell(Object value) {
@@ -1270,7 +1336,7 @@ class RawTableWriterTest {
 
     /** The table read back with the styling attached, which the plain read leaves out. */
     private List<List<RawTableCell>> reloadStyled(Path project) {
-        return new RawTableReader().read(load(project), null, null, true, false, TableModules.none()).source;
+        return new RawTableReader().read(load(project), RawTableRead.builder().withStyles(true).build()).source;
     }
 
     private static RawTableCellStyle styleOf(List<List<RawTableCell>> source, int row, int col) {

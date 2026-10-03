@@ -33,6 +33,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
@@ -54,13 +55,15 @@ class TableCopyServiceTest {
     void copyKeepsTheBodyValuesStylesAndMerges(@TempDir Path projectDir) throws Exception {
         var source = bankLimitIndex(projectDir);
         // Read the source with styles before writing the copy, so the copy is compared against the original.
-        var sourceView = reader.read(source.table(), null, null, true, false, TableModules.none());
+        var sourceView = reader.read(source.table(), RawTableRead.builder().withStyles(true).build());
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source));
         creator.save(destGrid);
 
-        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true, false, TableModules.none());
+        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), RawTableRead.builder()
+                .withStyles(true)
+                .build());
 
         // The header is renamed after the copy but keeps the source header's style.
         assertTrue(String.valueOf(cell(copyView, 0, 0).value()).contains("BankLimitIndexCopy"),
@@ -88,7 +91,9 @@ class TableCopyServiceTest {
                 List.of(new TableProperty("state", "AL"), new TableProperty("lob", " ")), destGrid, tables(source));
         creator.save(destGrid);
 
-        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true, false, TableModules.none());
+        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), RawTableRead.builder()
+                .withStyles(true)
+                .build());
         var values = copyView.source.stream()
                 .flatMap(List::stream)
                 .map(RawTableCell::value)

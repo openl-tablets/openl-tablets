@@ -19,6 +19,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.DatatypeFieldView;
 import org.openl.studio.projects.model.tables.DatatypeView;
 import org.openl.studio.projects.service.tables.read.DatatypeTableReader;
+import org.openl.studio.projects.service.tables.theme.TableThemeService;
 import org.openl.studio.projects.service.tables.write.DatatypeTableWriter;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 
@@ -229,7 +230,8 @@ class DatatypeTableIOTest {
     private static void create(Path project, String sheetName, String name, List<DatatypeFieldView> fields) {
         var view = DatatypeView.builder().name(name).fields(fields).build();
         var grid = TableTestProjects.sheetGrid(project, sheetName);
-        ((DatatypeTableWriter) new TableWritersFactory().getNewTableWriter(view, grid)).write(view);
+        var factory = new TableWritersFactory(new TableThemeService());
+        ((DatatypeTableWriter) factory.getNewTableWriter(view, grid)).write(view);
     }
 
     /** The datatype's cells as plain text, row by row, as they sit on the reloaded sheet. */

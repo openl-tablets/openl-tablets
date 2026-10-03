@@ -1,5 +1,6 @@
 package org.openl.excel.parser.sax;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
@@ -13,6 +14,7 @@ import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.TextRun;
 import org.openl.rules.table.xls.XlsCellFont;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.util.StringUtils;
@@ -25,6 +27,7 @@ public class SAXTableStyles implements TableStyles {
     private final StylesTable stylesTable;
     private final CommentsTable sheetComments;
     private final Map<CellAddress, String> formulas;
+    private final Map<CellAddress, List<TextRun>> textRuns;
 
     @Override
     public ICellStyle getStyle(int row, int column) {
@@ -64,6 +67,11 @@ public class SAXTableStyles implements TableStyles {
     @Override
     public String getFormula(int row, int column) {
         return StringUtils.trimToNull(formulas.get(new CellAddress(row, column)));
+    }
+
+    @Override
+    public List<TextRun> getTextRuns(int row, int column) {
+        return textRuns.getOrDefault(new CellAddress(row, column), List.of());
     }
 
     @RequiredArgsConstructor

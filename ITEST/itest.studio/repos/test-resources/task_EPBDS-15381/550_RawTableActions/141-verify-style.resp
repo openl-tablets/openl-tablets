@@ -24,15 +24,7 @@ Content-Type: application/json
               "style": "solid",
               "width": 1
             },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
             "bottom": {
-              "style": "solid",
-              "width": 1
-            },
-            "left": {
               "style": "solid",
               "width": 1
             }
@@ -54,10 +46,6 @@ Content-Type: application/json
               "style": "solid",
               "width": 1
             },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
             "bottom": {
               "style": "solid",
               "width": 1
@@ -73,21 +61,7 @@ Content-Type: application/json
           "color": "#0000ff",
           "align": "center",
           "bold": true,
-          "indent": 1,
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
+          "indent": 1
         }
       }
     ]

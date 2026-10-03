@@ -3,11 +3,13 @@ package org.openl.rules.table.xls;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import lombok.Builder;
 import lombok.With;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -15,6 +17,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,9 +26,13 @@ import org.apache.poi.xssf.model.ThemesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
+
+import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.TextRun;
 
 public final class PoiExcelHelper {
 
@@ -44,6 +51,12 @@ public final class PoiExcelHelper {
 
     /** The font an {@code .xls} workbook has no font at: its fonts are numbered past it. */
     private static final int HSSF_MISSING_FONT = 4;
+
+    /** A character an {@code .xlsx} text escapes because XML cannot hold it, such as {@code _x000D_}. */
+    private static final Pattern ESCAPED_CHARACTER = Pattern.compile("_x[0-9A-Fa-f]{4}_");
+
+    /** How many characters longer an escaped character is written than shown: seven for one. */
+    private static final int ESCAPE_EXTRA = 6;
 
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         var row = sheet.getRow(rowIndex);
@@ -149,7 +162,7 @@ public final class PoiExcelHelper {
      * @param charset    the character set of the font
      * @param color      the colour as {@code 0xRRGGBB}, or {@code null} for the automatic colour
      */
-    @Builder
+    @Builder(toBuilder = true)
     @With
     public record FontAttributes(String name,
                                  short height,
@@ -170,7 +183,7 @@ public final class PoiExcelHelper {
          */
         public static FontAttributes of(Font font, Workbook workbook) {
             var rgb = getFontColor(font, workbook);
-            return uncoloured(font).withColor(rgb == null ? null : rgb[0] << 16 | rgb[1] << 8 | rgb[2]);
+            return uncoloured(font).withColor(rgb == null ? null : toRgbValue(rgb));
         }
 
         /** The attributes of a font but its colour, which is the costly one to read. */
@@ -213,7 +226,7 @@ public final class PoiExcelHelper {
      * @param attributes the attributes of the font
      * @return the font
      */
-    private static Font findOrCreateFont(Workbook workbook, FontAttributes attributes) {
+    public static Font findOrCreateFont(Workbook workbook, FontAttributes attributes) {
         var uncoloured = attributes.withColor(null);
         return getFonts(workbook).stream()
                 // The colour is read only for a font alike in every other attribute.
@@ -242,8 +255,7 @@ public final class PoiExcelHelper {
         font.setCharSet(attributes.charset());
         var color = attributes.color();
         if (color != null) {
-            setFontColor(font, new short[]{(short) (color >> 16 & 0xFF), (short) (color >> 8 & 0xFF),
-                    (short) (color & 0xFF)}, workbook);
+            setFontColor(font, toRgb(color), workbook);
         }
         return font;
     }
@@ -344,6 +356,49 @@ public final class PoiExcelHelper {
         return toRgb(cc);
     }
 
+    /**
+     * The colour {@code #rrggbb} as the red, green and blue a workbook writes.
+     *
+     * @param hex the colour as {@code #rrggbb}
+     * @return the red, green and blue of the colour
+     */
+    public static short[] toRgb(String hex) {
+        return toRgb(Integer.parseInt(hex.substring(1), 16));
+    }
+
+    /**
+     * The colour as one number.
+     *
+     * @param rgb the red, green and blue of the colour
+     * @return the colour as {@code 0xRRGGBB}
+     */
+    public static int toRgbValue(short[] rgb) {
+        return rgb[0] << 16 | rgb[1] << 8 | rgb[2];
+    }
+
+    /**
+     * The colour a workbook holds once the colour {@code #rrggbb} is written into it: the colour itself, or the colour
+     * of the palette of an {@code .xls} workbook it is written as.
+     *
+     * <p>A palette with no room left for another colour holds the nearest colour it has, so a cell written with the
+     * colour reads back that one.
+     *
+     * @param hex      the colour as {@code #rrggbb}
+     * @param workbook the workbook the colour is written into
+     * @return the red, green and blue the workbook holds
+     */
+    public static short[] toStoredRgb(String hex, Workbook workbook) {
+        var rgb = toRgb(hex);
+        return workbook instanceof HSSFWorkbook hssf
+                ? Optional.ofNullable(toRgb(getOrAddColorIndex(rgb, hssf), hssf)).orElse(rgb)
+                : rgb;
+    }
+
+    /** The colour {@code 0xRRGGBB} as the red, green and blue a workbook writes. */
+    private static short[] toRgb(int rgb) {
+        return new short[]{(short) (rgb >> 16 & 0xFF), (short) (rgb >> 8 & 0xFF), (short) (rgb & 0xFF)};
+    }
+
     public static short[] getFontColor(Font font, Workbook workbook) {
         if (font instanceof XSSFFont fFont) {
             return toRgb(colourOf(fFont, workbook));
@@ -371,6 +426,92 @@ public final class PoiExcelHelper {
         var colour = XSSFColor.from((CTColor) written.getColorArray(0).copy(), styles.getIndexedColors());
         Optional.ofNullable(styles.getTheme()).ifPresent(theme -> theme.inheritFromThemeAsRequired(colour));
         return colour;
+    }
+
+    /**
+     * Splits a cell text into the pieces formatted with fonts of their own.
+     *
+     * <p>A text that takes the font of its cell gives an empty list, and a text formatted whole in a font of its
+     * own gives one run. A piece of the text that no run formats, and a run that names no font, take the font of the
+     * cell: their run has no font.
+     *
+     * <p>The theme is needed only for a text read without its workbook. It lets a run coloured by a theme colour
+     * resolve that colour.
+     *
+     * @param text the text of the cell
+     * @param workbook the workbook of the cell, needed for an {@code .xls} text
+     * @param themes the theme of the workbook, or {@code null} when the text knows it
+     * @return the runs of the text, or an empty list when the text takes the font of its cell
+     */
+    public static List<TextRun> getTextRuns(RichTextString text, @Nullable Workbook workbook,
+                                            @Nullable ThemesTable themes) {
+        var count = text.numFormattingRuns();
+        var value = text.getString();
+        if (count == 0 || value == null) {
+            return List.of();
+        }
+        var runs = new ArrayList<TextRun>(count + 1);
+        var starts = runStarts(text, count, value.length());
+        if (starts[0] > 0) {
+            runs.add(new TextRun(value.substring(0, starts[0]), null));
+        }
+        for (var run = 0; run < count; run++) {
+            var start = starts[run];
+            var end = starts[run + 1];
+            if (end > start) {
+                runs.add(new TextRun(value.substring(start, end), runFont(text, run, workbook, themes)));
+            }
+        }
+        return runs.stream().anyMatch(run -> run.font() != null) ? List.copyOf(runs) : List.of();
+    }
+
+    /**
+     * Where each run of a text starts in the text as the cell shows it, and where the text ends after them.
+     *
+     * <p>An {@code .xlsx} text escapes a character XML cannot hold, such as a carriage return, as {@code _xHHHH_}.
+     * POI answers the text with such characters unescaped, but counts where its runs start in the text as it is
+     * written, so each run is measured here as the cell shows it. A run never starts past the end of the text.
+     */
+    private static int[] runStarts(RichTextString text, int count, int length) {
+        var starts = new int[count + 1];
+        starts[count] = length;
+        if (text instanceof XSSFRichTextString xssf) {
+            var written = xssf.getCTRst();
+            var at = 0;
+            for (var run = 0; run < count; run++) {
+                starts[run] = Math.min(at, length);
+                at += shownLength(written.getRArray(run).getT());
+            }
+        } else {
+            for (var run = 0; run < count; run++) {
+                starts[run] = Math.min(text.getIndexOfFormattingRun(run), length);
+            }
+        }
+        return starts;
+    }
+
+    /** How long a piece of an {@code .xlsx} text is as the cell shows it: an escaped character shows as one. */
+    private static int shownLength(@Nullable String written) {
+        if (written == null) {
+            return 0;
+        }
+        return written.length() - ESCAPE_EXTRA * (int) ESCAPED_CHARACTER.matcher(written).results().count();
+    }
+
+    private static @Nullable ICellFont runFont(RichTextString text, int run, @Nullable Workbook workbook,
+                                              @Nullable ThemesTable themes) {
+        if (text instanceof XSSFRichTextString xssf) {
+            var font = xssf.getFontOfFormattingRun(run);
+            if (font != null && themes != null) {
+                font.setThemesTable(themes);
+            }
+            return font == null ? null : new XlsCellFont(font, workbook);
+        }
+        if (text instanceof HSSFRichTextString hssf && workbook != null) {
+            var index = hssf.getFontOfFormattingRun(run);
+            return index == HSSFRichTextString.NO_FONT ? null : new XlsCellFont(workbook.getFontAt(index), workbook);
+        }
+        return null;
     }
 
     public static short[][] getCellBorderColors(CellStyle style, Workbook workbook) {

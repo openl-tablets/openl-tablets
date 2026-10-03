@@ -1,6 +1,7 @@
 package org.openl.excel.grid;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.TextRun;
 import org.openl.rules.table.xls.XlsUtil;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
@@ -91,6 +93,12 @@ public class ParsedCell implements ICell {
     public ICellFont getFont() {
         initializeStyles();
         return tableStyles == null ? null : tableStyles.getFont(row, column);
+    }
+
+    @Override
+    public List<TextRun> getTextRuns() {
+        initializeStyles();
+        return tableStyles == null ? List.of() : tableStyles.getTextRuns(row, column);
     }
 
     @Override

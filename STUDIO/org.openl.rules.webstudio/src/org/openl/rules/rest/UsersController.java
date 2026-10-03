@@ -69,6 +69,7 @@ public class UsersController {
 
     private static final String TABLE_VIEW = "table.view";
     private static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
+    private static final String TABLE_THEME = "table.theme";
     private static final String TEST_TESTS_PERPAGE = "test.tests.perpage";
     private static final String TEST_FAILURES_ONLY = "test.failures.only";
     private static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
@@ -258,6 +259,7 @@ public class UsersController {
                     showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
         }
         saveSetting(username, TABLE_FORMULAS_SHOW, settings.getShowFormulas());
+        saveSetting(username, TABLE_THEME, settings.getTableTheme());
         saveSetting(username, TEST_TESTS_PERPAGE, settings.getTestsPerPage());
         saveSetting(username, TEST_FAILURES_ONLY, settings.getTestsFailuresOnly());
         saveSetting(username, TEST_FAILURES_PERTEST, settings.getTestsFailuresPerTest());
@@ -289,6 +291,7 @@ public class UsersController {
                 .setEmail(user.getEmail())
                 .setShowHeader(IXlsTableNames.VIEW_DEVELOPER.equals(settings.getString(TABLE_VIEW)))
                 .setShowFormulas(settings.getBoolean(TABLE_FORMULAS_SHOW))
+                .setTableTheme(settings.getString(TABLE_THEME))
                 .setTestsPerPage(settings.getInteger(TEST_TESTS_PERPAGE))
                 .setTestsFailuresOnly(settings.getBoolean(TEST_FAILURES_ONLY))
                 .setTestsFailuresPerTest(settings.getInteger(TEST_FAILURES_PERTEST))

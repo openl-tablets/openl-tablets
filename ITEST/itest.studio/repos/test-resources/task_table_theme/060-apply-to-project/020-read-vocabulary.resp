@@ -1,0 +1,86 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "3de3e33d78f3cd69e0b5dec189a560f0",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Code",
+  "pos": "B8:B10",
+  "source": [
+    [
+      {
+        "cell": "B8",
+        "value": "Datatype Code <String>",
+        "style": {
+          "background": "#c6e0b4",
+          "align": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1,
+              "color": "#548235"
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1,
+              "color": "#548235"
+            }
+          }
+        },
+        "runs": [
+          {
+            "text": "Datatype",
+            "style": {
+              "color": "#548235"
+            }
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "Code",
+            "style": {}
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "<String>",
+            "style": {
+              "color": "#548235"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "A",
+        "style": {
+          "align": "center"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "B",
+        "style": {
+          "align": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1,
+              "color": "#548235"
+            }
+          }
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

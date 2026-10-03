@@ -43,6 +43,7 @@ import org.openl.meta.IMetaInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -168,10 +169,6 @@ public class ProjectModel {
     /** The session this model belongs to, which knows the projects of the workspace and how they are addressed. */
     @Getter
     private final WebStudio studio;
-
-
-    @Getter
-    private String historyStoragePath;
 
     private final TestSuiteExecutor testSuiteExecutor;
 
@@ -729,21 +726,45 @@ public class ProjectModel {
      */
     public synchronized void initProjectHistory() {
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        LocalRepository repository = getLocalRepository();
-        if (workbookNodes != null && repository != null) {
-
+        var module = moduleInfo;
+        if (workbookNodes != null && module != null) {
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-                var sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
-
-                Collection<XlsWorkbookListener> listeners = sourceCodeModule.getListeners();
-                for (XlsWorkbookListener listener : listeners) {
-                    if (listener instanceof XlsModificationListener) {
-                        return;
-                    }
-                }
-
-                sourceCodeModule.addListener(new XlsModificationListener(repository, getHistoryStoragePath()));
+                listen(workbookSyntaxNode.getWorkbookSourceCodeModule(), module);
             }
+        }
+    }
+
+    /**
+     * Listens to the workbook a table of another module of the project stands in, as {@link #initProjectHistory()}
+     * listens to the workbooks of this module: a write to it is kept as a revision of that module, and the project is
+     * marked modified.
+     *
+     * <p>The other modules of the project are compiled as dependencies of this one, and nothing listens to their
+     * workbooks otherwise. A write that reaches their tables through this module, such as a table theme written into
+     * the whole project, asks here before it writes. A workbook already listened to is left alone, and a table read
+     * from no workbook has none to listen to.
+     *
+     * @param table  a table, as this module compiled it
+     * @param module the module of the project the table belongs to
+     */
+    public synchronized void initProjectHistory(TableSyntaxNode table, Module module) {
+        Optional.ofNullable(table.getXlsSheetSourceCodeModule())
+                .map(XlsSheetSourceCodeModule::getWorkbookSource)
+                .ifPresent(workbook -> listen(workbook, module));
+    }
+
+    /**
+     * Keeps the writes to a workbook in the history of a module of this project. A workbook already listened to is
+     * left alone, and a model outside a workspace keeps no history.
+     */
+    private void listen(XlsWorkbookSourceCodeModule workbook, Module module) {
+        if (workbook.getListeners().stream().anyMatch(XlsModificationListener.class::isInstance)) {
+            return;
+        }
+        var repository = getLocalRepository();
+        var storagePath = historyFolderOf(module);
+        if (repository != null && storagePath != null) {
+            workbook.addListener(new XlsModificationListener(repository, storagePath));
         }
     }
 
@@ -984,7 +1005,6 @@ public class ProjectModel {
 
     public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
-        historyStoragePath = null;
 
         clearModuleResources(); // prevent memory leak
 
@@ -1089,7 +1109,6 @@ public class ProjectModel {
         }
 
         compilationCancelled = false;
-        initHistoryStoragePath();
         isModified();
         clearModuleResources(); // prevent memory leak
         xlsModuleSyntaxNode = null;
@@ -1430,17 +1449,16 @@ public class ProjectModel {
         return openClass != null && !(openClass instanceof NullOpenClass);
     }
 
-    private void initHistoryStoragePath() {
+    /** Where the edits of a module of this project are kept, or nothing when the model stands outside a workspace. */
+    private @Nullable String historyFolderOf(Module module) {
         // A model outside a workspace — a project read straight from disk — keeps no history of its edits.
         var workspace = studio.getUserWorkspace();
         var project = getProject();
         if (workspace == null || project == null) {
-            return;
+            return null;
         }
         var location = workspace.getLocalWorkspace().getLocation();
-        this.historyStoragePath = Path
-                .of(location.getPath(), FolderHelper.resolveHistoryFolder(project, moduleInfo))
-                .toString();
+        return Path.of(location.getPath(), FolderHelper.resolveHistoryFolder(project, module)).toString();
     }
 
     public void destroy() {

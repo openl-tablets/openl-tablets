@@ -1,7 +1,6 @@
 package org.openl.rules.tableeditor.model.ui;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.CompositeGrid;
@@ -14,10 +13,7 @@ import org.openl.rules.table.ui.ICellStyle;
 
 /** Lays a table's region out place by place, so that every place of the grid says what stands there. */
 @RequiredArgsConstructor
-@Slf4j
 class TableViewer {
-
-    private static final String SOLID = "solid";
 
     private final IGrid grid;
     private final IGridRegion reg;
@@ -111,61 +107,10 @@ class TableViewer {
     }
 
     BorderStyle getBorderStyle(ICellStyle cs, int side) {
-
-        org.apache.poi.ss.usermodel.BorderStyle xlsStyle;
-        short[] rgb;
-
         var bss = cs.getBorderStyle();
-        xlsStyle = bss == null ? org.apache.poi.ss.usermodel.BorderStyle.NONE : bss[side];
-
         var rgbb = cs.getBorderRGB();
-        rgb = rgbb == null ? new short[]{0, 0, 0} : rgbb[side];
-
-        var bs = new BorderStyle();
-        bs.setRgb(rgb);
-        switch (xlsStyle) {
-            case NONE -> {
-                return BorderStyle.NONE;
-            }
-            case DASH_DOT_DOT, DASH_DOT, DASHED -> {
-                bs.setWidth(1);
-                bs.setStyle("dashed");
-            }
-            case DOTTED -> {
-                bs.setWidth(1);
-                bs.setStyle("dotted");
-            }
-            case DOUBLE -> {
-                bs.setWidth(1);
-                bs.setStyle("double");
-            }
-            case THIN -> {
-                bs.setWidth(1);
-                bs.setStyle(SOLID);
-            }
-            case THICK -> {
-                bs.setWidth(2);
-                bs.setStyle(SOLID);
-            }
-            case HAIR -> {
-                bs.setWidth(1);
-                bs.setStyle("dotted");
-            }
-            case MEDIUM -> {
-                bs.setWidth(2);
-                bs.setStyle(SOLID);
-            }
-            case MEDIUM_DASH_DOT, MEDIUM_DASH_DOT_DOT, MEDIUM_DASHED -> {
-                bs.setWidth(2);
-                bs.setStyle("dashed");
-            }
-            default -> {
-                log.warn("Unknown border style: {}", xlsStyle);
-                bs.setWidth(1);
-                bs.setStyle(SOLID);
-            }
-        }
-        return bs;
+        return BorderStyle.of(bss == null ? org.apache.poi.ss.usermodel.BorderStyle.NONE : bss[side],
+                rgbb == null ? new short[]{0, 0, 0} : rgbb[side]);
     }
 
     int getColSpan(ICell cell) {
@@ -184,14 +129,6 @@ class TableViewer {
         }
         IGridRegion intersect = GridRegionUtils.intersect(reg, gr);
         return intersect != null ? GridRegionUtils.height(intersect) : 1;
-    }
-
-    short[] rgb(BorderStyle bs1, BorderStyle bs2) {
-        if (bs1 == null && bs2 == null) {
-            return new short[]{0, 0, 0};
-        }
-
-        return dominant(bs1, bs2).getRgb();
     }
 
     void setGrid(TableModel tm) {
@@ -229,10 +166,7 @@ class TableViewer {
             BorderStyle bStyle = bs != null ? getBorderStyle(bs, ICellStyle.TOP) : null;
 
             var borderWidth = width(tStyle, bStyle);
-            var style = style(tStyle, bStyle);
-            var rgb = rgb(tStyle, bStyle);
-
-            var bstyle = new BorderStyle(borderWidth, style, rgb);
+            var bstyle = shared(tStyle, bStyle, borderWidth);
 
             setBorder(borderWidth, bstyle, cmTop, ICellStyle.BOTTOM, cmBottom, ICellStyle.TOP);
         }
@@ -259,10 +193,7 @@ class TableViewer {
             BorderStyle rStyle = rs != null ? getBorderStyle(rs, ICellStyle.LEFT) : null;
 
             var borderWidth = width(lStyle, rStyle);
-            var style = style(lStyle, rStyle);
-            var rgb = rgb(lStyle, rStyle);
-
-            var bstyle = new BorderStyle(borderWidth, style, rgb);
+            var bstyle = shared(lStyle, rStyle, borderWidth);
 
             setBorder(borderWidth, bstyle, cmLeft, ICellStyle.RIGHT, cmRight, ICellStyle.LEFT);
         }
@@ -297,21 +228,24 @@ class TableViewer {
                 } else if (second == null) {
                     first.setBorderStyle(bstyle, firstSide);
                 } else {
-                    bstyle.setWidth(1);
-                    second.setBorderStyle(bstyle, secondSide);
-                    first.setBorderStyle(bstyle, firstSide);
+                    var half = new BorderStyle(1, bstyle.getStyle(), bstyle.getRgb());
+                    second.setBorderStyle(half, secondSide);
+                    first.setBorderStyle(half, firstSide);
                 }
             }
             default -> { /* getBorderStyle gives no border wider than 2 */ }
         }
     }
 
-    String style(BorderStyle bs1, BorderStyle bs2) {
-        if (bs1 == null && bs2 == null) {
-            return "none";
-        }
-
-        return dominant(bs1, bs2).getStyle();
+    /**
+     * The border two cells share, at least one of them present. Where neither cell has a border, it is
+     * {@link BorderStyle#NONE} itself, so a reader of the cell can tell the line of the grid from a border the
+     * workbook draws.
+     */
+    private static BorderStyle shared(BorderStyle bs1, BorderStyle bs2, int borderWidth) {
+        var drawn = dominant(bs1, bs2);
+        return drawn == BorderStyle.NONE ? BorderStyle.NONE
+                : new BorderStyle(borderWidth, drawn.getStyle(), drawn.getRgb());
     }
 
     int width(BorderStyle bs1, BorderStyle bs2) {

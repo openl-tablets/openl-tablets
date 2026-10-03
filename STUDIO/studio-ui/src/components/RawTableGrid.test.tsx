@@ -3,7 +3,14 @@ import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { paperToken } from 'styles/paper'
 import { renderInTheme } from 'testing/theme'
-import type { RawTableCell } from 'types/tables'
+import type { RawTableCell, RawTableCellBorder } from 'types/tables'
+
+/** A colour as a style writes it back once the browser has read it. */
+const written = (colour: string): string => {
+    const probe = document.createElement('i')
+    probe.style.color = colour
+    return probe.style.color
+}
 
 const rows: RawTableCell[][] = [
     [
@@ -135,6 +142,111 @@ describe('RawTableGrid', () => {
             const margin = screen.getByTestId('table-line-number').closest('td')
             expect(margin).not.toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
         })
+    })
+
+    it('draws the borders the workbook has, and the grid line on every other side', () => {
+        const table: RawTableCell[][] = [[{
+            cell: 'A1',
+            value: 'x',
+            style: {
+                color: '#ffffff',
+                border: { bottom: { style: 'solid', width: 2, color: '#ff0000' }, top: { style: 'dashed', width: 1 } },
+            },
+        }]]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const cell = screen.getByTestId('grid').querySelector('td') as HTMLElement
+        expect(cell.style.borderBottom).toBe('2px solid rgb(255, 0, 0)')
+        // A side without a colour of its own is drawn in the ink of the paper, as Excel draws it, and not in the
+        // white the text of the cell has.
+        expect(cell.style.borderTop).toBe(`1px dashed ${written(paperToken().colorText)}`)
+        expect(cell.style.borderLeft).toBe('')
+    })
+
+    it('draws the line of the grid two cells share once, by the upper or the left one', () => {
+        const line: RawTableCellBorder = { right: { style: 'solid', width: 1 } }
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'R1', style: { border: line } }, { cell: 'B1', value: 'Young', rowspan: 2 }],
+            [{ cell: 'A2', value: 'R2', style: { border: line } }, { covered: true }],
+            [{ cell: 'A3', value: 'R3' }, { cell: 'B3', value: 'Senior' }],
+        ]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const cellAt = (address: string) => screen.getByTestId('grid').querySelector(`[data-cell="${address}"]`)
+        // Along the edge of the table a cell draws the line of the grid on that side as well.
+        expect(cellAt('A1')).toHaveStyle({ borderTopStyle: 'solid', borderLeftStyle: 'solid' })
+        expect(cellAt('A3')).toHaveStyle({ borderLeftStyle: 'solid', borderBottomStyle: 'solid' })
+        // The merged cell is laid out before R2, so a line of the grid on its left would be drawn over the line
+        // R2 has on its right.
+        expect(cellAt('B1')).toHaveStyle({ borderTopStyle: 'solid', borderRightStyle: 'solid' })
+        expect(cellAt('B1')).not.toHaveStyle({ borderLeftStyle: 'solid' })
+        expect(cellAt('B3')).toHaveStyle({ borderRightStyle: 'solid', borderBottomStyle: 'solid' })
+        expect(cellAt('B3')).not.toHaveStyle({ borderTopStyle: 'solid' })
+        expect(cellAt('B3')).not.toHaveStyle({ borderLeftStyle: 'solid' })
+    })
+
+    it('draws a line naming no colour in the ink of the paper, and in the grey of a muted cell', () => {
+        const line: RawTableCellBorder = { bottom: { style: 'solid', width: 1 } }
+        const table: RawTableCell[][] = [[
+            { cell: 'A1', value: 'filled', style: { background: '#ddebf7', border: line } },
+            { cell: 'B1', value: 'muted', style: { color: '#ff0000', border: line } },
+        ]]
+
+        render(<RawTableGrid decorate={cell => ({ muted: cell.cell === 'B1' })} rows={table} testId="grid" />)
+
+        const [filled, muted] = Array.from(screen.getByTestId('grid').querySelectorAll('td')) as HTMLElement[]
+        // The line lies on the paper of the workbook, fill or not, as the text of the table does.
+        expect(filled?.style.borderBottom).toBe(`1px solid ${written(paperToken().colorText)}`)
+        // A muted cell leaves the colour out, so its line is drawn in the grey its text is drawn in.
+        expect(muted?.style.borderBottom).toBe('1px solid')
+    })
+
+    it('draws the pieces of a text in the fonts the workbook gives them', () => {
+        const table: RawTableCell[][] = [[{
+            cell: 'A1',
+            value: 'Datatype Person',
+            runs: [
+                { text: 'Datatype', style: { color: '#808080' } },
+                { text: ' ' },
+                { text: 'Person', style: { bold: true, strikeout: true, fontFamily: 'Calibri', fontSize: 14 } },
+            ],
+        }]]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const cell = screen.getByTestId('grid').querySelector('td') as HTMLElement
+        expect(cell).toHaveTextContent('Datatype Person')
+        const pieces = cell.querySelectorAll('span')
+        expect(pieces).toHaveLength(3)
+        expect((pieces[0] as HTMLElement).style.color).toBe('rgb(128, 128, 128)')
+        // A run with a font of its own names every attribute of it: what it leaves out is at its default.
+        expect((pieces[0] as HTMLElement).style.fontWeight).toBe('normal')
+        expect(pieces[2]).toHaveStyle({ color: paperToken().colorText })
+        expect((pieces[1] as HTMLElement).style.fontWeight).toBe('')
+        expect((pieces[2] as HTMLElement).style.fontWeight).toBe('bold')
+        expect((pieces[2] as HTMLElement).style.textDecoration).toBe('line-through')
+        // The font and the size a table theme gives a piece are drawn on the piece itself.
+        expect((pieces[2] as HTMLElement).style.fontFamily).toBe('"Calibri", sans-serif')
+        expect((pieces[2] as HTMLElement).style.fontSize).toBe('14pt')
+    })
+
+    it('draws the look of a table theme a read reports as the style of a cell', () => {
+        const table: RawTableCell[][] = [[{
+            cell: 'A1',
+            value: 'Datatype Person',
+            style: { background: '#b4c6e7', fontFamily: 'Franklin Gothic Book', fontSize: 10, source: 'theme' },
+            runs: [{ text: 'Datatype', style: { color: '#808080', source: 'theme' } }, { text: ' Person' }],
+        }]]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const themed = screen.getByTestId('grid').querySelector('td') as HTMLElement
+        expect(themed.style.background).toContain('rgb(180, 198, 231)')
+        expect(themed.style.fontFamily).toBe('"Franklin Gothic Book", sans-serif')
+        expect(themed.style.fontSize).toBe('10pt')
+        expect(themed.querySelectorAll('span')).toHaveLength(2)
     })
 
     it('leaves out the Excel background of a cell the screen paints itself', () => {

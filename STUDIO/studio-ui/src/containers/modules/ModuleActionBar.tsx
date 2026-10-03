@@ -12,6 +12,7 @@ import { openExcelFilesCompareWindow } from '../projects/compare'
 import { isActionAvailable, PROJECT_ACTIONS } from '../projects/projectActions'
 import { ACTION_ICONS } from '../projects/projectActionIcons'
 import { useProjectDialogs, type ProjectDialogActions } from '../projects/useProjectDialogs'
+import { ApplyProjectThemeModal } from './ApplyProjectThemeModal'
 import { useOverwriteConfirm } from './useOverwriteConfirm'
 
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
@@ -81,6 +82,7 @@ export const ModuleActionBar = ({
 }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
     const [revisionsOpen, setRevisionsOpen] = useState(false)
+    const [themeOpen, setThemeOpen] = useState(false)
     const [localChangesOpen, setLocalChangesOpen] = useState(false)
     // Saving, syncing, deploying and copying belong to the project, not to the module being read: they are
     // offered here exactly as the project's own screen offers them, by the same capabilities.
@@ -115,7 +117,15 @@ export const ModuleActionBar = ({
         { type: 'divider' as const },
         { key: 'dependencies', label: t('browser.module.dependencies') },
         { key: 'compare', label: t('browser.module.compare') },
+        ...(canWrite ? [
+            { type: 'divider' as const },
+            { key: 'applyTheme', label: t('browser.module.apply_theme_project') },
+        ] : []),
     ]
+
+    // The theme reaches every Datatype table of every module of the project, so the reader chooses it in a dialog
+    // that says so before anything is written.
+    const applyTheme = () => confirmWrite(() => setThemeOpen(true))
 
     const chooseMore = (key: string) => {
         if (key === 'revisions') {
@@ -126,6 +136,8 @@ export const ModuleActionBar = ({
             window.dispatchEvent(new CustomEvent('openTableGraphModal', {
                 detail: { projectId: project.id, projectName: project.name, module: moduleName },
             }))
+        } else if (key === 'applyTheme') {
+            applyTheme()
         } else if (key === 'compare') {
             // Two files of the reader's own, not two revisions of the project: those the project screen compares.
             openExcelFilesCompareWindow()
@@ -263,6 +275,12 @@ export const ModuleActionBar = ({
                 />
             </Modal>
             {dialogs}
+            <ApplyProjectThemeModal
+                onApplied={() => onProjectChanged?.()}
+                onClose={() => setThemeOpen(false)}
+                open={themeOpen}
+                projectId={project.id}
+            />
         </Space>
     )
 }

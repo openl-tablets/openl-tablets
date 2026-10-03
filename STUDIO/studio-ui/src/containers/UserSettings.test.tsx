@@ -9,6 +9,10 @@ import type { UserProfile } from '../types/user'
 
 vi.mock('../services', () => ({ apiCall: vi.fn() }))
 
+vi.mock('../services/tables', () => ({
+    getTableThemes: () => Promise.resolve([{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]),
+}))
+
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     return { useTranslation: () => ({ t }) }
@@ -103,6 +107,45 @@ describe('UserSettings', () => {
         await waitFor(() => expect(mockApiCall).toHaveBeenCalledTimes(2))
         expect(sentBody(0)).toEqual({ showFormulas: true })
         expect(sentBody(1)).toEqual({ testsFailuresOnly: true })
+    })
+
+    it('draws the tables with the formatting of the Excel file while the profile names no theme', async () => {
+        mockApiCall.mockResolvedValueOnce(undefined)
+        render(<UserSettings />)
+
+        expect(await screen.findByTitle('users:settings.excel_formatting')).toBeInTheDocument()
+        await userEvent.click(screen.getByLabelText('users:settings.table_theme'))
+        await userEvent.click(await screen.findByTitle('Green'))
+        await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        expect(sentBody(0)).toEqual({ tableTheme: 'green' })
+    })
+
+    it('goes back to the formatting of the Excel file by naming no theme', async () => {
+        mockApiCall.mockResolvedValueOnce(undefined)
+        useUserStore.setState({ userProfile: { ...profile, tableTheme: 'green' } })
+        render(<UserSettings />)
+
+        await userEvent.click(screen.getByLabelText('users:settings.table_theme'))
+        await userEvent.click(await screen.findByTitle('users:settings.excel_formatting'))
+        await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        expect(sentBody(0)).toEqual({ tableTheme: '' })
+    })
+
+    it('saves the table theme the user chooses, offered by its name', async () => {
+        mockApiCall.mockResolvedValueOnce(undefined)
+        useUserStore.setState({ userProfile: { ...profile, tableTheme: 'default' } })
+        render(<UserSettings />)
+
+        await userEvent.click(screen.getByLabelText('users:settings.table_theme'))
+        await userEvent.click(await screen.findByTitle('Green'))
+        await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
+
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        expect(sentBody(0)).toEqual({ tableTheme: 'green' })
     })
 
     it('sends nothing to change when nothing was changed', async () => {
