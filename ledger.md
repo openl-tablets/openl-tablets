@@ -2,15 +2,15 @@
 
 ## Resume point
 
-- No PR is open: #2212 merged the day it opened. Cut a fresh branch off a re-fetched `origin/main` once a finding
-  is proven.
+- PR #2257 is open with one commit: the `jekyll-redirect-from` plugin, which no page uses.
 - All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect near zero),
-  spend the rest on a NEW vein. Only documentation, build config, i18n keys and dead TS imports have ever paid, and
-  a Sonar-cleanup wave pre-harvests the Java vein, so a LARGE Java delta yields less, not more.
+  spend the rest on a NEW vein. Only documentation, build config, i18n keys and dead TS imports have ever paid.
+- `main` now carries the maintainers' own `sweep:` commits, so the Java vein is harvested upstream before a run
+  sees it; a LARGE Java delta yields less, not more.
+- OWED: the targeted PMD ruleset did not run — the root-pom patch was reverted before the scan started, so only
+  Error Prone (1 hit, the known `BeanA.getAB` FP) and dependency:analyze-only covered Java. Run PMD first next time.
 - The RELEASE-NOTE vein is the best one found and is NOT exhausted — re-run it whenever guides or release notes
   change. A module-merge wave leaves poms and resources clean but strands package names in Docs.
-- Start the reactor build detached in the FIRST minute (~27 min even from a cold `~/.m2`) and mine read-only veins
-  beside it; before every push, list open `dead-code/*` PRs and re-fetch main.
 
 ## Change-type queue
 
@@ -21,7 +21,7 @@
 | 3 | Unused locals, private fields/methods/params | done; 14 PMD + 4 Error Prone hits, all FPs |
 | 4 | Unused Maven dependency declarations | done; 676 analyze hits + npm deps, all FPs |
 | 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done; 6 hits, all plugin-read flags |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 4 no-op Lombok annotations, in #2166 |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 4 Lombok no-ops in #2166, 1 Jekyll plugin in #2257 |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
@@ -33,7 +33,9 @@
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- `dead-code/jekyll-redirect-from`, PR #2257, head c71bb5c. One commit: drop the `jekyll-redirect-from` plugin from
+  `Docs/_config.yml` and `Docs/Gemfile`, proven by zero `redirect_from` anywhere in the repository.
+- No thread is open.
 
 ## Merged PRs
 
@@ -111,7 +113,13 @@
   never returned, then that the `values()` loop is a no-op for it.
 - An identifier index keyed on `[A-Za-z_$][\w$]*` misses a stem starting with a digit: confirm with `git grep -lF`.
 - A dotted-name detector over Markdown catches heading anchor slugs and wrapped table cells, not settings: require
-  dot separators only, drop hyphenated slugs, and rejoin a name split across a line wrap.
+  dot separators only, drop hyphenated slugs, and rejoin a name split across a line wrap. A dotted `org.openl.*`
+  token is often a Maven artifactId, not a package (9 of 47): resolve it against `<artifactId>` before judging.
+- A Markdown link or path scanner that does not skip fenced code blocks reports the documentation's own examples:
+  both "broken links" were a `...` placeholder and a sample `images/new-feature.png`. A bare `name/` in prose is
+  relative to a sibling folder, not the repository root, which is 334 of 334 documented-path hits.
+- A Spring `@Profile` is activated by a test harness argument (`JettyServer.test("custom")`), never by a
+  configuration file: grep the harness, not `spring.profiles.active`.
 - Jekyll lists pages by `nav: "auto"`, so a link-graph orphan check calls 265 live pages orphans; site-absolute
   links resolve on the published site, not on disk, and only a wrong-case path breaks.
 - A backticked path in documentation is no claim about a real file when it is elided (`STUDIO/.../Foo.java`) or
@@ -126,8 +134,9 @@
 
 ## Method rules
 
-- Build the whole repo once per run: `LANG=C.UTF-8 mvn clean install -Dquick -DnoPerf -T2
-  -Daether.syncContext.named.time=600`. Unset `gpg.format`/`commit.gpgsign` first.
+- Build the whole repo once per run, detached in the FIRST minute, and mine read-only veins beside it:
+  `LANG=C.UTF-8 mvn clean install -Dquick -DnoPerf -T2 -Daether.syncContext.named.time=600`. Unset
+  `gpg.format`/`commit.gpgsign` first. Before every push, list open `dead-code/*` PRs and re-fetch main.
 - Index the whole tree once (regex `[A-Za-z_$][\w$]*` per file into a Counter, ~8 s) and answer every "is this name
   used" question from it; a name whose total count equals its count in its own file is unreferenced.
 - PMD needs reactor artifacts and a warm `~/.m2`, so run it online and fully qualified (a `pmd:` prefix fails):
@@ -250,30 +259,20 @@
   test-bearing classes surefire would not select, exception types never instantiated, `@Bean` methods nothing
   names, listPageTheme palette tokens, Docker/compose environment variables, dependabot entries, the Jekyll
   navigation and plugin list, duplicate sibling entries in non-pom XML and JSON, duplicate keys over properties and
-  ignore files, per-package logger categories, and image references across poms. The duplicate-entry scan paid once,
+  ignore files, per-package logger categories, image references across poms, the Jekyll `_includes`/`_layouts`/`_data` and main-nav targets, studio-docs'
+  `allowed-links.txt` prefixes (all 24 used), the Docs link graph outside the `nav: auto` scopes, and Spring
+  `@Profile` values. The duplicate-entry scan paid once,
   on three `**/*.sql` Spotless includes; the `.aj`/`.apt`/`.scss` ones are prophylactic and KEPT — settled.
 
 ## Human follow-ups
 
-- Docs renames from code that MOVED: `org.openl.rules.webstudio.web.rest`→`org.openl.rules.rest`,
-  `...web.trace.debug`→`org.openl.studio.projects.service.trace`, `org.openl.security.standalone/resources/db/
-  flyway/`→webstudio's, `org.openl.openclass.IOpenClass`→`org.openl.types.IOpenClass`,
-  `org.openl.rules.maven.plugin`→`openl-maven-plugin`, and `org.openl.studio.mcp.node`, which names no package.
-- rules-projects.md documents a `generateInterfaces` configuration found in no other file and seven parameters
-  GenerateMojo lacks (its real ones: superInterface, interfaceClass, moduleName, generateSpreadsheetResultBeans,
-  externalParameters). Also `#configuring-the-instantiation-strategy` points at no heading, and DEPLOYMENT.md's
-  'Rule Compilation Caching' now covers only parallel compilation.
-- Docs renames this routine may not make: `MixInClassFor`→`MixInClass`, `kafka.ser.MessageDeserializer`→
-  `RequestMessageDeserializer`, `...ws.full:war`→`...ws.all` (rule-services/configuration.md),
-  `SkipFaultStoreLogData`→`SkipFault`, `org.openl.rules.table.TableNotFoundException` (never existed),
-  `src/main/resources/log4j2.xml` against the real `resources/log4j2.properties`, `mvn jetty:run` (3 guides) and
-  `mvn rewrite:run` naming no plugin, and `RulesUtilsTest.testParseFormattedDouble`'s `"deprecated"`, which javac
-  ignores while both methods it calls are deprecated — the key is `deprecation`.
-- Docs settings no code reads, all editorial: DEPLOYMENT.md (20 of 81 after #2212), API_GUIDE.md (6 of 10),
-  TROUBLESHOOTING.md (3 of 28), externalized-config.md's `...filesystem.supportDeployments`, and
-  `ruleservice.store.logs.enabled`, documented as the global switch while only `...db.enabled` gates it. API_GUIDE
-  and api/public-api-reference.md map `/admin/*` and `/api/projects/*/git/*` to no controller. 51 relative links
-  resolve to nothing: `/DEV/CLAUDE.md` from `README.MD` and lowercase `/docs/...`.
+- Docs names a human must fix, re-verified at HEAD (a maintainer doc wave cleared thirteen earlier entries, so
+  re-verify this list every run before reporting it): `org.openl.studio.mcp.node` names no package, `MixInClassFor`
+  should be `MixInClass`, rules-projects.md documents a `generateInterfaces` configuration found nowhere else and
+  seven parameters GenerateMojo lacks (its real ones: superInterface, interfaceClass, moduleName,
+  generateSpreadsheetResultBeans, externalParameters), and two settings no code reads —
+  externalized-config.md's `...filesystem.supportDeployments`, and `ruleservice.store.logs.enabled`, documented as
+  the global switch while only `...db.enabled` gates it.
 - Bugs only a human may fix: `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` of 17 flyway/common
   scripts and nothing sets `sqlMigrationPrefix`, so Flyway skips it and its index is never created; `CorsFilter` is
   registered twice (`@WebFilter` and web.xml), doubling each `Access-Control-*` header; `compose.yaml` pins a
@@ -282,18 +281,17 @@
   over live code. Restore or delete is a maintainer's call.
 - Flake fixes a human could make: pin ITEST's `apache/kafka-native:latest` or move to `apache/kafka:4.3.1`; fix
   ORA-12516 in IT (studio-acl); raise the CI vitest `testTimeout` above 20_000; raise the WebSocket idle timeout for
-  `WebSocketChangeOriginTest`. `Docs/examples/production/` and `Docs/production-deployment/` duplicate 320K, both live.
+  `WebSocketChangeOriginTest`.
 - KafkaMessageHeader.Type.PRODUCER_RECORD is documented as usable but StoreLogDataMapper acts only on
   CONSUMER_RECORD; the mapper or the guide is wrong. The constant is API and stays.
 
 ## Run log
 
-- 2026-09-28: delta was two Dependabot bumps only, so the run went to new veins. Seven closed at zero, the
-  whole-type scan re-ran repo-wide (859 raw, 63 production, all framework FPs), and Error Prone turned out to be
-  enabled. Nothing removed, no PR opened.
-- 2026-09-29: delta was the ~200-commit Sonar cleanup wave (2026-09-26..29, 0 files deleted); reactor green in 26:44.
-  Twelve veins re-swept at zero, PMD and dependency:analyze among them. Nothing removed, no PR opened.
-- 2026-09-30: delta was 27 commits including the EPBDS-16781 merge of five STUDIO modules into webstudio. Reactor
-  green in 26:25 from a COLD `~/.m2`; Error Prone, tsc and the merge-leftover checks at zero. The new release-note
-  vein paid 6 documentation removals and the i18n pass 1 key. #2212 MERGED (-72) within the hour, after one
-  studio-sso flake cleared on its single rerun.
+- 2026-09-29: delta was the ~200-commit Sonar cleanup wave; twelve veins re-swept at zero, PMD and
+  dependency:analyze among them. Nothing removed, no PR opened.
+- 2026-09-30: delta was the EPBDS-16781 merge of five STUDIO modules into webstudio. The new release-note vein
+  paid 6 documentation removals and the i18n pass 1 key; #2212 MERGED (-72) within the hour.
+- 2026-10-03: delta was 221 files — a 40-commit Docs rewrite wave and a Sonar S107 refactor wave. Reactor green
+  in 31:14 from a cold `~/.m2`. Ten veins re-ran at zero (images, release notes, Docs links and tokens, orphan
+  pages, allowed-links, Jekyll partials, @Profile, Error Prone, dependency:analyze-only's 69 hits). One finding:
+  the `jekyll-redirect-from` plugin, PR #2257. The wave also cleared thirteen Docs human follow-ups.
