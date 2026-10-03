@@ -154,7 +154,9 @@ type XmlFieldOf<V> =
                         : never
 
 /** How every field of a model is kept in its element, in the order the elements are written. */
-type XmlFields<T> = { [K in keyof T]-?: XmlFieldOf<NonNullable<T[K]>> }
+type XmlFields<T> = {
+    [K in keyof T]-?: XmlFieldOf<NonNullable<T[K]>>
+}
 
 /** How a model maps onto a descriptor: the root element, and the element each field is kept in. */
 export interface XmlMapping<T> {

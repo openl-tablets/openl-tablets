@@ -6,7 +6,9 @@ import { DISPATCHER_KIND } from './tableGraph'
  *
  * Ant Design does not export the union, so it is derived from the tokens that carry a string.
  */
-type HueToken = { [K in keyof GlobalToken]: GlobalToken[K] extends string ? K : never }[keyof GlobalToken]
+type HueToken = {
+    [K in keyof GlobalToken]: GlobalToken[K] extends string ? K : never
+}[keyof GlobalToken]
 
 /**
  * The hue each table kind is drawn in, named as a token rather than written out.

@@ -16,7 +16,7 @@ type InputProps = {
     onChange?: (e: CheckboxChangeEvent) => void
     required?: boolean
     rules?: FormRule[]
-};
+}
 
 const Checkbox: FC<InputProps> = ({
     name,

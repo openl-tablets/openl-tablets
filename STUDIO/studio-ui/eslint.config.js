@@ -13,7 +13,6 @@ export default [
                 ecmaVersion: 'latest',
                 sourceType: 'module',
                 ecmaFeatures: { jsx: true },
-                project: './tsconfig.json',
             },
         },
         plugins: {
@@ -32,17 +31,19 @@ export default [
                 argsIgnorePattern: '^_',
                 caughtErrorsIgnorePattern: '^_',
             }],
-            'indent': ['error', 4, { 'SwitchCase': 1 }],
-            'quotes': ['error', 'single', { 'avoidEscape': true }],
-            'jsx-quotes': ['error', 'prefer-double'],
-            'object-curly-spacing': ['error', 'always', { 'arraysInObjects': false, 'objectsInObjects': true }],
-            'array-bracket-spacing': ['error', 'never', { 'arraysInArrays': false, 'objectsInArrays': false }],
-            'computed-property-spacing': ['error', 'never'],
-            'no-extra-semi': 'error',
-            'semi-spacing': 'error',
-            'comma-spacing': ['error', { 'before': false, 'after': true }],
-            'semi': ['error', 'never'],
+            '@stylistic/indent': ['error', 4, { 'SwitchCase': 1 }],
+            '@stylistic/quotes': ['error', 'single', { 'avoidEscape': true }],
+            '@stylistic/jsx-quotes': ['error', 'prefer-double'],
+            '@stylistic/object-curly-spacing': ['error', 'always', { 'arraysInObjects': false, 'objectsInObjects': true }],
+            '@stylistic/array-bracket-spacing': ['error', 'never', { 'arraysInArrays': false, 'objectsInArrays': false }],
+            '@stylistic/computed-property-spacing': ['error', 'never'],
+            '@stylistic/no-extra-semi': 'error',
+            '@stylistic/semi-spacing': 'error',
+            '@stylistic/comma-spacing': ['error', { 'before': false, 'after': true }],
+            '@stylistic/semi': ['error', 'never'],
             'no-console': 'error',
+            'react-hooks/rules-of-hooks': 'error',
+            'react-hooks/exhaustive-deps': 'warn',
             // Static Ant Design pop-ups render outside React and ignore the theme — use services/popups
             'no-restricted-imports': ['error', {
                 'paths': [{
@@ -56,12 +57,16 @@ export default [
                     + "[property.name=/^(confirm|info|success|error|warning)$/]",
                 'message': 'Static dialogs ignore the theme; take modal from App.useApp().',
             }],
-            'comma-dangle': ['error', {
+            '@stylistic/comma-dangle': ['error', {
                 'arrays': 'only-multiline',
                 'objects': 'only-multiline',
                 'imports': 'only-multiline',
                 'exports': 'only-multiline',
                 'functions': 'never',
+                'enums': 'only-multiline',
+                'tuples': 'only-multiline',
+                // `<T,>` is how a .tsx file tells a generic arrow function from a JSX tag
+                'generics': 'ignore',
             }],
             // JSX stylistic rules
             '@stylistic/jsx-child-element-spacing': ['error'],

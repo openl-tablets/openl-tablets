@@ -15,7 +15,7 @@ type InputNumberProps = {
     defaultValue?: string
     rules?: FormRule[]
     required?: boolean
-};
+}
 
 const InputNumber: FC<InputNumberProps> = ({
     name,

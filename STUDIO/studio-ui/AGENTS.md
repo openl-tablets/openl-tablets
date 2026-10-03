@@ -14,7 +14,8 @@ Use almost the latest versions when possible.
 - **i18next + react-i18next** for internationalization
 - **@stomp/stompjs** for WebSocket notifications (reconnecting singleton)
 - **Vite** + `@vitejs/plugin-react` (`vite.config.ts`)
-- **ESLint** (flat config: `eslint.config.js`)
+- **ESLint** (flat config: `eslint.config.js`) — formatting through `@stylistic`, the Rules of Hooks as errors and
+  missing hook dependencies as warnings (`eslint-plugin-react-hooks`), JSX props sorted by `perfectionist`
 - **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
 - **Vitest** + React Testing Library (`jsdom` environment)
 - **react-markdown** with remark/rehype plugins, **lowlight** and **Mermaid** draw the user guides

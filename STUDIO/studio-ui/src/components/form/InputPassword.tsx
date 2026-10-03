@@ -17,7 +17,7 @@ type InputProps = {
     rules?: FormRule[]
     required?: boolean
     autoComplete?: string
-};
+}
 
 const InputPassword: FC<InputProps> = ({
     name,

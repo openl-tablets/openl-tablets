@@ -52,7 +52,7 @@ export const DeployModal: React.FC = () => {
     const [visible, setVisible] = useState(false)
     const [searchString, setSearchString] = useState('')
     const [deploymentRepositories, setDeploymentRepositories] = useState<Repository[]>([])
-    const [deploymentNames, setDeploymentNames] = useState<Array<{id: string, name: string}>>([])
+    const [deploymentNames, setDeploymentNames] = useState<Array<{ id: string, name: string }>>([])
     const [isNewDeployment, setIsNewDeployment] = useState<boolean>(false)
     const [isDeploying, setIsDeploying] = useState<boolean>(false)
 
@@ -63,7 +63,7 @@ export const DeployModal: React.FC = () => {
 
     const fetchDeploymentNames = async () => {
         try {
-            const response: Array<{id: string, name: string}> = await apiCall(
+            const response: Array<{ id: string, name: string }> = await apiCall(
                 `/deployments?repository=${encodeURIComponent(selectedRepository)}`,
                 undefined,
                 { throwError: true, suppressErrorPages: true }

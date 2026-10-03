@@ -14,7 +14,7 @@ interface UseWebSocketReturn {
     disconnect: () => void
     subscribe: (destination: string, callback: (message: WebSocketMessage) => void, subscriptionId?: string) => string
     unsubscribe: (subscriptionId: string) => void
-    send: (destination: string, body: string, headers?: { [key: string]: string }) => void
+    send: (destination: string, body: string, headers?: Record<string, string>) => void
     subscriptions: string[]
 }
 
@@ -67,7 +67,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
     const send = useCallback((
         destination: string,
         body: string,
-        headers?: { [key: string]: string }
+        headers?: Record<string, string>
     ) => {
         webSocketService.send(destination, body, headers)
     }, [])

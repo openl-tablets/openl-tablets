@@ -82,7 +82,7 @@ export const Security = () => {
     const { t } = useTranslation()
     const [form] = Form.useForm()
     const [securitySettings, setSecuritySettings] = React.useState<any>(undefined)
-    const [userGroups, setUserGroups] = React.useState<{label: string, value: string}[]>([])
+    const [userGroups, setUserGroups] = React.useState<{ label: string, value: string }[]>([])
     const [loadingUserGroups, setLoadingUserGroups] = React.useState<boolean>(false)
     const userMode = Form.useWatch('userMode', form)
     const mode = typeof userMode === 'object' ? userMode?.value : userMode
