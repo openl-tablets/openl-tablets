@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { App, Tabs, Button } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import { DesignRepositoriesConfiguration } from './repositories/DesignRepositoriesConfiguration'
 import { RepositoryDataType } from './repositories/constants'
 import { useTranslation } from 'react-i18next'

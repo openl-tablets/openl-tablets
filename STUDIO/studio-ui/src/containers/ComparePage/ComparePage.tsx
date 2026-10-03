@@ -8,7 +8,7 @@ import {
     PaperClipOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 import { isStillRunning } from 'services/taskResult'
 import { errorMessage } from 'utils/errorMessage'
 import { isWorkbookPath } from 'utils/workbooks'

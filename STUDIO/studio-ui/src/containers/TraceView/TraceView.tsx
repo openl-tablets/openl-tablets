@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router'
 import { Alert, Collapse, Segmented } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RunningCard } from 'components/RunningCard'

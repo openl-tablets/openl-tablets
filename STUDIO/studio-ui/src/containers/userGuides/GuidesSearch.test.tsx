@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import type { GuideEntry } from 'services/userGuides'
 import { GuidesSearch, scopesOf } from './GuidesSearch'
 import type { GuideSearchResult } from './guideSearch'

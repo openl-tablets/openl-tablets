@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { TableLink } from './TableLink'
 
 const navigate = vi.fn()
-vi.mock('react-router-dom', async importOriginal => ({
-    ...(await importOriginal<typeof import('react-router-dom')>()),
+vi.mock('react-router', async importOriginal => ({
+    ...(await importOriginal<typeof import('react-router')>()),
     useNavigate: () => navigate,
 }))
 

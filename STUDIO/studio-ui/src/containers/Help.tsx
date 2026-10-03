@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { Card, Col, Row, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { SystemContext } from '../contexts'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { CompressOutlined, FileTextOutlined, GlobalOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
 // Each guide is a folder of `Docs/user-guides`, which OpenL Studio ships and shows at `/docs/<path>/`.

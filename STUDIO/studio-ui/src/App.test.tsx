@@ -39,7 +39,7 @@ vi.mock('antd', () => ({
     Skeleton: () => null,
 }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router/dom', () => ({
     RouterProvider: () => <div data-testid="router" />,
 }))
 

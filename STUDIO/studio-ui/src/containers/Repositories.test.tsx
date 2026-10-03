@@ -1,12 +1,12 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router'
 import { Repositories } from 'containers/Repositories'
 
 const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => ({
-    ...await vi.importActual('react-router-dom'),
+vi.mock('react-router', async () => ({
+    ...await vi.importActual('react-router'),
     useNavigate: () => mockNavigate,
 }))
 

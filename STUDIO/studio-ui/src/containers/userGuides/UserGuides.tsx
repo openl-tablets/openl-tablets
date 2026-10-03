@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Empty, Skeleton } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router'
 import { ResizeHandle, useDragSize } from 'components/ResizeHandle'
 import { fetchGuidesContents, type GuideEntry } from 'services/userGuides'
 import { errorHandler } from 'utils/errorHandling'

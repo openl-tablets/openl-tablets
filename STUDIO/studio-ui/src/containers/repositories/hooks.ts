@@ -3,7 +3,7 @@ import { App } from 'antd'
 import { RepositoryDataType } from './constants'
 import { apiCall } from '../../services'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 import { RepositoryResponse } from './index'
 
 export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataType) => {

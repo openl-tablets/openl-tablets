@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Alert, Anchor, type AnchorProps, Skeleton, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { useHref, useNavigate } from 'react-router-dom'
+import { useHref, useNavigate } from 'react-router'
 import { fetchGuidePage } from 'services/userGuides'
 import { errorHandler } from 'utils/errorHandling'
 import { GuideMarkdown } from './GuideMarkdown'

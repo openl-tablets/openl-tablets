@@ -34,7 +34,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
 })
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useNavigate: () => navigateMock,
     useParams: () => routeParams,
     useSearchParams: () => [searchParams, setSearchParamsMock],

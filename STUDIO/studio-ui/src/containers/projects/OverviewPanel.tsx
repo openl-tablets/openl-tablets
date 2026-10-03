@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { moduleRoute } from '../../services/projectId'
 import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tag, Tooltip, Typography, Upload } from 'antd'
 import {

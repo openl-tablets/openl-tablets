@@ -58,7 +58,7 @@ vi.mock('./RevisionPicker', () => ({
 
 // What the window was opened with; a window opened for two versions carries them in the address.
 let searchParams = new URLSearchParams()
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useSearchParams: () => [searchParams, vi.fn()],
 }))
 

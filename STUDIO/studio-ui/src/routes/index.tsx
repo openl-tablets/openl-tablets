@@ -1,5 +1,5 @@
 import React from 'react'
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router'
 import { Notification } from 'containers/Notification'
 import { System } from 'containers/System'
 import { Email } from 'containers/Email'

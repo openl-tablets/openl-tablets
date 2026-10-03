@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -57,8 +57,8 @@ const cyMocks = vi.hoisted(() => {
 vi.mock('services', () => ({ apiCall: vi.fn() }))
 
 const navigate = vi.fn()
-vi.mock('react-router-dom', async importOriginal => ({
-    ...(await importOriginal<typeof import('react-router-dom')>()),
+vi.mock('react-router', async importOriginal => ({
+    ...(await importOriginal<typeof import('react-router')>()),
     useNavigate: () => navigate,
 }))
 

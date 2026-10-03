@@ -1,7 +1,7 @@
 import React from 'react'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { OpenProjectModal, type OpenProjectModalDetail } from './OpenProjectModal'
 // AntD's Modal leave animation never ends in jsdom, so gate it on `open` instead.
 vi.mock('antd', async () => {

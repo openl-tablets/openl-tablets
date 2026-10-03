@@ -21,7 +21,7 @@ vi.mock('../../services/modules', async importOriginal => ({
 const blocker = vi.hoisted(() => ({ state: 'unblocked', proceed: vi.fn(), reset: vi.fn() }))
 // What the editor asks the router to hold a leaving reader back by.
 const holdBack = vi.hoisted(() => ({ when: undefined as unknown }))
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useBlocker: (when: unknown) => {
         holdBack.when = when
         return blocker

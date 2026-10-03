@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 import MainMenu from '../components/MainMenu'
 import { GroupsProvider } from '../contexts'
 

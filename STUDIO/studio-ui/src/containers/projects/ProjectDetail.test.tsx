@@ -26,7 +26,7 @@ const {
     setSearchParamsMock: vi.fn(),
 }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
     useNavigate: () => navigateMock,
     useSearchParams: () => [searchParamsMock, setSearchParamsMock],
 }))

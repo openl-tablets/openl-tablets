@@ -1,5 +1,5 @@
 import { fireEvent, render as renderBare, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CompileProblemsPanel } from './CompileProblemsPanel'
 import { ProjectStatus } from '../../constants/project'
@@ -18,8 +18,8 @@ vi.mock('react-i18next', () => ({
 }))
 
 const navigate = vi.fn()
-vi.mock('react-router-dom', async importOriginal => ({
-    ...(await importOriginal<typeof import('react-router-dom')>()),
+vi.mock('react-router', async importOriginal => ({
+    ...(await importOriginal<typeof import('react-router')>()),
     useNavigate: () => navigate,
 }))
 
