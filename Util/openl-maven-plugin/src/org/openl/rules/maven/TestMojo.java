@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import javax.xml.stream.XMLStreamException;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -442,7 +443,7 @@ public final class TestMojo extends BaseOpenLMojo {
         return testRunner;
     }
 
-    private void writeReport(TestUnitsResults result) throws Exception {
+    private void writeReport(TestUnitsResults result) throws IOException, XMLStreamException {
         for (ReportFormat reporter : reportsFormat) {
             reporter.write(reportsDirectory, result);
         }
