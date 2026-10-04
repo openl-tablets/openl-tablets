@@ -226,9 +226,6 @@ The viewer searches the text of all guides, or of one part of the guides tree.
 - **Two renderers** — the Jekyll site and the viewer render the same files. The site does not draw Mermaid diagrams
   or `> [!Note]` alerts yet, and it shows `csv` and `openl` fences as plain code. It gains them through the theme's
   `head/custom.html` include, which needs no Jekyll plugin. Until then, the plain code stays readable.
-- **Licenses** — Mermaid reaches `robust-predicates` through d3, released into the public domain under the
-  Unlicense, so the license check of the `studio-ui` build accepts the Unlicense. Mermaid 12 depends on `elkjs`
-  (EPL-2.0), so the viewer uses Mermaid 11.
 - **First search cost** — the first search of a session downloads every page of the guides once. The index
   grows with the guides.
 - **Follow-ups** — screens can open their guide section through a `/docs/<path>#<anchor>` link. Screenshots of OpenL

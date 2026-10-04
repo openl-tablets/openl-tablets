@@ -26,8 +26,7 @@ Use almost the latest versions when possible.
 - **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
 - **Vitest** + React Testing Library (`jsdom` environment)
 - **react-markdown** with remark/rehype plugins, the CodeMirror grammars through **`@lezer/highlight`** and **Mermaid**
-  draw the user guides (`containers/userGuides`). Mermaid stays on 11.x: Mermaid 12 depends on `elkjs` (EPL-2.0),
-  which the license check of `npm run build` rejects
+  draw the user guides (`containers/userGuides`)
 
 ## Project Structure
 
