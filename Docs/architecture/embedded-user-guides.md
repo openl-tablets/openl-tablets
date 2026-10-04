@@ -1,7 +1,5 @@
 # ADR: User Guides Embedded in OpenL Studio
 
-- **Status** — Accepted
-- **Ticket** — [EPBDS-16455](https://jira.eisgroup.com/browse/EPBDS-16455)
 - **Scope** — `Docs/user-guides`, a new `STUDIO/studio-docs` module, OpenL Studio backend and `studio-ui`
 
 ## Context
