@@ -407,6 +407,14 @@ everyone who calls that API from outside the browser.
     `new OpenLServiceFactoryBean(proxyInterface, serviceName)`; a Spring XML file passes both as `<constructor-arg>`
   - **`PublisherType.WEBSERVICE` in `@QualifyPublisherType`** — remove it from the list. No publisher of that type
     exists, so a field, a method or an entity qualified for it alone was never filled or stored
+  - **`BranchRepository.createBranch(projectPath, branch)`** — `createRepositoryBranch(branch, getBranch())`
+  - **`BranchRepository.createBranch(projectPath, branch, startPoint)`** — `createRepositoryBranch(branch, startPoint)`
+  - **`BranchRepository.deleteBranch(null, branch)`** — `deleteRepositoryBranch(branch)`; any other project path
+    was rejected already
+  - **`BranchRepository.getBranches(projectPath)`** — `listBranches()`, which it returned already
+
+  A repository plugin that overrides one of the removed `BranchRepository` methods with `@Override` no longer
+  compiles; delete the override.
 
 ## Administrators
 

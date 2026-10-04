@@ -16,47 +16,6 @@ public interface BranchRepository extends Repository, SearchableRepository {
     boolean isBranchProtected(String branch);
 
     /**
-     * @deprecated Project membership is derived from Git trees. Use
-     * {@link #createRepositoryBranch(String, String)}.
-     */
-    // Repository plugins may still call or override this method; removing it breaks them.
-    @SuppressWarnings("java:S1133")
-    @Deprecated(forRemoval = true)
-    default void createBranch(String projectPath, String branch) throws IOException {
-        createRepositoryBranch(branch, getBranch());
-    }
-
-    /**
-     * @deprecated Project membership is derived from Git trees. Use
-     * {@link #createRepositoryBranch(String, String)}.
-     *
-     * @param projectPath ignored compatibility parameter
-     * @param branch      name of branch
-     * @param startPoint  existing branch, tag or commit revision
-     * @throws IOException if the branch cannot be created
-     */
-    // Repository plugins may still call or override this method; removing it breaks them.
-    @SuppressWarnings("java:S1133")
-    @Deprecated(forRemoval = true)
-    default void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        createRepositoryBranch(branch, startPoint);
-    }
-
-    /**
-     * @deprecated Project membership cannot be edited as repository metadata. A {@code null} project path
-     * deletes the repository branch; any other value is rejected.
-     */
-    // Repository plugins may still call or override this method; removing it breaks them.
-    @SuppressWarnings("java:S1133")
-    @Deprecated(forRemoval = true)
-    default void deleteBranch(String projectPath, String branch) throws IOException {
-        if (projectPath != null) {
-            throw new UnsupportedOperationException("Project branch membership is derived from Git trees.");
-        }
-        deleteRepositoryBranch(branch);
-    }
-
-    /**
      * Creates a repository branch without changing project-to-branch metadata.
      *
      * @param branch     the new branch name
@@ -79,17 +38,6 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * <p>Project-specific branch selections are not included.
      */
     List<String> listBranches() throws IOException;
-
-    /**
-     * @deprecated Project membership is available from the workspace project index. This compatibility
-     * method returns actual repository branches only.
-     */
-    // Repository plugins may still call or override this method; removing it breaks them.
-    @SuppressWarnings("java:S1133")
-    @Deprecated(forRemoval = true)
-    default List<String> getBranches(String projectPath) throws IOException {
-        return listBranches();
-    }
 
     /**
      * Returns what the repository knows about each requested branch: its tip commit, and whether the branch is
