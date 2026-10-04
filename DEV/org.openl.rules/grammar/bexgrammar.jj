@@ -277,6 +277,8 @@ TOKEN :
 | < BOOL_AND :
     "&&"
   | "and" >
+// No expression uses ++ and --; the tokens stay so that "x++" or "--x" fails to parse instead of reading as two
+// unary operators.
 | < INCR : "++" >
 | < DECR : "--" >
 | < PLUS : "+" >
@@ -859,14 +861,10 @@ void UnaryExpression() :
     uop("op.unary.not", pos(x));
   }
 | 
-  PreIncrementExpression()
-| 
-  PreDecrementExpression()
-| 
   LOOKAHEAD(CastLookahead())
   CastExpression()
 | 
-  PostfixExpression()
+  PrimaryExpression()
 }
 
 void OfTheExpressionSuffix() :
@@ -878,46 +876,6 @@ void OfTheExpressionSuffix() :
   {
     bop("chain.suffix.of.the", null);
   }
-}
-
-void PreIncrementExpression() :
-{
-  Token x;
-}
-{
-  x = < INCR > PrimaryExpression()
-  {
-    uop("op.prefix.inc", pos(x));
-  }
-}
-
-void PreDecrementExpression() :
-{
-  Token x;
-}
-{
-  x = < DECR > PrimaryExpression()
-  {
-    uop("op.prefix.dec", pos(x));
-  }
-}
-
-void PostfixExpression() :
-{
-  Token x;
-}
-{
-  PrimaryExpression()
-  [
-    x = < INCR >
-    {
-      uop("op.suffix.inc", pos(x));
-    }
-  | x = < DECR >
-    {
-      uop("op.suffix.dec", pos(x));
-    }
-  ]
 }
 
 void PrimaryExpression() :

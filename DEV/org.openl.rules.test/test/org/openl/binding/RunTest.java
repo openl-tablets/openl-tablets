@@ -175,7 +175,7 @@ class RunTest {
                 arguments("int x = 5; x += 4", 9),
                 arguments("DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1",
                         9.0),
-                arguments("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", 45),
+                arguments("int i=0; for(int j=0; j < 10; ) {i += j;j += 1;} i", 45),
 
                 // Testing new implementation of s1 == s2 for Strings. To achieve old
                 // identity test Strings must be upcasted to Object
