@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.StandardEnvironment;
 
 import org.openl.rules.project.model.RulesDeploy;
 
@@ -31,6 +33,20 @@ class ProjectJacksonObjectMapperFactoryBeanTest {
         assertEquals("Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL"
                         + "/NON_FINAL_AND_ENUMS/DISABLED value for 'jackson.defaultTypingMode' in the configuration"
                         + " for service 'Rules'.",
+                e.getMessage());
+    }
+
+    @Test
+    void rejectsAnUnknownGlobalDefaultTypingModeWithoutRulesDeploy() {
+        var environment = new StandardEnvironment();
+        environment.getPropertySources().addFirst(new MapPropertySource("test",
+                Map.of("ruleservice." + ProjectJacksonObjectMapperFactoryBean.JACKSON_DEFAULT_TYPING_MODE, "EVERYTHING")));
+        var factory = new ProjectJacksonObjectMapperFactoryBean();
+        factory.setEnvironment(environment);
+
+        var e = assertThrows(ObjectMapperConfigurationParsingException.class, factory::createJacksonObjectMapper);
+        assertEquals("Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL"
+                        + "/NON_FINAL_AND_ENUMS/DISABLED value for 'jackson.defaultTypingMode' in the configuration.",
                 e.getMessage());
     }
 

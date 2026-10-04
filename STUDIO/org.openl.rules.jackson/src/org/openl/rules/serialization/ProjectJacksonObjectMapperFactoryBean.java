@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.springframework.core.env.Environment;
@@ -33,7 +34,7 @@ import org.openl.util.generation.InterfaceTransformer;
 
 public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
-    private static final String EXPECTED_STRING_VALUE = "Expected string value for '%s' in the configuration for service '%s'.";
+    private static final String EXPECTED_STRING_VALUE = "Expected string value for '%s' in the configuration%s.";
 
     private static final AtomicLong incrementer = new AtomicLong();
 
@@ -67,10 +68,19 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 .filter(mode -> mode.name().equalsIgnoreCase(defaultTypingMode.trim()))
                 .findFirst()
                 .orElseThrow(() -> new ObjectMapperConfigurationParsingException(
-                        "Expected %s value for '%s' in the configuration for service '%s'.".formatted(
+                        "Expected %s value for '%s' in the configuration%s.".formatted(
                                 Arrays.stream(modes).map(Enum::name).collect(Collectors.joining("/")),
                                 JACKSON_DEFAULT_TYPING_MODE,
-                                getRulesDeploy().getServiceName())));
+                                inService(rulesDeploy))));
+    }
+
+    /**
+     * Names the service of the rules deploy for a configuration error. A global setting read without a rules deploy
+     * belongs to no service, so the error names none.
+     */
+    private static String inService(@Nullable RulesDeploy rulesDeploy) {
+        var serviceName = rulesDeploy == null ? null : rulesDeploy.getServiceName();
+        return serviceName == null ? "" : " for service '%s'".formatted(serviceName);
     }
 
     protected void applyProjectConfiguration() {
@@ -143,9 +153,9 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 case Boolean boolean1 -> consumer.accept(boolean1);
                 case String string -> consumer.accept(Boolean.parseBoolean(string));
                 case null, default -> throw new ObjectMapperConfigurationParsingException(
-                        "Expected true/false value for '%s' in the configuration for service '%s'.".formatted(
+                        "Expected true/false value for '%s' in the configuration%s.".formatted(
                                 property,
-                                rulesDeploy.getServiceName()));
+                                inService(rulesDeploy)));
             }
         }
     }
@@ -156,15 +166,15 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 try {
                     delegate.setSerializationInclusion(JsonInclude.Include.valueOf(stringValue));
                 } catch (IllegalArgumentException e) {
-                    throw new ObjectMapperConfigurationParsingException("Invalid serializationInclusion value is used for '%s' in the configuration for service '%s'.".formatted(
+                    throw new ObjectMapperConfigurationParsingException("Invalid serializationInclusion value is used for '%s' in the configuration%s.".formatted(
                             JACKSON_SERIALIZATION_INCLUSION,
-                            rulesDeploy.getServiceName()), e);
+                            inService(rulesDeploy)), e);
                 }
             } else {
                 throw new ObjectMapperConfigurationParsingException(
                         EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_SERIALIZATION_INCLUSION,
-                                rulesDeploy.getServiceName()));
+                                inService(rulesDeploy)));
             }
         }
     }
@@ -185,7 +195,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 throw new ObjectMapperConfigurationParsingException(
                         EXPECTED_STRING_VALUE.formatted(
                                 ROOT_CLASS_NAMES_BINDING,
-                                rulesDeploy.getServiceName()));
+                                inService(rulesDeploy)));
             }
         }
     }
@@ -198,7 +208,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 throw new ObjectMapperConfigurationParsingException(
                         EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_TYPING_PROPERTY_NAME,
-                                rulesDeploy.getServiceName()));
+                                inService(rulesDeploy)));
             }
         }
     }
@@ -214,7 +224,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 case null, default -> throw new ObjectMapperConfigurationParsingException(
                         EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_JSON_TYPE_INFO_ID,
-                                rulesDeploy.getServiceName()));
+                                inService(rulesDeploy)));
             }
         }
     }
@@ -227,7 +237,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 case null, default -> throw new ObjectMapperConfigurationParsingException(
                         EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_DEFAULT_TYPING_MODE,
-                                rulesDeploy.getServiceName()));
+                                inService(rulesDeploy)));
             }
         }
     }
@@ -240,8 +250,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                         delegate.setDefaultDateFormat(new ExtendedStdDateFormat(defaultDateFormatString));
                     } catch (Exception e) {
                         throw new ObjectMapperConfigurationParsingException(
-                                "Invalid date format is used in the configuration for service '%s'.".formatted(
-                                        rulesDeploy.getServiceName()),
+                                "Invalid date format is used in the configuration%s.".formatted(
+                                        inService(rulesDeploy)),
                                 e);
                     }
                 }
@@ -249,7 +259,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 throw new ObjectMapperConfigurationParsingException(
                         EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_DEFAULT_DATE_FORMAT,
-                                rulesDeploy.getServiceName()));
+                                inService(rulesDeploy)));
             }
         }
     }
@@ -343,7 +353,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     throw new ObjectMapperConfigurationParsingException(
                             EXPECTED_STRING_VALUE.formatted(
                                     JACKSON_PROPERTY_NAMING_STRATEGY,
-                                    rulesDeploy.getServiceName()));
+                                    inService(rulesDeploy)));
                 }
             }
         }
@@ -357,17 +367,17 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             var propertyNamingStrategyClass = classLoader
                     .loadClass(propertyNamingStrategyClassName);
             if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
-                throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.".formatted(
+                throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s'%s. The class must be an implementation of interface '%s'.".formatted(
                         JACKSON_PROPERTY_NAMING_STRATEGY,
-                        rulesDeploy.getServiceName(),
+                        inService(rulesDeploy),
                         PropertyNamingStrategy.class.getTypeName()));
             }
             return instantiatePropertyNamingStrategy(propertyNamingStrategyClass, rulesDeploy);
         } catch (ClassNotFoundException e) {
             throw new ObjectMapperConfigurationParsingException(
-                    "Failed to load property naming strategy class '%s' for service '%s'.".formatted(
+                    "Failed to load property naming strategy class '%s'%s.".formatted(
                             JACKSON_PROPERTY_NAMING_STRATEGY,
-                            rulesDeploy.getServiceName()),
+                            inService(rulesDeploy)),
                     e);
         }
     }
@@ -377,9 +387,9 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         try {
             return (PropertyNamingStrategy) propertyNamingStrategyClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s' for service '%s'.".formatted(
+            throw new ObjectMapperConfigurationParsingException("Failed to instantiate property name strategy class '%s'%s.".formatted(
                     JACKSON_PROPERTY_NAMING_STRATEGY,
-                    rulesDeploy.getServiceName()), e);
+                    inService(rulesDeploy)), e);
         }
     }
 
