@@ -2,30 +2,25 @@
 
 This section describes how to write a client code that invokes OpenL Tablets REST services projects. Another way can be used to invoke services, but it is recommended to use Apache CXF framework to prevent additional effort for data binding.
 
-The following example illustrates client code generation for the JSON content type:
+Build the client's JSON mapper with `JacksonObjectMapperFactoryBean` from the `org.openl.rules.jackson` module, configured as the service is, so that the client reads and writes the type of a value the way the service does. The following example calls a service method with the JSON content type:
 
 ```java
 JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-jacksonObjectMapperFactoryBean.setEnableDefaultTyping(true);
-Set<String> overrideTypes = new HashSet<String>();
-overrideTypes.add(SomeClass.class.getName());
+// The classes the service binds with databinding.rootClassNames
+jacksonObjectMapperFactoryBean.setOverrideTypes(Set.of(SomeClass.class.getName()));
+// The default value of ruleservice.jackson.jsonTypeInfoId
+jacksonObjectMapperFactoryBean.setJsonTypeInfoId(JsonTypeInfo.Id.NAME);
+ObjectMapper mapper = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
 
-jacksonObjectMapperFactoryBean.setOverrideTypes(overrideTypes);
-ObjectMapper mapper = jacksonObjectMapperFactoryBean.createJacksonDatabinding();
+WebClient webClient = WebClient.create("http://localhost:8080/my-service",
+        List.of(new JacksonJsonProvider(mapper)));
 
-final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
+webClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
-WebClient webClient = WebClient.create(#REST service url#,
-            new ArrayList<Object>() {
-                private static final long serialVersionUID = 5636807402394548461L;
-                {
-                    add(jsonProvider);
-                }
-            });
-
-webClient.type(MediaType.APPLICATION_JSON);
-
-Response response = webClient.get();
+SomeClass result = webClient.path("myMethod").get(SomeClass.class);
 ```
+
+`WebClient` is `org.apache.cxf.jaxrs.client.WebClient`, `JacksonJsonProvider` is
+`com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider`, and `MediaType` is `jakarta.ws.rs.core.MediaType`.
 
 **Note**: If you use POST request for more than one argument, create a DTO that contains field with method argument names and send this DTO object via `webClient.post()` method.
