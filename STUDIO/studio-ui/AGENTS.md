@@ -8,6 +8,13 @@ Always get list of current version of libraries from `package.json` — do not h
 Use almost the latest versions when possible.
 
 - **React** + functional components and hooks (TypeScript strict mode)
+- **TypeScript** side by side, a workaround to remove once TypeScript 7.1 ships its API and typescript-eslint supports
+  it ([typescript-eslint#10940](https://github.com/typescript-eslint/typescript-eslint/issues/10940)):
+    - `@typescript/native` is TypeScript 7, whose native `tsc` runs `npm run typecheck`.
+    - `typescript` is TypeScript 6 (`@typescript/typescript6`), whose API typescript-eslint parses with. It carries
+      no `lib/tsserver.js`, so an editor set to the workspace version falls back to its own TypeScript.
+    - The removal: depend on `typescript` 7.1 alone, and drop the `//` note of `package.json` and the comment of
+      `eslint.config.js`.
 - **Ant Design** for UI components, **`@ant-design/icons`** for icons
 - **Zustand** for state management (`appStore`, `userStore`, `notificationStore`, `traceStore`)
 - **React Router** with `createBrowserRouter`, scoped to backend context path

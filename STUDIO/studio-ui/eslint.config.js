@@ -1,6 +1,9 @@
 import reactHooks from 'eslint-plugin-react-hooks'
 import perfectionist from 'eslint-plugin-perfectionist'
 import stylistic from '@stylistic/eslint-plugin'
+// typescript-eslint parses with the TypeScript 6 API, which TypeScript 7 does not have: `typescript` stays aliased to
+// @typescript/typescript6 until TypeScript 7.1 ships its API and typescript-eslint supports it
+// (https://github.com/typescript-eslint/typescript-eslint/issues/10940). Then drop the alias, see package.json.
 import tseslint from 'typescript-eslint'
 
 export default [
