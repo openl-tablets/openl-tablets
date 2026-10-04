@@ -36,7 +36,7 @@ public class HelloEntity3 {
     private ZonedDateTime incomingTime;
 
     @OutcomingTime
-    @QualifyPublisherType(PublisherType.WEBSERVICE)
+    @QualifyPublisherType(PublisherType.KAFKA)
     private ZonedDateTime outcomingTime;
 
     @Request
@@ -53,7 +53,7 @@ public class HelloEntity3 {
     private String serviceName;
 
     @Url
-    @QualifyPublisherType(PublisherType.WEBSERVICE)
+    @QualifyPublisherType(PublisherType.KAFKA)
     private String url;
 
     @MethodName
@@ -158,7 +158,7 @@ public class HelloEntity3 {
     }
 
     @Value("value1")
-    @QualifyPublisherType(PublisherType.WEBSERVICE)
+    @QualifyPublisherType(PublisherType.KAFKA)
     public void setValue(String value) {
         this.value = value;
     }

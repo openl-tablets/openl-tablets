@@ -29,7 +29,7 @@ class DeployClasspathJarsBeanTest {
         var propertyResolver = mock(PropertyResolver.class);
         when(propertyResolver.getProperty("production-repository.factory")).thenReturn("repo-jdbc");
         var classpathDeployer = new DeployClasspathJarsBean(unstableDeployerService,
-                "ALWAYS",
+                DeployStrategy.ALWAYS,
                 0);
         classpathDeployer.resourceResolver = mock(PathMatchingResourcePatternResolver.class);
         var resource = mock(Resource.class);

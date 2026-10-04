@@ -61,9 +61,9 @@ The `frontend` bean can be injected to user’s bean to interact with deployed O
 
 ```xml
 <bean id="service1" class="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBean">
+    <constructor-arg name="proxyInterface" value="com.myproject.Service1"/>
+    <constructor-arg name="serviceName" value="service1"/>
     <!-- <property name="rulesFrontend" ref="frontend"/> optional. For custom implementation of RulesFrontend  -->
-    <property name="serviceName" value="service1"/>
-    <property name="proxyInterface" value="com.myproject.Service1"/>
 </bean>
 ```
 

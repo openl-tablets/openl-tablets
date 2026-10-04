@@ -197,7 +197,7 @@ class StoreLogDataMapperTest {
 
         @Getter
         @Value("customString1")
-        @QualifyPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE)
+        @QualifyPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.KAFKA)
         @Setter
         private String value1;
         @Getter(onMethod_ = {@Value("customString2"), @QualifyPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL)})

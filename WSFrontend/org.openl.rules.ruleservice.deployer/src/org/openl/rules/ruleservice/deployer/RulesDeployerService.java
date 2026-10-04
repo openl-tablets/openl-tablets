@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.deployer;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
@@ -77,18 +75,6 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
-
-    /**
-     * Initializes repository using target properties
-     *
-     * @param properties repository settings
-     * @deprecated Use {@link #RulesDeployerService(UnaryOperator)} instead.
-     */
-    @Deprecated(since = "5.25.14")
-    public RulesDeployerService(Properties properties) {
-        this(properties::getProperty);
-    }
-
     public RulesDeployerService(UnaryOperator<String> properties) {
         this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties);
         if (deployRepo.supports().isLocal()) {
@@ -138,14 +124,6 @@ public class RulesDeployerService implements Closeable {
 
     public void deploy(InputStream in, boolean ignoreIfExists) throws IOException {
         deploy(null, in, ignoreIfExists);
-    }
-
-    /**
-     * @deprecated Use {@link #deploy(Path, boolean)} instead.
-     */
-    @Deprecated(since = "6.1.0")
-    public void deploy(File file, boolean ignoreIfExists) throws IOException {
-        deploy(file.toPath(), ignoreIfExists);
     }
 
     public void deploy(Path path, boolean ignoreIfExists) throws IOException {
