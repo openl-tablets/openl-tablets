@@ -1,5 +1,6 @@
 # A theme giving each kind of decision table a look of its own: a SimpleRules looks like a Rules table, a SmartRules
-# extends it, a SimpleLookup writes its own, and a SmartLookup takes the base alone.
+# extends it, a SimpleLookup writes its own, and a SmartLookup takes the base alone. Of the tables that declare what a
+# decision table takes, a Conditions and a Returns table write their own looks, and an Actions table takes the base.
 name: Decision Kinds
 
 rules: &rules
@@ -18,3 +19,11 @@ smartRules:
 simpleLookup:
   returns:
     background: "#fff2cc"
+
+conditions:
+  titles:
+    background: "#fce4d6"
+
+returns:
+  returnTitles:
+    background: "#e2efda"

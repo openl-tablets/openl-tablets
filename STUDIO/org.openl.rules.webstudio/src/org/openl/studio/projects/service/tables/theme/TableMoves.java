@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
  * The rows and the columns that edits inserted into a table or deleted from it since the table was compiled, in the
  * order the edits made them.
  *
- * <p>A decision table is themed by where the compiler found its parts. A theme written in the same change as such
- * edits finds each part where the edits moved it.
+ * <p>A table such as a decision table is themed by where the compiler found its parts. A theme written in the same
+ * change as such edits finds each part where the edits moved it.
  *
  * <p>A row or a column is counted from the top or the left of the table, header included, as the edits count them.
  */

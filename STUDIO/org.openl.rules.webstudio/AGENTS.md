@@ -153,9 +153,9 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 ## Table Theme
 
-The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Environment, Properties and
-Constants tables are the `table-themes/*.yaml` files of its classpath (`resources/table-themes/` ships `default` and
-`green`).
+The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Conditions, Actions,
+Returns, Environment, Properties and Constants tables are the `table-themes/*.yaml` files of its classpath
+(`resources/table-themes/` ships `default` and `green`).
 `TableThemeService` reads them once at startup, with the YAML anchors, aliases and merge keys resolved by SnakeYAML,
 then binds them strictly with Jackson.
 See `Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md`
@@ -175,11 +175,11 @@ for the endpoints.
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
   logged as an error and not offered; Studio starts with the rest.
 - **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test,
-  Run, decision, Environment, Properties and Constants table, and a kind the theme writes nothing for takes the base
-  alone. The server decides which tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list
-  of themed kinds. Each kind is a constant of `ThemeKind`, which names the part of `TableTheme` the kind takes its
-  look from and the `BodyLayout` of its body, so a new kind of table is one constant there and one part of
-  `TableTheme`.
+  Run, decision, Conditions, Actions, Returns, Environment, Properties and Constants table, and a kind the theme
+  writes nothing for takes the base alone. The server decides which tables a theme suits
+  (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a constant of
+  `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of its body, so
+  a new kind of table is one constant there and one part of `TableTheme`.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
   style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
   a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
@@ -207,7 +207,8 @@ for the endpoints.
   once, by the cell that holds it, and lays `lastRow` over every cell that reaches the bottom of the table.
   `ThemeLayouts.of` drops every cell past the edge of the table:
   `GridSplitter` does not widen a table for a region of empty cells, so such a region may be merged past its edge.
-  Whether a table is compiled transposed is asked once, in `ThemeLayouts.isTransposed`.
+  Whether a table is compiled transposed is asked once, in `ThemeLayouts.isTransposed`; a Conditions, an Actions and a
+  Returns table take their axes from the titles the compiler found instead.
 - **A Spreadsheet section is a merge.** A step whose name cell is merged over the values of its row heads a section:
   the compiler takes it for a step with no value. A step or a column whose name ends with `*` before its `: type` is
   marked, read the way `SpreadsheetStructureBuilder.parseHeader` reads it, so a table being edited is marked before
@@ -216,7 +217,8 @@ for the endpoints.
   `RETURN`.
   `HeaderRuns` splits a header by its keyword: a Datatype names its type first, a Spreadsheet its return type, its
   name and its parameters, and a decision table reads as a Spreadsheet, its return type of several words at times
-  (`Collect Error[]`). An Environment header is its keyword alone; a Properties and a Constants header name the table.
+  (`Collect Error[]`). An Environment header is its keyword alone; a Properties, a Constants, a Conditions, an
+  Actions and a Returns header name the table.
 - **An active theme overrides the look of the workbook.** The shipped themes name every attribute in the base
   style: `none` takes every side away, the fill is white, every font flag is off. A themed table therefore shows
   only the fills, lines, fonts and alignment the theme names. A text the workbook formats in pieces of its own,
@@ -259,6 +261,19 @@ for the endpoints.
   titles, as `DecisionTableHelper` allows it there only. A condition value merged over several rules while another
   column is split makes them a group: `groups` is laid over the first rule and over the rule after it. A table that
   did not compile takes the base alone.
+- **A Conditions, an Actions and a Returns table are read as the compiler reads them.** They declare what decision
+  tables take by their titles, each declaration in its inputs, its expression, its parameters and its titles: the
+  code and the titles of a Rules table without its rules, so `DecisionThemeLayout.conditions` and `actions` lay them out
+  with the places and the looks of a decision table. The titles take the `titles` look in a Conditions table and
+  `returnTitles` in an Actions and a Returns table, and every other line of the body is code, closed as the code of a
+  Rules table, each run of it apart where the titles stand between; a keyword naming a part takes the look of the
+  part. The compiler reads a part in each column and finds the titles by their keyword or by their place, so the
+  engine keeps where it found them (`ADtColumnsDefinitionTableBoundNode.getTitles`, through
+  `DtColumnsDefinitionMetaInfoReader`) and the layout takes them where `TableMoves` moved them. A table written as
+  the Reference Guide writes it, a part in each row, is compiled transposed: its rows read as the code and the titles
+  of a Rules table, so it takes the looks upright, and a table with a part in each column takes them turned. The
+  shipped themes alias the look of a Rules table (`conditions: *rules`, `actions: *rules`, `returns: *rules`). A
+  table no declaration is read from takes the base alone.
 - **An Environment, a Properties and a Constants table name a value in each row.** `NamedValuesThemeLayout` gives
   the first column of an Environment (the setting: `import`, `dependency`, `include`) and of a Properties table (the
   property) the `name` look and the rest `values`. The loader reads an Environment by its rows

@@ -295,6 +295,26 @@ class RawTableWriterTest {
     }
 
     @Test
+    void writesATableThemeIntoTheTitlesOfAConditionsTableWhereADeleteBeforeItMovedThem() throws IOException {
+        var conditions = writeProject("declared", new String[][]{
+                {"Conditions Hours", null, null},
+                {"properties", "description", "Hours of a day"},
+                {"Inputs", "Integer hour", "Integer hour"},
+                {"Expression", "hour < limit", "hour >= start"},
+                {"Parameter", "Integer limit", "Integer start"},
+                {"Title", "Before", "From"}
+        });
+
+        apply(conditions, List.of(deleteRow(1), new RawTableSourceAction.Theme("default")));
+
+        var source = reloadStyled(conditions);
+        // The parts moved up a row with the rest: the code is muted and closed by a line, and the titles under it.
+        assertEquals("#808080", styleOf(source, 1, 1).color());
+        assertNotNull(styleOf(source, 3, 1).border().bottom(), "The line that closes the code");
+        assertEquals("#d0cece", styleOf(source, 4, 1).background(), "The titles moved up");
+    }
+
+    @Test
     void themesThePropertiesTheNoteOfTheEditLaysDownOverTheCodeOfADecisionTable() throws IOException {
         var rules = writeProject("noted", new String[][]{
                 {"Rules String Greet(String day, Integer hour)", null, null},

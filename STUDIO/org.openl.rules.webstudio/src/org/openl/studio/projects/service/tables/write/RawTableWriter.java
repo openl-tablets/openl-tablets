@@ -344,8 +344,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * Writes a table theme into the table, as the edits before it left the table.
      *
      * <p>The theme is laid over the cells as they stand: a row added by an earlier edit gets the look of its place,
-     * and the line that closes the table moves to its new last row. A decision table is themed by where the compiler
-     * found its parts, each where the rows and the columns the earlier edits inserted or deleted moved it.
+     * and the line that closes the table moves to its new last row. A table such as a decision table is themed by
+     * where the compiler found its parts, each where the rows and the columns the earlier edits inserted or deleted
+     * moved it.
      */
     private void theme(String themeId) {
         if (themes == null) {

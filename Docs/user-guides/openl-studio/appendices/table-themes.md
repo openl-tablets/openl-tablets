@@ -1,8 +1,8 @@
 ## Appendix E: Table Themes
 
 A table theme describes the look OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision,
-Environment, Properties, and Constants tables. A theme is drawn over the tables while they are viewed, or written into
-the Excel file, as described in
+Conditions, Actions, Returns, Environment, Properties, and Constants tables. A theme is drawn over the tables while
+they are viewed, or written into the Excel file, as described in
 [Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Default** and
 **Green** themes. This appendix describes how a theme file is written.
 
@@ -49,6 +49,12 @@ A theme file holds the following keys:
 -   **`smartRules`** — what a SmartRules table changes in the base.
 -   **`simpleLookup`** — what a SimpleLookup table changes in the base.
 -   **`smartLookup`** — what a SmartLookup table changes in the base.
+-   **`conditions`** — what a Conditions table changes in the base: the conditions that decision tables take by
+    their titles. The themes that OpenL Studio ships give a Conditions, an Actions, and a Returns table the look of
+    a Rules table.
+-   **`actions`** — what an Actions table changes in the base.
+-   **`returns`** — what a Returns table changes in the base. As a key of the theme file, it names this kind of
+    table; the `returns` part of a decision table is written inside a look, such as `rules`.
 -   **`environment`** — what an Environment table changes in the base. The themes that OpenL Studio ships draw it, a
     technical table, in greys.
 -   **`properties`** — what a Properties table changes in the base: the properties a module or a category of tables
@@ -57,8 +63,8 @@ A theme file holds the following keys:
 -   **`constants`** — what a Constants table changes in the base.
 
 A theme is one style for every kind of table: it styles every Datatype, Vocabulary, Spreadsheet, Data, Test, Run,
-decision, Environment, Properties, and Constants table. Each kind takes the base, and the key of the kind writes only
-what it changes. A kind the theme writes nothing for takes the base alone.
+decision, Conditions, Actions, Returns, Environment, Properties, and Constants table. Each kind takes the base, and
+the key of the kind writes only what it changes. A kind the theme writes nothing for takes the base alone.
 
 ### Parts of a Table
 
@@ -145,6 +151,19 @@ returns: each of them is a row that holds its code, its title, and a value of ea
 turn with them: a line above a part is drawn on its left and a line below it on its right, so a line between the
 columns of conditions runs between their rows and a line over a group of rules runs on its left. The lines of
 `style` and `lastRow` stay where they are named, and `lastRow` still styles the last row of the table.
+
+A Conditions, an Actions, and a Returns table declare the conditions, the actions, and the returns that decision
+tables take by their titles. Each part of a declaration stands in a row — its inputs, its expression, its
+parameters, and its title — and each declaration in a column. Such a table also takes the following parts:
+
+-   **`code`** — the inputs, the expressions, and the parameters, such as `Integer age` and `age >= minAge`. A line
+    the style draws above or below goes round all of these rows, not round each of them.
+-   **`titles`** — the titles of the conditions of a Conditions table, such as **Age Band**.
+-   **`returnTitles`** — the titles of the actions of an Actions table and of the returns of a Returns table.
+
+A cell that names a part, such as **Inputs** or **Title**, takes the style of the part it names. A Conditions, an
+Actions, or a Returns table can be written transposed, with a declaration in each row. The parts then follow the
+columns, and their lines turn with them as in a transposed decision table.
 
 An Environment and a Properties table also take the following parts:
 
@@ -323,8 +342,9 @@ under the last row. A Spreadsheet table also gets a filled row of column titles,
 sections, and bold steps that are marked for the result or give it. A Data, a Test, and a Run table get muted field
 names, filled titles, highlighted IDs, and grey values that are not filled. A decision table gets muted code closed
 by a line, filled titles of its conditions and of what it returns, bold horizontal conditions, filled returns, and a
-line over every group of rules. An Environment and a Properties table get a dark grey header and grey settings, and a
-Constants table gets muted types and filled names:
+line over every group of rules, and a Conditions, an Actions, and a Returns table look like its code and its titles.
+An Environment and a Properties table get a dark grey header and grey settings, and a Constants table gets muted
+types and filled names:
 
 ```yaml
 name: Corporate
@@ -394,6 +414,10 @@ simpleRules: *rules
 smartRules: *rules
 simpleLookup: *rules
 smartLookup: *rules
+
+conditions: *rules
+actions: *rules
+returns: *rules
 
 environment: &technical
   header: {style: {background: "#595959"}}

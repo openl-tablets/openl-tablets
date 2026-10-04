@@ -7,13 +7,14 @@ import org.jspecify.annotations.Nullable;
  * A table theme as its file describes it: the name it is shown by, and the look it gives each kind of table.
  *
  * <p>A theme is one look for every kind of table it styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test,
- * a Run, a decision table — a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a SmartLookup table — an
- * Environment, a Properties and a Constants table. The base is the skin every table shares, such as its header and its
- * properties, and each kind extends it. The key of a kind, {@code datatype}, {@code vocabulary}, {@code spreadsheet},
- * {@code data}, {@code test}, {@code run}, {@code rules}, {@code simpleRules}, {@code smartRules},
- * {@code simpleLookup}, {@code smartLookup}, {@code environment}, {@code properties} or {@code constants}, writes only
- * what the kind changes: every part it writes is laid over the same part of the base, attribute by attribute, and
- * every part it leaves out is the one of the base. A kind the theme writes nothing for takes the base alone.
+ * a Run, a decision table — a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a SmartLookup table — a
+ * Conditions, an Actions, a Returns, an Environment, a Properties and a Constants table. The base is the skin every
+ * table shares, such as its header and its properties, and each kind extends it. The key of a kind, {@code datatype},
+ * {@code vocabulary}, {@code spreadsheet}, {@code data}, {@code test}, {@code run}, {@code rules},
+ * {@code simpleRules}, {@code smartRules}, {@code simpleLookup}, {@code smartLookup}, {@code conditions},
+ * {@code actions}, {@code returns}, {@code environment}, {@code properties} or {@code constants}, writes only what the
+ * kind changes: every part it writes is laid over the same part of the base, attribute by attribute, and every part it
+ * leaves out is the one of the base. A kind the theme writes nothing for takes the base alone.
  *
  * @param name         the name OpenL Studio shows the theme by
  * @param base         the skin every kind of table extends, or {@code null} for a theme whose kinds write everything
@@ -29,6 +30,12 @@ import org.jspecify.annotations.Nullable;
  * @param smartRules   what a SmartRules table changes in the base, or {@code null} for nothing
  * @param simpleLookup what a SimpleLookup table changes in the base, or {@code null} for nothing
  * @param smartLookup  what a SmartLookup table changes in the base, or {@code null} for nothing
+ * @param conditions   what a Conditions table, the conditions a decision table takes by their titles, changes in the
+ *                     base, or {@code null} for nothing
+ * @param actions      what an Actions table, the actions a decision table takes by their titles, changes in the base,
+ *                     or {@code null} for nothing
+ * @param returns      what a Returns table, the returns a decision table takes by their titles, changes in the base,
+ *                     or {@code null} for nothing
  * @param environment  what an Environment table changes in the base, or {@code null} for nothing
  * @param properties   what a Properties table, the properties a module or a category of tables shares, changes in
  *                     the base, or {@code null} for nothing
@@ -47,6 +54,9 @@ public record TableTheme(String name,
                          @Nullable Look smartRules,
                          @Nullable Look simpleLookup,
                          @Nullable Look smartLookup,
+                         @Nullable Look conditions,
+                         @Nullable Look actions,
+                         @Nullable Look returns,
                          @Nullable Look environment,
                          @Nullable Look properties,
                          @Nullable Look constants) {
@@ -76,17 +86,19 @@ public record TableTheme(String name,
      * to it. A Spreadsheet takes the titles, the step title, the steps, the values, the sections, the marked names
      * and the result. A Data, a Test and a Run table take the names, the titles, the values, the IDs and the empty
      * values. A decision table takes the code, the titles, the values, the horizontal conditions, the return titles,
-     * the returns and the groups. An Environment and a Properties table take the names and the values, and a Constants
-     * table the types, the names and the values. Every kind takes the style, the header, the properties and the last
-     * row.
+     * the returns and the groups. A Conditions table takes the code and the titles, and an Actions and a Returns table
+     * the code and the return titles. An Environment and a Properties table take the names and the values, and a
+     * Constants table the types, the names and the values. Every kind takes the style, the header, the properties and
+     * the last row.
      *
      * @param style        the look every cell of the table starts from
      * @param header       the look of the header, the first row of the table
      * @param properties   the look of the rows of table properties under the header, such as the line that closes
      *                     them
      * @param titles       the look of the row naming the columns: of a Datatype that has one, of a Spreadsheet, the
-     *                     titles of a Data, a Test or a Run table, and the titles of the conditions of a decision table
-     *                     and of the column it names its rules in
+     *                     titles of a Data, a Test or a Run table, the titles of the conditions of a decision table
+     *                     and of the column it names its rules in, and the titles of the conditions a Conditions table
+     *                     declares
      * @param stepTitle    the look of the title of the column of steps of a Spreadsheet, such as {@code Step}, laid
      *                     over the titles
      * @param type         the look of the types: the column of field types of a Datatype, and of the types of the
@@ -110,10 +122,12 @@ public record TableTheme(String name,
      *                     the values a Test or a Run table takes from a Data table by their IDs
      * @param empty        the look laid over a value of a Data, a Test or a Run table that is not filled
      * @param code         the look of the rows a Rules table declares its columns in: the kind of each column, such
-     *                     as {@code C1} or {@code RET1}, its expression and its parameters; a line it draws above or
-     *                     below goes round the rows, not round each of them
+     *                     as {@code C1} or {@code RET1}, its expression and its parameters; and of the inputs, the
+     *                     expressions and the parameters a Conditions, an Actions or a Returns table declares; a line
+     *                     it draws above or below goes round the rows, not round each of them
      * @param horizontals  the look of the values of a horizontal condition, across the top of a lookup
-     * @param returnTitles the look of the title of a column a decision table returns or acts in
+     * @param returnTitles the look of the title of a column a decision table returns or acts in, and of the titles an
+     *                     Actions or a Returns table declares
      * @param returns      the look of the values a decision table returns or acts with
      * @param groups       the look laid over the first rule of a group and over the rule after the group, such as
      *                     the line that sets the group apart: a group is the rules a value of a condition is merged

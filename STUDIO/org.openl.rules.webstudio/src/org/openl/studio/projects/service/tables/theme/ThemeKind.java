@@ -32,6 +32,9 @@ enum ThemeKind {
     SMART_RULES(TableTheme::smartRules, DecisionThemeLayout::rules),
     SIMPLE_LOOKUP(TableTheme::simpleLookup, DecisionThemeLayout::rules),
     SMART_LOOKUP(TableTheme::smartLookup, DecisionThemeLayout::rules),
+    CONDITIONS(TableTheme::conditions, DecisionThemeLayout::conditions),
+    ACTIONS(TableTheme::actions, DecisionThemeLayout::actions),
+    RETURNS(TableTheme::returns, DecisionThemeLayout::actions),
     ENVIRONMENT(TableTheme::environment, NamedValuesThemeLayout::layOut),
     PROPERTIES(TableTheme::properties, NamedValuesThemeLayout::layOut),
     CONSTANTS(TableTheme::constants, DatatypeThemeLayout::fields);
@@ -71,6 +74,9 @@ enum ThemeKind {
             case TEST -> TEST;
             case RUN -> RUN;
             case RULES -> decisionOf(table.getSyntaxNode());
+            case CONDITIONS -> CONDITIONS;
+            case ACTIONS -> ACTIONS;
+            case RETURNS -> RETURNS;
             case ENVIRONMENT -> ENVIRONMENT;
             case PROPERTIES -> PROPERTIES;
             case CONSTANTS -> CONSTANTS;

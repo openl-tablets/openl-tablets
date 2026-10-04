@@ -4,8 +4,8 @@
 # Every attribute is optional: one the theme leaves out keeps what the cell has in the workbook.
 # The base is the skin every table shares; a kind of table extends it with what it changes, and takes the rest of the
 # base as it is. Every theme styles every kind: a kind the theme writes nothing for (datatype, vocabulary,
-# spreadsheet, data, test, run, rules, simpleRules, smartRules, simpleLookup, smartLookup, environment, properties,
-# constants) takes the base alone.
+# spreadsheet, data, test, run, rules, simpleRules, smartRules, simpleLookup, smartLookup, conditions, actions,
+# returns, environment, properties, constants) takes the base alone.
 
 name: Default
 
@@ -172,6 +172,12 @@ simpleRules: *rules
 smartRules: *rules
 simpleLookup: *rules
 smartLookup: *rules
+
+# A Conditions, an Actions and a Returns table declare what a decision table takes by its titles: the inputs, the
+# expression and the parameters look like the code of a Rules table, and the titles like its titles.
+conditions: *rules
+actions: *rules
+returns: *rules
 
 # An Environment table: the packages a module imports and the modules it depends on. A technical table, drawn in
 # greys.

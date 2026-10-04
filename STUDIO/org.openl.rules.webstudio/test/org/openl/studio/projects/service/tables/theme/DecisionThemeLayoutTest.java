@@ -27,7 +27,8 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
  * Covers the look a theme gives each kind of decision table: a Rules table written either way round, a SimpleRules,
- * a SmartRules, a SimpleLookup and a SmartLookup table.
+ * a SmartRules, a SimpleLookup and a SmartLookup table. It also covers the tables that declare what decision tables
+ * take: a Conditions, an Actions and a Returns table, written either way round.
  */
 class DecisionThemeLayoutTest {
 
@@ -36,6 +37,7 @@ class DecisionThemeLayoutTest {
 
     /** The looks the default theme gives the places of a decision table. */
     private static final String WHITE = "#ffffff";
+    private static final String BLACK = "#000000";
     private static final String MUTED = "#808080";
     private static final String TITLE = "#d0cece";
     private static final String HORIZONTAL = "#b4c6e7";
@@ -71,6 +73,25 @@ class DecisionThemeLayoutTest {
 
     /** A Rules table returning a type no table declares, so it does not compile. */
     private static final int BROKEN_ROW = 48;
+
+    /**
+     * A Conditions table as the Reference Guide writes it: each part in a row named in the first column, a condition
+     * in each column. Its first condition takes two parameters, its inputs, its expression and its title merged over
+     * both of them.
+     */
+    private static final int CONDITIONS_ROW = 52;
+
+    /** An Actions table that names no part: its rows stand in the order the compiler expects them. */
+    private static final int ACTIONS_ROW = 59;
+
+    /** A Conditions table written the other way round, with each part in a column named in its first row. */
+    private static final int HOURS_ROW = 66;
+
+    /** A Returns table written with each part in a column, its titles named first. */
+    private static final int RETURNS_ROW = 72;
+
+    /** A Conditions table no declaration is read from: its three columns are no parts either way round. */
+    private static final int UNDECLARED_ROW = 77;
 
     /** A theme giving each kind of decision table a look of its own. */
     private static final TableThemeService KINDS =
@@ -286,6 +307,128 @@ class DecisionThemeLayoutTest {
         }
     }
 
+    @Test
+    void offersEveryThemeForATableThatDeclaresWhatDecisionTablesTake() {
+        for (var row : List.of(CONDITIONS_ROW, ACTIONS_ROW, HOURS_ROW, RETURNS_ROW)) {
+            assertEquals(List.of("default", "green"),
+                    service.getThemes(tableAt(row)).stream().map(TableThemeView::id).toList(), "row " + row);
+        }
+    }
+
+    @Test
+    void givesTheInputsTheExpressionsAndTheParametersOfDeclarationsTheCodeLookClosedByOneLine() {
+        var layout = layoutAt(CONDITIONS_ROW);
+
+        // Every part is muted as the code of a Rules table, the keyword naming it included.
+        for (var row = CONDITIONS_ROW + 1; row <= CONDITIONS_ROW + 3; row++) {
+            for (var column = 1; column <= 4; column++) {
+                assertEquals(MUTED, layout.at(row, column).style().color(), row + ":" + column);
+            }
+        }
+        assertEquals(ThemeLineStyle.NONE, bottom(layout.at(CONDITIONS_ROW + 1, 2)), "No line between the parts");
+        assertEquals(ThemeLineStyle.NONE, bottom(layout.at(CONDITIONS_ROW + 2, 4)));
+        assertEquals(ThemeLineStyle.THIN, bottom(layout.at(CONDITIONS_ROW + 3, 1)), "One line closes the code");
+        assertEquals(ThemeLineStyle.THIN, bottom(layout.at(CONDITIONS_ROW + 3, 4)));
+    }
+
+    @Test
+    void givesTheTitlesOfAConditionsTableTheLookOfTheTitlesOfConditions() {
+        var layout = layoutAt(CONDITIONS_ROW);
+        var titles = CONDITIONS_ROW + 4;
+
+        // The keyword of the row takes the look of the titles it names, and a line stands between the conditions.
+        for (var column = 1; column <= 4; column++) {
+            assertEquals(TITLE, layout.at(titles, column).style().background(), "column " + column);
+            assertEquals(Boolean.TRUE, layout.at(titles, column).style().bold());
+            assertEquals(ThemeLineStyle.THIN, bottom(layout.at(titles, column)), "The last row closes the table");
+        }
+        assertEquals(ThemeLineStyle.THIN, right(layout.at(titles, 1)));
+        assertEquals(ThemeLineStyle.THIN, right(layout.at(titles, 3)), "The merged title of the first condition");
+        assertEquals(BLACK, layout.at(titles, 2).style().color());
+    }
+
+    @Test
+    void givesTheTitlesOfAnActionsTableThatNamesNoPartTheLookOfTheTitlesOfWhatIsReturned() {
+        var layout = layoutAt(ACTIONS_ROW);
+        var titles = ACTIONS_ROW + 4;
+
+        for (var column = 1; column <= 2; column++) {
+            assertEquals(MUTED, layout.at(ACTIONS_ROW + 1, column).style().color());
+            assertEquals(ThemeLineStyle.THIN, bottom(layout.at(ACTIONS_ROW + 3, column)));
+            assertEquals(RETURN_TITLE, layout.at(titles, column).style().background());
+            assertEquals(Boolean.TRUE, layout.at(titles, column).style().bold());
+        }
+    }
+
+    @Test
+    void turnsTheLooksOfADeclarationTableWithEachPartInAColumn() {
+        var layout = layoutAt(HOURS_ROW);
+
+        // The code stands in columns: muted, the keywords naming them included, and closed by a line on the right of
+        // its last column.
+        for (var row = HOURS_ROW + 1; row <= HOURS_ROW + 3; row++) {
+            for (var column = 1; column <= 3; column++) {
+                assertEquals(MUTED, layout.at(row, column).style().color(), row + ":" + column);
+            }
+            assertEquals(ThemeLineStyle.NONE, right(layout.at(row, 2)));
+            assertEquals(ThemeLineStyle.THIN, right(layout.at(row, 3)));
+        }
+        // The titles are a column, and the line between the conditions runs between their rows.
+        for (var row = HOURS_ROW + 1; row <= HOURS_ROW + 3; row++) {
+            assertEquals(TITLE, layout.at(row, 4).style().background());
+            assertEquals(ThemeLineStyle.THIN, bottom(layout.at(row, 4)));
+            assertEquals(ThemeLineStyle.NONE, right(layout.at(row, 4)));
+        }
+        assertEquals(ThemeLineStyle.NONE, bottom(layout.at(HOURS_ROW + 1, 2)), "No line between the conditions");
+        assertEquals(ThemeLineStyle.THIN, bottom(layout.at(HOURS_ROW + 3, 2)), "The last row closes the table");
+    }
+
+    @Test
+    void findsTheTitlesOfADeclarationTableByTheKeywordThatNamesThem() {
+        var layout = layoutAt(RETURNS_ROW);
+
+        for (var row = RETURNS_ROW + 1; row <= RETURNS_ROW + 2; row++) {
+            assertEquals(RETURN_TITLE, layout.at(row, 1).style().background());
+            assertEquals(MUTED, layout.at(row, 2).style().color());
+            assertEquals(WHITE, layout.at(row, 4).style().background());
+        }
+    }
+
+    @Test
+    void givesATableNoDeclarationIsReadFromTheBaseAlone() {
+        var layout = layoutAt(UNDECLARED_ROW);
+
+        // The header is signed as the header of every table is; the body takes the look every cell starts from.
+        assertEquals(Boolean.TRUE, layout.at(UNDECLARED_ROW, 1).runs("Conditions Undeclared").getLast().style().bold());
+        for (var column = 1; column <= 3; column++) {
+            assertEquals(BLACK, layout.at(UNDECLARED_ROW + 1, column).style().color());
+            assertEquals(WHITE, layout.at(UNDECLARED_ROW + 1, column).style().background());
+            assertEquals(ThemeLineStyle.THIN, bottom(layout.at(UNDECLARED_ROW + 1, column)), "The last row closes it");
+        }
+    }
+
+    @Test
+    void givesEachKindOfDeclarationTableTheLookTheThemeWritesForIt() {
+        assertEquals("#fce4d6", KINDS.layoutOf(tableAt(CONDITIONS_ROW), KINDS_THEME)
+                .at(CONDITIONS_ROW + 4, 2).style().background(), "A Conditions table fills its titles");
+        assertEquals("#e2efda", KINDS.layoutOf(tableAt(RETURNS_ROW), KINDS_THEME)
+                .at(RETURNS_ROW + 2, 1).style().background(), "A Returns table writes a look of its own");
+        assertNull(KINDS.layoutOf(tableAt(ACTIONS_ROW), KINDS_THEME).at(ACTIONS_ROW + 4, 1).style().background(),
+                "An Actions table the theme writes nothing for takes the base alone");
+    }
+
+    @Test
+    void writesTheLookOfAConditionsTableIntoTheWorkbook() {
+        service.writer(THEME).writeAll(List.of(tableAt(CONDITIONS_ROW)), Map.of());
+
+        var written = TableTestProjects.styledSource(tableAt(CONDITIONS_ROW));
+        assertEquals(List.of("Conditions", " ", "AgeBand"),
+                written.getFirst().getFirst().runs().stream().map(RawTableTextRun::text).toList());
+        assertEquals("Inputs", written.get(1).getFirst().value(), "The theme changes no text");
+        assertEquals(MUTED, written.get(2).get(1).style().color());
+        assertEquals(TITLE, written.get(4).get(3).style().background());
+    }
+
     private IOpenLTable table(String name) {
         return TableTestProjects.table(TableTestProjects.projectModel(dir), name);
     }
@@ -297,6 +440,10 @@ class DecisionThemeLayoutTest {
 
     private ThemedTable layoutOf(String name) {
         return service.layoutOf(table(name), THEME);
+    }
+
+    private ThemedTable layoutAt(int row) {
+        return service.layoutOf(tableAt(row), THEME);
     }
 
     /** The fill the theme giving each kind a look of its own gives a cell of a table. */
@@ -327,7 +474,8 @@ class DecisionThemeLayoutTest {
 
     /**
      * A Rules table written each way round, a SimpleRules, a SmartRules, a SimpleLookup and a SmartLookup table, the
-     * Datatype the SmartRules returns, and a Rules table that does not compile.
+     * Datatype the SmartRules returns, a Rules table that does not compile, and the tables that declare what decision
+     * tables take.
      */
     private static void fillSheet(Sheet sheet) {
         TableTestProjects.row(sheet, GREET_ROW, 1, "Rules String " + GREET + " ( String day, Integer hour )");
@@ -395,5 +543,48 @@ class DecisionThemeLayoutTest {
         merge(sheet, BROKEN_ROW, BROKEN_ROW, 1, 2);
         TableTestProjects.row(sheet, BROKEN_ROW + 1, 1, "C1", "RET1");
         TableTestProjects.row(sheet, BROKEN_ROW + 2, 1, "hour < 12", "greeting");
+
+        fillDeclarations(sheet);
+    }
+
+    /**
+     * A Conditions table with a condition in each column, an Actions table naming no part, a Conditions and a Returns
+     * table with each part in a column, and a Conditions table no declaration is read from.
+     */
+    private static void fillDeclarations(Sheet sheet) {
+        TableTestProjects.row(sheet, CONDITIONS_ROW, 1, "Conditions AgeBand");
+        merge(sheet, CONDITIONS_ROW, CONDITIONS_ROW, 1, 4);
+        TableTestProjects.row(sheet, CONDITIONS_ROW + 1, 1, "Inputs", "Integer age", null, "Integer age");
+        merge(sheet, CONDITIONS_ROW + 1, CONDITIONS_ROW + 1, 2, 3);
+        TableTestProjects.row(sheet, CONDITIONS_ROW + 2, 1, "Expression", "age >= minAge && age <= maxAge", null,
+                "age < limit");
+        merge(sheet, CONDITIONS_ROW + 2, CONDITIONS_ROW + 2, 2, 3);
+        TableTestProjects.row(sheet, CONDITIONS_ROW + 3, 1, "Parameter", "Integer minAge", "Integer maxAge",
+                "Integer limit");
+        TableTestProjects.row(sheet, CONDITIONS_ROW + 4, 1, "Title", "Age Band", null, "Under Limit");
+        merge(sheet, CONDITIONS_ROW + 4, CONDITIONS_ROW + 4, 2, 3);
+
+        TableTestProjects.row(sheet, ACTIONS_ROW, 1, "Actions Shifts");
+        merge(sheet, ACTIONS_ROW, ACTIONS_ROW, 1, 2);
+        TableTestProjects.row(sheet, ACTIONS_ROW + 1, 1, "Integer hour", "Integer hour");
+        TableTestProjects.row(sheet, ACTIONS_ROW + 2, 1, "hour + shift", "hour - back");
+        TableTestProjects.row(sheet, ACTIONS_ROW + 3, 1, "Integer shift", "Integer back");
+        TableTestProjects.row(sheet, ACTIONS_ROW + 4, 1, "Shift Later", "Shift Earlier");
+
+        TableTestProjects.row(sheet, HOURS_ROW, 1, "Conditions Hours");
+        merge(sheet, HOURS_ROW, HOURS_ROW, 1, 4);
+        TableTestProjects.row(sheet, HOURS_ROW + 1, 1, "Inputs", "Expression", "Parameter", "Title");
+        TableTestProjects.row(sheet, HOURS_ROW + 2, 1, "Integer hour", "hour < limit", "Integer limit", "Before");
+        TableTestProjects.row(sheet, HOURS_ROW + 3, 1, "Integer hour", "hour >= start", "Integer start", "From");
+
+        TableTestProjects.row(sheet, RETURNS_ROW, 1, "Returns Rates");
+        merge(sheet, RETURNS_ROW, RETURNS_ROW, 1, 4);
+        TableTestProjects.row(sheet, RETURNS_ROW + 1, 1, "Title", "Inputs", "Expression", "Parameter");
+        TableTestProjects.row(sheet, RETURNS_ROW + 2, 1, "Base Rate", "Double rate", "rate * factor",
+                "Double factor");
+
+        TableTestProjects.row(sheet, UNDECLARED_ROW, 1, "Conditions Undeclared");
+        merge(sheet, UNDECLARED_ROW, UNDECLARED_ROW, 1, 3);
+        TableTestProjects.row(sheet, UNDECLARED_ROW + 1, 1, "Integer age", "age > min", "Integer min");
     }
 }
