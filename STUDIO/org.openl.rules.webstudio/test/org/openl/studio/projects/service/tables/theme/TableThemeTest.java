@@ -28,6 +28,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -36,7 +37,9 @@ import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableStyleSource;
@@ -59,6 +62,10 @@ class TableThemeTest {
     private static final int XLS_STYLES = 4030;
     private static final String HEADER_BACKGROUND = "#b4c6e7";
     private static final String NAME_BACKGROUND = "#ddebf7";
+    /** The fill of a cell the theme fills no other way. */
+    private static final String WHITE = "#ffffff";
+    /** The fill the workbook gives the values of the Vocabulary. */
+    private static final String GREY = "#c0c0c0";
     private static final String PERCENT = "0.00%";
 
     private static final String THEME = "default";
@@ -76,7 +83,43 @@ class TableThemeTest {
     private static final String ITEM = "Item";
     private static final int ITEM_ROW = 35;
 
+    /** A Spreadsheet whose properties take two rows of the sheet, returning the step named RETURN. */
+    private static final String RATED = "Rated";
+    private static final int RATED_ROW = 48;
+
+    /** A Spreadsheet returning a value with no step named RETURN: its last step is the one returned. */
+    private static final String GRADED = "Graded";
+    private static final int GRADED_ROW = 56;
+
+    /** A Spreadsheet returning the whole table. */
+    private static final String PLAIN = "Plain";
+    private static final int PLAIN_ROW = 62;
+
+    /** A Spreadsheet returning the value of a column named RETURN. */
+    private static final String RATIO = "Ratio";
+    private static final int RATIO_ROW = 68;
+
+    /** A Spreadsheet returning the whole table under the full name of its type. */
+    private static final String QUALIFIED = "Qualified";
+    private static final int QUALIFIED_ROW = 73;
+
+    /** A Spreadsheet returning nothing, with a step named RETURN all the same. */
+    private static final String NOTHING = "Nothing";
+    private static final int NOTHING_ROW = 78;
+
+    /** A Spreadsheet with steps marked for its result and a heading that splits its steps into sections. */
+    private static final String PREMIUM = "Premium";
+    private static final int PREMIUM_ROW = 40;
+    private static final String PREMIUM_HEADER = "Spreadsheet SpreadsheetResult Premium ( Person person )";
+    private static final String STEP_TITLE_BACKGROUND = "#d0cece";
+    private static final String TITLE_BACKGROUND = "#b4c6e7";
+
     private final TableThemeService service = new TableThemeService();
+
+    /** A theme that names no font attribute of a cell, so a cell keeps the font it has in the workbook. */
+    private static final TableThemeService EXTENDED =
+            new TableThemeService("classpath*:test-table-themes/extended-header.yaml");
+    private static final String EXTENDED_THEME = "extended-header";
 
     @TempDir
     Path dir;
@@ -87,40 +130,46 @@ class TableThemeTest {
     }
 
     @Test
-    void appliesToDatatypesAndVocabulariesOnly() {
+    void appliesToDatatypesVocabulariesAndSpreadsheetsOnly() {
         var model = TableTestProjects.projectModel(dir);
 
         assertNotNull(service.layoutOf(TableTestProjects.table(model, "Person"), THEME));
         assertNotNull(service.layoutOf(TableTestProjects.table(model, "Code"), THEME));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, PREMIUM), THEME));
         assertNull(service.layoutOf(TableTestProjects.table(model, "people"), THEME));
     }
 
     @Test
-    void offersForATableTheThemesWithALookForItsKind() {
+    void offersEveryThemeForATableOfAKindThemesStyle() {
         var model = TableTestProjects.projectModel(dir);
-        var datatypeOnly = new TableThemeService("classpath*:test-table-themes/datatype-only.yaml");
+        var extension = new TableThemeService("classpath*:test-table-themes/datatype-extension.yaml");
 
         assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, "Code"))));
-        assertEquals(List.of("datatype-only"), ids(datatypeOnly.getThemes(TableTestProjects.table(model, "Person"))));
-        assertTrue(datatypeOnly.getThemes(TableTestProjects.table(model, "Code")).isEmpty(),
-                "The theme has no look for a Vocabulary");
+        assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, PREMIUM))));
+        // A theme writing nothing for a Vocabulary or a Spreadsheet styles them all the same.
+        assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
+        assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
         assertTrue(service.getThemes(TableTestProjects.table(model, "people")).isEmpty(), "No theme styles Data");
     }
 
     @Test
-    void leavesATableOfAKindTheThemeNamesNoLookFor() {
+    void stylesAKindTheThemeWritesNothingForWithTheBase() {
         var model = TableTestProjects.projectModel(dir);
-        var datatypeOnly = new TableThemeService("classpath*:test-table-themes/datatype-only.yaml");
+        var extension = new TableThemeService("classpath*:test-table-themes/datatype-extension.yaml");
         var code = TableTestProjects.table(model, "Code");
 
-        assertNull(datatypeOnly.layoutOf(code, "datatype-only"));
+        var layout = extension.layoutOf(code, "datatype-extension");
+        assertEquals(Boolean.TRUE, layout.at(8, 1).style().italic(), "The Vocabulary takes the base");
+        assertEquals(ThemeLineStyle.MEDIUM, layout.at(9, 1).style().border().bottom().style());
         var grid = GridTableUtils.getOriginalTable(code.getGridTable());
         grid.edit();
         try {
-            assertFalse(datatypeOnly.writer("datatype-only").write(code, grid));
+            assertTrue(extension.writer("datatype-extension").write(code, grid));
         } finally {
             grid.stopEditing();
         }
+        var people = TableTestProjects.table(model, "people");
+        assertNull(extension.layoutOf(people, "datatype-extension"), "No theme styles Data");
     }
 
     @Test
@@ -135,7 +184,7 @@ class TableThemeTest {
         // The name column, the values beside it, and the line closing the last row.
         assertEquals(NAME_BACKGROUND, layout.at(2, 2).style().background());
         assertEquals(ThemeHorizontalAlign.CENTER, layout.at(2, 3).style().align());
-        assertNull(layout.at(2, 1).style().border(), "A row other than the last is not closed");
+        assertFalse(lineBelow(layout.at(2, 1)), "A row other than the last is not closed");
         assertEquals(ThemeLineStyle.THIN, layout.at(4, 1).style().border().bottom().style());
         assertEquals("Franklin Gothic Book", layout.at(3, 1).style().fontFamily());
         // A cell outside the table is not reached.
@@ -147,7 +196,7 @@ class TableThemeTest {
         var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), "Titled"), THEME);
 
         assertEquals(Boolean.TRUE, layout.at(20, 1).style().bold());
-        assertNull(layout.at(20, 2).style().background(), "The titles are not the field names");
+        assertEquals(WHITE, layout.at(20, 2).style().background(), "The titles are not the field names");
         assertEquals(NAME_BACKGROUND, layout.at(21, 2).style().background());
     }
 
@@ -157,11 +206,11 @@ class TableThemeTest {
 
         // Each field runs down a column, so each place runs across the table: the types, the names, the defaults.
         for (var column = 1; column <= 3; column++) {
-            assertNull(layout.at(POINT_ROW + 1, column).style().background(), "A type is not a name");
+            assertEquals(WHITE, layout.at(POINT_ROW + 1, column).style().background(), "A type is not a name");
             assertEquals(NAME_BACKGROUND, layout.at(POINT_ROW + 2, column).style().background());
             assertEquals(ThemeHorizontalAlign.CENTER, layout.at(POINT_ROW + 3, column).style().align());
             // The last row closes the table, as it closes an upright one.
-            assertNull(layout.at(POINT_ROW + 2, column).style().border(), "Only the last row is closed");
+            assertFalse(lineBelow(layout.at(POINT_ROW + 2, column)), "Only the last row is closed");
             assertEquals(ThemeLineStyle.THIN, layout.at(POINT_ROW + 3, column).style().border().bottom().style());
         }
 
@@ -178,15 +227,211 @@ class TableThemeTest {
 
         assertEquals(Boolean.TRUE, layout.at(ITEM_ROW + 1, 1).style().bold());
         assertEquals(Boolean.TRUE, layout.at(ITEM_ROW + 2, 1).style().bold());
-        assertNull(layout.at(ITEM_ROW + 2, 1).style().background(), "The titles are not the field names");
-        assertNull(layout.at(ITEM_ROW + 1, 2).style().bold(), "A type is not a title");
+        assertEquals(WHITE, layout.at(ITEM_ROW + 2, 1).style().background(), "The titles are not the field names");
+        assertEquals(Boolean.FALSE, layout.at(ITEM_ROW + 1, 2).style().bold(), "A type is not a title");
         assertEquals(NAME_BACKGROUND, layout.at(ITEM_ROW + 2, 2).style().background());
         assertEquals(NAME_BACKGROUND, layout.at(ITEM_ROW + 2, 3).style().background());
     }
 
     @Test
+    void givesEachPlaceOfASpreadsheetItsLook() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), PREMIUM), THEME);
+
+        // The header is signed as every kind of table is, across the table, its text formatted in pieces. Only a
+        // Datatype fills it: a Spreadsheet keeps it white, as any cell the theme fills no other way.
+        assertEquals(WHITE, layout.at(PREMIUM_ROW, 1).style().background());
+        assertEquals(ThemeLineStyle.THIN, layout.at(PREMIUM_ROW, 2).style().border().bottom().style());
+        assertNotNull(layout.at(PREMIUM_ROW, 1).header());
+        // The row naming the columns, with the title of the column of steps set apart.
+        var stepTitle = layout.at(PREMIUM_ROW + 1, 1).style();
+        assertEquals(STEP_TITLE_BACKGROUND, stepTitle.background());
+        assertEquals(Boolean.TRUE, stepTitle.bold());
+        assertEquals(ThemeHorizontalAlign.CENTER, stepTitle.align());
+        assertEquals(TITLE_BACKGROUND, layout.at(PREMIUM_ROW + 1, 2).style().background());
+        // A step marked for the result is bold; the others keep what the workbook says.
+        assertEquals(Boolean.TRUE, layout.at(PREMIUM_ROW + 2, 1).style().bold());
+        assertEquals(Boolean.FALSE, layout.at(PREMIUM_ROW + 4, 1).style().bold(), "A step that is not marked");
+        assertEquals(Boolean.TRUE, layout.at(PREMIUM_ROW + 5, 1).style().bold(), "Marked before the type it declares");
+        assertEquals(NAME_BACKGROUND, layout.at(PREMIUM_ROW + 2, 2).style().background());
+        assertEquals(Boolean.FALSE, layout.at(PREMIUM_ROW + 2, 2).style().bold(),
+                "The value of a marked step is not marked");
+        // The last row closes the table.
+        assertFalse(lineBelow(layout.at(PREMIUM_ROW + 4, 2)));
+        assertEquals(ThemeLineStyle.THIN, layout.at(PREMIUM_ROW + 5, 1).style().border().bottom().style());
+        assertEquals(ThemeLineStyle.THIN, layout.at(PREMIUM_ROW + 5, 2).style().border().bottom().style());
+    }
+
+    @Test
+    void givesAStepMergedAcrossItsRowTheSectionLook() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), PREMIUM), THEME);
+
+        // The heading is merged over the values of its row: every cell of it is the section, none a value.
+        for (var column = 1; column <= 2; column++) {
+            var section = layout.at(PREMIUM_ROW + 3, column).style();
+            assertEquals(TITLE_BACKGROUND, section.background());
+            assertEquals(Boolean.TRUE, section.bold());
+            assertEquals(Boolean.TRUE, section.italic());
+            assertEquals(ThemeHorizontalAlign.CENTER, section.align());
+            assertEquals(ThemeLineStyle.THIN, section.border().top().style());
+        }
+        assertEquals(WHITE, layout.at(PREMIUM_ROW + 4, 1).style().background(), "A step under the heading is a step");
+    }
+
+    @Test
+    void writesTheLookOfASpreadsheetIntoTheWorkbook() {
+        write(tables(TableTestProjects.projectModel(dir), PREMIUM));
+
+        var written = read(PREMIUM);
+        assertEquals(List.of("Spreadsheet", " ", "SpreadsheetResult", " ", PREMIUM, " ", "( Person person )"),
+                texts(written.getFirst().getFirst().runs()));
+        assertEquals(Boolean.TRUE, written.getFirst().getFirst().runs().get(4).style().bold());
+        assertEquals("#808080", written.getFirst().getFirst().runs().get(6).style().color());
+        assertEquals(STEP_TITLE_BACKGROUND, written.get(1).getFirst().style().background());
+        assertEquals(Boolean.TRUE, written.get(2).getFirst().style().bold());
+        assertEquals(Boolean.TRUE, written.get(3).getFirst().style().italic());
+        assertEquals(TITLE_BACKGROUND, written.get(3).getFirst().style().background());
+        var step = written.get(4).getFirst().style();
+        assertTrue(step == null || step.bold() == null, "A step that is not marked is not bold");
+        assertEquals(NAME_BACKGROUND, written.get(4).get(1).style().background());
+    }
+
+    @Test
+    void takesAwayTheLinesTheWorkbookDrawsInsideTheTable() {
+        assertNotNull(bottomOf(read(PREMIUM).get(4).getFirst().style()), "The workbook draws a line under the step");
+
+        var table = premium();
+        var themed = readThemed(table, service.layoutOf(table, THEME)).source;
+        assertNull(bottomOf(themed.get(4).getFirst().style()), "The theme draws no line there");
+
+        write(tables(TableTestProjects.projectModel(dir), PREMIUM));
+        assertNull(bottomOf(read(PREMIUM).get(4).getFirst().style()), "Nor does the workbook it is written into");
+    }
+
+    @Test
+    void fillsWhiteACellTheThemeFillsNoOtherWay() {
+        assertEquals(GREY, read("Code").get(1).getFirst().style().background(), "The workbook fills the values grey");
+
+        var code = TableTestProjects.table(TableTestProjects.projectModel(dir), "Code");
+        var themed = readThemed(code, service.layoutOf(code, THEME)).source;
+        // White is reported as no fill, as the style of a cell reports it.
+        assertNull(themed.get(1).getFirst().style().background(), "The theme draws them white");
+
+        write(tables(TableTestProjects.projectModel(dir), "Code"));
+        assertNull(read("Code").get(1).getFirst().style().background(), "And writes them white");
+    }
+
+    @Test
+    void drawsTheLineOverASectionByTheCellsAboveIt() {
+        var table = premium();
+        var themed = readThemed(table, service.layoutOf(table, THEME)).source;
+
+        // The screen draws the side of the upper cell over the side of the lower one, as it draws a workbook: the
+        // line over the heading is drawn by the step above it, all across the heading.
+        for (var column = 0; column < 2; column++) {
+            var line = bottomOf(themed.get(2).get(column).style());
+            assertEquals(RawTableBorderLineStyle.SOLID, line.style());
+        }
+        assertNull(topOf(themed.get(3).getFirst().style()), "The heading draws no line of its own");
+        // The header keeps its top: no cell of the table is above it.
+        assertNotNull(topOf(themed.getFirst().getFirst().style()));
+    }
+
+    @Test
+    void drawsTheLineOverASectionUnderTheRowsReadByTheLastOfThem() {
+        var table = premium();
+        var layout = service.layoutOf(table, THEME);
+
+        // A window ending right above the heading: its last step draws the line over the heading.
+        var window = new RawTableReader().read(table, RawTableRead.builder()
+                .startRow(0)
+                .maxRows(3)
+                .withStyles(true)
+                .theme(layout)
+                .build()).source;
+        for (var column = 0; column < 2; column++) {
+            var line = bottomOf(window.get(2).get(column).style());
+            assertEquals(RawTableBorderLineStyle.SOLID, line.style());
+        }
+        // The next window starts with the heading and draws the line itself: no row of it is above the heading.
+        var next = new RawTableReader().read(table, RawTableRead.builder()
+                .startRow(3)
+                .maxRows(3)
+                .withStyles(true)
+                .theme(layout)
+                .build()).source;
+        assertNotNull(topOf(next.getFirst().getFirst().style()));
+    }
+
+    @Test
+    void closesThePropertiesOfATableWithOneLine() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED), THEME);
+
+        // The properties take two rows of the sheet and are one section of the table: one line closes them.
+        assertFalse(lineBelow(layout.at(RATED_ROW + 1, 2)), "No line between two properties");
+        assertTrue(lineBelow(layout.at(RATED_ROW + 2, 2)));
+        assertTrue(lineBelow(layout.at(RATED_ROW + 2, 3)));
+        assertTrue(lineBelow(layout.at(RATED_ROW + 1, 1)), "The keyword merged over both properties reaches the line");
+        assertEquals("Franklin Gothic Book", layout.at(RATED_ROW + 1, 3).style().fontFamily(),
+                "The properties start from the look of the whole table");
+    }
+
+    @Test
+    void givesTheStepASpreadsheetReturnsTheResultLook() {
+        var model = TableTestProjects.projectModel(dir);
+        var rated = service.layoutOf(TableTestProjects.table(model, RATED), THEME);
+        var graded = service.layoutOf(TableTestProjects.table(model, GRADED), THEME);
+        var plain = service.layoutOf(TableTestProjects.table(model, PLAIN), THEME);
+        var ratio = service.layoutOf(TableTestProjects.table(model, RATIO), THEME);
+        var qualified = service.layoutOf(TableTestProjects.table(model, QUALIFIED), THEME);
+        var nothing = service.layoutOf(TableTestProjects.table(model, NOTHING), THEME);
+
+        assertEquals(Boolean.TRUE, rated.at(RATED_ROW + 4, 1).style().bold(), "The step named RETURN is returned");
+        assertEquals(Boolean.FALSE, rated.at(RATED_ROW + 5, 1).style().bold(),
+                "The last step is not, where a step is named RETURN");
+        assertEquals(Boolean.TRUE, graded.at(GRADED_ROW + 3, 1).style().bold(), "With none named so, the last one is");
+        assertEquals(Boolean.FALSE, graded.at(GRADED_ROW + 2, 1).style().bold());
+        assertEquals(Boolean.FALSE, rated.at(RATED_ROW + 4, 2).style().bold(), "The value of the step is not the step");
+        assertEquals(Boolean.FALSE, plain.at(PLAIN_ROW + 3, 1).style().bold(),
+                "A Spreadsheet returning the whole table returns no step");
+        assertEquals(Boolean.FALSE, ratio.at(RATIO_ROW + 2, 1).style().bold(),
+                "A column named RETURN is returned in place of a step");
+        assertEquals(Boolean.FALSE, qualified.at(QUALIFIED_ROW + 2, 1).style().bold(),
+                "The full name returns the table");
+        assertEquals(Boolean.FALSE, nothing.at(NOTHING_ROW + 2, 1).style().bold(),
+                "A void Spreadsheet returns no step");
+    }
+
+    @Test
+    void splitsTheHeaderOfASpreadsheetIntoKeywordTypeNameAndParameters() {
+        var theme = service.theme(THEME);
+        var header = theme.lookOf(theme.spreadsheet()).header();
+        var cell = ThemeStyle.NONE.with(header.style());
+
+        assertEquals(List.of("Spreadsheet", " ", "SpreadsheetResult", " ", PREMIUM, " ", "( Person person )"),
+                pieces(PREMIUM_HEADER, cell, header));
+        assertEquals(List.of("Spreadsheet", " ", "SpreadsheetResult", " ", "Plan", "( Plan plan )"),
+                pieces("Spreadsheet SpreadsheetResult Plan( Plan plan )", cell, header));
+        assertEquals(List.of("Spreadsheet", "  ", "Gender[]", " ", "AllGenders", "()"),
+                pieces("Spreadsheet  Gender[] AllGenders()", cell, header));
+        // A header may leave out the type it returns, or name no parameters.
+        assertEquals(List.of("Spreadsheet", " ", PREMIUM, "()"), pieces("Spreadsheet Premium()", cell, header));
+        assertEquals(List.of("Calc", " ", "Double", " ", "Rate"), pieces("Calc Double Rate", cell, header));
+        assertEquals("SpreadsheetResult", HeaderRuns.returnType(PREMIUM_HEADER));
+        assertEquals("", HeaderRuns.returnType("Spreadsheet Premium()"));
+        assertEquals("org.openl.rules.calc.SpreadsheetResult",
+                HeaderRuns.returnType("Spreadsheet org.openl.rules.calc.SpreadsheetResult Premium()"));
+
+        var runs = HeaderRuns.split(PREMIUM_HEADER, cell, header);
+        assertEquals("#808080", runs.get(0).style().color());
+        assertEquals("#808080", runs.get(2).style().color());
+        assertEquals(Boolean.TRUE, runs.get(4).style().bold());
+        assertEquals("#808080", runs.get(6).style().color());
+    }
+
+    @Test
     void splitsTheHeaderIntoKeywordNameAndType() {
-        var header = service.theme(THEME).lookOf(false).header();
+        var theme = service.theme(THEME);
+        var header = theme.lookOf(theme.datatype()).header();
         var cell = ThemeStyle.NONE.with(header.style());
 
         assertEquals(List.of("Datatype", " ", "Code", "<String>"), pieces("Datatype Code<String>", cell, header));
@@ -238,14 +483,14 @@ class TableThemeTest {
     @Test
     void startsEachPieceOfTheHeaderFromTheFontOfTheCell() {
         var table = account();
-        var themed = readThemed(table, service.layoutOf(table, THEME));
+        var themed = readThemed(table, EXTENDED.layoutOf(table, EXTENDED_THEME));
         // The header is bold in the workbook, and the theme says nothing of bold for the keyword: it stays bold, on
         // the screen as in the workbook the theme is written into.
         var drawn = themed.source.getFirst().getFirst().runs().getFirst().style();
         assertEquals(Boolean.TRUE, drawn.bold());
-        assertEquals("#808080", drawn.color());
+        assertEquals("#548235", drawn.color());
 
-        write(tables(TableTestProjects.projectModel(dir), ACCOUNT));
+        EXTENDED.writer(EXTENDED_THEME).writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
 
         var written = read(ACCOUNT).getFirst().getFirst().runs().getFirst().style();
         assertEquals(drawn.bold(), written.bold());
@@ -253,9 +498,45 @@ class TableThemeTest {
     }
 
     @Test
+    void writesAnyOtherTextInTheFontOfItsCell() throws IOException {
+        // A field name formatted in pieces of its own, as an author marks a part of it.
+        try (var workbook = workbook()) {
+            var cell = workbook.getSheet(SHEET).getRow(2).getCell(2);
+            var red = workbook.createFont();
+            red.setColor(IndexedColors.RED.getIndex());
+            var marked = workbook.getCreationHelper().createRichTextString("name");
+            marked.applyFont(0, 2, red);
+            cell.setCellValue(marked);
+            try (var out = Files.newOutputStream(dir.resolve(SHEET + ".xlsx"))) {
+                workbook.write(out);
+            }
+        }
+        assertNotNull(read("Person").get(1).get(1).runs(), "The workbook formats the name in pieces");
+
+        // A theme naming nothing of the font of the cell keeps the pieces, on the screen as in the workbook.
+        var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person");
+        var kept = readThemed(person, EXTENDED.layoutOf(person, EXTENDED_THEME)).source.get(1).get(1);
+        assertEquals(List.of("na", "me"), texts(kept.runs()));
+        var alone = new RawTableReader().read(person, RawTableRead.builder()
+                .theme(EXTENDED.layoutOf(person, EXTENDED_THEME))
+                .build()).source.get(1).get(1);
+        assertEquals(List.of("na", "me"), texts(alone.runs()), "Kept by a read of the theme alone");
+        var drawn = readThemed(person, service.layoutOf(person, THEME)).source.get(1).get(1);
+        assertNull(drawn.runs(), "A theme naming the font draws the text in it");
+        EXTENDED.writer(EXTENDED_THEME).writeAll(tables(TableTestProjects.projectModel(dir), "Person"), Map.of());
+        assertNotNull(read("Person").get(1).get(1).runs());
+
+        write(tables(TableTestProjects.projectModel(dir), "Person"));
+
+        var name = read("Person").get(1).get(1);
+        assertEquals("name", name.value(), "The text stays as it is");
+        assertNull(name.runs(), "The theme writes it in the font of its cell");
+    }
+
+    @Test
     void keepsTheSizeOfAFontOfHalfAPointTheThemeSaysNothingOf() throws IOException {
-        // Green names no size, so the header keeps the 10.5 points it is written in.
-        write(tables(TableTestProjects.projectModel(dir), ACCOUNT), "green");
+        // The theme names no size, so the header keeps the 10.5 points it is written in.
+        EXTENDED.writer(EXTENDED_THEME).writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
 
         try (var workbook = workbook()) {
             var header = cell(workbook.getSheet(SHEET), ACCOUNT_ROW, 1);
@@ -265,10 +546,8 @@ class TableThemeTest {
 
     @Test
     void writesTheThemeIntoTheWorkbook() throws IOException {
-        var model = TableTestProjects.projectModel(dir);
-        var written = write(tables(model, "Person", "Code"));
+        write(tables(TableTestProjects.projectModel(dir), "Person", "Code"));
 
-        assertEquals(2, written.size());
         var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person");
         var source = new RawTableReader().read(person, RawTableRead.builder().withStyles(true).build()).source;
         var header = source.getFirst().getFirst();
@@ -390,6 +669,17 @@ class TableThemeTest {
     }
 
     @Test
+    void themesThePropertiesTheNoteLaysDown() {
+        service.writer(THEME).writeAll(List.of(person()), Map.of("modifiedBy", "admin"));
+
+        // The table had no properties: the note lays them down after the theme, and they take the theme too.
+        var source = read("Person");
+        source.get(1).forEach(cell -> assertNotNull(bottomOf(cell.style()), "The properties are closed by a line"));
+        assertNull(source.get(1).get(1).style().background(), "A property takes no look of the field under it");
+        assertEquals(NAME_BACKGROUND, source.get(2).get(1).style().background(), "The fields keep their look");
+    }
+
+    @Test
     void writesNoCellPastTheEdgeOfTheTableAnEmptyMergeReaches() throws IOException {
         // A region of empty cells does not widen the table, so it may be merged past the edge of the table.
         var wide = dir.resolve("wide");
@@ -417,9 +707,8 @@ class TableThemeTest {
     void writesNothingIntoATableTheThemeDoesNotApplyTo() throws IOException {
         var before = Files.readAllBytes(dir.resolve(SHEET + ".xlsx"));
 
-        var written = write(List.of(TableTestProjects.table(TableTestProjects.projectModel(dir), "people")));
+        write(List.of(TableTestProjects.table(TableTestProjects.projectModel(dir), "people")));
 
-        assertTrue(written.isEmpty());
         assertArrayEquals(before, Files.readAllBytes(dir.resolve(SHEET + ".xlsx")),
                 "No workbook is saved when no table is themed");
     }
@@ -431,6 +720,10 @@ class TableThemeTest {
 
     private IOpenLTable person() {
         return TableTestProjects.table(TableTestProjects.projectModel(dir), "Person");
+    }
+
+    private IOpenLTable premium() {
+        return TableTestProjects.table(TableTestProjects.projectModel(dir), PREMIUM);
     }
 
     private IOpenLTable account() {
@@ -488,6 +781,20 @@ class TableThemeTest {
         return (XSSFCell) sheet.getRow(row).getCell(column);
     }
 
+    /** Whether the theme draws a line under a cell. */
+    private static boolean lineBelow(ThemedTable.ThemedCell cell) {
+        var border = cell.style().border();
+        return border != null && border.bottom() != null && border.bottom().isLine();
+    }
+
+    private static @Nullable RawTableCellBorderSide bottomOf(@Nullable RawTableCellStyle style) {
+        return style == null || style.border() == null ? null : style.border().bottom();
+    }
+
+    private static @Nullable RawTableCellBorderSide topOf(@Nullable RawTableCellStyle style) {
+        return style == null || style.border() == null ? null : style.border().top();
+    }
+
     private static List<String> pieces(String text, ThemeStyle cell, TableTheme.Header header) {
         return HeaderRuns.split(text, cell, header).stream()
                 .map(run -> text.substring(run.start(), run.end()))
@@ -504,7 +811,8 @@ class TableThemeTest {
 
     /**
      * A Datatype with a percentage, a Vocabulary, a Datatype naming its columns, a Data table, a cell outside
-     * every table filled red, a Datatype whose header is not merged over it, and two Datatypes written transposed.
+     * every table filled red, a Datatype whose header is not merged over it, two Datatypes written transposed, and seven
+     * Spreadsheets.
      */
     private static void fillSheet(Sheet sheet) {
         var workbook = sheet.getWorkbook();
@@ -528,6 +836,11 @@ class TableThemeTest {
         TableTestProjects.row(sheet, 7, 1, "Datatype Code <String>");
         TableTestProjects.row(sheet, 8, 1, "A");
         TableTestProjects.row(sheet, 9, 1, "B");
+        var grey = workbook.createCellStyle();
+        grey.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        grey.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        sheet.getRow(8).getCell(1).setCellStyle(grey);
+        sheet.getRow(9).getCell(1).setCellStyle(grey);
 
         TableTestProjects.row(sheet, 12, 1, "Data Person people");
         TableTestProjects.row(sheet, 13, 1, "name");
@@ -556,5 +869,56 @@ class TableThemeTest {
         TableTestProjects.row(sheet, ITEM_ROW, 1, "Datatype " + ITEM);
         TableTestProjects.row(sheet, ITEM_ROW + 1, 1, "Type", "String", "Integer");
         TableTestProjects.row(sheet, ITEM_ROW + 2, 1, "Name", "code", "count");
+
+        TableTestProjects.row(sheet, PREMIUM_ROW, 1, PREMIUM_HEADER);
+        sheet.addMergedRegion(new CellRangeAddress(PREMIUM_ROW, PREMIUM_ROW, 1, 2));
+        TableTestProjects.row(sheet, PREMIUM_ROW + 1, 1, "Step", "Formula");
+        TableTestProjects.row(sheet, PREMIUM_ROW + 2, 1, "Base*", "= 10");
+        TableTestProjects.row(sheet, PREMIUM_ROW + 3, 1, "Rates and Totals");
+        sheet.addMergedRegion(new CellRangeAddress(PREMIUM_ROW + 3, PREMIUM_ROW + 3, 1, 2));
+        TableTestProjects.row(sheet, PREMIUM_ROW + 4, 1, "Rate : Double", "= $Base * 2");
+        TableTestProjects.row(sheet, PREMIUM_ROW + 5, 1, "Total* : Double", "= $Rate");
+        // A line the author draws between two steps, inside the table.
+        var groupLine = workbook.createCellStyle();
+        groupLine.setBorderBottom(BorderStyle.THIN);
+        sheet.getRow(PREMIUM_ROW + 4).getCell(1).setCellStyle(groupLine);
+        sheet.getRow(PREMIUM_ROW + 4).getCell(2).setCellStyle(groupLine);
+
+        TableTestProjects.row(sheet, RATED_ROW, 1, "Spreadsheet Double " + RATED + " ( Person person )");
+        sheet.addMergedRegion(new CellRangeAddress(RATED_ROW, RATED_ROW, 1, 3));
+        TableTestProjects.row(sheet, RATED_ROW + 1, 1, "properties", "description", "A rated premium");
+        TableTestProjects.row(sheet, RATED_ROW + 2, 1, null, "category", "Rating");
+        sheet.addMergedRegion(new CellRangeAddress(RATED_ROW + 1, RATED_ROW + 2, 1, 1));
+        TableTestProjects.row(sheet, RATED_ROW + 3, 1, "Step", "Formula");
+        TableTestProjects.row(sheet, RATED_ROW + 4, 1, "RETURN", "= $Base");
+        TableTestProjects.row(sheet, RATED_ROW + 5, 1, "Base", "= 1.5");
+
+        TableTestProjects.row(sheet, GRADED_ROW, 1, "Spreadsheet Double " + GRADED + " ( Person person )");
+        sheet.addMergedRegion(new CellRangeAddress(GRADED_ROW, GRADED_ROW, 1, 2));
+        TableTestProjects.row(sheet, GRADED_ROW + 1, 1, "Steps", "Formula");
+        TableTestProjects.row(sheet, GRADED_ROW + 2, 1, "Premium", "= 10");
+        TableTestProjects.row(sheet, GRADED_ROW + 3, 1, "Graded", "= $Premium / 2");
+
+        TableTestProjects.row(sheet, PLAIN_ROW, 1, "Spreadsheet SpreadsheetResult " + PLAIN + " ( Person person )");
+        sheet.addMergedRegion(new CellRangeAddress(PLAIN_ROW, PLAIN_ROW, 1, 2));
+        TableTestProjects.row(sheet, PLAIN_ROW + 1, 1, "Step", "Formula");
+        TableTestProjects.row(sheet, PLAIN_ROW + 2, 1, "First", "= 1");
+        TableTestProjects.row(sheet, PLAIN_ROW + 3, 1, "Last", "= 2");
+
+        TableTestProjects.row(sheet, RATIO_ROW, 1, "Spreadsheet Double " + RATIO + " ( Person person )");
+        sheet.addMergedRegion(new CellRangeAddress(RATIO_ROW, RATIO_ROW, 1, 3));
+        TableTestProjects.row(sheet, RATIO_ROW + 1, 1, "Step", "Value", "RETURN");
+        TableTestProjects.row(sheet, RATIO_ROW + 2, 1, "Base", "= 2", "= $Value$Base * 2");
+
+        TableTestProjects.row(sheet, QUALIFIED_ROW, 1,
+                "Spreadsheet org.openl.rules.calc.SpreadsheetResult " + QUALIFIED + " ( Person person )");
+        sheet.addMergedRegion(new CellRangeAddress(QUALIFIED_ROW, QUALIFIED_ROW, 1, 2));
+        TableTestProjects.row(sheet, QUALIFIED_ROW + 1, 1, "Step", "Formula");
+        TableTestProjects.row(sheet, QUALIFIED_ROW + 2, 1, "Last", "= 2");
+
+        TableTestProjects.row(sheet, NOTHING_ROW, 1, "Spreadsheet void " + NOTHING + " ( Person person )");
+        sheet.addMergedRegion(new CellRangeAddress(NOTHING_ROW, NOTHING_ROW, 1, 2));
+        TableTestProjects.row(sheet, NOTHING_ROW + 1, 1, "Step", "Formula");
+        TableTestProjects.row(sheet, NOTHING_ROW + 2, 1, "RETURN", "= 2");
     }
 }

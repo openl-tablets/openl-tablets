@@ -1,6 +1,8 @@
 package org.openl.rules.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -81,6 +83,18 @@ class GridTableUtilsTest {
         assertEquals(3, regions.size());
         var expected = Arrays.asList(mr(0, 0, 1, 0), mr(0, 1, 0, 2), mr(1, 1, 1, 2));
         assertEquals(expected, regions);
+    }
+
+    @Test
+    void tellsATableAssembledFromPartsApart() {
+        // A table written in two parts, one under the other, as the compiler joins table parts.
+        var part = new MockGridTable(new String[][]{{"Rules void hello()"}});
+        var grid = new CompositeGrid(new IGridTable[]{part, part}, true);
+        var assembled = new GridTable(0, 0, grid.getHeight() - 1, grid.getWidth() - 1, grid);
+
+        assertTrue(GridTableUtils.isAssembledFromParts(assembled));
+        assertFalse(GridTableUtils.isAssembledFromParts(part), "A table written as a whole");
+        assertFalse(GridTableUtils.isAssembledFromParts(null), "A table that stands on no grid");
     }
 
     // Simple Region

@@ -1,4 +1,4 @@
-package org.openl.studio.projects.service.tables.theme;
+package org.openl.studio.projects.service.tables.read;
 
 import java.util.function.Function;
 
@@ -12,7 +12,11 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableStyleSource;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
-import org.openl.studio.projects.service.tables.read.RawTableStyles;
+import org.openl.studio.projects.service.tables.theme.ThemeBorder;
+import org.openl.studio.projects.service.tables.theme.ThemeBorderLine;
+import org.openl.studio.projects.service.tables.theme.ThemeHorizontalAlign;
+import org.openl.studio.projects.service.tables.theme.ThemeStyle;
+import org.openl.studio.projects.service.tables.theme.ThemeVerticalAlign;
 
 /**
  * Turns the look of the theme into the cell style the Tables API reports.
@@ -23,7 +27,7 @@ import org.openl.studio.projects.service.tables.read.RawTableStyles;
  * <p>Every style the theme gives a cell, or a piece of its text, names the theme as its source
  * ({@link RawTableStyleSource#THEME}): a read naming the theme reports it in place of the style of the workbook.
  */
-public final class ThemeStyles {
+final class ThemeStyles {
 
     private ThemeStyles() {
     }
@@ -35,14 +39,11 @@ public final class ThemeStyles {
      * @param theme the look the theme gives the cell
      * @return the cell style with every attribute the theme sets replaced, the theme named as its source
      */
-    public static RawTableCellStyle over(@Nullable RawTableCellStyle style, ThemeStyle theme) {
+    static RawTableCellStyle over(@Nullable RawTableCellStyle style, ThemeStyle theme) {
         var builder = (style == null ? RawTableCellStyle.builder() : style.toBuilder())
                 .source(RawTableStyleSource.THEME);
         if (theme.background() != null) {
             builder.background(colour(theme.background(), RawTableStyles.WHITE));
-        }
-        if (theme.color() != null) {
-            builder.color(colour(theme.color(), RawTableStyles.BLACK));
         }
         if (theme.align() != null) {
             builder.align(horizontal(theme.align()));
@@ -52,7 +53,8 @@ public final class ThemeStyles {
         }
         setFont(builder, theme);
         if (theme.border() != null) {
-            builder.border(border(style == null ? null : style.border(), theme.border()));
+            var border = border(style == null ? null : style.border(), theme.border());
+            builder.border(border.isEmpty() ? null : border);
         }
         return builder.build();
     }
@@ -68,7 +70,7 @@ public final class ThemeStyles {
      * @param theme the look of the piece
      * @return the font of the piece, the theme named as its source
      */
-    public static RawTableCellStyle fontOf(@Nullable RawTableCellStyle cell, ThemeStyle theme) {
+    static RawTableCellStyle fontOf(@Nullable RawTableCellStyle cell, ThemeStyle theme) {
         var builder = RawTableCellStyle.builder().source(RawTableStyleSource.THEME);
         if (cell != null) {
             builder.color(cell.color())
@@ -77,26 +79,26 @@ public final class ThemeStyles {
                     .underline(cell.underline())
                     .strikeout(cell.strikeout());
         }
-        if (theme.color() != null) {
-            builder.color(colour(theme.color(), RawTableStyles.BLACK));
-        }
         setFont(builder, theme);
         return builder.build();
     }
 
-    /** Sets the font attributes the theme names. */
+    /** Sets the font attributes the theme names, its colour among them. */
     private static void setFont(RawTableCellStyle.RawTableCellStyleBuilder builder, ThemeStyle theme) {
+        if (theme.color() != null) {
+            builder.color(colour(theme.color(), RawTableStyles.BLACK));
+        }
         if (theme.bold() != null) {
-            builder.bold(flag(theme.bold()));
+            builder.bold(RawTableStyles.flag(theme.bold()));
         }
         if (theme.italic() != null) {
-            builder.italic(flag(theme.italic()));
+            builder.italic(RawTableStyles.flag(theme.italic()));
         }
         if (theme.underline() != null) {
-            builder.underline(flag(theme.underline()));
+            builder.underline(RawTableStyles.flag(theme.underline()));
         }
         if (theme.strikeout() != null) {
-            builder.strikeout(flag(theme.strikeout()));
+            builder.strikeout(RawTableStyles.flag(theme.strikeout()));
         }
         if (theme.fontFamily() != null) {
             builder.fontFamily(theme.fontFamily());
@@ -104,11 +106,6 @@ public final class ThemeStyles {
         if (theme.fontSize() != null) {
             builder.fontSize(theme.fontSize());
         }
-    }
-
-    /** {@link Boolean#TRUE} for a flag that is on, {@code null} for one that is off or not named. */
-    private static @Nullable Boolean flag(@Nullable Boolean value) {
-        return Boolean.TRUE.equals(value) ? Boolean.TRUE : null;
     }
 
     /** A colour as the Tables API reports it, or {@code null} when it is the default. */
@@ -143,12 +140,30 @@ public final class ThemeStyles {
         return builder.build();
     }
 
-    /** Sets one border side, drawn with the line the workbook draws it with once the theme is written. */
+    /**
+     * Sets one border side, drawn with the line the workbook draws it with once the theme is written. A side without
+     * a line takes the border of the cell away.
+     */
     private static void side(@Nullable ThemeBorderLine line,
                              Function<RawTableCellBorderSide, RawTableCellBorder.RawTableCellBorderBuilder> into) {
         if (line != null) {
-            var drawn = BorderStyle.of(line.style().getExcel(), PoiExcelHelper.toRgb(line.colorOrBlack()));
-            into.apply(RawTableStyles.borderSide(drawn));
+            into.apply(reported(line));
         }
+    }
+
+    /**
+     * The line a look draws over a cell, as a read reports it, or {@code null} when the look draws none there.
+     *
+     * @param theme the look of the cell
+     * @return the line over the cell
+     */
+    static @Nullable RawTableCellBorderSide topLine(ThemeStyle theme) {
+        var line = theme.border() == null ? null : theme.border().top();
+        return line == null ? null : reported(line);
+    }
+
+    /** A line as a read reports it: the line the workbook draws once the theme is written, or none at all. */
+    private static @Nullable RawTableCellBorderSide reported(ThemeBorderLine line) {
+        return RawTableStyles.borderSide(BorderStyle.of(line.style().getExcel(), line.rgb()));
     }
 }

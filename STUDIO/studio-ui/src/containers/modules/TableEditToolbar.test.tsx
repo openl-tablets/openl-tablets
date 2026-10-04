@@ -187,7 +187,7 @@ describe('TableEditToolbar', () => {
         expect(screen.getByText('Default').closest('li')).not.toHaveClass('ant-dropdown-menu-item-selected')
     })
 
-    it('offers no theme for a table no theme has a look for', () => {
+    it('offers no theme for a table no theme styles', () => {
         draw({ themes: []})
 
         expect(screen.queryByTestId('table-edit-theme')).toBeNull()

@@ -34,7 +34,6 @@ import org.openl.studio.projects.model.tables.RawTableUsageKind;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.service.tables.TableModules;
-import org.openl.studio.projects.service.tables.theme.ThemeStyles;
 import org.openl.studio.projects.service.tables.theme.ThemedTable;
 import org.openl.util.StringUtils;
 
@@ -230,8 +229,23 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
             }
             matrix.add(rowCells);
         }
-
+        var theme = read.theme();
+        if (theme != null) {
+            // A table read a window at a time goes on under the rows read: the theme knows how it draws them.
+            var region = tableModel.getGridTable().getRegion();
+            var under = region.getTop() + height;
+            ThemeLines.share(matrix, column -> lineOver(theme, under, region.getLeft() + column));
+        }
         return matrix;
+    }
+
+    /**
+     * The line the theme draws over a cell of the table, as a read reports it, or {@code null} when it draws none there
+     * or the cell is outside the table.
+     */
+    private static @Nullable RawTableCellBorderSide lineOver(ThemedTable theme, int row, int column) {
+        var themed = theme.at(row, column);
+        return themed == null ? null : ThemeStyles.topLine(themed.style());
     }
 
     /** One cell as the API reports it: what it holds, what it was written with, and how far it reaches. */
@@ -281,21 +295,32 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * Reports a cell as the table theme draws it: in the style and the pieces of text the theme gives it, in place of
      * the formatting of the workbook.
      *
-     * <p>The style is the cell style with the attributes the theme sets laid over it. The text is drawn in the pieces
-     * the theme formats it in, and in the pieces the workbook formats it in where the theme formats none.
+     * <p>The style is the cell style with the attributes the theme sets laid over it. The header is drawn in the
+     * pieces of the theme. Any other text formatted in pieces of its own keeps them where the theme names nothing of
+     * the font of its cell, and is drawn in that font otherwise, as writing the theme gives.
      *
      * @param style  the style the cell has in the workbook, or {@code null} when it has none
      * @param themed how the theme draws the cell
      */
     private static void drawInTheme(RawTableCell.RawTableCellBuilder builder, ICell cell,
             @Nullable RawTableCellStyle style, ThemedTable.ThemedCell themed) {
-        var text = cell.getStringValue();
-        var runs = themed.runs(text).stream()
+        // Only the cell holding the header text is formatted in the pieces of the theme.
+        var text = themed.header() == null ? null : cell.getStringValue();
+        var runs = themed.runs(text);
+        builder.style(ThemeStyles.over(style, themed.style()))
+                .runs(themed.keepsOwnRuns(runs) ? runsOf(cell) : runsOf(text, runs, style));
+    }
+
+    /** The pieces of the theme as the Tables API reports them, or {@code null} when the theme formats none. */
+    private static @Nullable List<RawTableTextRun> runsOf(@Nullable String text, List<ThemedTable.ThemedRun> runs,
+            @Nullable RawTableCellStyle style) {
+        if (text == null || runs.isEmpty()) {
+            return null;
+        }
+        return runs.stream()
                 .map(run -> new RawTableTextRun(text.substring(run.start(), run.end()),
                         ThemeStyles.fontOf(style, run.style())))
                 .toList();
-        builder.style(ThemeStyles.over(style, themed.style()))
-                .runs(runs.isEmpty() ? runsOf(cell) : runs);
     }
 
     /** The note a reader left on the cell in Excel, which a screen marks the cell by. */

@@ -893,6 +893,20 @@ describe('TableEditor', () => {
             expect(screen.getByTestId('table-cell-input')).toHaveValue('Driver Age')
         })
 
+        it('draws the line under the rows put away over the first row it shows', async () => {
+            // The theme draws a line over the titles, which the reader gives the last row of the header.
+            const line = { style: 'solid' as const, width: 1, color: '#ff0000' }
+            const themed = withHeader.map((row, at) => row.map(cell => (cell.covered ? cell : {
+                ...cell,
+                style: { ...(at === HIDDEN - 1 && { border: { bottom: line } }), source: 'theme' as const },
+            })))
+            draw({ editing: false, rows: themed, hiddenRows: HIDDEN })
+            await waitFor(() => expect(screen.getByText('Driver Age')).toBeInTheDocument())
+
+            expect(cellOf(0, 0).style.borderTop).toBe('1px solid rgb(255, 0, 0)')
+            expect(cellOf(0, 1).style.borderTop).toBe('1px solid rgb(255, 0, 0)')
+        })
+
         it('counts the rows put away out of the line numbers', async () => {
             draw({ rows: withHeader, hiddenRows: HIDDEN, layout: { firstDataLine: 5 } })
             await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
@@ -1592,7 +1606,7 @@ describe('TableEditor', () => {
 
         const drawnCell = (address: string): Element | null => document.querySelector(`[data-cell="${address}"]`)
 
-        it('offers the themes the table has a look in, the one the reader starts from first', async () => {
+        it('offers the themes that style the table, the one the reader starts from first', async () => {
             draw({ theme: 'green' })
 
             await userEvent.click(await screen.findByTestId('table-edit-theme'))
@@ -1602,7 +1616,7 @@ describe('TableEditor', () => {
             expect(getTableThemesOf).toHaveBeenCalledWith('repo:Rating', 'table-1', 'Claims')
         })
 
-        it('offers no theme for a table no theme has a look for', async () => {
+        it('offers no theme for a table no theme styles', async () => {
             vi.mocked(getTableThemesOf).mockResolvedValue([])
             draw()
 
@@ -1691,6 +1705,23 @@ describe('TableEditor', () => {
             const [, , actions] = vi.mocked(applyTableActions).mock.calls[0] ?? []
             expect(actions?.map(action => action.operation)).toEqual(['theme', 'style'])
         })
+
+        it('draws a text the workbook formats in pieces in the one font the theme gives it, as the save writes it',
+            async () => {
+                const greeting: RawTableCell = {
+                    cell: 'C5',
+                    value: 'Good Morning',
+                    runs: [{ text: 'Good', style: { bold: true } }, { text: ' Morning' }],
+                }
+                const rows = [ROWS[0] ?? [], [{ cell: 'B5', value: 0 }, greeting]]
+                draw({ rows })
+                expect(await screen.findByText('Good')).toBeInTheDocument()
+
+                await chooseTheme('Green')
+
+                await waitFor(() => expect(drawnCell('C5')).toHaveStyle({ backgroundColor: '#e2efda' }))
+                expect(screen.getByText('Good Morning')).toBeInTheDocument()
+            })
 
         const DEFAULT_FILL = '#b4c6e7'
         const GREEN_FILL = '#c6e0b4'

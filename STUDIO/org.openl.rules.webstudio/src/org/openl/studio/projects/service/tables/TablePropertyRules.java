@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -41,13 +41,7 @@ final class TablePropertyRules {
     static boolean canEditProperties(IOpenLTable table) {
         return table.isCanContainProperties()
                 && !table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)
-                && !isAssembledFromParts(table);
-    }
-
-    /** Whether the table is assembled from parts written apart from one another. */
-    static boolean isAssembledFromParts(IOpenLTable table) {
-        var grid = table.getGridTable();
-        return grid != null && grid.getGrid() instanceof CompositeGrid;
+                && !GridTableUtils.isAssembledFromParts(table.getGridTable());
     }
 
     /**

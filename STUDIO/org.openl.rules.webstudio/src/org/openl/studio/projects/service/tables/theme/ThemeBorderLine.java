@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.table.xls.PoiExcelHelper;
+
 /**
  * One side of a cell border a theme draws.
  *
@@ -22,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 public record ThemeBorderLine(ThemeLineStyle style, @Nullable String color) {
 
     /** The colour of a line that names none. */
-    public static final String BLACK = "#000000";
+    private static final String BLACK = "#000000";
 
     /**
      * A side, its colour written as {@code #rrggbb}.
@@ -33,9 +35,14 @@ public record ThemeBorderLine(ThemeLineStyle style, @Nullable String color) {
         ThemeStyle.requireColour(color);
     }
 
-    /** The colour of the line as {@code #rrggbb}. */
-    public String colorOrBlack() {
-        return color == null ? BLACK : color;
+    /** The colour the line is drawn in, as the red, the green and the blue of it: black when it names none. */
+    public short[] rgb() {
+        return PoiExcelHelper.toRgb(color == null ? BLACK : color);
+    }
+
+    /** Whether the side is drawn with a line, rather than taken away. */
+    boolean isLine() {
+        return style != ThemeLineStyle.NONE;
     }
 
     /** A side written with its colour. */

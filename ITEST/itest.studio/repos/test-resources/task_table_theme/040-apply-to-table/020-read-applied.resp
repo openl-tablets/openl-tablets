@@ -16,6 +16,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
+          "valign": "top",
           "border": {
             "top": {
               "style": "solid",
@@ -56,39 +57,49 @@ Content-Type: application/json
     [
       {
         "cell": "B3",
-        "value": "String"
+        "value": "String",
+        "style": {
+          "valign": "top"
+        }
       },
       {
         "cell": "C3",
         "value": "name",
         "style": {
-          "background": "#ddebf7"
+          "background": "#ddebf7",
+          "valign": "top"
         }
       },
       {
         "cell": "D3",
         "value": "Bob",
         "style": {
-          "align": "center"
+          "align": "center",
+          "valign": "top"
         }
       }
     ],
     [
       {
         "cell": "B4",
-        "value": "Double"
+        "value": "Double",
+        "style": {
+          "valign": "top"
+        }
       },
       {
         "cell": "C4",
         "value": "rate",
         "style": {
-          "background": "#ddebf7"
+          "background": "#ddebf7",
+          "valign": "top"
         }
       },
       {
         "cell": "D4",
         "style": {
-          "align": "center"
+          "align": "center",
+          "valign": "top"
         }
       }
     ],
@@ -97,6 +108,7 @@ Content-Type: application/json
         "cell": "B5",
         "value": "Integer",
         "style": {
+          "valign": "top",
           "border": {
             "bottom": {
               "style": "solid",
@@ -110,6 +122,7 @@ Content-Type: application/json
         "value": "age",
         "style": {
           "background": "#ddebf7",
+          "valign": "top",
           "border": {
             "bottom": {
               "style": "solid",
@@ -122,6 +135,7 @@ Content-Type: application/json
         "cell": "D5",
         "style": {
           "align": "center",
+          "valign": "top",
           "border": {
             "bottom": {
               "style": "solid",

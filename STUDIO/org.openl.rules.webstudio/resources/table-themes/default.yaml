@@ -1,39 +1,64 @@
-# A table theme of OpenL Studio: the look it gives Datatype and Vocabulary tables.
+# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary and Spreadsheet tables.
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
 #
 # Every attribute is optional: one the theme leaves out keeps what the cell has in the workbook.
-# A theme styles only the kinds of table it names a look for (datatype, vocabulary). The base styles nothing by
-# itself: a kind extends it with the merge key "<<: *base", and a key the kind writes itself replaces the base one.
+# The base is the skin every table shares; a kind of table extends it with what it changes, and takes the rest of the
+# base as it is. Every theme styles every kind: a kind the theme writes nothing for (datatype, vocabulary,
+# spreadsheet) takes the base alone.
 
 name: Default
 
-base: &base
-  # The look every cell of the table starts from.
+base:
+  # The look every cell of the table starts from. It names every attribute, so the theme overrides the look the
+  # workbook gives the table: no fill, line, font or alignment of the workbook shows through.
   style:
     fontFamily: Franklin Gothic Book
     fontSize: 10
+    bold: false
+    italic: false
+    underline: false
+    strikeout: false
+    color: "#000000"
+    background: "#ffffff"
+    align: left
+    valign: top
+    border:
+      top: none
+      right: none
+      bottom: none
+      left: none
+  # The signature of the table, unfilled. Its text is formatted in pieces; the text itself is never changed.
   header:
     style:
-      background: "#b4c6e7"
       align: center
       border:
         top: thin
         bottom: thin
-    # The header text is formatted in pieces; the text itself is never changed.
     keyword:
       color: "#808080"
     name:
       bold: true
       color: "#000000"
-    # What follows the name: the type of a Vocabulary, "<String>", or "extends Parent".
+    # The type the header names besides the table: "<String>" of a Vocabulary, "extends Parent" of a Datatype, or
+    # the type a Spreadsheet returns.
     type:
       color: "#808080"
+    # The parameters of a Spreadsheet, "( Policy policy )".
+    parameters:
+      color: "#808080"
+  # The rows of table properties under the header, closed by a line.
+  properties:
+    border:
+      bottom: thin
   lastRow:
     border:
       bottom: thin
 
 datatype:
-  <<: *base
+  # A Datatype fills its header, and so does a Vocabulary.
+  header: &filled
+    style:
+      background: "#b4c6e7"
   titles:
     bold: true
   name:
@@ -42,6 +67,36 @@ datatype:
     align: center
 
 vocabulary:
-  <<: *base
+  header: *filled
   values:
     align: center
+
+spreadsheet:
+  # The row naming the columns, such as "Formula".
+  titles:
+    bold: true
+    align: center
+    background: "#b4c6e7"
+    border:
+      top: thin
+  # The title of the column of steps, such as "Step", laid over the titles.
+  stepTitle:
+    background: "#d0cece"
+  # The formulas and the values of the steps.
+  values:
+    background: "#ddebf7"
+  # A step whose name is merged across its row: a heading that splits the steps into sections.
+  sections:
+    bold: true
+    italic: true
+    align: center
+    background: "#b4c6e7"
+    border:
+      top: thin
+  # A step or a column marked with "*" for the result of the Spreadsheet.
+  marked:
+    bold: true
+  # The step whose value a Spreadsheet returns, when it returns a type other than SpreadsheetResult: the step
+  # named RETURN, or else the last step.
+  result:
+    bold: true

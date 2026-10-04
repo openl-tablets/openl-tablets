@@ -388,7 +388,17 @@ public final class PoiExcelHelper {
      * @return the red, green and blue the workbook holds
      */
     public static short[] toStoredRgb(String hex, Workbook workbook) {
-        var rgb = toRgb(hex);
+        return toStoredRgb(toRgb(hex), workbook);
+    }
+
+    /**
+     * The colour a workbook holds once the colour is written into it, as {@link #toStoredRgb(String, Workbook)} tells.
+     *
+     * @param rgb      the red, green and blue of the colour
+     * @param workbook the workbook the colour is written into
+     * @return the red, green and blue the workbook holds
+     */
+    public static short[] toStoredRgb(short[] rgb, Workbook workbook) {
         return workbook instanceof HSSFWorkbook hssf
                 ? Optional.ofNullable(toRgb(getOrAddColorIndex(rgb, hssf), hssf)).orElse(rgb)
                 : rgb;

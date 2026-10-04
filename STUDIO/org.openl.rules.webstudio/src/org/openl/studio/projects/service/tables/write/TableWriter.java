@@ -312,7 +312,7 @@ public abstract class TableWriter<T extends TableView> {
      * write it — a table of a kind that carries no properties, and a table being laid down for the first time,
      * which is a creation and noted as one.
      */
-    private void recordEdit() {
+    protected void recordEdit() {
         if (table != null && isUpdateMode()) {
             recordEdit(table, stampedOnEdit);
         }

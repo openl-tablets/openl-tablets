@@ -182,7 +182,7 @@ class RawTableWriterTest {
         var source = reloadStyled(mainProject);
         assertEquals("#b4c6e7", styleOf(source, 0, 0).background());
         assertEquals("#ddebf7", styleOf(source, 1, 1).background(), "The field names take the look of their column");
-        assertNull(styleOf(source, 2, 0), "A row before the last is not closed: a plain type carries no look");
+        assertNull(styleOf(source, 2, 0).border(), "A row before the last is not closed");
         assertNotNull(styleOf(source, 3, 0).border().bottom(), "The last row is closed");
         assertEquals("alpha", value(source, 1, 2), "The theme changes no value");
     }
@@ -197,7 +197,38 @@ class RawTableWriterTest {
         // The row added in the same change is themed with the rest, and the line closing the table is under it.
         assertEquals("#ddebf7", styleOf(source, 4, 1).background());
         assertNotNull(styleOf(source, 4, 0).border().bottom());
-        assertNull(styleOf(source, 3, 0), "The row that was last before the change is closed no more");
+        assertNull(styleOf(source, 3, 0).border(), "The row that was last before the change is closed no more");
+    }
+
+    @Test
+    void themesThePropertiesTheNoteOfTheEditLaysDown() {
+        applyNoted(mainProject, new RawTableSourceAction.Theme("default"));
+
+        // The table had no properties: the note of the edit lays them down after the theme, and they take it too.
+        var source = reloadStyled(mainProject);
+        assertEquals("modifiedBy", value(source, 1, 1));
+        var property = styleOf(source, 1, 2);
+        assertNotNull(property, "The properties take the theme");
+        assertNotNull(property.border().bottom(), "The properties are closed by a line");
+        assertNull(styleOf(source, 1, 1).background(), "A property takes no look of the field under it");
+        assertEquals("#ddebf7", styleOf(source, 2, 1).background(), "The fields keep their look");
+    }
+
+    @Test
+    void themesThePropertyTheNoteOfTheEditAddsOverThePropertiesOfTheTable() throws IOException {
+        var described = writeProject("described", new String[][]{
+                {HEADER, null, null},
+                {"properties", "description", "Greets"},
+                {"String", "code", "alpha"}
+        });
+
+        applyNoted(described, new RawTableSourceAction.Theme("default"));
+
+        // The note adds its property over the one the table declares: one line still closes the properties.
+        var source = reloadStyled(described);
+        assertEquals("modifiedBy", value(source, 1, 1));
+        assertNull(styleOf(source, 1, 2).border(), "No line between two properties");
+        assertNotNull(styleOf(source, 2, 2).border().bottom(), "The properties are closed by a line");
     }
 
     @Test
@@ -1241,6 +1272,13 @@ class RawTableWriterTest {
 
     private void apply(Path project, RawTableSourceAction action) {
         new RawTableWriter(load(project), THEMES).apply(action);
+    }
+
+    /** Applies an edit where the installation notes who edits a table, as a save of the table notes it. */
+    private void applyNoted(Path project, RawTableSourceAction action) {
+        var writer = new RawTableWriter(load(project), THEMES);
+        writer.stampEditWith(Map.of("modifiedBy", "admin"));
+        writer.apply(action);
     }
 
     private void apply(Path project, List<RawTableSourceAction> actions) {

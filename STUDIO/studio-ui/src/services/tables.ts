@@ -279,8 +279,8 @@ export const getTableThemes = (): Promise<TableThemeOption[]> => {
 }
 
 /**
- * The table themes that have a look for a table, by name: a theme names a look for some kinds of table only, so
- * the server says which of them can be written into this one.
+ * The table themes that can be written into a table, by name: every theme for a Datatype, a Vocabulary or a
+ * Spreadsheet, none for a table of any other kind. The server says which, so the screen keeps no list of kinds.
  */
 export const getTableThemesOf = async (
     projectId: string,
@@ -299,12 +299,12 @@ export const getTableThemesOf = async (
 export interface TableThemeResult {
     /** The tables the theme was written into */
     themed?: string[]
-    /** The Datatype tables left as they are, each written as several partial tables */
+    /** The tables left as they are, each written as several partial tables */
     skipped?: string[]
 }
 
 /**
- * Writes a table theme into every Datatype and Vocabulary table of every module of the project.
+ * Writes a table theme into every Datatype, Vocabulary and Spreadsheet table of every module of the project.
  *
  * Answers what was themed, or null when the write failed; the outcome is told to the reader here.
  */

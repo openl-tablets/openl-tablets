@@ -47,6 +47,7 @@ import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.tables.theme.TableThemeService;
+import org.openl.studio.projects.service.tables.theme.ThemeExcelWriter;
 
 /**
  * Writes {@link RawTableView} back to the original table preserving the exact 2D matrix structure.
@@ -83,6 +84,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     /** The themes a {@code theme} edit is written with, or {@code null} where this writer is given none. */
     private final @Nullable TableThemeService themes;
+
+    /** The writer of the theme a {@code theme} edit wrote into the table, or {@code null} before any such edit. */
+    private @Nullable ThemeExcelWriter themed;
 
     public RawTableWriter(IOpenLTable table) {
         this(table, null);
@@ -343,8 +347,21 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (themes == null) {
             throw new IllegalStateException("This writer is given no table themes.");
         }
-        if (!themes.writer(themeId).write(table, developerView())) {
+        themed = themes.writer(themeId);
+        if (!themed.write(table, developerView())) {
             throw new BadRequestException("table.theme.unsupported.message");
+        }
+    }
+
+    /**
+     * Notes the edit on the table, as every save does. A property the note adds takes the theme this change wrote.
+     */
+    @Override
+    protected void recordEdit() {
+        if (themed == null) {
+            super.recordEdit();
+        } else {
+            themed.noting(table, developerView(), super::recordEdit);
         }
     }
 
