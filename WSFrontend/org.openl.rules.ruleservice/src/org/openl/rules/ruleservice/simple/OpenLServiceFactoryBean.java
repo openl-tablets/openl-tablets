@@ -12,8 +12,8 @@ import org.openl.runtime.ASMProxyFactory;
  * @param <T> The facade interface type
  */
 public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
-    private Class<T> proxyInterface;
-    private String serviceName;
+    private final Class<T> proxyInterface;
+    private final String serviceName;
     private ClassLoader classLoader;
     private RulesFrontend rulesFrontend;
 
@@ -61,31 +61,6 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
 
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
-    }
-
-    /**
-     * Kept for backward compatibility.
-     *
-     * @deprecated Use {@link #OpenLServiceFactoryBean(Class, String)} instead.
-     */
-    @Deprecated(since = "5.23.1")
-    public OpenLServiceFactoryBean() {
-    }
-
-    /**
-     * @deprecated Use constructor-arg instead
-     */
-    @Deprecated(since = "5.23.1")
-    public void setProxyInterface(Class<T> proxyInterface) {
-        this.proxyInterface = proxyInterface;
-    }
-
-    /**
-     * @deprecated Use constructor-arg instead
-     */
-    @Deprecated(since = "5.23.1")
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
     }
 
 }

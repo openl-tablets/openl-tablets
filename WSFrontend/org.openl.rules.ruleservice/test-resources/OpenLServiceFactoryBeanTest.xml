@@ -16,8 +16,6 @@
     </bean>
 
     <bean id="ruleService2" class="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBean">
-        <property name="proxyInterface"
-                  value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
         <constructor-arg name="proxyInterface"
                          value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
         <constructor-arg name="serviceName" value="RulesFrontendTest_multimodule"/>

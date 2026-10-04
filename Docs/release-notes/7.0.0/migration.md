@@ -388,9 +388,17 @@ everyone who calls that API from outside the browser.
   found.` Import `org.openl.rules.serialization.JacksonObjectMapperFactoryBean` instead and call the mapper, as in
   `new JacksonObjectMapperFactoryBean().createJacksonObjectMapper().writeValueAsString(value)`.
 * **More deprecated Java API is removed.** Rewrite the calls:
+  - **`new RulesDeployerService(Properties)`** — `new RulesDeployerService(properties::getProperty)`
+  - **`RulesDeployerService.deploy(File, boolean)`** — `deploy(file.toPath(), ignoreIfExists)`
+  - **`DeployStrategy.fromString(text)`** — `DeployStrategy.valueOf(text)`, which reads no `true`, `false` or blank
+    text
   - **`DefaultTypingMode.EVERYTHING`** — `NON_FINAL_AND_ENUMS`, as described for administrators below
   - **`JacksonObjectMapperFactoryBean.setSimpleClassNameAsTypingPropertyValue(true)`** —
     `setJsonTypeInfoId(JsonTypeInfo.Id.NAME)`
+  - **`new OpenLServiceFactoryBean()` with `setProxyInterface` and `setServiceName`** —
+    `new OpenLServiceFactoryBean(proxyInterface, serviceName)`; a Spring XML file passes both as `<constructor-arg>`
+  - **`PublisherType.WEBSERVICE` in `@QualifyPublisherType`** — remove it from the list. No publisher of that type
+    exists, so a field, a method or an entity qualified for it alone was never filled or stored
 
 ## Administrators
 
@@ -410,6 +418,11 @@ everyone who calls that API from outside the browser.
 
 * **`rules.tree.view.default` and `rules.tree.view` are no longer read.** A default order set for all users in the
   application properties has no effect; remove it.
+
+* **`ruleservice.datasource.deploy.classpath.jars` takes `NEVER`, `IF_ABSENT` or `ALWAYS` only.** Replace `true` with
+  `IF_ABSENT` and `false` with `NEVER`, the values they stood for. With `true` or `false`, OpenL Rule Services
+  publishes no service, and its log reports `Failed to convert value of type 'java.lang.String' to required type
+  'org.openl.rules.ruleservice.loader.DeployStrategy'`.
 
 * **The `EVERYTHING` default typing mode is removed, as Jackson deprecated it.** A service fails to deploy when
   `ruleservice.jackson.defaultTypingMode` or `jackson.defaultTypingMode` in its `rules-deploy.xml` is `EVERYTHING`.

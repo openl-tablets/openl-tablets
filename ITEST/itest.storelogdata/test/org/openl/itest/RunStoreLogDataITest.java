@@ -59,7 +59,6 @@ class RunStoreLogDataITest {
 
     private static final String KAFKA_PUBLISHER_TYPE = PublisherType.KAFKA.name();
     private static final String RESTFUL_PUBLISHER_TYPE = PublisherType.RESTFUL.name();
-    private static final String WEBSERVICE_PUBLISHER_TYPE = PublisherType.WEBSERVICE.name();
 
     private static HttpClient client;
     private static Connection h2Connection;
@@ -531,8 +530,7 @@ class RunStoreLogDataITest {
                     assertEquals(input.getServiceName(), rs.getString(DBFields.SERVICE_NAME));
                     String publisherType = input.getPublisherType();
                     assertEquals(publisherType, rs.getString(DBFields.PUBLISHER_TYPE));
-                    if (publisherType.equals(RESTFUL_PUBLISHER_TYPE) || publisherType
-                            .equals(WEBSERVICE_PUBLISHER_TYPE)) {
+                    if (publisherType.equals(RESTFUL_PUBLISHER_TYPE)) {
                         assertNotNull(rs.getString(DBFields.URL));
                     }
                     String value = rs.getString(DBFields.RESPONSE);

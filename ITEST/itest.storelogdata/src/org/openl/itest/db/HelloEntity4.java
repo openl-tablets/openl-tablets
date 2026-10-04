@@ -25,7 +25,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 
 @Entity(name = "openl_logging_hello_entity4")
-@QualifyPublisherType(PublisherType.WEBSERVICE)
+@QualifyPublisherType(PublisherType.KAFKA)
 public class HelloEntity4 {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "openl_logging_hello_entity4_generator")

@@ -23,7 +23,6 @@ import org.openl.spring.config.ConditionalOnEnable;
 @Slf4j
 @ConditionalOnEnable({
         "production-repository.factory != repo-jar",
-        "ruleservice.datasource.deploy.classpath.jars != false",
         "ruleservice.datasource.deploy.classpath.jars != NEVER"})
 @Component
 public class DeployClasspathJarsBean {
@@ -36,10 +35,10 @@ public class DeployClasspathJarsBean {
 
 
     public DeployClasspathJarsBean(RulesDeployerService rulesDeployerService,
-                                   @Value("${ruleservice.datasource.deploy.classpath.jars}") String deployStrategy,
+                                   @Value("${ruleservice.datasource.deploy.classpath.jars}") DeployStrategy deployStrategy,
                                    @Value("${ruleservice.datasource.deploy.classpath.retry-period}") long retryPeriod) {
         this.rulesDeployerService = rulesDeployerService;
-        this.deployStrategy = DeployStrategy.fromString(deployStrategy);
+        this.deployStrategy = deployStrategy;
         this.retryPeriod = retryPeriod;
         this.deployThread = Thread.ofVirtual().name("deploy-classpath-jars").unstarted(this::deployLoop);
     }
