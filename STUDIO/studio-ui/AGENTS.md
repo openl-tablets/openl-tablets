@@ -252,6 +252,10 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   states (`COMPILE_COLORS`), the fills of the solid status badges, and the syntax hues of a parameter value.
   Ant Design derives whole palettes from a colour and cannot read a custom property, so a `ThemeConfig` token takes
   the palette itself — see `projectsTheme(isDarkMode)`.
+  A memoised piece of JSX that uses `styles` or the token is rebuilt when the theme or the appearance changes:
+  its dependencies name `themeName` from `useAppTheme()` and `isDarkMode` from `useThemeMode()`, or it keeps the
+  colours of the theme it was first drawn in (`treeData` in `ProjectsTree`). They do not name `styles` or the token
+  themselves — antd-style hands out new ones on every render, which would rebuild it every time.
   Ant Design's **static** `notification`/`message`/`Modal.confirm` calls render outside React and stay light on a
   dark page, so ESLint forbids them. A component or a hook takes `notification` and `modal` from
   `App.useApp()` — the instances of the application's `<AntApp>`, which sits inside the theme provider. Only a
