@@ -96,11 +96,11 @@ public class TableThemeService {
     }
 
     /**
-     * Whether the themes style a table. Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test, Run
-     * and decision table, so they look alike in one theme.
+     * Whether the themes style a table. Every theme styles every table of the kinds {@link ThemeLayouts#styles}
+     * names, so they look alike in one theme.
      *
      * @param table the table
-     * @return {@code true} for a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a Run or a decision table
+     * @return {@code true} for a table of a kind the themes style
      */
     public boolean styles(IOpenLTable table) {
         return ThemeLayouts.styles(table);

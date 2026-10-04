@@ -15,6 +15,7 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.dt.DTInfo;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
@@ -53,14 +54,17 @@ final class ThemeLayouts {
             XlsNodeTypes.XLS_DATA,
             XlsNodeTypes.XLS_TEST_METHOD,
             XlsNodeTypes.XLS_RUN_METHOD,
-            XlsNodeTypes.XLS_DT);
+            XlsNodeTypes.XLS_DT,
+            XlsNodeTypes.XLS_ENVIRONMENT,
+            XlsNodeTypes.XLS_PROPERTIES,
+            XlsNodeTypes.XLS_CONSTANTS);
 
     private ThemeLayouts() {
     }
 
     /**
      * Whether a table is of a kind every theme styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a
-     * Run or a decision table.
+     * Run, a decision, an Environment, a Properties or a Constants table.
      *
      * @param table the table
      * @return {@code true} when a theme can be drawn over the table and written into it
@@ -110,23 +114,28 @@ final class ThemeLayouts {
 
     /**
      * Whether a table is compiled transposed: a Datatype with a field in each column, a Data, a Test or a Run table
-     * with a field in each row, a decision table with a rule in each column.
+     * with a field in each row, a decision table with a rule in each column, a Constants table with a constant in each
+     * column.
      *
      * <p>The compiler decides it from what the table holds, so only a compiled table can be transposed.
      */
     private static boolean isTransposed(IOpenLTable table) {
         return switch (table.getSyntaxNode().getMetaInfoReader()) {
-            case DatatypeTableMetaInfoReader reader -> reader.getBoundNode().getTable() instanceof ILogicalTable fields
-                    && !fields.isNormalOrientation();
+            case DatatypeTableMetaInfoReader reader -> turned(reader.getBoundNode().getTable());
+            case ConstantsTableMetaInfoReader reader -> turned(reader.getBoundNode().getNormalizedData());
             case DataTableMetaInfoReader reader -> reader.getBoundNode().getTable() instanceof ITable compiled
-                    && compiled.getData() instanceof ILogicalTable data
-                    && !data.isNormalOrientation();
+                    && turned(compiled.getData());
             case DecisionTableMetaInfoReader reader -> reader.getBoundNode().getDecisionTable()
                     instanceof DecisionTable decision
                     && decision.getDtInfo() instanceof DTInfo info
                     && info.isTransposed();
             case null, default -> false;
         };
+    }
+
+    /** Whether the compiler read a table with its rows and columns swapped; one it did not read stands upright. */
+    private static boolean turned(@Nullable ILogicalTable compiled) {
+        return compiled != null && !compiled.isNormalOrientation();
     }
 
     /**

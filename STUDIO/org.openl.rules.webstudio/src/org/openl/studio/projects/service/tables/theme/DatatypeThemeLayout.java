@@ -7,16 +7,18 @@ import org.openl.rules.table.ICell;
 import org.openl.studio.projects.model.tables.DatatypeLayout;
 
 /**
- * Decides which look a theme gives each cell of the body of a Datatype or a Vocabulary table.
+ * Decides which look a theme gives each cell of the body of a Datatype, a Vocabulary or a Constants table.
  *
  * <p>The header and the properties are themed as every kind themes them, see {@link ThemeLayouts}. The rows below
  * them get the look of their column: the field types, the field names, or the other values. A Datatype that names
  * its columns gets the title look on that row. The last row gets the last-row look laid over its own. Every cell
- * starts from the look of the whole table.
+ * starts from the look of the whole table. A Constants table names its constants as a Datatype names its fields: the
+ * type, the name and the value of each, which get the type, the name and the value look.
  *
- * <p>A Datatype written transposed keeps a field in each column. It takes the looks the way it is compiled: the row
- * of field types takes the type look, the row of names takes the name look, and a column that names the rows takes
- * the title look. Its last row still closes the table. A table that did not compile is themed as it is written.
+ * <p>A Datatype written transposed keeps a field in each column, and a Constants table a constant. It takes the looks
+ * the way it is compiled: the row of types takes the type look, the row of names takes the name look, and a column
+ * that names the rows takes the title look. Its last row still closes the table. A table that did not compile is
+ * themed as it is written.
  */
 final class DatatypeThemeLayout {
 
@@ -24,8 +26,8 @@ final class DatatypeThemeLayout {
     }
 
     /**
-     * The places of the body of a Datatype: its fields, read the way the compiler reads them. A transposed table keeps
-     * its fields in columns.
+     * The places of the body of a Datatype or a Constants table: its fields, or its constants, read the way the
+     * compiler reads them. A transposed table keeps its fields in columns.
      *
      * @param body the body of the table
      * @return the body and the look of each of its places

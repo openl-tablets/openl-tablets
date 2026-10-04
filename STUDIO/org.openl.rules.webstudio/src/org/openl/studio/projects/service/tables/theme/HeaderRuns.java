@@ -25,6 +25,8 @@ import org.openl.util.StringUtils;
  *     type it returns may take several words, such as {@code Collect Error[]}.</li>
  *     <li>A Data header names the type of its rows, then the name of the table, and a Test or a Run header names the
  *     method it calls, then its name. They read as a Spreadsheet header without parameters.</li>
+ *     <li>An Environment header is its keyword alone, and a Properties or a Constants header names the table after
+ *     the keyword. They read as a Spreadsheet header without a type and parameters.</li>
  * </ul>
  *
  * <p>The spaces between the pieces keep the look of the header cell. The pieces together cover the whole text.

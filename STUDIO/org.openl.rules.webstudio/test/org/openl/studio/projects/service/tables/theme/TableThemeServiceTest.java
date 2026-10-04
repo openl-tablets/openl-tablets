@@ -67,6 +67,20 @@ class TableThemeServiceTest {
     }
 
     @Test
+    void theThemesOfStudioDrawAPropertiesTableInTheGreysOfAnEnvironment() {
+        for (var id : List.of("default", "green")) {
+            var theme = service.theme(id);
+            var environment = theme.lookOf(theme.environment());
+
+            assertEquals(environment, theme.lookOf(theme.properties()), id + ": a Properties table is as technical");
+            assertEquals("#e7e6e6", environment.header().style().background(), id);
+            assertEquals("#f2f2f2", environment.name().background(), id);
+            assertEquals(theme.lookOf(theme.datatype()).header().name(), environment.header().name(),
+                    id + ": it is signed as every table");
+        }
+    }
+
+    @Test
     void theThemesOfStudioSignEveryKindOfTableAlikeAndFillTheHeaderOfADatatype() {
         for (var id : List.of("default", "green")) {
             var theme = service.theme(id);

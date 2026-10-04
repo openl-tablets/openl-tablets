@@ -3,6 +3,8 @@ package org.openl.studio.projects.service.tables.theme;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,21 +13,17 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableTextRun;
 import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
-import org.openl.studio.projects.service.tables.read.RawTableRead;
-import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
  * Covers the look a theme gives each kind of decision table: a Rules table written either way round, a SimpleRules,
@@ -294,11 +292,7 @@ class DecisionThemeLayoutTest {
 
     /** The table whose header stands in the given row: a table that did not compile has no name to find it by. */
     private IOpenLTable tableAt(int row) {
-        return TableTestProjects.projectModel(dir).getAllTableSyntaxNodes().stream()
-                .filter(node -> node.getGridTable().getRegion().getTop() == row)
-                .map(TableSyntaxNodeAdapter::new)
-                .findFirst()
-                .orElseThrow();
+        return TableTestProjects.tableAt(dir, row);
     }
 
     private ThemedTable layoutOf(String name) {
@@ -312,7 +306,7 @@ class DecisionThemeLayoutTest {
 
     /** The cells of a table as the workbook now holds them, with their styles. */
     private List<List<RawTableCell>> read(String name) {
-        return new RawTableReader().read(table(name), RawTableRead.builder().withStyles(true).build()).source;
+        return TableTestProjects.styledSource(table(name));
     }
 
     private static ThemeLineStyle top(ThemedTable.ThemedCell cell) {
@@ -401,9 +395,5 @@ class DecisionThemeLayoutTest {
         merge(sheet, BROKEN_ROW, BROKEN_ROW, 1, 2);
         TableTestProjects.row(sheet, BROKEN_ROW + 1, 1, "C1", "RET1");
         TableTestProjects.row(sheet, BROKEN_ROW + 2, 1, "hour < 12", "greeting");
-    }
-
-    private static void merge(Sheet sheet, int top, int bottom, int left, int right) {
-        sheet.addMergedRegion(new CellRangeAddress(top, bottom, left, right));
     }
 }

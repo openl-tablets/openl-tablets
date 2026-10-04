@@ -31,7 +31,10 @@ enum ThemeKind {
     SIMPLE_RULES(TableTheme::simpleRules, DecisionThemeLayout::rules),
     SMART_RULES(TableTheme::smartRules, DecisionThemeLayout::rules),
     SIMPLE_LOOKUP(TableTheme::simpleLookup, DecisionThemeLayout::rules),
-    SMART_LOOKUP(TableTheme::smartLookup, DecisionThemeLayout::rules);
+    SMART_LOOKUP(TableTheme::smartLookup, DecisionThemeLayout::rules),
+    ENVIRONMENT(TableTheme::environment, NamedValuesThemeLayout::layOut),
+    PROPERTIES(TableTheme::properties, NamedValuesThemeLayout::layOut),
+    CONSTANTS(TableTheme::constants, DatatypeThemeLayout::fields);
 
     /** The part of a theme that tells what the kind changes in the base. */
     private final Function<TableTheme, TableTheme.@Nullable Look> part;
@@ -68,6 +71,9 @@ enum ThemeKind {
             case TEST -> TEST;
             case RUN -> RUN;
             case RULES -> decisionOf(table.getSyntaxNode());
+            case ENVIRONMENT -> ENVIRONMENT;
+            case PROPERTIES -> PROPERTIES;
+            case CONSTANTS -> CONSTANTS;
             default -> null;
         };
     }

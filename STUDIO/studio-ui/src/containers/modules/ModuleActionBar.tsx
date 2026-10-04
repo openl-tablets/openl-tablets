@@ -123,8 +123,8 @@ export const ModuleActionBar = ({
         ] : []),
     ]
 
-    // The theme reaches every Datatype, Vocabulary, Spreadsheet, Data, Test, Run and decision table of every module
-    // of the project, so the reader chooses it in a dialog that says so before anything is written.
+    // The theme reaches every table it styles in every module of the project, so the reader chooses it in a dialog
+    // that says so before anything is written.
     const applyTheme = () => confirmWrite(() => setThemeOpen(true))
 
     const chooseMore = (key: string) => {
