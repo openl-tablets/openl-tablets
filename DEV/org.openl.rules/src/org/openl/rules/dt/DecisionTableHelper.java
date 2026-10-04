@@ -937,7 +937,7 @@ public final class DecisionTableHelper {
         if (!variablesInChain.isEmpty()) {
             sb.append("if(").append(localVar).append("!=null){");
             for (String cv : variablesInChain) {
-                sb.append(cv).append("_++;");
+                sb.append(cv).append("_+=1;");
             }
             sb.append('}');
         }

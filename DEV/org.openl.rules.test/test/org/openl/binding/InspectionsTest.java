@@ -53,8 +53,8 @@ class InspectionsTest {
         checkWarning("Integer[] arr = {1, 0, 2, 3}; arr[(a) select first having a == a]", ALWAYS_TRUE);
         checkWarning("Integer[] arr = {1, 0, 2, 3}; arr[(a) select first \n    having a == a]", ALWAYS_TRUE);
         checkWarning("Integer[] arr = {1, 0, 2, 3}; arr[(a) select first \n    where a == a]", ALWAYS_TRUE);
-        checkWarning("Integer i = 0; while(i < i) i++; i", ALWAYS_FALSE);
-        checkWarning("Integer sum = 0; for (int i = 0; i < i; i++) sum++; sum", ALWAYS_FALSE);
+        checkWarning("Integer i = 0; while(i < i) i += 1; i", ALWAYS_FALSE);
+        checkWarning("Integer sum = 0; for (int i = 0; i < i; i += 1) sum += 1; sum", ALWAYS_FALSE);
     }
 
     @Test

@@ -239,10 +239,6 @@ The operators in order of priority are as follows:
 | **Unary**               |                          |
 | +                       | op.unary.positive        |
 | -                       | op.unary.negative        |
-| ++x                     | op.prefix.inc            |
-| --x                     | op.prefix.dec            |
-| x++                     | op.suffix.inc            |
-| x--                     | op.suffix.dec            |
 | !                       | op.unary.not             |
 | (cast)                  | type.cast                |
 

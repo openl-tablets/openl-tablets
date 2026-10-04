@@ -89,18 +89,21 @@ everyone who calls that API from outside the browser.
   `Float` cell reads the same value as before. A percent literal also takes any number of decimals and an exponent:
   `0.5%`, `12.345%` and `1.5e2%` compile, while before it had no decimals or exactly two.
 
-* **The deprecated `%`, `**` and `->` operators are removed.** A rule that still uses one of them no longer
-  compiles. Rewrite the expression with a function:
+* **The deprecated `%`, `**`, `->`, `++` and `--` operators are removed.** A rule that still uses one of them no
+  longer compiles. Rewrite the expression:
 
-  | Before   | After             |
-  |----------|-------------------|
-  | `x % y`  | `remainder(x, y)` |
-  | `x ** y` | `pow(x, y)`       |
+  | Before         | After             |
+  |----------------|-------------------|
+  | `x % y`        | `remainder(x, y)` |
+  | `x ** y`       | `pow(x, y)`       |
+  | `x++` or `++x` | `x += 1`          |
+  | `x--` or `--x` | `x -= 1`          |
 
   `remainder` keeps the sign of the dividend, exactly as `%` did. `mod` keeps the sign of the divisor, so it gives a
   different result when the operands have opposite signs. `pow` returns a `Double`, while `**` kept the operand
-  type. `->` was never backed by an implementation, so no working rule uses it. Percent literals such as `10%` are
-  not affected.
+  type. `->` was never backed by an implementation, so no working rule uses it. A loop such as
+  `for (int i = 0; i < n; i++)` becomes `for (int i = 0; i < n; i += 1)`; where a rule used the value of `x++`
+  itself, as in `y = x++`, read it first: `y = x; x += 1;`. Percent literals such as `10%` are not affected.
 
 * **The functions `format`, `dateToString`, `stringToDate`, `parseFormattedDouble`, `addIgnoreNull` and
   `addArrayElementIgnoreNull` are removed.** A rule that still calls one of them no longer compiles, for example with

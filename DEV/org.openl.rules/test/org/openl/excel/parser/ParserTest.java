@@ -211,6 +211,17 @@ class ParserTest {
         _testErrorMsg("x % 3", "Lexical error at line");
         _testErrorMsg("x ** 3", "Encountered");
         _testErrorMsg("x -> y", "Encountered");
+        _testErrorMsg("x++", "Encountered");
+        _testErrorMsg("++x", "Encountered");
+        _testErrorMsg("x--", "Encountered");
+        _testErrorMsg("--x", "Encountered");
+        _testErrorMsg("for (int i = 0; i < 3; i++) {}", "Encountered");
+    }
+
+    @Test
+    void testDoubleSignIsNotUnaryPair() throws OpenLConfigurationException {
+        _testType("x - -1", "op.binary.subtract");
+        _testType("x + +1", "op.binary.add");
     }
 
     @Test
