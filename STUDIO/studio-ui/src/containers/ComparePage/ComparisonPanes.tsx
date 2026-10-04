@@ -7,6 +7,7 @@ import type { ComparisonSide, ComparisonTable } from 'types/compare'
 import { combine, type CellMark, type CombinedTable } from './combinedDiff'
 import { keepRows, rowsToShow } from './diffRows'
 import { useStyles } from './ComparePage.styles'
+import { useCellStyles } from './ComparisonPanes.styles'
 
 /** Which of the two ways of reading a comparison is shown. */
 export type DiffView = 'sides' | 'combined'
@@ -122,7 +123,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
 }
 
 const Side: React.FC<{ side: ComparisonSide; rows: ReadonlySet<number> | null }> = ({ side, rows }) => {
-    const { styles } = useStyles()
+    const { styles } = useCellStyles()
     const changed = new Set(side.changedCells ?? [])
 
     // What differs is what the reader came for, so the rest of the table steps back into grey. A table
@@ -170,7 +171,7 @@ const Legend: React.FC<{ of: CombinedTable }> = ({ of }) => {
  */
 const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
     const { t } = useTranslation('compare')
-    const { styles, cx } = useStyles()
+    const { styles, cx } = useCellStyles()
     const { rows: source, marks } = combined
     // A table that differs in nothing has nothing to step back from, as in the view beside this one.
     const differs = [...marks.values()].some(mark => mark.before !== undefined || mark.row !== 'equal')
@@ -178,9 +179,9 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
     /** The colour a row that is wholly of one file or the other is drawn in. */
     const ofSide = (kind: CellMark['row']) => {
         if (kind === 'added') {
-            return styles.add
+            return styles.rowAdded
         }
-        return kind === 'removed' ? styles.remove : undefined
+        return kind === 'removed' ? styles.rowRemoved : undefined
     }
 
     const decorate = (cell: RawTableCell): CellDecoration | undefined => {

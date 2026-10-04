@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { paperToken } from '../../styles/paper'
 
 export const useStyles = createStyles(({ css, token }) => ({
     /** The band of editing actions, directly above the table it acts on. */
@@ -15,9 +16,9 @@ export const useStyles = createStyles(({ css, token }) => ({
         margin-left: auto;
         color: ${token.colorTextSecondary};
     `,
-    /** The cell the reader picked, marked the way a spreadsheet marks it. */
+    /** The cell the reader picked, marked the way a spreadsheet marks it. Like the marks below, on the paper. */
     picked: css`
-        outline: 2px solid ${token.colorPrimary};
+        outline: 2px solid ${paperToken().colorPrimary};
         outline-offset: -2px;
     `,
     /**
@@ -27,12 +28,12 @@ export const useStyles = createStyles(({ css, token }) => ({
      * the message was about.
      */
     raised: css`
-        outline: 2px solid ${token.colorError};
+        outline: 2px solid ${paperToken().colorError};
         outline-offset: -2px;
     `,
     /** A cell written since the table was read, so the reader sees what is waiting to be saved. */
     touched: css`
-        box-shadow: inset 0 0 0 100vmax ${token.colorWarningBg};
+        box-shadow: inset 0 0 0 100vmax ${paperToken().colorWarningBg};
     `,
     /**
      * The field a cell is written in.
@@ -43,13 +44,13 @@ export const useStyles = createStyles(({ css, token }) => ({
      * <p>It wears the cell's font and alignment, so a value reads while it is being written the way it will read
      * once it is written — which is what the Editor did by putting the cell's own styling on its field. Its
      * ground stays a field's own, whatever colour the cell is painted: a field is what the reader writes in,
-     * and a value being typed over a dark fill is a value they cannot read.
+     * and a value being typed over a dark fill is a value they cannot read. It is the paper's own ground.
      */
     input: css`
         width: 100%;
         min-width: 0;
         border-radius: 0;
-        background: ${token.colorBgContainer};
+        background: ${paperToken().colorBgContainer};
         font: inherit;
         text-align: inherit;
     `,

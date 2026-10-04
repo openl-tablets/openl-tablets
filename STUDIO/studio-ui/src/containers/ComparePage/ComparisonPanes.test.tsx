@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { ComparisonPanes } from './ComparisonPanes'
+import { paperToken } from 'styles/paper'
+import { renderInTheme } from 'testing/theme'
 import type { ComparisonSide, ComparisonTable } from 'types/compare'
 
 vi.mock('react-i18next', () => {
@@ -37,6 +39,16 @@ describe('ComparisonPanes', () => {
         expect(first).toHaveTextContent('int')
         expect(first).not.toHaveTextContent('name')
         expect(screen.getByTestId('compare-pane-second')).toHaveTextContent('double')
+    })
+
+    it('marks a changed cell in the colours of the paper, whatever the theme', () => {
+        renderInTheme(
+            <ComparisonPanes error={null} loading={false} showEqualRows={false} table={TABLE} />,
+            { theme: 'nord', mode: 'dark' }
+        )
+
+        const changed = screen.getByTestId('compare-pane-first').querySelector('[data-cell="A2"]')
+        expect(changed).toHaveStyle({ backgroundColor: paperToken().colorWarningBg, color: paperToken().colorText })
     })
 
     it('draws in grey the cells that do not differ', () => {
@@ -239,6 +251,23 @@ describe('ComparisonPanes', () => {
             const pane = screen.getByTestId('compare-pane-combined')
             expect(pane).toHaveTextContent('int → double')
             expect(pane).not.toHaveTextContent('name')
+        })
+
+        it('paints a row only one file holds in the colours of the paper, whatever the theme', () => {
+            const { second: _absent, ...withoutSecond } = TABLE
+            renderInTheme(
+                <ComparisonPanes
+                    showEqualRows
+                    error={null}
+                    loading={false}
+                    table={{ ...withoutSecond, status: 'removed' }}
+                    view="combined"
+                />,
+                { theme: 'nord', mode: 'dark' }
+            )
+
+            const dropped = screen.getByTestId('compare-combined').querySelector('[data-cell="A2"]')
+            expect(dropped).toHaveStyle({ backgroundColor: paperToken().colorErrorBg })
         })
 
         it('reads a table only one file holds as one the other dropped', () => {

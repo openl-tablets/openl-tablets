@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { paperToken } from '../../../styles/paper'
 
 export const useStyles = createStyles(({ css, token }) => ({
     card: css`
@@ -38,20 +39,21 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend.
        Matches the legacy trace: a matched condition and the returned result are green, an unmatched
-       condition is red. The result stands apart from a plain matched condition by a bold green border. */
+       condition is red. The result stands apart from a plain matched condition by a bold green border.
+       The marks lie on the paper of the table ({@link paperToken}), and the legend keys them with these classes. */
     current: css`
-        background: ${token.colorWarningBg};
+        background: ${paperToken().colorWarningBg};
     `,
     result: css`
-        background: ${token.colorSuccessBg};
-        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
+        background: ${paperToken().colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${paperToken().colorSuccess};
         font-weight: 600;
     `,
     conditionTrue: css`
-        background: ${token.colorSuccessBg};
+        background: ${paperToken().colorSuccessBg};
     `,
     conditionFalse: css`
-        background: ${token.colorErrorBg};
+        background: ${paperToken().colorErrorBg};
     `,
     // The colour key, shown under the table — but only for the states this table actually paints.
     legend: css`
@@ -72,19 +74,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         height: 12px;
         border-radius: ${token.borderRadiusSM}px;
         border: 1px solid ${token.colorBorderSecondary};
-    `,
-    swatchCurrent: css`
-        background: ${token.colorWarningBg};
-    `,
-    swatchResult: css`
-        background: ${token.colorSuccessBg};
-        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
-    `,
-    swatchMet: css`
-        background: ${token.colorSuccessBg};
-    `,
-    swatchNotMet: css`
-        background: ${token.colorErrorBg};
     `,
     truncated: css`
         margin-top: ${token.marginXS}px;

@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
+import { paperToken } from 'styles/paper'
+import { renderInTheme } from 'testing/theme'
 import type { RawTableCell } from 'types/tables'
 
 const rows: RawTableCell[][] = [
@@ -84,6 +86,37 @@ describe('RawTableGrid', () => {
         const styled = screen.getByTestId('grid').querySelectorAll('td')[1] as HTMLElement
         expect(styled.style.background).toContain('rgb(255, 255, 0)')
         expect(styled.style.fontWeight).toBe('bold')
+    })
+
+    describe('in a dark theme', () => {
+        const drawDark = (table: RawTableCell[][]) => renderInTheme(
+            <RawTableGrid layout={{ firstDataLine: 1 }} rows={table} testId="grid" />,
+            { theme: 'dracula', mode: 'dark' }
+        )
+
+        it('writes the cells in black on white, as Excel does, so a cell its author filled stays readable', () => {
+            const filled: RawTableCell = { cell: 'B1', value: 'filled', style: { background: '#00ffff' } }
+            drawDark([[{ cell: 'A1', value: 'plain' }, filled]])
+
+            const paper = paperToken()
+            expect(screen.getByTestId('grid'))
+                .toHaveStyle({ backgroundColor: paper.colorBgContainer, color: paper.colorText })
+            // A cyan cell keeps its fill and is written in the ink of the paper, not in the light text of the theme.
+            expect(screen.getByText('filled')).toHaveStyle({ backgroundColor: '#00ffff', color: paper.colorText })
+        })
+
+        it('keeps a font colour the workbook gave a cell', () => {
+            drawDark([[{ cell: 'A1', value: 'red', style: { color: '#ff0000' } }]])
+
+            expect(screen.getByText('red')).toHaveStyle({ color: '#ff0000' })
+        })
+
+        it('numbers the lines in the margin of the screen, which follows the theme', () => {
+            drawDark([[{ cell: 'A1', value: 'head' }], [{ cell: 'A2', value: 'case' }]])
+
+            const margin = screen.getByTestId('table-line-number').closest('td')
+            expect(margin).not.toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
+        })
     })
 
     it('leaves out the Excel background of a cell the screen paints itself', () => {

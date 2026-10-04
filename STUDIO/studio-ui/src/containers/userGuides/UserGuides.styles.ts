@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { paperToken } from '../../styles/paper'
 
 /** The height of the application header the viewer sits under. */
 const HEADER_HEIGHT = 48.5
@@ -260,9 +261,9 @@ export const useStyles = createStyles(({ css, token }) => ({
             font-weight: 600;
         }
     `,
-    /** A header cell of an `openl` block: the table header and the column headers. */
+    /** A header cell of an `openl` block: the table header and the column headers, shaded on the paper. */
     openlHeader: css`
-        background: ${token.colorFillSecondary};
+        background: ${paperToken().colorFillSecondary};
         font-weight: 600;
     `,
 }))

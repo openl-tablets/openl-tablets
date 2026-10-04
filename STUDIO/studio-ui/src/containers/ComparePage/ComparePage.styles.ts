@@ -180,21 +180,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         margin-right: ${token.marginXXS}px;
         color: ${token.colorTextTertiary};
     `,
-    // The sign a row of the combined view is read by, in a column of its own before the table.
-    combinedLead: css`
-        width: 1.5em;
-        color: ${token.colorTextTertiary};
-        text-align: center;
-    `,
-    // What the first file had, beside what the second one has in its place.
-    combinedBefore: css`
-        color: ${token.colorTextTertiary};
-        text-decoration: line-through;
-    `,
-    // The cells that read differently in the other file, in the colour the rest of Studio marks a change with.
-    changed: css`
-        background: ${token.colorWarningBg};
-    `,
     added: css`
         color: ${token.colorSuccess};
     `,

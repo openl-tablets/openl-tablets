@@ -121,11 +121,11 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
     const paintedStates = new Set(
         Object.values(highlights).map(paintedState).filter((state): state is HighlightState => state !== undefined)
     )
-    const legend: { state: HighlightState; swatch: string; label: string }[] = [
-        { state: 'current', swatch: styles.swatchCurrent, label: 'legend.current' },
-        { state: 'result', swatch: styles.swatchResult, label: 'legend.result' },
-        { state: 'conditionTrue', swatch: styles.swatchMet, label: 'legend.conditionMet' },
-        { state: 'conditionFalse', swatch: styles.swatchNotMet, label: 'legend.conditionNotMet' },
+    const legend: { state: HighlightState; label: string }[] = [
+        { state: 'current', label: 'legend.current' },
+        { state: 'result', label: 'legend.result' },
+        { state: 'conditionTrue', label: 'legend.conditionMet' },
+        { state: 'conditionFalse', label: 'legend.conditionNotMet' },
     ]
     const shownLegend = legend.filter(item => paintedStates.has(item.state))
 
@@ -150,7 +150,8 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
                 <div className={styles.legend} data-testid="trace-legend">
                     {shownLegend.map(item => (
                         <span key={item.state} className={styles.legendItem}>
-                            <span className={cx(styles.swatch, item.swatch)} />
+                            {/* A swatch wears the class of the cells it keys, so the two cannot drift apart. */}
+                            <span className={cx(styles.swatch, styles[item.state])} />
                             {t(item.label)}
                         </span>
                     ))}

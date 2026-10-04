@@ -142,6 +142,9 @@ const cellText = (cell: RawTableCell, formulas: boolean, styles: RawTableGridSty
  * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
  * cells were written with, which every cell carries beside its value.
  *
+ * The cells keep the colours Excel draws them in, whatever the theme: black text on white, under what the
+ * workbook fills or colours itself, so a filled cell stays readable in a dark theme.
+ *
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
  */
