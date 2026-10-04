@@ -1,0 +1,115 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "beefea4e5984f38d5e2e3250138c6e42",
+  "tableType": "RawSource",
+  "kind": "Environment",
+  "name": "Environment",
+  "pos": "B49:C51",
+  "source": [
+    [
+      {
+        "cell": "B49",
+        "value": "Environment",
+        "colspan": 2,
+        "style": {
+          "background": "#e7e6e6",
+          "align": "center",
+          "valign": "top",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        },
+        "runs": [
+          {
+            "text": "Environment",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          }
+        ]
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B50",
+        "value": "import",
+        "rowspan": 2,
+        "style": {
+          "background": "#f2f2f2",
+          "valign": "top",
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1,
+              "color": "#d9d9d9"
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "C50",
+        "value": "java.util",
+        "style": {
+          "valign": "top",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1,
+              "color": "#d9d9d9"
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C51",
+        "value": "java.time",
+        "style": {
+          "valign": "top",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 0
+}

@@ -1721,8 +1721,8 @@ class WorkspaceProjectServiceTest {
             TableTestProjects.row(sheet, 14, 1, "Spreadsheet SpreadsheetResult Premium()");
             TableTestProjects.row(sheet, 15, 1, "Step", "Formula");
             TableTestProjects.row(sheet, 16, 1, "Total", "= 1");
-            TableTestProjects.row(sheet, 19, 1, "Environment");
-            TableTestProjects.row(sheet, 20, 1, "import", "java.lang");
+            TableTestProjects.row(sheet, 19, 1, "Method String answer()");
+            TableTestProjects.row(sheet, 20, 1, "return \"yes\";");
             TableTestProjects.row(sheet, 23, 1, "SimpleRules String Greeting(Integer hour)");
             TableTestProjects.row(sheet, 24, 1, "Hour", "Greeting");
             TableTestProjects.row(sheet, 25, 1, "< 12", "Good Morning");
@@ -1739,7 +1739,7 @@ class WorkspaceProjectServiceTest {
 
         var result = service.applyProjectTableTheme(project, "green");
 
-        // The Environment table is of a kind no theme styles.
+        // The Method table is of a kind no theme styles.
         var themed = List.of("Person", "Code", "people", "Premium", "Greeting").stream()
                 .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
                 .toList();

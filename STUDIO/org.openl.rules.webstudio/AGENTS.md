@@ -153,8 +153,9 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 ## Table Theme
 
-The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run and decision tables are the
-`table-themes/*.yaml` files of its classpath (`resources/table-themes/` ships `default` and `green`).
+The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Environment, Properties and
+Constants tables are the `table-themes/*.yaml` files of its classpath (`resources/table-themes/` ships `default` and
+`green`).
 `TableThemeService` reads them once at startup, with the YAML anchors, aliases and merge keys resolved by SnakeYAML,
 then binds them strictly with Jackson.
 See `Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md`
@@ -174,10 +175,11 @@ for the endpoints.
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
   logged as an error and not offered; Studio starts with the rest.
 - **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test,
-  Run and decision table, and a kind the theme writes nothing for takes the base alone. The server decides which
-  tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a
-  constant of `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of
-  its body, so a new kind of table is one constant there and one part of `TableTheme`.
+  Run, decision, Environment, Properties and Constants table, and a kind the theme writes nothing for takes the base
+  alone. The server decides which tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list
+  of themed kinds. Each kind is a constant of `ThemeKind`, which names the part of `TableTheme` the kind takes its
+  look from and the `BodyLayout` of its body, so a new kind of table is one constant there and one part of
+  `TableTheme`.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
   style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
   a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
@@ -196,8 +198,9 @@ for the endpoints.
   of the table does.
 - **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the
   body, with what a layout knows of the table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of
-  `DatatypeThemeLayout`, `SpreadsheetThemeLayout`, `DataThemeLayout` or `DecisionThemeLayout`. Both the screen
-  overlay and `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives.
+  `DatatypeThemeLayout`, `SpreadsheetThemeLayout`, `DataThemeLayout`, `DecisionThemeLayout` or
+  `NamedValuesThemeLayout`. Both the screen overlay and `ThemeExcelWriter` ask it, so what is drawn is what writing
+  the theme gives.
 - **A layout tells the look of a place, `ThemeLayouts` themes the sheet.** A layout answers the places it reads the
   body in and the look of each (`BodyLayout.Placed`), and `ThemeLayouts` alone gives that look to every cell of the
   sheet the place takes, so a row written over several rows of the sheet is themed whole. It themes a merged region
@@ -213,7 +216,7 @@ for the endpoints.
   `RETURN`.
   `HeaderRuns` splits a header by its keyword: a Datatype names its type first, a Spreadsheet its return type, its
   name and its parameters, and a decision table reads as a Spreadsheet, its return type of several words at times
-  (`Collect Error[]`).
+  (`Collect Error[]`). An Environment header is its keyword alone; a Properties and a Constants header name the table.
 - **An active theme overrides the look of the workbook.** The shipped themes name every attribute in the base
   style: `none` takes every side away, the fill is white, every font flag is off. A themed table therefore shows
   only the fills, lines, fonts and alignment the theme names. A text the workbook formats in pieces of its own,
@@ -256,6 +259,16 @@ for the endpoints.
   titles, as `DecisionTableHelper` allows it there only. A condition value merged over several rules while another
   column is split makes them a group: `groups` is laid over the first rule and over the rule after it. A table that
   did not compile takes the base alone.
+- **An Environment, a Properties and a Constants table name a value in each row.** `NamedValuesThemeLayout` gives
+  the first column of an Environment (the setting: `import`, `dependency`, `include`) and of a Properties table (the
+  property) the `name` look and the rest `values`. The loader reads an Environment by its rows
+  (`SequentialXlsLoader.preprocessEnvironmentTable`) and a Properties table is the properties section of its tables,
+  so both are read as written. A Constants table names its constants as a Datatype names its fields, so
+  `DatatypeThemeLayout` lays it out: its `type`, `name` and `values` columns, oriented as a Datatype
+  (`DatatypeHelper.getNormalizedDataPartTable`), with the orientation of the compiled table
+  (`ConstantsTableMetaInfoReader`, `getNormalizedData().isNormalOrientation()`). The shipped themes draw an
+  Environment, a technical table, in greys, and a Properties table is an alias of its look (`properties: *technical`);
+  the names of a Constants table take the fill of the field names of a Datatype (`name: *fieldName`).
 - **A transposed Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, so the
   layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`, `isNormalOrientation()`): the
   places follow the fields, and `lastRow` stays the last row as written. A table that did not compile is themed as

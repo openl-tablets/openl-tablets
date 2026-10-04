@@ -582,8 +582,7 @@ class TableThemeTest {
     void writesTheThemeIntoTheWorkbook() throws IOException {
         write(tables(TableTestProjects.projectModel(dir), "Person", "Code"));
 
-        var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person");
-        var source = new RawTableReader().read(person, RawTableRead.builder().withStyles(true).build()).source;
+        var source = read("Person");
         var header = source.getFirst().getFirst();
         assertEquals(HEADER_BACKGROUND, header.style().background());
         assertEquals(RawTableHorizontalAlign.CENTER, header.style().align());
@@ -622,8 +621,8 @@ class TableThemeTest {
 
         write(List.of(TableTestProjects.table(TableTestProjects.projectModel(inline), "Person")));
 
-        var header = new RawTableReader().read(TableTestProjects.table(TableTestProjects.projectModel(inline),
-                "Person"), RawTableRead.builder().withStyles(true).build()).source.getFirst().getFirst();
+        var header = TableTestProjects.styledSource(TableTestProjects.table(TableTestProjects.projectModel(inline),
+                "Person")).getFirst().getFirst();
         assertEquals("Datatype Person", header.value());
         assertEquals(List.of("Datatype", " ", "Person"), texts(header.runs()));
     }
@@ -858,8 +857,7 @@ class TableThemeTest {
 
     /** The cells of a table as the workbook now holds them, with their styles. */
     private List<List<RawTableCell>> read(String name) {
-        var table = TableTestProjects.table(TableTestProjects.projectModel(dir), name);
-        return new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build()).source;
+        return TableTestProjects.styledSource(TableTestProjects.table(TableTestProjects.projectModel(dir), name));
     }
 
     private List<String> write(List<IOpenLTable> tables) {

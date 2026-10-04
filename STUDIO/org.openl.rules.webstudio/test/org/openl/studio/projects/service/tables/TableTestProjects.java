@@ -20,6 +20,8 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
@@ -161,6 +163,25 @@ public final class TableTestProjects {
             rows.add(row.stream().map(cell -> cell.value() == null ? null : String.valueOf(cell.value())).toList());
         }
         return rows;
+    }
+
+    /** The table's cells as the workbook holds them, with their styles. */
+    public static List<List<RawTableCell>> styledSource(IOpenLTable table) {
+        return new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build()).source;
+    }
+
+    /** The table whose header stands in the given row of the sheet, for a table with no name to find it by. */
+    public static IOpenLTable tableAt(Path project, int row) {
+        return projectModel(project).getAllTableSyntaxNodes().stream()
+                .filter(node -> node.getGridTable().getRegion().getTop() == row)
+                .map(TableSyntaxNodeAdapter::new)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    /** Merges the cells of a sheet between two corners, both included. */
+    public static void merge(Sheet sheet, int top, int bottom, int left, int right) {
+        sheet.addMergedRegion(new CellRangeAddress(top, bottom, left, right));
     }
 
 }

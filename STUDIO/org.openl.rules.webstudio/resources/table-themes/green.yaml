@@ -1,5 +1,4 @@
-# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run and decision
-# tables.
+# A table theme of OpenL Studio: the look it gives every table it styles, one part for each kind of table below.
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
 
 name: Green
@@ -47,7 +46,7 @@ datatype:
   header: &filled
     style:
       background: "#c6e0b4"
-  name:
+  name: &fieldName
     background: "#e2efda"
 
 vocabulary:
@@ -128,3 +127,24 @@ simpleRules: *rules
 smartRules: *rules
 simpleLookup: *rules
 smartLookup: *rules
+
+# The technical tables are drawn in greys, as in every theme.
+environment: &technical
+  header:
+    style:
+      background: "#e7e6e6"
+  style:
+    border:
+      bottom: &light
+        style: thin
+        color: "#d9d9d9"
+  name:
+    background: "#f2f2f2"
+    border:
+      right: *light
+
+properties: *technical
+
+constants:
+  type: *muted
+  name: *fieldName

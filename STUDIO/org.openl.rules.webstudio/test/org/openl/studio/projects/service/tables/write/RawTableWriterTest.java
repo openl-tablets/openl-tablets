@@ -46,7 +46,6 @@ import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.tables.TableTestProjects;
-import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.theme.TableThemeService;
 
@@ -327,10 +326,10 @@ class RawTableWriterTest {
 
     @Test
     void refusesATableThemeForATableOfAKindNoThemeStyles() throws IOException {
-        var environment = writeProject("environment", new String[][]{{"Environment"}, {"import", "java.lang"}});
+        var method = writeProject("method", new String[][]{{"Method String answer()"}, {"return \"yes\";"}});
 
         var theme = new RawTableSourceAction.Theme("default");
-        var refused = assertThrows(BadRequestException.class, () -> apply(environment, theme));
+        var refused = assertThrows(BadRequestException.class, () -> apply(method, theme));
 
         assertEquals("openl.error.400.table.theme.unsupported.message", refused.getErrorCode());
     }
@@ -1459,7 +1458,7 @@ class RawTableWriterTest {
 
     /** The table read back with the styling attached, which the plain read leaves out. */
     private List<List<RawTableCell>> reloadStyled(Path project) {
-        return new RawTableReader().read(load(project), RawTableRead.builder().withStyles(true).build()).source;
+        return TableTestProjects.styledSource(load(project));
     }
 
     private static RawTableCellStyle styleOf(List<List<RawTableCell>> source, int row, int col) {

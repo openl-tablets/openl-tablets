@@ -27,9 +27,9 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 - `styles` — `true` adds the Excel style of every cell and the pieces of its text formatted with fonts of their own; see
   [Style of a Cell](#style-of-a-cell).
 - `tableTheme` — the identifier of a table theme. Reports, for a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test,
-  a Run or a decision table, the look that the theme gives every cell in place of its Excel style, with or without
-  `styles=true`; see [Table Theme](#table-theme). An empty value draws no theme, as the empty setting draws the
-  formatting of the Excel file. Only with `raw=true`.
+  a Run, a decision, an Environment, a Properties or a Constants table, the look that the theme gives every cell in
+  place of its Excel style, with or without `styles=true`; see [Table Theme](#table-theme). An empty value draws no
+  theme, as the empty setting draws the formatting of the Excel file. Only with `raw=true`.
 - `metaInfo` — `true` adds what the compiler knows about every cell.
 - `module` — the module to read the table through. The answer is ready once that module is compiled, without waiting
   for the rest of the project.
@@ -347,10 +347,11 @@ The `style` operation sets the style of every cell of a rectangle:
 
 ### Table Theme
 
-A table theme gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run and decision tables one look — a decision
-table being a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a SmartLookup table. OpenL Studio offers every
-theme file in the `table-themes` folder of its classpath and ships `default` and `green`. A theme is asked for by its
-identifier, the name of its file without the extension. How a theme file is written is described in
+A table theme gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Environment, Properties and
+Constants tables one look — a decision table being a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a
+SmartLookup table. OpenL Studio offers every theme file in the `table-themes` folder of its classpath and ships
+`default` and `green`. A theme is asked for by its identifier, the name of its file without the extension. How a
+theme file is written is described in
 [Appendix E: Table Themes](../user-guides/openl-studio/appendices/table-themes.md).
 
 **Listing the themes.** Two endpoints list the themes, each with its identifier and the name it is shown by:
@@ -366,8 +367,8 @@ GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
 
 - The first lists every theme OpenL Studio offers, ordered by name.
 - The second lists the themes that can be drawn over the table and written into it. Every theme styles every
-  Datatype, Vocabulary, Spreadsheet, Data, Test, Run and decision table, so the list holds every theme for such a
-  table, and none for a table of any other kind.
+  Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Environment, Properties and Constants table, so the
+  list holds every theme for such a table, and none for a table of any other kind.
 
 **Drawing the theme.** A read with `tableTheme=<id>` reports every cell the theme reaches in the look of the theme, in
 place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:
@@ -402,7 +403,8 @@ when, a property the note of the edit adds takes the theme too. A table of any o
 so is a theme OpenL Studio does not offer.
 
 **Writing the theme into the project.** One endpoint writes a theme into every Datatype, Vocabulary, Spreadsheet,
-Data, Test, Run and decision table of every module of the project, and recompiles what it changes:
+Data, Test, Run, decision, Environment, Properties and Constants table of every module of the project, and recompiles
+what it changes:
 
 ```http
 POST /rest/projects/{projectId}/theme?theme={id}

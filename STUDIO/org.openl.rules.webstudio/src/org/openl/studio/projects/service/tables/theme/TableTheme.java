@@ -7,10 +7,11 @@ import org.jspecify.annotations.Nullable;
  * A table theme as its file describes it: the name it is shown by, and the look it gives each kind of table.
  *
  * <p>A theme is one look for every kind of table it styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test,
- * a Run and a decision table — a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a SmartLookup table. The base
- * is the skin every table shares, such as its header and its properties, and each kind extends it. The key of a kind,
- * {@code datatype}, {@code vocabulary}, {@code spreadsheet}, {@code data}, {@code test}, {@code run},
- * {@code rules}, {@code simpleRules}, {@code smartRules}, {@code simpleLookup} or {@code smartLookup}, writes only
+ * a Run, a decision table — a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a SmartLookup table — an
+ * Environment, a Properties and a Constants table. The base is the skin every table shares, such as its header and its
+ * properties, and each kind extends it. The key of a kind, {@code datatype}, {@code vocabulary}, {@code spreadsheet},
+ * {@code data}, {@code test}, {@code run}, {@code rules}, {@code simpleRules}, {@code smartRules},
+ * {@code simpleLookup}, {@code smartLookup}, {@code environment}, {@code properties} or {@code constants}, writes only
  * what the kind changes: every part it writes is laid over the same part of the base, attribute by attribute, and
  * every part it leaves out is the one of the base. A kind the theme writes nothing for takes the base alone.
  *
@@ -28,6 +29,10 @@ import org.jspecify.annotations.Nullable;
  * @param smartRules   what a SmartRules table changes in the base, or {@code null} for nothing
  * @param simpleLookup what a SimpleLookup table changes in the base, or {@code null} for nothing
  * @param smartLookup  what a SmartLookup table changes in the base, or {@code null} for nothing
+ * @param environment  what an Environment table changes in the base, or {@code null} for nothing
+ * @param properties   what a Properties table, the properties a module or a category of tables shares, changes in
+ *                     the base, or {@code null} for nothing
+ * @param constants    what a Constants table changes in the base, or {@code null} for nothing
  */
 public record TableTheme(String name,
                          @Nullable Look base,
@@ -41,7 +46,10 @@ public record TableTheme(String name,
                          @Nullable Look simpleRules,
                          @Nullable Look smartRules,
                          @Nullable Look simpleLookup,
-                         @Nullable Look smartLookup) {
+                         @Nullable Look smartLookup,
+                         @Nullable Look environment,
+                         @Nullable Look properties,
+                         @Nullable Look constants) {
 
     /**
      * The look a kind of table takes: the base, extended by what the kind changes in it.
@@ -68,7 +76,9 @@ public record TableTheme(String name,
      * to it. A Spreadsheet takes the titles, the step title, the steps, the values, the sections, the marked names
      * and the result. A Data, a Test and a Run table take the names, the titles, the values, the IDs and the empty
      * values. A decision table takes the code, the titles, the values, the horizontal conditions, the return titles,
-     * the returns and the groups. Every kind takes the style, the header, the properties and the last row.
+     * the returns and the groups. An Environment and a Properties table take the names and the values, and a Constants
+     * table the types, the names and the values. Every kind takes the style, the header, the properties and the last
+     * row.
      *
      * @param style        the look every cell of the table starts from
      * @param header       the look of the header, the first row of the table
@@ -79,14 +89,17 @@ public record TableTheme(String name,
      *                     and of the column it names its rules in
      * @param stepTitle    the look of the title of the column of steps of a Spreadsheet, such as {@code Step}, laid
      *                     over the titles
-     * @param type         the look of the column of field types of a Datatype
-     * @param name         the look of the field names: the column of field names of a Datatype, and the rows of a
-     *                     Data, a Test or a Run table that name its fields and the tables they take their values from
+     * @param type         the look of the types: the column of field types of a Datatype, and of the types of the
+     *                     constants of a Constants table
+     * @param name         the look of the names: the column of field names of a Datatype, the rows of a Data, a Test
+     *                     or a Run table that name its fields and the tables they take their values from, the column
+     *                     of the settings of an Environment table, such as {@code import}, of the properties of a
+     *                     Properties table, and of the names of the constants of a Constants table
      * @param steps        the look of the column of step names of a Spreadsheet
      * @param values       the look of the values: the defaults and the other columns of a Datatype, the values of a
      *                     Vocabulary, the cells of the steps of a Spreadsheet, the values of a Data, a Test or a Run
-     *                     table, and the values the conditions of a decision table are checked against and the names
-     *                     of its rules
+     *                     table, the values the conditions of a decision table are checked against and the names of its
+     *                     rules, and the values of an Environment, a Properties and a Constants table
      * @param sections     the look of a step of a Spreadsheet whose name is merged across its row, laid over the
      *                     steps: a heading that splits the steps into sections
      * @param marked       the look of a step or a column of a Spreadsheet whose name is marked with {@code *} for the
