@@ -1,10 +1,11 @@
-# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary, Spreadsheet, Data, Test and Run tables.
+# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run and decision
+# tables.
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
 #
 # Every attribute is optional: one the theme leaves out keeps what the cell has in the workbook.
 # The base is the skin every table shares; a kind of table extends it with what it changes, and takes the rest of the
 # base as it is. Every theme styles every kind: a kind the theme writes nothing for (datatype, vocabulary,
-# spreadsheet, data, test, run) takes the base alone.
+# spreadsheet, data, test, run, rules, simpleRules, smartRules, simpleLookup, smartLookup) takes the base alone.
 
 name: Default
 
@@ -40,9 +41,9 @@ base:
       bold: true
       color: "#000000"
     # The type the header names besides the table: "<String>" of a Vocabulary, "extends Parent" of a Datatype, or
-    # the type a Spreadsheet returns.
+    # the type a Spreadsheet or a decision table returns.
     type: *muted
-    # The parameters of a Spreadsheet, "( Policy policy )".
+    # The parameters of a Spreadsheet or a decision table, "( Policy policy )".
     parameters: *muted
   # The rows of table properties under the header, closed by a line.
   properties:
@@ -124,3 +125,50 @@ data: &data
 # A Test and a Run table look like a Data table.
 test: *data
 run: *data
+
+rules: &rules
+  # The rows a Rules table declares its columns in: the kind of each column, such as "C1" or "RET1", its expression
+  # and its parameters, closed by a line. A SimpleRules, a SmartRules and a lookup have none.
+  code:
+    <<: *muted
+    border:
+      bottom: thin
+  # The titles of the conditions, with a line between the columns.
+  titles:
+    bold: true
+    align: center
+    background: "#d0cece"
+    border:
+      right: thin
+  # The values the conditions are checked against.
+  values:
+    align: center
+    border:
+      right: thin
+  # The values of a horizontal condition, across the top of a lookup.
+  horizontals:
+    bold: true
+    align: center
+    background: "#b4c6e7"
+    border:
+      bottom: thin
+  # The title of a column the table returns.
+  returnTitles:
+    bold: true
+    align: center
+    background: "#b4c6e7"
+  # The values the table returns.
+  returns:
+    align: center
+    background: "#ddebf7"
+  # The rules that share a value of a condition merged over them make a group: a line over its first rule and over
+  # the rule after it sets the group apart.
+  groups:
+    border:
+      top: thin
+
+# A SimpleRules, a SmartRules and a lookup look like a Rules table.
+simpleRules: *rules
+smartRules: *rules
+simpleLookup: *rules
+smartLookup: *rules

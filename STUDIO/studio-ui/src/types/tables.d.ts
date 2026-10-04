@@ -165,8 +165,8 @@ export type TableEdit =
         }
     }
     /**
-     * Writes a table theme into a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a Run table, as the edits
-     * before it left it.
+     * Writes a table theme into a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a Run or a decision table, as
+     * the edits before it left it.
      */
     | { operation: 'theme', theme: string }
 

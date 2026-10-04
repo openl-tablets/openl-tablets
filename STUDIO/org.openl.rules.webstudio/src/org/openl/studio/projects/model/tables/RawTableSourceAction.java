@@ -75,15 +75,15 @@ public sealed interface RawTableSourceAction
     }
 
     /**
-     * Writes a table theme into a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a Run table, as the table
-     * stands after the edits before it.
+     * Writes a table theme into a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a Run or a decision table, as
+     * the table stands after the edits before it.
      *
      * @param theme the identifier of the theme, as the list of table themes names it
      */
     @Schema(name = "Theme", description = """
-            Writes a table theme into a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a Run table, as the \
-            table stands after the edits before it. Only the look of the table changes: each cell keeps its value and \
-            every attribute the theme does not set. A table of any other kind is refused.""")
+            Writes a table theme into a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a Run or a decision \
+            table, as the table stands after the edits before it. Only the look of the table changes: each cell keeps \
+            its value and every attribute the theme does not set. A table of any other kind is refused.""")
     record Theme(
             @Parameter(description = "Identifier of the theme, as the list of table themes names it")
             @NotBlank String theme) implements RawTableSourceAction {

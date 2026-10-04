@@ -100,6 +100,7 @@ class TableThemeServiceTest {
     void offersTheThemesItCanReadAndLeavesOutTheOnesItRefuses() {
         // Next to the themes it reads lie the ones it refuses; Studio starts with the ones it can offer.
         assertEquals(List.of(new TableThemeView("datatype-extension", "Datatype Extension"),
+                        new TableThemeView("decision-kinds", "Decision Kinds"),
                         new TableThemeView("extended-header", "Extended Header")),
                 new TableThemeService(FIXTURES + "*.yaml").getThemes());
     }

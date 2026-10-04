@@ -153,7 +153,7 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 ## Table Theme
 
-The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test and Run tables are the
+The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run and decision tables are the
 `table-themes/*.yaml` files of its classpath (`resources/table-themes/` ships `default` and `green`).
 `TableThemeService` reads them once at startup, with the YAML anchors, aliases and merge keys resolved by SnakeYAML,
 then binds them strictly with Jackson.
@@ -173,15 +173,17 @@ for the endpoints.
 - **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
   logged as an error and not offered; Studio starts with the rest.
-- **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test
-  and Run table, and a kind the theme writes nothing for takes the base alone. The server decides which tables a theme
-  suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a constant of
-  `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of its body, so
-  a new kind of table is one constant there and one part of `TableTheme`.
+- **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test,
+  Run and decision table, and a kind the theme writes nothing for takes the base alone. The server decides which
+  tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a
+  constant of `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of
+  its body, so a new kind of table is one constant there and one part of `TableTheme`.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
   style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
   a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
-  and each layout reads its own: a part another kind takes is not used.
+  and each layout reads its own: a part another kind takes is not used. A kind that looks like another is an alias in
+  the file (`test: *data`, `run: *data`, `simpleRules: *rules`), never a rule of the code, so a theme can still give
+  it a look of its own.
 - **One table is themed through its edit.** The `theme` action of `RawTableSourceAction` writes the theme inside the
   edit batch, after the values and before the styling, so the rows the batch added are themed and the styling the
   user set stands over the theme. Only the whole project has an endpoint of its own (`POST /projects/{id}/theme`).
@@ -194,8 +196,8 @@ for the endpoints.
   of the table does.
 - **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the
   body, with what a layout knows of the table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of
-  `DatatypeThemeLayout`, `SpreadsheetThemeLayout` or `DataThemeLayout`. Both the screen overlay and
-  `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives.
+  `DatatypeThemeLayout`, `SpreadsheetThemeLayout`, `DataThemeLayout` or `DecisionThemeLayout`. Both the screen
+  overlay and `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives.
 - **A layout tells the look of a place, `ThemeLayouts` themes the sheet.** A layout answers the places it reads the
   body in and the look of each (`BodyLayout.Placed`), and `ThemeLayouts` alone gives that look to every cell of the
   sheet the place takes, so a row written over several rows of the sheet is themed whole. It themes a merged region
@@ -210,7 +212,8 @@ for the endpoints.
   finds it: a column or a step named `RETURN`, or else the last step, and none for `SpreadsheetResult` without
   `RETURN`.
   `HeaderRuns` splits a header by its keyword: a Datatype names its type first, a Spreadsheet its return type, its
-  name and its parameters.
+  name and its parameters, and a decision table reads as a Spreadsheet, its return type of several words at times
+  (`Collect Error[]`).
 - **An active theme overrides the look of the workbook.** The shipped themes name every attribute in the base
   style: `none` takes every side away, the fill is white, every font flag is off. A themed table therefore shows
   only the fills, lines, fonts and alignment the theme names. A text the workbook formats in pieces of its own,
@@ -234,6 +237,25 @@ for the endpoints.
   Test and a Run table every column that takes its values from a Data table by their IDs. Its references to other
   tables are left as values. `empty` is laid over a blank value, cell by cell — a fill written with the theme, not a
   conditional format, so the workbook reads it back as the overlay draws it.
+- **A decision table is read as the compiler reads it.** Every kind is compiled into the `FunctionalRow`s of its
+  conditions and its actions, the returns among them, so `DecisionThemeLayout` takes the places from those: the
+  kind, the code and the parameters of a Rules table (`getInfoTable`, `getCodeTable`, `getParamsTable`), the titles
+  (`getPresentationTable`) and the values (`getValueCell`). A SimpleRules, a SmartRules and a lookup have no code on
+  the sheet: the compiler writes it into a grid of its own, which the layout never reads, and the merges of a lookup
+  are read from the sheet. A place is a line of the sheet — a row, or a column of a table compiled with a rule in each
+  column — and a cross. Such a table takes the looks with their lines turned (`ThemeBorder.transposed`): a line a
+  look draws above a part is on its left, while the base style keeps its lines where it names them. Unlike a
+  transposed Datatype or Data table, whose shipped looks draw no lines inside the table, a decision table needs it:
+  the lines between the conditions and over a group would stand across its rules. Every line under the code, the
+  titles and the horizontal conditions holds rules, so a rule an edit adds is themed before the table is compiled.
+  The compiled places count from where the table stood when it was compiled: `RawTableWriter` keeps the rows and the
+  columns its edits insert and delete as `TableMoves`, and a `theme` action after them finds each place where they
+  moved it (`DecisionThemeLayout.Compiled`). A read and the project-wide writer theme a compiled table, so they pass
+  `TableMoves.NONE`. The column naming the rules is the one of kind `RULE` in a
+  Rules table, and the first column, when it holds no condition and nothing returned, in a table matched by its
+  titles, as `DecisionTableHelper` allows it there only. A condition value merged over several rules while another
+  column is split makes them a group: `groups` is laid over the first rule and over the rule after it. A table that
+  did not compile takes the base alone.
 - **A transposed Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, so the
   layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`, `isNormalOrientation()`): the
   places follow the fields, and `lastRow` stays the last row as written. A table that did not compile is themed as

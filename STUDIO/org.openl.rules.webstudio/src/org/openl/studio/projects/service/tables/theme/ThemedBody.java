@@ -13,13 +13,15 @@ import org.openl.rules.table.ILogicalTable;
  * @param base       the look every cell of the table starts from
  * @param look       the look of the table
  * @param transposed whether the compiler read the table with its rows and columns swapped
+ * @param compiled   the table as it was compiled, and where its cells stand now
  */
 @Builder
 record ThemedBody(ILogicalTable rows,
                   String header,
                   ThemeStyle base,
                   TableTheme.Look look,
-                  boolean transposed) {
+                  boolean transposed,
+                  DecisionThemeLayout.Compiled compiled) {
 
     /** The body read the way the compiler reads it: with its rows and columns swapped when it is transposed. */
     ILogicalTable upright() {

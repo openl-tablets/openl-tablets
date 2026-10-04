@@ -12,9 +12,12 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.data.ITable;
+import org.openl.rules.dt.DTInfo;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -30,7 +33,8 @@ import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
  *
  * <p>The screen, the editor and the project-wide writer all ask here, so the screen shows what writing the theme
  * gives. The table is read as it stands on its grid, so a table being edited is themed with the rows and columns
- * the edit left it with.
+ * the edit left it with. A decision table is themed by where the compiler found its parts, which the rows and the
+ * columns the edit inserted or deleted have moved.
  *
  * <p>The kind of a table, {@link ThemeKind}, tells which part of a theme it takes its look from and which
  * {@link BodyLayout} lays out its body. A table of no kind a theme styles takes no theme. Each layout tells the look of
@@ -48,14 +52,15 @@ final class ThemeLayouts {
             XlsNodeTypes.XLS_SPREADSHEET,
             XlsNodeTypes.XLS_DATA,
             XlsNodeTypes.XLS_TEST_METHOD,
-            XlsNodeTypes.XLS_RUN_METHOD);
+            XlsNodeTypes.XLS_RUN_METHOD,
+            XlsNodeTypes.XLS_DT);
 
     private ThemeLayouts() {
     }
 
     /**
-     * Whether a table is of a kind every theme styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a
-     * Run table.
+     * Whether a table is of a kind every theme styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a
+     * Run or a decision table.
      *
      * @param table the table
      * @return {@code true} when a theme can be drawn over the table and written into it
@@ -70,9 +75,10 @@ final class ThemeLayouts {
      * @param table the table, which tells its kind
      * @param grid  the table as it stands on its grid, header included
      * @param theme the theme
+     * @param moves the rows and the columns edits inserted into the table or deleted from it since it was compiled
      * @return the look of each cell the theme reaches, or {@code null} for a table of a kind no theme styles
      */
-    static @Nullable ThemedTable of(IOpenLTable table, IGridTable grid, TableTheme theme) {
+    static @Nullable ThemedTable of(IOpenLTable table, IGridTable grid, TableTheme theme, TableMoves moves) {
         var logical = LogicalTableHelper.logicalTable(grid);
         var header = Objects.requireNonNullElse(logical.getCell(0, 0).getStringValue(), "");
         var kind = ThemeKind.of(table, header);
@@ -90,6 +96,7 @@ final class ThemeLayouts {
                     .base(base)
                     .look(look)
                     .transposed(isTransposed(table))
+                    .compiled(new DecisionThemeLayout.Compiled(table.getSyntaxNode(), grid.getRegion(), moves))
                     .build();
             themePlaces(cells, kind.getLayout().layOut(body), rows.getSource().getRegion().getBottom(),
                     look.lastRow());
@@ -103,7 +110,7 @@ final class ThemeLayouts {
 
     /**
      * Whether a table is compiled transposed: a Datatype with a field in each column, a Data, a Test or a Run table
-     * with a field in each row.
+     * with a field in each row, a decision table with a rule in each column.
      *
      * <p>The compiler decides it from what the table holds, so only a compiled table can be transposed.
      */
@@ -114,6 +121,10 @@ final class ThemeLayouts {
             case DataTableMetaInfoReader reader -> reader.getBoundNode().getTable() instanceof ITable compiled
                     && compiled.getData() instanceof ILogicalTable data
                     && !data.isNormalOrientation();
+            case DecisionTableMetaInfoReader reader -> reader.getBoundNode().getDecisionTable()
+                    instanceof DecisionTable decision
+                    && decision.getDtInfo() instanceof DTInfo info
+                    && info.isTransposed();
             case null, default -> false;
         };
     }

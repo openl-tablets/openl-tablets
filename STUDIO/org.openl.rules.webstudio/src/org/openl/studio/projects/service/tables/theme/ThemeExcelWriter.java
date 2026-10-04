@@ -80,7 +80,7 @@ public final class ThemeExcelWriter {
                 var grid = GridTableUtils.getOriginalTable(table.getGridTable());
                 grid.edit();
                 edited.add(grid);
-                if (write(table, grid)) {
+                if (write(table, grid, TableMoves.NONE)) {
                     noting(table, grid, () -> TableWriter.recordEdit(table, edit));
                     var sheet = (XlsSheetGridModel) grid.getGrid();
                     saved.putIfAbsent(sheet.getSheetSource().getWorkbookSource(), sheet);
@@ -97,15 +97,16 @@ public final class ThemeExcelWriter {
     /**
      * Writes the theme into a table, as the table stands on its grid. The caller saves the workbook.
      *
-     * <p>A table of any kind but a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a Run table is left as it
-     * is.
+     * <p>A table of any kind but a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a Run or a decision table is
+     * left as it is.
      *
      * @param table the table to theme
      * @param grid  the table as it stands on its sheet, header included; its sheet is opened for writing
+     * @param moves the rows and the columns edits inserted into the table or deleted from it since it was compiled
      * @return whether the theme was written into the table
      */
-    public boolean write(IOpenLTable table, IGridTable grid) {
-        return write(table, grid, at -> true);
+    public boolean write(IOpenLTable table, IGridTable grid, TableMoves moves) {
+        return write(table, grid, moves, at -> true);
     }
 
     /**
@@ -127,9 +128,10 @@ public final class ThemeExcelWriter {
         if (properties != null && added > 0) {
             // The note inserts each property it adds at the top of the properties, and the rows under them move down.
             var rows = properties.getSource().getRegion();
-            // Only the header and the properties are laid out: the body under them keeps the look it has.
+            // Only the header and the properties are laid out: the body under them keeps the look it has, so no part
+            // of a decision table is looked for, and the edits that moved its parts do not matter.
             var head = grid.getSubtable(0, 0, grid.getWidth(), rows.getBottom() - grid.getRegion().getTop() + 1);
-            write(table, head, at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added);
+            write(table, head, TableMoves.NONE, at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added);
         }
     }
 
@@ -144,8 +146,8 @@ public final class ThemeExcelWriter {
     }
 
     /** Writes the theme into the cells of a table the filter keeps. */
-    private boolean write(IOpenLTable table, IGridTable grid, Predicate<ThemedTable.Cell> kept) {
-        var layout = ThemeLayouts.of(table, grid, theme);
+    private boolean write(IOpenLTable table, IGridTable grid, TableMoves moves, Predicate<ThemedTable.Cell> kept) {
+        var layout = ThemeLayouts.of(table, grid, theme, moves);
         if (layout == null) {
             return false;
         }
