@@ -19,8 +19,13 @@ i18next.on('languageChanged', applyLanguage)
 
 /**
  * Formats a date without time, such as "Aug 16, 2018", using the date format of the current language.
+ *
+ * Returns the raw string when it cannot be parsed.
  */
-export const formatDate = (value: string): string => dayjs(value).format('ll')
+export const formatDate = (value: string): string => {
+    const date = dayjs(value)
+    return date.isValid() ? date.format('ll') : value
+}
 
 /**
  * Formats a date with time down to the second, such as "Aug 16, 2018 8:02:30 PM", using the date

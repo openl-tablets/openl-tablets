@@ -1,0 +1,2 @@
+GET /licenses/frontend-licenses.json HTTP/1.1
+

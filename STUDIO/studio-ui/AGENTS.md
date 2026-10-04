@@ -89,9 +89,18 @@ The build writes two pages (`build.rollupOptions.input`):
   `Docs/architecture/embedded-user-guides.md`. The search indexes the pages in a module worker
   (`guideSearch.worker.ts`), and on the page itself where no worker starts — under `_REACT_UI_ROOT_` the scripts come
   from another origin than the page, so the fallback is what a developer sees. A worker has no DOM: code it imports must
-  not touch `document`, which `vite.config.ts` enforces for the one package that does (`domlessEntityDecoder`). A bare
-  `#heading` link resolves against `<base href>`, the root of the application, not against the page: a link to a heading
-  — in a page or in its outline — goes through the router with the address of the page.
+  not touch `document`, which `vite.config.ts` enforces for the one package that does (`domlessEntityDecoder`), and
+  the pages take that build too (see **About**). A bare `#heading` link resolves against `<base href>`, the root of
+  the application, not against the page: a link to a heading — in a page or in its outline — goes through the router
+  with the address of the page.
+- **About**: the **About** item of the user menu opens `containers/header/AboutModal`, a lazy chunk loaded the first
+  time About is chosen. It shows the version, the build date (`openl.build.date`, in the UI language) and the license
+  of OpenL Studio — LGPL v3, a link to its text on gnu.org — then reads the lists of third-party libraries once
+  (`services/licenses.ts`). `build.license` in `vite.config.ts` writes the frontend list,
+  `dist/licenses/frontend-licenses.json` — the libraries the pages bundle, each with its license text. It skips a
+  library only a worker bundles, so a worker must not bundle one the pages do not. The war build writes the backend
+  list beside it, see `STUDIO/AGENTS.md`. A side of the dialog draws its libraries only while it is expanded, and a
+  license opens in a new window: the text as plain text, or the address of the license when the list has no text.
 - **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
   once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
   (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads
@@ -264,7 +273,8 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 
 ## Quality Rules
 
-- Use the `apiCall` wrapper, never raw `fetch` — the user guides, files served at `/docs`, are the one exception.
+- Use the `apiCall` wrapper, never raw `fetch` — files rather than REST are the exceptions: the user guides served at
+  `/docs` and the lists of third-party libraries served at `/licenses`.
 - Guard screens with `PermissionContext` and `SystemContext` flags.
 - Add translations from day one — no hardcoded user-facing strings.
 - **Colours follow the appearance.** Never hardcode a colour in a style — take an Ant Design token

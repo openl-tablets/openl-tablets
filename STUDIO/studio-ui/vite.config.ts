@@ -7,6 +7,9 @@ const require = createRequire(import.meta.url)
 /**
  * The decoder of HTML entities micromark imports draws on a DOM element in its browser build, and a worker has no
  * DOM: resolved the way Node resolves it, the package gives its own build without one.
+ *
+ * The pages take the same build, so they bundle every library the worker does: Vite lists the licenses of the
+ * libraries the pages bundle, never of those only a worker bundles.
  */
 const domlessEntityDecoder = (): Plugin => ({
     name: 'domless-entity-decoder',
@@ -16,7 +19,7 @@ const domlessEntityDecoder = (): Plugin => ({
 
 export default defineConfig({
     base: './',
-    plugins: [react()],
+    plugins: [react(), domlessEntityDecoder()],
     resolve: {
         tsconfigPaths: true,
     },
@@ -45,6 +48,10 @@ export default defineConfig({
             '/logout' : {
                 target: 'http://localhost:8080'
             },
+            // The lists of third-party libraries the About dialog reads: the backend serves both.
+            '/licenses': {
+                target: 'http://localhost:8080',
+            },
             // A file of the user guides comes from the backend; a page of a guide is a screen of the application.
             '/docs': {
                 target: 'http://localhost:8080',
@@ -59,6 +66,10 @@ export default defineConfig({
     build: {
         sourcemap: true,
         manifest: true,
+        // The libraries bundled into the pages, with the texts of their licenses, for the About dialog.
+        license: {
+            fileName: 'licenses/frontend-licenses.json',
+        },
         rollupOptions: {
             // The API documentation is a page of its own, read without logging in, so it is built as one.
             input: {

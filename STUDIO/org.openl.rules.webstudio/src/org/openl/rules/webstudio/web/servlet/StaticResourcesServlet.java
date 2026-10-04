@@ -14,13 +14,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.MappingMatch;
 
 /**
- * Hands a file the frontend build left beside the pages to the container to serve.
+ * Hands a file the build left beside the pages to the container to serve.
+ *
+ * <p>The files are the assets of the frontend build, and the lists of the third-party libraries under
+ * {@code /licenses}: one the frontend build writes, one the war build writes.
  *
  * <p>Each address is named, because {@link AppPageServlet} answers everything left over with a page.
  *
  * @author Yury Molchan
  */
-@WebServlet({"/assets/*", "/icons/*", "/favicon.svg", "/favicon.ico"})
+@WebServlet({"/assets/*", "/icons/*", "/licenses/*", "/favicon.svg", "/favicon.ico"})
 public class StaticResourcesServlet extends HttpServlet {
 
     /** The name every container knows its own file-serving servlet by. */

@@ -27,6 +27,10 @@ describe('dateFormat', () => {
         expect(formatDateTime('not-a-date')).toBe('not-a-date')
     })
 
+    it('returns the raw string when the date cannot be parsed', () => {
+        expect(formatDate('????-??-??')).toBe('????-??-??')
+    })
+
     it('expands the localized date pattern', () => {
         const formatted = formatDate('2026-07-15T12:00:00Z')
 
