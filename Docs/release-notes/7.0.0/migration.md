@@ -368,6 +368,29 @@ everyone who calls that API from outside the browser.
   `org.openl.rules.util` are not meant for Java code, so Java and Groovy code calls `java.lang.Math`, which the
   removed functions called: `RulesUtils.sqrt(x)` becomes `Math.sqrt(x)`. Two names differ: `getExponent(x, y)` with
   two arguments is `Math.hypot(x, y)`, and `nextAfter(x)` with one argument is `Math.nextUp(x)`.
+* **`org.openl.rules.serialization.JsonUtils` is removed.** Create an `ObjectMapper` with
+  `JacksonObjectMapperFactoryBean` once and keep it: a configured mapper is thread-safe, so it also replaces
+  `getCachedObjectMapper`. The mapper of `toJSON(value)` and `fromJSON(json, type)` wrote dates in this format:
+
+  ```java
+  var factory = new JacksonObjectMapperFactoryBean();
+  factory.setDefaultDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+  ObjectMapper mapper = factory.createJacksonObjectMapper();
+  ```
+
+  - **`toJSON(value)`, `fromJSON(json, type)`** — `mapper.writeValueAsString(value)`, `mapper.readValue(json, type)`
+  - **`createJacksonObjectMapper(types, mode)` and the forms that take `types`** — a factory with
+    `setOverrideClasses(Set.of(types))` and `setDefaultTypingMode(mode)`. `toJSON` used `JAVA_LANG_OBJECT`, and
+    `fromJSON` used `DISABLED`
+  - **`splitJSON(json)`** — `mapper.readTree(json).properties()`, writing each value with `mapper.writeValueAsString`
+
+  A rule that imports `JsonUtils` in an Environment table fails to compile with `Identifier 'JsonUtils' is not
+  found.` Import `org.openl.rules.serialization.JacksonObjectMapperFactoryBean` instead and call the mapper, as in
+  `new JacksonObjectMapperFactoryBean().createJacksonObjectMapper().writeValueAsString(value)`.
+* **More deprecated Java API is removed.** Rewrite the calls:
+  - **`DefaultTypingMode.EVERYTHING`** — `NON_FINAL_AND_ENUMS`, as described for administrators below
+  - **`JacksonObjectMapperFactoryBean.setSimpleClassNameAsTypingPropertyValue(true)`** —
+    `setJsonTypeInfoId(JsonTypeInfo.Id.NAME)`
 
 ## Administrators
 
@@ -387,6 +410,16 @@ everyone who calls that API from outside the browser.
 
 * **`rules.tree.view.default` and `rules.tree.view` are no longer read.** A default order set for all users in the
   application properties has no effect; remove it.
+
+* **The `EVERYTHING` default typing mode is removed, as Jackson deprecated it.** A service fails to deploy when
+  `ruleservice.jackson.defaultTypingMode` or `jackson.defaultTypingMode` in its `rules-deploy.xml` is `EVERYTHING`.
+  `NON_FINAL_AND_ENUMS` is the closest mode: it writes the type of every value except a value of a final class, such
+  as `Long` or `LocalDate`.
+
+* **`ruleservice.jackson.simpleClassNameAsTypingPropertyValue` is no longer read**, nor
+  `jackson.simpleClassNameAsTypingPropertyValue` in `rules-deploy.xml`. It turned the `CLASS` type id into `NAME`,
+  which is the default of `ruleservice.jackson.jsonTypeInfoId`. A service that sets `jackson.jsonTypeInfoId` to
+  `CLASS` together with it now writes and expects full class names; set `jackson.jsonTypeInfoId` to `NAME` instead.
 
 * **Repoint anything that routes or allows `/web`.** Check reverse-proxy location blocks, ingress rules, API
   gateway routes, WAF path rules and the `cors.allowed.origins` consumers for `/web`, and change them to
