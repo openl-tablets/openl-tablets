@@ -6,11 +6,12 @@ import org.jspecify.annotations.Nullable;
 /**
  * A table theme as its file describes it: the name it is shown by, and the look it gives each kind of table.
  *
- * <p>A theme is one look for every kind of table it styles: a Datatype, a Vocabulary and a Spreadsheet. The base is the
- * skin every table shares, such as its header and its properties, and each kind extends it. The key of a kind,
- * {@code datatype}, {@code vocabulary} or {@code spreadsheet}, writes only what the kind changes: every part it writes
- * is laid over the same part of the base, attribute by attribute, and every part it leaves out is the one of the base.
- * A kind the theme writes nothing for takes the base alone.
+ * <p>A theme is one look for every kind of table it styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test
+ * and a Run table. The base is the skin every table shares, such as its header and its properties, and each kind
+ * extends it. The key of a kind, {@code datatype}, {@code vocabulary}, {@code spreadsheet}, {@code data}, {@code test}
+ * or {@code run}, writes only what the kind changes: every part it writes is laid over the same part of the base,
+ * attribute by attribute, and every part it leaves out is the one of the base. A kind the theme writes nothing for
+ * takes the base alone.
  *
  * @param name        the name OpenL Studio shows the theme by
  * @param base        the skin every kind of table extends, or {@code null} for a theme whose kinds write everything
@@ -18,12 +19,18 @@ import org.jspecify.annotations.Nullable;
  * @param vocabulary  what a Vocabulary table, whose header declares the type of its values, changes in the base, or
  *                    {@code null} for nothing
  * @param spreadsheet what a Spreadsheet table changes in the base, or {@code null} for nothing
+ * @param data        what a Data table changes in the base, or {@code null} for nothing
+ * @param test        what a Test table changes in the base, or {@code null} for nothing
+ * @param run         what a Run table changes in the base, or {@code null} for nothing
  */
 public record TableTheme(String name,
                          @Nullable Look base,
                          @Nullable Look datatype,
                          @Nullable Look vocabulary,
-                         @Nullable Look spreadsheet) {
+                         @Nullable Look spreadsheet,
+                         @Nullable Look data,
+                         @Nullable Look test,
+                         @Nullable Look run) {
 
     /**
      * The look a kind of table takes: the base, extended by what the kind changes in it.
@@ -48,26 +55,33 @@ public record TableTheme(String name,
      * <p>Each kind takes the parts that suit it, and a part of another kind is not used. A Datatype takes the titles,
      * the types, the names and the values. A Vocabulary has one column of values: of the body only the values apply
      * to it. A Spreadsheet takes the titles, the step title, the steps, the values, the sections, the marked names
-     * and the result. Every kind takes the style, the header, the properties and the last row.
+     * and the result. A Data, a Test and a Run table take the names, the titles, the values, the IDs and the empty
+     * values. Every kind takes the style, the header, the properties and the last row.
      *
      * @param style      the look every cell of the table starts from
      * @param header     the look of the header, the first row of the table
      * @param properties the look of the rows of table properties under the header, such as the line that closes
      *                   them
-     * @param titles     the look of the row naming the columns: of a Datatype that has one, and of a Spreadsheet
+     * @param titles     the look of the row naming the columns: of a Datatype that has one, of a Spreadsheet, and
+     *                   the titles of a Data, a Test or a Run table
      * @param stepTitle  the look of the title of the column of steps of a Spreadsheet, such as {@code Step}, laid
      *                   over the titles
      * @param type       the look of the column of field types of a Datatype
-     * @param name       the look of the column of field names of a Datatype
+     * @param name       the look of the field names: the column of field names of a Datatype, and the rows of a
+     *                   Data, a Test or a Run table that name its fields and the tables they take their values from
      * @param steps      the look of the column of step names of a Spreadsheet
      * @param values     the look of the values: the defaults and the other columns of a Datatype, the values of a
-     *                   Vocabulary, and the cells of the steps of a Spreadsheet
+     *                   Vocabulary, the cells of the steps of a Spreadsheet, and the values of a Data, a Test or a
+     *                   Run table
      * @param sections   the look of a step of a Spreadsheet whose name is merged across its row, laid over the
      *                   steps: a heading that splits the steps into sections
      * @param marked     the look of a step or a column of a Spreadsheet whose name is marked with {@code *} for the
      *                   result, laid over its own look
      * @param result     the look of the step whose value a Spreadsheet returns, when it returns a type other than
      *                   {@code SpreadsheetResult}, laid over its own look
+     * @param ids        the look laid over the values that name a row of a Data table: the IDs of a Data table, and
+     *                   the values a Test or a Run table takes from a Data table by their IDs
+     * @param empty      the look laid over a value of a Data, a Test or a Run table that is not filled
      * @param lastRow    the look laid over the last row, such as the line that closes the table
      */
     @Builder
@@ -83,6 +97,8 @@ public record TableTheme(String name,
                        @Nullable ThemeStyle sections,
                        @Nullable ThemeStyle marked,
                        @Nullable ThemeStyle result,
+                       @Nullable ThemeStyle ids,
+                       @Nullable ThemeStyle empty,
                        @Nullable ThemeStyle lastRow) {
 
         /**
@@ -105,6 +121,8 @@ public record TableTheme(String name,
                     .sections(lay(sections, over.sections))
                     .marked(lay(marked, over.marked))
                     .result(lay(result, over.result))
+                    .ids(lay(ids, over.ids))
+                    .empty(lay(empty, over.empty))
                     .lastRow(lay(lastRow, over.lastRow))
                     .build();
         }
@@ -121,7 +139,9 @@ public record TableTheme(String name,
      * @param name       the look of the name of the table
      * @param type       the look of the type the header names besides the table: the type of the values of a
      *                   Vocabulary, such as {@code <String>}, the parent a Datatype extends, such as
-     *                   {@code extends Parent}, or the type a Spreadsheet returns, such as {@code SpreadsheetResult}
+     *                   {@code extends Parent}, the type a Spreadsheet returns, such as {@code SpreadsheetResult},
+     *                   the type of the rows of a Data table, such as {@code Policy}, or the method a Test or a Run
+     *                   table calls
      * @param parameters the look of the parameters of a Spreadsheet, such as {@code (Policy policy)}
      */
     @Builder

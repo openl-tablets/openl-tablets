@@ -56,7 +56,8 @@ public class DataTableBindHelper {
 
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
-    private static final String FPK = "_PK_";
+    /** The field that names the rows of a Data table, when the table declares one: its primary key. */
+    public static final String FPK = "_PK_";
 
     /**
      * Indicates that field is a constructor.<br>

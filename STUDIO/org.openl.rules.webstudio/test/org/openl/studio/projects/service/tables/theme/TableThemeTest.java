@@ -107,6 +107,35 @@ class TableThemeTest {
     private static final String NOTHING = "Nothing";
     private static final int NOTHING_ROW = 78;
 
+    /** A Spreadsheet whose last step is written over two rows of the sheet: its name is merged down over both. */
+    private static final String TALL = "Tall";
+    private static final int TALL_ROW = 114;
+    private static final String VALUE_BACKGROUND = "#ddebf7";
+
+    /** A Data table naming its IDs in {@code _PK_}, with a column taken from another Data table and an empty value. */
+    private static final String TEAMS = "teams";
+    private static final int TEAMS_ROW = 89;
+
+    /** A Data table written transposed: a field in each row and the values of one row in each column. */
+    private static final String CREW = "crew";
+    private static final int CREW_ROW = 97;
+
+    /** A Test table filling its input from a Data table by the IDs of its rows. */
+    private static final String RATED_TEST = "RatedTest";
+    private static final int RATED_TEST_ROW = 102;
+
+    /** A Run table filling its input from a Data table by the IDs of its rows. */
+    private static final String RATED_RUN = "RatedRun";
+    private static final int RATED_RUN_ROW = 120;
+
+    /** A Rules table, which no theme styles. */
+    private static final String GREETING = "Greeting";
+
+    /** The fills the default theme gives an ID and a value that is not filled. */
+    private static final String ID_BACKGROUND = "#fff2cc";
+    private static final String EMPTY_BACKGROUND = "#f2f2f2";
+    private static final String MUTED = "#808080";
+
     /** A Spreadsheet with steps marked for its result and a heading that splits its steps into sections. */
     private static final String PREMIUM = "Premium";
     private static final int PREMIUM_ROW = 40;
@@ -130,13 +159,16 @@ class TableThemeTest {
     }
 
     @Test
-    void appliesToDatatypesVocabulariesAndSpreadsheetsOnly() {
+    void appliesToTheKindsOfTableEveryThemeStyles() {
         var model = TableTestProjects.projectModel(dir);
 
         assertNotNull(service.layoutOf(TableTestProjects.table(model, "Person"), THEME));
         assertNotNull(service.layoutOf(TableTestProjects.table(model, "Code"), THEME));
         assertNotNull(service.layoutOf(TableTestProjects.table(model, PREMIUM), THEME));
-        assertNull(service.layoutOf(TableTestProjects.table(model, "people"), THEME));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, "people"), THEME));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_TEST), THEME));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_RUN), THEME));
+        assertNull(service.layoutOf(TableTestProjects.table(model, GREETING), THEME));
     }
 
     @Test
@@ -146,10 +178,11 @@ class TableThemeTest {
 
         assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, "Code"))));
         assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, PREMIUM))));
-        // A theme writing nothing for a Vocabulary or a Spreadsheet styles them all the same.
+        // A theme writing nothing for a kind of table other than a Datatype styles them all the same.
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
-        assertTrue(service.getThemes(TableTestProjects.table(model, "people")).isEmpty(), "No theme styles Data");
+        assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
+        assertTrue(service.getThemes(TableTestProjects.table(model, GREETING)).isEmpty(), "No theme styles Rules");
     }
 
     @Test
@@ -168,8 +201,9 @@ class TableThemeTest {
         } finally {
             grid.stopEditing();
         }
-        var people = TableTestProjects.table(model, "people");
-        assertNull(extension.layoutOf(people, "datatype-extension"), "No theme styles Data");
+        var people = extension.layoutOf(TableTestProjects.table(model, "people"), "datatype-extension");
+        assertEquals(Boolean.TRUE, people.at(14, 1).style().italic(), "A Data table takes the base as well");
+        assertNull(extension.layoutOf(TableTestProjects.table(model, GREETING), "datatype-extension"));
     }
 
     @Test
@@ -707,10 +741,102 @@ class TableThemeTest {
     void writesNothingIntoATableTheThemeDoesNotApplyTo() throws IOException {
         var before = Files.readAllBytes(dir.resolve(SHEET + ".xlsx"));
 
-        write(List.of(TableTestProjects.table(TableTestProjects.projectModel(dir), "people")));
+        write(List.of(TableTestProjects.table(TableTestProjects.projectModel(dir), GREETING)));
 
         assertArrayEquals(before, Files.readAllBytes(dir.resolve(SHEET + ".xlsx")),
                 "No workbook is saved when no table is themed");
+    }
+
+    @Test
+    void themesEveryRowOfTheSheetAStepTakes() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TALL), THEME);
+
+        // The step takes two rows of the sheet: its name is merged down over both, its value is written in each.
+        assertEquals(VALUE_BACKGROUND, layout.at(TALL_ROW + 2, 2).style().background());
+        assertEquals(VALUE_BACKGROUND, layout.at(TALL_ROW + 3, 2).style().background());
+        // Only the row of the sheet that ends the table is closed.
+        assertFalse(lineBelow(layout.at(TALL_ROW + 2, 2)));
+        assertTrue(lineBelow(layout.at(TALL_ROW + 3, 2)));
+        assertTrue(lineBelow(layout.at(TALL_ROW + 3, 1)), "The name merged down to the end of the table");
+    }
+
+    @Test
+    void givesEachPlaceOfADataTableItsLook() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TEAMS), THEME);
+
+        // The header of a Data table reaches across its values, so its text starts at the left.
+        assertEquals(ThemeHorizontalAlign.LEFT, layout.at(TEAMS_ROW, 1).style().align());
+        // The field names and the table a field takes its values from are muted, the titles filled.
+        assertEquals(MUTED, layout.at(TEAMS_ROW + 1, 2).style().color());
+        assertEquals(MUTED, layout.at(TEAMS_ROW + 2, 3).style().color());
+        assertEquals(NAME_BACKGROUND, layout.at(TEAMS_ROW + 3, 2).style().background());
+        assertEquals(Boolean.TRUE, layout.at(TEAMS_ROW + 3, 2).style().bold());
+        // The IDs of the rows are named by _PK_; the values of the other columns are not IDs.
+        assertEquals(ID_BACKGROUND, layout.at(TEAMS_ROW + 4, 1).style().background());
+        assertEquals(Boolean.TRUE, layout.at(TEAMS_ROW + 4, 1).style().bold());
+        assertEquals(WHITE, layout.at(TEAMS_ROW + 4, 2).style().background());
+        assertEquals(ThemeHorizontalAlign.CENTER, layout.at(TEAMS_ROW + 4, 2).style().align());
+        assertEquals(WHITE, layout.at(TEAMS_ROW + 4, 3).style().background(), "A reference is not an ID of the table");
+        // A value that is not filled, and the line closing the last row.
+        assertEquals(EMPTY_BACKGROUND, layout.at(TEAMS_ROW + 5, 2).style().background());
+        assertFalse(lineBelow(layout.at(TEAMS_ROW + 4, 1)), "A row other than the last is not closed");
+        assertTrue(lineBelow(layout.at(TEAMS_ROW + 5, 3)));
+    }
+
+    @Test
+    void givesTheFieldsOfATransposedDataTableTheLookOfTheirPlace() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), CREW), THEME);
+
+        // Each field runs across a row: its name, its title, then a value of each row of the table.
+        assertEquals(MUTED, layout.at(CREW_ROW + 2, 1).style().color());
+        assertEquals(NAME_BACKGROUND, layout.at(CREW_ROW + 2, 2).style().background());
+        // The first field names the rows of the table.
+        assertEquals(ID_BACKGROUND, layout.at(CREW_ROW + 1, 3).style().background());
+        assertEquals(ID_BACKGROUND, layout.at(CREW_ROW + 1, 4).style().background());
+        assertEquals(WHITE, layout.at(CREW_ROW + 2, 3).style().background());
+        assertEquals(EMPTY_BACKGROUND, layout.at(CREW_ROW + 2, 4).style().background());
+        // The last row as written closes the table.
+        assertFalse(lineBelow(layout.at(CREW_ROW + 1, 3)));
+        assertTrue(lineBelow(layout.at(CREW_ROW + 2, 3)));
+    }
+
+    @Test
+    void givesTheValuesATestTakesFromADataTableTheIdLook() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST), THEME);
+
+        assertEquals(MUTED, layout.at(RATED_TEST_ROW + 2, 1).style().color(), "The row naming the Data table");
+        assertEquals(NAME_BACKGROUND, layout.at(RATED_TEST_ROW + 3, 1).style().background());
+        // The person is filled from the Data table by its ID; the expected result is not.
+        assertEquals(ID_BACKGROUND, layout.at(RATED_TEST_ROW + 4, 1).style().background());
+        assertEquals(WHITE, layout.at(RATED_TEST_ROW + 4, 2).style().background());
+    }
+
+    @Test
+    void givesARunTableTheLookOfATestTable() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_RUN), THEME);
+
+        assertEquals(MUTED, layout.at(RATED_RUN_ROW + 1, 1).style().color(), "The row naming the field");
+        assertEquals(MUTED, layout.at(RATED_RUN_ROW + 2, 1).style().color(), "The row naming the Data table");
+        assertEquals(NAME_BACKGROUND, layout.at(RATED_RUN_ROW + 3, 1).style().background());
+        // The person is filled from the Data table by its ID, and its row closes the table.
+        assertEquals(ID_BACKGROUND, layout.at(RATED_RUN_ROW + 4, 1).style().background());
+        assertTrue(lineBelow(layout.at(RATED_RUN_ROW + 4, 1)));
+
+        // The header names the method the table runs, then the name of the table.
+        var theme = service.theme(THEME);
+        var header = theme.lookOf(theme.run()).header();
+        assertEquals(List.of("Run", " ", RATED, " ", RATED_RUN),
+                pieces("Run " + RATED + " " + RATED_RUN, ThemeStyle.NONE.with(header.style()), header));
+    }
+
+    @Test
+    void writesTheThemeIntoADataTable() {
+        write(tables(TableTestProjects.projectModel(dir), TEAMS));
+
+        var written = read(TEAMS);
+        assertEquals(ID_BACKGROUND, written.get(4).getFirst().style().background());
+        assertEquals(EMPTY_BACKGROUND, written.get(5).get(1).style().background());
+        assertEquals(MUTED, written.get(1).get(1).style().color());
     }
 
     /** The table read with the styles of its cells and the look a theme gives each of them. */
@@ -811,8 +937,8 @@ class TableThemeTest {
 
     /**
      * A Datatype with a percentage, a Vocabulary, a Datatype naming its columns, a Data table, a cell outside
-     * every table filled red, a Datatype whose header is not merged over it, two Datatypes written transposed, and seven
-     * Spreadsheets.
+     * every table filled red, a Datatype whose header is not merged over it, two Datatypes written transposed, seven
+     * Spreadsheets, two more Data tables, one of them transposed, a Test table and a Rules table.
      */
     private static void fillSheet(Sheet sheet) {
         var workbook = sheet.getWorkbook();
@@ -920,5 +1046,44 @@ class TableThemeTest {
         sheet.addMergedRegion(new CellRangeAddress(NOTHING_ROW, NOTHING_ROW, 1, 2));
         TableTestProjects.row(sheet, NOTHING_ROW + 1, 1, "Step", "Formula");
         TableTestProjects.row(sheet, NOTHING_ROW + 2, 1, "RETURN", "= 2");
+
+        TableTestProjects.row(sheet, 84, 1, "Datatype Team");
+        TableTestProjects.row(sheet, 85, 1, "String", "code");
+        TableTestProjects.row(sheet, 86, 1, "Person", "lead");
+
+        TableTestProjects.row(sheet, TEAMS_ROW, 1, "Data Team " + TEAMS);
+        TableTestProjects.row(sheet, TEAMS_ROW + 1, 1, "_PK_", "code", "lead");
+        TableTestProjects.row(sheet, TEAMS_ROW + 2, 1, null, null, ">people");
+        TableTestProjects.row(sheet, TEAMS_ROW + 3, 1, "ID", "Code", "Lead");
+        TableTestProjects.row(sheet, TEAMS_ROW + 4, 1, "T1", "Red", "Ann");
+        TableTestProjects.row(sheet, TEAMS_ROW + 5, 1, "T2", null, "Ann");
+
+        // The titles name no field, so the compiler reads the fields down the first column.
+        TableTestProjects.row(sheet, CREW_ROW, 1, "Data Person " + CREW);
+        TableTestProjects.row(sheet, CREW_ROW + 1, 1, "name", "Person Name", "Bob", "Eve");
+        TableTestProjects.row(sheet, CREW_ROW + 2, 1, "age", "Years", "30", null);
+
+        TableTestProjects.row(sheet, RATED_TEST_ROW, 1, "Test " + RATED + " " + RATED_TEST);
+        TableTestProjects.row(sheet, RATED_TEST_ROW + 1, 1, "person", "_res_");
+        TableTestProjects.row(sheet, RATED_TEST_ROW + 2, 1, ">people", null);
+        TableTestProjects.row(sheet, RATED_TEST_ROW + 3, 1, "Insured", "Premium");
+        TableTestProjects.row(sheet, RATED_TEST_ROW + 4, 1, "Ann", "1.5");
+
+        TableTestProjects.row(sheet, 109, 1, "SimpleRules String " + GREETING + "(Integer hour)");
+        TableTestProjects.row(sheet, 110, 1, "Hour", "Greeting");
+        TableTestProjects.row(sheet, 111, 1, "< 12", "Good Morning");
+
+        TableTestProjects.row(sheet, TALL_ROW, 1, "Spreadsheet SpreadsheetResult " + TALL + " ( Person person )");
+        sheet.addMergedRegion(new CellRangeAddress(TALL_ROW, TALL_ROW, 1, 2));
+        TableTestProjects.row(sheet, TALL_ROW + 1, 1, "Step", "Formula");
+        TableTestProjects.row(sheet, TALL_ROW + 2, 1, "Base", "= 1");
+        TableTestProjects.row(sheet, TALL_ROW + 3, 1, null, "the base rate");
+        sheet.addMergedRegion(new CellRangeAddress(TALL_ROW + 2, TALL_ROW + 3, 1, 1));
+
+        TableTestProjects.row(sheet, RATED_RUN_ROW, 1, "Run " + RATED + " " + RATED_RUN);
+        TableTestProjects.row(sheet, RATED_RUN_ROW + 1, 1, "person");
+        TableTestProjects.row(sheet, RATED_RUN_ROW + 2, 1, ">people");
+        TableTestProjects.row(sheet, RATED_RUN_ROW + 3, 1, "Insured");
+        TableTestProjects.row(sheet, RATED_RUN_ROW + 4, 1, "Ann");
     }
 }

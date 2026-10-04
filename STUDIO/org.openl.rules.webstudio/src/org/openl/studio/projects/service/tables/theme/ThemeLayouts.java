@@ -1,12 +1,20 @@
 package org.openl.studio.projects.service.tables.theme;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.data.ITable;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -14,7 +22,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.theme.ThemedTable.Cell;
 import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
 
@@ -25,8 +32,10 @@ import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
  * gives. The table is read as it stands on its grid, so a table being edited is themed with the rows and columns
  * the edit left it with.
  *
- * <p>The body of a Datatype and a Vocabulary is laid out by {@link DatatypeThemeLayout}, the body of a Spreadsheet by
- * {@link SpreadsheetThemeLayout}. A table of any other kind takes no theme.
+ * <p>The kind of a table, {@link ThemeKind}, tells which part of a theme it takes its look from and which
+ * {@link BodyLayout} lays out its body. A table of no kind a theme styles takes no theme. Each layout tells the look of
+ * a place of the body; every cell of the sheet a place takes gets that look, and a cell that reaches the bottom of the
+ * table gets the last-row look over it.
  *
  * <p>Every kind themes its header the same way. The header look reaches across the table, and the cell holding the
  * header text formats it in pieces. The rows of properties a table declares between its header and its body get the
@@ -34,52 +43,79 @@ import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
  */
 final class ThemeLayouts {
 
+    /** The kinds of table every theme styles. */
+    private static final Set<XlsNodeTypes> STYLED = EnumSet.of(XlsNodeTypes.XLS_DATATYPE,
+            XlsNodeTypes.XLS_SPREADSHEET,
+            XlsNodeTypes.XLS_DATA,
+            XlsNodeTypes.XLS_TEST_METHOD,
+            XlsNodeTypes.XLS_RUN_METHOD);
+
     private ThemeLayouts() {
     }
 
     /**
-     * Whether a table is of a kind every theme styles: a Datatype, a Vocabulary or a Spreadsheet.
+     * Whether a table is of a kind every theme styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a
+     * Run table.
      *
      * @param table the table
      * @return {@code true} when a theme can be drawn over the table and written into it
      */
     static boolean styles(IOpenLTable table) {
-        return OpenLTableUtils.isDatatypeTable(table) || OpenLTableUtils.isSpreadsheetTable(table);
+        return STYLED.contains(XlsNodeTypes.getEnumByValue(table.getType()));
     }
 
     /**
      * The look a theme gives each cell of a table.
      *
-     * @param kind  the table, which tells its kind
-     * @param table the table as it stands on its grid, header included
+     * @param table the table, which tells its kind
+     * @param grid  the table as it stands on its grid, header included
      * @param theme the theme
      * @return the look of each cell the theme reaches, or {@code null} for a table of a kind no theme styles
      */
-    static @Nullable ThemedTable of(IOpenLTable kind, IGridTable table, TableTheme theme) {
-        var datatype = OpenLTableUtils.isDatatypeTable(kind);
-        if (!datatype && !OpenLTableUtils.isSpreadsheetTable(kind)) {
+    static @Nullable ThemedTable of(IOpenLTable table, IGridTable grid, TableTheme theme) {
+        var logical = LogicalTableHelper.logicalTable(grid);
+        var header = Objects.requireNonNullElse(logical.getCell(0, 0).getStringValue(), "");
+        var kind = ThemeKind.of(table, header);
+        if (kind == null) {
             return null;
         }
-        var logical = LogicalTableHelper.logicalTable(table);
-        var header = Objects.requireNonNullElse(logical.getCell(0, 0).getStringValue(), "");
-        var vocabulary = datatype && OpenLTableUtils.isVocabularyHeader(header);
-        var datatypeKind = vocabulary ? theme.vocabulary() : theme.datatype();
-        var look = theme.lookOf(datatype ? datatypeKind : theme.spreadsheet());
+        var look = kind.lookIn(theme);
         var base = ThemeStyle.NONE.with(look.style());
-        var cells = themeHead(table, logical, base, look);
-        var body = bodyOf(logical);
-        if (body != null) {
-            if (datatype) {
-                DatatypeThemeLayout.themeBody(cells, body, kind, base, look, vocabulary);
-            } else {
-                SpreadsheetThemeLayout.themeBody(cells, body, header, base, look);
-            }
+        var cells = themeHead(grid, logical, base, look);
+        var rows = bodyOf(logical);
+        if (rows != null) {
+            var body = ThemedBody.builder()
+                    .rows(rows)
+                    .header(header)
+                    .base(base)
+                    .look(look)
+                    .transposed(isTransposed(table))
+                    .build();
+            themePlaces(cells, kind.getLayout().layOut(body), rows.getSource().getRegion().getBottom(),
+                    look.lastRow());
         }
         // A region of empty cells does not widen the table, so it may be merged past the edge of the table: the cells
         // beyond the edge are not the table's.
-        var region = table.getRegion();
+        var region = grid.getRegion();
         cells.keySet().removeIf(cell -> !GridRegionUtils.contains(region, cell.column(), cell.row()));
         return new ThemedTable(Collections.unmodifiableMap(cells));
+    }
+
+    /**
+     * Whether a table is compiled transposed: a Datatype with a field in each column, a Data, a Test or a Run table
+     * with a field in each row.
+     *
+     * <p>The compiler decides it from what the table holds, so only a compiled table can be transposed.
+     */
+    private static boolean isTransposed(IOpenLTable table) {
+        return switch (table.getSyntaxNode().getMetaInfoReader()) {
+            case DatatypeTableMetaInfoReader reader -> reader.getBoundNode().getTable() instanceof ILogicalTable fields
+                    && !fields.isNormalOrientation();
+            case DataTableMetaInfoReader reader -> reader.getBoundNode().getTable() instanceof ITable compiled
+                    && compiled.getData() instanceof ILogicalTable data
+                    && !data.isNormalOrientation();
+            case null, default -> false;
+        };
     }
 
     /**
@@ -97,8 +133,8 @@ final class ThemeLayouts {
         var style = base.with(header.style());
         var cells = new HashMap<Cell, ThemedCell>();
         // The header look reaches across the table, whether the header is merged over it or not.
-        for (var column = 0; column < table.getWidth(); column++) {
-            cover(cells, table.getCell(column, 0), style);
+        for (var cell : holdersOf(table.getSubtable(0, 0, table.getWidth(), 1))) {
+            cover(cells, cell, style);
         }
         // Only the cell holding the text formats it in pieces; the rest of the merged header carries none.
         var text = logical.getCell(0, 0).getAbsoluteRegion();
@@ -120,13 +156,10 @@ final class ThemeLayouts {
                                         ThemeStyle look) {
         var top = rows.getCell(0, 0).getAbsoluteRow();
         var bottom = top + rows.getHeight() - 1;
-        for (var row = 0; row < rows.getHeight(); row++) {
-            for (var column = 0; column < rows.getWidth(); column++) {
-                var cell = rows.getCell(column, row);
-                // A cell merged over several properties, such as the keyword, reaches the edges of all of them.
-                var region = cell.getAbsoluteRegion();
-                cover(cells, cell, look.atEdges(base, region.getTop() <= top, region.getBottom() >= bottom));
-            }
+        for (var cell : holdersOf(rows)) {
+            // A cell merged over several properties, such as the keyword, reaches the edges of all of them.
+            var region = cell.getAbsoluteRegion();
+            cover(cells, cell, look.atEdges(base, region.getTop() <= top, region.getBottom() >= bottom));
         }
     }
 
@@ -141,13 +174,77 @@ final class ThemeLayouts {
         return logical.getHeight() > bodyStart ? logical.getRows(bodyStart) : null;
     }
 
+    /**
+     * Gives every cell of the sheet a body takes the look of its place, and the last-row look over it where it
+     * reaches the bottom of the table.
+     *
+     * <p>A place can take several cells of the sheet: a row written over several rows of the sheet, or a column over
+     * several columns. Every one of them takes the look of the place. A cell inside a merged region is themed with the
+     * cell that holds the region.
+     *
+     * @param cells   the looks of the cells, which the body adds its cells to
+     * @param placed  the body as its layout reads it, a place in each of its cells, and the look of each place
+     * @param bottom  the last row of the sheet the table takes
+     * @param lastRow the look laid over a cell that reaches the bottom of the table
+     */
+    private static void themePlaces(Map<Cell, ThemedCell> cells, BodyLayout.Placed placed, int bottom,
+                                    @Nullable ThemeStyle lastRow) {
+        var places = placed.places();
+        for (var row = 0; row < places.getHeight(); row++) {
+            for (var column = 0; column < places.getWidth(); column++) {
+                for (var cell : holdersOf(places.getSubtable(column, row, 1, 1).getSource())) {
+                    var style = placed.look().at(cell, column, row);
+                    cover(cells, cell, cell.getAbsoluteRegion().getBottom() < bottom ? style : style.with(lastRow));
+                }
+            }
+        }
+    }
+
+    /**
+     * The cells of the sheet a place takes that hold a merged region, or are merged with none. Covering them themes
+     * each region once, whichever of its cells the place takes.
+     */
+    private static List<ICell> holdersOf(IGridTable place) {
+        var holders = new ArrayList<ICell>(place.getWidth() * place.getHeight());
+        for (var row = 0; row < place.getHeight(); row++) {
+            for (var column = 0; column < place.getWidth(); column++) {
+                var cell = place.getCell(column, row);
+                if (holdsRegion(cell)) {
+                    holders.add(cell);
+                }
+            }
+        }
+        return holders;
+    }
+
+    /** Whether the cell is the one a merged region is held by, or a cell merged with none. */
+    private static boolean holdsRegion(ICell cell) {
+        var region = cell.getAbsoluteRegion();
+        return region.getLeft() == cell.getAbsoluteColumn() && region.getTop() == cell.getAbsoluteRow();
+    }
+
     /** Gives every cell of the region a cell covers the same look. */
-    static void cover(Map<Cell, ThemedCell> cells, ICell cell, ThemeStyle style) {
+    private static void cover(Map<Cell, ThemedCell> cells, ICell cell, ThemeStyle style) {
         var region = cell.getAbsoluteRegion();
         for (var row = region.getTop(); row <= region.getBottom(); row++) {
             for (var column = region.getLeft(); column <= region.getRight(); column++) {
                 cells.put(new Cell(row, column), new ThemedCell(style, null));
             }
         }
+    }
+
+    /** The look a layout gives a place of the body. */
+    @FunctionalInterface
+    interface PlaceLook {
+
+        /**
+         * The look of a place.
+         *
+         * @param cell   a cell of the sheet the place takes, holding a merged region or merged with none
+         * @param column the column of the place in the body as the compiler reads it
+         * @param row    the row of the place in the body as the compiler reads it
+         * @return the look of the cell
+         */
+        ThemeStyle at(ICell cell, int column, int row);
     }
 }

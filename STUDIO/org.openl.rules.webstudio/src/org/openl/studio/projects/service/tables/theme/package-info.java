@@ -1,5 +1,5 @@
 /**
- * The table themes: the looks OpenL Studio gives Datatype, Vocabulary and Spreadsheet tables.
+ * The table themes: the looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test and Run tables.
  *
  * <p>Each theme is a {@code table-themes/*.yaml} file of the Studio classpath, known by the name of its file. A
  * theme is one style for every kind of table it styles. It is used in two ways. It can be written into the workbook,

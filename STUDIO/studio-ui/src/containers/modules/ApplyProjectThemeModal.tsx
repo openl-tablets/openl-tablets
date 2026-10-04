@@ -15,7 +15,8 @@ interface ApplyProjectThemeModalProps {
 }
 
 /**
- * Writes a table theme into every Datatype, Vocabulary and Spreadsheet table of the project, the theme chosen here.
+ * Writes a table theme into every Datatype, Vocabulary, Spreadsheet, Data, Test and Run table of the project, the
+ * theme chosen here.
  *
  * <p>The reader's own theme is chosen to begin with, as their settings name it.
  */

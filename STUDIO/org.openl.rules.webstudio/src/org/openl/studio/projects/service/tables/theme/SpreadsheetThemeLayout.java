@@ -1,15 +1,12 @@
 package org.openl.studio.projects.service.tables.theme;
 
-import java.util.Map;
-
+import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetSymbols;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.studio.projects.service.tables.theme.ThemedTable.Cell;
-import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
 
 /**
  * Decides which look a theme gives each cell of the body of a Spreadsheet table.
@@ -47,17 +44,14 @@ final class SpreadsheetThemeLayout {
     }
 
     /**
-     * Gives every cell of the body of a Spreadsheet the look of its place.
+     * The places of the body of a Spreadsheet, read as it is written. The header names the type the Spreadsheet
+     * returns.
      *
-     * @param cells  the looks of the cells, which the body adds its cells to
-     * @param body   the body of the table: its rows under the header and the properties
-     * @param header the text of the header, which names the type the Spreadsheet returns
-     * @param base   the look every cell of the table starts from
-     * @param look   the look of the table
+     * @param body the body of the table
+     * @return the body and the look of each of its places
      */
-    static void themeBody(Map<Cell, ThemedCell> cells, ILogicalTable body, String header, ThemeStyle base,
-                          TableTheme.Look look) {
-        Places.of(base, look, body, header).theme(cells, body);
+    static BodyLayout.Placed layOut(ThemedBody body) {
+        return new BodyLayout.Placed(body.rows(), Places.of(body));
     }
 
     /**
@@ -70,11 +64,11 @@ final class SpreadsheetThemeLayout {
      * @param value        the look of the value of a step
      * @param marked       the look laid over a name marked for the result
      * @param result       the look laid over the name of the step whose value the Spreadsheet returns
-     * @param lastRow      the look laid over the last row
      * @param stepsEnd     the last column of the sheet the column of steps takes
      * @param resultRow    the row of the body holding the step whose value the Spreadsheet returns, if any
      * @param resultColumn the column of the body named {@code RETURN}, if any
      */
+    @Builder
     private record Places(ThemeStyle title,
                           ThemeStyle stepTitle,
                           ThemeStyle step,
@@ -82,10 +76,9 @@ final class SpreadsheetThemeLayout {
                           ThemeStyle value,
                           @Nullable ThemeStyle marked,
                           @Nullable ThemeStyle result,
-                          @Nullable ThemeStyle lastRow,
                           int stepsEnd,
                           int resultRow,
-                          int resultColumn) {
+                          int resultColumn) implements ThemeLayouts.PlaceLook {
 
         /**
          * The places of a body.
@@ -93,40 +86,29 @@ final class SpreadsheetThemeLayout {
          * <p>A Spreadsheet returning {@code void} returns nothing. A column named {@code RETURN} is returned in place
          * of any step; otherwise the step the compiler returns is found among the rows.
          */
-        static Places of(ThemeStyle base, TableTheme.Look look, ILogicalTable body, String header) {
-            var type = HeaderRuns.returnType(header);
-            var returnColumn = VOID.equals(type) ? NONE : returnColumnOf(body);
-            return new Places(base.with(look.titles()),
-                    base.with(look.titles()).with(look.stepTitle()),
-                    base.with(look.steps()),
-                    base.with(look.steps()).with(look.sections()),
-                    base.with(look.values()),
-                    look.marked(),
-                    look.result(),
-                    look.lastRow(),
-                    body.getCell(0, 0).getAbsoluteRegion().getRight(),
-                    VOID.equals(type) || returnColumn != NONE ? NONE : resultRowOf(body, type),
-                    returnColumn);
+        static Places of(ThemedBody body) {
+            var base = body.base();
+            var look = body.look();
+            var rows = body.rows();
+            var type = HeaderRuns.returnType(body.header());
+            var returnColumn = VOID.equals(type) ? NONE : returnColumnOf(rows);
+            return Places.builder()
+                    .title(base.with(look.titles()))
+                    .stepTitle(base.with(look.titles()).with(look.stepTitle()))
+                    .step(base.with(look.steps()))
+                    .section(base.with(look.steps()).with(look.sections()))
+                    .value(base.with(look.values()))
+                    .marked(look.marked())
+                    .result(look.result())
+                    .stepsEnd(rows.getCell(0, 0).getAbsoluteRegion().getRight())
+                    .resultRow(VOID.equals(type) || returnColumn != NONE ? NONE : resultRowOf(rows, type))
+                    .resultColumn(returnColumn)
+                    .build();
         }
 
-        /** Gives every cell of the body the look of its place. */
-        void theme(Map<Cell, ThemedCell> cells, ILogicalTable body) {
-            var bottom = body.getCell(0, body.getHeight() - 1).getAbsoluteRegion().getBottom();
-            for (var row = 0; row < body.getHeight(); row++) {
-                for (var column = 0; column < body.getWidth(); column++) {
-                    var cell = body.getCell(column, row);
-                    // A cell inside a merged region is themed with the cell that holds the region.
-                    if (holdsRegion(cell)) {
-                        var style = lookAt(cell, row, column);
-                        // A cell that reaches the bottom of the table is in its last row, merged or not.
-                        ThemeLayouts.cover(cells, cell,
-                                cell.getAbsoluteRegion().getBottom() < bottom ? style : style.with(lastRow));
-                    }
-                }
-            }
-        }
-
-        private ThemeStyle lookAt(ICell cell, int row, int column) {
+        /** The look of a cell of the body, by the place it stands in. */
+        @Override
+        public ThemeStyle at(ICell cell, int column, int row) {
             if (row == 0) {
                 return column == 0 ? stepTitle : resultIf(markedIf(title, cell), column == resultColumn);
             }
@@ -188,12 +170,6 @@ final class SpreadsheetThemeLayout {
     /** Whether the name of a row is the name of a step: it is not empty and does not describe the others. */
     private static boolean isStep(@Nullable String text) {
         return text != null && !text.isBlank() && !text.strip().startsWith(DESCRIPTION);
-    }
-
-    /** Whether the cell is the one a merged region is held by, or a cell merged with none. */
-    private static boolean holdsRegion(ICell cell) {
-        var region = cell.getAbsoluteRegion();
-        return region.getLeft() == cell.getAbsoluteColumn() && region.getTop() == cell.getAbsoluteRow();
     }
 
     /**

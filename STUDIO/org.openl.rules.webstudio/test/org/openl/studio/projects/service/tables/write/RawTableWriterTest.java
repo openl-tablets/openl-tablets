@@ -241,7 +241,7 @@ class RawTableWriterTest {
     }
 
     @Test
-    void refusesATableThemeForATableOtherThanADatatype() throws IOException {
+    void refusesATableThemeForATableOfAKindNoThemeStyles() throws IOException {
         var environment = writeProject("environment", new String[][]{{"Environment"}, {"import", "java.lang"}});
 
         var theme = new RawTableSourceAction.Theme("default");

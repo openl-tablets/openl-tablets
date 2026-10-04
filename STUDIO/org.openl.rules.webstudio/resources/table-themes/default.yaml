@@ -1,10 +1,10 @@
-# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary and Spreadsheet tables.
+# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary, Spreadsheet, Data, Test and Run tables.
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
 #
 # Every attribute is optional: one the theme leaves out keeps what the cell has in the workbook.
 # The base is the skin every table shares; a kind of table extends it with what it changes, and takes the rest of the
 # base as it is. Every theme styles every kind: a kind the theme writes nothing for (datatype, vocabulary,
-# spreadsheet) takes the base alone.
+# spreadsheet, data, test, run) takes the base alone.
 
 name: Default
 
@@ -34,18 +34,16 @@ base:
       border:
         top: thin
         bottom: thin
-    keyword:
+    keyword: &muted
       color: "#808080"
     name:
       bold: true
       color: "#000000"
     # The type the header names besides the table: "<String>" of a Vocabulary, "extends Parent" of a Datatype, or
     # the type a Spreadsheet returns.
-    type:
-      color: "#808080"
+    type: *muted
     # The parameters of a Spreadsheet, "( Policy policy )".
-    parameters:
-      color: "#808080"
+    parameters: *muted
   # The rows of table properties under the header, closed by a line.
   properties:
     border:
@@ -100,3 +98,29 @@ spreadsheet:
   # named RETURN, or else the last step.
   result:
     bold: true
+
+data: &data
+  # The header reaches across every value of the table, so its text starts at the left.
+  header:
+    style:
+      align: left
+  # The rows naming the fields and the tables they take their values from, such as "policyNumber".
+  name: *muted
+  # The row naming the columns, such as "Policy Number".
+  titles:
+    bold: true
+    align: center
+    background: "#ddebf7"
+  values:
+    align: center
+  # The IDs of a Data table, and the values a Test or a Run table takes from a Data table by their IDs.
+  ids:
+    bold: true
+    background: "#fff2cc"
+  # A value that is not filled.
+  empty:
+    background: "#f2f2f2"
+
+# A Test and a Run table look like a Data table.
+test: *data
+run: *data

@@ -1,4 +1,4 @@
-# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary and Spreadsheet tables.
+# A table theme of OpenL Studio: the look it gives Datatype, Vocabulary, Spreadsheet, Data, Test and Run tables.
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
 
 name: Green
@@ -70,3 +70,23 @@ spreadsheet:
     bold: true
   result:
     bold: true
+
+data: &data
+  header:
+    style:
+      align: left
+  name: *muted
+  titles:
+    bold: true
+    align: center
+    background: "#e2efda"
+  values:
+    align: center
+  ids:
+    bold: true
+    background: "#c6e0b4"
+  empty:
+    background: "#f2f2f2"
+
+test: *data
+run: *data

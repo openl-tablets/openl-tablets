@@ -1721,6 +1721,8 @@ class WorkspaceProjectServiceTest {
             TableTestProjects.row(sheet, 14, 1, "Spreadsheet SpreadsheetResult Premium()");
             TableTestProjects.row(sheet, 15, 1, "Step", "Formula");
             TableTestProjects.row(sheet, 16, 1, "Total", "= 1");
+            TableTestProjects.row(sheet, 19, 1, "Environment");
+            TableTestProjects.row(sheet, 20, 1, "import", "java.lang");
         });
         // A Datatype gathered from partial tables stands on a grid made of them.
         var part = datatype("part");
@@ -1734,8 +1736,8 @@ class WorkspaceProjectServiceTest {
 
         var result = service.applyProjectTableTheme(project, "green");
 
-        // The Data table is of a kind no theme styles.
-        var themed = List.of("Person", "Code", "Premium").stream()
+        // The Environment table is of a kind no theme styles.
+        var themed = List.of("Person", "Code", "people", "Premium").stream()
                 .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
                 .toList();
         assertEquals(themed, result.themed());

@@ -2525,7 +2525,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Writes a table theme into every Datatype, Vocabulary and Spreadsheet table of every module of the project.
+     * Writes a table theme into every Datatype, Vocabulary, Spreadsheet, Data, Test and Run table of every module of
+     * the project.
      *
      * <p>A table of a project this one depends on is left as it is, as is a table gathered from several partial
      * tables: neither can be written here. Every workbook the theme reaches is saved once.
