@@ -1,8 +1,7 @@
 ## Appendix E: Table Themes
 
-A table theme describes the look OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision,
-Conditions, Actions, Returns, Environment, Properties, and Constants tables. A theme is drawn over the tables while
-they are viewed, or written into the Excel file, as described in
+A table theme describes the look OpenL Studio gives its tables: every table but a table of the type **Other**. A
+theme is drawn over the tables while they are viewed, or written into the Excel file, as described in
 [Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Default** and
 **Green** themes. This appendix describes how a theme file is written.
 
@@ -38,6 +37,11 @@ A theme file holds the following keys:
 -   **`vocabulary`** — what a Vocabulary table changes in the base. A Vocabulary table is a Datatype table that
     declares the type of its values, such as `Datatype Gender <String>`.
 -   **`spreadsheet`** — what a Spreadsheet table changes in the base.
+-   **`tbasic`** — what a TBasic table changes in the base: an algorithm written in steps. The themes that OpenL
+    Studio ships give it the look of a Spreadsheet table, and the row that names its columns the look of the code of
+    a Rules table.
+-   **`method`** — what a Method table changes in the base: a method written as code. The themes that OpenL Studio
+    ships write nothing for it, so it takes the base alone.
 -   **`data`** — what a Data table changes in the base.
 -   **`test`** — what a Test table changes in the base. The themes that OpenL Studio ships give a Test table the look
     of a Data table, as described in [Reusing Parts of a Theme](#reusing-parts-of-a-theme).
@@ -49,6 +53,8 @@ A theme file holds the following keys:
 -   **`smartRules`** — what a SmartRules table changes in the base.
 -   **`simpleLookup`** — what a SimpleLookup table changes in the base.
 -   **`smartLookup`** — what a SmartLookup table changes in the base.
+-   **`columnMatch`** — what a ColumnMatch table changes in the base: a decision tree that checks the arguments row
+    by row. The themes that OpenL Studio ships give it the look of a Rules table.
 -   **`conditions`** — what a Conditions table changes in the base: the conditions that decision tables take by
     their titles. The themes that OpenL Studio ships give a Conditions, an Actions, and a Returns table the look of
     a Rules table.
@@ -62,9 +68,9 @@ A theme file holds the following keys:
     table.
 -   **`constants`** — what a Constants table changes in the base.
 
-A theme is one style for every kind of table: it styles every Datatype, Vocabulary, Spreadsheet, Data, Test, Run,
-decision, Conditions, Actions, Returns, Environment, Properties, and Constants table. Each kind takes the base, and
-the key of the kind writes only what it changes. A kind the theme writes nothing for takes the base alone.
+A theme is one style for every kind of table: it styles every table but a table of the type **Other**, such as a
+table of no kind that OpenL Tablets knows or a part of a table written as several partial tables. Each kind takes the
+base, and the key of the kind writes only what it changes. A kind the theme writes nothing for takes the base alone.
 
 ### Parts of a Table
 
@@ -77,8 +83,9 @@ A look consists of the following parts, each of them optional. Every kind of tab
     -   **`name`** — the font of the table name.
     -   **`type`** — the font of the type that the header names besides the table: the type of a Vocabulary, such as
         `<String>`, the parent of a Datatype, such as `extends Person`, the type a Spreadsheet or a decision table
-        returns, such as `SpreadsheetResult` or `Collect Error[]`, the type of the rows of a Data table, such as
-        `Policy`, or the method a Test or a Run table calls.
+        returns, such as `SpreadsheetResult` or `Collect Error[]`, with the algorithm a ColumnMatch table names
+        before it, such as `<MATCH> String`, the type of the rows of a Data table, such as `Policy`, or the method a
+        Test or a Run table calls.
     -   **`parameters`** — the font of the parameters of a Spreadsheet or a decision table, such as
         `( Policy policy )`.
 -   **`properties`** — the rows of table properties that follow the header. The section is one part of the table
@@ -114,6 +121,25 @@ A Spreadsheet table also takes the following parts:
 -   **`result`** — the step whose value a Spreadsheet returns when it returns a type other than `SpreadsheetResult`,
     laid over its own style. It is the step named `RETURN`, or the last step when no step is named so; a column named
     `RETURN` takes its place.
+
+A TBasic table also takes the following parts:
+
+-   **`code`** — the row that names the columns by their IDs, such as `operation` or `condition`.
+-   **`titles`** — the row of titles, such as **Operation**.
+-   **`stepTitle`** — the title of the column of labels, laid over `titles`.
+-   **`steps`** — the column of labels, the names a step goes to or calls a subroutine by, such as **Calculation**.
+-   **`condition`** — the conditions of the steps, such as `i <= n`. The themes that OpenL Studio ships write no
+    `condition`, so the conditions take `style`.
+-   **`values`** — what the steps run: their actions, and what a step runs before and after its action.
+-   **`sections`** — a step that starts a subroutine with `SUB` or `FUNCTION`, laid over the style of each of its
+    cells.
+-   **`result`** — a step that returns with `RETURN`, laid over the style of each of its cells.
+
+The description and the operation of a step take `style`. The indent of an operation tells the level of the step,
+and a theme never changes it. An indent does not show in a centered text, so keep the `style` of a TBasic table
+aligned to the left, as the themes that OpenL Studio ships do.
+
+A Method table takes no part of its own: the code it holds takes `style`.
 
 A Data, a Test, and a Run table also take the following parts:
 
@@ -151,6 +177,23 @@ returns: each of them is a row that holds its code, its title, and a value of ea
 turn with them: a line above a part is drawn on its left and a line below it on its right, so a line between the
 columns of conditions runs between their rows and a line over a group of rules runs on its left. The lines of
 `style` and `lastRow` stay where they are named, and `lastRow` still styles the last row of the table.
+
+A ColumnMatch table also takes the following parts:
+
+-   **`code`** — the row that names the columns by their IDs, such as `names` or `values`.
+-   **`titles`** — the row of titles.
+-   **`returnTitles`** — the rows that give what the table returns or scores, but for their values: the **Return
+    Values** row of a `MATCH` table, the **Score** row of a `SCORE` table, and the **Return Values**, **Total Score**,
+    and **Score** rows of a `WEIGHTED` table.
+-   **`returns`** — the values of those rows, such as the values the table returns.
+-   **`name`** — the names the conditions check, such as `age`.
+-   **`values`** — what a condition checks its name with and against: the operation, the weight, and the values.
+-   **`groups`** — the style laid over the first row of a group and over the row after the group, for example, a
+    line above that sets the group apart. A condition whose name is not indented makes a group with the conditions
+    indented under it, which the table checks together.
+
+The indent of a name tells the group, and a theme never changes it. Keep the names aligned to the left, so the
+indent shows, as the themes that OpenL Studio ships do.
 
 A Conditions, an Actions, and a Returns table declare the conditions, the actions, and the returns that decision
 tables take by their titles. Each part of a declaration stands in a row — its inputs, its expression, its
@@ -339,12 +382,13 @@ properties: *technical
 The following theme gives every table a dark header with light text. Its base style names every attribute, so it
 overrides the look the Excel file gives a table, and it draws only its own lines: one under the properties and one
 under the last row. A Spreadsheet table also gets a filled row of column titles, bold italic headings of its
-sections, and bold steps that are marked for the result or give it. A Data, a Test, and a Run table get muted field
-names, filled titles, highlighted IDs, and grey values that are not filled. A decision table gets muted code closed
-by a line, filled titles of its conditions and of what it returns, bold horizontal conditions, filled returns, and a
-line over every group of rules, and a Conditions, an Actions, and a Returns table look like its code and its titles.
-An Environment and a Properties table get a dark grey header and grey settings, and a Constants table gets muted
-types and filled names:
+sections, and bold steps that are marked for the result or give it; a TBasic table looks like a Spreadsheet table
+with muted column IDs. A Data, a Test, and a Run table get muted field names, filled titles, highlighted IDs, and grey
+values that are not filled. A decision table gets muted code closed by a line, filled titles of its conditions and of
+what it returns, bold horizontal conditions, filled returns, and a line over every group of rules, and a ColumnMatch
+table looks like it; a Conditions, an Actions, and a Returns table look like its code and its titles. An Environment
+and a Properties table get a dark grey header and grey settings, and a Constants table gets muted types and filled
+names. A Method table takes the base alone:
 
 ```yaml
 name: Corporate
@@ -385,7 +429,7 @@ datatype:
 vocabulary:
   values: {align: center}
 
-spreadsheet:
+spreadsheet: &spreadsheet
   titles: {bold: true, background: "#ddebf7"}
   sections: {bold: true, italic: true, background: "#ddebf7"}
   marked: {bold: true}
@@ -402,7 +446,7 @@ test: *data
 run: *data
 
 rules: &rules
-  code: {color: "#808080", border: {bottom: *line}}
+  code: &code {color: "#808080", border: {bottom: *line}}
   titles: {bold: true, align: center, background: "#d9d9d9"}
   values: {align: center}
   horizontals: {bold: true, align: center, background: "#bdd7ee"}
@@ -418,6 +462,12 @@ smartLookup: *rules
 conditions: *rules
 actions: *rules
 returns: *rules
+
+tbasic:
+  <<: *spreadsheet
+  code: *code
+
+columnMatch: *rules
 
 environment: &technical
   header: {style: {background: "#595959"}}

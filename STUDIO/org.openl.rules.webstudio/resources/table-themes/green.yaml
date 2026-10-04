@@ -54,7 +54,7 @@ vocabulary:
   values:
     align: center
 
-spreadsheet:
+spreadsheet: &spreadsheet
   titles:
     bold: true
     align: center
@@ -92,7 +92,7 @@ test: *data
 run: *data
 
 rules: &rules
-  code:
+  code: &code
     <<: *muted
     border:
       bottom: *line
@@ -116,7 +116,7 @@ rules: &rules
     bold: true
     align: center
     background: "#c6e0b4"
-  returns:
+  returns: &returned
     align: center
     background: "#ebf1de"
   groups:
@@ -132,6 +132,22 @@ smartLookup: *rules
 conditions: *rules
 actions: *rules
 returns: *rules
+
+# A TBasic table looks like a Spreadsheet, the row naming its columns like the code of a Rules table.
+tbasic:
+  <<: *spreadsheet
+  code: *code
+
+# A ColumnMatch table looks like a Rules table, with a line after the names it checks and between its values.
+columnMatch:
+  <<: *rules
+  name:
+    border:
+      right: *line
+  returns:
+    <<: *returned
+    border:
+      right: *line
 
 # The technical tables are drawn in greys, as in every theme.
 environment: &technical

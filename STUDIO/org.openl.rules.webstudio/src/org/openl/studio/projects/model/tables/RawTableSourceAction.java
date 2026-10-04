@@ -80,10 +80,9 @@ public sealed interface RawTableSourceAction
      * @param theme the identifier of the theme, as the list of table themes names it
      */
     @Schema(name = "Theme", description = """
-            Writes a table theme into a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a Run, a decision, a \
-            Conditions, an Actions, a Returns, an Environment, a Properties or a Constants table, as the table stands \
-            after the edits before it. Only the look of the table changes: each cell keeps its value and every \
-            attribute the theme does not set. A table of any other kind is refused.""")
+            Writes a table theme into a table of any kind but `Other`, as the table stands after the edits before \
+            it. Only the look of the table changes: each cell keeps its value and every attribute the theme does \
+            not set. A table of the kind `Other` is refused.""")
     record Theme(
             @Parameter(description = "Identifier of the theme, as the list of table themes names it")
             @NotBlank String theme) implements RawTableSourceAction {

@@ -153,8 +153,8 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 ## Table Theme
 
-The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Conditions, Actions,
-Returns, Environment, Properties and Constants tables are the `table-themes/*.yaml` files of its classpath
+The looks OpenL Studio gives every table but a table of the type Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the
+screen shows as Other) are the `table-themes/*.yaml` files of its classpath
 (`resources/table-themes/` ships `default` and `green`).
 `TableThemeService` reads them once at startup, with the YAML anchors, aliases and merge keys resolved by SnakeYAML,
 then binds them strictly with Jackson.
@@ -174,12 +174,11 @@ for the endpoints.
 - **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
   logged as an error and not offered; Studio starts with the rest.
-- **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test,
-  Run, decision, Conditions, Actions, Returns, Environment, Properties and Constants table, and a kind the theme
-  writes nothing for takes the base alone. The server decides which tables a theme suits
-  (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a constant of
-  `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of its body, so
-  a new kind of table is one constant there and one part of `TableTheme`.
+- **A theme is one style for every kind.** Every theme styles every kind of table but Other, and a kind the theme
+  writes nothing for takes the base alone, as a Method table does in the shipped themes. The server decides which
+  tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a
+  constant of `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of
+  its body, so a new kind of table is one constant there and one part of `TableTheme`.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
   style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
   a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
@@ -198,9 +197,10 @@ for the endpoints.
   of the table does.
 - **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the
   body, with what a layout knows of the table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of
-  `DatatypeThemeLayout`, `SpreadsheetThemeLayout`, `DataThemeLayout`, `DecisionThemeLayout` or
-  `NamedValuesThemeLayout`. Both the screen overlay and `ThemeExcelWriter` ask it, so what is drawn is what writing
-  the theme gives.
+  `DatatypeThemeLayout`, `SpreadsheetThemeLayout`, `TBasicThemeLayout`, `DataThemeLayout`, `DecisionThemeLayout`,
+  `ColumnMatchThemeLayout` or `NamedValuesThemeLayout`. The body of a Method table is code, which takes `base`
+  (`BodyLayout.Placed.plain`). Both the screen overlay and `ThemeExcelWriter` ask it, so what is drawn is what
+  writing the theme gives.
 - **A layout tells the look of a place, `ThemeLayouts` themes the sheet.** A layout answers the places it reads the
   body in and the look of each (`BodyLayout.Placed`), and `ThemeLayouts` alone gives that look to every cell of the
   sheet the place takes, so a row written over several rows of the sheet is themed whole. It themes a merged region
@@ -274,6 +274,23 @@ for the endpoints.
   of a Rules table, so it takes the looks upright, and a table with a part in each column takes them turned. The
   shipped themes alias the look of a Rules table (`conditions: *rules`, `actions: *rules`, `returns: *rules`). A
   table no declaration is read from takes the base alone.
+- **A TBasic and a ColumnMatch table are read as their builders read them.** Both name their columns by ids in the
+  first row of the body, read by `ThemeLayouts.idsOf` trimmed and in lower case as `AlgorithmBuilder` and
+  `ColumnMatchBuilder` read them, title them in the second row, and nest by the indent of a cell. No theme changes
+  the indent: `ThemeStyle` has none, and the writer clones the style of the cell. `TBasicThemeLayout` gives the ids
+  `code`, the titles `titles` with `stepTitle` over the title of the labels, the labels `steps`, the conditions
+  `condition` and what a step runs (`action`, `before`, `after`) `values`. The shipped themes write no `condition`, so
+  only what a step runs is filled, while a theme can still give the conditions a look of their own. It reads the
+  operation of each row of the sheet as `AlgorithmBuilder.buildRows` does, and lays `sections` over every cell of a
+  step that starts a subroutine (`SUB`, `FUNCTION`) and `result` over every cell of one that returns (`RETURN`).
+  `ColumnMatchThemeLayout` takes the rows giving what the table returns or scores as the algorithm the header names
+  makes them (`MatchAlgorithmCompiler.getSpecialRowCount`): one for `MATCH`, the default, and for `SCORE`, three for
+  `WEIGHTED`. Their `values` take `returns` and the rest `returnTitles`. The conditions under them take `name` in
+  the `names` column and `values` elsewhere, and a condition whose name is not indented, with the conditions indented
+  under it, makes a group: `groups` is laid over its first row and over the row after it. Both read the text of the
+  table, so a table being edited is themed before it is compiled. The shipped themes give a TBasic table the look of
+  a Spreadsheet with the code of a Rules table (`tbasic: {<<: *spreadsheet, code: *code}`), and a ColumnMatch table
+  the look of a Rules table with a line after the names and between the returns (`columnMatch: {<<: *rules, ...}`).
 - **An Environment, a Properties and a Constants table name a value in each row.** `NamedValuesThemeLayout` gives
   the first column of an Environment (the setting: `import`, `dependency`, `include`) and of a Properties table (the
   property) the `name` look and the rest `values`. The loader reads an Environment by its rows

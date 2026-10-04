@@ -26,11 +26,9 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   `maxRows`.
 - `styles` — `true` adds the Excel style of every cell and the pieces of its text formatted with fonts of their own; see
   [Style of a Cell](#style-of-a-cell).
-- `tableTheme` — the identifier of a table theme. Reports, for a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test,
-  a Run, a decision, a Conditions, an Actions, a Returns, an Environment, a Properties or a Constants table, the look
-  that the theme gives every cell in place of its Excel style, with or without `styles=true`; see [Table
-  Theme](#table-theme). An empty value draws no theme, as the empty setting draws the formatting of the Excel file. Only
-  with `raw=true`.
+- `tableTheme` — the identifier of a table theme. Reports, for a table of any kind but `Other`, the look that the theme
+  gives every cell in place of its Excel style, with or without `styles=true`; see [Table Theme](#table-theme). An
+  empty value draws no theme, as the empty setting draws the formatting of the Excel file. Only with `raw=true`.
 - `metaInfo` — `true` adds what the compiler knows about every cell.
 - `module` — the module to read the table through. The answer is ready once that module is compiled, without waiting
   for the rest of the project.
@@ -346,12 +344,10 @@ The `style` operation sets the style of every cell of a rectangle:
 
 ### Table Theme
 
-A table theme gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Conditions, Actions, Returns,
-Environment, Properties and Constants tables one look — a decision table being a Rules, a SimpleRules, a SmartRules, a
-SimpleLookup or a SmartLookup table, and a Conditions, an Actions and a Returns table declaring what decision tables
-take by their titles. OpenL Studio offers every theme file in the `table-themes` folder of its classpath and ships
-`default` and `green`. A theme is asked for by its identifier, the name of its file without the extension. How a
-theme file is written is described in
+A table theme gives every table but a table of the kind `Other` one look: a table of no kind OpenL Tablets knows and a
+part of a table written as several partial tables take no theme. OpenL Studio offers every theme file in the
+`table-themes` folder of its classpath and ships `default` and `green`. A theme is asked for by its identifier, the
+name of its file without the extension. How a theme file is written is described in
 [Appendix E: Table Themes](../user-guides/openl-studio/appendices/table-themes.md).
 
 **Listing the themes.** Two endpoints list the themes, each with its identifier and the name it is shown by:
@@ -366,9 +362,8 @@ GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
 ```
 
 - The first lists every theme OpenL Studio offers, ordered by name.
-- The second lists the themes that can be drawn over the table and written into it. Every theme styles every
-  Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Conditions, Actions, Returns, Environment, Properties
-  and Constants table, so the list holds every theme for such a table, and none for a table of any other kind.
+- The second lists the themes that can be drawn over the table and written into it. Every theme styles every table
+  but a table of the kind `Other`, so the list holds every theme for such a table, and none for an `Other` table.
 
 **Drawing the theme.** A read with `tableTheme=<id>` reports every cell the theme reaches in the look of the theme, in
 place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:
@@ -384,8 +379,8 @@ of some rows reports the line over the row under them on its last row as well, w
 keeps it: the rows read one window after another draw the line as the whole table does.
 
 The theme is a view only: a client edits a table from a read without `tableTheme`, whose styles are the ones the
-workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table of any
-other kind is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with `400`.
+workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table of the
+kind `Other` is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with `400`.
 
 **Writing the theme into a table.** The `theme` action writes a theme into the table, alone or with other edits in
 a batch:
@@ -401,12 +396,11 @@ found the titles of what the table declares, each where the rows and the columns
 the theme moved it; a column the batch inserted into a decision table holds nothing compiled yet and takes the base
 look.
 A `style` action that follows sets its styling over the theme. Where OpenL Studio records who edits a table and
-when, a property the note of the edit adds takes the theme too. A table of any other kind is refused with `400`, and
+when, a property the note of the edit adds takes the theme too. A table of the kind `Other` is refused with `400`, and
 so is a theme OpenL Studio does not offer.
 
-**Writing the theme into the project.** One endpoint writes a theme into every Datatype, Vocabulary, Spreadsheet,
-Data, Test, Run, decision, Conditions, Actions, Returns, Environment, Properties and Constants table of every module of
-the project, and recompiles what it changes:
+**Writing the theme into the project.** One endpoint writes a theme into every table of every module of the project
+but the tables of the kind `Other`, and recompiles what it changes:
 
 ```http
 POST /rest/projects/{projectId}/theme?theme={id}

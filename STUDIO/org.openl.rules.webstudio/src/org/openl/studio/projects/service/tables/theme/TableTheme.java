@@ -6,15 +6,16 @@ import org.jspecify.annotations.Nullable;
 /**
  * A table theme as its file describes it: the name it is shown by, and the look it gives each kind of table.
  *
- * <p>A theme is one look for every kind of table it styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test,
- * a Run, a decision table — a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a SmartLookup table — a
- * Conditions, an Actions, a Returns, an Environment, a Properties and a Constants table. The base is the skin every
- * table shares, such as its header and its properties, and each kind extends it. The key of a kind, {@code datatype},
- * {@code vocabulary}, {@code spreadsheet}, {@code data}, {@code test}, {@code run}, {@code rules},
- * {@code simpleRules}, {@code smartRules}, {@code simpleLookup}, {@code smartLookup}, {@code conditions},
- * {@code actions}, {@code returns}, {@code environment}, {@code properties} or {@code constants}, writes only what the
- * kind changes: every part it writes is laid over the same part of the base, attribute by attribute, and every part it
- * leaves out is the one of the base. A kind the theme writes nothing for takes the base alone.
+ * <p>A theme is one look for every kind of table it styles: a Datatype, a Vocabulary, a Spreadsheet, a TBasic, a
+ * Method, a Data, a Test, a Run, a decision table — a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a
+ * SmartLookup table — a ColumnMatch, a Conditions, an Actions, a Returns, an Environment, a Properties and a Constants
+ * table. The base is the skin every table shares, such as its header and its properties, and each kind extends it. The
+ * key of a kind, {@code datatype}, {@code vocabulary}, {@code spreadsheet}, {@code tbasic}, {@code method},
+ * {@code data}, {@code test}, {@code run}, {@code rules}, {@code simpleRules}, {@code smartRules},
+ * {@code simpleLookup}, {@code smartLookup}, {@code columnMatch}, {@code conditions}, {@code actions},
+ * {@code returns}, {@code environment}, {@code properties} or {@code constants}, writes only what the kind changes:
+ * every part it writes is laid over the same part of the base, attribute by attribute, and every part it leaves out is
+ * the one of the base. A kind the theme writes nothing for takes the base alone.
  *
  * @param name         the name OpenL Studio shows the theme by
  * @param base         the skin every kind of table extends, or {@code null} for a theme whose kinds write everything
@@ -22,6 +23,9 @@ import org.jspecify.annotations.Nullable;
  * @param vocabulary   what a Vocabulary table, whose header declares the type of its values, changes in the base,
  *                     or {@code null} for nothing
  * @param spreadsheet  what a Spreadsheet table changes in the base, or {@code null} for nothing
+ * @param tbasic       what a TBasic table, an algorithm written in steps, changes in the base, or {@code null} for
+ *                     nothing
+ * @param method       what a Method table, a method written as code, changes in the base, or {@code null} for nothing
  * @param data         what a Data table changes in the base, or {@code null} for nothing
  * @param test         what a Test table changes in the base, or {@code null} for nothing
  * @param run          what a Run table changes in the base, or {@code null} for nothing
@@ -30,6 +34,8 @@ import org.jspecify.annotations.Nullable;
  * @param smartRules   what a SmartRules table changes in the base, or {@code null} for nothing
  * @param simpleLookup what a SimpleLookup table changes in the base, or {@code null} for nothing
  * @param smartLookup  what a SmartLookup table changes in the base, or {@code null} for nothing
+ * @param columnMatch  what a ColumnMatch table, a decision tree that checks its arguments row by row, changes in the
+ *                     base, or {@code null} for nothing
  * @param conditions   what a Conditions table, the conditions a decision table takes by their titles, changes in the
  *                     base, or {@code null} for nothing
  * @param actions      what an Actions table, the actions a decision table takes by their titles, changes in the base,
@@ -46,6 +52,8 @@ public record TableTheme(String name,
                          @Nullable Look datatype,
                          @Nullable Look vocabulary,
                          @Nullable Look spreadsheet,
+                         @Nullable Look tbasic,
+                         @Nullable Look method,
                          @Nullable Look data,
                          @Nullable Look test,
                          @Nullable Look run,
@@ -54,6 +62,7 @@ public record TableTheme(String name,
                          @Nullable Look smartRules,
                          @Nullable Look simpleLookup,
                          @Nullable Look smartLookup,
+                         @Nullable Look columnMatch,
                          @Nullable Look conditions,
                          @Nullable Look actions,
                          @Nullable Look returns,
@@ -84,54 +93,66 @@ public record TableTheme(String name,
      * <p>Each kind takes the parts that suit it, and a part of another kind is not used. A Datatype takes the titles,
      * the types, the names and the values. A Vocabulary has one column of values: of the body only the values apply
      * to it. A Spreadsheet takes the titles, the step title, the steps, the values, the sections, the marked names
-     * and the result. A Data, a Test and a Run table take the names, the titles, the values, the IDs and the empty
-     * values. A decision table takes the code, the titles, the values, the horizontal conditions, the return titles,
-     * the returns and the groups. A Conditions table takes the code and the titles, and an Actions and a Returns table
-     * the code and the return titles. An Environment and a Properties table take the names and the values, and a
-     * Constants table the types, the names and the values. Every kind takes the style, the header, the properties and
-     * the last row.
+     * and the result, and a TBasic table the code, the titles, the step title, the steps, the condition, the values,
+     * the sections and the result. A Method table takes nothing but what every kind takes. A Data, a Test and a Run
+     * table take the names, the titles, the values, the IDs and the empty values. A decision table takes the code, the
+     * titles, the values, the horizontal conditions, the return titles, the returns and the groups, and a ColumnMatch
+     * table the code, the titles, the names, the values, the return titles, the returns and the groups. A Conditions
+     * table takes the code and the titles, and an Actions and a Returns table the code and the return titles. An
+     * Environment and a Properties table take the names and the values, and a Constants table the types, the names and
+     * the values. Every kind takes the style, the header, the properties and the last row.
      *
      * @param style        the look every cell of the table starts from
      * @param header       the look of the header, the first row of the table
      * @param properties   the look of the rows of table properties under the header, such as the line that closes
      *                     them
-     * @param titles       the look of the row naming the columns: of a Datatype that has one, of a Spreadsheet, the
-     *                     titles of a Data, a Test or a Run table, the titles of the conditions of a decision table
-     *                     and of the column it names its rules in, and the titles of the conditions a Conditions table
-     *                     declares
-     * @param stepTitle    the look of the title of the column of steps of a Spreadsheet, such as {@code Step}, laid
-     *                     over the titles
+     * @param titles       the look of the row naming the columns: of a Datatype that has one, of a Spreadsheet, of a
+     *                     TBasic and of a ColumnMatch table, the titles of a Data, a Test or a Run table, the titles of
+     *                     the conditions of a decision table and of the column it names its rules in, and the titles
+     *                     of the conditions a Conditions table declares
+     * @param stepTitle    the look of the title of the column of steps of a Spreadsheet, such as {@code Step}, and of
+     *                     the column of labels of a TBasic table, laid over the titles
      * @param type         the look of the types: the column of field types of a Datatype, and of the types of the
      *                     constants of a Constants table
      * @param name         the look of the names: the column of field names of a Datatype, the rows of a Data, a Test
-     *                     or a Run table that name its fields and the tables they take their values from, the column
-     *                     of the settings of an Environment table, such as {@code import}, of the properties of a
-     *                     Properties table, and of the names of the constants of a Constants table
-     * @param steps        the look of the column of step names of a Spreadsheet
+     *                     or a Run table that name its fields and the tables they take their values from, the names a
+     *                     ColumnMatch table checks, the column of the settings of an Environment table, such as
+     *                     {@code import}, of the properties of a Properties table, and of the names of the constants
+     *                     of a Constants table
+     * @param steps        the look of the column of step names of a Spreadsheet, and of the labels of a TBasic table
      * @param values       the look of the values: the defaults and the other columns of a Datatype, the values of a
-     *                     Vocabulary, the cells of the steps of a Spreadsheet, the values of a Data, a Test or a Run
-     *                     table, the values the conditions of a decision table are checked against and the names of its
-     *                     rules, and the values of an Environment, a Properties and a Constants table
+     *                     Vocabulary, the cells of the steps of a Spreadsheet, the actions of the steps of a TBasic
+     *                     table and what they run before and after them, the values of a Data, a Test or a Run table,
+     *                     the values the conditions of a decision table are checked against and the names of its
+     *                     rules, what a ColumnMatch table checks its names with and against, and the values of an
+     *                     Environment, a Properties and a Constants table
+     * @param condition    the look of the column of the conditions of the steps of a TBasic table, such as
+     *                     {@code i <= n}
      * @param sections     the look of a step of a Spreadsheet whose name is merged across its row, laid over the
-     *                     steps: a heading that splits the steps into sections
+     *                     steps: a heading that splits the steps into sections; and of a step of a TBasic table that
+     *                     starts a subroutine, laid over its own look
      * @param marked       the look of a step or a column of a Spreadsheet whose name is marked with {@code *} for the
      *                     result, laid over its own look
      * @param result       the look of the step whose value a Spreadsheet returns, when it returns a type other than
-     *                     {@code SpreadsheetResult}, laid over its own look
+     *                     {@code SpreadsheetResult}, and of a step of a TBasic table that returns, laid over its own
+     *                     look
      * @param ids          the look laid over the values that name a row of a Data table: the IDs of a Data table, and
      *                     the values a Test or a Run table takes from a Data table by their IDs
      * @param empty        the look laid over a value of a Data, a Test or a Run table that is not filled
      * @param code         the look of the rows a Rules table declares its columns in: the kind of each column, such
-     *                     as {@code C1} or {@code RET1}, its expression and its parameters; and of the inputs, the
-     *                     expressions and the parameters a Conditions, an Actions or a Returns table declares; a line
-     *                     it draws above or below goes round the rows, not round each of them
+     *                     as {@code C1} or {@code RET1}, its expression and its parameters; of the inputs, the
+     *                     expressions and the parameters a Conditions, an Actions or a Returns table declares; and of
+     *                     the row a TBasic and a ColumnMatch table name their columns in; a line it draws above or
+     *                     below goes round the rows, not round each of them
      * @param horizontals  the look of the values of a horizontal condition, across the top of a lookup
-     * @param returnTitles the look of the title of a column a decision table returns or acts in, and of the titles an
-     *                     Actions or a Returns table declares
-     * @param returns      the look of the values a decision table returns or acts with
+     * @param returnTitles the look of the title of a column a decision table returns or acts in, of the titles an
+     *                     Actions or a Returns table declares, and of the rows a ColumnMatch table gives what it
+     *                     returns or scores in, but for their values
+     * @param returns      the look of the values a decision table returns or acts with, and of the values a ColumnMatch
+     *                     table returns or scores with
      * @param groups       the look laid over the first rule of a group and over the rule after the group, such as
      *                     the line that sets the group apart: a group is the rules a value of a condition is merged
-     *                     over
+     *                     over, or the rows of a ColumnMatch table that check their arguments together
      * @param lastRow      the look laid over the last row, such as the line that closes the table
      */
     @Builder
@@ -144,6 +165,7 @@ public record TableTheme(String name,
                        @Nullable ThemeStyle name,
                        @Nullable ThemeStyle steps,
                        @Nullable ThemeStyle values,
+                       @Nullable ThemeStyle condition,
                        @Nullable ThemeStyle sections,
                        @Nullable ThemeStyle marked,
                        @Nullable ThemeStyle result,
@@ -173,6 +195,7 @@ public record TableTheme(String name,
                     .name(lay(name, over.name))
                     .steps(lay(steps, over.steps))
                     .values(lay(values, over.values))
+                    .condition(lay(condition, over.condition))
                     .sections(lay(sections, over.sections))
                     .marked(lay(marked, over.marked))
                     .result(lay(result, over.result))
@@ -201,8 +224,9 @@ public record TableTheme(String name,
      * @param type       the look of the type the header names besides the table: the type of the values of a
      *                   Vocabulary, such as {@code <String>}, the parent a Datatype extends, such as
      *                   {@code extends Parent}, the type a Spreadsheet or a decision table returns, such as
-     *                   {@code SpreadsheetResult} or {@code Collect Error[]}, the type of the rows of a Data table,
-     *                   such as {@code Policy}, or the method a Test or a Run table calls
+     *                   {@code SpreadsheetResult} or {@code Collect Error[]}, with the algorithm a ColumnMatch table
+     *                   names before it, such as {@code <MATCH> String}, the type of the rows of a Data table, such as
+     *                   {@code Policy}, or the method a Test or a Run table calls
      * @param parameters the look of the parameters of a Spreadsheet or a decision table, such as
      *                   {@code (Policy policy)}
      */
