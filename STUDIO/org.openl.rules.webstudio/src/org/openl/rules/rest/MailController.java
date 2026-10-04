@@ -1,38 +1,28 @@
 package org.openl.rules.rest;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.http.MediaType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.rules.webstudio.web.admin.MailVerificationServerSettings;
-import org.openl.spring.env.DynamicPropertySource;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
-import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.security.CurrentUserInfo;
 import org.openl.studio.security.OwnerOrAdminPrivilege;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/mail")
 @Tag(name = "Mail")
 public class MailController {
@@ -43,23 +33,6 @@ public class MailController {
     private final UserSettingManagementService userSettingManagementService;
     private final UserManagementService userManagementService;
     private final CurrentUserInfo currentUserInfo;
-    private final PropertyResolver propertyResolver;
-    private final BeanValidationProvider validationProvider;
-
-    @Autowired
-    public MailController(MailSender mailSender,
-                          UserManagementService userManagementService,
-                          CurrentUserInfo currentUserInfo,
-                          UserSettingManagementService userSettingManagementService,
-                          PropertyResolver propertyResolver,
-                          BeanValidationProvider validationProvider) {
-        this.mailSender = mailSender;
-        this.userSettingManagementService = userSettingManagementService;
-        this.userManagementService = userManagementService;
-        this.currentUserInfo = currentUserInfo;
-        this.propertyResolver = propertyResolver;
-        this.validationProvider = validationProvider;
-    }
 
     @Operation(summary = "mail.verify.summary", description = "mail.verify.desc")
     @GetMapping("/verify/{token}")
@@ -91,33 +64,5 @@ public class MailController {
         if (!emailWasSent) {
             throw new ForbiddenException("default.message");
         }
-    }
-
-    /**
-     * @deprecated Use {@code GET /admin/settings/mail} instead.
-     */
-    @Operation(summary = "mail.mail-config.summary", description = "mail.mail-config.desc")
-    @GetMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Deprecated(forRemoval = true)
-    public MailConfigModel getMailConfig() {
-        return new MailConfigModel().setUrl(propertyResolver.getProperty(MailVerificationServerSettings.MAIL_URL))
-                .setUsername(propertyResolver.getProperty(MailVerificationServerSettings.MAIL_USERNAME))
-                .setPassword(propertyResolver.getProperty(MailVerificationServerSettings.MAIL_PASSWORD));
-    }
-
-    /**
-     * @deprecated Use {@code POST /admin/settings/mail} instead.
-     */
-    @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")
-    @PutMapping("/settings")
-    @AdminPrivilege
-    @Deprecated(forRemoval = true)
-    public void updateMailConfig(@RequestBody MailConfigModel mailConfig) throws IOException {
-        validationProvider.validate(mailConfig);
-        var mailConfigMap = new HashMap<String, String>();
-        mailConfigMap.put(MailVerificationServerSettings.MAIL_URL, mailConfig.getUrl());
-        mailConfigMap.put(MailVerificationServerSettings.MAIL_USERNAME, mailConfig.getUsername());
-        mailConfigMap.put(MailVerificationServerSettings.MAIL_PASSWORD, mailConfig.getPassword());
-        DynamicPropertySource.get().save(mailConfigMap);
     }
 }

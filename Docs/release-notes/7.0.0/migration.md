@@ -331,6 +331,14 @@ everyone who calls that API from outside the browser.
   and a request that fails now changes nothing.
 * **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
   `400`.
+* **`GET /rest/users/options` and `GET`/`PUT /rest/mail/settings` are removed.** Call their replacements:
+  - **`GET /rest/users/options`** — `GET /rest/settings`, where `emailVerification` is
+    `supportedFeatures.emailVerification`. `userMode` there is `INTERNAL` for `multi`, `EXTERNAL` for `ad`, `oauth2`
+    and `saml`, and empty for `single`; `canCreateInternalUsers` was `true` for `INTERNAL` only.
+  - **`GET /rest/mail/settings`, `PUT /rest/mail/settings`** — `GET /rest/admin/settings/mail` and
+    `POST /rest/admin/settings/mail`. `POST` takes the same `url`, `username` and `password` fields. `GET` does not
+    return a saved password: it answers an object with `"secret": true` in its place, and a field fixed by the
+    application properties as an object with its `value` and `"readOnly": true`.
 * **Java and Groovy code loses the same functions.** `RulesUtils.format`, `dateToString`, `stringToDate`,
   `parseFormattedDouble`, `addIgnoreNull`, `addArrayElementIgnoreNull` and `DEFAULT_DOUBLE_FORMAT` are removed, and so
   is `DateTool.dateToString`. The rules functions of `org.openl.rules.util` are not meant for Java code, so call what

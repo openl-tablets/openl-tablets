@@ -83,7 +83,6 @@ class UsersControllerTest {
                 adminUsers,
                 currentUserInfo,
                 passwordEncoder,
-                new MockEnvironment(),
                 validationProvider,
                 userSettingsManager,
                 extGroupService,

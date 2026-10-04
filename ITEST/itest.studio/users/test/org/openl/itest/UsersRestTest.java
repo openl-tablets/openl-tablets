@@ -118,8 +118,6 @@ class UsersRestTest {
         client.send("users-service/users-info-update.put");
         client.send("users-service/users-4.get");
 
-        client.send("users-service/users-options.get");
-
         client.send("users-service/users-create-2.put");
     }
 
