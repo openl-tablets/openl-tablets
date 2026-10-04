@@ -239,39 +239,6 @@ export const useStyles = createStyles(({ css, token }) => ({
             padding-left: 1em;
             list-style: none;
         }
-
-        .tok-comment {
-            color: ${token.colorTextTertiary};
-            font-style: italic;
-        }
-
-        .tok-keyword {
-            color: ${token.purple6};
-        }
-
-        .tok-string, .tok-string2, .tok-inserted {
-            color: ${token.green7};
-        }
-
-        .tok-number, .tok-bool, .tok-atom, .tok-literal, .tok-variableName2 {
-            color: ${token.blue6};
-        }
-
-        .tok-typeName, .tok-className, .tok-namespace {
-            color: ${token.geekblue6};
-        }
-
-        .tok-propertyName, .tok-definition {
-            color: ${token.orange7};
-        }
-
-        .tok-labelName, .tok-macroName {
-            color: ${token.cyan7};
-        }
-
-        .tok-meta, .tok-deleted, .tok-invalid {
-            color: ${token.volcano6};
-        }
     `,
     tableScroll: css`
         margin: 0 0 1em;

@@ -14,6 +14,11 @@ const mermaid = vi.hoisted(() => ({
 }))
 vi.mock('mermaid', () => ({ default: mermaid }))
 
+/** The token of a code block with the given text, drawn in a colour of its own. */
+const coloredToken = (block: Element | null | undefined, text: string): HTMLElement | undefined =>
+    Array.from(block?.querySelectorAll<HTMLElement>('span') ?? [])
+        .find(span => span.textContent?.trim() === text && span.style.color)
+
 const renderPage = (text: string, file = 'openl-studio/rules-editor.md', title = 'Page Title') => render(
     <MemoryRouter>
         <GuideMarkdown file={file} text={text} title={title} />
@@ -103,24 +108,24 @@ describe('GuideMarkdown', () => {
         const { container } = renderPage('```java\npublic class Rules {}\n```\n\n```text\npublic class Plain {}\n```')
 
         const [java, text] = Array.from(container.querySelectorAll('pre code'))
-        await waitFor(() => expect(java?.querySelector('.tok-keyword')).toHaveTextContent('public'))
+        await waitFor(() => expect(coloredToken(java, 'public')).toBeDefined())
         expect(java).toHaveTextContent('public class Rules {}')
-        expect(text?.querySelector('[class^="tok-"]')).toBeNull()
+        expect(text?.querySelector('span')).toBeNull()
         expect(text).toHaveTextContent('public class Plain {}')
     })
 
     it.each([
-        ['bash', '# Build\nmvn install', '.tok-comment', '# Build'],
-        ['groovy', 'def total = 1', '.tok-keyword', 'def'],
-        ['json', '{"name": 1}', '.tok-propertyName', '"name"'],
-        ['properties', 'openl.home = /data', '.tok-definition', 'openl.home'],
-        ['xml', '<project name="x"/>', '.tok-string', '"x"'],
-        ['yaml', 'server:\n  port: 8080', '.tok-definition', 'server'],
-    ])('highlights %s code and keeps its lines', async (language, code, selector, token) => {
+        ['bash', '# Build\nmvn install', '# Build'],
+        ['groovy', 'def total = 1', 'def'],
+        ['json', '{"name": 1}', '1'],
+        ['properties', 'openl.home = /data', 'openl.home'],
+        ['xml', '<project name="x"/>', '"x"'],
+        ['yaml', 'server:\n  port: 8080', 'server'],
+    ])('highlights %s code and keeps its lines', async (language, code, token) => {
         const { container } = renderPage(`\`\`\`${language}\n${code}\n\`\`\``)
 
         const block = container.querySelector('pre code')
-        await waitFor(() => expect(block?.querySelector(selector)).toHaveTextContent(token))
+        await waitFor(() => expect(coloredToken(block, token)).toBeDefined())
         expect(block?.textContent).toBe(`${code}\n`)
     })
 

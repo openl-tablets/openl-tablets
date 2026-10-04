@@ -18,7 +18,7 @@ import {
     SANITIZE_SCHEMA,
 } from './markdownPlugins'
 import { CsvTable, OpenLTable } from './GuideTables'
-import { HighlightedCode } from './HighlightedCode'
+import { CodeBlock, HighlightedCode } from './HighlightedCode'
 import { MermaidDiagram } from './MermaidDiagram'
 import { useStyles } from './UserGuides.styles'
 
@@ -84,7 +84,9 @@ const componentsOf = (file: string, styles: Styles, noteTitle: string): Componen
         if (code && Drawn) {
             return <Drawn text={toString(code)} />
         }
-        return code && language ? <HighlightedCode code={toString(code)} language={language} /> : <pre>{children}</pre>
+        return code && language
+            ? <HighlightedCode code={toString(code)} language={language} />
+            : <CodeBlock>{children}</CodeBlock>
     },
     table: ({ children }) => (
         <div className={styles.tableScroll}>

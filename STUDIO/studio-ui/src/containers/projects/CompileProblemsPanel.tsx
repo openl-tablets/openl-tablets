@@ -32,7 +32,7 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         flex-direction: column;
         border-top: 1px solid ${token.colorBorderSecondary};
-        background: ${MOCKUP.sidebarBg};
+        background: ${MOCKUP.pageBg};
     `,
     /** The whole header folds the panel; the counts stay in view either way. */
     header: css`

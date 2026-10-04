@@ -76,14 +76,15 @@ describe('themeMode', () => {
     })
 
     it('remembers the picked theme', () => {
-        storeThemeName('evergreen')
+        storeThemeName('dracula')
 
-        expect(localStorage.getItem(THEME_NAME_KEY)).toBe('evergreen')
-        expect(readThemeName()).toBe('evergreen')
+        expect(localStorage.getItem(THEME_NAME_KEY)).toBe('dracula')
+        expect(readThemeName()).toBe('dracula')
     })
 
     it('falls back to the standard theme when the stored one is no longer offered', () => {
-        localStorage.setItem(THEME_NAME_KEY, 'midnight')
+        // Evergreen, offered by an earlier version
+        localStorage.setItem(THEME_NAME_KEY, 'evergreen')
 
         expect(readThemeName()).toBe('standard')
     })

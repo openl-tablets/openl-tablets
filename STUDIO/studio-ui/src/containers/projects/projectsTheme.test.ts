@@ -1,31 +1,39 @@
 import { describe, expect, it } from 'vitest'
 import { theme as antdTheme } from 'antd'
 import { projectsTheme } from './projectsTheme'
-import { DARK_PALETTE, EVERGREEN_LIGHT_PALETTE, LIGHT_PALETTE } from '../../styles/listPageTheme'
+import { paletteFor } from '../../testing/theme'
+
+const LIGHT = paletteFor('standard', false)
+const DARK = paletteFor('standard', true)
 
 describe('projectsTheme', () => {
-    it('paints the Projects screens in the palette it is handed', () => {
-        expect(projectsTheme(LIGHT_PALETTE).token?.colorText).toBe(LIGHT_PALETTE.text)
-        expect(projectsTheme(LIGHT_PALETTE).token?.colorBgLayout).toBe(LIGHT_PALETTE.pageBg)
-        expect(projectsTheme(DARK_PALETTE).token?.colorText).toBe(DARK_PALETTE.text)
-        expect(projectsTheme(DARK_PALETTE).token?.colorBgLayout).toBe(DARK_PALETTE.pageBg)
+    it('takes its colours from the theme of the application, naming none of the shared ones itself', () => {
+        const { token } = projectsTheme(LIGHT)
+
+        Object.keys(token ?? {}).forEach(name => expect(name).not.toMatch(/^color/))
+    })
+
+    it('draws the tabs and the segmented controls of the mockup in the palette it is handed', () => {
+        const { components } = projectsTheme(DARK)
+
+        expect(components?.Tabs).toMatchObject({ itemColor: DARK.textTertiary, itemSelectedColor: DARK.text })
+        expect(components?.Segmented?.trackBg).toBe(DARK.secondaryBg)
     })
 
     it('follows the picked theme, not only the appearance', () => {
-        expect(projectsTheme(EVERGREEN_LIGHT_PALETTE).token?.colorPrimary).toBe(EVERGREEN_LIGHT_PALETTE.primary)
-        expect(projectsTheme(EVERGREEN_LIGHT_PALETTE).token?.colorPrimary)
-            .not.toBe(projectsTheme(LIGHT_PALETTE).token?.colorPrimary)
+        const dracula = paletteFor('dracula', false)
+
+        expect(projectsTheme(dracula).components?.Tabs?.itemColor).toBe(dracula.textTertiary)
+        expect(projectsTheme(dracula).components?.Tabs?.itemColor)
+            .not.toBe(projectsTheme(LIGHT).components?.Tabs?.itemColor)
     })
 
     it('hands Ant Design real colours, never a custom property it cannot derive a palette from', () => {
-        const { token } = projectsTheme(DARK_PALETTE)
-
-        expect(token?.colorPrimary).toBe(DARK_PALETTE.primary)
-        expect(JSON.stringify(token)).not.toContain('var(--')
+        expect(JSON.stringify(projectsTheme(DARK))).not.toContain('var(--')
     })
 
     it('states its measurements as seed tokens, so a density can still scale them', () => {
-        const config = projectsTheme(LIGHT_PALETTE)
+        const config = projectsTheme(LIGHT)
 
         // A measurement named under `components` is put back verbatim after the algorithm has run, so it
         // would stand at its comfortable size on a compact screen. Only the seed may carry one.
@@ -37,7 +45,7 @@ describe('projectsTheme', () => {
     })
 
     it('tightens its controls and its type at the compact density', () => {
-        const config = projectsTheme(LIGHT_PALETTE)
+        const config = projectsTheme(LIGHT)
         const comfortable = antdTheme.getDesignToken(config)
         const compact = antdTheme.getDesignToken({ ...config, algorithm: antdTheme.compactAlgorithm })
 
@@ -50,8 +58,7 @@ describe('projectsTheme', () => {
     })
 
     it('keeps the same shape under every palette', () => {
-        expect(projectsTheme(DARK_PALETTE).token?.borderRadius).toBe(projectsTheme(LIGHT_PALETTE).token?.borderRadius)
-        expect(projectsTheme(EVERGREEN_LIGHT_PALETTE).token?.controlHeight)
-            .toBe(projectsTheme(LIGHT_PALETTE).token?.controlHeight)
+        expect(projectsTheme(DARK).token).toEqual(projectsTheme(LIGHT).token)
+        expect(projectsTheme(paletteFor('kimbie', true)).token).toEqual(projectsTheme(LIGHT).token)
     })
 })

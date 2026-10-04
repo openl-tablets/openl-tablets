@@ -8,6 +8,8 @@ import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { groovy } from '@codemirror/legacy-modes/mode/groovy'
 import { createStyles, useThemeMode } from 'antd-style'
 import { MOCKUP } from './projectsTheme'
+import { useAppTheme } from '../../providers/AppThemeProvider'
+import { editorTheme } from '../../styles/codeMirrorThemes'
 
 const useStyles = createStyles(({ css, token }) => ({
     editor: css`
@@ -17,7 +19,6 @@ const useStyles = createStyles(({ css, token }) => ({
             height: 100%;
             font-family: ${MOCKUP.fontMono};
             font-size: 13px;
-            background: ${token.colorBgContainer};
         }
 
         .cm-editor.cm-focused {
@@ -26,6 +27,12 @@ const useStyles = createStyles(({ css, token }) => ({
 
         .cm-scroller {
             font-family: ${MOCKUP.fontMono};
+        }
+    `,
+    /** The surfaces of the page, laid over CodeMirror's own light theme and One Dark for the standard theme. */
+    pageSurfaces: css`
+        .cm-editor {
+            background: ${token.colorBgContainer};
         }
 
         .cm-gutters {
@@ -75,19 +82,23 @@ interface CodeEditorProps {
  * Syntax-highlighted view of a project text file, backed by CodeMirror. Highlighting is chosen from the
  * file extension (XML, JSON, YAML, .properties, Groovy); other types show as plain monospace text. When
  * {@link CodeEditorProps.readOnly} is set the content is shown for viewing only. The editor is drawn in the
- * appearance in force, light or dark, and follows it when the user switches.
+ * theme in force and its appearance, light or dark, and follows both when the user switches: the standard
+ * theme lays CodeMirror's own light theme or One Dark on the surface of the page, every other theme is the
+ * colour scheme of its code editor.
  */
 export const CodeEditor = ({ value, path, readOnly, onChange }: CodeEditorProps) => {
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
     const { isDarkMode } = useThemeMode()
+    const { themeName } = useAppTheme()
+    const theme = editorTheme(themeName, isDarkMode)
     const extensions = useMemo(() => languageFor(path), [path])
     return (
         <CodeMirror
-            className={styles.editor}
+            className={cx(styles.editor, themeName === 'standard' && styles.pageSurfaces)}
             editable={!readOnly}
             extensions={extensions}
             height="100%"
-            theme={isDarkMode ? 'dark' : 'light'}
+            theme={theme}
             value={value}
             {...(onChange ? { onChange } : {})}
         />

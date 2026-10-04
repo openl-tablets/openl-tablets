@@ -107,9 +107,11 @@ The guides viewer is part of the `studio-ui` application, its single `index` ent
 - **Chunk content** — the Markdown renderer, the sanitizer and the CSV parser.
 - **Nested chunks** — the Mermaid library loads with the first diagram, the code grammars with the first code block,
   and the search index with the first search, so reading a page without diagrams or code pays for none of them.
-- **One set of grammars** — code is highlighted with the CodeMirror grammars of the code editor, through
-  `@lezer/highlight`, so the editor and the viewer share one chunk instead of bundling two highlighters. Until the
-  grammars arrive, a code block shows as plain text.
+- **One set of grammars and colours** — code is highlighted with the CodeMirror grammars of the code editor, through
+  `@lezer/highlight`, and drawn in the highlight style of the editor's theme, so the editor and the viewer share one
+  chunk instead of bundling two highlighters. The colours of the style are written on the tokens inline, so a block
+  needs no stylesheet of its own. Until the grammars arrive, a code block shows as plain text, already in the
+  background and the text colour of the theme.
 
 The viewer shows a sidebar from `toc.json`, and beside the page its outline: the two highest heading levels below the
 heading the page opens with, which the site takes for the title. A page without a heading of its own is given the
@@ -136,7 +138,8 @@ The guides use only this syntax, and the validator holds them to it:
   a screenshot. See [The `openl` fence](#the-openl-fence).
 - **Syntax highlighting** — fenced code is highlighted for the languages the guides use: `bash`, `groovy`, `java`,
   `json`, `properties`, `xml` and `yaml`. A fence without a language renders as plain text. Only these grammars are
-  loaded.
+  loaded. The colours follow the theme picked in OpenL Studio, as the code editor does: a theme taken from a code
+  editor also paints the background and the plain text of every block, a fence without a language included.
 
 ### The `openl` fence
 

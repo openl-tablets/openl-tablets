@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ThemeProvider } from 'antd-style'
 import { CodeEditor } from './CodeEditor'
+import { renderInTheme } from '../../testing/theme'
 
 describe('CodeEditor', () => {
     it('mounts a CodeMirror editor for an XML file', () => {
@@ -35,6 +36,13 @@ describe('CodeEditor', () => {
             </ThemeProvider>
         )
         expect(dark.container.querySelector('.cm-theme-dark')).toBeTruthy()
+    })
+
+    it('is drawn in the scheme of a theme taken from a code editor', () => {
+        const { container } = renderInTheme(<CodeEditor path="a.xml" value="" />, { theme: 'dracula' })
+
+        expect(container.querySelector('.cm-theme .cm-editor')).toBeTruthy()
+        expect(container.querySelector('.cm-theme-light, .cm-theme-dark')).toBeNull()
     })
 
     it('forwards edit changes when not read-only', async () => {

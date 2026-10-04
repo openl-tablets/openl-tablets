@@ -183,7 +183,7 @@ To delete a token, in the tokens list, click the delete icon next to the token a
 
 ### Switching the Theme
 
-To change how OpenL Studio looks, in the top-right corner, click the theme icon next to the user icon. The menu offers three independent choices.
+To change how OpenL Studio looks, in the top-right corner, click the theme icon next to the user icon. The menu offers three independent choices, and each choice applies at once. The menu stays open while you choose, so you can try several themes in a row. To close it, click the theme icon again or anywhere outside the menu.
 
 The first group selects the appearance:
 
@@ -191,18 +191,15 @@ The first group selects the appearance:
 -   **Dark** — always use the dark appearance
 -   **Follow System** — use the appearance the operating system asks for, and switch along with it
 
-The second group selects the colour theme, shown beside a dot of its own main colour:
+Under the appearances, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
 
--   **Standard** — the OpenL colours
--   **Evergreen** — a deep teal alternative
+The second group selects the colour theme, shown beside a dot of its own main colour. **Standard** uses the colours of Ant Design, the component library OpenL Studio is built with. The other themes are colour flavours of popular code editors: each paints the screens, the code editor of project files, and the code samples of the user guides shown in OpenL Studio in its own colours. Every theme has a light and a dark variant, and the appearance selects between them.
 
-Under the themes, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
-
-![Theme menu opened next to the user icon, offering Light, Dark, Follow System, the Standard and Evergreen themes, and a Compact switch](images/theme-switcher.png)
+![Theme menu opened next to the user icon, offering Light, Dark, Follow System, a Compact switch, and the colour themes](images/theme-switcher.png)
 
 *Choosing the appearance, the theme, and the density*
 
-The three choices are independent: any theme is displayed in either appearance, at either density.
+The three choices are independent: every theme is displayed in either appearance, at either density.
 
 New users start with **Follow System**, the **Standard** theme, and the comfortable density. All three choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. Using a different browser or computer starts from the defaults again.
 
