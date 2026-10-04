@@ -1726,6 +1726,8 @@ class WorkspaceProjectServiceTest {
             TableTestProjects.row(sheet, 23, 1, "SimpleRules String Greeting(Integer hour)");
             TableTestProjects.row(sheet, 24, 1, "Hour", "Greeting");
             TableTestProjects.row(sheet, 25, 1, "< 12", "Good Morning");
+            TableTestProjects.row(sheet, 28, 1, "Notes on the model");
+            TableTestProjects.row(sheet, 29, 1, "Written by hand");
         });
         // A Datatype gathered from partial tables stands on a grid made of them.
         var part = datatype("part");
@@ -1739,8 +1741,8 @@ class WorkspaceProjectServiceTest {
 
         var result = service.applyProjectTableTheme(project, "green");
 
-        // The Method table is of a kind no theme styles.
-        var themed = List.of("Person", "Code", "people", "Premium", "Greeting").stream()
+        // The notes are of no kind OpenL knows, which no theme styles.
+        var themed = List.of("Person", "Code", "people", "Premium", "answer", "Greeting").stream()
                 .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
                 .toList();
         assertEquals(themed, result.themed());

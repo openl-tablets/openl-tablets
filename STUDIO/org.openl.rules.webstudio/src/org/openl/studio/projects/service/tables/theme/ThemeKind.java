@@ -24,6 +24,8 @@ enum ThemeKind {
     DATATYPE(TableTheme::datatype, DatatypeThemeLayout::fields),
     VOCABULARY(TableTheme::vocabulary, DatatypeThemeLayout::values),
     SPREADSHEET(TableTheme::spreadsheet, SpreadsheetThemeLayout::layOut),
+    TBASIC(TableTheme::tbasic, TBasicThemeLayout::layOut),
+    METHOD(TableTheme::method, BodyLayout.Placed::plain),
     DATA(TableTheme::data, DataThemeLayout::data),
     TEST(TableTheme::test, DataThemeLayout::calls),
     RUN(TableTheme::run, DataThemeLayout::calls),
@@ -32,6 +34,7 @@ enum ThemeKind {
     SMART_RULES(TableTheme::smartRules, DecisionThemeLayout::rules),
     SIMPLE_LOOKUP(TableTheme::simpleLookup, DecisionThemeLayout::rules),
     SMART_LOOKUP(TableTheme::smartLookup, DecisionThemeLayout::rules),
+    COLUMN_MATCH(TableTheme::columnMatch, ColumnMatchThemeLayout::layOut),
     CONDITIONS(TableTheme::conditions, DecisionThemeLayout::conditions),
     ACTIONS(TableTheme::actions, DecisionThemeLayout::actions),
     RETURNS(TableTheme::returns, DecisionThemeLayout::actions),
@@ -60,7 +63,8 @@ enum ThemeKind {
      * The kind of a table, told as OpenL Studio tells the kinds apart.
      *
      * <p>A Datatype whose header declares the type of its values is a Vocabulary. A decision table is of the kind its
-     * header keyword names. A table of any other kind has no kind a theme styles.
+     * header keyword names. A table OpenL Studio shows as of the type Other has no kind a theme styles: a table of no
+     * kind OpenL knows, and a part of a table split into several.
      *
      * @param table  the table
      * @param header the text of its header
@@ -70,17 +74,20 @@ enum ThemeKind {
         return switch (OpenLTableUtils.kindOf(table)) {
             case DATATYPE -> OpenLTableUtils.isVocabularyHeader(header) ? VOCABULARY : DATATYPE;
             case SPREADSHEET -> SPREADSHEET;
+            case TBASIC -> TBASIC;
+            case METHOD -> METHOD;
             case DATA -> DATA;
             case TEST -> TEST;
             case RUN -> RUN;
             case RULES -> decisionOf(table.getSyntaxNode());
+            case COLUMN_MATCH -> COLUMN_MATCH;
             case CONDITIONS -> CONDITIONS;
             case ACTIONS -> ACTIONS;
             case RETURNS -> RETURNS;
             case ENVIRONMENT -> ENVIRONMENT;
             case PROPERTIES -> PROPERTIES;
             case CONSTANTS -> CONSTANTS;
-            default -> null;
+            case OTHER -> null;
         };
     }
 

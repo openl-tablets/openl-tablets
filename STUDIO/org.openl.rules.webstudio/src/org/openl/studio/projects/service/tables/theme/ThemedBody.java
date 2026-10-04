@@ -9,7 +9,7 @@ import org.openl.rules.table.ILogicalTable;
  *
  * @param rows       the body: the rows of the table under its header and the properties it declares
  * @param header     the text of the header, which tells some kinds how to lay out the body, such as the type a
- *                   Spreadsheet returns
+ *                   Spreadsheet returns or the algorithm of a ColumnMatch table
  * @param base       the look every cell of the table starts from
  * @param look       the look of the table
  * @param transposed whether the compiler read the table with its rows and columns swapped

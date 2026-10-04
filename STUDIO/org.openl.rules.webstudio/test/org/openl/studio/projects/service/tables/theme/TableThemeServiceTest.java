@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -93,6 +94,35 @@ class TableThemeServiceTest {
     }
 
     @Test
+    void theThemesOfStudioDrawATBasicTableAsASpreadsheetAndAColumnMatchAsARulesTable() {
+        for (var id : List.of("default", "green")) {
+            var theme = service.theme(id);
+            var spreadsheet = theme.lookOf(theme.spreadsheet());
+            var rules = theme.lookOf(theme.rules());
+            var tbasic = theme.lookOf(theme.tbasic());
+            var columnMatch = theme.lookOf(theme.columnMatch());
+
+            // A part the Spreadsheet leaves out, such as the values of the green theme, is left out alike.
+            assertEquals(Arrays.asList(spreadsheet.titles(), spreadsheet.stepTitle(), spreadsheet.values(),
+                            spreadsheet.sections(), spreadsheet.result()),
+                    Arrays.asList(tbasic.titles(), tbasic.stepTitle(), tbasic.values(), tbasic.sections(),
+                            tbasic.result()),
+                    id + ": a TBasic table looks like a Spreadsheet");
+            assertEquals(rules.code(), tbasic.code(), id + ": its column ids look like the code of a Rules table");
+            assertNull(tbasic.condition(), id + ": its conditions keep the look every cell starts from");
+            assertEquals(List.of(rules.code(), rules.titles(), rules.values(), rules.returnTitles(), rules.groups()),
+                    List.of(columnMatch.code(), columnMatch.titles(), columnMatch.values(), columnMatch.returnTitles(),
+                            columnMatch.groups()),
+                    id + ": a ColumnMatch table looks like a Rules table");
+            // A line after the names it checks, and between the values it returns.
+            assertEquals(ThemeLineStyle.THIN, columnMatch.name().border().right().style(), id);
+            assertEquals(rules.returns().background(), columnMatch.returns().background(), id);
+            assertEquals(ThemeLineStyle.THIN, columnMatch.returns().border().right().style(), id);
+            assertEquals(theme.base(), theme.lookOf(theme.method()), id + ": a Method table takes the base alone");
+        }
+    }
+
+    @Test
     void theThemesOfStudioSignEveryKindOfTableAlikeAndFillTheHeaderOfADatatype() {
         for (var id : List.of("default", "green")) {
             var theme = service.theme(id);
@@ -127,7 +157,8 @@ class TableThemeServiceTest {
         // Next to the themes it reads lie the ones it refuses; Studio starts with the ones it can offer.
         assertEquals(List.of(new TableThemeView("datatype-extension", "Datatype Extension"),
                         new TableThemeView("decision-kinds", "Decision Kinds"),
-                        new TableThemeView("extended-header", "Extended Header")),
+                        new TableThemeView("extended-header", "Extended Header"),
+                        new TableThemeView("tbasic-condition", "TBasic Condition")),
                 new TableThemeService(FIXTURES + "*.yaml").getThemes());
     }
 

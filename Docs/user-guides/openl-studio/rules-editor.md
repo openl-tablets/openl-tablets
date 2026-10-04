@@ -297,7 +297,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-font-color-icon.png) | Sets the font color.                                    |
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
-    | ![](images/edit-apply-theme-icon.png) | Applies a table theme to a Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Conditions, Actions, Returns, Environment, Properties, or Constants table, as described in [Applying the Table Theme](#applying-the-table-theme). |
+    | ![](images/edit-apply-theme-icon.png) | Applies a table theme to a table of any type but Other, as described in [Applying the Table Theme](#applying-the-table-theme). |
 
     The **Close** button at the end of the toolbar leaves the edit mode. When the table has unsaved changes, OpenL Studio asks whether to discard them.
 
@@ -361,9 +361,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
 ### Applying the Table Theme
 
-A table theme gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, decision, Conditions, Actions, Returns,
-Environment, Properties, and Constants tables one consistent look. For example, the **Default** theme that
-OpenL Studio ships formats the tables as follows:
+A table theme gives every table but a table of the type **Other** one consistent look. For example, the **Default**
+theme that OpenL Studio ships formats the tables as follows:
 
 -   **Header** — the keyword, the type, and the parameters in grey and the name in bold, alike for every kind of
     table. The header of a Datatype or a Vocabulary is filled, and the header of a Data, a Test, or a Run table
@@ -376,6 +375,11 @@ OpenL Studio ships formats the tables as follows:
     merged across its row heads a section, such as **Policy Factors Calculation**, and is written in bold italic. A
     step marked with `*` for the result, such as `PolicyNumber*`, is bold, and so is the step whose value a
     Spreadsheet returns when it returns a type other than `SpreadsheetResult`.
+-   **Algorithms** — a TBasic table looks like a Spreadsheet: the row of its column IDs, such as `operation`, in
+    grey and closed by a line, its titles in bold and filled, and its actions filled, while its conditions are not. A
+    step that starts a subroutine with `SUB` or `FUNCTION` heads a section and is written in bold italic, and a step
+    that returns with `RETURN` is bold. The operations keep their indent, which tells the level of each step.
+-   **Code** — the code of a Method table in the look every cell starts from.
 -   **Data** — the field names of a Data, a Test, or a Run table in grey, its titles in bold and filled, and its
     values centered. The IDs of a Data table, and the values a Test or a Run table takes from a Data table by their
     IDs, are bold and highlighted. A value that is not filled is grey. A Test and a Run table look like a Data table.
@@ -385,6 +389,11 @@ OpenL Studio ships formats the tables as follows:
     table are bold and filled, and the rows of code of a Rules table, such as `C1` and `RET1`, are grey and closed by
     a line. A value of a condition merged over several rules sets them apart with a line above and below them. Every
     kind of decision table looks like a Rules table.
+-   **Column match** — a ColumnMatch table looks like a Rules table: the row of its column IDs in grey and closed by
+    a line, its titles filled grey, the rows that give what it returns or scores, such as **Return Values**, filled
+    blue, and a line after the names it checks and between its values. A condition with the conditions indented
+    under it, which the table checks together, sets them apart with a line above and below them. The names keep
+    their indent.
 -   **Declarations** — a Conditions, an Actions, and a Returns table, which declare what decision tables take by
     their titles, look like the code and the titles of a Rules table: their inputs, expressions, and parameters
     are grey and closed by a line, the titles of the conditions are filled grey, and the titles of the actions and
@@ -401,22 +410,20 @@ OpenL Studio ships formats the tables as follows:
 OpenL Studio also ships the **Green** theme. How a theme file is written is described in
 [Appendix E: Table Themes](appendices/table-themes.md). A theme can be used in the following ways:
 
--   **Viewed only** — in **My Settings**, in the **Table Theme** list, select the theme. Datatype, Vocabulary,
-    Spreadsheet, Data, Test, Run, decision, Conditions, Actions, Returns, Environment, Properties, and Constants
-    tables are then drawn with the theme while they are viewed, and the Excel file keeps its own formatting. A table
-    switched to the edit mode is drawn as the file holds it, so the formatting changed in the edit mode is the
-    formatting of the file. To draw the tables with the formatting of the file again, select **Excel Formatting**.
+-   **Viewed only** — in **My Settings**, in the **Table Theme** list, select the theme. Every table but a table of
+    the type **Other** is then drawn with the theme while it is viewed, and the Excel file keeps its own formatting.
+    A table switched to the edit mode is drawn as the file holds it, so the formatting changed in the edit mode is
+    the formatting of the file. To draw the tables with the formatting of the file again, select **Excel
+    Formatting**.
 -   **Written into one table** — switch the table to the edit mode, click **Apply Theme**
     ![](images/edit-apply-theme-icon.png) on the toolbar, and select the theme. The table is drawn with the theme,
     and the theme is written into the Excel file with the other changes of the table when **Save** is clicked.
-    **Undo** takes the theme back. The button is displayed only for a Datatype, Vocabulary, Spreadsheet, Data, Test,
-    Run, decision, Conditions, Actions, Returns, Environment, Properties, or Constants table.
+    **Undo** takes the theme back. The button is displayed for every table but a table of the type **Other**.
 -   **Written into the whole project** — above the table, click **More**, select **Apply Table Theme to Project**,
-    select the theme, and click **Apply Theme**. The theme is written into every Datatype, Vocabulary, Spreadsheet,
-    Data, Test, Run, decision, Conditions, Actions, Returns, Environment, Properties, and Constants table of every
-    module of the project. A module set to compile alone has the whole project compiled first, and a project whose
-    compilation was stopped is not themed. The theme selected first is the one that **My Settings** names, or the first
-    theme in the list when **My Settings** names **Excel Formatting**.
+    select the theme, and click **Apply Theme**. The theme is written into every table of every module of the
+    project but the tables of the type **Other**. A module set to compile alone has the whole project compiled first,
+    and a project whose compilation was stopped is not themed. The theme selected first is the one that **My
+    Settings** names, or the first theme in the list when **My Settings** names **Excel Formatting**.
 
 > [!Note]
 > Until **Save** is clicked, the theme is drawn as it fits the table without the changes made in the edit mode. A row

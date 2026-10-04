@@ -346,10 +346,11 @@ class RawTableWriterTest {
 
     @Test
     void refusesATableThemeForATableOfAKindNoThemeStyles() throws IOException {
-        var method = writeProject("method", new String[][]{{"Method String answer()"}, {"return \"yes\";"}});
+        // A table of no kind OpenL knows.
+        var notes = writeProject("notes", new String[][]{{"Notes on the model"}, {"Written by hand"}});
 
         var theme = new RawTableSourceAction.Theme("default");
-        var refused = assertThrows(BadRequestException.class, () -> apply(method, theme));
+        var refused = assertThrows(BadRequestException.class, () -> apply(notes, theme));
 
         assertEquals("openl.error.400.table.theme.unsupported.message", refused.getErrorCode());
     }

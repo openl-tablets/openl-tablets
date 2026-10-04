@@ -135,12 +135,12 @@ To manage personal settings, proceed as follows:
 
     -   **Show Header** — display the table header row.
     -   **Show Formulas** — display MS Excel formulas in table cells.
-    -   **Table Theme** — how Datatype and Vocabulary tables are drawn while they are viewed. The default,
-        **Excel Formatting**, draws them with the formatting of the Excel file. A table theme draws them with the
-        theme and is selected first when a theme is applied to a project. Only the screen changes: the Excel file
-        keeps its own formatting, and a table being edited is drawn as the file holds it. To write a theme into
-        the Excel file, see [Applying the Table Theme](rules-editor.md#applying-the-table-theme). For more
-        information on themes, see [Appendix E: Table Themes](appendices/table-themes.md).
+    -   **Table Theme** — how the tables are drawn while they are viewed: every table but a table of the type
+        **Other**. The default, **Excel Formatting**, draws them with the formatting of the Excel file. A table theme
+        draws them with the theme and is selected first when a theme is applied to a project. Only the screen
+        changes: the Excel file keeps its own formatting, and a table being edited is drawn as the file holds it. To
+        write a theme into the Excel file, see [Applying the Table Theme](rules-editor.md#applying-the-table-theme).
+        For more information on themes, see [Appendix E: Table Themes](appendices/table-themes.md).
 
 4.  In the **Testing Settings** section, configure the following options:
 

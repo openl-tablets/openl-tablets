@@ -1,0 +1,108 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0735346c6d46143a844f594ff2d09504",
+  "tableType": "RawSource",
+  "kind": "Method",
+  "name": "Answer",
+  "pos": "B38:B39",
+  "source": [
+    [
+      {
+        "cell": "B38",
+        "value": "Method Integer Answer()",
+        "style": {
+          "align": "center",
+          "valign": "top",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        },
+        "runs": [
+          {
+            "text": "Method",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": " ",
+            "style": {
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "Integer",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": " ",
+            "style": {
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "Answer",
+            "style": {
+              "bold": true,
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "()",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "B39",
+        "value": "return 42;",
+        "style": {
+          "valign": "top",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 0
+}

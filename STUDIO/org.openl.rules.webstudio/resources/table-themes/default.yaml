@@ -4,8 +4,9 @@
 # Every attribute is optional: one the theme leaves out keeps what the cell has in the workbook.
 # The base is the skin every table shares; a kind of table extends it with what it changes, and takes the rest of the
 # base as it is. Every theme styles every kind: a kind the theme writes nothing for (datatype, vocabulary,
-# spreadsheet, data, test, run, rules, simpleRules, smartRules, simpleLookup, smartLookup, conditions, actions,
-# returns, environment, properties, constants) takes the base alone.
+# spreadsheet, tbasic, method, data, test, run, rules, simpleRules, smartRules, simpleLookup, smartLookup,
+# columnMatch, conditions, actions, returns, environment, properties, constants) takes the base alone, as a Method
+# table, whose cells hold code, does here.
 
 name: Default
 
@@ -70,7 +71,7 @@ vocabulary:
   values:
     align: center
 
-spreadsheet:
+spreadsheet: &spreadsheet
   # The row naming the columns, such as "Formula".
   titles:
     bold: true
@@ -129,7 +130,7 @@ run: *data
 rules: &rules
   # The rows a Rules table declares its columns in: the kind of each column, such as "C1" or "RET1", its expression
   # and its parameters, closed by a line. A SimpleRules, a SmartRules and a lookup have none.
-  code:
+  code: &code
     <<: *muted
     border:
       bottom: thin
@@ -158,7 +159,7 @@ rules: &rules
     align: center
     background: "#b4c6e7"
   # The values the table returns.
-  returns:
+  returns: &returned
     align: center
     background: "#ddebf7"
   # The rules that share a value of a condition merged over them make a group: a line over its first rule and over
@@ -178,6 +179,28 @@ smartLookup: *rules
 conditions: *rules
 actions: *rules
 returns: *rules
+
+# A TBasic table, an algorithm written in steps, looks like a Spreadsheet: the labels of its steps look like the step
+# names, and what the steps run, such as their actions, like the values. Their conditions keep the look every cell
+# starts from; a "condition" part would give them one. A step that starts a subroutine, SUB or FUNCTION, heads a
+# section, and a step that returns, RETURN, is the result. The row naming its columns, such as "operation", looks
+# like the code of a Rules table.
+tbasic:
+  <<: *spreadsheet
+  code: *code
+
+# A ColumnMatch table looks like a Rules table. The rows giving what it returns or scores, such as "Return Values",
+# look like the returns, with a line between the values; a line sets the names it checks apart from the values, and
+# a group of conditions it checks together is set apart as a group of rules.
+columnMatch:
+  <<: *rules
+  name:
+    border:
+      right: thin
+  returns:
+    <<: *returned
+    border:
+      right: thin
 
 # An Environment table: the packages a module imports and the modules it depends on. A technical table, drawn in
 # greys.

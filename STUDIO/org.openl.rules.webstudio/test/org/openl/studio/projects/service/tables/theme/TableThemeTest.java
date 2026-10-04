@@ -128,8 +128,12 @@ class TableThemeTest {
     private static final String RATED_RUN = "RatedRun";
     private static final int RATED_RUN_ROW = 120;
 
-    /** A Method table, which no theme styles. */
+    /** A Method table: its code takes the look every cell starts from. */
     private static final String ANSWER = "Answer";
+    private static final int ANSWER_ROW = 109;
+
+    /** A table of no kind OpenL knows, which no theme styles. */
+    private static final int NOTES_ROW = 126;
 
     /** The fills the default theme gives an ID and a value that is not filled. */
     private static final String ID_BACKGROUND = "#fff2cc";
@@ -168,7 +172,8 @@ class TableThemeTest {
         assertNotNull(service.layoutOf(TableTestProjects.table(model, "people"), THEME));
         assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_TEST), THEME));
         assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_RUN), THEME));
-        assertNull(service.layoutOf(TableTestProjects.table(model, ANSWER), THEME));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, ANSWER), THEME));
+        assertNull(service.layoutOf(notes(), THEME));
     }
 
     @Test
@@ -182,7 +187,7 @@ class TableThemeTest {
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
         assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
-        assertTrue(service.getThemes(TableTestProjects.table(model, ANSWER)).isEmpty(), "No theme styles a Method");
+        assertTrue(service.getThemes(notes()).isEmpty(), "No theme styles a table of no kind OpenL knows");
     }
 
     @Test
@@ -203,7 +208,9 @@ class TableThemeTest {
         }
         var people = extension.layoutOf(TableTestProjects.table(model, "people"), "datatype-extension");
         assertEquals(Boolean.TRUE, people.at(14, 1).style().italic(), "A Data table takes the base as well");
-        assertNull(extension.layoutOf(TableTestProjects.table(model, ANSWER), "datatype-extension"));
+        var answer = extension.layoutOf(TableTestProjects.table(model, ANSWER), "datatype-extension");
+        assertEquals(Boolean.TRUE, answer.at(ANSWER_ROW + 1, 1).style().italic(), "So does a Method table");
+        assertNull(extension.layoutOf(notes(), "datatype-extension"));
     }
 
     @Test
@@ -740,10 +747,23 @@ class TableThemeTest {
     void writesNothingIntoATableTheThemeDoesNotApplyTo() throws IOException {
         var before = Files.readAllBytes(dir.resolve(SHEET + ".xlsx"));
 
-        write(List.of(TableTestProjects.table(TableTestProjects.projectModel(dir), ANSWER)));
+        write(List.of(notes()));
 
         assertArrayEquals(before, Files.readAllBytes(dir.resolve(SHEET + ".xlsx")),
                 "No workbook is saved when no table is themed");
+    }
+
+    @Test
+    void givesTheCodeOfAMethodTableTheLookEveryCellStartsFrom() {
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), ANSWER), THEME);
+
+        var code = layout.at(ANSWER_ROW + 1, 1).style();
+        assertEquals(WHITE, code.background());
+        assertEquals(ThemeHorizontalAlign.LEFT, code.align());
+        assertEquals(Boolean.FALSE, code.bold());
+        assertTrue(lineBelow(layout.at(ANSWER_ROW + 1, 1)), "The last row closes the table");
+        var runs = layout.at(ANSWER_ROW, 1).runs("Method Integer " + ANSWER + "()");
+        assertEquals(MUTED, runs.getFirst().style().color(), "It is signed as every table");
     }
 
     @Test
@@ -936,7 +956,8 @@ class TableThemeTest {
     /**
      * A Datatype with a percentage, a Vocabulary, a Datatype naming its columns, a Data table, a cell outside
      * every table filled red, a Datatype whose header is not merged over it, two Datatypes written transposed, seven
-     * Spreadsheets, two more Data tables, one of them transposed, a Test table and a Method table.
+     * Spreadsheets, two more Data tables, one of them transposed, a Test table, a Method table, a Run table and a table of
+     * no kind OpenL knows.
      */
     private static void fillSheet(Sheet sheet) {
         var workbook = sheet.getWorkbook();
@@ -1067,8 +1088,8 @@ class TableThemeTest {
         TableTestProjects.row(sheet, RATED_TEST_ROW + 3, 1, "Insured", "Premium");
         TableTestProjects.row(sheet, RATED_TEST_ROW + 4, 1, "Ann", "1.5");
 
-        TableTestProjects.row(sheet, 109, 1, "Method Integer " + ANSWER + "()");
-        TableTestProjects.row(sheet, 110, 1, "return 42;");
+        TableTestProjects.row(sheet, ANSWER_ROW, 1, "Method Integer " + ANSWER + "()");
+        TableTestProjects.row(sheet, ANSWER_ROW + 1, 1, "return 42;");
 
         TableTestProjects.row(sheet, TALL_ROW, 1, "Spreadsheet SpreadsheetResult " + TALL + " ( Person person )");
         sheet.addMergedRegion(new CellRangeAddress(TALL_ROW, TALL_ROW, 1, 2));
@@ -1082,5 +1103,13 @@ class TableThemeTest {
         TableTestProjects.row(sheet, RATED_RUN_ROW + 2, 1, ">people");
         TableTestProjects.row(sheet, RATED_RUN_ROW + 3, 1, "Insured");
         TableTestProjects.row(sheet, RATED_RUN_ROW + 4, 1, "Ann");
+
+        TableTestProjects.row(sheet, NOTES_ROW, 1, "Notes on the model");
+        TableTestProjects.row(sheet, NOTES_ROW + 1, 1, "Written by hand");
+    }
+
+    /** The table of no kind OpenL knows. */
+    private IOpenLTable notes() {
+        return TableTestProjects.tableAt(dir, NOTES_ROW);
     }
 }

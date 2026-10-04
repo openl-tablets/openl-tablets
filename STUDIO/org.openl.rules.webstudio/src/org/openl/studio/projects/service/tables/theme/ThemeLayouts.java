@@ -2,19 +2,17 @@ package org.openl.studio.projects.service.tables.theme;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.data.ITable;
 import org.openl.rules.dt.DTInfo;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
@@ -26,6 +24,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.PropertiesHelper;
+import org.openl.studio.projects.model.tables.TableKind;
+import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.theme.ThemedTable.Cell;
 import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
 
@@ -48,32 +48,18 @@ import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
  */
 final class ThemeLayouts {
 
-    /** The kinds of table every theme styles. */
-    private static final Set<XlsNodeTypes> STYLED = EnumSet.of(XlsNodeTypes.XLS_DATATYPE,
-            XlsNodeTypes.XLS_SPREADSHEET,
-            XlsNodeTypes.XLS_DATA,
-            XlsNodeTypes.XLS_TEST_METHOD,
-            XlsNodeTypes.XLS_RUN_METHOD,
-            XlsNodeTypes.XLS_DT,
-            XlsNodeTypes.XLS_CONDITIONS,
-            XlsNodeTypes.XLS_ACTIONS,
-            XlsNodeTypes.XLS_RETURNS,
-            XlsNodeTypes.XLS_ENVIRONMENT,
-            XlsNodeTypes.XLS_PROPERTIES,
-            XlsNodeTypes.XLS_CONSTANTS);
-
     private ThemeLayouts() {
     }
 
     /**
-     * Whether a table is of a kind every theme styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a
-     * Run, a decision, a Conditions, an Actions, a Returns, an Environment, a Properties or a Constants table.
+     * Whether a table is of a kind every theme styles: every kind of table but a part of a table split into several
+     * ({@code TablePart}) and a table of no kind OpenL knows, which OpenL Studio shows as of the type Other.
      *
      * @param table the table
      * @return {@code true} when a theme can be drawn over the table and written into it
      */
     static boolean styles(IOpenLTable table) {
-        return STYLED.contains(XlsNodeTypes.getEnumByValue(table.getType()));
+        return OpenLTableUtils.kindOf(table) != TableKind.OTHER;
     }
 
     /**
@@ -223,6 +209,24 @@ final class ThemeLayouts {
                 }
             }
         }
+    }
+
+    /**
+     * The ids a TBasic or a ColumnMatch table names its columns by, in the first row of its body.
+     *
+     * <p>The ids are read as the compiler reads them: trimmed and in lower case. A column the table names nothing has
+     * an empty id.
+     *
+     * @param body the body of the table: its rows under the header and the properties
+     * @return the id of each column of the body, in the order of the columns
+     */
+    static List<String> idsOf(ILogicalTable body) {
+        var ids = new ArrayList<String>(body.getWidth());
+        for (var column = 0; column < body.getWidth(); column++) {
+            var text = Objects.requireNonNullElse(body.getCell(column, 0).getStringValue(), "");
+            ids.add(text.trim().toLowerCase(Locale.ROOT));
+        }
+        return ids;
     }
 
     /**
