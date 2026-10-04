@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeSwitch } from './ThemeSwitch'
-import { DARK_PALETTE, EVERGREEN_LIGHT_PALETTE, LIGHT_PALETTE } from '../../styles/listPageTheme'
+import { accentOf, THEME_ORDER } from '../../styles/themes'
 
 const { appThemeRef, setCompact, setThemeMode, setThemeName, themeModeRef } = vi.hoisted(() => ({
     appThemeRef: { current: { compact: false, themeName: 'standard' } },
@@ -31,7 +31,9 @@ vi.mock('@ant-design/icons', () => ({
     SunOutlined: () => <i data-testid="icon-light" />,
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
+    // The theme stays the real one: a theme dot is drawn in the colours Ant Design derives.
+    const { theme } = await vi.importActual<typeof import('antd')>('antd')
     interface Item { extra?: unknown, icon?: unknown, key: string, label: unknown, type?: string }
     const Dropdown = ({ children, menu }: {
         children?: unknown
@@ -61,7 +63,7 @@ vi.mock('antd', () => {
     const Switch = ({ checked, ...rest }: { checked?: boolean }) => (
         <span aria-checked={checked} role="switch" {...rest} />
     )
-    return { Button, Dropdown, Switch }
+    return { Button, Dropdown, Switch, theme }
 })
 
 describe('ThemeSwitch', () => {
@@ -80,6 +82,20 @@ describe('ThemeSwitch', () => {
         expect(screen.getByTestId('theme-option-auto').getAttribute('data-selected')).toBe('true')
     })
 
+    it('offers the density right under the appearances, and the themes after both', () => {
+        render(<ThemeSwitch />)
+
+        const order = screen.getAllByTestId(/^theme-option-/).map(option => option.getAttribute('data-testid'))
+
+        expect(order.slice(0, 5)).toEqual([
+            'theme-option-light',
+            'theme-option-dark',
+            'theme-option-auto',
+            'theme-option-compact',
+            'theme-option-theme-standard',
+        ])
+    })
+
     it('wears the icon of the appearance in force', () => {
         themeModeRef.current = 'dark'
 
@@ -96,33 +112,37 @@ describe('ThemeSwitch', () => {
         expect(setThemeMode).toHaveBeenCalledWith('light')
     })
 
-    it('offers every theme, marking the one in force and showing each in its own colour', () => {
+    it('offers every theme in order, marking the one in force and showing each in its own colour', () => {
         render(<ThemeSwitch />)
 
-        expect(screen.getByTestId('theme-option-theme-standard').textContent).toContain('common:theme.names.standard')
-        expect(screen.getByTestId('theme-option-theme-evergreen').textContent).toContain('common:theme.names.evergreen')
+        THEME_ORDER.forEach(name => {
+            expect(screen.getByTestId(`theme-option-theme-${name}`).textContent).toContain(`common:theme.names.${name}`)
+        })
         expect(screen.getByTestId('theme-option-theme-standard').getAttribute('data-selected')).toBe('true')
-        expect(screen.getByTestId('theme-option-theme-evergreen').getAttribute('data-selected')).toBeNull()
+        expect(screen.getByTestId('theme-option-theme-dracula').getAttribute('data-selected')).toBeNull()
 
         const dots = screen.getAllByTestId('icon-theme').map(dot => dot.getAttribute('data-colour'))
 
-        expect(dots).toEqual([LIGHT_PALETTE.primary, EVERGREEN_LIGHT_PALETTE.primary])
+        expect(dots).toEqual(THEME_ORDER.map(name => accentOf(name, false)))
     })
 
-    it('draws the theme dots in the appearance in force', () => {
+    it('draws the theme dots in the variant of the appearance in force', () => {
         themeModeRef.current = 'dark'
 
         render(<ThemeSwitch />)
 
-        expect(screen.getAllByTestId('icon-theme')[0]?.getAttribute('data-colour')).toBe(DARK_PALETTE.primary)
+        const dots = screen.getAllByTestId('icon-theme').map(dot => dot.getAttribute('data-colour'))
+
+        expect(dots).toEqual(THEME_ORDER.map(name => accentOf(name, true)))
+        expect(dots).not.toEqual(THEME_ORDER.map(name => accentOf(name, false)))
     })
 
     it('applies a newly picked theme without touching the appearance or the density', async () => {
         render(<ThemeSwitch />)
 
-        await userEvent.click(screen.getByTestId('theme-option-theme-evergreen'))
+        await userEvent.click(screen.getByTestId('theme-option-theme-dracula'))
 
-        expect(setThemeName).toHaveBeenCalledWith('evergreen')
+        expect(setThemeName).toHaveBeenCalledWith('dracula')
         expect(setThemeMode).not.toHaveBeenCalled()
         expect(setCompact).not.toHaveBeenCalled()
     })

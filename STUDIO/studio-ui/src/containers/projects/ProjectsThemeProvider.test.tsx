@@ -4,8 +4,8 @@ import { theme as antdTheme } from 'antd'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ProjectsThemeProvider } from './ProjectsThemeProvider'
 import { AppThemeProvider } from '../../providers/AppThemeProvider'
-import { DARK_PALETTE, LIGHT_PALETTE } from '../../styles/listPageTheme'
-import { THEME_COMPACT_KEY, THEME_MODE_KEY } from '../../utils/themeMode'
+import { paletteFor } from '../../testing/theme'
+import { THEME_COMPACT_KEY, THEME_MODE_KEY, THEME_NAME_KEY } from '../../utils/themeMode'
 
 // A co-located style, the way every Projects component writes one — it must see the scoped token.
 const useProbeStyles = createStyles(({ css, token }) => ({
@@ -43,10 +43,10 @@ describe('ProjectsThemeProvider', () => {
         expect(screen.getByTestId('projects-child').textContent).toBe('Projects')
     })
 
-    it('hands co-located styles the scoped token, not the application-wide one', () => {
+    it('hands co-located styles the scoped token, in the colours of the application', () => {
         renderScoped()
 
-        expect(screen.getByTestId('page-bg').textContent).toBe(LIGHT_PALETTE.pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', false).pageBg)
     })
 
     it('turns dark with the rest of the application', () => {
@@ -54,7 +54,16 @@ describe('ProjectsThemeProvider', () => {
 
         renderScoped()
 
-        expect(screen.getByTestId('page-bg').textContent).toBe(DARK_PALETTE.pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', true).pageBg)
+    })
+
+    it('wears the theme picked for the application', () => {
+        localStorage.setItem(THEME_NAME_KEY, 'gruvbox')
+        localStorage.setItem(THEME_MODE_KEY, 'dark')
+
+        renderScoped()
+
+        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('gruvbox', true).pageBg)
     })
 
     it('stays dark at the compact density, because a density is added to the appearance and not put in its place', () => {
@@ -65,7 +74,7 @@ describe('ProjectsThemeProvider', () => {
         renderScoped()
 
         expect(screen.getByTestId('elevated').textContent).toBe(dark.colorBgElevated)
-        expect(screen.getByTestId('page-bg').textContent).toBe(DARK_PALETTE.pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', true).pageBg)
         expect(Number(screen.getByTestId('padding').textContent)).toBeLessThan(dark.padding)
     })
 
@@ -78,6 +87,6 @@ describe('ProjectsThemeProvider', () => {
         renderScoped()
 
         expect(Number(screen.getByTestId('padding').textContent)).toBeLessThan(comfortable)
-        expect(screen.getByTestId('page-bg').textContent).toBe(LIGHT_PALETTE.pageBg)
+        expect(screen.getByTestId('page-bg').textContent).toBe(paletteFor('standard', false).pageBg)
     })
 })

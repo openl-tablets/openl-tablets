@@ -1,6 +1,6 @@
 import type { ThemeAppearance, ThemeMode } from 'antd-style'
 import { readStored, writeStored } from './localStore'
-import { THEMES, type ThemeName } from '../styles/listPageTheme'
+import { THEMES, type ThemeName } from '../styles/themes'
 
 /** Where the picked appearance is remembered between visits. */
 export const THEME_MODE_KEY = 'openl.theme.mode'

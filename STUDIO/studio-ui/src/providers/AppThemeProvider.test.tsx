@@ -6,7 +6,7 @@ import { theme as antdTheme } from 'antd'
 import { createStyles } from 'antd-style'
 import { AppThemeProvider, densityTheme, useAppTheme } from './AppThemeProvider'
 import { THEME_COMPACT_KEY, THEME_MODE_KEY, THEME_NAME_KEY } from '../utils/themeMode'
-import { DARK_PALETTE, EVERGREEN_LIGHT_PALETTE, LIGHT_PALETTE } from '../styles/listPageTheme'
+import { paletteFor } from '../testing/theme'
 
 // A co-located style, the way every component writes one — it must see the palette in force.
 const usePaletteStyles = createStyles(({ css, token }) => ({
@@ -29,7 +29,7 @@ const ThemeProbe = () => {
             <span data-testid="surface">{theme.colorBgContainer}</span>
             <button onClick={() => setThemeMode('dark')} type="button">go dark</button>
             <button onClick={() => setCompact(!compact)} type="button">toggle density</button>
-            <button onClick={() => setThemeName('evergreen')} type="button">go evergreen</button>
+            <button onClick={() => setThemeName('dracula')} type="button">go dracula</button>
         </>
     )
 }
@@ -108,31 +108,33 @@ describe('AppThemeProvider', () => {
         expect(densityTheme(false)).toEqual({})
     })
 
-    it('starts in the standard theme and hands its palette to the styles', () => {
+    it('starts in the standard theme, Ant Design\'s own, and hands its palette to the styles', () => {
         renderProbe()
 
         expect(screen.getByTestId('theme').textContent).toBe('standard')
-        expect(screen.getByTestId('palette').textContent).toBe(LIGHT_PALETTE.primary)
-        expect(screen.getByTestId('primary').textContent).toBe(LIGHT_PALETTE.primary)
+        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('standard', false).primary)
+        expect(screen.getByTestId('primary').textContent).toBe(antdTheme.getDesignToken().colorPrimary)
     })
 
-    it('repaints the application in a newly picked theme and remembers it', async () => {
+    it('repaints the application on the background of a newly picked theme, and remembers it', async () => {
         renderProbe()
 
-        await userEvent.click(screen.getByText('go evergreen'))
+        await userEvent.click(screen.getByText('go dracula'))
 
-        expect(screen.getByTestId('theme').textContent).toBe('evergreen')
-        expect(screen.getByTestId('palette').textContent).toBe(EVERGREEN_LIGHT_PALETTE.primary)
-        expect(screen.getByTestId('primary').textContent).toBe(EVERGREEN_LIGHT_PALETTE.primary)
-        expect(localStorage.getItem(THEME_NAME_KEY)).toBe('evergreen')
+        expect(screen.getByTestId('theme').textContent).toBe('dracula')
+        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('dracula', false).primary)
+        expect(screen.getByTestId('primary').textContent).toBe(paletteFor('dracula', false).primary)
+        expect(screen.getByTestId('surface').textContent).toBe('#fffbeb')
+        expect(localStorage.getItem(THEME_NAME_KEY)).toBe('dracula')
     })
 
     it('keeps the theme and the appearance independent', () => {
-        localStorage.setItem(THEME_NAME_KEY, 'standard')
+        localStorage.setItem(THEME_NAME_KEY, 'dracula')
         localStorage.setItem(THEME_MODE_KEY, 'dark')
 
         renderProbe()
 
-        expect(screen.getByTestId('palette').textContent).toBe(DARK_PALETTE.primary)
+        expect(screen.getByTestId('palette').textContent).toBe(paletteFor('dracula', true).primary)
+        expect(screen.getByTestId('surface').textContent).toBe('#282a36')
     })
 })

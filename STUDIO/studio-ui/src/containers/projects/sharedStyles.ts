@@ -144,7 +144,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         width: 256px;
         flex: none;
         border-right: 1px solid ${token.colorBorderSecondary};
-        background: ${MOCKUP.sidebarBg};
+        background: ${MOCKUP.pageBg};
         overflow: hidden;
     `,
     /** The rail's own header, above the scrolling facets. */
@@ -188,7 +188,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
     /** The picked line of the rail. */
     railRowActive: css`
         background: ${MOCKUP.accent};
-        color: ${MOCKUP.accentFg};
+        color: ${MOCKUP.brand};
     `,
     /**
      * The frame of a workspace screen: a head across the top and, under it, everything the screen shows.

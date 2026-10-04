@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
-import { ThemeProvider, useTheme, type ThemeAppearance, type ThemeMode } from 'antd-style'
+import { ThemeProvider, useTheme, type CustomTokenParams, type ThemeAppearance, type ThemeMode } from 'antd-style'
 import { theme as antdTheme, type ThemeConfig } from 'antd'
 import {
     appearanceOf,
@@ -11,7 +11,8 @@ import {
     storeThemeName,
 } from '../utils/themeMode'
 import { appTheme } from '../styles/appTheme'
-import { paletteOf, type ThemeName } from '../styles/listPageTheme'
+import { paletteOf } from '../styles/listPageTheme'
+import type { ThemeName } from '../styles/themes'
 import '../styles/customToken'
 
 interface AppTheme {
@@ -70,11 +71,14 @@ const ThemeColorMeta = () => {
  *
  * All three choices are restored from browser storage on start and written back whenever they change, so
  * they survive a reload. The first render is already drawn in the remembered appearance: antd-style would
- * otherwise start light and switch in an effect, which a dark reader sees as a white flash on every load. Under `auto` the provider follows the system and repaints when the system
- * switches. The three are independent: any theme is worn in either appearance, at either density.
+ * otherwise start light and switch in an effect, which a dark reader sees as a white flash on every load.
+ * Under `auto` the provider follows the system and repaints when the system switches. The three are
+ * independent: every theme has a variant for either appearance, worn at either density.
  *
- * The palette of the theme and appearance in force travels down as the `openl` custom token, so a style
- * that needs a real colour reads it from the theme instead of importing a palette of its own.
+ * The provider adds the algorithm of the appearance, dark or default, to the tokens the theme hands over. The
+ * palette of the theme and appearance in force is read off the token it works out, and travels down as the `openl`
+ * custom token, so a style that needs a real colour reads it from the theme instead of importing a palette of its
+ * own.
  */
 export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     const [themeMode, setThemeMode] = useState<ThemeMode>(readThemeMode)
@@ -103,14 +107,14 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
 
     const theme = useCallback(
         (appearance: ThemeAppearance) => ({
-            ...appTheme(paletteOf(themeName, appearance === 'dark')),
+            ...appTheme(themeName, appearance === 'dark'),
             ...densityTheme(compact),
         }),
         [compact, themeName]
     )
 
     const customToken = useCallback(
-        ({ appearance }: { appearance: ThemeAppearance }) => ({ openl: paletteOf(themeName, appearance === 'dark') }),
+        ({ token, isDarkMode }: CustomTokenParams) => ({ openl: paletteOf(token, themeName, isDarkMode) }),
         [themeName]
     )
 

@@ -25,6 +25,8 @@ Use almost the latest versions when possible.
   missing hook dependencies as warnings (`eslint-plugin-react-hooks`), JSX props sorted by `perfectionist`
 - **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
 - **Vitest** + React Testing Library (`jsdom` environment)
+- **CodeMirror** through **`@uiw/react-codemirror`** for the code editor (`CodeEditor`), with the colour schemes of
+  the **`@uiw/codemirror-theme-*`** packages
 - **react-markdown** with remark/rehype plugins, the CodeMirror grammars through **`@lezer/highlight`** and **Mermaid**
   draw the user guides (`containers/userGuides`)
 
@@ -37,7 +39,7 @@ src/
 ├── components/          # Reusable widgets (accessManagement/, form/, modal/, schemaForm/, values/, shared)
 ├── containers/          # Feature screens (System, Security, Users, Groups, Tags, Repositories, Trace, execution, Merge…)
 ├── contexts/            # PermissionContext, SystemContext, GroupsContext
-├── providers/           # AppThemeProvider (light/dark appearance), SecurityProvider (SystemContext + PermissionContext)
+├── providers/           # AppThemeProvider (appearance, theme, density), SecurityProvider (System/PermissionContext)
 ├── hooks/               # Shared hooks (forms, global events, websocket, scripts)
 ├── layouts/             # DefaultLayout, AdministrationLayout
 ├── pages/               # Standalone routes (403/404/500, Login)
@@ -80,16 +82,16 @@ The build writes two pages (`build.rollupOptions.input`):
 - **WebSocket**: `services/websocket.ts` connects to `${CONTEXT}/ws`, built from `document.baseURI`. The handshake has
   an address of its own, so it is not under `CONFIG.API_ROOT`.
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
-  with; Mermaid is a chunk of its own, loaded with the first diagram, and so are the code grammars, shared with the
-  code editor and loaded with the first code block (`HighlightedCode`). The guides are files rather than REST, so
-  `services/userGuides.ts` reads them with `fetch` from `${CONFIG.CONTEXT}/docs` instead of `apiCall`. The syntax a page
-  may use is set by the validator of `STUDIO/studio-docs`, see `Docs/architecture/embedded-user-guides.md`. The search
-  indexes the pages in a module worker (`guideSearch.worker.ts`), and on the page itself where no worker starts —
-  under `_REACT_UI_ROOT_` the scripts come from another origin than the page, so the fallback is what a developer
-  sees. A worker has no DOM: code it imports must not touch `document`, which `vite.config.ts` enforces for the one
-  package that does (`domlessEntityDecoder`). A bare `#heading` link resolves against `<base href>`, the root of the
-  application, not against the page: a link to a heading — in a page or in its outline — goes through the router with
-  the address of the page.
+  with; Mermaid is a chunk of its own, loaded with the first diagram, and so are the code grammars and the colour
+  schemes of the code editor, shared with it and loaded with the first code block (`HighlightedCode`). The guides are
+  files rather than REST, so `services/userGuides.ts` reads them with `fetch` from `${CONFIG.CONTEXT}/docs` instead of
+  `apiCall`. The syntax a page may use is set by the validator of `STUDIO/studio-docs`, see
+  `Docs/architecture/embedded-user-guides.md`. The search indexes the pages in a module worker
+  (`guideSearch.worker.ts`), and on the page itself where no worker starts — under `_REACT_UI_ROOT_` the scripts come
+  from another origin than the page, so the fallback is what a developer sees. A worker has no DOM: code it imports must
+  not touch `document`, which `vite.config.ts` enforces for the one package that does (`domlessEntityDecoder`). A bare
+  `#heading` link resolves against `<base href>`, the root of the application, not against the page: a link to a heading
+  — in a page or in its outline — goes through the router with the address of the page.
 - **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
   once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
   (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads
@@ -131,19 +133,39 @@ The build writes two pages (`build.rollupOptions.input`):
   `defaultAppearance={appearanceOf(themeMode)}`, because antd-style starts every appearance as light and
   switches in an effect — without it a dark reader sees a white frame on every load. `App` mounts the provider
   and `AppStyles` before the auth gate, so the surface is painted while the profile is still loading. A
-  third-party widget with a theme of
-  its own (CodeMirror in `CodeEditor`) is handed `isDarkMode` too. The provider also keeps the `theme-color`
+  third-party widget with a theme of its own (CodeMirror in `CodeEditor`) is handed the theme and the appearance
+  too (`editorTheme`). The provider also keeps the `theme-color`
   meta on the surface colour in force, and `AppStyles` sits directly under it, so the loading fallback is
   themed as well.
-- **Theme**: the same switcher picks which palette the colours come from — `THEMES` in `styles/listPageTheme.ts`,
-  remembered under `openl.theme.name` and defaulting to `standard`. A theme supplies a whole `Palette` per
-  appearance; `paletteOf(name, isDarkMode)` resolves the one in force, `appTheme(palette)` turns it into the
-  application-wide Ant Design tokens, and `AppStyles` republishes it as the `--openl-*` custom properties. Adding a
-  theme means adding one entry to `THEMES` (both appearances, every key) plus its name in `common.en.ts`.
+- **Theme**: the same switcher picks the theme — `THEMES` in `styles/themes.ts`, remembered under
+  `openl.theme.name` and defaulting to `standard`, which is Ant Design's own. Every other theme is the colour scheme
+  of a well-known code editor, in a light and a dark variant that the appearance picks between; a pair of schemes
+  such as Dracula and Alucard counts as one theme. A variant names the editor's background, text and accent
+  (`EditorColors`) and the hues it writes a value in (`SyntaxHues`). `appTheme(name, isDarkMode)` turns them into
+  the application-wide Ant Design tokens: the editor's background becomes the background of every container, and
+  the page, the borders and the raised surfaces are mixed from it, because Ant Design's own derivation turns a
+  tinted background grey. The provider hands the token it works out to its `customToken`, where
+  `paletteOf(token, name, isDarkMode)` reads the `Palette` off it, and `AppStyles` republishes it as the `--openl-*`
+  custom properties. The CodeMirror schemes themselves live in `styles/codeMirrorThemes.ts` (`SCHEMES`: the theme
+  each package builds, with Alucard and the Gruvbox Light styles drawn there, since no package ships them): they
+  bring CodeMirror along, so they load only with the first editor or code sample, and
+  `THEMES` keeps copies of the colours the screens need before that — `codeMirrorThemes.test.ts` and
+  `codeHighlight.test.ts` keep the copies in step. Adding a theme means an entry in `THEMES` and in `SCHEMES`
+  (both appearances) plus its name in `common.en.ts`; `listPageTheme.test.ts` holds every palette to 4.5:1 for text
+  and 3:1 for links and primary buttons. A test draws in a theme through `renderInTheme` and reads a palette
+  through `paletteFor` (`src/testing/theme.tsx`). The code samples of the guides take the theme's highlight style
+  as inline colours (`codeHighlight.ts`), so they look as the same code does in the editor, and every block wears
+  the editor's background and text (`codeBlockColors`) from the start, before the grammars load.
   The palette in force also travels as the **`openl` custom token** (`styles/customToken.ts`), so a style that
-  needs a real colour reads `token.openl.…` inside `createStyles` instead of importing a palette.
+  needs a real colour reads `token.openl.…` inside `createStyles` instead of importing a palette. A module that
+  only refers to the colours calls on no Ant Design while it loads — `PALETTE_KEYS` names them up front, and the
+  palette is read off the token the provider works out — because many tests mock `antd` whole. A test whose screen
+  asks Ant Design for a colour itself keeps the real `theme` export under such a mock (`vi.importActual`): the theme
+  switch, which shows Ant Design's own accent beside the standard theme.
   A theme scoped to one area (`ProjectsThemeProvider`) nests another antd-style `ThemeProvider` and passes the
-  appearance through. A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
+  appearance through. Ant Design lays a nested theme's token over the parent's, so the scoped theme inherits the
+  colours of the application and adds only its own shape, drawn in the palette the application's provider carries
+  (`useTheme().openl`). A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
   nearest **antd-style** provider, so a `ConfigProvider` would restyle the Ant Design components and leave the
   co-located styles on the application-wide token.
 - **Density**: the same `ThemeSwitch` offers the compact density, remembered in `localStorage` under
@@ -247,11 +269,12 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 - **Colours follow the appearance.** Never hardcode a colour in a style — take an Ant Design token
   (`createStyles(({ token }) => ...)`), or, for an OpenL hue with no token, `LIST_PAGE_COLORS` from
   `styles/listPageTheme.ts`. Its values are `var(--openl-*)` custom properties that `AppStyles` republishes when the
-  appearance changes, so a style that uses them repaints with the theme. A new colour is added to **both**
-  `LIGHT_PALETTE` and `DARK_PALETTE`. Besides the surfaces and the text, the palette carries the compilation
-  states (`COMPILE_COLORS`), the fills of the solid status badges, and the syntax hues of a parameter value.
-  Ant Design derives whole palettes from a colour and cannot read a custom property, so a `ThemeConfig` token takes
-  the palette itself — see `projectsTheme(isDarkMode)`.
+  theme or the appearance changes, so a style that uses them repaints with the theme. A new colour is named in
+  `PALETTE_KEYS` and read off the Ant Design token in `paletteOf`, so every theme and appearance has it. Besides
+  the surfaces and the text, the palette carries the hues of the states, which the compilation states take
+  (`COMPILE_COLORS`), the fills of the solid status badges, and the syntax hues of a parameter value. Ant Design
+  derives whole palettes from a colour and cannot read a custom property, so a `ThemeConfig` token takes the
+  palette itself — see `projectsTheme(palette)`.
   A memoised piece of JSX that uses `styles` or the token is rebuilt when the theme or the appearance changes:
   its dependencies name `themeName` from `useAppTheme()` and `isDarkMode` from `useThemeMode()`, or it keeps the
   colours of the theme it was first drawn in (`treeData` in `ProjectsTree`). They do not name `styles` or the token
