@@ -19,13 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
+import org.openl.rules.webstudio.web.admin.MailVerificationServerSettings;
 import org.openl.studio.common.validation.AbstractConstraintValidatorTest;
 
 
-// The deprecated validator is tested until it is removed.
-@SuppressWarnings("java:S5738")
 @SpringJUnitConfig(classes = MockConfiguration.class)
 class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
@@ -60,14 +58,14 @@ class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
         Transport transport = mock(Transport.class);
         when(transport.isConnected()).thenReturn(true);
         when(mailSender.getTransport(any(), any(), any())).thenReturn(transport);
-        assertNull(validateAndGetResult(getValidMailConfigModel()));
+        assertNull(validateAndGetResult(getValidMailSettings()));
     }
 
     @Test
     void testMailConfig_emptyFields_notValid() {
-        var mailConfigModel = getValidMailConfigModel();
-        mailConfigModel.setUrl(null);
-        var bindingResult = validateAndGetResult(mailConfigModel);
+        var mailSettings = getValidMailSettings();
+        mailSettings.setUrl(null);
+        var bindingResult = validateAndGetResult(mailSettings);
         assertEquals("Email server configuration fields cannot be empty.", bindingResult.getGlobalError().getDefaultMessage());
     }
 
@@ -77,16 +75,17 @@ class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
         when(transport.isConnected()).thenThrow(new IllegalArgumentException("Ho-ho-ho"));
         when(mailSender.getTransport(any(), any(), any())).thenReturn(transport);
 
-        var mailConfigModel = getValidMailConfigModel();
-        mailConfigModel.setUrl("127.0.0.2");
-        var bindingResult = validateAndGetResult(mailConfigModel);
+        var mailSettings = getValidMailSettings();
+        mailSettings.setUrl("127.0.0.2");
+        var bindingResult = validateAndGetResult(mailSettings);
         assertEquals("Wrong email server configuration. Ho-ho-ho", bindingResult.getGlobalError().getDefaultMessage());
     }
 
-    private MailConfigModel getValidMailConfigModel() {
-        return new MailConfigModel()
-                .setUrl(mailUrl)
-                .setUsername("username@email")
-                .setPassword("password");
+    private static MailVerificationServerSettings getValidMailSettings() {
+        var mailSettings = new MailVerificationServerSettings();
+        mailSettings.setUrl(mailUrl);
+        mailSettings.setUsername("username@email");
+        mailSettings.setPassword("password");
+        return mailSettings;
     }
 }

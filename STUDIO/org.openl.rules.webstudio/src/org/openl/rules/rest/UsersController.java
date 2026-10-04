@@ -15,7 +15,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -82,7 +81,6 @@ public class UsersController {
     private final CurrentUserInfo currentUserInfo;
     private final BeanValidationProvider validationProvider;
     private final UserSettingManagementService userSettingsManager;
-    private final PropertyResolver environment;
     private final PasswordEncoder passwordEncoder;
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
@@ -96,7 +94,6 @@ public class UsersController {
                            AdminUsers adminUsersInitializer,
                            CurrentUserInfo currentUserInfo,
                            PasswordEncoder passwordEncoder,
-                           PropertyResolver environment,
                            BeanValidationProvider validationService,
                            UserSettingManagementService userSettingsManager,
                            ExternalGroupService extGroupService,
@@ -110,7 +107,6 @@ public class UsersController {
         this.currentUserInfo = currentUserInfo;
         this.passwordEncoder = passwordEncoder;
         this.userSettingsManager = userSettingsManager;
-        this.environment = environment;
         this.validationProvider = validationService;
         this.extGroupService = extGroupService;
         this.mailSender = mailSender;
@@ -325,20 +321,6 @@ public class UsersController {
         }
     }
 
-    /**
-     * @deprecated Use {@code GET /settings} instead.
-     */
-    @Deprecated(since = "6.0.0")
-    @Operation(description = "users.options.desc", summary = "users.options.summary")
-    @GetMapping("/options")
-    public UserOptions options() {
-        return UserOptions.builder()
-                .canCreateInternalUsers(canCreateInternalUsers)
-                .userMode(environment.getProperty("user.mode"))
-                .emailVerification(mailSender.isValidEmailSettings())
-                .build();
-    }
-
     @Operation(description = "users.get-user-external-groups.desc", summary = "users.get-user-external-groups.summary")
     @GetMapping("/{username}/groups/external")
     @AdminPrivilege
@@ -398,59 +380,6 @@ public class UsersController {
         if (!userManagementService.existsByName(username)) {
             throw new NotFoundException("users.message", username);
         }
-    }
-
-    public static class UserOptions {
-
-        @Parameter(description = "Can create internal users")
-        public final Boolean canCreateInternalUsers;
-
-        @Parameter(description = "User mode")
-        public final String userMode;
-
-        @Parameter(description = "Is e-mail verification required")
-        public final Boolean emailVerification;
-
-        public UserOptions(Builder from) {
-            this.canCreateInternalUsers = from.canCreateInternalUsers;
-            this.userMode = from.userMode;
-            this.emailVerification = from.emailVerification;
-        }
-
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        public static class Builder {
-
-            private Boolean canCreateInternalUsers;
-            private String userMode;
-            private Boolean emailVerification;
-
-            private Builder() {
-            }
-
-            public Builder canCreateInternalUsers(Boolean canCreateInternalUsers) {
-                this.canCreateInternalUsers = canCreateInternalUsers;
-                return this;
-            }
-
-            public Builder userMode(String userMode) {
-                this.userMode = userMode;
-                return this;
-            }
-
-            public Builder emailVerification(Boolean emailVerification) {
-                this.emailVerification = emailVerification;
-                return this;
-            }
-
-            public UserOptions build() {
-                return new UserOptions(this);
-            }
-
-        }
-
     }
 
 }
