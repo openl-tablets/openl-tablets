@@ -8,8 +8,8 @@
             <string>_type</string>
         </entry>
         <entry>
-            <string>jackson.simpleClassNameAsTypingPropertyValue</string>
-            <string>true</string>
+            <string>jackson.jsonTypeInfoId</string>
+            <string>NAME</string>
         </entry>
     </configuration>
 </rules-deploy>

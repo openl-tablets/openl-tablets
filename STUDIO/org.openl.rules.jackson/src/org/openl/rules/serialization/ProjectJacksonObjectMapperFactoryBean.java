@@ -1,11 +1,13 @@
 package org.openl.rules.serialization;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -43,7 +45,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_SERIALIZATION_INCLUSION = "jackson.serializationInclusion";
     public static final String JACKSON_FAIL_ON_UNKNOWN_PROPERTIES = "jackson.failOnUnknownProperties";
     public static final String JACKSON_FAIL_ON_EMPTY_BEANS = "jackson.failOnEmptyBeans";
-    public static final String JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE = "jackson.simpleClassNameAsTypingPropertyValue";
     public static final String JACKSON_JSON_TYPE_INFO_ID = "jackson.jsonTypeInfoId";
     public static final String JACKSON_TYPING_PROPERTY_NAME = "jackson.typingPropertyName";
     public static final String JACKSON_PROPERTY_NAMING_STRATEGY = "jackson.propertyNamingStrategy";
@@ -61,24 +62,15 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     private Environment environment;
 
     private DefaultTypingMode toDefaultTypingMode(String defaultTypingMode) {
-        if (DefaultTypingMode.DISABLED.name().equalsIgnoreCase(defaultTypingMode.trim())) {
-            return DefaultTypingMode.DISABLED;
-        } else if (DefaultTypingMode.OBJECT_AND_NON_CONCRETE.name().equalsIgnoreCase(defaultTypingMode.trim())) {
-            return DefaultTypingMode.OBJECT_AND_NON_CONCRETE;
-        } else if (DefaultTypingMode.EVERYTHING.name().equalsIgnoreCase(defaultTypingMode.trim())) {
-            return DefaultTypingMode.EVERYTHING;
-        } else if (DefaultTypingMode.NON_CONCRETE_AND_ARRAYS.name().equalsIgnoreCase(defaultTypingMode.trim())) {
-            return DefaultTypingMode.NON_CONCRETE_AND_ARRAYS;
-        } else if (DefaultTypingMode.JAVA_LANG_OBJECT.name().equalsIgnoreCase(defaultTypingMode.trim())) {
-            return DefaultTypingMode.JAVA_LANG_OBJECT;
-        } else if (DefaultTypingMode.NON_FINAL.name().equalsIgnoreCase(defaultTypingMode.trim())) {
-            return DefaultTypingMode.NON_FINAL;
-        } else if (DefaultTypingMode.NON_FINAL_AND_ENUMS.name().equalsIgnoreCase(defaultTypingMode.trim())) {
-            return DefaultTypingMode.NON_FINAL_AND_ENUMS;
-        }
-        throw new ObjectMapperConfigurationParsingException("Expected JAVA_LANG_OBJECT/OBJECT_AND_NON_CONCRETE/NON_CONCRETE_AND_ARRAYS/NON_FINAL/EVERYTHING/DISABLED value for '%s' in the configuration for service '%s'.".formatted(
-                JACKSON_DEFAULT_TYPING_MODE,
-                getRulesDeploy().getServiceName()));
+        var modes = DefaultTypingMode.values();
+        return Arrays.stream(modes)
+                .filter(mode -> mode.name().equalsIgnoreCase(defaultTypingMode.trim()))
+                .findFirst()
+                .orElseThrow(() -> new ObjectMapperConfigurationParsingException(
+                        "Expected %s value for '%s' in the configuration for service '%s'.".formatted(
+                                Arrays.stream(modes).map(Enum::name).collect(Collectors.joining("/")),
+                                JACKSON_DEFAULT_TYPING_MODE,
+                                getRulesDeploy().getServiceName())));
     }
 
     protected void applyProjectConfiguration() {
@@ -96,7 +88,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         processJacksonDefaultTypingModeSetting(getProperty(JACKSON_DEFAULT_TYPING_MODE));
         processJacksonSerializationInclusionSetting(getProperty(JACKSON_SERIALIZATION_INCLUSION));
         processJacksonTypingPropertyNameSetting(getProperty(JACKSON_TYPING_PROPERTY_NAME));
-        processJacksonSimpleClassNameAsTypingPropertyValueSetting(getProperty(JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE));
         processJacksonJsonTypeInfoIdSetting(getProperty(JACKSON_JSON_TYPE_INFO_ID));
         processRootClassNamesBindingSetting(getProperty(ROOT_CLASS_NAMES_BINDING));
         processXlsModuleOpenClassRelatedSettings();
@@ -154,21 +145,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 case null, default -> throw new ObjectMapperConfigurationParsingException(
                         "Expected true/false value for '%s' in the configuration for service '%s'.".formatted(
                                 property,
-                                rulesDeploy.getServiceName()));
-            }
-        }
-    }
-
-    protected void processJacksonSimpleClassNameAsTypingPropertyValueSetting(
-            Object simpleClassNameAsTypingPropertyValue) {
-        if (simpleClassNameAsTypingPropertyValue != null) {
-            switch (simpleClassNameAsTypingPropertyValue) {
-                case Boolean boolean1 -> delegate.setSimpleClassNameAsTypingPropertyValue(boolean1);
-                case String string -> delegate.setSimpleClassNameAsTypingPropertyValue(
-                        Boolean.parseBoolean(string));
-                case null, default -> throw new ObjectMapperConfigurationParsingException(
-                        "Expected true/false value for '%s' in the configuration for service '%s'.".formatted(
-                                JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE,
                                 rulesDeploy.getServiceName()));
             }
         }
@@ -247,12 +223,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         if (defaultTypingMode != null) {
             switch (defaultTypingMode) {
                 case DefaultTypingMode mode -> delegate.setDefaultTypingMode(mode);
-                case String string -> {
-                    var dtm = toDefaultTypingMode(string);
-                    if (dtm != null) {
-                        delegate.setDefaultTypingMode(dtm);
-                    }
-                }
+                case String string -> delegate.setDefaultTypingMode(toDefaultTypingMode(string));
                 case null, default -> throw new ObjectMapperConfigurationParsingException(
                         EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_DEFAULT_TYPING_MODE,

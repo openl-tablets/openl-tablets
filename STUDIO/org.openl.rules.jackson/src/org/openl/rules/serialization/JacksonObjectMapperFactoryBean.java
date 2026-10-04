@@ -91,15 +91,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     @Setter
     private ClassLoader classLoader;
 
-    /**
-     * @deprecated Set the jsonTypeInfoId property to NAME instead.
-     */
-    // Customer Spring configurations may still set this bean property; removing it breaks them.
-    @SuppressWarnings("java:S1133")
-    @Deprecated(since = "5.26.6")
-    @Setter
-    private Boolean simpleClassNameAsTypingPropertyValue;
-
     @Getter
     private JsonTypeInfo.Id jsonTypeInfoId = JsonTypeInfo.Id.CLASS;
 
@@ -136,8 +127,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 originalClass,
                 parentTypeClass,
                 subTypeClasses.toArray(new Class<?>[0]),
-                Boolean.TRUE.equals(isSimpleClassNameAsTypingPropertyValue()) && JsonTypeInfo.Id.CLASS
-                        .equals(getJsonTypeInfoId()) ? JsonTypeInfo.Id.NAME : getJsonTypeInfoId(),
+                getJsonTypeInfoId(),
                 resolvedTypingPropertyName);
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
         transformer.accept(classVisitor);
@@ -205,7 +195,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 case OBJECT_AND_NON_CONCRETE -> ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE;
                 case NON_CONCRETE_AND_ARRAYS -> ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS;
                 case JAVA_LANG_OBJECT -> ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT;
-                case EVERYTHING -> ObjectMapper.DefaultTyping.EVERYTHING;
                 default -> null;
             };
             mapper.activateDefaultTypingAsProperty(
@@ -340,10 +329,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             return Thread.currentThread().getContextClassLoader();
         }
         return classLoader;
-    }
-
-    public Boolean isSimpleClassNameAsTypingPropertyValue() {
-        return simpleClassNameAsTypingPropertyValue;
     }
 
     public void setJsonTypeInfoId(JsonTypeInfo.Id jsonTypeInfoId) {

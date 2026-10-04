@@ -6,9 +6,5 @@ public enum DefaultTypingMode {
     NON_CONCRETE_AND_ARRAYS,
     NON_FINAL,
     NON_FINAL_AND_ENUMS,
-    /**
-     * @deprecated in Jackson
-     */
-    EVERYTHING,
     DISABLED
 }
