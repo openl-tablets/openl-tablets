@@ -1,4 +1,4 @@
-# A theme whose base only a Datatype extends: a Vocabulary and a Spreadsheet take the base alone.
+# A theme whose base only a Datatype extends: every other kind of table takes the base alone.
 name: Datatype Extension
 
 base: &base

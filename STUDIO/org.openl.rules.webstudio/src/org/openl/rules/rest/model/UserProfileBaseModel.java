@@ -15,9 +15,9 @@ public class UserProfileBaseModel extends UserInfoModel {
     private @Nullable Boolean showFormulas;
 
     @Getter
-    @Parameter(description = "Identifier of the table theme Datatype, Vocabulary and Spreadsheet tables are drawn with "
-            + "and that is offered first when a theme is applied; empty to draw them with the formatting of the Excel "
-            + "file. The workbook is not changed")
+    @Parameter(description = "Identifier of the table theme Datatype, Vocabulary, Spreadsheet, Data, Test and Run "
+            + "tables are drawn with and that is offered first when a theme is applied; empty to draw them with the "
+            + "formatting of the Excel file. The workbook is not changed")
     private @Nullable String tableTheme;
 
     @Getter

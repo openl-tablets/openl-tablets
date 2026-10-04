@@ -153,11 +153,12 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 ## Table Theme
 
-The looks OpenL Studio gives Datatype, Vocabulary and Spreadsheet tables are the `table-themes/*.yaml` files of its
-classpath (`resources/table-themes/` ships `default` and `green`). `TableThemeService` reads them once at startup,
-with the YAML anchors, aliases and merge keys resolved by SnakeYAML, then binds them strictly with Jackson. See
-`Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md` for
-the endpoints.
+The looks OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test and Run tables are the
+`table-themes/*.yaml` files of its classpath (`resources/table-themes/` ships `default` and `green`).
+`TableThemeService` reads them once at startup, with the YAML anchors, aliases and merge keys resolved by SnakeYAML,
+then binds them strictly with Jackson.
+See `Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md`
+for the endpoints.
 
 - **A theme is known by its file name.** The file name without `.yaml` is the identifier the settings, the read
   parameter and the write actions carry; the `name` the file declares is only what the screen shows. Of two files of
@@ -172,9 +173,11 @@ the endpoints.
 - **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
   logged as an error and not offered; Studio starts with the rest.
-- **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary and Spreadsheet table,
-  and a kind the theme writes nothing for takes the base alone. The server decides which tables a theme suits
-  (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds.
+- **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test
+  and Run table, and a kind the theme writes nothing for takes the base alone. The server decides which tables a theme
+  suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a constant of
+  `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of its body, so
+  a new kind of table is one constant there and one part of `TableTheme`.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
   style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
   a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
@@ -189,17 +192,23 @@ the endpoints.
   nothing listens to, so it has `ProjectModel.initProjectHistory(TableSyntaxNode, Module)` listen to the workbook of
   each table first: a write there is kept in the history of its module and marks the project modified, as an edit
   of the table does.
-- **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the body to
-  the layout of its kind (`DatatypeThemeLayout`, `SpreadsheetThemeLayout`). Both the screen overlay and
-  `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives. `ThemeLayouts.of` drops every cell past
-  the edge of the table: `GridSplitter` does not widen a table for a region of empty cells, so such a region may be
-  merged past its edge.
+- **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the
+  body, with what a layout knows of the table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of
+  `DatatypeThemeLayout`, `SpreadsheetThemeLayout` or `DataThemeLayout`. Both the screen overlay and
+  `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives.
+- **A layout tells the look of a place, `ThemeLayouts` themes the sheet.** A layout answers the places it reads the
+  body in and the look of each (`BodyLayout.Placed`), and `ThemeLayouts` alone gives that look to every cell of the
+  sheet the place takes, so a row written over several rows of the sheet is themed whole. It themes a merged region
+  once, by the cell that holds it, and lays `lastRow` over every cell that reaches the bottom of the table.
+  `ThemeLayouts.of` drops every cell past the edge of the table:
+  `GridSplitter` does not widen a table for a region of empty cells, so such a region may be merged past its edge.
+  Whether a table is compiled transposed is asked once, in `ThemeLayouts.isTransposed`.
 - **A Spreadsheet section is a merge.** A step whose name cell is merged over the values of its row heads a section:
-  the compiler takes it for a step with no value. The layout themes a merged region once, by the cell that holds it.
-  A step or a column whose name ends with `*` before its `: type` is marked, read the way
-  `SpreadsheetStructureBuilder.parseHeader` reads it, so a table being edited is marked before it is compiled. The
-  step a Spreadsheet returns (`result`) is found as `SpreadsheetStructureBuilder.addHeaders` finds it: a column or
-  a step named `RETURN`, or else the last step, and none for `SpreadsheetResult` without `RETURN`.
+  the compiler takes it for a step with no value. A step or a column whose name ends with `*` before its `: type` is
+  marked, read the way `SpreadsheetStructureBuilder.parseHeader` reads it, so a table being edited is marked before
+  it is compiled. The step a Spreadsheet returns (`result`) is found as `SpreadsheetStructureBuilder.addHeaders`
+  finds it: a column or a step named `RETURN`, or else the last step, and none for `SpreadsheetResult` without
+  `RETURN`.
   `HeaderRuns` splits a header by its keyword: a Datatype names its type first, a Spreadsheet its return type, its
   name and its parameters.
 - **An active theme overrides the look of the workbook.** The shipped themes name every attribute in the base
@@ -216,6 +225,15 @@ the endpoints.
   without its header (**Show Header** off) is cut on the screen, so the screen draws the line under the last row it
   hides on the top of the first row it shows (`withoutFirstRows` of `studio-ui`). The writer keeps the sides as the
   theme names them: the workbook draws a line either cell names.
+- **A Data, a Test and a Run table are read as the compiler reads them.** `DataThemeLayout` reads the body with its
+  fields across, as `DataTableBindHelper` does: the field names, the row of references when `hasForeignKeysRow` finds
+  one, the titles, then the values. A Run table is bound as a Test table without expected results
+  (`TestMethodNodeBinder`), so it takes the same places. A transposed table is told apart by the compiled table
+  (`DataTableMetaInfoReader`, `ITable.getData().isNormalOrientation()`). `ids` marks the values that name a row of a
+  Data table: in a Data table its IDs, `_PK_` or else the first column, which is the column a reference reads; in a
+  Test and a Run table every column that takes its values from a Data table by their IDs. Its references to other
+  tables are left as values. `empty` is laid over a blank value, cell by cell — a fill written with the theme, not a
+  conditional format, so the workbook reads it back as the overlay draws it.
 - **A transposed Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, so the
   layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`, `isNormalOrientation()`): the
   places follow the fields, and `lastRow` stays the last row as written. A table that did not compile is themed as

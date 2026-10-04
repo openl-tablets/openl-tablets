@@ -1,7 +1,7 @@
 ## Appendix E: Table Themes
 
-A table theme describes the look OpenL Studio gives Datatype, Vocabulary, and Spreadsheet tables. A theme is drawn
-over the tables while they are viewed, or written into the Excel file, as described in
+A table theme describes the look OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, and Run tables. A
+theme is drawn over the tables while they are viewed, or written into the Excel file, as described in
 [Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Default** and
 **Green** themes. This appendix describes how a theme file is written.
 
@@ -37,10 +37,15 @@ A theme file holds the following keys:
 -   **`vocabulary`** — what a Vocabulary table changes in the base. A Vocabulary table is a Datatype table that
     declares the type of its values, such as `Datatype Gender <String>`.
 -   **`spreadsheet`** — what a Spreadsheet table changes in the base.
+-   **`data`** — what a Data table changes in the base.
+-   **`test`** — what a Test table changes in the base. The themes that OpenL Studio ships give a Test table the look
+    of a Data table, as described in [Reusing Parts of a Theme](#reusing-parts-of-a-theme).
+-   **`run`** — what a Run table changes in the base. A Run table is written as a Test table without the expected
+    results, and the themes that OpenL Studio ships give it the look of a Data table as well.
 
-A theme is one style for every kind of table: it styles every Datatype, Vocabulary, and Spreadsheet table. Each kind
-takes the base, and the key of the kind writes only what it changes. A kind the theme writes nothing for takes the
-base alone.
+A theme is one style for every kind of table: it styles every Datatype, Vocabulary, Spreadsheet, Data, Test, and Run
+table. Each kind takes the base, and the key of the kind writes only what it changes. A kind the theme writes nothing
+for takes the base alone.
 
 ### Parts of a Table
 
@@ -52,8 +57,9 @@ A look consists of the following parts, each of them optional. Every kind of tab
     -   **`keyword`** — the font of the keyword, such as `Datatype` or `Spreadsheet`.
     -   **`name`** — the font of the table name.
     -   **`type`** — the font of the type that the header names besides the table: the type of a Vocabulary, such as
-        `<String>`, the parent of a Datatype, such as `extends Person`, or the type a Spreadsheet returns, such as
-        `SpreadsheetResult`.
+        `<String>`, the parent of a Datatype, such as `extends Person`, the type a Spreadsheet returns, such as
+        `SpreadsheetResult`, the type of the rows of a Data table, such as `Policy`, or the method a Test or a Run
+        table calls.
     -   **`parameters`** — the font of the parameters of a Spreadsheet, such as `( Policy policy )`.
 -   **`properties`** — the rows of table properties that follow the header. The section is one part of the table
     however many properties it holds: a line the style draws above or below it goes round the whole section, for
@@ -88,6 +94,21 @@ A Spreadsheet table also takes the following parts:
 -   **`result`** — the step whose value a Spreadsheet returns when it returns a type other than `SpreadsheetResult`,
     laid over its own style. It is the step named `RETURN`, or the last step when no step is named so; a column named
     `RETURN` takes its place.
+
+A Data, a Test, and a Run table also take the following parts:
+
+-   **`name`** — the row of field names, such as `policyNumber`, and the row of the tables that some fields take
+    their values from, such as `>PolicyData`.
+-   **`titles`** — the row of titles, such as **Policy Number**.
+-   **`values`** — the values.
+-   **`ids`** — the values that name a row of a Data table, laid over `values`. In a Data table, these are its IDs:
+    the column `_PK_`, or the first column when the table has none. In a Test and a Run table, these are the values
+    of every column that takes them from a Data table by their IDs, such as `Policy1`.
+-   **`empty`** — a value that is not filled, laid over its own style.
+
+A Data, a Test, or a Run table can be written transposed, with a field in each row. The parts then follow the fields:
+`name` styles the column of field names, `titles` styles the column of titles, and `ids` styles the row of IDs.
+`lastRow` still styles the last row of the table.
 
 A part that a kind of table does not take is not used for it, so `base` can hold the parts of every kind.
 
@@ -202,12 +223,25 @@ base:
     border: {bottom: *line}
 ```
 
+In the following example, a Test and a Run table take the look of a Data table, as in the themes that OpenL Studio
+ships:
+
+```yaml
+data: &data
+  titles: {bold: true, background: "#ddebf7"}
+  ids: {bold: true, background: "#fff2cc"}
+
+test: *data
+run: *data
+```
+
 ### Theme Example
 
 The following theme gives every table a dark header with light text. Its base style names every attribute, so it
 overrides the look the Excel file gives a table, and it draws only its own lines: one under the properties and one
-under the last row. A Spreadsheet table also gets a filled row of column titles, bold italic
-headings of its sections, and bold steps that are marked for the result or give it:
+under the last row. A Spreadsheet table also gets a filled row of column titles, bold italic headings of its
+sections, and bold steps that are marked for the result or give it. A Data, a Test, and a Run table get muted field
+names, filled titles, highlighted IDs, and grey values that are not filled:
 
 ```yaml
 name: Corporate
@@ -253,4 +287,14 @@ spreadsheet:
   sections: {bold: true, italic: true, background: "#ddebf7"}
   marked: {bold: true}
   result: {bold: true}
+
+data: &data
+  header: {style: {align: left}}
+  name: {color: "#808080"}
+  titles: {bold: true, align: center, background: "#ddebf7"}
+  ids: {bold: true, background: "#fff2cc"}
+  empty: {background: "#f2f2f2"}
+
+test: *data
+run: *data
 ```

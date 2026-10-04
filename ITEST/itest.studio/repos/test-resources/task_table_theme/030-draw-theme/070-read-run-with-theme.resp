@@ -1,0 +1,145 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "de1f6b692cebac9eb0a13c2bdff368f7",
+  "tableType": "RawSource",
+  "kind": "Run",
+  "name": "PremiumRun",
+  "pos": "B42:B46",
+  "source": [
+    [
+      {
+        "cell": "B42",
+        "value": "Run Premium PremiumRun",
+        "style": {
+          "valign": "top",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        },
+        "runs": [
+          {
+            "text": "Run",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": " ",
+            "style": {
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "Premium",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": " ",
+            "style": {
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "PremiumRun",
+            "style": {
+              "bold": true,
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "B43",
+        "value": "person",
+        "style": {
+          "color": "#808080",
+          "valign": "top",
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B44",
+        "value": ">people",
+        "style": {
+          "color": "#808080",
+          "valign": "top",
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B45",
+        "value": "Insured",
+        "style": {
+          "background": "#ddebf7",
+          "align": "center",
+          "valign": "top",
+          "bold": true,
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B46",
+        "value": "Ann",
+        "style": {
+          "background": "#fff2cc",
+          "align": "center",
+          "valign": "top",
+          "bold": true,
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 3,
+  "layout": {
+    "firstDataLine": 4
+  }
+}

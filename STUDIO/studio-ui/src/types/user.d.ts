@@ -66,8 +66,9 @@ export interface UserProfile {
     showHeader: boolean
     showRealNumbers: boolean
     /**
-     * The table theme Datatype, Vocabulary and Spreadsheet tables are drawn with and that is offered first when a theme
-     * is applied, by its identifier. Absent or empty, the tables are drawn with the formatting of the Excel file.
+     * The table theme Datatype, Vocabulary, Spreadsheet, Data, Test and Run tables are drawn with and that is offered
+     * first when a theme is applied, by its identifier. Absent or empty, the tables are drawn with the formatting of
+     * the Excel file.
      */
     tableTheme?: string
     testsFailuresOnly: boolean

@@ -1,15 +1,10 @@
 package org.openl.studio.projects.service.tables.theme;
 
-import java.util.Map;
-
+import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.ICell;
 import org.openl.studio.projects.model.tables.DatatypeLayout;
-import org.openl.studio.projects.service.tables.theme.ThemedTable.Cell;
-import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
 
 /**
  * Decides which look a theme gives each cell of the body of a Datatype or a Vocabulary table.
@@ -29,59 +24,65 @@ final class DatatypeThemeLayout {
     }
 
     /**
-     * Gives every cell of the body of a Datatype or a Vocabulary the look of its place.
+     * The places of the body of a Datatype: its fields, read the way the compiler reads them. A transposed table keeps
+     * its fields in columns.
      *
-     * @param cells      the looks of the cells, which the body adds its cells to
-     * @param body       the body of the table: its rows under the header and the properties
-     * @param kind       the table, which tells whether it is compiled transposed
-     * @param base       the look every cell of the table starts from
-     * @param look       the look of the table
-     * @param vocabulary whether the table is a Vocabulary
+     * @param body the body of the table
+     * @return the body and the look of each of its places
      */
-    static void themeBody(Map<Cell, ThemedCell> cells, ILogicalTable body, IOpenLTable kind, ThemeStyle base,
-                          TableTheme.Look look, boolean vocabulary) {
-        var transposed = isTransposed(kind);
-        // A transposed table keeps its fields in columns, so its places are found with its rows and columns swapped.
-        var columns = vocabulary ? null : DatatypeLayout.of(transposed ? body.transpose() : body);
-        var last = body.getHeight() - 1;
-        for (var row = 0; row <= last; row++) {
-            for (var column = 0; column < body.getWidth(); column++) {
-                var place = transposed ? placeOf(look, columns, column, row) : placeOf(look, columns, row, column);
-                var style = base.with(place);
-                ThemeLayouts.cover(cells, body.getCell(column, row), row == last ? style.with(look.lastRow()) : style);
+    static BodyLayout.Placed fields(ThemedBody body) {
+        var fields = body.upright();
+        return new BodyLayout.Placed(fields, Places.of(body, DatatypeLayout.of(fields)));
+    }
+
+    /**
+     * The places of the body of a Vocabulary: one column of values.
+     *
+     * @param body the body of the table
+     * @return the body and the look of each of its places
+     */
+    static BodyLayout.Placed values(ThemedBody body) {
+        return new BodyLayout.Placed(body.upright(), Places.of(body, null));
+    }
+
+    /**
+     * The looks of the places of one body, each laid over the base once.
+     *
+     * @param columns the columns of a Datatype as an upright table holds them, or {@code null} for a Vocabulary
+     * @param titles  the look of the row that names the columns
+     * @param type    the look of a field type
+     * @param name    the look of a field name
+     * @param values  the look of any other value
+     */
+    @Builder
+    private record Places(DatatypeLayout.@Nullable Columns columns, ThemeStyle titles, ThemeStyle type,
+                          ThemeStyle name, ThemeStyle values) implements ThemeLayouts.PlaceLook {
+
+        static Places of(ThemedBody body, DatatypeLayout.@Nullable Columns columns) {
+            var base = body.base();
+            var look = body.look();
+            return Places.builder()
+                    .columns(columns)
+                    .titles(base.with(look.titles()))
+                    .type(base.with(look.type()))
+                    .name(base.with(look.name()))
+                    .values(base.with(look.values()))
+                    .build();
+        }
+
+        /** The look of a place in the body: the titles, the field types, the field names, or the other values. */
+        @Override
+        public ThemeStyle at(ICell cell, int column, int row) {
+            if (columns == null) {
+                return values;
             }
+            if (row < columns.firstFieldRow()) {
+                return titles;
+            }
+            if (column == columns.type()) {
+                return type;
+            }
+            return column == columns.name() ? name : values;
         }
-    }
-
-    /**
-     * Whether a Datatype is written transposed, with a field in each column.
-     *
-     * <p>The compiler decides it from the types and the titles the table holds, so only a compiled table can be
-     * transposed.
-     */
-    private static boolean isTransposed(IOpenLTable table) {
-        return table.getSyntaxNode().getMetaInfoReader() instanceof DatatypeTableMetaInfoReader reader
-                && reader.getBoundNode().getTable() instanceof ILogicalTable fields
-                && !fields.isNormalOrientation();
-    }
-
-    /**
-     * The look of a place in the body: the titles, the field types, the field names, or the other values.
-     *
-     * @param row    the row of the place in an upright table: the title row or a field
-     * @param column the column of the place in an upright table
-     */
-    private static @Nullable ThemeStyle placeOf(TableTheme.Look look, DatatypeLayout.@Nullable Columns columns,
-                                                int row, int column) {
-        if (columns == null) {
-            return look.values();
-        }
-        if (row < columns.firstFieldRow()) {
-            return look.titles();
-        }
-        if (column == columns.type()) {
-            return look.type();
-        }
-        return column == columns.name() ? look.name() : look.values();
     }
 }

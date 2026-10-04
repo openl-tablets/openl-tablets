@@ -97,7 +97,8 @@ public final class ThemeExcelWriter {
     /**
      * Writes the theme into a table, as the table stands on its grid. The caller saves the workbook.
      *
-     * <p>A table of any kind but a Datatype, a Vocabulary or a Spreadsheet is left as it is.
+     * <p>A table of any kind but a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a Run table is left as it
+     * is.
      *
      * @param table the table to theme
      * @param grid  the table as it stands on its sheet, header included; its sheet is opened for writing
