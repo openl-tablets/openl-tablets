@@ -1,0 +1,185 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0e31423acbfea77e07c32c8b334eaee6",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting",
+  "pos": "B27:C29",
+  "source": [
+    [
+      {
+        "cell": "B27",
+        "value": "SimpleRules String Greeting(Integer hour)",
+        "style": {
+          "align": "center",
+          "valign": "top",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        },
+        "runs": [
+          {
+            "text": "SimpleRules",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": " ",
+            "style": {
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "String",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": " ",
+            "style": {
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "Greeting",
+            "style": {
+              "bold": true,
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          },
+          {
+            "text": "(Integer hour)",
+            "style": {
+              "color": "#808080",
+              "fontFamily": "Franklin Gothic Book",
+              "fontSize": 10,
+              "source": "theme"
+            }
+          }
+        ]
+      },
+      {
+        "cell": "C27",
+        "style": {
+          "align": "center",
+          "valign": "top",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B28",
+        "value": "Hour",
+        "style": {
+          "background": "#d0cece",
+          "align": "center",
+          "valign": "top",
+          "bold": true,
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "C28",
+        "value": "Greeting",
+        "style": {
+          "background": "#b4c6e7",
+          "align": "center",
+          "valign": "top",
+          "bold": true,
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B29",
+        "value": "< 12",
+        "style": {
+          "align": "center",
+          "valign": "top",
+          "border": {
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      },
+      {
+        "cell": "C29",
+        "value": "Good Morning",
+        "style": {
+          "background": "#ddebf7",
+          "align": "center",
+          "valign": "top",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
+          "fontFamily": "Franklin Gothic Book",
+          "fontSize": 10,
+          "source": "theme"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

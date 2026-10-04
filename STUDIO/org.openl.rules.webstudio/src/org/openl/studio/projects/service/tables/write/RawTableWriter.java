@@ -45,6 +45,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.theme.TableMoves;
 import org.openl.studio.projects.service.tables.theme.TableThemeService;
 import org.openl.studio.projects.service.tables.theme.ThemeExcelWriter;
 
@@ -83,6 +84,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     /** The themes a {@code theme} edit is written with, or {@code null} where this writer is given none. */
     private final @Nullable TableThemeService themes;
+
+    /** The rows and the columns the edits so far inserted or deleted, which a theme written after them follows. */
+    private TableMoves moves = TableMoves.NONE;
 
     /** The writer of the theme a {@code theme} edit wrote into the table, or {@code null} before any such edit. */
     private @Nullable ThemeExcelWriter themed;
@@ -340,14 +344,15 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * Writes a table theme into the table, as the edits before it left the table.
      *
      * <p>The theme is laid over the cells as they stand: a row added by an earlier edit gets the look of its place,
-     * and the line that closes the table moves to its new last row.
+     * and the line that closes the table moves to its new last row. A decision table is themed by where the compiler
+     * found its parts, each where the rows and the columns the earlier edits inserted or deleted moved it.
      */
     private void theme(String themeId) {
         if (themes == null) {
             throw new IllegalStateException("This writer is given no table themes.");
         }
         themed = themes.writer(themeId);
-        if (!themed.write(table, developerView())) {
+        if (!themed.write(table, developerView(), moves)) {
             throw new BadRequestException("table.theme.unsupported.message");
         }
     }
@@ -429,6 +434,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             insertBlankRows(developerView, position - 1 + i);
         }
         writeLines(developerView, rows, position, true, width, GridRegionUtils.height(developerView.getRegion()));
+        moves = moves.insertedRows(position, rows.size());
     }
 
     private void insertColumns(int position, List<List<RawCellInput>> columns) {
@@ -445,6 +451,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             insertBlankColumns(developerView, position + i);
         }
         writeLines(developerView, columns, position, false, GridRegionUtils.width(developerView.getRegion()), height);
+        moves = moves.insertedColumns(position, columns.size());
     }
 
     private void appendRows(List<List<RawCellInput>> rows) {
@@ -471,12 +478,14 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // is the reader's to take away as it was in the Editor.
         requirePosition(position, 0, GridRegionUtils.height(developerView.getRegion()) - count);
         removeRows(developerView, count, position);
+        moves = moves.deletedRows(position, count);
     }
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
         requirePosition(position, 0, GridRegionUtils.width(developerView.getRegion()) - count);
         removeColumns(developerView, count, position);
+        moves = moves.deletedColumns(position, count);
     }
 
     private void updateRow(int position, List<RawCellInput> cells) {

@@ -96,11 +96,11 @@ public class TableThemeService {
     }
 
     /**
-     * Whether the themes style a table. Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test and Run
-     * table, so they look alike in one theme.
+     * Whether the themes style a table. Every theme styles every Datatype, Vocabulary, Spreadsheet, Data, Test, Run
+     * and decision table, so they look alike in one theme.
      *
      * @param table the table
-     * @return {@code true} for a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test or a Run table
+     * @return {@code true} for a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a Run or a decision table
      */
     public boolean styles(IOpenLTable table) {
         return ThemeLayouts.styles(table);
@@ -119,7 +119,7 @@ public class TableThemeService {
      * @throws BadRequestException when no theme has the identifier
      */
     public @Nullable ThemedTable layoutOf(IOpenLTable table, String themeId) {
-        return ThemeLayouts.of(table, table.getGridTable(), theme(themeId));
+        return ThemeLayouts.of(table, table.getGridTable(), theme(themeId), TableMoves.NONE);
     }
 
     /**

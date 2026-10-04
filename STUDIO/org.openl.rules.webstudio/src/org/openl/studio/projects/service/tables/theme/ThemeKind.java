@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.dt.DecisionTableHelper;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 
@@ -24,7 +26,12 @@ enum ThemeKind {
     SPREADSHEET(TableTheme::spreadsheet, SpreadsheetThemeLayout::layOut),
     DATA(TableTheme::data, DataThemeLayout::data),
     TEST(TableTheme::test, DataThemeLayout::calls),
-    RUN(TableTheme::run, DataThemeLayout::calls);
+    RUN(TableTheme::run, DataThemeLayout::calls),
+    RULES(TableTheme::rules, DecisionThemeLayout::rules),
+    SIMPLE_RULES(TableTheme::simpleRules, DecisionThemeLayout::rules),
+    SMART_RULES(TableTheme::smartRules, DecisionThemeLayout::rules),
+    SIMPLE_LOOKUP(TableTheme::simpleLookup, DecisionThemeLayout::rules),
+    SMART_LOOKUP(TableTheme::smartLookup, DecisionThemeLayout::rules);
 
     /** The part of a theme that tells what the kind changes in the base. */
     private final Function<TableTheme, TableTheme.@Nullable Look> part;
@@ -46,8 +53,8 @@ enum ThemeKind {
     /**
      * The kind of a table, told as OpenL Studio tells the kinds apart.
      *
-     * <p>A Datatype whose header declares the type of its values is a Vocabulary. A table of any other kind has no
-     * kind a theme styles.
+     * <p>A Datatype whose header declares the type of its values is a Vocabulary. A decision table is of the kind its
+     * header keyword names. A table of any other kind has no kind a theme styles.
      *
      * @param table  the table
      * @param header the text of its header
@@ -60,7 +67,22 @@ enum ThemeKind {
             case DATA -> DATA;
             case TEST -> TEST;
             case RUN -> RUN;
+            case RULES -> decisionOf(table.getSyntaxNode());
             default -> null;
         };
+    }
+
+    /** The kind of a decision table, by the keyword of its header. */
+    private static ThemeKind decisionOf(TableSyntaxNode node) {
+        if (DecisionTableHelper.isSimpleDecisionTable(node)) {
+            return SIMPLE_RULES;
+        }
+        if (DecisionTableHelper.isSmartDecisionTable(node)) {
+            return SMART_RULES;
+        }
+        if (DecisionTableHelper.isSimpleLookupTable(node)) {
+            return SIMPLE_LOOKUP;
+        }
+        return DecisionTableHelper.isSmartLookupTable(node) ? SMART_LOOKUP : RULES;
     }
 }

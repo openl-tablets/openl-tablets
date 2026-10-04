@@ -23,6 +23,16 @@ public record ThemeBorder(@Nullable ThemeBorderLine top,
     static final ThemeBorder KEEP = new ThemeBorder(null, null, null, null);
 
     /**
+     * These borders turned over the diagonal from the top left corner, for a table written the other way round: the
+     * top side is on the left, the bottom side on the right, and the other way about.
+     *
+     * @return the borders turned
+     */
+    ThemeBorder transposed() {
+        return new ThemeBorder(left, bottom, right, top);
+    }
+
+    /**
      * Lays another border over this one: a side the other names wins.
      *
      * @param over the border laid on top, or {@code null} for none

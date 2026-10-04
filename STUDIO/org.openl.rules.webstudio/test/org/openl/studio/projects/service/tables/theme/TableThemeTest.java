@@ -128,8 +128,8 @@ class TableThemeTest {
     private static final String RATED_RUN = "RatedRun";
     private static final int RATED_RUN_ROW = 120;
 
-    /** A Rules table, which no theme styles. */
-    private static final String GREETING = "Greeting";
+    /** A Method table, which no theme styles. */
+    private static final String ANSWER = "Answer";
 
     /** The fills the default theme gives an ID and a value that is not filled. */
     private static final String ID_BACKGROUND = "#fff2cc";
@@ -168,7 +168,7 @@ class TableThemeTest {
         assertNotNull(service.layoutOf(TableTestProjects.table(model, "people"), THEME));
         assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_TEST), THEME));
         assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_RUN), THEME));
-        assertNull(service.layoutOf(TableTestProjects.table(model, GREETING), THEME));
+        assertNull(service.layoutOf(TableTestProjects.table(model, ANSWER), THEME));
     }
 
     @Test
@@ -182,7 +182,7 @@ class TableThemeTest {
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
         assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
-        assertTrue(service.getThemes(TableTestProjects.table(model, GREETING)).isEmpty(), "No theme styles Rules");
+        assertTrue(service.getThemes(TableTestProjects.table(model, ANSWER)).isEmpty(), "No theme styles a Method");
     }
 
     @Test
@@ -197,13 +197,13 @@ class TableThemeTest {
         var grid = GridTableUtils.getOriginalTable(code.getGridTable());
         grid.edit();
         try {
-            assertTrue(extension.writer("datatype-extension").write(code, grid));
+            assertTrue(extension.writer("datatype-extension").write(code, grid, TableMoves.NONE));
         } finally {
             grid.stopEditing();
         }
         var people = extension.layoutOf(TableTestProjects.table(model, "people"), "datatype-extension");
         assertEquals(Boolean.TRUE, people.at(14, 1).style().italic(), "A Data table takes the base as well");
-        assertNull(extension.layoutOf(TableTestProjects.table(model, GREETING), "datatype-extension"));
+        assertNull(extension.layoutOf(TableTestProjects.table(model, ANSWER), "datatype-extension"));
     }
 
     @Test
@@ -741,7 +741,7 @@ class TableThemeTest {
     void writesNothingIntoATableTheThemeDoesNotApplyTo() throws IOException {
         var before = Files.readAllBytes(dir.resolve(SHEET + ".xlsx"));
 
-        write(List.of(TableTestProjects.table(TableTestProjects.projectModel(dir), GREETING)));
+        write(List.of(TableTestProjects.table(TableTestProjects.projectModel(dir), ANSWER)));
 
         assertArrayEquals(before, Files.readAllBytes(dir.resolve(SHEET + ".xlsx")),
                 "No workbook is saved when no table is themed");
@@ -938,7 +938,7 @@ class TableThemeTest {
     /**
      * A Datatype with a percentage, a Vocabulary, a Datatype naming its columns, a Data table, a cell outside
      * every table filled red, a Datatype whose header is not merged over it, two Datatypes written transposed, seven
-     * Spreadsheets, two more Data tables, one of them transposed, a Test table and a Rules table.
+     * Spreadsheets, two more Data tables, one of them transposed, a Test table and a Method table.
      */
     private static void fillSheet(Sheet sheet) {
         var workbook = sheet.getWorkbook();
@@ -1069,9 +1069,8 @@ class TableThemeTest {
         TableTestProjects.row(sheet, RATED_TEST_ROW + 3, 1, "Insured", "Premium");
         TableTestProjects.row(sheet, RATED_TEST_ROW + 4, 1, "Ann", "1.5");
 
-        TableTestProjects.row(sheet, 109, 1, "SimpleRules String " + GREETING + "(Integer hour)");
-        TableTestProjects.row(sheet, 110, 1, "Hour", "Greeting");
-        TableTestProjects.row(sheet, 111, 1, "< 12", "Good Morning");
+        TableTestProjects.row(sheet, 109, 1, "Method Integer " + ANSWER + "()");
+        TableTestProjects.row(sheet, 110, 1, "return 42;");
 
         TableTestProjects.row(sheet, TALL_ROW, 1, "Spreadsheet SpreadsheetResult " + TALL + " ( Person person )");
         sheet.addMergedRegion(new CellRangeAddress(TALL_ROW, TALL_ROW, 1, 2));

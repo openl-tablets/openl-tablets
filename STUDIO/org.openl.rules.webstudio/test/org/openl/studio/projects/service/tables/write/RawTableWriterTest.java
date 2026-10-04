@@ -232,6 +232,91 @@ class RawTableWriterTest {
     }
 
     @Test
+    void writesATableThemeIntoTheRuleAnEditAddedToADecisionTable() throws IOException {
+        var rules = writeProject("rules", new String[][]{
+                {"SimpleRules String Greeting(Integer hour)", null},
+                {"Hour", "Greeting"},
+                {"< 12", "Good Morning"}
+        });
+
+        apply(rules, List.of(appendRow(row(">= 12", "Good Day")), new RawTableSourceAction.Theme("default")));
+
+        var source = reloadStyled(rules);
+        // The rule added in the same change is a rule like the others, and the line closing the table is under it.
+        assertEquals("#ddebf7", styleOf(source, 3, 1).background());
+        assertNotNull(styleOf(source, 3, 0).border().bottom());
+        assertNull(styleOf(source, 2, 0).border().bottom(), "The rule last before the change is closed no more");
+    }
+
+    @Test
+    void writesATableThemeIntoTheColumnsOfADecisionTableWhereAnInsertBeforeItMovedThem() throws IOException {
+        var rules = writeProject("inserted", new String[][]{
+                {"Rules String Greet(String day, Integer hour)", null, null},
+                {"C1", "C2", "RET1"},
+                {"day == dayName", "hour < limit", "greeting"},
+                {"String dayName", "Integer limit", "String greeting"},
+                {"Day", "Before", "Greeting"},
+                {"Weekday", "12", "Good Morning"},
+                {"Weekend", "24", "Rest"}
+        });
+
+        apply(rules, List.of(insertColumn(1, row(null, "C3", "hour > from", "Integer from", "After", "0", "0")),
+                new RawTableSourceAction.Theme("default")));
+
+        var source = reloadStyled(rules);
+        // The column inserted is not compiled yet: it takes the white of the base, read as no fill of its own. The
+        // columns after it keep the looks of their parts.
+        assertEquals("#d0cece", styleOf(source, 4, 0).background());
+        assertNull(styleOf(source, 4, 1).background());
+        assertEquals("#d0cece", styleOf(source, 4, 2).background(), "The title of the condition that moved right");
+        assertEquals("#b4c6e7", styleOf(source, 4, 3).background(), "The title of what the table returns");
+        assertEquals("#ddebf7", styleOf(source, 5, 3).background());
+    }
+
+    @Test
+    void writesATableThemeIntoTheRowsOfADecisionTableWhereADeleteBeforeItMovedThem() throws IOException {
+        var rules = writeProject("deleted", new String[][]{
+                {"Rules String Greet(String day, Integer hour)", null, null},
+                {"properties", "description", "Greets"},
+                {"C1", "C2", "RET1"},
+                {"day == dayName", "hour < limit", "greeting"},
+                {"String dayName", "Integer limit", "String greeting"},
+                {"Day", "Before", "Greeting"},
+                {"Weekday", "12", "Good Morning"}
+        });
+
+        apply(rules, List.of(deleteRow(1), new RawTableSourceAction.Theme("default")));
+
+        var source = reloadStyled(rules);
+        // The code moved up a row with the rest: its first row is muted and its last row closes it.
+        assertEquals("#808080", styleOf(source, 1, 0).color());
+        assertNotNull(styleOf(source, 3, 0).border().bottom());
+        assertEquals("#d0cece", styleOf(source, 4, 0).background(), "The title of the condition moved up");
+        assertEquals("#ddebf7", styleOf(source, 5, 2).background(), "The value the rule returns");
+    }
+
+    @Test
+    void themesThePropertiesTheNoteOfTheEditLaysDownOverTheCodeOfADecisionTable() throws IOException {
+        var rules = writeProject("noted", new String[][]{
+                {"Rules String Greet(String day, Integer hour)", null, null},
+                {"C1", "C2", "RET1"},
+                {"day == dayName", "hour < limit", "greeting"},
+                {"String dayName", "Integer limit", "String greeting"},
+                {"Day", "Before", "Greeting"},
+                {"Weekday", "12", "Good Morning"}
+        });
+
+        applyNoted(rules, new RawTableSourceAction.Theme("default"));
+
+        // The note lays the properties down under the header, and the code moves down under them with its look.
+        var source = reloadStyled(rules);
+        assertEquals("modifiedBy", value(source, 1, 1));
+        assertNull(styleOf(source, 1, 0).color(), "The properties are not muted as the code is");
+        assertNotNull(styleOf(source, 1, 2).border().bottom(), "The properties are closed by a line");
+        assertEquals("#808080", styleOf(source, 2, 0).color(), "The first row of the code is muted");
+    }
+
+    @Test
     void writesTheStylingAskedForAfterTheTableThemeOverIt() {
         apply(List.of(
                 new RawTableSourceAction.Theme("default"),

@@ -1,7 +1,7 @@
 ## Appendix E: Table Themes
 
-A table theme describes the look OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, and Run tables. A
-theme is drawn over the tables while they are viewed, or written into the Excel file, as described in
+A table theme describes the look OpenL Studio gives Datatype, Vocabulary, Spreadsheet, Data, Test, Run, and decision
+tables. A theme is drawn over the tables while they are viewed, or written into the Excel file, as described in
 [Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Default** and
 **Green** themes. This appendix describes how a theme file is written.
 
@@ -42,10 +42,16 @@ A theme file holds the following keys:
     of a Data table, as described in [Reusing Parts of a Theme](#reusing-parts-of-a-theme).
 -   **`run`** — what a Run table changes in the base. A Run table is written as a Test table without the expected
     results, and the themes that OpenL Studio ships give it the look of a Data table as well.
+-   **`rules`** — what a Rules table changes in the base. The themes that OpenL Studio ships give every other kind of
+    decision table the look of a Rules table.
+-   **`simpleRules`** — what a SimpleRules table changes in the base.
+-   **`smartRules`** — what a SmartRules table changes in the base.
+-   **`simpleLookup`** — what a SimpleLookup table changes in the base.
+-   **`smartLookup`** — what a SmartLookup table changes in the base.
 
-A theme is one style for every kind of table: it styles every Datatype, Vocabulary, Spreadsheet, Data, Test, and Run
-table. Each kind takes the base, and the key of the kind writes only what it changes. A kind the theme writes nothing
-for takes the base alone.
+A theme is one style for every kind of table: it styles every Datatype, Vocabulary, Spreadsheet, Data, Test, Run, and
+decision table. Each kind takes the base, and the key of the kind writes only what it changes. A kind the theme
+writes nothing for takes the base alone.
 
 ### Parts of a Table
 
@@ -54,13 +60,14 @@ A look consists of the following parts, each of them optional. Every kind of tab
 -   **`style`** — the style every cell of the table starts from. Each of the other parts is laid over it.
 -   **`header`** — the header cell:
     -   **`style`** — the style of the header cell.
-    -   **`keyword`** — the font of the keyword, such as `Datatype` or `Spreadsheet`.
+    -   **`keyword`** — the font of the keyword, such as `Datatype`, `Spreadsheet`, or `SmartRules`.
     -   **`name`** — the font of the table name.
     -   **`type`** — the font of the type that the header names besides the table: the type of a Vocabulary, such as
-        `<String>`, the parent of a Datatype, such as `extends Person`, the type a Spreadsheet returns, such as
-        `SpreadsheetResult`, the type of the rows of a Data table, such as `Policy`, or the method a Test or a Run
-        table calls.
-    -   **`parameters`** — the font of the parameters of a Spreadsheet, such as `( Policy policy )`.
+        `<String>`, the parent of a Datatype, such as `extends Person`, the type a Spreadsheet or a decision table
+        returns, such as `SpreadsheetResult` or `Collect Error[]`, the type of the rows of a Data table, such as
+        `Policy`, or the method a Test or a Run table calls.
+    -   **`parameters`** — the font of the parameters of a Spreadsheet or a decision table, such as
+        `( Policy policy )`.
 -   **`properties`** — the rows of table properties that follow the header. The section is one part of the table
     however many properties it holds: a line the style draws above or below it goes round the whole section, for
     example, a line that closes the properties.
@@ -109,6 +116,28 @@ A Data, a Test, and a Run table also take the following parts:
 A Data, a Test, or a Run table can be written transposed, with a field in each row. The parts then follow the fields:
 `name` styles the column of field names, `titles` styles the column of titles, and `ids` styles the row of IDs.
 `lastRow` still styles the last row of the table.
+
+A decision table — a Rules, SimpleRules, SmartRules, SimpleLookup, or SmartLookup table — also takes the following
+parts:
+
+-   **`code`** — the rows a Rules table declares its columns in: the kind of each column, such as `C1` or `RET1`, its
+    expression, and its parameters. A line the style draws above or below goes round all of these rows, not round each
+    of them. A SimpleRules, a SmartRules, and a lookup table have no such rows.
+-   **`titles`** — the titles of the conditions, such as **Driver Age**, and of the column that names the rules.
+-   **`values`** — the values the conditions are checked against, and the names of the rules.
+-   **`horizontals`** — the values of the horizontal conditions across the top of a lookup table, such as **Male**
+    and **Female**.
+-   **`returnTitles`** — the titles of the columns the table returns or acts in, such as **Factor**.
+-   **`returns`** — the values the table returns or acts with. In a lookup table, these are the values where its
+    conditions meet.
+-   **`groups`** — the style laid over the first rule of a group and over the rule after the group, for example, a
+    line above that sets the group apart. The rules that share a value of a condition merged over them make a group.
+
+A decision table can be written transposed, with a rule in each column. The parts then follow the conditions and the
+returns: each of them is a row that holds its code, its title, and a value of each rule. The lines the parts draw
+turn with them: a line above a part is drawn on its left and a line below it on its right, so a line between the
+columns of conditions runs between their rows and a line over a group of rules runs on its left. The lines of
+`style` and `lastRow` stay where they are named, and `lastRow` still styles the last row of the table.
 
 A part that a kind of table does not take is not used for it, so `base` can hold the parts of every kind.
 
@@ -235,13 +264,32 @@ test: *data
 run: *data
 ```
 
+In the following example, every kind of decision table takes the look of a Rules table, and a SimpleLookup table
+fills the values of its horizontal conditions with a colour of its own:
+
+```yaml
+rules: &rules
+  titles: {bold: true, background: "#d0cece"}
+  horizontals: {bold: true, background: "#b4c6e7"}
+  returns: {background: "#ddebf7"}
+
+simpleRules: *rules
+smartRules: *rules
+simpleLookup:
+  <<: *rules
+  horizontals: {bold: true, background: "#8faadc"}
+smartLookup: *rules
+```
+
 ### Theme Example
 
 The following theme gives every table a dark header with light text. Its base style names every attribute, so it
 overrides the look the Excel file gives a table, and it draws only its own lines: one under the properties and one
 under the last row. A Spreadsheet table also gets a filled row of column titles, bold italic headings of its
 sections, and bold steps that are marked for the result or give it. A Data, a Test, and a Run table get muted field
-names, filled titles, highlighted IDs, and grey values that are not filled:
+names, filled titles, highlighted IDs, and grey values that are not filled. A decision table gets muted code closed
+by a line, filled titles of its conditions and of what it returns, bold horizontal conditions, filled returns, and a
+line over every group of rules:
 
 ```yaml
 name: Corporate
@@ -297,4 +345,18 @@ data: &data
 
 test: *data
 run: *data
+
+rules: &rules
+  code: {color: "#808080", border: {bottom: *line}}
+  titles: {bold: true, align: center, background: "#d9d9d9"}
+  values: {align: center}
+  horizontals: {bold: true, align: center, background: "#bdd7ee"}
+  returnTitles: {bold: true, align: center, background: "#bdd7ee"}
+  returns: {align: center, background: "#ddebf7"}
+  groups: {border: {top: *line}}
+
+simpleRules: *rules
+smartRules: *rules
+simpleLookup: *rules
+smartLookup: *rules
 ```

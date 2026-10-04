@@ -21,6 +21,8 @@ import org.openl.util.StringUtils;
  *     the type of a Vocabulary.</li>
  *     <li>A Spreadsheet header names the type it returns, the name of the table, then its parameters in parentheses.
  *     The name is the last word before the parameters, so a header that leaves out the type names none.</li>
+ *     <li>A decision table header, such as {@code Rules} or {@code SmartLookup}, reads as a Spreadsheet header. The
+ *     type it returns may take several words, such as {@code Collect Error[]}.</li>
  *     <li>A Data header names the type of its rows, then the name of the table, and a Test or a Run header names the
  *     method it calls, then its name. They read as a Spreadsheet header without parameters.</li>
  * </ul>
@@ -30,7 +32,7 @@ import org.openl.util.StringUtils;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class HeaderRuns {
 
-    /** What opens the parameters of a Spreadsheet. */
+    /** What opens the parameters of a Spreadsheet or a decision table. */
     private static final char PARAMETERS_OPEN = '(';
 
     /** The text of the header cell. */
