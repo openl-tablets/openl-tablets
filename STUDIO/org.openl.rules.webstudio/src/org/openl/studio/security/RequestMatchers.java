@@ -8,6 +8,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
+import org.openl.rules.webstudio.web.servlet.UserGuidesServlet;
 
 public final class RequestMatchers {
 
@@ -36,6 +37,18 @@ public final class RequestMatchers {
     /** Matches the addresses that answer a caller with data, not a page: the REST API and the WebSocket handshake. */
     public static RequestMatcher api() {
         return anyOf(apiPatterns());
+    }
+
+    /**
+     * Matches a file of the user guides: an address below {@code /docs} whose last part ends with an extension.
+     *
+     * <p>Every other address below {@code /docs} is a page of a guide, which the application page draws. The query
+     * is not part of the address, so it cannot turn a page into a file.
+     */
+    public static RequestMatcher userGuideFiles() {
+        return request -> UserGuidesServlet.PATH.equals(request.getServletPath())
+                && request.getPathInfo() != null
+                && UserGuidesServlet.namesFile(request.getPathInfo());
     }
 
     public static RequestMatcher matcher(String pattern) {

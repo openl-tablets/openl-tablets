@@ -34,20 +34,23 @@ public class SecurityConfig {
     public SecurityFilterChain staticResourcesFilterChain(HttpSecurity http) throws Exception {
 
         return http
-                .securityMatcher(
-                        "/favicon.ico",
-                        "/favicon.svg",
-                        "/application.properties",
-                        "/api-docs",
-                        "/icons/**",
-                        "/assets/**",
-                        "/licenses/**",
-                        "/.well-known/**",
-                        StudioDispatcherServlet.REST_PATH + "/public/**",
-                        StudioDispatcherServlet.REST_PATH + "/settings",
-                        StudioDispatcherServlet.REST_PATH + "/api-docs",
-                        StudioDispatcherServlet.REST_PATH + "/openapi.json"
-                )
+                .securityMatchers(matchers -> matchers
+                        .requestMatchers(
+                                "/favicon.ico",
+                                "/favicon.svg",
+                                "/application.properties",
+                                "/api-docs",
+                                "/icons/**",
+                                "/assets/**",
+                                "/licenses/**",
+                                "/.well-known/**",
+                                StudioDispatcherServlet.REST_PATH + "/public/**",
+                                StudioDispatcherServlet.REST_PATH + "/settings",
+                                StudioDispatcherServlet.REST_PATH + "/api-docs",
+                                StudioDispatcherServlet.REST_PATH + "/openapi.json"
+                        )
+                        // A page of a guide is the application page, guarded as every other page.
+                        .requestMatchers(RequestMatchers.userGuideFiles()))
                 // Disable any configurers and authentications for the static-like resources.
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(AbstractHttpConfigurer::disable)
