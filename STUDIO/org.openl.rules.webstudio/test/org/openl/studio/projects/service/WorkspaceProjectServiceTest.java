@@ -1704,7 +1704,7 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void the_table_theme_reaches_every_datatype_of_the_project_but_a_partial_one(@TempDir Path dir) throws Exception {
+    void the_table_theme_reaches_every_table_it_styles_but_a_partial_one(@TempDir Path dir) throws Exception {
         var acl = mock(RepositoryAclService.class);
         var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
                 mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
@@ -1718,6 +1718,9 @@ class WorkspaceProjectServiceTest {
             TableTestProjects.row(sheet, 9, 1, "Data Person people");
             TableTestProjects.row(sheet, 10, 1, "name");
             TableTestProjects.row(sheet, 11, 1, "Name");
+            TableTestProjects.row(sheet, 14, 1, "Spreadsheet SpreadsheetResult Premium()");
+            TableTestProjects.row(sheet, 15, 1, "Step", "Formula");
+            TableTestProjects.row(sheet, 16, 1, "Total", "= 1");
         });
         // A Datatype gathered from partial tables stands on a grid made of them.
         var part = datatype("part");
@@ -1731,7 +1734,8 @@ class WorkspaceProjectServiceTest {
 
         var result = service.applyProjectTableTheme(project, "green");
 
-        var themed = List.of("Person", "Code").stream()
+        // The Data table is of a kind no theme styles.
+        var themed = List.of("Person", "Code", "Premium").stream()
                 .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
                 .toList();
         assertEquals(themed, result.themed());
@@ -1788,10 +1792,9 @@ class WorkspaceProjectServiceTest {
         verify(model, never()).getAllTableSyntaxNodes();
     }
 
-    /** A Datatype of the project that only tells its kind, its address and its identifier. */
+    /** A Datatype of the project that only tells its kind, its header, its address and its identifier. */
     private static TableSyntaxNode datatype(String id) {
-        var node = mock(TableSyntaxNode.class);
-        when(node.getType()).thenReturn(XlsNodeTypes.XLS_DATATYPE.toString());
+        var node = datatypeNode("Datatype " + id);
         when(node.getUri()).thenReturn(id);
         when(node.getId()).thenReturn(id);
         return node;

@@ -73,7 +73,7 @@ import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
-import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -2254,13 +2254,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * The table themes that have a look for the given table: the ones a screen offers to draw over it or write into
-     * it.
+     * The table themes that can be drawn over the given table or written into it: the ones a screen offers for it.
      *
      * @param project    project owning the table
      * @param tableId    table the themes are asked about
      * @param moduleName module the table is asked for through
-     * @return the themes with a look for the table, by name; none for a table no theme styles
+     * @return the themes, by name; none for a table no theme styles
      */
     public List<TableThemeView> getTableThemes(RulesProject project, String tableId, @Nullable String moduleName) {
         return tableThemeService.getThemes(getOpenLTableInModule(project, tableId, moduleName).table());
@@ -2526,7 +2525,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Writes a table theme into every Datatype and Vocabulary table of every module of the project.
+     * Writes a table theme into every Datatype, Vocabulary and Spreadsheet table of every module of the project.
      *
      * <p>A table of a project this one depends on is left as it is, as is a table gathered from several partial
      * tables: neither can be written here. Every workbook the theme reaches is saved once.
@@ -2559,12 +2558,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var skipped = new ArrayList<String>();
         for (var node : model.getAllTableSyntaxNodes()) {
             var table = new TableSyntaxNodeAdapter(node);
-            var owner = OpenLTableUtils.isDatatypeTable(table)
+            var owner = tableThemeService.styles(table)
                     ? CollectionUtils.findFirst(modules, module -> module.containsTable(node.getUri()))
                     : null;
             if (owner != null) {
-                // A table gathered from several partial tables stands on a grid made of them.
-                if (node.getGridTable().getGrid() instanceof CompositeGrid) {
+                if (GridTableUtils.isAssembledFromParts(table.getGridTable())) {
                     skipped.add(node.getId());
                 } else {
                     themed.add(table);

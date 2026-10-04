@@ -164,7 +164,7 @@ export type TableEdit =
             style: RawCellStyleInput
         }
     }
-    /** Writes a table theme into a Datatype or a Vocabulary table, as the edits before it left the table. */
+    /** Writes a table theme into a Datatype, a Vocabulary or a Spreadsheet table, as the edits before it left it. */
     | { operation: 'theme', theme: string }
 
 /** A table theme OpenL Studio offers. */

@@ -18,13 +18,13 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
  *
  * <p>An attribute at its default is left out: a white fill, a black font or line, and a font flag that is off.
  */
-public final class RawTableStyles {
+final class RawTableStyles {
 
     /** The fill of a cell nothing fills. */
-    public static final String WHITE = "#ffffff";
+    static final String WHITE = "#ffffff";
 
     /** The colour of a text or a line that names none. */
-    public static final String BLACK = "#000000";
+    static final String BLACK = "#000000";
 
     /** Writes a colour in lower case, as the API reports it. */
     private static final HexFormat HEX = HexFormat.of();
@@ -39,7 +39,7 @@ public final class RawTableStyles {
      * @param defaultHex the colour reported as no colour at all
      * @return the colour, or {@code null} when it is missing or is the default colour
      */
-    public static @Nullable String hex(short @Nullable [] rgb, String defaultHex) {
+    static @Nullable String hex(short @Nullable [] rgb, String defaultHex) {
         if (rgb == null || rgb.length < 3) {
             return null;
         }
@@ -70,7 +70,7 @@ public final class RawTableStyles {
      * @param border the line the side is drawn with, or {@code null} for none
      * @return the side, or {@code null} when the side has no border
      */
-    public static @Nullable RawTableCellBorderSide borderSide(@Nullable BorderStyle border) {
+    static @Nullable RawTableCellBorderSide borderSide(@Nullable BorderStyle border) {
         if (border == null || border == BorderStyle.NONE || border.getWidth() == 0) {
             return null;
         }
@@ -87,8 +87,8 @@ public final class RawTableStyles {
                 .build();
     }
 
-    /** {@link Boolean#TRUE} for a flag that is on, {@code null} for one that is off. */
-    private static @Nullable Boolean flag(boolean on) {
-        return on ? Boolean.TRUE : null;
+    /** {@link Boolean#TRUE} for a flag that is on, {@code null} for one that is off or not named. */
+    static @Nullable Boolean flag(@Nullable Boolean on) {
+        return Boolean.TRUE.equals(on) ? Boolean.TRUE : null;
     }
 }

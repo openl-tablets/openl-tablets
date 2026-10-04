@@ -16,6 +16,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
+          "valign": "top",
           "border": {
             "top": {
               "style": "solid",
@@ -71,6 +72,7 @@ Content-Type: application/json
         "cell": "B3",
         "value": "String",
         "style": {
+          "valign": "top",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -81,6 +83,7 @@ Content-Type: application/json
         "value": "name",
         "style": {
           "background": "#ddebf7",
+          "valign": "top",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -91,6 +94,7 @@ Content-Type: application/json
         "value": "Bob",
         "style": {
           "align": "center",
+          "valign": "top",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -102,6 +106,7 @@ Content-Type: application/json
         "cell": "B4",
         "value": "Double",
         "style": {
+          "valign": "top",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -112,6 +117,7 @@ Content-Type: application/json
         "value": "rate",
         "style": {
           "background": "#ddebf7",
+          "valign": "top",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -121,6 +127,7 @@ Content-Type: application/json
         "cell": "D4",
         "style": {
           "align": "center",
+          "valign": "top",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -132,6 +139,7 @@ Content-Type: application/json
         "cell": "B5",
         "value": "Integer",
         "style": {
+          "valign": "top",
           "border": {
             "bottom": {
               "style": "solid",
@@ -148,6 +156,7 @@ Content-Type: application/json
         "value": "age",
         "style": {
           "background": "#ddebf7",
+          "valign": "top",
           "border": {
             "bottom": {
               "style": "solid",
@@ -163,6 +172,7 @@ Content-Type: application/json
         "cell": "D5",
         "style": {
           "align": "center",
+          "valign": "top",
           "border": {
             "bottom": {
               "style": "solid",

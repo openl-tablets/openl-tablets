@@ -153,9 +153,9 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 ## Table Theme
 
-The looks OpenL Studio gives Datatype and Vocabulary tables are the `table-themes/*.yaml` files of its classpath
-(`resources/table-themes/` ships `default` and `green`). `TableThemeService` reads them once at startup, with the
-YAML anchors, aliases and merge keys resolved by SnakeYAML, then binds them strictly with Jackson. See
+The looks OpenL Studio gives Datatype, Vocabulary and Spreadsheet tables are the `table-themes/*.yaml` files of its
+classpath (`resources/table-themes/` ships `default` and `green`). `TableThemeService` reads them once at startup,
+with the YAML anchors, aliases and merge keys resolved by SnakeYAML, then binds them strictly with Jackson. See
 `Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md` for
 the endpoints.
 
@@ -172,9 +172,13 @@ the endpoints.
 - **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
   logged as an error and not offered; Studio starts with the rest.
-- **A theme styles the kinds it names.** `TableTheme.lookOf` answers the `datatype` or `vocabulary` look, `base` is
-  only a template the kinds merge in, and a kind without a look is neither offered (`GET .../tables/{id}/themes`)
-  nor written. The server decides which themes suit a table: the screen never keeps a list of themed kinds.
+- **A theme is one style for every kind.** Every theme styles every Datatype, Vocabulary and Spreadsheet table,
+  and a kind the theme writes nothing for takes the base alone. The server decides which tables a theme suits
+  (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds.
+- **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
+  style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
+  a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
+  and each layout reads its own: a part another kind takes is not used.
 - **One table is themed through its edit.** The `theme` action of `RawTableSourceAction` writes the theme inside the
   edit batch, after the values and before the styling, so the rows the batch added are themed and the styling the
   user set stands over the theme. Only the whole project has an endpoint of its own (`POST /projects/{id}/theme`).
@@ -185,10 +189,33 @@ the endpoints.
   nothing listens to, so it has `ProjectModel.initProjectHistory(TableSyntaxNode, Module)` listen to the workbook of
   each table first: a write there is kept in the history of its module and marks the project modified, as an edit
   of the table does.
-- **One layout for both uses.** `DatatypeThemeLayout` decides the look of every cell, and both the screen overlay and
-  `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives. It drops every cell past the edge of the
-  table: `GridSplitter` does not widen a table for a region of empty cells, so such a region may be merged past its
-  edge.
+- **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the body to
+  the layout of its kind (`DatatypeThemeLayout`, `SpreadsheetThemeLayout`). Both the screen overlay and
+  `ThemeExcelWriter` ask it, so what is drawn is what writing the theme gives. `ThemeLayouts.of` drops every cell past
+  the edge of the table: `GridSplitter` does not widen a table for a region of empty cells, so such a region may be
+  merged past its edge.
+- **A Spreadsheet section is a merge.** A step whose name cell is merged over the values of its row heads a section:
+  the compiler takes it for a step with no value. The layout themes a merged region once, by the cell that holds it.
+  A step or a column whose name ends with `*` before its `: type` is marked, read the way
+  `SpreadsheetStructureBuilder.parseHeader` reads it, so a table being edited is marked before it is compiled. The
+  step a Spreadsheet returns (`result`) is found as `SpreadsheetStructureBuilder.addHeaders` finds it: a column or
+  a step named `RETURN`, or else the last step, and none for `SpreadsheetResult` without `RETURN`.
+  `HeaderRuns` splits a header by its keyword: a Datatype names its type first, a Spreadsheet its return type, its
+  name and its parameters.
+- **An active theme overrides the look of the workbook.** The shipped themes name every attribute in the base
+  style: `none` takes every side away, the fill is white, every font flag is off. A themed table therefore shows
+  only the fills, lines, fonts and alignment the theme names. A text the workbook formats in pieces of its own,
+  other than the header, is drawn in the font of its cell, which a read naming the theme reports with no pieces
+  (`RawTableReader`), and written so (`ThemeExcelWriter.writeRuns`): `ThemedCell.keepsOwnRuns` is the one rule the
+  reader and the writer ask. The properties are one section: their top and bottom lines go round
+  it, not round each property. The screen draws the side of the upper or the left cell over
+  its neighbour, as `TableViewer.setBorder` hands a workbook line two cells share to that cell, so `ThemeLines`
+  moves a theme line on the top or the left of a cell to the cell above or on its left in the overlay. A window of
+  rows has rows under it: its last row also takes the line the theme draws over the row under it, which the next
+  window keeps on its first row, so windows drawn one under the other draw it as the whole table does. A table shown
+  without its header (**Show Header** off) is cut on the screen, so the screen draws the line under the last row it
+  hides on the top of the first row it shows (`withoutFirstRows` of `studio-ui`). The writer keeps the sides as the
+  theme names them: the workbook draws a line either cell names.
 - **A transposed Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, so the
   layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`, `isNormalOrientation()`): the
   places follow the fields, and `lastRow` stays the last row as written. A table that did not compile is themed as
@@ -214,7 +241,8 @@ the endpoints.
 - **One look on the screen and in the workbook.** A piece of the header starts from the font of the cell on both
   sides (`ThemeStyles.fontOf`, `ThemeExcelWriter`). A look is reported through the same colour, font and border
   mappings as a style read from the workbook (`RawTableStyles`, `BorderStyle.of`), so a line the theme draws looks
-  like the one the written workbook shows. The writer tells fonts apart by `PoiExcelHelper.FontAttributes`, with
+  like the one the written workbook shows. `ThemeStyles` sits beside `RawTableStyles` in the `read` package, so the
+  theme package never depends on the reader. The writer tells fonts apart by `PoiExcelHelper.FontAttributes`, with
   the size in twips and the colour as RGB, and a theme colour must be `#rrggbb`, which the theme model checks when
   the file is read.
 - **Writing keeps what the theme does not set.** `ThemeExcelWriter` clones the style of each cell and sets only
@@ -223,7 +251,11 @@ the endpoints.
   colour is compared as the workbook holds it (`PoiExcelHelper.toStoredRgb`): the full palette of an `.xls`
   workbook holds a colour of the theme as the nearest one it has. A batch (`writeAll`) saves every workbook it
   reaches once, and notes the edit on each table it themes as a save of the table does (`TableWriter.recordEdit`),
-  after the theme, naming the table by where it stands once written.
+  after the theme, naming the table by where it stands once written. Each property the note adds is a row inserted
+  at the top of the properties with the style of the row under it, a table without properties getting them so. The
+  note therefore goes through `ThemeExcelWriter.noting`, which lays out the header and the properties alone and
+  themes the rows the note inserted, nothing else; the save of a `theme` edit notes it the same way
+  (`RawTableWriter.recordEdit`), so the styling of the edit stands.
 
 ## Regenerating OpenAPI Goldens
 

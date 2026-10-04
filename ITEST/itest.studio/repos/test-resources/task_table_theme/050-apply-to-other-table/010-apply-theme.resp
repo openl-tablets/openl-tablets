@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.400.table.theme.unsupported.message",
-  "message": "The table theme has no look for this kind of table."
+  "message": "Table themes style only Datatype, Vocabulary and Spreadsheet tables."
 }

@@ -1,0 +1,20 @@
+# A theme whose Vocabulary changes one piece of the header of the base and keeps the rest of it.
+name: Extended Header
+
+base:
+  header:
+    style:
+      background: "#c6e0b4"
+    keyword: &muted
+      color: "#548235"
+    name:
+      bold: true
+    type: *muted
+
+# Named with nothing in it: a Datatype takes the base alone.
+datatype: {}
+
+vocabulary:
+  header:
+    name:
+      bold: false

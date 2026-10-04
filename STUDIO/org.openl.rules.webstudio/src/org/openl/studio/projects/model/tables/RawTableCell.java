@@ -59,7 +59,7 @@ import org.jspecify.annotations.Nullable;
  *                cell, the pieces the theme draws the text in instead
  * @author Vladyslav Pikus
  */
-@Builder
+@Builder(toBuilder = true)
 public record RawTableCell(
         @Schema(description = """
                 Read-only cell address in A1 notation (e.g. 'B3'); absent for covered cells. \

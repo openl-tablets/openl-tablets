@@ -7,11 +7,15 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 
 /**
  * The line a theme draws a cell border with, named as Excel names it.
+ *
+ * <p>{@link #NONE} draws no line: it takes away the border the cell has on that side.
  */
 @Getter
 @RequiredArgsConstructor
 public enum ThemeLineStyle {
 
+    @JsonProperty("none")
+    NONE(BorderStyle.NONE),
     @JsonProperty("hair")
     HAIR(BorderStyle.HAIR),
 

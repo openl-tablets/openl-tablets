@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,16 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.PoiExcelHelper.FontAttributes;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
+import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedRun;
 import org.openl.studio.projects.service.tables.write.TableWriter;
 
 /**
@@ -37,7 +42,8 @@ import org.openl.studio.projects.service.tables.write.TableWriter;
  *
  * <p>Each cell keeps its own style and gets only the attributes the theme sets. Its number format, wrapping,
  * protection and every attribute the theme says nothing about stay as they are. A cell outside the table is never
- * touched. The text of a cell is never changed: the header is only formatted in pieces.
+ * touched. The text of a cell is never changed: the header is formatted in the pieces of the theme, and any other
+ * text formatted in pieces of its own is written in the font of its cell where the theme names that font.
  *
  * <p>One writer serves a whole batch. A style or a font it makes once is reused by every cell that needs it. A font
  * the workbook already has is reused rather than made again, and a cell that already has the look keeps its style.
@@ -55,9 +61,10 @@ public final class ThemeExcelWriter {
     /**
      * Writes the theme into tables, notes the edit on each of them, and saves every workbook it reaches once.
      *
-     * <p>A table the theme names no look for is left as it is, and so is its workbook when the theme reaches no
-     * other table of it. A table the theme is written into is noted as edited, as any edit of a table is, after the
-     * theme: a table without room for the note moves, so it is named by where it stands once written.
+     * <p>A table of a kind no theme styles is left as it is, and so is its workbook when the theme reaches no other
+     * table of it. A table the theme is written into is noted as edited, as any edit of a table is, after the theme:
+     * a table without room for the note moves, so it is named by where it stands once written. A property the note
+     * adds takes the theme too.
      *
      * @param tables the tables to theme
      * @param edit   what OpenL Studio notes about an edit of a table, such as who made it and when; empty to note
@@ -74,7 +81,7 @@ public final class ThemeExcelWriter {
                 grid.edit();
                 edited.add(grid);
                 if (write(table, grid)) {
-                    TableWriter.recordEdit(table, edit);
+                    noting(table, grid, () -> TableWriter.recordEdit(table, edit));
                     var sheet = (XlsSheetGridModel) grid.getGrid();
                     saved.putIfAbsent(sheet.getSheetSource().getWorkbookSource(), sheet);
                     written.add(TableWriter.tableIdOf(grid));
@@ -90,46 +97,91 @@ public final class ThemeExcelWriter {
     /**
      * Writes the theme into a table, as the table stands on its grid. The caller saves the workbook.
      *
-     * <p>A table the theme names no look for is left as it is: a table of any kind but a Datatype or a Vocabulary,
-     * and a table of a kind the theme leaves out.
+     * <p>A table of any kind but a Datatype, a Vocabulary or a Spreadsheet is left as it is.
      *
      * @param table the table to theme
      * @param grid  the table as it stands on its sheet, header included; its sheet is opened for writing
      * @return whether the theme was written into the table
      */
     public boolean write(IOpenLTable table, IGridTable grid) {
-        var layout = DatatypeThemeLayout.of(table, grid, theme);
+        return write(table, grid, at -> true);
+    }
+
+    /**
+     * Notes an edit on a table the theme was written into, as a save of the table notes it.
+     *
+     * <p>The note is written after the theme. Each property it adds is a row of the properties of its own, and that
+     * row takes the theme; a table without properties gets them so. The rest of the table is left as the theme and the
+     * edits after it left it.
+     *
+     * @param table the table the theme was written into
+     * @param grid  the table as it stands on its sheet, header included; its sheet is opened for writing
+     * @param note  writes the note onto the table
+     */
+    public void noting(IOpenLTable table, IGridTable grid, Runnable note) {
+        var before = rowsOf(propertiesOf(grid));
+        note.run();
+        var properties = propertiesOf(grid);
+        var added = rowsOf(properties) - before;
+        if (properties != null && added > 0) {
+            // The note inserts each property it adds at the top of the properties, and the rows under them move down.
+            var rows = properties.getSource().getRegion();
+            // Only the header and the properties are laid out: the body under them keeps the look it has.
+            var head = grid.getSubtable(0, 0, grid.getWidth(), rows.getBottom() - grid.getRegion().getTop() + 1);
+            write(table, head, at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added);
+        }
+    }
+
+    /** The table properties a table declares under its header, or {@code null} for a table without them. */
+    private static @Nullable ILogicalTable propertiesOf(IGridTable grid) {
+        return PropertiesHelper.getPropertiesTableSection(LogicalTableHelper.logicalTable(grid));
+    }
+
+    /** How many rows of the sheet the table properties take: none for a table without them. */
+    private static int rowsOf(@Nullable ILogicalTable properties) {
+        return properties == null ? 0 : properties.getSource().getHeight();
+    }
+
+    /** Writes the theme into the cells of a table the filter keeps. */
+    private boolean write(IOpenLTable table, IGridTable grid, Predicate<ThemedTable.Cell> kept) {
+        var layout = ThemeLayouts.of(table, grid, theme);
         if (layout == null) {
             return false;
         }
         var sheet = ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite();
         var looks = workbooks.computeIfAbsent(sheet.getWorkbook(), WorkbookLooks::new);
         layout.cells().forEach((at, themed) -> {
-            var cell = PoiExcelHelper.getOrCreateCell(at.column(), at.row(), sheet);
-            var original = cell.getCellStyle();
-            var style = looks.style(original, themed.style());
-            // A cell that already has the look keeps its style untouched.
-            if (style.getIndex() != original.getIndex()) {
-                cell.setCellStyle(style);
+            if (kept.test(at)) {
+                var cell = PoiExcelHelper.getOrCreateCell(at.column(), at.row(), sheet);
+                var original = cell.getCellStyle();
+                var style = looks.style(original, themed.style());
+                // A cell that already has the look keeps its style untouched.
+                if (style.getIndex() != original.getIndex()) {
+                    cell.setCellStyle(style);
+                }
+                writeRuns(cell, themed, looks);
             }
-            writeRuns(cell, themed, looks);
         });
         return true;
     }
 
-    /** Formats the header text in pieces, keeping the text as it is. */
+    /**
+     * Formats the header text in the pieces of the theme, and writes any other text in the font of its cell where the
+     * theme names that font. A text whose font the theme says nothing of keeps its pieces. The text stays as it is.
+     */
     private static void writeRuns(Cell cell, ThemedCell themed, WorkbookLooks looks) {
-        if (themed.header() == null || cell.getCellType() != CellType.STRING) {
+        if (cell.getCellType() != CellType.STRING) {
             return;
         }
-        var text = cell.getStringCellValue();
-        var runs = themed.runs(text);
-        if (runs.isEmpty()) {
+        var own = cell.getRichStringCellValue();
+        // Only the header is formatted in pieces of the theme, so the text of no other cell is read for them.
+        List<ThemedRun> runs = themed.header() == null ? List.of() : themed.runs(own.getString());
+        // Nothing to write: the theme formats no piece, and the text keeps the pieces it has or has none.
+        if (runs.isEmpty() && (themed.keepsOwnRuns(runs) || own.numFormattingRuns() == 0)) {
             return;
         }
-        var workbook = cell.getSheet().getWorkbook();
-        var rich = workbook.getCreationHelper().createRichTextString(text);
-        var cellFont = workbook.getFontAt(cell.getCellStyle().getFontIndex());
+        var rich = cell.getSheet().getWorkbook().getCreationHelper().createRichTextString(own.getString());
+        var cellFont = PoiExcelHelper.getCellFont(cell);
         runs.forEach(run -> rich.applyFont(run.start(), run.end(), looks.font(cellFont, run.style())));
         // A text written into the cell itself, as tools other than Excel write it, would keep its characters and
         // lose the runs. Blanking the cell first makes the text a shared string, which keeps them.
@@ -226,8 +278,9 @@ public final class ThemeExcelWriter {
         }
 
         private boolean hasSide(BorderStyle line, short @Nullable [] color, @Nullable ThemeBorderLine side) {
+            // A side without a line has no colour to match.
             return side == null || line == side.style().getExcel()
-                    && Arrays.equals(color, PoiExcelHelper.toStoredRgb(side.colorOrBlack(), workbook));
+                    && (!side.isLine() || Arrays.equals(color, PoiExcelHelper.toStoredRgb(side.rgb(), workbook)));
         }
 
         private boolean hasFont(Font font, ThemeStyle theme) {
@@ -282,21 +335,26 @@ public final class ThemeExcelWriter {
             var colors = new short[4][];
             if (border.top() != null) {
                 style.setBorderTop(border.top().style().getExcel());
-                colors[0] = PoiExcelHelper.toRgb(border.top().colorOrBlack());
+                colors[0] = colourOf(border.top());
             }
             if (border.right() != null) {
                 style.setBorderRight(border.right().style().getExcel());
-                colors[1] = PoiExcelHelper.toRgb(border.right().colorOrBlack());
+                colors[1] = colourOf(border.right());
             }
             if (border.bottom() != null) {
                 style.setBorderBottom(border.bottom().style().getExcel());
-                colors[2] = PoiExcelHelper.toRgb(border.bottom().colorOrBlack());
+                colors[2] = colourOf(border.bottom());
             }
             if (border.left() != null) {
                 style.setBorderLeft(border.left().style().getExcel());
-                colors[3] = PoiExcelHelper.toRgb(border.left().colorOrBlack());
+                colors[3] = colourOf(border.left());
             }
             PoiExcelHelper.setCellBorderColors(style, colors, workbook);
+        }
+
+        /** The colour a side is written in; a side without a line is given none. */
+        private static short @Nullable [] colourOf(ThemeBorderLine side) {
+            return side.isLine() ? side.rgb() : null;
         }
     }
 

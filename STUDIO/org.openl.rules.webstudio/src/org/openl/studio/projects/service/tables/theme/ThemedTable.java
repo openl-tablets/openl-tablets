@@ -52,6 +52,18 @@ public record ThemedTable(Map<Cell, ThemedCell> cells) {
         public List<ThemedRun> runs(@Nullable String text) {
             return header == null || text == null ? List.of() : HeaderRuns.split(text, style, header);
         }
+
+        /**
+         * Whether the text keeps the pieces the workbook formats it in. It does when the theme formats it in no
+         * pieces of its own and names nothing of the font of the cell; otherwise the text is drawn and written in the
+         * font of its cell.
+         *
+         * @param runs the pieces the theme formats the text in
+         * @return {@code true} when the pieces of the workbook stay
+         */
+        public boolean keepsOwnRuns(List<ThemedRun> runs) {
+            return runs.isEmpty() && !style.hasFont();
+        }
     }
 
     /**

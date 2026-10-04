@@ -8,8 +8,8 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 /**
- * Covers laying one look of a theme over another. Every attribute of a style is laid over, including one the model
- * gains later: the looks are filled by their components.
+ * Covers laying one look of a theme over another. Every attribute of a style, every piece of a header and every part
+ * of a look is laid over, including one the model gains later: the looks are filled by their components.
  */
 class ThemeModelTest {
 
@@ -24,6 +24,28 @@ class ThemeModelTest {
         assertEquals(over, under.with(over), "Every attribute the look on top names wins");
         assertEquals(under, under.with(ThemeStyle.NONE), "A look naming nothing keeps every attribute");
         assertEquals(over, ThemeStyle.NONE.with(over), "An attribute only the look on top names is taken");
+    }
+
+    @Test
+    void extendsEveryPieceOfAHeader() throws ReflectiveOperationException {
+        var under = filled(TableTheme.Header.class, false);
+        var over = filled(TableTheme.Header.class, true);
+        var empty = TableTheme.Header.builder().build();
+
+        assertEquals(over, under.extendedBy(over), "Every piece the header on top writes wins");
+        assertEquals(under, under.extendedBy(empty), "A header writing nothing keeps every piece");
+        assertEquals(over, empty.extendedBy(over), "A piece only the header on top writes is taken");
+    }
+
+    @Test
+    void extendsEveryPartOfALook() throws ReflectiveOperationException {
+        var under = filled(TableTheme.Look.class, false);
+        var over = filled(TableTheme.Look.class, true);
+        var empty = TableTheme.Look.builder().build();
+
+        assertEquals(over, under.extendedBy(over), "Every part the kind writes is laid over the base");
+        assertEquals(under, under.extendedBy(empty), "A kind writing nothing takes the base");
+        assertEquals(over, empty.extendedBy(over), "A part the base leaves out is the one of the kind");
     }
 
     /** A record with every component set, to the first or the second sample of its type. */

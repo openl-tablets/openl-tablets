@@ -15,6 +15,7 @@ Content-Type: application/json
         "style": {
           "background": "#c6e0b4",
           "align": "center",
+          "valign": "top",
           "border": {
             "top": {
               "style": "solid",
@@ -41,7 +42,9 @@ Content-Type: application/json
           },
           {
             "text": "Code",
-            "style": {}
+            "style": {
+              "bold": true
+            }
           },
           {
             "text": " ",
@@ -61,7 +64,8 @@ Content-Type: application/json
         "cell": "B9",
         "value": "A",
         "style": {
-          "align": "center"
+          "align": "center",
+          "valign": "top"
         }
       }
     ],
@@ -71,6 +75,7 @@ Content-Type: application/json
         "value": "B",
         "style": {
           "align": "center",
+          "valign": "top",
           "border": {
             "bottom": {
               "style": "solid",

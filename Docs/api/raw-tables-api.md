@@ -26,9 +26,10 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   `maxRows`.
 - `styles` — `true` adds the Excel style of every cell and the pieces of its text formatted with fonts of their own; see
   [Style of a Cell](#style-of-a-cell).
-- `tableTheme` — the identifier of a table theme. Reports, for a Datatype or a Vocabulary table, the look that the theme
-  gives every cell in place of its Excel style, with or without `styles=true`; see [Table Theme](#table-theme). An
-  empty value draws no theme, as the empty setting draws the formatting of the Excel file. Only with `raw=true`.
+- `tableTheme` — the identifier of a table theme. Reports, for a Datatype, a Vocabulary or a Spreadsheet table, the
+  look that the theme gives every cell in place of its Excel style, with or without `styles=true`; see
+  [Table Theme](#table-theme). An empty value draws no theme, as the empty setting draws the formatting of the Excel
+  file. Only with `raw=true`.
 - `metaInfo` — `true` adds what the compiler knows about every cell.
 - `module` — the module to read the table through. The answer is ready once that module is compiled, without waiting
   for the rest of the project.
@@ -346,7 +347,7 @@ The `style` operation sets the style of every cell of a rectangle:
 
 ### Table Theme
 
-A table theme gives Datatype and Vocabulary tables one look. OpenL Studio offers every theme file in the
+A table theme gives Datatype, Vocabulary and Spreadsheet tables one look. OpenL Studio offers every theme file in the
 `table-themes` folder of its classpath and ships `default` and `green`. A theme is asked for by its identifier, the
 name of its file without the extension. How a theme file is written is described in
 [Appendix E: Table Themes](../user-guides/openl-studio/appendices/table-themes.md).
@@ -363,21 +364,26 @@ GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
 ```
 
 - The first lists every theme OpenL Studio offers, ordered by name.
-- The second lists the themes that have a look for the table. A theme styles only the kinds of table it has a look
-  for, so a theme without a Vocabulary look is not listed for a Vocabulary table. The list is empty for a table of
-  any kind other than Datatype.
+- The second lists the themes that can be drawn over the table and written into it. Every theme styles every
+  Datatype, Vocabulary and Spreadsheet table, so the list holds every theme for such a table, and none for a table
+  of any other kind.
 
 **Drawing the theme.** A read with `tableTheme=<id>` reports every cell the theme reaches in the look of the theme, in
 place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:
 
 - `style` — the cell style with the attributes the theme sets laid over it, and `source` set to `theme`.
 - `runs` — the pieces the theme formats the header text in, each style of theirs with `source` set to `theme`. Any
-  other text keeps the pieces the workbook formats it in.
+  other text the workbook formats in pieces keeps them where the theme sets nothing of the font of the cell, and is
+  drawn in the font of the theme otherwise, as writing the theme gives.
+
+A line two cells of the table share is reported on the upper or the left cell, as the cell styles report the lines a
+workbook holds: the line the theme draws over a section of a Spreadsheet is the `bottom` of the cells above it. A read
+of some rows reports the line over the row under them on its last row as well, while the first row of the next rows
+keeps it: the rows read one window after another draw the line as the whole table does.
 
 The theme is a view only: a client edits a table from a read without `tableTheme`, whose styles are the ones the
-workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table the theme
-has no look for is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with
-`400`.
+workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table of any
+other kind is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with `400`.
 
 **Writing the theme into a table.** The `theme` action writes a theme into the table, alone or with other edits in
 a batch:
@@ -387,22 +393,23 @@ a batch:
 ```
 
 In a batch, the theme is written over the table as the edits before it left it, so the rows the batch adds are
-themed with the rest. A `style` action that follows sets its styling over the theme. A table the theme has no look
-for is refused with `400`, and so is a theme OpenL Studio does not offer.
+themed with the rest. A `style` action that follows sets its styling over the theme. Where OpenL Studio records who
+edits a table and when, a property the note of the edit adds takes the theme too. A table of any other kind is
+refused with `400`, and so is a theme OpenL Studio does not offer.
 
-**Writing the theme into the project.** One endpoint writes a theme into every Datatype and Vocabulary table of
-every module of the project that the theme has a look for, and recompiles what it changes:
+**Writing the theme into the project.** One endpoint writes a theme into every Datatype, Vocabulary and Spreadsheet
+table of every module of the project, and recompiles what it changes:
 
 ```http
 POST /rest/projects/{projectId}/theme?theme={id}
 ```
 
 It answers `200` with the identifiers of the tables themed and of the ones left as they are, which are written as
-several partial tables. A table the theme has no look for is in neither list. A project compiled only in part, such
-as one whose module compiles alone, is compiled whole first, so the theme reaches every module; a project whose
-compilation was stopped is refused with `409`. Where OpenL Studio records who edits a table and when, each table
-themed is noted as edited, as any edit of a table is; a table without room for the note moves, and is named by where
-it stands once written:
+several partial tables. A table of any other kind is in neither list. A project compiled only in part, such as one whose
+module compiles alone, is compiled whole first, so the theme reaches every module; a project whose compilation was
+stopped is refused with `409`. Where OpenL Studio records who edits a table and when, each table themed is noted as
+edited, as any edit of a table is. A property the note adds takes the theme, and a table without room for the note moves
+and is named by where it stands once written:
 
 ```json
 { "themed": ["f55d6ff710d930c7cf6d43a377446bcd"], "skipped": [] }

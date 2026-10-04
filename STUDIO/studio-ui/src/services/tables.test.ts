@@ -266,7 +266,7 @@ describe('table theme', () => {
             { throwError: true, suppressErrorPages: true })
     })
 
-    it('asks which table themes have a look for a table, through the module it is read in', async () => {
+    it('asks which table themes style a table, through the module it is read in', async () => {
         mockApiCall.mockResolvedValueOnce([{ id: 'green', name: 'Green' }])
 
         await expect(getTableThemesOf('project-id', 'table-id', 'Main'))

@@ -18,6 +18,7 @@ import type {
     TableThemeOption,
 } from 'types/tables'
 import type { EditorKind } from './CellValueEditor'
+import { withoutFirstRows } from './hiddenRows'
 import { OpenCell } from './OpenCell'
 import { TableEditToolbar } from './TableEditToolbar'
 import { useStyles } from './TableEditor.styles'
@@ -193,7 +194,7 @@ interface TableEditorProps {
     layout?: TableLayout | undefined
     /** Draw the formula a cell was written with rather than the value it computed. */
     formulas?: boolean | undefined
-    /** The table theme the table is read with, which is offered first among the themes the table has a look in. */
+    /** The table theme the table is read with, which is offered first among the themes that style the table. */
     theme?: string | undefined
     /** Follows a piece of a cell's text to the table it names. */
     onOpenUsage?: OpenUsage | undefined
@@ -274,7 +275,9 @@ const withTheme = (edited: EditedTable, looks: Map<string, ThemeLook>): RawTable
             return cell
         }
         const asked = edited.styled.get(keyOf(edited, { row, column }))
-        return { ...cell, style: { ...theme.style, ...asked }, ...(theme.runs && { runs: theme.runs }) }
+        // The pieces the workbook formats the text in give way to the theme, as in a table that is read.
+        const { runs: _workbookRuns, ...rest } = cell
+        return { ...rest, style: { ...theme.style, ...asked }, ...(theme.runs && { runs: theme.runs }) }
     }))
 
 /** The themes in the order they are offered: the one the reader starts from first. */
@@ -408,7 +411,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // answer would let the reader fill in cells of a project somebody else may have taken in the meantime.
     useEffect(() => { setAsked(null) }, [tableId, maxRows, editing])
 
-    // The table themes that have a look for this table, asked for when the reader starts editing it.
+    // The table themes that style this table, asked for when the reader starts editing it.
     const themes = useTableThemesOf(projectId, tableId, moduleName, editing)
     const offeredThemes = themes === undefined ? undefined : firstTheme(themes, theme)
 
@@ -630,8 +633,11 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
     }, [open])
 
-    /** The rows the grid is given: the ones the reader sees, with the header left off where it is hidden. */
-    const drawn = useMemo(() => (hidden === 0 ? shown : shown.slice(hidden)), [hidden, shown])
+    /**
+     * The rows the grid is given: the ones the reader sees, with the header left off where it is hidden. The line under
+     * a hidden header is drawn over the first row left.
+     */
+    const drawn = useMemo(() => withoutFirstRows(shown, hidden), [hidden, shown])
 
     /** The cell a move in the given direction reaches, or null where the table ends. */
     const reached = (from: CellAt, key: string): CellAt | null => {

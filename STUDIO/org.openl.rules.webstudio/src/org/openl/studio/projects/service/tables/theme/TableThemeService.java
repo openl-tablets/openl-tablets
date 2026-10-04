@@ -23,7 +23,6 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableThemeView;
-import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -87,21 +86,24 @@ public class TableThemeService {
     }
 
     /**
-     * The themes that name a look for a table, by name: the ones that can be drawn over it or written into it.
+     * The themes that can be drawn over a table or written into it, by name.
      *
      * @param table the table
-     * @return the themes with a look for the table; none for a table of any kind but a Datatype or a Vocabulary
+     * @return every theme for a table the themes style; none for a table of any other kind
      */
     public List<TableThemeView> getThemes(IOpenLTable table) {
-        if (!OpenLTableUtils.isDatatypeTable(table)) {
-            return List.of();
-        }
-        var vocabulary = OpenLTableUtils.isVocabularyTable(table);
-        return themes.entrySet()
-                .stream()
-                .filter(theme -> theme.getValue().lookOf(vocabulary) != null)
-                .map(TableThemeService::viewOf)
-                .toList();
+        return styles(table) ? getThemes() : List.of();
+    }
+
+    /**
+     * Whether the themes style a table. Every theme styles every Datatype, Vocabulary and Spreadsheet table, so they
+     * look alike in one theme.
+     *
+     * @param table the table
+     * @return {@code true} for a Datatype, a Vocabulary or a Spreadsheet
+     */
+    public boolean styles(IOpenLTable table) {
+        return ThemeLayouts.styles(table);
     }
 
     private static TableThemeView viewOf(Map.Entry<String, TableTheme> theme) {
@@ -113,11 +115,11 @@ public class TableThemeService {
      *
      * @param table   the table to theme
      * @param themeId the theme, by its identifier
-     * @return the look of each cell, or {@code null} when the theme names no look for the table
+     * @return the look of each cell, or {@code null} for a table of a kind no theme styles
      * @throws BadRequestException when no theme has the identifier
      */
     public @Nullable ThemedTable layoutOf(IOpenLTable table, String themeId) {
-        return DatatypeThemeLayout.of(table, table.getGridTable(), theme(themeId));
+        return ThemeLayouts.of(table, table.getGridTable(), theme(themeId));
     }
 
     /**

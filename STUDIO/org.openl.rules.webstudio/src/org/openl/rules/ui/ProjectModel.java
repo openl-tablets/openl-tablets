@@ -73,6 +73,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
@@ -681,8 +682,7 @@ public class ProjectModel {
      * Check is the table is partial
      */
     public boolean isTablePart(String uri) {
-        IGridTable grid = this.getGridTable(uri);
-        return grid != null && grid.getGrid() instanceof CompositeGrid;
+        return GridTableUtils.isAssembledFromParts(getGridTable(uri));
     }
 
     private boolean isCurrentBranchProtected() {

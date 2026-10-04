@@ -1,7 +1,7 @@
 ## Appendix E: Table Themes
 
-A table theme describes the look OpenL Studio gives Datatype and Vocabulary tables. A theme is drawn over the tables
-while they are viewed, or written into the Excel file, as described in
+A table theme describes the look OpenL Studio gives Datatype, Vocabulary, and Spreadsheet tables. A theme is drawn
+over the tables while they are viewed, or written into the Excel file, as described in
 [Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Default** and
 **Green** themes. This appendix describes how a theme file is written.
 
@@ -10,6 +10,7 @@ The following topics are included:
 -   [Theme File](#theme-file)
 -   [Parts of a Table](#parts-of-a-table)
 -   [Style Attributes](#style-attributes)
+-   [Extending the Base](#extending-the-base)
 -   [Reusing Parts of a Theme](#reusing-parts-of-a-theme)
 -   [Theme Example](#theme-example)
 
@@ -30,42 +31,68 @@ in this appendix. The reason is written to the OpenL Studio log, and the other t
 A theme file holds the following keys:
 
 -   **`name`** — required. The name of the theme shown in OpenL Studio.
--   **`datatype`** — the look of a Datatype table.
--   **`vocabulary`** — the look of a Vocabulary table, which is a Datatype table that declares the type of its values,
-    such as `Datatype Gender <String>`.
--   **`base`** — a look that styles no table by itself. It holds what `datatype` and `vocabulary` share, as described
-    in [Reusing Parts of a Theme](#reusing-parts-of-a-theme).
+-   **`base`** — the skin every table shares, such as its header and its properties. Each kind of table extends it,
+    as described in [Extending the Base](#extending-the-base). The base styles no table by itself.
+-   **`datatype`** — what a Datatype table changes in the base.
+-   **`vocabulary`** — what a Vocabulary table changes in the base. A Vocabulary table is a Datatype table that
+    declares the type of its values, such as `Datatype Gender <String>`.
+-   **`spreadsheet`** — what a Spreadsheet table changes in the base.
 
-A theme styles only the kinds of table it has a look for. A theme without `vocabulary` is not offered for a Vocabulary
-table, and applying it to a project leaves Vocabulary tables as they are.
+A theme is one style for every kind of table: it styles every Datatype, Vocabulary, and Spreadsheet table. Each kind
+takes the base, and the key of the kind writes only what it changes. A kind the theme writes nothing for takes the
+base alone.
 
 ### Parts of a Table
 
-A look consists of the following parts, each of them optional:
+A look consists of the following parts, each of them optional. Every kind of table takes these parts:
 
 -   **`style`** — the style every cell of the table starts from. Each of the other parts is laid over it.
 -   **`header`** — the header cell:
     -   **`style`** — the style of the header cell.
-    -   **`keyword`** — the font of the `Datatype` keyword.
+    -   **`keyword`** — the font of the keyword, such as `Datatype` or `Spreadsheet`.
     -   **`name`** — the font of the table name.
-    -   **`type`** — the font of the text that follows the name: the type of a Vocabulary, such as `<String>`, or the
-        parent of a Datatype, such as `extends Person`.
+    -   **`type`** — the font of the type that the header names besides the table: the type of a Vocabulary, such as
+        `<String>`, the parent of a Datatype, such as `extends Person`, or the type a Spreadsheet returns, such as
+        `SpreadsheetResult`.
+    -   **`parameters`** — the font of the parameters of a Spreadsheet, such as `( Policy policy )`.
+-   **`properties`** — the rows of table properties that follow the header. The section is one part of the table
+    however many properties it holds: a line the style draws above or below it goes round the whole section, for
+    example, a line that closes the properties.
+-   **`lastRow`** — the style laid over the cells of the last row, for example, a line that closes the table.
+
+A Datatype table also takes the following parts:
+
 -   **`titles`** — the title row of a Datatype table that names its columns, such as a table with a description
     column.
--   **`type`** — the column of field types of a Datatype table.
--   **`name`** — the column of field names of a Datatype table.
--   **`values`** — the default values and the other columns of a Datatype table, or the values of a Vocabulary table.
--   **`lastRow`** — the style laid over the cells of the last row, for example, a line that closes the table.
+-   **`type`** — the column of field types.
+-   **`name`** — the column of field names.
+-   **`values`** — the default values and the other columns.
 
 A Datatype table can be written transposed, with a field in each column. Its field types, field names, and default
 values are then rows, and its titles are the first column. The parts follow the fields: `type` styles the row of
 field types, `name` styles the row of field names, and `titles` styles the column of titles. `lastRow` still styles
 the last row of the table.
 
-The keyword, the name, and the type of the header take only the font attributes. The fill, the alignment, and the
-borders of the header cell come from `header.style`. The text of the header is never changed.
+A Vocabulary table also takes **`values`**, the style of its values.
 
-The rows of table properties that follow the header keep the formatting they have in the Excel file.
+A Spreadsheet table also takes the following parts:
+
+-   **`titles`** — the row that names the columns, such as **Formula**.
+-   **`stepTitle`** — the title of the column of steps, such as **Step**, laid over `titles`.
+-   **`steps`** — the column of step names.
+-   **`values`** — the formulas and the values of the steps.
+-   **`sections`** — a step whose name cell is merged across its row, laid over `steps`. Such a step has no value and
+    heads the steps that follow it, such as **Policy Factors Calculation**.
+-   **`marked`** — a step or a column whose name is marked with `*` for the result of the Spreadsheet, such as
+    `PolicyNumber*`, laid over its own style.
+-   **`result`** — the step whose value a Spreadsheet returns when it returns a type other than `SpreadsheetResult`,
+    laid over its own style. It is the step named `RETURN`, or the last step when no step is named so; a column named
+    `RETURN` takes its place.
+
+A part that a kind of table does not take is not used for it, so `base` can hold the parts of every kind.
+
+The keyword, the name, the type, and the parameters of the header take only the font attributes. The fill, the
+alignment, and the borders of the header cell come from `header.style`. The text of the header is never changed.
 
 ### Style Attributes
 
@@ -103,69 +130,127 @@ border:
   bottom: {style: medium, color: "#548235"}
 ```
 
-The line style is one of `hair`, `thin`, `medium`, `thick`, `dashed`, `dotted`, and `double`.
+The line style is one of `none`, `hair`, `thin`, `medium`, `thick`, `dashed`, `dotted`, and `double`. The `none`
+style takes the border of the side away. A theme whose base style takes away every side draws only the lines it names,
+and the lines that the Excel file draws inside a table are taken away. A base style that fills every cell white does
+the same for the fills: a cell that the theme fills no other way is white.
+
+The themes that OpenL Studio ships name every attribute in their base style, so they override the look the Excel file
+gives a table: no fill, line, font, or alignment of the file shows through. A text that the file formats in pieces of
+its own, other than the header, is drawn and written in the font of its cell.
+
+```yaml
+base:
+  style:
+    fontFamily: Franklin Gothic Book
+    fontSize: 10
+    bold: false
+    italic: false
+    underline: false
+    strikeout: false
+    color: "#000000"
+    background: "#ffffff"
+    align: left
+    valign: top
+    border: {top: none, right: none, bottom: none, left: none}
+```
+
+### Extending the Base
+
+Each kind of table extends the base: it writes only what it changes, and takes the rest of the base as it is. A part
+that the kind writes is laid over the same part of the base attribute by attribute, and the header piece by piece. In
+the following example, a Datatype takes the header of the base and only fills it, as the themes that OpenL Studio
+ships do; its alignment, its lines, and the fonts of its pieces stay those of the base:
+
+```yaml
+base:
+  header:
+    style: {align: center, border: {top: thin, bottom: thin}}
+    keyword: {color: "#808080"}
+    name: {bold: true}
+
+datatype:
+  header:
+    style: {background: "#b4c6e7"}
+```
 
 ### Reusing Parts of a Theme
 
-A theme file is read with its YAML anchors, aliases, and merge keys resolved:
+A theme file is read with its YAML anchors, aliases, and merge keys resolved, so a part written once can be repeated:
 
 -   **`&name`** — anchors a part under a name.
 -   **`*name`** — repeats the anchored part.
 -   **`<<: *name`** — merges the anchored part into another part. The keys of the anchored part are taken, and a key
     written next to the merge key replaces the anchored key of the same name.
 
-A merge reaches one level only: a part written next to the merge key replaces the whole anchored part of the same
-name. To change one attribute of a nested part, merge that part as well. In the following example, the Vocabulary
-header takes the base header and changes only the font of the name:
+In the following example, the keyword, the type, and the parameters of the header take one colour, and one line
+closes the header, the properties, and the table:
 
 ```yaml
-base: &base
-  header: &header
-    style: {background: "#c6e0b4", align: center}
-    keyword: &muted {color: "#548235"}
-    name: {bold: true}
-    type: *muted
-
-vocabulary:
-  <<: *base
+base:
   header:
-    <<: *header
-    name: {bold: false}
+    style:
+      border:
+        top: &line {style: thin, color: "#548235"}
+        bottom: *line
+    keyword: &muted {color: "#548235"}
+    type: *muted
+    parameters: *muted
+  properties:
+    border: {bottom: *line}
+  lastRow:
+    border: {bottom: *line}
 ```
 
 ### Theme Example
 
-The following theme gives Datatype and Vocabulary tables a dark header with light text, and closes each table with a
-line under its last row:
+The following theme gives every table a dark header with light text. Its base style names every attribute, so it
+overrides the look the Excel file gives a table, and it draws only its own lines: one under the properties and one
+under the last row. A Spreadsheet table also gets a filled row of column titles, bold italic
+headings of its sections, and bold steps that are marked for the result or give it:
 
 ```yaml
 name: Corporate
 
-base: &base
+base:
   style:
     fontFamily: Calibri
     fontSize: 11
-  header: &header
+    bold: false
+    italic: false
+    underline: false
+    strikeout: false
+    color: "#000000"
+    background: "#ffffff"
+    align: left
+    valign: top
+    border: {top: none, right: none, bottom: none, left: none}
+  header:
     style:
       background: "#1f4e78"
       color: "#ffffff"
       align: center
-    keyword: {color: "#bdd7ee"}
+    keyword: &light {color: "#bdd7ee"}
     name: {bold: true}
-    type: {color: "#bdd7ee"}
+    type: *light
+    parameters: *light
+  properties:
+    border:
+      bottom: &line {style: medium, color: "#1f4e78"}
   lastRow:
     border:
-      bottom: {style: medium, color: "#1f4e78"}
+      bottom: *line
 
 datatype:
-  <<: *base
   titles: {bold: true}
   name: {background: "#ddebf7"}
 
 vocabulary:
-  <<: *base
-  header:
-    <<: *header
-    name: {bold: true, italic: true}
   values: {align: center}
+
+spreadsheet:
+  titles: {bold: true, background: "#ddebf7"}
+  sections: {bold: true, italic: true, background: "#ddebf7"}
+  marked: {bold: true}
+  result: {bold: true}
 ```

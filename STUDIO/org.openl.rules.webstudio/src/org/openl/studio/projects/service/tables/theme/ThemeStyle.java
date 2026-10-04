@@ -2,7 +2,9 @@ package org.openl.studio.projects.service.tables.theme;
 
 import java.util.regex.Pattern;
 
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.With;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -24,6 +26,7 @@ import org.jspecify.annotations.Nullable;
  * @param border     the borders of the cell
  */
 @Builder
+@With(AccessLevel.PACKAGE)
 public record ThemeStyle(@Nullable String fontFamily,
                          @Nullable Integer fontSize,
                          @Nullable Boolean bold,
@@ -79,6 +82,20 @@ public record ThemeStyle(@Nullable String fontFamily,
                 .valign(pick(over.valign, valign))
                 .border(border == null ? over.border : border.with(over.border))
                 .build();
+    }
+
+    /**
+     * This look for a cell of a block it goes round: its lines above and below where the cell reaches the edge of the
+     * block, and the lines of the look inside the block elsewhere.
+     *
+     * @param inside the look of a cell within the block
+     * @param first  whether the cell reaches the first line of the block
+     * @param last   whether the cell reaches the last line of the block
+     * @return the look the cell is drawn with
+     */
+    ThemeStyle atEdges(ThemeStyle inside, boolean first, boolean last) {
+        var around = border == null ? ThemeBorder.KEEP : border;
+        return withBorder(around.atEdges(inside.border == null ? ThemeBorder.KEEP : inside.border, first, last));
     }
 
     /** Whether the look sets anything about the font. */

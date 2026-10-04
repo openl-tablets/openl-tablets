@@ -34,10 +34,10 @@ export const useTableThemes = (): TableThemeOption[] | undefined => {
 }
 
 /**
- * The table themes that have a look for a table, by name, asked for once per table while `asked` holds.
+ * The table themes that style a table, by name, asked for once per table while `asked` holds.
  *
- * A theme names a look for some kinds of table only, and the server says which of them suit the table. The answer
- * is kept for the table while it stays open.
+ * The themes style some kinds of table only, and the server says whether they suit the table. The answer is kept
+ * for the table while it stays open.
  *
  * Undefined until the answer arrives. A table whose themes cannot be read is offered none, and is asked again the
  * next time `asked` holds.

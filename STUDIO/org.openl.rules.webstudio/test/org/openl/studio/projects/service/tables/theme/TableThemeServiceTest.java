@@ -17,8 +17,8 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableThemeView;
 
 /**
- * Covers how the table themes are found and read: their names, and the YAML anchors, aliases and merge keys one part
- * of a theme extends or repeats another with.
+ * Covers how the table themes are found and read: their names, the base every kind of table extends, and the YAML
+ * anchors, aliases and merge keys one part of a theme repeats another with.
  */
 class TableThemeServiceTest {
 
@@ -33,38 +33,64 @@ class TableThemeServiceTest {
     }
 
     @Test
-    void aKindExtendsTheBaseThroughTheMergeKey() {
+    void everyKindExtendsTheSkinOfTheBase() {
         var theme = service.theme("default");
-        var datatype = theme.lookOf(false);
+        var datatype = theme.lookOf(theme.datatype());
+        var spreadsheet = theme.lookOf(theme.spreadsheet());
 
-        // The header and the closing line come from the base, the field names are the Datatype's own.
+        // The signature, the properties and the closing line come from the base; the fill of the header and the
+        // field names are the Datatype's own.
         assertEquals("#b4c6e7", datatype.header().style().background());
+        assertNull(spreadsheet.header().style().background(), "The base leaves the header unfilled");
+        assertEquals(datatype.header().name(), spreadsheet.header().name(), "Every kind of table is signed alike");
+        assertEquals(datatype.properties(), spreadsheet.properties(),
+                "Every kind of table closes its properties alike");
+        assertEquals(ThemeLineStyle.THIN, spreadsheet.properties().border().bottom().style());
         assertEquals(ThemeLineStyle.THIN, datatype.lastRow().border().bottom().style());
         assertEquals("Franklin Gothic Book", datatype.style().fontFamily());
         assertEquals("#ddebf7", datatype.name().background());
-        assertNull(theme.lookOf(true).name(), "A Vocabulary has no column of field names");
+        assertNull(theme.lookOf(theme.vocabulary()).name(), "A Vocabulary has no column of field names");
     }
 
     @Test
-    void aKindReplacesWhatItWritesItselfAndExtendsANestedPartThroughItsAnchor() {
-        var green = service.theme("green");
-        var datatype = green.lookOf(false).header();
-        var vocabulary = green.lookOf(true).header();
+    void aKindChangesOnlyWhatItWritesInAPartOfTheBase() {
+        var theme = new TableThemeService(FIXTURES + "extended-header.yaml").theme("extended-header");
+        var datatype = theme.lookOf(theme.datatype()).header();
+        var vocabulary = theme.lookOf(theme.vocabulary()).header();
 
-        assertEquals(Boolean.TRUE, datatype.name().bold());
+        assertEquals(Boolean.TRUE, datatype.name().bold(), "A kind named with nothing in it takes the base alone");
         assertEquals(Boolean.FALSE, vocabulary.name().bold(), "The Vocabulary writes its own name look");
-        // The rest of the Vocabulary header is the one the base anchors, an alias reused for the type as well.
+        // The rest of the Vocabulary header is the one of the base, an alias reused for the type as well.
         assertEquals("#c6e0b4", vocabulary.style().background());
+        assertEquals("#548235", vocabulary.keyword().color());
         assertEquals("#548235", vocabulary.type().color());
-        assertEquals("#548235", vocabulary.style().border().top().color());
     }
 
     @Test
-    void aThemeStylesOnlyTheKindsItNamesALookFor() {
-        var theme = new TableThemeService(FIXTURES + "datatype-only.yaml").theme("datatype-only");
+    void theThemesOfStudioSignEveryKindOfTableAlikeAndFillTheHeaderOfADatatype() {
+        for (var id : List.of("default", "green")) {
+            var theme = service.theme(id);
+            var datatype = theme.lookOf(theme.datatype()).header();
+            var spreadsheet = theme.lookOf(theme.spreadsheet()).header();
 
-        assertNull(theme.lookOf(true), "The base styles nothing by itself: a kind without a look is left as it is");
-        var datatype = theme.lookOf(false);
+            assertEquals(datatype, theme.lookOf(theme.vocabulary()).header(), id + ": a Vocabulary is a Datatype");
+            assertEquals(List.of(datatype.keyword(), datatype.name(), datatype.type(), datatype.parameters()),
+                    List.of(spreadsheet.keyword(), spreadsheet.name(), spreadsheet.type(), spreadsheet.parameters()),
+                    id + ": every piece of the signature is the one of the base");
+            assertEquals(datatype.style().withBackground(null), spreadsheet.style(),
+                    id + ": only the fill of the header is a Datatype's own");
+            assertNull(spreadsheet.style().background(), id);
+        }
+    }
+
+    @Test
+    void aKindTheThemeWritesNothingForTakesTheBaseAlone() {
+        var theme = new TableThemeService(FIXTURES + "datatype-extension.yaml").theme("datatype-extension");
+
+        assertEquals(theme.base(), theme.lookOf(theme.vocabulary()), "A Vocabulary takes the base alone");
+        assertEquals(theme.base(), theme.lookOf(theme.spreadsheet()), "So does a Spreadsheet");
+        // The Datatype also merges the base with the YAML merge key, which extends the base by what it already is.
+        var datatype = theme.lookOf(theme.datatype());
         assertEquals(Boolean.TRUE, datatype.style().italic(), "The Datatype extends the base");
         assertEquals(new ThemeBorderLine(ThemeLineStyle.MEDIUM, "#ff0000"), datatype.lastRow().border().bottom());
         assertEquals("#fff2cc", datatype.name().background());
@@ -72,8 +98,9 @@ class TableThemeServiceTest {
 
     @Test
     void offersTheThemesItCanReadAndLeavesOutTheOnesItRefuses() {
-        // Next to the theme it reads lie three it refuses; Studio starts with the one it can offer.
-        assertEquals(List.of(new TableThemeView("datatype-only", "Datatype Only")),
+        // Next to the themes it reads lie the ones it refuses; Studio starts with the ones it can offer.
+        assertEquals(List.of(new TableThemeView("datatype-extension", "Datatype Extension"),
+                        new TableThemeView("extended-header", "Extended Header")),
                 new TableThemeService(FIXTURES + "*.yaml").getThemes());
     }
 

@@ -297,7 +297,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-font-color-icon.png) | Sets the font color.                                    |
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
-    | ![](images/edit-apply-theme-icon.png) | Applies a table theme to a Datatype or Vocabulary table, as described in [Applying the Table Theme](#applying-the-table-theme). |
+    | ![](images/edit-apply-theme-icon.png) | Applies a table theme to a Datatype, Vocabulary, or Spreadsheet table, as described in [Applying the Table Theme](#applying-the-table-theme). |
 
     The **Close** button at the end of the toolbar leaves the edit mode. When the table has unsaved changes, OpenL Studio asks whether to discard them.
 
@@ -361,32 +361,41 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
 ### Applying the Table Theme
 
-A table theme gives Datatype and Vocabulary tables one consistent look. For example, the **Default** theme that
-OpenL Studio ships formats the tables as follows:
+A table theme gives Datatype, Vocabulary, and Spreadsheet tables one consistent look. For example, the **Default**
+theme that OpenL Studio ships formats the tables as follows:
 
--   **Header** — a filled header, the keyword and the type of a Vocabulary in grey, and the name in bold.
+-   **Header** — the keyword, the type, and the parameters in grey and the name in bold, alike for every kind of
+    table. The header of a Datatype or a Vocabulary is filled.
+-   **Properties** — a line under the table properties, alike for every kind of table.
 -   **Fields** — the field names filled, the default values centered. In a transposed Datatype table, which has a
     field in each column, the field names are a row.
 -   **Values** — the values of a Vocabulary centered.
+-   **Steps** — the column titles of a Spreadsheet in bold and filled, and its formulas filled. A step whose name is
+    merged across its row heads a section, such as **Policy Factors Calculation**, and is written in bold italic. A
+    step marked with `*` for the result, such as `PolicyNumber*`, is bold, and so is the step whose value a
+    Spreadsheet returns when it returns a type other than `SpreadsheetResult`.
 -   **Last row** — a line under the last row that closes the table.
+-   **Everything else** — the theme overrides the formatting the Excel file gives the table: its fills, lines,
+    fonts, and alignment. A cell the theme fills no other way is white, and a text the file formats in pieces of its
+    own, other than the header, is drawn in the font of its cell.
 
 OpenL Studio also ships the **Green** theme. How a theme file is written is described in
 [Appendix E: Table Themes](appendices/table-themes.md). A theme can be used in the following ways:
 
--   **Viewed only** — in **My Settings**, in the **Table Theme** list, select the theme. Datatype and Vocabulary
-    tables are then drawn with the theme while they are viewed, and the Excel file keeps its own formatting. A
-    table switched to the edit mode is drawn as the file holds it, so the formatting changed in the edit mode is
-    the formatting of the file. To draw the tables with the formatting of the file again, select
+-   **Viewed only** — in **My Settings**, in the **Table Theme** list, select the theme. Datatype, Vocabulary, and
+    Spreadsheet tables are then drawn with the theme while they are viewed, and the Excel file keeps its own
+    formatting. A table switched to the edit mode is drawn as the file holds it, so the formatting changed in the edit
+    mode is the formatting of the file. To draw the tables with the formatting of the file again, select
     **Excel Formatting**.
 -   **Written into one table** — switch the table to the edit mode, click **Apply Theme**
     ![](images/edit-apply-theme-icon.png) on the toolbar, and select the theme. The table is drawn with the theme,
     and the theme is written into the Excel file with the other changes of the table when **Save** is clicked.
-    **Undo** takes the theme back. The button is displayed only for a table that a theme has a look for.
+    **Undo** takes the theme back. The button is displayed only for a Datatype, Vocabulary, or Spreadsheet table.
 -   **Written into the whole project** — above the table, click **More**, select **Apply Table Theme to Project**,
-    select the theme, and click **Apply Theme**. The theme is written into every Datatype and Vocabulary table of
-    every module of the project that the theme has a look for. A module set to compile alone has the whole project
-    compiled first, and a project whose compilation was stopped is not themed. The theme selected first is the one
-    that **My Settings** names, or the first theme in the list when **My Settings** names **Excel Formatting**.
+    select the theme, and click **Apply Theme**. The theme is written into every Datatype, Vocabulary, and Spreadsheet
+    table of every module of the project. A module set to compile alone has the whole project compiled first, and a
+    project whose compilation was stopped is not themed. The theme selected first is the one that **My Settings** names,
+    or the first theme in the list when **My Settings** names **Excel Formatting**.
 
 > [!Note]
 > Until **Save** is clicked, the theme is drawn as it fits the table without the changes made in the edit mode. A row
@@ -396,7 +405,9 @@ OpenL Studio also ships the **Green** theme. How a theme file is written is desc
 Writing the theme changes only the look of a table:
 
 -   Each cell keeps its value and every formatting option the theme does not set, such as its number format.
--   The header keeps its text, and its keyword, name and type are formatted in pieces.
+-   A text that the Excel file formats in pieces of its own, other than the header, is written in the font of its
+    cell.
+-   The header keeps its text, and its keyword, name, type, and parameters are formatted in pieces.
 -   Cells outside the table are not changed, and applying the theme again changes nothing more.
 -   The formatting set in the edit mode is written over the theme, so a cell formatted by hand keeps that
     formatting.
