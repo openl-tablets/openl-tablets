@@ -414,6 +414,33 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>backend-licenses</id>
+                        <goals>
+                            <goal>add-third-party</goal>
+                        </goals>
+                        <!-- Only the war takes the list. -->
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- The third-party libraries of WEB-INF/lib, which the About dialog lists. The
+                                 modules of OpenL Tablets are the org.openl.rules* groups and the org.openl.*
+                                 artifacts; other org.openl groups are patched third-party libraries. -->
+                            <excludedScopes>provided,system,test</excludedScopes>
+                            <excludedGroups>org\.openl\.rules</excludedGroups>
+                            <excludedArtifacts>org\.openl\.</excludedArtifacts>
+                            <fileTemplate>${project.basedir}/license/backend-licenses.json.ftl</fileTemplate>
+                            <thirdPartyFilename>backend-licenses.json</thirdPartyFilename>
+                            <outputDirectory>${project.build.directory}/licenses</outputDirectory>
+                            <!-- A web resource served at /licenses, beside the list of the frontend libraries. -->
+                            <addOutputDirectoryAsResourceDir>false</addOutputDirectoryAsResourceDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
@@ -421,6 +448,10 @@
                         <resource>
                             <directory>${project.build.directory}/optional-libs</directory>
                             <targetPath>WEB-INF/lib</targetPath>
+                        </resource>
+                        <resource>
+                            <directory>${project.build.directory}/licenses</directory>
+                            <targetPath>licenses</targetPath>
                         </resource>
                     </webResources>
                 </configuration>

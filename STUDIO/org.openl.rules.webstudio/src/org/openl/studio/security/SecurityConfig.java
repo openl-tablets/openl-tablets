@@ -41,6 +41,7 @@ public class SecurityConfig {
                         "/api-docs",
                         "/icons/**",
                         "/assets/**",
+                        "/licenses/**",
                         "/.well-known/**",
                         StudioDispatcherServlet.REST_PATH + "/public/**",
                         StudioDispatcherServlet.REST_PATH + "/settings",

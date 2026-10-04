@@ -9,9 +9,9 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   a WebSocket message. A feature therefore lands as an endpoint plus a React screen — never as a server-rendered
   page or a fragment of HTML. Only a few addresses answer differently, each through a servlet mapping of its own:
   `ApiDocsServlet` answers `/api-docs` with the page the API documentation is drawn on, `StaticResourcesServlet`
-  hands a built file (`/assets`, `/icons`, the favicons) to the container, `UserGuidesServlet` answers `/docs` — a
-  file of the user guides goes to the container, `/docs/toc.json` is their table of contents, and any other address
-  is the page a guide is drawn on — and the Spring `StudioDispatcherServlet`
+  hands a built file (`/assets`, `/icons`, `/licenses`, the favicons) to the container, `UserGuidesServlet` answers
+  `/docs` — a file of the user guides goes to the container, `/docs/toc.json` is their table of contents, and any
+  other address is the page a guide is drawn on — and the Spring `StudioDispatcherServlet`
   serves the REST API under `/rest` and the WebSocket handshake at `/ws`. The two are different protocols, so the
   handshake is not under `/rest`: a proxy and a timeout treat a long-lived connection differently from a request.
   Both addresses share one security chain. The dispatcher lets a handler answer at its own address only.
@@ -22,6 +22,13 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   condition that weighs it (`ProjectAccessService.computeCapabilities` is the worked example). The same
   applies in the large: never ask per branch, per file or per artefact what one question about the project
   answers, and never repeat a question a pass over the same set has already answered.
+- **Third-party licenses**: the About dialog of the user menu lists the libraries OpenL Studio ships from two files
+  under `/licenses`. Vite writes `frontend-licenses.json` (`build.license`: the libraries bundled into the pages, with
+  their license texts); the war build writes `backend-licenses.json` (`license-maven-plugin` `add-third-party` through
+  `org.openl.rules.webstudio/license/backend-licenses.json.ftl`: the third-party jars of `WEB-INF/lib`, with the
+  address of each license). Both share one shape — `name`, `version`, `identifier`, then `text` or `url`.
+- **Static resources are public.** Every file the build leaves beside the pages — `/assets`, `/icons`, `/licenses`,
+  the favicons — is listed in `SecurityConfig.staticResourcesFilterChain`, which runs no security filters at all.
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `org.openl.rules.webstudio/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens

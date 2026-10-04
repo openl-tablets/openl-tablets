@@ -40,7 +40,8 @@ class StaticResourcesServletTest {
             "/favicon.svg, /favicon.svg, ",
             "/favicon.ico, /favicon.ico, ",
             "/assets/index-abc.js, /assets, /index-abc.js",
-            "/icons/site.webmanifest, /icons, /site.webmanifest"
+            "/icons/site.webmanifest, /icons, /site.webmanifest",
+            "/licenses/backend-licenses.json, /licenses, /backend-licenses.json"
     })
     void handsTheWholeAddressToTheContainer(String address, String servletPath, String pathInfo) throws Exception {
         var dispatcher = mock(RequestDispatcher.class);

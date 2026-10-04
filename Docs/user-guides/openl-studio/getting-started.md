@@ -6,6 +6,7 @@ This chapter explains logging into OpenL Studio and briefly introduces the user 
 -   [Modifying User Profile](#modifying-user-profile)
 -   [Switching the Theme](#switching-the-theme)
 -   [Displaying the OpenL Studio Help](#displaying-the-openl-studio-help)
+-   [Viewing the Version and Licenses](#viewing-the-version-and-licenses)
 -   [Signing Out of OpenL Studio](#signing-out-of-openl-studio)
 -   [Introducing Rules Editor](#introducing-rules-editor)
 -   [Introducing the Projects Page](#introducing-the-projects-page)
@@ -42,9 +43,11 @@ OpenL Studio provides a navigation panel accessible from the top-right corner of
 -   **My Settings** — configure display and testing preferences
 -   **Personal Access Tokens** — manage API authentication tokens (visible in all multi-user authentication modes; not shown in single-user mode)
 -   **Help** — open the OpenL Studio help
+-   **About** — view the version, build date and license of OpenL Studio and the licenses of the third-party
+    libraries it includes
 -   **Sign Out** — end the current session
 
-![](images/user-profile-dropdown.png)
+![User profile panel with the My Profile, My Settings, Help, About and Sign Out items](images/user-profile-dropdown.png "User profile panel")
 
 *Opening the user profile panel*
 
@@ -233,6 +236,12 @@ to **All Guides**. Click a result to open its page at that section, or clear the
 
 Every page has an address of its own under `/docs`, the one it has on the documentation site, so it can be bookmarked
 or sent to another user of the same OpenL Studio.
+
+### Viewing the Version and Licenses
+
+To view the version and licenses, in the top-right corner, click the user icon and select **About**. The **About OpenL
+Studio** window shows the version, build date and license of OpenL Studio, and the third-party libraries it includes
+with their licenses. Click a license to open it in a new browser window.
 
 ### Signing Out of OpenL Studio
 
