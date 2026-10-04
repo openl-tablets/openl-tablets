@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNullElse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
-import java.util.regex.Pattern;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Answers the addresses of the user guides OpenL Studio ships at {@code /docs}.
  *
  * <p>A file of the guides, a page or an image, is handed to the container, which sets its type and the date it was
- * last modified. A browser keeps the file and asks on every visit whether it changed.
+ * last modified. A browser keeps the file and asks on every visit whether it changed. A file is public, as any other
+ * static resource; a page of a guide is the application page, guarded as every other page.
  *
  * <p>{@code /docs/toc.json} answers with the table of contents. Every other address is a page of a guide, which the
  * application page draws, unless it ends with a file extension: it then names a file the guides do not hold, and is
@@ -28,17 +28,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @author Yury Molchan
  */
-@WebServlet("/docs/*")
+@WebServlet(UserGuidesServlet.PATH + "/*")
 public class UserGuidesServlet extends FrontendPageServlet {
 
+    /** The address OpenL Studio serves the guides at. */
+    public static final String PATH = "/docs";
+
     /** Where the war keeps the guides: the {@code studio-docs} jar maps them under the web application root. */
-    private static final String GUIDES = "/docs/";
+    private static final String GUIDES = PATH + "/";
 
     /** The address of the table of contents, a name no file of the guides may take. */
     private static final String CONTENTS = "/toc.json";
-
-    /** The last part of an address naming a file, by its extension. */
-    private static final Pattern FILE = Pattern.compile("\\.[^/]*$");
 
     private static final ObjectMapper JSON = new ObjectMapper();
 
@@ -67,14 +67,23 @@ public class UserGuidesServlet extends FrontendPageServlet {
         if (path.equals(CONTENTS)) {
             writeContents(resp);
         } else if (files.contains(path)) {
-            // Set before the security chain writes its own, which would forbid keeping the file at all.
             resp.setHeader("Cache-Control", "no-cache");
             StaticResourcesServlet.serve(getServletContext(), req, resp);
-        } else if (FILE.matcher(path).find()) {
+        } else if (namesFile(path)) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         } else {
             super.doGet(req, resp);
         }
+    }
+
+    /**
+     * Whether an address below the guides names a file: its last part ends with an extension.
+     *
+     * <p>Such an address is answered with a file of the guides, the table of contents, or not found - never with the
+     * application page.
+     */
+    public static boolean namesFile(String path) {
+        return path.lastIndexOf('.') > path.lastIndexOf('/');
     }
 
     private void writeContents(HttpServletResponse resp) {

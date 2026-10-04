@@ -77,15 +77,16 @@ guides are build input and the rest of `Docs/` is not in the jar. Both its `push
 
 ### The servlet
 
-`UserGuidesServlet` in the webstudio war answers `/docs/*` and follows the same access rules as the other pages of
-OpenL Studio.
+`UserGuidesServlet` in the webstudio war answers `/docs/*`. A file of the guides is a static resource, public as
+`/assets` is; a page of a guide is the application page, guarded as every other page. An address whose last part ends
+with an extension never gets the application page, so `SecurityConfig.staticResourcesFilterChain` admits exactly those
+addresses below `/docs` (`RequestMatchers.userGuideFiles()`), reading the path without its query.
 
 - **A file of the guides** — `/docs/<path>` naming a file of `META-INF/resources/docs` is handed to the container's
   `default` servlet, which sets the content type and `Last-Modified`. It reuses the request shaping of
   `StaticResourcesServlet`, which keeps the whole address under a prefix mapping. `web.xml` maps a `.md` file to
   `text/markdown;charset=UTF-8`, because the containers' own tables of types do not list it. The servlet answers a file
-  with `Cache-Control: no-cache` before the security chain writes its `no-store`, so a browser keeps the file and
-  revalidates it by its date.
+  with `Cache-Control: no-cache`, so a browser keeps the file and revalidates it by its date.
 - **The table of contents** — `/docs/toc.json` lists the pages as a tree, built on the first request from the jar
   content. It applies the rules of the site sidebar: a page takes the front matter `title`, else the level 1–3
   heading it starts with, else its file name; a folder lists its pages, then its folders, in the order of their

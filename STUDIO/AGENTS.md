@@ -28,7 +28,10 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   `org.openl.rules.webstudio/license/backend-licenses.json.ftl`: the third-party jars of `WEB-INF/lib`, with the
   address of each license). Both share one shape — `name`, `version`, `identifier`, then `text` or `url`.
 - **Static resources are public.** Every file the build leaves beside the pages — `/assets`, `/icons`, `/licenses`,
-  the favicons — is listed in `SecurityConfig.staticResourcesFilterChain`, which runs no security filters at all.
+  the favicons, the files of the user guides — is listed in `SecurityConfig.staticResourcesFilterChain`, which runs
+  no security filters at all. A page is never listed: the application page answers a page of a guide too, so
+  `RequestMatchers.userGuideFiles()` admits an address below `/docs` only when its last part ends with an extension,
+  the rule by which `UserGuidesServlet` never answers it with the page.
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `org.openl.rules.webstudio/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
