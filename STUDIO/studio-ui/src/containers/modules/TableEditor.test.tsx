@@ -7,6 +7,8 @@ import { ApiHttpError, notifyLoadFailure } from '../../services/apiCall'
 import { getTableEditors, NO_EDITORS } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
+import { paperToken } from '../../styles/paper'
+import { renderInTheme } from '../../testing/theme'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
 vi.mock('../../services/apiCall', async importOriginal => ({
@@ -280,6 +282,27 @@ describe('TableEditor', () => {
         await userEvent.keyboard('{Enter}')
 
         expect(screen.getByTestId('table-edit-save')).toBeDisabled()
+    })
+
+    it('writes a cell on the paper of the table, white whatever the theme', async () => {
+        renderInTheme(
+            <TableEditor
+                canWrite
+                editing
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-1"
+                testId="module-table"
+            />,
+            { theme: 'monokai', mode: 'dark' }
+        )
+
+        await userEvent.dblClick(await screen.findByText('Good Morning'))
+
+        expect(screen.getByTestId('table-cell-input')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
     })
 
     it('opens a cell on a double click and starts editing', async () => {

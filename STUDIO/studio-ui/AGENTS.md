@@ -162,6 +162,7 @@ The build writes two pages (`build.rollupOptions.input`):
   palette is read off the token the provider works out — because many tests mock `antd` whole. A test whose screen
   asks Ant Design for a colour itself keeps the real `theme` export under such a mock (`vi.importActual`): the theme
   switch, which shows Ant Design's own accent beside the standard theme.
+  A table of a workbook does too, since its colours come from `paperToken()`.
   A theme scoped to one area (`ProjectsThemeProvider`) nests another antd-style `ThemeProvider` and passes the
   appearance through. Ant Design lays a nested theme's token over the parent's, so the scoped theme inherits the
   colours of the application and adds only its own shape, drawn in the palette the application's provider carries
@@ -287,6 +288,14 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   application mounts. Outside `<AntApp>`, `App.useApp()` answers with empty objects, so a test of a component
   that pops something up either renders it inside `<AntApp>` or mocks `antd` with
   `App: { useApp: () => ({ notification, modal }) }` (see `staticAntdApp` in `src/testing/`).
+    - **A workbook's table keeps the colours of Excel.** `RawTableGrid` writes its cells in black on white
+      whatever the theme, because an author fills a cell for that paper: the default text of a cell filled in
+      cyan reads only in black. Everything drawn on the cells — the paper and the ink, the rules, the links, and
+      every mark a screen lays on a cell (the picked and changed cells, the trace highlights and their legend)
+      — takes `paperToken()` (`styles/paper.ts`, Ant Design's own light token) rather than the theme's token.
+      The table editor draws its grid inside `PaperTheme`, a `ConfigProvider` that drops the theme in force
+      (`inherit: false`) and keeps the density, so the Ant Design controls written into a cell, and the notes over
+      one, lie on the paper as well. The line numbers beside the table belong to the screen and follow the theme.
     - **The logo is part of the palette.** `components/Logo.tsx` draws the cube from `primary`, `brand` and
       `primaryFg`, so it turns with the theme and the appearance; it carries no colour of its own.
     - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot

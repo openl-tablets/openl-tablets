@@ -195,6 +195,8 @@ Under the appearances, the **Compact** switch controls how densely the screens a
 
 The second group selects the colour theme, shown beside a dot of its own main colour. **Standard** uses the colours of Ant Design, the component library OpenL Studio is built with. The other themes are colour flavours of popular code editors: each paints the screens, the code editor of project files, and the code samples of the user guides shown in OpenL Studio in its own colours. Every theme has a light and a dark variant, and the appearance selects between them.
 
+Tables of Excel workbooks keep the colours Excel shows them in, whatever the theme: black text on white, unless the workbook colours a cell itself. A cell filled in the workbook therefore stays readable in a dark theme as well.
+
 ![Theme menu opened next to the user icon, offering Light, Dark, Follow System, a Compact switch, and the colour themes](images/theme-switcher.png)
 
 *Choosing the appearance, the theme, and the density*

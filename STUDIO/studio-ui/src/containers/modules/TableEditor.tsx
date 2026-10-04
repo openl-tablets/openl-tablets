@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, us
 import { Modal, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router'
+import { PaperTheme } from '../../components/PaperTheme'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { notifyLoadFailure } from '../../services/apiCall'
@@ -747,21 +748,24 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             )}
             <div className={canvasClassName}>
                 {/* The grid draws the rows it is given and numbers them from the first of them, so the rows
-                    kept out of sight are taken off here and put back on every place it answers with. */}
-                <RawTableGrid
-                    decorate={(cell, row, column) => decorate(cell, row + hidden, column)}
-                    formulas={formulas}
-                    layout={numbering}
-                    // While the table is being edited its cells lead nowhere: a click is meant for the cell
-                    // under it, and a reader aiming at one must not be taken to another table by mistake.
-                    onKeyDown={canWrite ? onKeyDown : undefined}
-                    onOpenCell={canWrite ? (row, column) => openCell(row + hidden, column) : undefined}
-                    onOpenUsage={editing ? undefined : onOpenUsage}
-                    onPickCell={canWrite ? (row, column) => pick(row + hidden, column) : undefined}
-                    rows={drawn}
-                    tableRef={grid}
-                    testId={testId}
-                />
+                    kept out of sight are taken off here and put back on every place it answers with. The field a
+                    cell is written in lies on the paper of the workbook, and so does the grid around it. */}
+                <PaperTheme>
+                    <RawTableGrid
+                        decorate={(cell, row, column) => decorate(cell, row + hidden, column)}
+                        formulas={formulas}
+                        layout={numbering}
+                        // While the table is being edited its cells lead nowhere: a click is meant for the cell
+                        // under it, and a reader aiming at one must not be taken to another table by mistake.
+                        onKeyDown={canWrite ? onKeyDown : undefined}
+                        onOpenCell={canWrite ? (row, column) => openCell(row + hidden, column) : undefined}
+                        onOpenUsage={editing ? undefined : onOpenUsage}
+                        onPickCell={canWrite ? (row, column) => pick(row + hidden, column) : undefined}
+                        rows={drawn}
+                        tableRef={grid}
+                        testId={testId}
+                    />
+                </PaperTheme>
                 {children}
             </div>
         </>

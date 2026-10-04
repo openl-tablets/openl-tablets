@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { paperToken } from '../styles/paper'
 
 /**
  * How wide a cell is at the least, in pixels: the width Excel gives a column its author never set.
@@ -8,6 +9,10 @@ import { createStyles } from 'antd-style'
  */
 const MIN_CELL_WIDTH = 64
 
+/**
+ * The styles of a table of a workbook. The cells are drawn on its paper ({@link paperToken}); the margin beside the
+ * table — the numbers of its lines — belongs to the screen and follows the theme.
+ */
 export const useStyles = createStyles(({ css, token }) => ({
     /**
      * The table is as wide as its own text needs and no wider: stretching it to the screen spreads a few short
@@ -25,11 +30,9 @@ export const useStyles = createStyles(({ css, token }) => ({
         max-width: none;
         table-layout: auto;
         font-size: ${token.fontSizeSM}px;
-        /*
-         * The paper the table is written on. A cell the workbook gave no fill to is white in Excel, not the
-         * colour of whatever the table is laid on — and the cells that do carry a fill paint over this.
-         */
-        background: ${token.colorBgContainer};
+        /* The paper and the ink, which a cell's own fill and font colour paint over. */
+        background: ${paperToken().colorBgContainer};
+        color: ${paperToken().colorText};
     `,
     /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past
@@ -40,7 +43,7 @@ export const useStyles = createStyles(({ css, token }) => ({
      * padding alone reads as a crack between the rules rather than as a line to write in.
      */
     cell: css`
-        border: 1px solid ${token.colorBorderSecondary};
+        border: 1px solid ${paperToken().colorBorderSecondary};
         padding: ${token.paddingXXS}px ${token.paddingXS}px;
         text-align: left;
         vertical-align: top;
@@ -88,7 +91,7 @@ export const useStyles = createStyles(({ css, token }) => ({
             position: absolute;
             top: 0;
             right: 0;
-            border-top: 6px solid ${token.colorError};
+            border-top: 6px solid ${paperToken().colorError};
             border-left: 6px solid transparent;
         }
     `,
@@ -116,11 +119,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         background: none;
         font: inherit;
         cursor: pointer;
-        color: ${token.colorLink};
+        color: ${paperToken().colorLink};
 
         &:hover,
         &:focus-visible {
-            color: ${token.colorLinkHover};
+            color: ${paperToken().colorLinkHover};
             text-decoration: underline;
         }
     `,

@@ -4,6 +4,8 @@ import { NotFoundError } from 'services'
 import { useTraceStore } from 'store/traceStore'
 import type { DebugFrameView, RawTableView } from 'types/trace'
 import TraceTableView from 'containers/TraceView/components/TraceTableView'
+import { paperToken } from 'styles/paper'
+import { renderInTheme } from 'testing/theme'
 
 vi.mock('services/traceService', () => ({
     __esModule: true,
@@ -108,6 +110,20 @@ describe('TraceTableView', () => {
         const plain = table.querySelector('[data-cell="A2"]') as HTMLElement
         expect(current.className).not.toBe(plain.className) // current carries the extra highlight class
         expect(getFrameHighlights).toHaveBeenCalledWith('p1', 0)
+    })
+
+    it('paints a highlight in the colours of the paper, so the cell reads the same in a dark theme', async () => {
+        getFrameHighlights.mockResolvedValue([{ cell: 'B2', state: 'current' }])
+        cacheTable('tbl', {
+            id: 'tbl',
+            name: 'T',
+            source: [[{ cell: 'A2', value: 'Step' }, { cell: 'B2', value: '= x' }]],
+        })
+
+        renderInTheme(<TraceTableView frameIndex={0} />, { theme: 'dracula', mode: 'dark' })
+        const current = await marked('B2', 'A2')
+
+        expect(current).toHaveStyle({ backgroundColor: paperToken().colorWarningBg, color: paperToken().colorText })
     })
 
     it('mutes non-highlighted cells while a meaningful highlight (a decision result) keeps its colour', async () => {
