@@ -29,7 +29,7 @@ class MigratorProjectTagsTest {
     void aNewerInstallationIsNotTouched() {
         var applicationContext = mock(ApplicationContext.class);
 
-        Migrator.migrateAfterContentInitialized(applicationContext, "6.5.0");
+        Migrator.migrateAfterContentInitialized(applicationContext, "7.0.0");
 
         verifyNoInteractions(applicationContext);
     }

@@ -1,8 +1,8 @@
 ---
-title: "OpenL Tablets 6.5.0 Migration Notes"
+title: "OpenL Tablets 7.0.0 Migration Notes"
 ---
 
-Upgrading to OpenL Tablets 6.5.0 requires no database changes and no Java version change. Two changes need
+Upgrading to OpenL Tablets 7.0.0 requires no database changes and no Java version change. Two changes need
 attention. Groovy moves from `4.0.33` to `6.0.0`, skipping the whole 5.x line, so a project that carries Groovy
 sources needs a source-compatibility check; every deployment runs the new Groovy runtime, so the administrator
 notes below apply even where no project carries Groovy sources. Separately, the `/web` prefix of the OpenL Studio

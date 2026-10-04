@@ -59,7 +59,7 @@ describe('Help', () => {
     })
 
     it('opens the guides in the same tab, as a screen of the application', () => {
-        renderHelp(openlInfo('6.5.0-SNAPSHOT'))
+        renderHelp(openlInfo('7.0.0'))
 
         expect(screen.getByRole('link', { name: 'Reference Guide' })).not.toHaveAttribute('target')
     })
