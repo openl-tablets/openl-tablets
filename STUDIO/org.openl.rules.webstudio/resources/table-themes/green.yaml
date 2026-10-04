@@ -128,6 +128,11 @@ smartRules: *rules
 simpleLookup: *rules
 smartLookup: *rules
 
+# The tables that declare what a decision table takes by its titles look like the code and the titles of a Rules table.
+conditions: *rules
+actions: *rules
+returns: *rules
+
 # The technical tables are drawn in greys, as in every theme.
 environment: &technical
   header:

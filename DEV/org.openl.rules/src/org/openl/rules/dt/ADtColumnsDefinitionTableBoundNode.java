@@ -18,6 +18,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
@@ -64,6 +65,17 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private XlsModuleOpenClass xlsModuleOpenClass;
     private final Map<DTColumnsDefinition, PreBindDetails> definitions = new HashMap<>();
     private boolean initialized;
+    /**
+     * The titles of the definitions, where the table holds them.
+     *
+     * <p>The definitions are read with each of their parts in a column: the inputs, the expression, the parameters
+     * and the titles. A table that writes a part in each row is read transposed: its titles are a row of the sheet,
+     * and they are not in their normal orientation.
+     *
+     * <p>It is {@code null} for a table without a body, and for a table of a structure no definition is read from.
+     */
+    @Getter
+    private @Nullable IGridTable titles;
 
     protected ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode);
@@ -109,6 +121,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             }
         }
 
+        titles = partOf(tableBody, tableStructure, headerIndexes[TITLE_INDEX]);
         var h = tableBody.getSource().getHeight();
 
         while (i < h) {
@@ -358,6 +371,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     @Override
     public void removeDebugInformation(IBindingContext cxt) {
         definitions.clear();
+        titles = null;
     }
 
     protected abstract DTColumnsDefinition createDefinition(IOpenMethodHeader header,
@@ -416,6 +430,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private static final int EXPRESSION_INDEX = 1;
     private static final int PARAMETER_INDEX = 2;
     private static final int TITLE_INDEX = 3;
+
+    /** The columns of the body one part of the definitions takes, up to the column the next part starts at. */
+    private static IGridTable partOf(ILogicalTable tableBody, int[] tableStructure, int part) {
+        var source = tableBody.getSource();
+        var next = part + 1 < tableStructure.length ? tableStructure[part + 1] : source.getWidth();
+        return source.getColumns(tableStructure[part], next - 1);
+    }
 
     private static int[] getTableStructure(ILogicalTable originalTable) {
         var w = originalTable.getSource().getWidth();

@@ -392,9 +392,9 @@ i18next.addResourceBundle('en', 'repository', {
             apply_theme_project: 'Apply Table Theme to Project',
             apply_theme_project_confirm: 'Apply a table theme to the project',
             apply_theme_project_body: 'The theme is written into every Datatype, Vocabulary, Spreadsheet, Data, Test, '
-                + 'Run, decision, Environment, Properties and Constants table of every module. Values stay as they '
-                + 'are; only the look of the tables changes. Save the project to carry the change to the Design '
-                + 'repository.',
+                + 'Run, decision, Conditions, Actions, Returns, Environment, Properties and Constants table of every '
+                + 'module. Values stay as they are; only the look of the tables changes. Save the project to carry the '
+                + 'change to the Design repository.',
             apply_theme_project_theme: 'Theme',
             overwrite_revision: 'Overwrite the newer revision?',
             overwrite_revision_body: 'You are editing an older revision of the project. Saving it will overwrite everything committed since.',

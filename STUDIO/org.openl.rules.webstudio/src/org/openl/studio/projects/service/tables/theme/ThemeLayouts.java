@@ -34,8 +34,8 @@ import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
  *
  * <p>The screen, the editor and the project-wide writer all ask here, so the screen shows what writing the theme
  * gives. The table is read as it stands on its grid, so a table being edited is themed with the rows and columns
- * the edit left it with. A decision table is themed by where the compiler found its parts, which the rows and the
- * columns the edit inserted or deleted have moved.
+ * the edit left it with. A decision table, and a table that declares what a decision table takes, is themed by where
+ * the compiler found its parts, which the rows and the columns the edit inserted or deleted have moved.
  *
  * <p>The kind of a table, {@link ThemeKind}, tells which part of a theme it takes its look from and which
  * {@link BodyLayout} lays out its body. A table of no kind a theme styles takes no theme. Each layout tells the look of
@@ -55,6 +55,9 @@ final class ThemeLayouts {
             XlsNodeTypes.XLS_TEST_METHOD,
             XlsNodeTypes.XLS_RUN_METHOD,
             XlsNodeTypes.XLS_DT,
+            XlsNodeTypes.XLS_CONDITIONS,
+            XlsNodeTypes.XLS_ACTIONS,
+            XlsNodeTypes.XLS_RETURNS,
             XlsNodeTypes.XLS_ENVIRONMENT,
             XlsNodeTypes.XLS_PROPERTIES,
             XlsNodeTypes.XLS_CONSTANTS);
@@ -64,7 +67,7 @@ final class ThemeLayouts {
 
     /**
      * Whether a table is of a kind every theme styles: a Datatype, a Vocabulary, a Spreadsheet, a Data, a Test, a
-     * Run, a decision, an Environment, a Properties or a Constants table.
+     * Run, a decision, a Conditions, an Actions, a Returns, an Environment, a Properties or a Constants table.
      *
      * @param table the table
      * @return {@code true} when a theme can be drawn over the table and written into it
@@ -117,7 +120,9 @@ final class ThemeLayouts {
      * with a field in each row, a decision table with a rule in each column, a Constants table with a constant in each
      * column.
      *
-     * <p>The compiler decides it from what the table holds, so only a compiled table can be transposed.
+     * <p>The compiler decides it from what the table holds, so only a compiled table can be transposed. A Conditions,
+     * an Actions and a Returns table take their axes from the titles the compiler found, see
+     * {@link DecisionThemeLayout#conditions}.
      */
     private static boolean isTransposed(IOpenLTable table) {
         return switch (table.getSyntaxNode().getMetaInfoReader()) {

@@ -81,6 +81,18 @@ class TableThemeServiceTest {
     }
 
     @Test
+    void theThemesOfStudioDrawTheTablesThatDeclareWhatADecisionTableTakesInTheLookOfARulesTable() {
+        for (var id : List.of("default", "green")) {
+            var theme = service.theme(id);
+            var rules = theme.lookOf(theme.rules());
+
+            assertEquals(rules, theme.lookOf(theme.conditions()), id + ": a Conditions table");
+            assertEquals(rules, theme.lookOf(theme.actions()), id + ": an Actions table");
+            assertEquals(rules, theme.lookOf(theme.returns()), id + ": a Returns table");
+        }
+    }
+
+    @Test
     void theThemesOfStudioSignEveryKindOfTableAlikeAndFillTheHeaderOfADatatype() {
         for (var id : List.of("default", "green")) {
             var theme = service.theme(id);

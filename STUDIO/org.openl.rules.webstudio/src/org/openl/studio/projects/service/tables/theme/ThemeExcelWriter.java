@@ -128,7 +128,7 @@ public final class ThemeExcelWriter {
             // The note inserts each property it adds at the top of the properties, and the rows under them move down.
             var rows = properties.getSource().getRegion();
             // Only the header and the properties are laid out: the body under them keeps the look it has, so no part
-            // of a decision table is looked for, and the edits that moved its parts do not matter.
+            // the compiler found is looked for, and the edits that moved such parts do not matter.
             var head = grid.getSubtable(0, 0, grid.getWidth(), rows.getBottom() - grid.getRegion().getTop() + 1);
             write(table, head, TableMoves.NONE, at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added);
         }
