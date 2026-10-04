@@ -18,15 +18,26 @@ vi.mock('../../services/projectIndex', () => ({
     invalidateProjectIndex: vi.fn(),
 }))
 
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
+vi.mock('react-i18next', () => {
+    const t = (key: string) => key
+    return { useTranslation: () => ({ t }) }
+})
 
-vi.mock('antd-style', () => ({
-    createStyles: () => () => ({
-        styles: new Proxy({}, { get: (_target, name) => String(name) }),
-        cx: (...args: unknown[]) => args.filter(Boolean).join(' '),
-    }),
-    useTheme: () => new Proxy({}, { get: (_target, name) => String(name) }),
+// antd-style hands out new styles and a new token on every render, and so does this mock: only their values follow
+// the appearance. Every tree the Tree is handed is kept, to tell a tree rebuilt from one kept.
+const { appearance, drawnTrees } = vi.hoisted(() => ({
+    appearance: { current: 'light' as 'light' | 'dark' },
+    drawnTrees: [] as unknown[],
 }))
+
+vi.mock('antd-style', () => {
+    const cx = (...args: unknown[]) => args.filter(Boolean).join(' ')
+    return {
+        createStyles: () => () => ({ styles: new Proxy({}, { get: (_target, name) => String(name) }), cx }),
+        useTheme: () => new Proxy({}, { get: () => (appearance.current === 'dark' ? '#020202' : '#010101') }),
+        useThemeMode: () => ({ isDarkMode: appearance.current === 'dark' }),
+    }
+})
 
 // The icons carry the test ids the workspace marks them with, so they are forwarded.
 vi.mock('@ant-design/icons', () => {
@@ -97,6 +108,7 @@ vi.mock('antd', () => {
         </ul>
     )
     const Tree = ({ treeData, expandedKeys, onSelect, onExpand, loadData, ...rest }: Record<string, unknown>) => {
+        drawnTrees.push(treeData)
         const { blockNode, className, loadedKeys, motion, selectedKeys, showIcon, expandAction, ...dom } = rest
         void blockNode; void className; void motion; void selectedKeys; void showIcon; void expandAction
         const expanded = (expandedKeys as string[]) ?? []
@@ -198,6 +210,8 @@ describe('ProjectsTree', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         stubStorage()
+        appearance.current = 'light'
+        drawnTrees.length = 0
         vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: [], projectIndexHealth: {} })
         vi.mocked(getProjectFiles).mockResolvedValue([
             { path: 'rules', name: 'rules', basePath: '', type: 'folder' },
@@ -584,6 +598,52 @@ describe('ProjectsTree', () => {
         await userEvent.type(screen.getByTestId('projects-tree-search'), 'beta')
         expect(screen.getByTestId('tree-project-p2')).toBeInTheDocument()
         expect(screen.queryByTestId('tree-project-p1')).not.toBeInTheDocument()
+    })
+
+    it('repaints the state of a project in the theme the reader switches to', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        // Nothing but the theme changes: the same filters, the same projects.
+        const filters = picks()
+        const { rerender } = await renderTree({ filters, projects, onRefresh: vi.fn() })
+        expect(screen.getByTestId('tree-status-EDITING')).toHaveStyle({ color: '#010101' })
+
+        appearance.current = 'dark'
+        rerender(
+            <ProjectsTree
+                filters={filters}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onRefresh={vi.fn()}
+                onShowAll={vi.fn()}
+                projects={projects}
+                repositories={repositories}
+            />
+        )
+
+        expect(screen.getByTestId('tree-status-EDITING')).toHaveStyle({ color: '#020202' })
+    })
+
+    it('keeps its tree while the theme stays, though the theme hands out new objects on every render', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const filters = picks()
+        const { rerender } = await renderTree({ filters, projects, onRefresh: vi.fn() })
+        const built = drawnTrees.at(-1)
+
+        rerender(
+            <ProjectsTree
+                filters={filters}
+                onClearFilters={vi.fn()}
+                onOpenGroup={vi.fn()}
+                onOpenProject={vi.fn()}
+                onRefresh={vi.fn()}
+                onShowAll={vi.fn()}
+                projects={projects}
+                repositories={repositories}
+            />
+        )
+
+        expect(drawnTrees.at(-1)).toBe(built)
     })
 
     it('draws a project by the state it is in', async () => {

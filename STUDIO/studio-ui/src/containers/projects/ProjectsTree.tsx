@@ -2,7 +2,7 @@ import { readStored, removeStored, writeStored } from '../../utils/localStore'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Alert, Button, Empty, Skeleton, Tooltip, Tree } from 'antd'
 import { BranchesOutlined, PartitionOutlined, ReloadOutlined, TagOutlined } from '@ant-design/icons'
-import { createStyles, useTheme } from 'antd-style'
+import { createStyles, useTheme, useThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
 import { getProjectIndex, invalidateProjectIndex } from '../../services/projectIndex'
@@ -18,6 +18,7 @@ import { useSharedStyles } from './sharedStyles'
 import { RepoIcon } from './RepoBadge'
 import { BranchMarks } from './BranchMarks'
 import { SearchInput } from '../../components/SearchInput'
+import { useAppTheme } from '../../providers/AppThemeProvider'
 import {
     activeLevels,
     buildGroupTree,
@@ -201,6 +202,8 @@ export const ProjectsTree = ({
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const token = useTheme()
+    const { themeName } = useAppTheme()
+    const { isDarkMode } = useThemeMode()
     const [levels, setLevels] = useState<GroupingLevels>(loadGrouping)
     const [selfProjects, setSelfProjects] = useState<Project[] | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -332,9 +335,11 @@ export const ProjectsTree = ({
     }, [currentProjectId, nodes, openedOn, projects])
 
     const treeData = useMemo(
-        // Depends on what shapes a node, not on which nodes are open — expanding must not rebuild the tree.
+        // Depends on what shapes a node and on the theme it is drawn in, not on which nodes are open — expanding
+        // must not rebuild the tree, while switching the theme or the appearance must repaint the titles. The theme
+        // is told by its name and appearance: antd-style hands out new styles and a new token on every render.
         () => nodes.map(node => toTreeNode(node)),
-        [contents, currentProjectId, nodes, repoMeta]
+        [contents, currentProjectId, isDarkMode, nodes, repoMeta, t, themeName]
     )
 
     // Which rows have been read is told to the tree rather than left to it, so a refresh that drops what
