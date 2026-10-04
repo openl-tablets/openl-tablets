@@ -4,7 +4,7 @@ To deploy a project ZIP to a production repository without using OpenL Studio, u
 `org.openl.rules.ruleservice.deployer.RulesDeployerService` class from the `org.openl.rules.ruleservice.deployer`
 module.
 
-Construct the service with the production repository configuration — a `Function<String, String>` property lookup
+Construct the service with the production repository configuration — a `UnaryOperator<String>` property lookup
 over the same `production-repository.*` settings described in
 [Configuring a Data Source](../configuration.md#configuring-a-data-source). Then call one of its `deploy` methods:
 

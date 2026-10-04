@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -82,17 +82,15 @@ public class RulesDeployerService implements Closeable {
      * Initializes repository using target properties
      *
      * @param properties repository settings
-     * @deprecated Use {@link #RulesDeployerService(Function)} instead.
+     * @deprecated Use {@link #RulesDeployerService(UnaryOperator)} instead.
      */
     @Deprecated(since = "5.25.14")
     public RulesDeployerService(Properties properties) {
         this(properties::getProperty);
     }
 
-    // The programmatic deployment guide documents this constructor with a Function; narrowing it breaks callers.
-    @SuppressWarnings("java:S4276")
-    public RulesDeployerService(Function<String, String> properties) {
-        this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties::apply);
+    public RulesDeployerService(UnaryOperator<String> properties) {
+        this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties);
         if (deployRepo.supports().isLocal()) {
             // NOTE deployment path is not required for LocalRepository. It must be specified within URI
             this.baseDeployPath = "";
