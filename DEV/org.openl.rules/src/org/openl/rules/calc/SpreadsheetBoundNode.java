@@ -318,6 +318,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         return (Spreadsheet) getMethod();
     }
 
+    /**
+     * How the body of the Spreadsheet was read: its steps, its columns and the header whose value it returns.
+     *
+     * @return the builder of the structure, or {@code null} before the Spreadsheet is bound
+     */
+    public SpreadsheetStructureBuilder getStructureBuilder() {
+        return structureBuilder;
+    }
+
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         if (cells != null) {

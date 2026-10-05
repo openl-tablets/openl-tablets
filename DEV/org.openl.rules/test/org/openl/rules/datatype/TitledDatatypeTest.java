@@ -1,6 +1,7 @@
 package org.openl.rules.datatype;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,9 +9,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.openl.binding.impl.NodeType;
+import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenClass;
 
@@ -47,6 +50,17 @@ class TitledDatatypeTest {
     @Test
     void aCommentedRowDoesNotTakeTheIndexField() {
         assertIndexField("CommentedFirstField", "name");
+    }
+
+    // A titled table keeps its fields under the row of titles, a legacy one from its first row on.
+    @Test
+    void aTitledDatatypeIsReadUnderItsTitles() {
+        assertTrue(boundNodeOf("Datatype Person").hasColumnTitles());
+    }
+
+    @Test
+    void aLegacyDatatypeIsReadWithoutTitles() {
+        assertFalse(boundNodeOf("Datatype LegacyPerson").hasColumnTitles());
     }
 
     // The editor links a Type cell to the datatype it names, and finds the field by the name cell of the same row.
@@ -93,6 +107,10 @@ class TitledDatatypeTest {
             }
         }
         throw new IllegalStateException("There is no '%s' cell in '%s'".formatted(cellText, tableName));
+    }
+
+    private static DatatypeTableBoundNode boundNodeOf(String tableName) {
+        return ((DatatypeTableMetaInfoReader) findTable(tableName).getMetaInfoReader()).getBoundNode();
     }
 
     private static TableSyntaxNode findTable(String tableName) {

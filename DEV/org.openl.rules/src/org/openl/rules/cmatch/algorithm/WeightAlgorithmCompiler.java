@@ -75,7 +75,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
     }
 
     @Override
-    protected int getSpecialRowCount() {
+    public int getSpecialRowCount() {
         return 3; // return values, total score, score
     }
 

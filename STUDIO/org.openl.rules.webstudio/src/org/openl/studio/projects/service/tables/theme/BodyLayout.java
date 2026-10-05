@@ -12,7 +12,7 @@ import org.openl.rules.table.ILogicalTable;
 interface BodyLayout {
 
     /**
-     * The places of a body and the look of each.
+     * The places of a body and the look of each, for a table the compiler read.
      *
      * @param body the body of a table, and what its layout knows about the table
      * @return the body as the layout reads it, and the look of each of its places

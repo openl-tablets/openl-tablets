@@ -193,7 +193,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         return MATCH_COLUMN_DEFINITION;
     }
 
-    protected int getSpecialRowCount() {
+    @Override
+    public int getSpecialRowCount() {
         return 1;
     }
 

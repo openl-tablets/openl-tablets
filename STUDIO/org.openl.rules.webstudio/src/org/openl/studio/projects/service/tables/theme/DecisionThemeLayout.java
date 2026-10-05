@@ -16,12 +16,11 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.element.FunctionalRow;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 
 /**
@@ -107,52 +106,6 @@ final class DecisionThemeLayout {
         return Optional.ofNullable(places)
                 .map(laid -> new BodyLayout.Placed(body.rows(), Looks.of(body, laid)))
                 .orElseGet(() -> BodyLayout.Placed.plain(body));
-    }
-
-    /**
-     * A table as the compiler laid it out, and where its cells stand now.
-     *
-     * <p>The edits made since the table was compiled may have inserted or deleted rows and columns, or moved the
-     * whole table on its sheet. A cell of the table as compiled stands where the edits moved it.
-     *
-     * @param node  the table, compiled
-     * @param table where the table stands on its sheet now, header included
-     * @param moves the rows and the columns the edits inserted or deleted since the table was compiled
-     */
-    record Compiled(TableSyntaxNode node, IGridRegion table, TableMoves moves) {
-
-        /**
-         * Adds the place each cell of a part of the compiled table stands in now, such as its row. A cell an edit
-         * deleted adds nothing.
-         *
-         * @param part  the part, as the compiler read it
-         * @param place the place of a row and a column of the sheet
-         * @param into  the places to add to
-         */
-        void addPlaces(IGridTable part, IntBinaryOperator place, Set<Integer> into) {
-            for (var row = 0; row < part.getHeight(); row++) {
-                for (var column = 0; column < part.getWidth(); column++) {
-                    var cell = part.getCell(column, row);
-                    var rowNow = rowOf(cell);
-                    var columnNow = columnOf(cell);
-                    if (rowNow != TableMoves.DELETED && columnNow != TableMoves.DELETED) {
-                        into.add(place.applyAsInt(rowNow, columnNow));
-                    }
-                }
-            }
-        }
-
-        /** The row of the sheet a cell of the compiled table stands in now, or {@link TableMoves#DELETED}. */
-        private int rowOf(ICell cell) {
-            var row = moves.row(cell.getAbsoluteRow() - node.getGridTable().getRegion().getTop());
-            return row == TableMoves.DELETED ? row : table.getTop() + row;
-        }
-
-        /** The column of the sheet a cell of the compiled table stands in now, or {@link TableMoves#DELETED}. */
-        private int columnOf(ICell cell) {
-            var column = moves.column(cell.getAbsoluteColumn() - node.getGridTable().getRegion().getLeft());
-            return column == TableMoves.DELETED ? column : table.getLeft() + column;
-        }
     }
 
     /**
@@ -322,7 +275,7 @@ final class DecisionThemeLayout {
         /** The axes of the table. */
         private final Axes axes;
         /** The table as it was compiled, and where its cells stand now. */
-        private final Compiled compiled;
+        private final CompiledTable compiled;
         /** Whether the table checks horizontal conditions. */
         private final boolean lookup;
         /** Whether the table declares its columns in rows of code, as a Rules table does. */
@@ -345,7 +298,7 @@ final class DecisionThemeLayout {
          * @param compiled the table as it was compiled, and where its cells stand now
          * @param axes     the axes of the table
          */
-        Reader(DecisionTable decision, Compiled compiled, Axes axes) {
+        Reader(DecisionTable decision, CompiledTable compiled, Axes axes) {
             var info = decision.getDtInfo();
             var node = compiled.node();
             this.axes = axes;
@@ -437,14 +390,12 @@ final class DecisionThemeLayout {
          * The crosses of the column the table names its rules in, as the compiler finds it.
          *
          * <p>A Rules table names the kind of that column {@code RULE} in the first line of its code. A table matched
-         * by its titles may name its rules in its first column only: there, a column the table reads no condition
-         * and nothing it returns from.
+         * by its titles names its rules in the column whose title the compiler matched as the one of the rules, and a
+         * title it matched as nothing names no rules.
          */
         private Set<Integer> ruleNames(IGrid sheet, IGridRegion region) {
             if (!declared) {
-                var first = axes.crossStart(region);
-                var taken = conditions.contains(first) || returns.contains(first) || grid.contains(first);
-                return taken ? Set.of() : Set.of(first);
+                return matchedRuleNames();
             }
             var kinds = code.stream().mapToInt(Integer::intValue).min().orElse(axes.lineStart(region));
             var found = new HashSet<Integer>();
@@ -454,6 +405,18 @@ final class DecisionThemeLayout {
                     found.add(cross);
                 }
             }
+            return found;
+        }
+
+        /** The crosses of the titles the compiler matched as the one of the rules, where they stand now. */
+        private Set<Integer> matchedRuleNames() {
+            if (!(compiled.node().getMetaInfoReader() instanceof DecisionTableMetaInfoReader reader)) {
+                return Set.of();
+            }
+            var found = new HashSet<Integer>();
+            reader.getMetaInfos()
+                    .getRules()
+                    .forEach(title -> compiled.addPlace(title.getRow(), title.getColumn(), axes::crossOf, found));
             return found;
         }
 

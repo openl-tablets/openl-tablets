@@ -149,6 +149,21 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     /**
+     * Whether the fields of the table were read under a row of column titles.
+     *
+     * <p>A table that titles its columns names them on its first row, and its fields start on the next row. A table
+     * that titles none keeps the type, the name and the default value of a field in its first three columns, and its
+     * fields start on its first row.
+     *
+     * <p>A table whose fields were never read, such as one whose parent type is not found, has no titles either.
+     *
+     * @return {@code true} if the fields were read under a row of column titles
+     */
+    public boolean hasColumnTitles() {
+        return columnTitlesOrder != null && columnTitlesOrder != DEFAULT_COLUMN_TITLES_ORDER;
+    }
+
+    /**
      * Process datatype fields from source table.
      *
      * @param bindingContext binding context

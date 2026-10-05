@@ -137,7 +137,8 @@ A Spreadsheet table also takes the following parts:
 -   **`marked`** — a step or a column whose name is marked with `*` for the result of the Spreadsheet, such as
     `PolicyNumber*`, laid over its own style.
 -   **`result`** — the name of the step a Spreadsheet returns, laid over its own style. It is the step named
-    `RETURN`, or the last step when no step is named so. A Spreadsheet that returns `SpreadsheetResult` returns every
+    `RETURN`, or the last step OpenL Tablets reads when no step is named so: a row that repeats the name of a step
+    above it is no step. A Spreadsheet that returns `SpreadsheetResult` returns every
     step, and its last step, which closes the calculation, is the result too. A column named `RETURN` takes the place
     of the step, and its title takes `result`.
 -   **`resultRow`** — every cell of the row of the step a Spreadsheet returns, laid over its own style. A line the
@@ -251,7 +252,8 @@ An Environment and a Properties table also take the following parts:
     properties of a Properties table, such as `scope`.
 -   **`values`** — the values of the settings and of the properties, such as the packages a module imports.
 
-A Constants table also takes the following parts:
+A Constants table also takes the following parts. OpenL Tablets reads a Constants table by place, so the parts are
+its first three columns, under no row of titles:
 
 -   **`type`** — the column of the types of the constants, such as `Integer`.
 -   **`name`** — the column of the names of the constants, such as `DEFAULT_AGE`.
@@ -262,6 +264,10 @@ A Constants table can be written transposed, with a constant in each column. The
 still styles the last row of the table.
 
 A part that a kind of table does not take is not used for it, so `base` can hold the parts of every kind.
+
+A theme takes every part of a table from the way OpenL Tablets compiles it, never from where the cells stand. The body
+of a table OpenL Tablets cannot compile, such as a Datatype whose parent type is not found, takes `style` alone; its
+header, its properties, and `lastRow` keep their parts.
 
 The keyword, the name, the type, and the parameters of the header take only the font attributes. The fill, the
 alignment, and the borders of the header cell come from `header.style`. The text of the header is never changed.

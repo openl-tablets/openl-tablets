@@ -40,8 +40,8 @@ import org.openl.util.StringUtils;
  *
  * <p>A table written transposed holds a field in each row and the values of one row in each column. It takes the
  * looks the way it is compiled, so each place runs the other way. Its field names and its titles then label its rows:
- * they line up as the style every cell starts from does, and no line goes round the names. A table that did not
- * compile is themed as it is written, with no keys.
+ * they line up as the style every cell starts from does, and no line goes round the names. A table the compiler read
+ * none of takes the look every cell starts from for its body, see {@link CompiledReads}.
  */
 final class DataThemeLayout {
 
@@ -50,9 +50,6 @@ final class DataThemeLayout {
 
     /** The row of the tables the fields take their values from, when the body has one. */
     private static final int REFERENCES = 1;
-
-    /** No column of the body. */
-    private static final int NONE = -1;
 
     private DataThemeLayout() {
     }
@@ -98,7 +95,7 @@ final class DataThemeLayout {
                 .ids(look.ids())
                 .empty(look.empty())
                 .titlesRow(references ? REFERENCES + 1 : REFERENCES)
-                .idColumns(keyColumns(body, fields, calls))
+                .idColumns(keyColumns(body, calls))
                 .resultColumns(calls ? resultColumns(fields) : Set.of())
                 .transposed(body.transposed())
                 .build();
@@ -117,9 +114,9 @@ final class DataThemeLayout {
      * The columns of the body whose values are keys of a Data table, as the compiler reads the table, where they stand
      * now. In a Data table it is the column a reference reads its rows by, unless the table names it {@code _PK_}: such
      * a column names the keys itself. In a Test and a Run table they are the columns that take their values from a
-     * Data table by their keys. A table that did not compile has none.
+     * Data table by their keys.
      */
-    private static Set<Integer> keyColumns(ThemedBody body, ILogicalTable fields, boolean calls) {
+    private static Set<Integer> keyColumns(ThemedBody body, boolean calls) {
         if (!(body.compiled().node().getMetaInfoReader() instanceof DataTableMetaInfoReader reader)
                 || !(reader.getBoundNode().getTable() instanceof ITable table) || table.getData() == null) {
             return Set.of();
@@ -130,9 +127,7 @@ final class DataThemeLayout {
         var columns = new HashSet<Integer>();
         (calls ? referencesOf(model) : keyOf(model))
                 .filter(key -> key < first.getWidth())
-                .forEach(key -> body.compiled().addPlaces(first.getColumn(key).getSource(),
-                        (row, column) -> fieldAt(fields, body.transposed(), row, column), columns));
-        columns.remove(NONE);
+                .forEach(key -> columns.addAll(body.placesNow(first.getColumn(key).getSource(), true)));
         return Set.copyOf(columns);
     }
 
@@ -148,22 +143,6 @@ final class DataThemeLayout {
         return Arrays.stream(model.getDescriptors())
                 .filter(ColumnDescriptor::isReference)
                 .mapToInt(ColumnDescriptor::getColumnIdx);
-    }
-
-    /**
-     * The field of the body a cell of the sheet belongs to, or {@link #NONE} for none: the field written in its column,
-     * or in its row in a table written transposed.
-     */
-    private static int fieldAt(ILogicalTable fields, boolean transposed, int row, int column) {
-        for (var field = 0; field < fields.getWidth(); field++) {
-            var region = fields.getCell(field, FIELD_NAMES).getAbsoluteRegion();
-            var inside = transposed ? region.getTop() <= row && row <= region.getBottom()
-                    : region.getLeft() <= column && column <= region.getRight();
-            if (inside) {
-                return field;
-            }
-        }
-        return NONE;
     }
 
     /**

@@ -11,13 +11,6 @@ import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.data.ITable;
-import org.openl.rules.dt.DTInfo;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
-import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
-import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
-import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -34,9 +27,10 @@ import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
  * Decides which look a theme gives each cell of a table, whatever its kind.
  *
  * <p>The screen, the editor and the project-wide writer all ask here, so the screen shows what writing the theme
- * gives. The table is read as it stands on its grid, so a table being edited is themed with the rows and columns
- * the edit left it with. A decision table, and a table that declares what a decision table takes, is themed by where
- * the compiler found its parts, which the rows and the columns the edit inserted or deleted have moved.
+ * gives. The body of a table is themed by what the compiler read of it, see {@link CompiledReads}: each part stands
+ * where the compiler found it, moved by the rows and the columns the edits since the compilation inserted or deleted.
+ * A table the compiler read none of has no parts it knows, so its body takes the look every cell starts from rather
+ * than a look guessed from where its cells stand.
  *
  * <p>The kind of a table, {@link ThemeKind}, tells which part of a theme it takes its look from and which
  * {@link BodyLayout} lays out its body. A table of no kind a theme styles takes no theme. Each layout tells the look of
@@ -73,61 +67,33 @@ final class ThemeLayouts {
      * @return the look of each cell the theme reaches, or {@code null} for a table of a kind no theme styles
      */
     static @Nullable ThemedTable of(IOpenLTable table, IGridTable grid, TableTheme theme, TableMoves moves) {
-        var logical = LogicalTableHelper.logicalTable(grid);
-        var header = Objects.requireNonNullElse(logical.getCell(0, 0).getStringValue(), "");
-        var kind = ThemeKind.of(table, header);
+        var kind = ThemeKind.of(table);
         if (kind == null) {
             return null;
         }
+        var logical = LogicalTableHelper.logicalTable(grid);
         var look = kind.lookIn(theme);
         var base = ThemeStyle.NONE.with(look.style());
         var cells = themeHead(grid, logical, base, look);
         var rows = bodyOf(logical);
         if (rows != null) {
+            var node = table.getSyntaxNode();
+            var read = kind.readOf(node);
             var body = ThemedBody.builder()
                     .rows(rows)
-                    .header(header)
                     .base(base)
                     .look(look)
-                    .transposed(isTransposed(table))
-                    .compiled(new DecisionThemeLayout.Compiled(table.getSyntaxNode(), grid.getRegion(), moves))
+                    .transposed(read.orElse(false))
+                    .compiled(new CompiledTable(node, grid.getRegion(), moves))
                     .build();
-            themePlaces(cells, kind.getLayout().layOut(body), rows.getSource().getRegion().getBottom(),
-                    look.lastRow());
+            var placed = read.isPresent() ? kind.getLayout().layOut(body) : BodyLayout.Placed.plain(body);
+            themePlaces(cells, placed, rows.getSource().getRegion().getBottom(), look.lastRow());
         }
         // A region of empty cells does not widen the table, so it may be merged past the edge of the table: the cells
         // beyond the edge are not the table's.
         var region = grid.getRegion();
         cells.keySet().removeIf(cell -> !GridRegionUtils.contains(region, cell.column(), cell.row()));
         return new ThemedTable(Collections.unmodifiableMap(cells));
-    }
-
-    /**
-     * Whether a table is compiled transposed: a Datatype with a field in each column, a Data, a Test or a Run table
-     * with a field in each row, a decision table with a rule in each column, a Constants table with a constant in each
-     * column.
-     *
-     * <p>The compiler decides it from what the table holds, so only a compiled table can be transposed. A Conditions,
-     * an Actions and a Returns table take their axes from the titles the compiler found, see
-     * {@link DecisionThemeLayout#conditions}.
-     */
-    private static boolean isTransposed(IOpenLTable table) {
-        return switch (table.getSyntaxNode().getMetaInfoReader()) {
-            case DatatypeTableMetaInfoReader reader -> turned(reader.getBoundNode().getTable());
-            case ConstantsTableMetaInfoReader reader -> turned(reader.getBoundNode().getNormalizedData());
-            case DataTableMetaInfoReader reader -> reader.getBoundNode().getTable() instanceof ITable compiled
-                    && turned(compiled.getData());
-            case DecisionTableMetaInfoReader reader -> reader.getBoundNode().getDecisionTable()
-                    instanceof DecisionTable decision
-                    && decision.getDtInfo() instanceof DTInfo info
-                    && info.isTransposed();
-            case null, default -> false;
-        };
-    }
-
-    /** Whether the compiler read a table with its rows and columns swapped; one it did not read stands upright. */
-    private static boolean turned(@Nullable ILogicalTable compiled) {
-        return compiled != null && !compiled.isNormalOrientation();
     }
 
     /**

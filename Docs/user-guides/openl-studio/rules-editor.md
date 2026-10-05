@@ -391,6 +391,13 @@ theme that OpenL Studio ships follows the formatting standard of OpenL tables an
     fill the values of the horizontal conditions across the top blue with a line between their rows, and draw a
     fine dotted line between the columns of the values. A value of a condition merged over several rules sets them
     apart with a line, and so does a value of a horizontal condition merged over several columns.
+-   **A table OpenL Tablets cannot read** — the theme takes every part of a table from the way OpenL Tablets
+    compiles it. A table OpenL Tablets cannot compile at all takes the General format for its body, since OpenL Tablets
+    does not know where its parts stand: a Data table whose type is missing or defined with errors, a Test table whose
+    tested table does not exist, a Datatype whose parent type is not found, or a Spreadsheet whose header cannot be
+    read. So do the conditions and the results of a decision table OpenL Tablets cannot read. The header, the
+    properties, and the line that closes the table keep the theme. Once the error is fixed, the table is drawn with
+    the look of its parts; apply the theme again to write that look into the Excel file.
 -   **Every other table** — a TBasic, a Run, a ColumnMatch, a Conditions, an Actions, a Returns, an Environment, a
     Properties, a Constants, and a Method table take the General format alone, as the standard describes no look of
     their own for them. The operations of a TBasic table and the names a ColumnMatch table checks keep their indent.

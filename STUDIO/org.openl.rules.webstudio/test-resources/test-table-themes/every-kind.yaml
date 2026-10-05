@@ -119,8 +119,8 @@ base:
     align: center
     border:
       bottom: thin
-  # The keys of a Data table, bold: the first column of one that names no column "_PK_", which OpenL takes for its
-  # keys, and the keys a Test or a Run table takes values from a Data table by. A column "_PK_" names its keys itself.
+  # The keys of a Data table, bold: its first column, which OpenL takes for its keys unless it is a column "_PK_",
+  # which names its keys itself, and the keys a Test or a Run table takes values from a Data table by.
   ids:
     bold: true
   # The rules of a decision table that share a value of a condition merged over them make a group, and so do the

@@ -29,9 +29,10 @@ import org.openl.rules.tbasic.TBasicSpecificationKey;
  * section look over its own. A step whose operation is {@code RETURN} returns: every cell of its row gets the result
  * look over its own. The indent of an operation tells the compiler its level, and the theme never changes it.
  *
- * <p>The columns and the steps are read as the compiler reads them: the ids in the first row, the operations in the
- * rows of the sheet from the third row of the body on. A table being edited is therefore themed before it is
- * compiled.
+ * <p>The compiled algorithm keeps the operations it runs, not where they stand, so the columns and the steps are read
+ * from the sheet as the compiler reads them: the ids in the first row, the operations in the rows of the sheet from
+ * the third row of the body on. A table whose steps the compiler could not build takes the look every cell starts
+ * from for its body, see {@link CompiledReads}.
  */
 final class TBasicThemeLayout {
 
@@ -42,7 +43,7 @@ final class TBasicThemeLayout {
     }
 
     /**
-     * The places of the body of a TBasic table, read as it is written.
+     * The places of the body of a TBasic table the compiler built the steps of, read as it is written.
      *
      * @param body the body of the table
      * @return the body and the look of each of its places

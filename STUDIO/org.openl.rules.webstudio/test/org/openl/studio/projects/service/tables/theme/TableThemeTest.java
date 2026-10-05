@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -134,6 +135,12 @@ class TableThemeTest {
     /** A Run table filling its input from a Data table by the IDs of its rows. */
     private static final String RATED_RUN = "RatedRun";
     private static final int RATED_RUN_ROW = 120;
+
+    /** A Test table of a table that does not exist, written with a field in each row: the compiler reads none of it. */
+    private static final String MISSING_TEST = "Test Missing MissingTest";
+
+    /** A Data table of a type that does not exist: the compiler reads none of it. */
+    private static final String MISSING_DATA = "Data Missing missingData";
 
     /** A Method table: its code takes the look every cell starts from. */
     private static final String ANSWER = "Answer";
@@ -945,6 +952,57 @@ class TableThemeTest {
                     "The field is a field name");
         }
         assertEquals(Boolean.FALSE, layout.at(RATED_TEST_ROW + 4, 2).style().bold(), "A result is not an ID");
+    }
+
+    @Test
+    void givesATestTableWhoseTestedTableIsMissingTheBaseAloneForItsBody() throws IOException {
+        // The table it tests does not exist, so the compiler reads none of its fields. They stand in rows here: a look
+        // taken from where the cells stand would take them for columns.
+        var missing = dir.resolve("missing");
+        TableTestProjects.projectModel(missing, SHEET, sheet -> {
+            TableTestProjects.row(sheet, 1, 1, MISSING_TEST);
+            TableTestProjects.row(sheet, 2, 1, "person", "Insured", "Ann", "Bob");
+            TableTestProjects.row(sheet, 3, 1, "_res_", "Premium", "1.5", "2");
+        });
+
+        var layout = service.layoutOf(
+                TableTestProjects.tableHeaded(TableTestProjects.projectModel(missing), MISSING_TEST), THEME);
+
+        assertBodyTakesTheBase(layout, TableTheme::test, 2, 3, 4);
+    }
+
+    @Test
+    void givesADataTableWhoseTypeIsMissingTheBaseAloneForItsBody() throws IOException {
+        var missing = dir.resolve("missing");
+        TableTestProjects.projectModel(missing, SHEET, sheet -> {
+            TableTestProjects.row(sheet, 1, 1, MISSING_DATA);
+            TableTestProjects.row(sheet, 2, 1, "name", "age");
+            TableTestProjects.row(sheet, 3, 1, "Name", "Age");
+            TableTestProjects.row(sheet, 4, 1, "Bob", "30");
+        });
+
+        var layout = service.layoutOf(
+                TableTestProjects.tableHeaded(TableTestProjects.projectModel(missing), MISSING_DATA), THEME);
+
+        assertBodyTakesTheBase(layout, TableTheme::data, 2, 4, 2);
+    }
+
+    /**
+     * Asserts that every cell of the body of a table takes the look every cell of its kind starts from, the cells of
+     * its last row with the closing line, while its header keeps the look of the theme.
+     */
+    private void assertBodyTakesTheBase(ThemedTable layout, Function<TableTheme, TableTheme.Look> kind, int first,
+                                        int last, int columns) {
+        var theme = service.theme(THEME);
+        var look = theme.lookOf(kind.apply(theme));
+        var base = ThemeStyle.NONE.with(look.style());
+        for (var row = first; row <= last; row++) {
+            for (var column = 1; column <= columns; column++) {
+                assertEquals(row < last ? base : base.with(look.lastRow()), layout.at(row, column).style(),
+                        "row " + row + ", column " + column);
+            }
+        }
+        assertNotNull(layout.at(first - 1, 1).header(), "The header keeps the look of the theme");
     }
 
     @Test

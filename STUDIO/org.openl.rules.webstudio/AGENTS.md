@@ -257,16 +257,26 @@ for the endpoints.
   once, by the cell that holds it, and lays `lastRow` over every cell that reaches the bottom of the table.
   `ThemeLayouts.of` drops every cell past the edge of the table:
   `GridSplitter` does not widen a table for a region of empty cells, so such a region may be merged past its edge.
-  Whether a table is compiled transposed is asked once, in `ThemeLayouts.isTransposed`; a Conditions, an Actions and a
-  Returns table take their axes from the titles the compiler found instead.
+  How the compiler read a table is asked once for every kind, in `ThemeLayouts.of`: each `ThemeKind` names a function
+  of `CompiledReads`, which tells whether the compiler read the table transposed, or nothing for a table it read none
+  of — a Datatype whose parent type is not found, a Vocabulary of a type that does not exist, a Data, a Test or a Run
+  table whose type is missing or defined with errors or whose tested table does not exist, a Spreadsheet, a TBasic or
+  a ColumnMatch table whose body could not be built, a ColumnMatch table of an algorithm the compiler does not know.
+  Such a table has no parts the compiler knows, so its body takes the base alone: the theme never guesses the parts
+  from where the cells stand. Every layout takes its parts from the compiled table, each found where the edits since
+  the compilation moved it (`CompiledTable`, `ThemedBody.columnsNow`, `rowsNow`, `placesNow`); only an Environment,
+  which the loader reads by its rows, and a Method table, whose body is code, are read as written. A Conditions, an
+  Actions and a Returns table take their axes from the titles the compiler found.
 - **A Spreadsheet section is a merge.** A step whose name cell is merged over the values of its row heads a section:
-  the compiler takes it for a step with no value. A step or a column whose name ends with `*` before its `: type` is
-  marked, read the way `SpreadsheetStructureBuilder.parseHeader` reads it, so a table being edited is marked before
-  it is compiled. The step a Spreadsheet returns (`result`) is found as `SpreadsheetStructureBuilder.addHeaders`
-  finds it: a column or a step named `RETURN`, or else the last step. A Spreadsheet returning `SpreadsheetResult`
-  returns every step; the formatting standard takes its last step for the result all the same, and so does the
-  layout. `resultRow` is laid over every cell of the row of that step, its lines round the whole step however many
-  rows of the sheet it takes (`ThemeStyle.atEdges`).
+  the compiler takes it for a step with no value. The steps, the columns and the result are the ones the compiler
+  read (`SpreadsheetBoundNode.getStructureBuilder()`). A step or a column it read marked for the result, its name
+  ending with `*` before its `: type`, takes `marked` (`getRowHeaders`, `getColumnHeaders`, `isAsteriskPresented`),
+  and the step or the column it returns takes `result` (`getReturnHeaderDefinition`): the one named `RETURN`, or else
+  the last step it read, so a row repeating the name of a step or one whose name cannot be read is none. A
+  Spreadsheet returning `SpreadsheetResult` returns every step; the formatting standard takes its last step for the
+  result all the same, and so does the layout. A Spreadsheet returning `void` returns nothing. `resultRow` is laid
+  over every cell of the row of that step, its lines round the whole step however many rows of the sheet it takes
+  (`ThemeStyle.atEdges`).
   `HeaderRuns` splits a header by its keyword: a Datatype names its type first, a Spreadsheet its return type, its
   name and its parameters, and a decision table reads as a Spreadsheet, its return type of several words at times
   (`Collect Error[]`). An Environment header is its keyword alone; a Properties, a Constants, a Conditions, an
@@ -295,7 +305,8 @@ for the endpoints.
   is a `_PK_` column, which names the keys itself and takes no `ids`, as the formatting standard writes it; in a Test
   and a Run table every column the compiled model takes from a Data table (`ColumnDescriptor.isReference()`). Each is
   found where the edits since the compilation moved it, by a cell of the compiled data mapped through `TableMoves`
-  (`DecisionThemeLayout.Compiled.addPlaces`), so a table that did not compile has no keys. Its references to other
+  (`CompiledTable.addPlaces`), and a table the compiler read none of takes the base alone. Its
+  references to other
   tables are left as values. `empty` is laid over a blank value, cell by cell — a fill written with the theme, not a
   conditional format, so the workbook reads it back as the overlay draws it. A column of a Test table whose field
   starts with `_res_` or `_error_` holds the result it expects, as `TestSuiteMethod.createFieldsToTest` tells it: its
@@ -316,13 +327,13 @@ for the endpoints.
   titles and the horizontal conditions holds rules, so a rule an edit adds is themed before the table is compiled.
   The compiled places count from where the table stood when it was compiled: `RawTableWriter` keeps the rows and the
   columns its edits insert and delete as `TableMoves`, and a `theme` action after them finds each place where they
-  moved it (`DecisionThemeLayout.Compiled`). A read and the project-wide writer theme a compiled table, so they pass
+  moved it (`CompiledTable`). A read and the project-wide writer theme a compiled table, so they pass
   `TableMoves.NONE`. A line a look draws above a rule sets it apart from the rule before it, so the first rule takes
   the top side of the base, and so does a line on the left of the first column of the grid of a lookup, which the
   right line of its conditions closes (`Looks.apart`): no two cells name a line on one edge. The column naming the
-  rules is the one of kind `RULE` in a
-  Rules table, and the first column, when it holds no condition and nothing returned, in a table matched by its
-  titles, as `DecisionTableHelper` allows it there only. A condition value merged over several rules while another
+  rules is the one of kind `RULE` in a Rules table, and in a table matched by its titles the one whose title the
+  compiler matched as the names of the rules (`DecisionTableMetaInfoReader.getMetaInfos().getRules()`): a title it
+  matched as nothing names no rules. A condition value merged over several rules while another
   column is split makes them a group: `groups` is laid over the first rule and over the rule after it. A value of a
   horizontal condition merged over several columns of a lookup groups them the same way, the axes swapped
   (`Reader.groupEdges`), and `groups` is laid over them turned (`ThemeStyle.transposed`). A table that did not compile
@@ -341,39 +352,44 @@ for the endpoints.
   shipped themes give these tables the General format alone; `every-kind.yaml` aliases the look of a Rules table
   (`conditions: *rules`, `actions: *rules`, `returns: *rules`). A table no declaration is read from takes the base
   alone.
-- **A TBasic and a ColumnMatch table are read as their builders read them.** Both name their columns by ids in the
-  first row of the body, read by `ThemeLayouts.idsOf` trimmed and in lower case as `AlgorithmBuilder` and
-  `ColumnMatchBuilder` read them, title them in the second row, and nest by the indent of a cell. No theme changes
-  the indent: `ThemeStyle` has none, and the writer clones the style of the cell. `TBasicThemeLayout` gives the ids
-  `code`, the titles `titles` with `stepTitle` over the title of the labels, the labels `steps`, the conditions
-  `condition` and what a step runs (`action`, `before`, `after`) `values`. A theme can leave the conditions out, as
-  `every-kind.yaml` does, so only what a step runs is filled, or give them a look of their own. It reads the
-  operation of each row of the sheet as `AlgorithmBuilder.buildRows` does, and lays `sections` over every cell of a
-  step that starts a subroutine (`SUB`, `FUNCTION`) and `result` over every cell of one that returns (`RETURN`).
-  `ColumnMatchThemeLayout` takes the rows giving what the table returns or scores as the algorithm the header names
-  makes them (`MatchAlgorithmCompiler.getSpecialRowCount`): one for `MATCH`, the default, and for `SCORE`, three for
-  `WEIGHTED`. Their `values` take `returns` and the rest `returnTitles`. The conditions under them take `name` in
-  the `names` column and `values` elsewhere, and a condition whose name is not indented, with the conditions indented
-  under it, makes a group: `groups` is laid over its first row and over the row after it. Both read the text of the
-  table, so a table being edited is themed before it is compiled. The shipped themes give both the General format
-  alone; `every-kind.yaml` gives a TBasic table the look of a Spreadsheet (`tbasic: *spreadsheet`) and the code of
-  its base, and a ColumnMatch table the titles, the returns and the code of its base, with a line after the names and
-  between the columns of its values.
+- **A TBasic and a ColumnMatch table are read as the compiler reads them.** Both name their columns by ids in the
+  first row of the body, title them in the second row, and nest by the indent of a cell. No theme changes the indent:
+  `ThemeStyle` has none, and the writer clones the style of the cell. `TBasicThemeLayout` gives the ids `code`, the
+  titles `titles` with `stepTitle` over the title of the labels, the labels `steps`, the conditions `condition` and
+  what a step runs (`action`, `before`, `after`) `values`. A theme can leave the conditions out, as `every-kind.yaml`
+  does, so only what a step runs is filled, or give them a look of their own. The compiled algorithm keeps the
+  operations it runs, not where they stand, so once the compiler built the steps (`Algorithm.getAlgorithmSteps()`)
+  the layout reads the ids (`ThemeLayouts.idsOf`, trimmed and in lower case) and the operation of each row of the
+  sheet as `AlgorithmBuilder` reads them, and lays `sections` over every cell of a step that starts a subroutine
+  (`SUB`, `FUNCTION`) and `result` over every cell of one that returns (`RETURN`). `ColumnMatchThemeLayout` takes its
+  places from the compiled table (`ColumnMatch.getColumns`, `getRows`): the id of each column, the rows giving what
+  the table returns or scores — as many as the algorithm the compiler read in the header reads before its conditions
+  (`IMatchAlgorithmCompiler.getSpecialRowCount`: one for `MATCH`, the default, and for `SCORE`, three for `WEIGHTED`)
+  — and the indent it read of each name. Their `values` take `returns` and the rest `returnTitles`. The conditions
+  under them take `name` in the `names` column and `values` elsewhere, and a condition whose name is not indented,
+  with the conditions indented under it, makes a group: `groups` is laid over its first row and over the row after
+  it. The shipped themes give both the General format alone; `every-kind.yaml` gives a TBasic table the look of a
+  Spreadsheet (`tbasic: *spreadsheet`) and the code of its base, and a ColumnMatch table the titles, the returns and
+  the code of its base, with a line after the names and between the columns of its values.
 - **An Environment, a Properties and a Constants table name a value in each row.** `NamedValuesThemeLayout` gives
   the first column of an Environment (the setting: `import`, `dependency`, `include`) and of a Properties table (the
-  property) the `name` look and the rest `values`. The loader reads an Environment by its rows
-  (`SequentialXlsLoader.preprocessEnvironmentTable`) and a Properties table is the properties section of its tables,
-  so both are read as written. A Constants table names its constants as a Datatype names its fields, so
-  `DatatypeThemeLayout` lays it out: its `type`, `name` and `values` columns, oriented as a Datatype
-  (`DatatypeHelper.getNormalizedDataPartTable`), with the orientation of the compiled table
-  (`ConstantsTableMetaInfoReader`, `getNormalizedData().isNormalOrientation()`). The shipped themes give these tables
+  property) the `name` look and the rest `values`. The loader reads every Environment by its rows
+  (`SequentialXlsLoader.preprocessEnvironmentTable`) and a Properties table is bound as the properties section of its
+  tables (`PropertyTableMetaInfoReader`), so both are read as written. A Constants table is read as
+  `ConstantsTableBoundNode` reads it, by place alone: the type, the name and the value of a constant in its first
+  three columns, under no row of titles even where its first row reads as the titles of a Datatype
+  (`DatatypeThemeLayout.constants`), with the orientation of the compiled table (`ConstantsTableMetaInfoReader`,
+  `getNormalizedData().isNormalOrientation()`). The shipped themes give these tables
   the General format alone; `every-kind.yaml` draws an Environment in greys, a Properties table as an alias of its
   look (`properties: *technical`), and the names of a Constants table in the fill of the field names of a Datatype
   (`name: *fieldName`).
-- **A transposed Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, so the
-  layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`, `isNormalOrientation()`): the
-  places follow the fields, and `lastRow` stays the last row as written. A table that did not compile is themed as
-  written, which is how the structured Datatype reader and writer read every table.
+- **A Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, and the columns a
+  titled one names, so the layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`,
+  `isNormalOrientation()`), its columns (`DatatypeTableBoundNode.getColumnTitlesOrder()`) and whether it read a row of
+  titles (`hasColumnTitles()`): the places follow the fields, and `lastRow` stays the last row as written. A Datatype
+  is a Vocabulary when the compiler bound it as the type of the values it lists (`AliasDatatypeMetaInfoReader`),
+  whatever its header looks like. A Datatype whose parent type is not found has no fields the compiler read, and
+  takes the base alone for its body, as a Data table does.
 - **The overlay is a view only.** A read naming a theme reports the look of the theme in `RawTableCell.style` and
   `runs`, in place of the formatting of the workbook, and every style the theme gives names it as its source
   (`RawTableCellStyle.source`, `RawTableStyleSource.THEME`; a style of the workbook leaves it out). Both fields are

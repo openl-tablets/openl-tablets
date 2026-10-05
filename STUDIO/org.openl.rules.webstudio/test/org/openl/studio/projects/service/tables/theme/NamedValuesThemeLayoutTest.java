@@ -56,6 +56,9 @@ class NamedValuesThemeLayoutTest {
     /** A Constants table written transposed, a constant in each column. */
     private static final int TRANSPOSED_ROW = 16;
 
+    /** A Constants table whose first row reads as the titles of a Datatype, which the compiler reads as a constant. */
+    private static final int TITLED_ROW = 22;
+
     @TempDir
     Path dir;
 
@@ -129,6 +132,18 @@ class NamedValuesThemeLayoutTest {
     }
 
     @Test
+    void readsAConstantsTableByThePlaceOfItsColumnsAsTheCompilerDoes() {
+        var layout = layoutAt(TITLED_ROW);
+
+        // The compiler reads every row as a constant, its type first: a row naming the titles of a Datatype too.
+        for (var row = TITLED_ROW + 1; row <= TITLED_ROW + 2; row++) {
+            assertEquals(MUTED, layout.at(row, 1).style().color().rgb(), "row " + row);
+            assertEquals(CONSTANT_NAME, layout.at(row, 2).style().background().rgb(), "row " + row);
+            assertEquals(WHITE, layout.at(row, 3).style().background().rgb(), "row " + row);
+        }
+    }
+
+    @Test
     void writesTheLookOfAnEnvironmentTableIntoTheWorkbook() {
         LOOKS.writer(THEME).writeAll(List.of(tableAt(ENVIRONMENT_ROW)), Map.of());
 
@@ -161,7 +176,10 @@ class NamedValuesThemeLayoutTest {
         return cell.style().border().right();
     }
 
-    /** An Environment, a Properties and a Constants table, and a Constants table written transposed. */
+    /**
+     * An Environment, a Properties and a Constants table, a Constants table written transposed, and one whose first row
+     * reads as the titles of a Datatype.
+     */
     private static void fillSheet(Sheet sheet) {
         TableTestProjects.row(sheet, ENVIRONMENT_ROW, 1, "Environment");
         merge(sheet, ENVIRONMENT_ROW, ENVIRONMENT_ROW, 1, 2);
@@ -184,5 +202,10 @@ class NamedValuesThemeLayoutTest {
         TableTestProjects.row(sheet, TRANSPOSED_ROW + 1, 1, "Integer", "Double");
         TableTestProjects.row(sheet, TRANSPOSED_ROW + 2, 1, "MIN_AGE", "MIN_RATE");
         TableTestProjects.row(sheet, TRANSPOSED_ROW + 3, 1, "18", "0.1");
+
+        TableTestProjects.row(sheet, TITLED_ROW, 1, "Constants Titled");
+        merge(sheet, TITLED_ROW, TITLED_ROW, 1, 3);
+        TableTestProjects.row(sheet, TITLED_ROW + 1, 1, "Name", "Type", "Value");
+        TableTestProjects.row(sheet, TITLED_ROW + 2, 1, "Integer", "LIMIT", "10");
     }
 }

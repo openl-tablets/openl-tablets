@@ -69,7 +69,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
     }
 
     @Override
-    protected int getSpecialRowCount() {
+    public int getSpecialRowCount() {
         return 1; // score
     }
 
