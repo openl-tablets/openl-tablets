@@ -272,78 +272,125 @@ public final class PoiExcelHelper {
 
         } else if (color instanceof XSSFColor fColor) {
             var rgb = fColor.getRGB();
-
-            // Byte to short
             if (rgb != null) {
-                return applyTint(rgb, fColor.getTint());
+                return applyTint(new short[]{toShort(rgb[0]), toShort(rgb[1]), toShort(rgb[2])}, fColor.getTint());
             }
         }
 
         return null;
     }
 
-    private static short[] applyTint(byte[] rgb, double tint) {
-
-        short red = toShort(rgb[0]);
-        short green = toShort(rgb[1]);
-        short blue = toShort(rgb[2]);
-
-        if (tint == 0.0) { // no changes
-            return new short[]{red, green, blue};
+    /**
+     * A colour made lighter or darker by a tint, as Excel draws it.
+     *
+     * <p>Excel draws a tinted colour in the hue, luminance and saturation model of Windows. A tint above 0 moves the
+     * luminance that part of the way to white, and a tint below 0 that part of the way to black, the hue and the
+     * saturation kept.
+     *
+     * <p>The tint counts in thousandths, as Excel draws it: a tint written as {@code 0.59999389629810485}, which is how
+     * Excel writes Lighter 60%, draws as 0.6. A tint of less than a thousandth leaves the colour as it is.
+     *
+     * @param rgb  the red, the green and the blue of the colour
+     * @param tint how much lighter the colour is, above 0, or darker, below 0, from -1 to 1
+     * @return the red, the green and the blue of the colour drawn
+     */
+    public static short[] applyTint(short[] rgb, double tint) {
+        var steps = (int) Math.round(tint * Hls.TINT_STEPS);
+        if (steps == 0) {
+            return rgb.clone();
         }
-
-        if (red == green && green == blue) { // achromatic
-            final var newLum = calculateLum(red, tint);
-            short v = toShort(newLum);
-            return new short[]{v, v, v};
-        }
-
-        // Find brightest and darkest components
-        short max = green;
-        short min = red;
-        if (red > green) {
-            max = red;
-            min = green;
-        }
-        if (blue > max) {
-            max = blue;
-        } else if (blue < min) {
-            min = blue;
-        }
-
-        // Calculate colors metrics
-        var chroma = max - min;
-        var lum = max + min;
-        final var newLum = calculateLum(lum / 2, tint) * 2;
-        // new amount of chroma
-        var x = (255 - Math.abs(newLum - 255)) / (255 - Math.abs(lum - 255));
-        // new amount of white color
-        var m = (newLum - x * chroma) / 2;
-
-        // Adjusted RGB
-        short r = toShort((red - min) * x + m);
-        short g = toShort((green - min) * x + m);
-        short b = toShort((blue - min) * x + m);
-
-        return new short[]{r, g, b};
-
+        var colour = Hls.of(rgb[0], rgb[1], rgb[2]);
+        var lum = colour.lum();
+        var tinted = steps < 0
+                ? lum * (Hls.TINT_STEPS + steps) / Hls.TINT_STEPS
+                : (lum * (Hls.TINT_STEPS - steps) + Hls.MAX * steps) / Hls.TINT_STEPS;
+        return new Hls(colour.hue(), tinted, colour.sat()).toRgb();
     }
 
-    private static double calculateLum(int lum, double tint) {
-        if (tint < 0) {
-            return lum * (1.0 + tint);
-        } else {
-            return (lum - 255) * (1.0 - tint) + 255;
-        }
-    }
+    /**
+     * A colour in the hue, luminance and saturation model of Windows, which Excel tints a colour in. Each counts from
+     * 0 to {@link #MAX}, and the colour turns into red, green and blue and back in whole numbers, as Windows turns it.
+     *
+     * @param hue the hue
+     * @param lum the luminance: 0 is black, {@link #MAX} is white
+     * @param sat the saturation: 0 is a grey
+     */
+    private record Hls(int hue, int lum, int sat) {
 
-    private static short toShort(double value) {
-        if (value >= 255) {
-            return 255;
-        } else if (value <= 0) {
-            return 0;
-        } else {
-            return (short) Math.round(value);
+        /** The largest hue, luminance and saturation. */
+        static final int MAX = 240;
+
+        /** How finely a tint moves the luminance: in thousandths. */
+        static final int TINT_STEPS = 1000;
+
+        /** The largest red, green or blue. */
+        private static final int RGB_MAX = 255;
+
+        /** The hue of a grey, which has none. */
+        private static final int GREY_HUE = MAX * 2 / 3;
+
+        static Hls of(int red, int green, int blue) {
+            var max = Math.max(red, Math.max(green, blue));
+            var min = Math.min(red, Math.min(green, blue));
+            var lum = ((max + min) * MAX + RGB_MAX) / (2 * RGB_MAX);
+            if (max == min) {
+                return new Hls(GREY_HUE, lum, 0);
+            }
+            var range = max - min;
+            var sat = lum <= MAX / 2
+                    ? (range * MAX + (max + min) / 2) / (max + min)
+                    : (range * MAX + (2 * RGB_MAX - max - min) / 2) / (2 * RGB_MAX - max - min);
+            var redDelta = delta(max, red, range);
+            var greenDelta = delta(max, green, range);
+            var blueDelta = delta(max, blue, range);
+            int hue;
+            if (red == max) {
+                hue = blueDelta - greenDelta;
+            } else if (green == max) {
+                hue = MAX / 3 + redDelta - blueDelta;
+            } else {
+                hue = 2 * MAX / 3 + greenDelta - redDelta;
+            }
+            return new Hls(hue < 0 ? hue + MAX : hue, lum, sat);
+        }
+
+        /** How far one of red, green and blue is from the largest of them, in sixths of the hue. */
+        private static int delta(int max, int channel, int range) {
+            return ((max - channel) * (MAX / 6) + range / 2) / range;
+        }
+
+        short[] toRgb() {
+            if (sat == 0) {
+                var grey = channel(lum);
+                return new short[]{grey, grey, grey};
+            }
+            var high = lum <= MAX / 2 ? (lum * (MAX + sat) + MAX / 2) / MAX : lum + sat - (lum * sat + MAX / 2) / MAX;
+            var low = 2 * lum - high;
+            return new short[]{channel(hueToLevel(low, high, hue + MAX / 3)), channel(hueToLevel(low, high, hue)),
+                    channel(hueToLevel(low, high, hue - MAX / 3))};
+        }
+
+        /** The level of one of red, green and blue, counted to {@link #MAX}, at a hue. */
+        private static int hueToLevel(int low, int high, int at) {
+            var hue = at < 0 ? at + MAX : at;
+            if (hue > MAX) {
+                hue -= MAX;
+            }
+            if (hue < MAX / 6) {
+                return low + ((high - low) * hue + MAX / 12) / (MAX / 6);
+            }
+            if (hue < MAX / 2) {
+                return high;
+            }
+            if (hue < MAX * 2 / 3) {
+                return low + ((high - low) * (MAX * 2 / 3 - hue) + MAX / 12) / (MAX / 6);
+            }
+            return low;
+        }
+
+        /** A level counted to {@link #MAX} as the red, the green or the blue of a colour. */
+        private static short channel(int level) {
+            return (short) ((level * RGB_MAX + MAX / 2) / MAX);
         }
     }
 
