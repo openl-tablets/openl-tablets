@@ -172,8 +172,12 @@ for the endpoints.
   profile (`NON_EMPTY`), so the screen reads a missing `tableTheme` as **Excel Formatting** and sends `""` to choose
   it again.
 - **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
-  writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off) or names an unknown attribute is
-  logged as an error and not offered; Studio starts with the rest.
+  writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off), names an unknown attribute or a
+  colour it gives no name is logged as an error and not offered; Studio starts with the rest.
+- **A theme names its colours once.** The `colors` key of the file maps a name to `#rrggbb`. `TableThemeService`
+  takes it out of the file before binding, and hands it to `ThemeColourReader`, which reads a name wherever a part
+  sets a colour (`color`, `background`, the `color` of a line). `ThemeStyle` and `ThemeBorderLine` therefore only
+  ever hold `#rrggbb`, which they check. The shipped themes set every colour by its name.
 - **A theme is one style for every kind.** Every theme styles every kind of table but Other, and a kind the theme
   writes nothing for takes the base alone, as a Method table does in the shipped themes. The server decides which
   tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a

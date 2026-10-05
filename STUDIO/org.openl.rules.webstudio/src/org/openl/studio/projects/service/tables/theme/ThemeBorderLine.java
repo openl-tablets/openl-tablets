@@ -15,7 +15,8 @@ import org.openl.rules.table.xls.PoiExcelHelper;
  * One side of a cell border a theme draws.
  *
  * <p>The theme file writes a side either as the name of a line, such as {@code thin}, or with its colour:
- * {@code {style: thin, color: "#7f7f7f"}}. A side without a colour is black.
+ * {@code {style: thin, color: "#7f7f7f"}}, the colour written as {@code #rrggbb} or by the name the theme gives it. A
+ * side without a colour is black.
  *
  * @param style the line
  * @param color the colour of the line as {@code #rrggbb}, or {@code null} for black
@@ -46,7 +47,8 @@ public record ThemeBorderLine(ThemeLineStyle style, @Nullable String color) {
     }
 
     /** A side written with its colour. */
-    private record Written(@Nullable ThemeLineStyle style, @Nullable String color) {
+    private record Written(@Nullable ThemeLineStyle style,
+                           @JsonDeserialize(using = ThemeColourReader.class) @Nullable String color) {
     }
 
     /** Reads a side written either way. */

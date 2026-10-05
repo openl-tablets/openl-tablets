@@ -158,8 +158,40 @@ class TableThemeServiceTest {
         assertEquals(List.of(new TableThemeView("datatype-extension", "Datatype Extension"),
                         new TableThemeView("decision-kinds", "Decision Kinds"),
                         new TableThemeView("extended-header", "Extended Header"),
+                        new TableThemeView("named-colours", "Named Colours"),
                         new TableThemeView("tbasic-condition", "TBasic Condition")),
                 new TableThemeService(FIXTURES + "*.yaml").getThemes());
+    }
+
+    @Test
+    void readsAColourByTheNameTheThemeGivesIt() {
+        var theme = new TableThemeService(FIXTURES + "named-colours.yaml").theme("named-colours");
+        var datatype = theme.lookOf(theme.datatype());
+
+        assertEquals("#1f4e78", datatype.header().keyword().color(), "The colour of a font");
+        assertEquals("#ddebf7", datatype.name().background(), "The colour of a fill");
+        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, "#1f4e78"), datatype.lastRow().border().bottom(),
+                "The colour of a line");
+        assertEquals("#000000", datatype.name().color(), "A colour written as #rrggbb");
+    }
+
+    @Test
+    void refusesAThemeNamingAColourItGivesNoName() {
+        var refused = refusalOf(fixture("named-border-colour"));
+        var reason = refused.getCause().getMessage();
+        assertTrue(reason.contains("colors: red"), reason);
+    }
+
+    @Test
+    void refusesAThemeSettingAColourByAListOfNames() {
+        var refused = refusalOf(fixture("listed-colour"));
+        assertTrue(refused.getMessage().contains("listed-colour.yaml"));
+    }
+
+    @Test
+    void refusesAnEmptyThemeFile() {
+        var refused = refusalOf(fixture("empty"));
+        assertTrue(refused.getMessage().contains("declares no name"));
     }
 
     @Test
@@ -170,9 +202,10 @@ class TableThemeServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"short-colour", "named-border-colour"})
+    @ValueSource(strings = {"short-colour", "unnamed-colour"})
     void refusesAThemeWritingAColourAnyOtherWayThanRrggbb(String theme) {
-        // A colour written another way would be drawn as one colour and written into the workbook as another.
+        // A colour written another way would be drawn as one colour and written into the workbook as another, whether
+        // a part sets it or the theme gives it a name.
         var refused = refusalOf(fixture(theme));
         assertTrue(refused.getCause().getMessage().contains("#rrggbb"), refused.getCause().getMessage());
     }

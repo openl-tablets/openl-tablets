@@ -1,0 +1,6 @@
+name: Listed Colour
+colors:
+  blue: "#b4c6e7"
+datatype:
+  name:
+    background: [blue]

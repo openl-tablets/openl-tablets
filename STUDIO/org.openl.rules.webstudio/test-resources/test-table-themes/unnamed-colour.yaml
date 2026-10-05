@@ -1,0 +1,6 @@
+name: Unnamed Colour
+colors:
+  blue: blue
+datatype:
+  name:
+    background: blue
