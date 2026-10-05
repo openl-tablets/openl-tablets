@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables.read;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
@@ -45,21 +46,20 @@ final class ThemeStyles {
      * @return the cell style with every attribute the theme sets replaced, the theme named as its source
      */
     static RawTableCellStyle over(@Nullable RawTableCellStyle style, ThemeStyle theme) {
-        var builder = (style == null ? RawTableCellStyle.builder() : style.toBuilder())
+        var builder = Optional.ofNullable(style)
+                .map(RawTableCellStyle::toBuilder)
+                .orElseGet(RawTableCellStyle::builder)
                 .source(RawTableStyleSource.THEME);
         if (theme.background() != null) {
             var background = colour(theme.background().rgb(), RawTableStyles.WHITE);
             builder.background(background).backgroundKey(keyOf(background, theme.background()));
         }
-        if (theme.align() != null) {
-            builder.align(horizontal(theme.align()));
-        }
-        if (theme.valign() != null) {
-            builder.valign(vertical(theme.valign()));
-        }
+        // An alignment the theme sets at its default is reported as left out, so it takes the place of the workbook's.
+        Optional.ofNullable(theme.align()).ifPresent(align -> builder.align(horizontal(align)));
+        Optional.ofNullable(theme.valign()).ifPresent(valign -> builder.valign(vertical(valign)));
         setFont(builder, theme);
         if (theme.border() != null) {
-            var border = border(style == null ? null : style.border(), theme.border());
+            var border = border(Optional.ofNullable(style).map(RawTableCellStyle::border).orElse(null), theme.border());
             builder.border(border.isEmpty() ? null : border);
         }
         return builder.build();
@@ -78,13 +78,11 @@ final class ThemeStyles {
      */
     static RawTableCellStyle fontOf(@Nullable RawTableCellStyle cell, ThemeStyle theme) {
         var builder = RawTableCellStyle.builder().source(RawTableStyleSource.THEME);
-        if (cell != null) {
-            builder.color(cell.color())
-                    .bold(cell.bold())
-                    .italic(cell.italic())
-                    .underline(cell.underline())
-                    .strikeout(cell.strikeout());
-        }
+        Optional.ofNullable(cell).ifPresent(own -> builder.color(own.color())
+                .bold(own.bold())
+                .italic(own.italic())
+                .underline(own.underline())
+                .strikeout(own.strikeout()));
         setFont(builder, theme);
         return builder.build();
     }
@@ -95,24 +93,13 @@ final class ThemeStyles {
             var color = colour(theme.color().rgb(), RawTableStyles.BLACK);
             builder.color(color).colorKey(keyOf(color, theme.color()));
         }
-        if (theme.bold() != null) {
-            builder.bold(RawTableStyles.flag(theme.bold()));
-        }
-        if (theme.italic() != null) {
-            builder.italic(RawTableStyles.flag(theme.italic()));
-        }
-        if (theme.underline() != null) {
-            builder.underline(RawTableStyles.flag(theme.underline()));
-        }
-        if (theme.strikeout() != null) {
-            builder.strikeout(RawTableStyles.flag(theme.strikeout()));
-        }
-        if (theme.fontFamily() != null) {
-            builder.fontFamily(theme.fontFamily());
-        }
-        if (theme.fontSize() != null) {
-            builder.fontSize(theme.fontSize());
-        }
+        // A flag the theme turns off is reported as left out, so it takes the place of one the workbook turns on.
+        Optional.ofNullable(theme.bold()).ifPresent(on -> builder.bold(RawTableStyles.flag(on)));
+        Optional.ofNullable(theme.italic()).ifPresent(on -> builder.italic(RawTableStyles.flag(on)));
+        Optional.ofNullable(theme.underline()).ifPresent(on -> builder.underline(RawTableStyles.flag(on)));
+        Optional.ofNullable(theme.strikeout()).ifPresent(on -> builder.strikeout(RawTableStyles.flag(on)));
+        Optional.ofNullable(theme.fontFamily()).ifPresent(builder::fontFamily);
+        Optional.ofNullable(theme.fontSize()).ifPresent(builder::fontSize);
     }
 
     /** A colour as the Tables API reports it, or {@code null} when it is the default. */
@@ -139,7 +126,9 @@ final class ThemeStyles {
 
     /** The cell borders with every side the theme names replaced. */
     private static RawTableCellBorder border(@Nullable RawTableCellBorder cell, ThemeBorder theme) {
-        var builder = cell == null ? RawTableCellBorder.builder() : cell.toBuilder();
+        var builder = Optional.ofNullable(cell)
+                .map(RawTableCellBorder::toBuilder)
+                .orElseGet(RawTableCellBorder::builder);
         side(theme.top(), builder::top);
         side(theme.right(), builder::right);
         side(theme.bottom(), builder::bottom);
@@ -153,9 +142,7 @@ final class ThemeStyles {
      */
     private static void side(@Nullable ThemeBorderLine line,
                              Function<RawTableCellBorderSide, RawTableCellBorder.RawTableCellBorderBuilder> into) {
-        if (line != null) {
-            into.apply(reported(line));
-        }
+        Optional.ofNullable(line).ifPresent(drawn -> into.apply(reported(drawn)));
     }
 
     /**
@@ -165,8 +152,7 @@ final class ThemeStyles {
      * @return the line over the cell
      */
     static @Nullable RawTableCellBorderSide topLine(ThemeStyle theme) {
-        var line = theme.border() == null ? null : theme.border().top();
-        return line == null ? null : reported(line);
+        return Optional.ofNullable(theme.border()).map(ThemeBorder::top).map(ThemeStyles::reported).orElse(null);
     }
 
     /**
@@ -178,8 +164,9 @@ final class ThemeStyles {
         if (side == null) {
             return null;
         }
-        var key = keyOf(side.color(), line.color());
-        return key == null ? side : side.toBuilder().colorKey(key).build();
+        return Optional.ofNullable(keyOf(side.color(), line.color()))
+                .map(key -> side.toBuilder().colorKey(key).build())
+                .orElse(side);
     }
 
     /**

@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.theme;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -61,9 +62,7 @@ final class ThemeColourReader extends StdDeserializer<ThemeColour> {
     private static String keyOf(JsonParser parser) {
         var keys = new ArrayDeque<String>();
         for (var at = parser.getParsingContext(); at != null; at = at.getParent()) {
-            if (at.getCurrentName() != null) {
-                keys.addFirst(at.getCurrentName());
-            }
+            Optional.ofNullable(at.getCurrentName()).ifPresent(keys::addFirst);
         }
         return String.join(".", keys);
     }

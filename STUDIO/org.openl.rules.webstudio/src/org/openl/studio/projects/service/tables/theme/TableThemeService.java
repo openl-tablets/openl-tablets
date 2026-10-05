@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -153,11 +154,8 @@ public class TableThemeService {
 
     /** The theme of the identifier, which a request named. */
     TableTheme theme(String themeId) {
-        var theme = themes.get(themeId);
-        if (theme == null) {
-            throw new BadRequestException("table.theme.unknown.message", new Object[]{themeId});
-        }
-        return theme;
+        return Optional.ofNullable(themes.get(themeId))
+                .orElseThrow(() -> new BadRequestException("table.theme.unknown.message", new Object[]{themeId}));
     }
 
     /** The theme a file describes, or {@code null} for a file that is refused. */
@@ -237,12 +235,10 @@ public class TableThemeService {
         var colours = new HashMap<String, ThemeColour>();
         if (named != null) {
             named.forEach((name, text) -> {
-                var colour = text == null ? null : ThemeColour.read(text, themeColours);
-                if (colour == null) {
-                    throw new IllegalArgumentException("A colour the theme names is written as #rrggbb or as the "
-                            + "palette of Excel names a theme colour: " + name + ": " + text);
-                }
-                colours.put(name, colour);
+                colours.put(name, Optional.ofNullable(text)
+                        .map(written -> ThemeColour.read(written, themeColours))
+                        .orElseThrow(() -> new IllegalArgumentException("A colour the theme names is written as "
+                                + "#rrggbb or as the palette of Excel names a theme colour: " + name + ": " + text)));
             });
         }
         return colours;

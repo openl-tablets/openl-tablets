@@ -188,9 +188,10 @@ public final class PoiExcelHelper {
          * @return the attributes of the font
          */
         public static FontAttributes of(Font font, Workbook workbook) {
-            var rgb = getFontColor(font, workbook);
             return uncoloured(font)
-                    .withColor(rgb == null ? null : toRgbValue(rgb))
+                    .withColor(Optional.ofNullable(getFontColor(font, workbook))
+                            .map(PoiExcelHelper::toRgbValue)
+                            .orElse(null))
                     .withThemed(font instanceof XSSFFont xssf ? ThemedColor.of(colourOf(xssf, workbook)) : null);
         }
 
@@ -623,10 +624,9 @@ public final class PoiExcelHelper {
 
     /** How long a piece of an {@code .xlsx} text is as the cell shows it: an escaped character shows as one. */
     private static int shownLength(@Nullable String written) {
-        if (written == null) {
-            return 0;
-        }
-        return written.length() - ESCAPE_EXTRA * (int) ESCAPED_CHARACTER.matcher(written).results().count();
+        return Optional.ofNullable(written)
+                .map(text -> text.length() - ESCAPE_EXTRA * (int) ESCAPED_CHARACTER.matcher(text).results().count())
+                .orElse(0);
     }
 
     private static @Nullable ICellFont runFont(RichTextString text, int run, @Nullable Workbook workbook,
@@ -636,7 +636,7 @@ public final class PoiExcelHelper {
             if (font != null && themes != null) {
                 font.setThemesTable(themes);
             }
-            return font == null ? null : new XlsCellFont(font, workbook);
+            return Optional.ofNullable(font).map(found -> new XlsCellFont(found, workbook)).orElse(null);
         }
         if (text instanceof HSSFRichTextString hssf && workbook != null) {
             var index = hssf.getFontOfFormattingRun(run);

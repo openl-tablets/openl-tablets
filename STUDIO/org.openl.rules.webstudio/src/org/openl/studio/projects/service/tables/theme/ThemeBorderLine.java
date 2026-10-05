@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -29,7 +30,7 @@ public record ThemeBorderLine(ThemeLineStyle style, @Nullable ThemeColour color)
 
     /** The colour the line is drawn in, as the red, the green and the blue of it: black when it names none. */
     public short[] rgb() {
-        return PoiExcelHelper.toRgb(color == null ? BLACK : color.rgb());
+        return PoiExcelHelper.toRgb(Optional.ofNullable(color).map(ThemeColour::rgb).orElse(BLACK));
     }
 
     /** Whether the side is drawn with a line, rather than taken away. */

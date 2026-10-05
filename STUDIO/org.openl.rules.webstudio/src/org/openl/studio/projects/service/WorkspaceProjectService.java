@@ -2102,7 +2102,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public RawTableView getTableRaw(RulesProject project, String tableId, RawTableRead read,
             @Nullable String tableTheme, @Nullable String moduleName) {
         var context = getOpenLTableInModule(project, tableId, moduleName);
-        var theme = StringUtils.isEmpty(tableTheme) ? null : tableThemeService.layoutOf(context.table(), tableTheme);
+        var theme = Optional.ofNullable(tableTheme)
+                .filter(StringUtils::isNotEmpty)
+                .map(themeId -> tableThemeService.layoutOf(context.table(), themeId))
+                .orElse(null);
         var tableView = rawTableReader.read(context.table(), read.toBuilder()
                 .modules(TableModules.ofWorkspace(context.module(), projectIdentifierMapper))
                 .theme(theme)

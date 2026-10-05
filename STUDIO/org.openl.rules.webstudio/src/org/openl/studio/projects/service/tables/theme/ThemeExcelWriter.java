@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -115,11 +116,9 @@ public final class ThemeExcelWriter {
      * @return whether the theme was written into the table
      */
     public boolean write(IOpenLTable table, IGridTable grid, TableMoves moves) {
-        var layout = ThemeLayouts.of(table, grid, theme, moves);
-        if (layout != null) {
-            write(layout, grid, at -> true);
-        }
-        return layout != null;
+        var layout = Optional.ofNullable(ThemeLayouts.of(table, grid, theme, moves));
+        layout.ifPresent(laid -> write(laid, grid, at -> true));
+        return layout.isPresent();
     }
 
     /**
@@ -144,10 +143,9 @@ public final class ThemeExcelWriter {
             // Only the header and the properties are laid out: the body under them keeps the look it has, so no part
             // the compiler found is looked for, and the edits that moved such parts do not matter.
             var head = grid.getSubtable(0, 0, grid.getWidth(), rows.getBottom() - grid.getRegion().getTop() + 1);
-            var layout = ThemeLayouts.of(table, head, theme, TableMoves.NONE);
-            if (layout != null) {
-                write(layout, head, at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added);
-            }
+            Optional.ofNullable(ThemeLayouts.of(table, head, theme, TableMoves.NONE))
+                    .ifPresent(laid -> write(laid, head,
+                            at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added));
         }
     }
 
@@ -158,7 +156,7 @@ public final class ThemeExcelWriter {
 
     /** How many rows of the sheet the table properties take: none for a table without them. */
     private static int rowsOf(@Nullable ILogicalTable properties) {
-        return properties == null ? 0 : properties.getSource().getHeight();
+        return Optional.ofNullable(properties).map(ILogicalTable::getSource).map(IGridTable::getHeight).orElse(0);
     }
 
     /** Writes the look of a table into the cells the filter keeps. */
@@ -301,11 +299,10 @@ public final class ThemeExcelWriter {
             if (side.lineOf.apply(style) != line.style().getExcel()) {
                 return false;
             }
-            var themed = line.isLine() && line.color() != null ? asThemeColour(line.color()) : null;
-            if (themed != null) {
-                return themed.equals(ThemedColor.of(((XSSFCellStyle) style).getBorderColor(side.excel)));
-            }
-            return !line.isLine() || Arrays.equals(color, PoiExcelHelper.toStoredRgb(line.rgb(), workbook));
+            return themeColourOf(line)
+                    .map(themed -> themed.equals(ThemedColor.of(((XSSFCellStyle) style).getBorderColor(side.excel))))
+                    .orElseGet(() -> !line.isLine()
+                            || Arrays.equals(color, PoiExcelHelper.toStoredRgb(line.rgb(), workbook)));
         }
 
         private boolean hasFont(Font font, ThemeStyle theme) {
@@ -329,14 +326,18 @@ public final class ThemeExcelWriter {
         private FontAttributes themed(FontAttributes font, ThemeStyle theme) {
             var colour = theme.color();
             return font.toBuilder()
-                    .name(theme.fontFamily() != null ? theme.fontFamily() : font.name())
-                    .height(theme.fontSize() != null ? (short) (theme.fontSize() * Font.TWIPS_PER_POINT)
-                            : font.height())
-                    .bold(theme.bold() != null ? theme.bold() : font.bold())
-                    .italic(theme.italic() != null ? theme.italic() : font.italic())
+                    .name(Optional.ofNullable(theme.fontFamily()).orElse(font.name()))
+                    .height(Optional.ofNullable(theme.fontSize())
+                            .map(size -> (short) (size * Font.TWIPS_PER_POINT))
+                            .orElse(font.height()))
+                    .bold(Optional.ofNullable(theme.bold()).orElse(font.bold()))
+                    .italic(Optional.ofNullable(theme.italic()).orElse(font.italic()))
                     .underline(underline(font.underline(), theme.underline()))
-                    .strikeout(theme.strikeout() != null ? theme.strikeout() : font.strikeout())
-                    .color(colour != null ? storedColour(colour.rgb()) : font.color())
+                    .strikeout(Optional.ofNullable(theme.strikeout()).orElse(font.strikeout()))
+                    .color(Optional.ofNullable(colour)
+                            .map(set -> storedColour(set.rgb()))
+                            .orElse(font.color()))
+                    // A colour the workbook writes as #rrggbb takes no theme colour, rather than keeping the font's.
                     .themed(colour != null ? asThemeColour(colour) : font.themed())
                     .build();
         }
@@ -350,29 +351,23 @@ public final class ThemeExcelWriter {
         }
 
         private static byte underline(byte font, @Nullable Boolean themed) {
-            if (themed == null) {
-                return font;
-            }
-            return themed ? Font.U_SINGLE : Font.U_NONE;
+            return Optional.ofNullable(themed).map(on -> on ? Font.U_SINGLE : Font.U_NONE).orElse(font);
         }
 
         private CellStyle create(CellStyle original, ThemeStyle theme) {
             CellStyle style = newStyle();
             style.cloneStyleFrom(original);
-            var background = theme.background();
-            if (background != null) {
+            Optional.ofNullable(theme.background()).ifPresent(background -> {
                 style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
                 setFill(style, background);
-            }
-            if (theme.align() != null) {
-                style.setAlignment(theme.align().getExcel());
-            }
-            if (theme.valign() != null) {
-                style.setVerticalAlignment(theme.valign().getExcel());
-            }
-            if (theme.border() != null) {
-                setBorder(style, theme.border());
-            }
+            });
+            Optional.ofNullable(theme.align())
+                    .map(ThemeHorizontalAlign::getExcel)
+                    .ifPresent(style::setAlignment);
+            Optional.ofNullable(theme.valign())
+                    .map(ThemeVerticalAlign::getExcel)
+                    .ifPresent(style::setVerticalAlignment);
+            Optional.ofNullable(theme.border()).ifPresent(border -> setBorder(style, border));
             if (theme.hasFont()) {
                 style.setFont(font(workbook.getFontAt(original.getFontIndex()), theme));
             }
@@ -418,11 +413,15 @@ public final class ThemeExcelWriter {
          * any other colour is coloured with the rest of the sides.
          */
         private boolean setThemeColour(CellStyle style, Side side, ThemeBorderLine line) {
-            var themed = line.isLine() && line.color() != null ? asThemeColour(line.color()) : null;
-            if (themed != null) {
-                ((XSSFCellStyle) style).setBorderColor(side.excel, themed.toColor((XSSFWorkbook) workbook));
-            }
-            return themed != null;
+            var themed = themeColourOf(line);
+            themed.ifPresent(colour -> ((XSSFCellStyle) style).setBorderColor(side.excel,
+                    colour.toColor((XSSFWorkbook) workbook)));
+            return themed.isPresent();
+        }
+
+        /** The theme colour the workbook writes a line in, where the side is drawn with a line of a colour. */
+        private Optional<ThemedColor> themeColourOf(ThemeBorderLine line) {
+            return Optional.ofNullable(line.color()).filter(colour -> line.isLine()).map(this::asThemeColour);
         }
 
         /** The colour a side is written in; a side without a line is given none. */

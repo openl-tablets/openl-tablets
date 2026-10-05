@@ -74,11 +74,11 @@ final class RawTableStyles {
         if (border == null || border == BorderStyle.NONE || border.getWidth() == 0) {
             return null;
         }
-        var style = switch (border.getStyle() == null ? "solid" : border.getStyle()) {
+        var style = switch (border.getStyle()) {
             case "dashed" -> RawTableBorderLineStyle.DASHED;
             case "dotted" -> RawTableBorderLineStyle.DOTTED;
             case "double" -> RawTableBorderLineStyle.DOUBLE;
-            default -> RawTableBorderLineStyle.SOLID;
+            case null, default -> RawTableBorderLineStyle.SOLID;
         };
         return RawTableCellBorderSide.builder()
                 .style(style)

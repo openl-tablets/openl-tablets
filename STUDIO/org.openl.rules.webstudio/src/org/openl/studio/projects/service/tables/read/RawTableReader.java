@@ -244,8 +244,10 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * or the cell is outside the table.
      */
     private static @Nullable RawTableCellBorderSide lineOver(ThemedTable theme, int row, int column) {
-        var themed = theme.at(row, column);
-        return themed == null ? null : ThemeStyles.topLine(themed.style());
+        return Optional.ofNullable(theme.at(row, column))
+                .map(ThemedTable.ThemedCell::style)
+                .map(ThemeStyles::topLine)
+                .orElse(null);
     }
 
     /** One cell as the API reports it: what it holds, what it was written with, and how far it reaches. */
@@ -287,8 +289,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     /** The font of a run, or {@code null} when the run takes the font of the cell. */
     private static @Nullable RawTableCellStyle fontOf(TextRun run) {
-        var font = run.font();
-        return font == null ? null : RawTableStyles.font(RawTableCellStyle.builder(), font).build();
+        return Optional.ofNullable(run.font())
+                .map(font -> RawTableStyles.font(RawTableCellStyle.builder(), font).build())
+                .orElse(null);
     }
 
     /**
@@ -388,10 +391,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .valign(verticalAlign(cm.getValign()))
                 .indent(positive(cm.getIndent()))
                 .border(borderOf(cm));
-        var font = cm.getFont();
-        if (font != null) {
-            RawTableStyles.font(style, font);
-        }
+        Optional.ofNullable(cm.getFont()).ifPresent(font -> RawTableStyles.font(style, font));
         var read = style.build();
         return read.isEmpty() ? null : read;
     }

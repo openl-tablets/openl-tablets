@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -52,7 +53,7 @@ public record ExcelThemeColours(String name, Map<ExcelThemeColour, String> colou
         var colours = new EnumMap<ExcelThemeColour, String>(ExcelThemeColour.class);
         written.forEach((key, rgb) -> {
             if (!NAME_KEY.equals(key)) {
-                colours.put(colourOf(key), ThemeColour.of(rgb == null ? "" : rgb).rgb());
+                colours.put(colourOf(key), ThemeColour.of(Optional.ofNullable(rgb).orElse("")).rgb());
             }
         });
         for (var colour : ExcelThemeColour.values()) {
@@ -64,11 +65,8 @@ public record ExcelThemeColours(String name, Map<ExcelThemeColour, String> colou
     }
 
     private static ExcelThemeColour colourOf(String key) {
-        var colour = ExcelThemeColour.keyed(key);
-        if (colour == null) {
-            throw new IllegalArgumentException("The theme colors of Excel have no colour " + key);
-        }
-        return colour;
+        return ExcelThemeColour.keyed(key)
+                .orElseThrow(() -> new IllegalArgumentException("The theme colors of Excel have no colour " + key));
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
+import java.util.Optional;
+
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
@@ -87,13 +89,13 @@ public record TableTheme(String name,
      * @return the look of the kind
      */
     Look lookOf(@Nullable Look kind) {
-        var skin = base == null ? Look.builder().build() : base;
-        return kind == null ? skin : skin.extendedBy(kind);
+        var skin = Optional.ofNullable(base).orElseGet(() -> Look.builder().build());
+        return Optional.ofNullable(kind).map(skin::extendedBy).orElse(skin);
     }
 
     /** Lays one look over another, either of which may be missing. */
     private static @Nullable ThemeStyle lay(@Nullable ThemeStyle under, @Nullable ThemeStyle over) {
-        return under == null ? over : under.with(over);
+        return Optional.ofNullable(under).map(look -> look.with(over)).orElse(over);
     }
 
     /**
@@ -205,7 +207,7 @@ public record TableTheme(String name,
         Look extendedBy(Look over) {
             return Look.builder()
                     .style(lay(style, over.style))
-                    .header(header == null ? over.header : header.extendedBy(over.header))
+                    .header(Optional.ofNullable(header).map(own -> own.extendedBy(over.header)).orElse(over.header))
                     .properties(lay(properties, over.properties))
                     .titles(lay(titles, over.titles))
                     .stepTitle(lay(stepTitle, over.stepTitle))

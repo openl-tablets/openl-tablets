@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -77,7 +79,7 @@ public record ThemeStyle(@Nullable String fontFamily,
                 .background(pick(over.background, background))
                 .align(pick(over.align, align))
                 .valign(pick(over.valign, valign))
-                .border(border == null ? over.border : border.with(over.border))
+                .border(Optional.ofNullable(border).map(sides -> sides.with(over.border)).orElse(over.border))
                 .build();
     }
 
@@ -91,8 +93,8 @@ public record ThemeStyle(@Nullable String fontFamily,
      * @return the look the cell is drawn with
      */
     ThemeStyle atEdges(ThemeStyle inside, boolean first, boolean last) {
-        var around = border == null ? ThemeBorder.KEEP : border;
-        return withBorder(around.atEdges(inside.border == null ? ThemeBorder.KEEP : inside.border, first, last));
+        var around = Optional.ofNullable(border).orElse(ThemeBorder.KEEP);
+        return withBorder(around.atEdges(Optional.ofNullable(inside.border).orElse(ThemeBorder.KEEP), first, last));
     }
 
     /**
@@ -102,7 +104,7 @@ public record ThemeStyle(@Nullable String fontFamily,
      * @return the look turned
      */
     ThemeStyle transposed() {
-        return border == null ? this : withBorder(border.transposed());
+        return Optional.ofNullable(border).map(sides -> withBorder(sides.transposed())).orElse(this);
     }
 
     /** Whether the look sets anything about the font. */
@@ -125,6 +127,6 @@ public record ThemeStyle(@Nullable String fontFamily,
     }
 
     private static <T> @Nullable T pick(@Nullable T over, @Nullable T under) {
-        return over != null ? over : under;
+        return Optional.ofNullable(over).orElse(under);
     }
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamConstants;
@@ -193,10 +194,7 @@ public class SAXReader implements ExcelReader {
         var items = readItemRuns(r, stylesTable, new HashSet<>(sharedStrings.values()));
         var runs = new HashMap<CellAddress, List<TextRun>>();
         sharedStrings.forEach((cell, index) -> {
-            var textRuns = items.get(index);
-            if (textRuns != null) {
-                runs.put(cell, textRuns);
-            }
+            Optional.ofNullable(items.get(index)).ifPresent(textRuns -> runs.put(cell, textRuns));
         });
         return runs;
     }

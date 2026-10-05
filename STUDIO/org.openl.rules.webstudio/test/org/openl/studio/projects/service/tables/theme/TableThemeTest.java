@@ -42,6 +42,7 @@ import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableCellBorder;
 import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
@@ -1111,11 +1112,11 @@ class TableThemeTest {
     }
 
     private static @Nullable RawTableCellBorderSide bottomOf(@Nullable RawTableCellStyle style) {
-        return style == null || style.border() == null ? null : style.border().bottom();
+        return Optional.ofNullable(style).map(RawTableCellStyle::border).map(RawTableCellBorder::bottom).orElse(null);
     }
 
     private static @Nullable RawTableCellBorderSide topOf(@Nullable RawTableCellStyle style) {
-        return style == null || style.border() == null ? null : style.border().top();
+        return Optional.ofNullable(style).map(RawTableCellStyle::border).map(RawTableCellBorder::top).orElse(null);
     }
 
     private static List<String> pieces(String text, ThemeStyle cell, TableTheme.Header header) {

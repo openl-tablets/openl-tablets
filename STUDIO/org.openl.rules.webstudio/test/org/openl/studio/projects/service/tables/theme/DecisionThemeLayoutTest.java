@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -498,7 +499,7 @@ class DecisionThemeLayoutTest {
     /** The fill the theme giving each kind a look of its own gives a cell of a table. */
     private @Nullable String returnOf(String name, int row, int column) {
         var background = KINDS.layoutOf(table(name), KINDS_THEME).at(row, column).style().background();
-        return background == null ? null : background.rgb();
+        return Optional.ofNullable(background).map(ThemeColour::rgb).orElse(null);
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */

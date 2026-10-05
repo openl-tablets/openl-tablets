@@ -350,10 +350,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * moved it.
      */
     private void theme(String themeId) {
-        if (themes == null) {
-            throw new IllegalStateException("This writer is given no table themes.");
-        }
-        themed = themes.writer(themeId);
+        themed = Optional.ofNullable(themes)
+                .orElseThrow(() -> new IllegalStateException("This writer is given no table themes."))
+                .writer(themeId);
         if (!themed.write(table, developerView(), moves)) {
             throw new BadRequestException("table.theme.unsupported.message");
         }
@@ -364,11 +363,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     @Override
     protected void recordEdit() {
-        if (themed == null) {
-            super.recordEdit();
-        } else {
-            themed.noting(table, developerView(), super::recordEdit);
-        }
+        Optional.ofNullable(themed).ifPresentOrElse(writer -> writer.noting(table, developerView(), super::recordEdit),
+                super::recordEdit);
     }
 
     private void append(AppendTarget target) {
