@@ -1,4 +1,3 @@
-import apiCall from './apiCall'
 import { subscribeTopic, type TopicSubscription } from './stompTopic'
 
 /**
@@ -145,46 +144,6 @@ function buildDestination(projectId: string, branch: string | null | undefined):
 }
 
 /**
- * Concurrent fetches for the same project share a network round trip. The entry is
- * cleared as soon as the request settles so subsequent fetches still hit the network.
- */
-const inflightFetches = new Map<string, Promise<ProjectStatusUpdate>>()
-
-/**
- * One-shot fetch of the current project status. Used to bootstrap the UI before
- * subscribing — STOMP only delivers transitions, so without a bootstrap a subscriber
- * landing after compilation has already finished would see nothing.
- *
- * Throws on non-2xx; lets the caller decide how to render failures.
- */
-export function fetchProjectStatus(projectId: string): Promise<ProjectStatusUpdate> {
-    const existing = inflightFetches.get(projectId)
-    if (existing) {
-        return existing
-    }
-    const promise = fetchSingleProjectStatus(projectId).finally(() => {
-        inflightFetches.delete(projectId)
-    })
-    inflightFetches.set(projectId, promise)
-    return promise
-}
-
-function fetchSingleProjectStatus(projectId: string): Promise<ProjectStatusUpdate> {
-    // Background poll: throw on error so callers can decide how to render, and suppress
-    // the global "show login / forbidden / not-found / server error" page redirects —
-    // a stale status fetch shouldn't take over the whole UI.
-    return apiCall(
-        `/projects/${encodeURIComponent(projectId)}/status?branch=`,
-        {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json' },
-        },
-        { throwError: true, suppressErrorPages: true }
-    ) as Promise<ProjectStatusUpdate>
-}
-
-/**
  * Subscribe to project status updates pushed by the backend over WebSocket. The
  * callback receives the full {@code ProjectStatusViewModel} for every transition
  * (compile-cycle start, per-module progress, terminal state).
@@ -193,8 +152,8 @@ function fetchSingleProjectStatus(projectId: string): Promise<ProjectStatusUpdat
  * the open project); the shared topic subscription fans the messages out locally.
  *
  * <p>Caller responsibilities:
- *   - call {@link fetchProjectStatus} first to render the current state — STOMP only
- *     pushes transitions and does not replay state on subscribe.
+ *   - read the current state first — {@code getProject} with the {@code status} expansion — STOMP
+ *     only pushes transitions and does not replay state on subscribe.
  *   - call {@code subscription.unsubscribe()} when navigating away to avoid leaking
  *     handlers across project / module changes.
  */

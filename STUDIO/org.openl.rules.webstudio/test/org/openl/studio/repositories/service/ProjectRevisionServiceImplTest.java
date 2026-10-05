@@ -22,9 +22,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
 
 /**
@@ -40,8 +38,7 @@ class ProjectRevisionServiceImplTest {
 
     private static final String DESIGN_FOLDER = "DESIGN/rules/Rates:a1b2";
 
-    private final ProjectRevisionServiceImpl service = new ProjectRevisionServiceImpl(mock(DesignTimeRepository.class),
-            mock(RepositoryAclService.class)) {
+    private final ProjectRevisionServiceImpl service = new ProjectRevisionServiceImpl() {
         @Override
         protected HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
             askedRepository.set(repository);

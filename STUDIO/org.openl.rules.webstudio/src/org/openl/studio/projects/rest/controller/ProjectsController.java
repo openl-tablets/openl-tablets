@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -92,7 +91,6 @@ import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.ProjectsPageResponse;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.ValueLevel;
-import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.AppendTableView;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
@@ -128,7 +126,6 @@ import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
-import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
@@ -172,7 +169,6 @@ public class ProjectsController {
     private final ProjectObjectMapperService objectMapperService;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectIdentifierMapper projectIdentifierMapper;
-    private final ProjectStatusMapper projectStatusMapper;
     private final ProjectTablesGraphService graphService;
     private final RepositoryConfigService repositoryConfigService;
     private final ProjectMetadataService metadataService;
@@ -337,35 +333,6 @@ public class ProjectsController {
     public void unlockProject(@ProjectId @PathVariable("projectId") RulesProject project) {
         projectService.unlockProject(project);
         getWebStudio().reset();
-    }
-
-    /**
-     * Returns the compilation status of the project.
-     *
-     * @deprecated Superseded by {@code GET /projects/{projectId}?include=status}, which carries the same status in
-     *             the project response.
-     */
-    // A published REST endpoint that API clients may still call.
-    @SuppressWarnings("java:S1133")
-    @GetMapping("/{projectId}/status")
-    @Operation(summary = "projects.status.get.summary", description = "projects.status.get.desc")
-    @Deprecated(forRemoval = false)
-    @JsonView(GenericView.Detailed.class)
-    public ProjectStatusViewModel getStatus(@ProjectId @PathVariable("projectId") RulesProject project,
-                                            @Parameter(description = "projects.status.param.branch.desc")
-                                            @RequestParam(value = "branch", required = false) String branch) {
-        // Read-only by design — the `branch` parameter is asserted against the project's
-        // current branch; switching is exposed via PATCH /{projectId} with a
-        // ProjectStatusUpdateModel that carries the target branch.
-        if (StringUtils.isNotBlank(branch)) {
-            if (!project.isSupportsBranches()) {
-                throw new ConflictException("project.branch.unsupported.message");
-            }
-            if (!Objects.equals(branch, project.getBranch())) {
-                throw new ConflictException("project.branch.mismatch.message");
-            }
-        }
-        return projectStatusMapper.map(project);
     }
 
     @PostMapping("/{projectId}/branches")

@@ -63,19 +63,19 @@ class WebSocketChangeOriginTest {
         }
     }
 
-    /** Just enough of the status response to learn the encoded project id the topics are keyed by. */
-    record ProjectRef(String projectId) {
+    /** Just enough of the project response to learn the encoded project id the topics are keyed by. */
+    record ProjectRef(String id) {
     }
 
     @Test
     void names_the_client_behind_a_change_and_never_lets_a_tab_skip_another_client_s() throws Exception {
         client.localEnv.put("PROJECT", PROJECT);
         client.test(SETUP_RESOURCES);
-        var project = client.getForObject("/rest/projects/" + PROJECT + "/status", ProjectRef.class, 200,
+        var project = client.getForObject("/rest/projects/" + PROJECT + "?fields=id", ProjectRef.class, 200,
                 "Authorization", ADMIN_BASIC);
         // The server URL-encodes the project id in the destination, so mirror that here.
         var topic = "/user/topic/projects/"
-                + URLEncoder.encode(project.projectId(), StandardCharsets.UTF_8) + "/changed";
+                + URLEncoder.encode(project.id(), StandardCharsets.UTF_8) + "/changed";
 
         try (var stomp = new StompTester(client, client.getWebSocketBaseURL(),
                 Map.of("Authorization", ADMIN_BASIC))) {

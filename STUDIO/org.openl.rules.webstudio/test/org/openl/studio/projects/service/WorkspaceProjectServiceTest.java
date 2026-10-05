@@ -1838,7 +1838,7 @@ class WorkspaceProjectServiceTest {
         work.getValue().run();
         verify(webStudio).init("design", "main", "Pricing", "Claims");
         // The session's own registry is not carried along: asking it for a compilation job from a thread with no
-        // session fails, and the status endpoint registers the compilation itself when it is asked about it.
+        // session fails, and a read of the project status registers the compilation itself when it is asked about it.
         verify(registry, never()).acquire(any(), any());
     }
 

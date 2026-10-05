@@ -2,11 +2,13 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
-  "revision": "*",
-  "compileState": "idle",
-  "lastModifiedBy": {
-    "author": "admin",
-    "date": "*"
+  "compileStatus": {
+    "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+    "revision": "*",
+    "compileState": "idle",
+    "lastModifiedBy": {
+      "author": "admin",
+      "date": "*"
+    }
   }
 }

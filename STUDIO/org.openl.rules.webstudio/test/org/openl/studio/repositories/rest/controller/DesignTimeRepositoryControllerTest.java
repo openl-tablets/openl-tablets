@@ -46,7 +46,6 @@ import org.openl.studio.repositories.model.RepositoryConfigModel;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 import org.openl.studio.repositories.service.ProjectCreationService;
 import org.openl.studio.repositories.service.ProjectCreationTargetResolver;
-import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
 import org.openl.studio.repositories.service.ZipProjectSaveStrategy;
 import org.openl.studio.repositories.validator.CreateUpdateProjectModelValidator;
@@ -101,7 +100,6 @@ class DesignTimeRepositoryControllerTest {
                 "target",
                 aclProjectsHelper,
                 mock(DesignTimeRepositoryService.class),
-                mock(ProjectRevisionService.class),
                 bypassService,
                 projectCreationService,
                 projectCreationTargetResolver,

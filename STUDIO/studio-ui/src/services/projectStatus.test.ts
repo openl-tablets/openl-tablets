@@ -1,13 +1,7 @@
 import type {
-    fetchProjectStatus as FetchProjectStatusFn,
     subscribeProjectStatus as SubscribeProjectStatusFn,
     subscribeWorkspaceProjectStatuses as SubscribeWorkspaceProjectStatusesFn,
 } from 'services/projectStatus'
-
-vi.mock('services/config', () => ({
-    __esModule: true,
-    default: { CONTEXT: '/ctx', API_ROOT: '/ctx/rest' },
-}))
 
 vi.mock('services/websocket', () => ({
     webSocketService: {
@@ -17,32 +11,7 @@ vi.mock('services/websocket', () => ({
     },
 }))
 
-vi.mock('store', () => ({
-    useAppStore: {
-        getState: () => ({
-            setShowLogin: vi.fn(),
-            setShowForbidden: vi.fn(),
-            setShowNotFound: vi.fn(),
-            setShowServerError: vi.fn(),
-        }),
-    },
-}))
-
-vi.mock('antd', () => ({
-    notification: { error: vi.fn(), warning: vi.fn(), success: vi.fn() },
-}))
-
-const jsonResponse = (payload: unknown, status = 200) => ({
-    ok: status >= 200 && status < 300,
-    status,
-    headers: new Headers({ 'Content-Type': 'application/json' }),
-    json: async () => payload,
-    text: async () => JSON.stringify(payload),
-})
-
 describe('projectStatus service', () => {
-    const fetchMock = vi.fn()
-    let fetchProjectStatus: typeof FetchProjectStatusFn
     let subscribeProjectStatus: typeof SubscribeProjectStatusFn
     let subscribeWorkspaceProjectStatuses: typeof SubscribeWorkspaceProjectStatusesFn
     let mockedWebSocketService: {
@@ -55,89 +24,16 @@ describe('projectStatus service', () => {
         vi.useFakeTimers()
         vi.clearAllMocks()
         vi.resetModules()
-        ;(global as any).fetch = fetchMock
         const wsModule = await import('services/websocket')
         mockedWebSocketService = wsModule.webSocketService as unknown as typeof mockedWebSocketService
         mockedWebSocketService.subscribe.mockReturnValue('sub-1')
         const mod = await import('services/projectStatus')
-        fetchProjectStatus = mod.fetchProjectStatus
         subscribeProjectStatus = mod.subscribeProjectStatus
         subscribeWorkspaceProjectStatuses = mod.subscribeWorkspaceProjectStatuses
     })
 
     afterEach(() => {
         vi.useRealTimers()
-    })
-
-    describe('fetchProjectStatus', () => {
-        it('GETs /rest/projects/{projectId}/status?branch= via shared apiCall', async () => {
-            const payload = { projectId: 'abc', compileState: 'ok' }
-            fetchMock.mockResolvedValue(jsonResponse(payload))
-
-            const result = await fetchProjectStatus('abc=')
-
-            expect(fetchMock).toHaveBeenCalledWith(
-                '/ctx/rest/projects/abc%3D/status?branch=',
-                expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
-            )
-            expect(result).toEqual(payload)
-        })
-
-        it('rejects with ApiHttpError on non-2xx response', async () => {
-            fetchMock.mockResolvedValue(jsonResponse({ message: 'boom' }, 500))
-
-            await expect(fetchProjectStatus('abc')).rejects.toMatchObject({ name: 'ApiHttpError', status: 500 })
-        })
-
-        it('dedupes concurrent fetches for the same projectId', async () => {
-            const payload = { projectId: 'abc', compileState: 'ok' }
-            fetchMock.mockResolvedValue(jsonResponse(payload))
-
-            const [first, second] = await Promise.all([
-                fetchProjectStatus('abc'),
-                fetchProjectStatus('abc'),
-            ])
-
-            expect(fetchMock).toHaveBeenCalledTimes(1)
-            expect(first).toEqual(payload)
-            expect(second).toEqual(payload)
-        })
-
-        it('fetches different projectIds individually', async () => {
-            const firstPayload = { projectId: 'abc', compileState: 'ok' }
-            const secondPayload = { projectId: 'def=', compileState: 'errors' }
-            fetchMock
-                .mockResolvedValueOnce(jsonResponse(firstPayload))
-                .mockResolvedValueOnce(jsonResponse(secondPayload))
-
-            const [first, second] = await Promise.all([
-                fetchProjectStatus('abc'),
-                fetchProjectStatus('def='),
-            ])
-
-            expect(fetchMock).toHaveBeenCalledTimes(2)
-            expect(fetchMock).toHaveBeenNthCalledWith(
-                1,
-                '/ctx/rest/projects/abc/status?branch=',
-                expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
-            )
-            expect(fetchMock).toHaveBeenNthCalledWith(
-                2,
-                '/ctx/rest/projects/def%3D/status?branch=',
-                expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
-            )
-            expect(first).toEqual(firstPayload)
-            expect(second).toEqual(secondPayload)
-        })
-
-        it('issues a fresh request once the in-flight one settles', async () => {
-            fetchMock.mockResolvedValue(jsonResponse({ projectId: 'abc' }))
-
-            await fetchProjectStatus('abc')
-            await fetchProjectStatus('abc')
-
-            expect(fetchMock).toHaveBeenCalledTimes(2)
-        })
     })
 
     describe('subscribeProjectStatus', () => {

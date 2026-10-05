@@ -36,7 +36,7 @@ import org.openl.studio.session.ClientSessionScope;
  * the REST {@code openProject} path. Such compilations register a {@code RegisteredCompilation}
  * on the model; if the WebStudio session's current project matches the requested
  * project/branch, the registry wraps that live cycle in a fresh {@link CompilationJob}
- * so the status endpoint can report the real compile state instead of {@code IDLE}.
+ * so the project status reports the real compile state instead of {@code IDLE}.
  *
  * @author Vladyslav Pikus
  */
@@ -90,7 +90,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
     }
 
     /**
-     * Drop the cached compilation job so the status endpoint no longer reports a stale
+     * Drop the cached compilation job so the project status no longer reports a stale
      * compile state after the workspace is reset. Cancels the tracked future if it is
      * still running. The next {@link #acquire(ProjectIdModel, ProjectModel)} registers a
      * fresh job.

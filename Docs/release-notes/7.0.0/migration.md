@@ -331,7 +331,7 @@ everyone who calls that API from outside the browser.
   and a request that fails now changes nothing.
 * **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
   `400`.
-* **`GET /rest/users/options` and `GET`/`PUT /rest/mail/settings` are removed.** Call their replacements:
+* **Deprecated REST endpoints are removed.** Call their replacements:
   - **`GET /rest/users/options`** — `GET /rest/settings`, where `emailVerification` is
     `supportedFeatures.emailVerification`. `userMode` there is `INTERNAL` for `multi`, `EXTERNAL` for `ad`, `oauth2`
     and `saml`, and empty for `single`; `canCreateInternalUsers` was `true` for `INTERNAL` only.
@@ -339,6 +339,12 @@ everyone who calls that API from outside the browser.
     `POST /rest/admin/settings/mail`. `POST` takes the same `url`, `username` and `password` fields. `GET` does not
     return a saved password: it answers an object with `"secret": true` in its place, and a field fixed by the
     application properties as an object with its `value` and `"readOnly": true`.
+  - **`GET /rest/projects/{id}/status`** — `GET /rest/projects/{id}?include=status`, which answers the same status
+    as `compileStatus`. Its `branch` parameter only checked the branch the project was on; the project response
+    names that branch in `branch`.
+  - **`GET /rest/repos/{repo}/projects/{name}/history` and its `/branches/{branch}/` form** —
+    `GET /rest/projects/{id}/history`, with `?branch={branch}` for the second. The project is named by its id, which
+    `GET /rest/projects` returns, so a rename in `rules.xml` that is not saved yet does not hide its history.
 * **Java and Groovy code loses the same functions.** `RulesUtils.format`, `dateToString`, `stringToDate`,
   `parseFormattedDouble`, `addIgnoreNull`, `addArrayElementIgnoreNull` and `DEFAULT_DOUBLE_FORMAT` are removed, and so
   is `DateTool.dateToString`. The rules functions of `org.openl.rules.util` are not meant for Java code, so call what
