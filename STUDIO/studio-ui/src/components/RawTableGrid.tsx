@@ -101,6 +101,14 @@ const tinted = (colour: string | undefined, muted: boolean): string | undefined 
 /** Given to every cell the workbook styled in no way at all, rather than a fresh object each. */
 const PLAIN: React.CSSProperties = {}
 
+/**
+ * How CSS lines a cell up from top to bottom, for the alignment the workbook gives it. CSS calls the middle of a
+ * cell `middle`, where the workbook says `center`. A cell aligned to the bottom, Excel's default, has no alignment
+ * of its own and keeps the top of the grid.
+ */
+const verticalAlignOf = (valign: string | undefined): React.CSSProperties['verticalAlign'] =>
+    valign === 'center' ? 'middle' : valign as React.CSSProperties['verticalAlign']
+
 const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean): React.CSSProperties => {
     // Most cells of a workbook are written in no style at all, and a table holds thousands of them.
     if (style === undefined && !painted && !muted) {
@@ -110,7 +118,7 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
         background: painted ? undefined : tinted(style?.background, muted),
         color: tinted(style?.color, muted),
         textAlign: style?.align as React.CSSProperties['textAlign'],
-        verticalAlign: style?.valign as React.CSSProperties['verticalAlign'],
+        verticalAlign: verticalAlignOf(style?.valign),
         fontWeight: style?.bold ? 'bold' : undefined,
         fontStyle: style?.italic ? 'italic' : undefined,
         textDecoration: style?.underline ? 'underline' : undefined,

@@ -88,6 +88,24 @@ describe('RawTableGrid', () => {
         expect(styled.style.fontWeight).toBe('bold')
     })
 
+    it('lines a cell up from top to bottom as the workbook does, its middle named as CSS names it', () => {
+        const table: RawTableCell[][] = [[
+            { cell: 'A1', value: 'middle', rowspan: 2, style: { valign: 'center' } },
+            { cell: 'B1', value: 'top', style: { valign: 'top' } },
+        ], [
+            { covered: true },
+            { cell: 'B2', value: 'bottom', style: { bold: true } },
+        ]]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const cells = screen.getByTestId('grid').querySelectorAll('td')
+        expect(cells[0]).toHaveStyle({ verticalAlign: 'middle' })
+        expect(cells[1]).toHaveStyle({ verticalAlign: 'top' })
+        // A cell aligned to the bottom, Excel's default, names no alignment and keeps the one of the grid.
+        expect((cells[2] as HTMLElement).style.verticalAlign).toBe('')
+    })
+
     describe('in a dark theme', () => {
         const drawDark = (table: RawTableCell[][]) => renderInTheme(
             <RawTableGrid layout={{ firstDataLine: 1 }} rows={table} testId="grid" />,
