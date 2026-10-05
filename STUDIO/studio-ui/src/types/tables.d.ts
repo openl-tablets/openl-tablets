@@ -54,8 +54,8 @@ export interface RawTableCellBorderSide {
     /** Line colour as #rrggbb (absent when black) */
     color?: string
     /**
-     * The key of the table theme file the line colour is set at, such as `environment.name.border.right.color`, which
-     * names the side the file sets whichever side the line is drawn on; set by the table theme only
+     * The key of the table theme file the line colour is set at, such as `spreadsheet.resultRow.border.top.color`,
+     * which names the side the file sets whichever side the line is drawn on; set by the table theme only
      */
     colorKey?: string
 }

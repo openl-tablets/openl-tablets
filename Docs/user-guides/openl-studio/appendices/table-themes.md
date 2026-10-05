@@ -42,21 +42,18 @@ A theme file holds the following keys:
 -   **`colors`** — the colours of the theme, each under the name that a style sets it by, as described in
     [Naming Colours](#naming-colours).
 -   **`base`** — the skin every table shares, such as its header and its properties. Each kind of table extends it,
-    as described in [Extending the Base](#extending-the-base). The base styles no table by itself.
+    as described in [Extending the Base](#extending-the-base). The base styles no table by itself. In the themes
+    that OpenL Studio ships, the base is the General format of the formatting standard of OpenL tables.
 -   **`datatype`** — what a Datatype table changes in the base.
 -   **`vocabulary`** — what a Vocabulary table changes in the base. A Vocabulary table is a Datatype table that
     declares the type of its values, such as `Datatype Gender <String>`.
 -   **`spreadsheet`** — what a Spreadsheet table changes in the base.
--   **`tbasic`** — what a TBasic table changes in the base: an algorithm written in steps. The themes that OpenL
-    Studio ships give it the look of a Spreadsheet table, and the row that names its columns the look of the code of
-    a Rules table.
--   **`method`** — what a Method table changes in the base: a method written as code. The themes that OpenL Studio
-    ships write nothing for it, so it takes the base alone.
+-   **`tbasic`** — what a TBasic table changes in the base: an algorithm written in steps.
+-   **`method`** — what a Method table changes in the base: a method written as code.
 -   **`data`** — what a Data table changes in the base.
 -   **`test`** — what a Test table changes in the base.
 -   **`run`** — what a Run table changes in the base. A Run table is written as a Test table without the expected
-    results, and the themes that OpenL Studio ships give it the look of a Test table, as described in
-    [Reusing Parts of a Theme](#reusing-parts-of-a-theme).
+    results.
 -   **`rules`** — what a Rules table changes in the base.
 -   **`simpleRules`** — what a SimpleRules table changes in the base.
 -   **`smartRules`** — what a SmartRules table changes in the base. The themes that OpenL Studio ships give it the
@@ -67,25 +64,27 @@ A theme file holds the following keys:
 -   **`columnMatch`** — what a ColumnMatch table changes in the base: a decision tree that checks the arguments row
     by row.
 -   **`conditions`** — what a Conditions table changes in the base: the conditions that decision tables take by
-    their titles. The themes that OpenL Studio ships give a Conditions, an Actions, and a Returns table the look of
-    a Rules table.
+    their titles.
 -   **`actions`** — what an Actions table changes in the base.
 -   **`returns`** — what a Returns table changes in the base. As a key of the theme file, it names this kind of
     table; the `returns` part of a decision table is written inside a look, such as `rules`.
--   **`environment`** — what an Environment table changes in the base. The themes that OpenL Studio ships draw it, a
-    technical table, in greys.
+-   **`environment`** — what an Environment table changes in the base.
 -   **`properties`** — what a Properties table changes in the base: the properties a module or a category of tables
-    shares, such as `Properties Catalogue`. The themes that OpenL Studio ships give it the look of an Environment
-    table.
+    shares, such as `Properties Catalogue`.
 -   **`constants`** — what a Constants table changes in the base.
 
 A theme is one style for every kind of table: it styles every table but a table of the type **Other**, such as a
 table of no kind that OpenL Tablets knows or a part of a table written as several partial tables. Each kind takes the
 base, and the key of the kind writes only what it changes. A kind the theme writes nothing for takes the base alone.
 
+The themes that OpenL Studio ships write a look only for the kinds that the formatting standard of OpenL tables
+describes: a Datatype and a Vocabulary, a Spreadsheet, a Data and a Test table, and the decision tables, a Rules, a
+SimpleRules, a SmartRules, a SimpleLookup, and a SmartLookup table. A SmartRules and a SmartLookup table take the
+look of a SimpleRules and a SimpleLookup table. Every other kind takes the base alone, the General format.
+
 OpenL Studio also tells the screen where each colour of a theme is set: the key of the file, such as
 `spreadsheet.values.background` or `base.header.keyword.color`, the file read with its aliases and merge keys
-resolved, so a kind an alias repeats has keys of its own, such as `tbasic.values.background`. With **Override with
+resolved, so a kind an alias repeats has keys of its own, such as `smartRules.returns.background`. With **Override with
 Studio theme** selected in **My Settings**, the **Standard** theme of OpenL Studio draws the tables with the
 **Standard** table theme, whichever table theme is selected, and in the dark appearance gives each key of its file a
 dark colour of its own. Under the other themes of OpenL Studio, or with **Override with Studio theme** cleared, a table
@@ -477,8 +476,8 @@ base:
     border: {bottom: *line}
 ```
 
-In the following example, a Run table takes the look of a Test table, as in the themes that OpenL Studio ships, and a
-Data table takes it with titles of its own:
+In the following example, a Run table takes the look of a Test table, and a Data table takes it with titles of its
+own:
 
 ```yaml
 test: &calls
@@ -509,8 +508,7 @@ simpleLookup:
 smartLookup: *rules
 ```
 
-In the following example, a Properties table takes the look of an Environment table, as in the themes that OpenL
-Studio ships:
+In the following example, a Properties table takes the look of an Environment table:
 
 ```yaml
 environment: &technical

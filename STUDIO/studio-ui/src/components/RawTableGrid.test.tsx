@@ -256,7 +256,7 @@ describe('RawTableGrid', () => {
                 'base.style.color': '#dcdcdc',
                 'base.header.keyword.color': '#adadad',
                 'datatype.name.background': '#15325b',
-                'environment.name.border.right.color': '#424242',
+                'spreadsheet.resultRow.border.top.color': '#424242',
             },
             paper: {
                 background: '#141414',
@@ -296,7 +296,7 @@ describe('RawTableGrid', () => {
                             style: 'solid',
                             width: 1,
                             color: '#d9d9d9',
-                            colorKey: 'environment.name.border.right.color',
+                            colorKey: 'spreadsheet.resultRow.border.top.color',
                         },
                         top: { style: 'solid', width: 1 },
                     },

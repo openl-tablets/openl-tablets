@@ -2,7 +2,8 @@
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
 #
 # The Standard theme in greens, its lines green as well. It also fills the header of a Datatype and a Vocabulary, the
-# IDs, and the values that are not filled.
+# IDs, and the values that are not filled. As in the Standard theme, the base is the General format of the standard,
+# and only the kinds the standard gives a look of their own write it below; every other kind takes the base alone.
 
 name: Green
 
@@ -32,11 +33,10 @@ colors:
   green: Green, Accent 6, Lighter 60%
   lightGreen: Green, Accent 6, Lighter 80%
   paleGreen: "#ebf1de"
-  # The greys of the technical tables.
+  # The values of a Data and a Test table that are not filled.
   paleGrey: White, Background 1, Darker 5%
-  lightGrey: Background 2
-  silver: White, Background 1, Darker 15%
 
+# The General format of the standard, which every kind of table takes.
 base:
   # The look every cell of the table starts from. It names every attribute, so the theme overrides the look the
   # workbook gives the table: no fill, line, font or alignment of the workbook shows through.
@@ -76,38 +76,20 @@ base:
     border:
       bottom: *line
 
-  # The parts the kinds of tables share, each written once.
-  titles: &title
-    bold: true
-    align: center
-    background: lightGreen
-  returnTitles:
-    <<: *title
-    background: green
-  returns:
-    align: center
-    background: paleGreen
-  type: *muted
-  code:
-    <<: *muted
-    align: center
-    border:
-      bottom: *line
-  ids:
-    bold: true
-    background: green
-  empty:
-    background: paleGrey
-  groups:
-    border:
-      top: *line
+# The kinds the standard gives a look of their own. A part several of them share is written once, under the first kind
+# that takes it, and repeated by an alias.
 
 datatype:
   # A Datatype fills its header, and so does a Vocabulary.
   header: &filled
     style:
       background: green
-  name: &fieldName
+  titles: &title
+    bold: true
+    align: center
+    background: lightGreen
+  type: *muted
+  name:
     background: lightGreen
   values: *muted
 
@@ -116,8 +98,9 @@ vocabulary:
   values:
     align: center
 
-spreadsheet: &spreadsheet
-  titles:
+spreadsheet:
+  titles: &givenTitle
+    <<: *title
     background: green
   stepTitle:
     background: lightGreen
@@ -139,44 +122,65 @@ spreadsheet: &spreadsheet
       top: *line
       bottom: *line
 
-tbasic: *spreadsheet
-
 data:
   name: &fields
     <<: *muted
     align: center
     border:
       bottom: *line
-  titles:
-    background: green
-  values:
+  titles: *givenTitle
+  values: &given
     align: center
     background: paleGreen
+  ids: &ids
+    bold: true
+    background: green
+  empty: &empty
+    background: paleGrey
 
-test: &calls
+test:
   name: *fields
+  titles: *title
   values:
     align: center
+  ids: *ids
+  empty: *empty
+  returnTitles: *givenTitle
+  returns: *given
 
-run: *calls
-
-rules: &rules
+rules:
+  code:
+    <<: *muted
+    align: center
+    border:
+      bottom: *line
+  titles: *title
+  returnTitles: *givenTitle
   returns:
+    <<: *given
     align: left
+  groups: &groups
+    border:
+      top: *line
 
 simpleRules: &simple
+  titles: *title
   values: &ruled
     align: center
     border:
       top: &fine {style: hair, color: darkGreen}
+  returnTitles: *givenTitle
   returns:
+    <<: *given
     border:
       top: *fine
+  groups: *groups
 
 smartRules: *simple
 
 simpleLookup: &lookup
   titles:
+    <<: *title
     border:
       right: *line
   values:
@@ -185,52 +189,16 @@ simpleLookup: &lookup
       top: *fine
       right: *line
   horizontals:
-    <<: *title
-    background: green
+    <<: *givenTitle
     border:
       top: *line
       left: *fine
+  returnTitles: *givenTitle
   returns:
+    <<: *given
     border:
       top: *fine
       left: *fine
+  groups: *groups
 
 smartLookup: *lookup
-
-# The tables that declare what a decision table takes by its titles look like the code and the titles of a Rules table.
-conditions: *rules
-actions: *rules
-returns: *rules
-
-# A ColumnMatch table: a line after the names it checks, and between the columns of its values.
-columnMatch:
-  name:
-    border:
-      right: *line
-  values:
-    align: center
-    border:
-      right: *line
-  returns:
-    border:
-      right: *line
-
-# The technical tables are drawn in greys, as in every theme.
-environment: &technical
-  header:
-    style:
-      background: lightGrey
-  style:
-    border:
-      bottom: &light
-        style: thin
-        color: silver
-  name:
-    background: paleGrey
-    border:
-      right: *light
-
-properties: *technical
-
-constants:
-  name: *fieldName

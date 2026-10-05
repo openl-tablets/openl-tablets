@@ -14,7 +14,6 @@ Content-Type: application/json
         "value": "Environment",
         "colspan": 2,
         "style": {
-          "background": "#e7e6e6",
           "align": "center",
           "valign": "center",
           "border": {
@@ -29,7 +28,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "environment.header.style.background",
           "source": "theme"
         },
         "runs": [
@@ -55,15 +53,8 @@ Content-Type: application/json
         "value": "import",
         "rowspan": 2,
         "style": {
-          "background": "#f2f2f2",
           "valign": "center",
           "border": {
-            "right": {
-              "style": "solid",
-              "width": 1,
-              "color": "#d9d9d9",
-              "colorKey": "environment.name.border.right.color"
-            },
             "bottom": {
               "style": "solid",
               "width": 1
@@ -71,7 +62,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "environment.name.background",
           "source": "theme"
         }
       },
@@ -80,14 +70,6 @@ Content-Type: application/json
         "value": "java.util",
         "style": {
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1,
-              "color": "#d9d9d9",
-              "colorKey": "environment.style.border.bottom.color"
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"

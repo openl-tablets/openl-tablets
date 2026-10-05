@@ -114,18 +114,9 @@ Content-Type: application/json
         "cell": "B72",
         "value": "Label",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -133,18 +124,9 @@ Content-Type: application/json
         "cell": "C72",
         "value": "Description",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -152,18 +134,9 @@ Content-Type: application/json
         "cell": "D72",
         "value": "Operation",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -171,18 +144,9 @@ Content-Type: application/json
         "cell": "E72",
         "value": "Condition",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -190,18 +154,9 @@ Content-Type: application/json
         "cell": "F72",
         "value": "Action",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       }
@@ -211,13 +166,9 @@ Content-Type: application/json
         "cell": "B73",
         "value": "Name",
         "style": {
-          "background": "#bfbfbf",
-          "align": "center",
           "valign": "center",
-          "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.stepTitle.background",
           "source": "theme"
         }
       },
@@ -225,13 +176,9 @@ Content-Type: application/json
         "cell": "C73",
         "value": "Description",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       },
@@ -239,13 +186,9 @@ Content-Type: application/json
         "cell": "D73",
         "value": "Operation",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       },
@@ -253,13 +196,9 @@ Content-Type: application/json
         "cell": "E73",
         "value": "Condition",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       },
@@ -267,13 +206,9 @@ Content-Type: application/json
         "cell": "F73",
         "value": "Action",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       }
@@ -322,11 +257,9 @@ Content-Type: application/json
         "cell": "F74",
         "value": "1",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -375,11 +308,9 @@ Content-Type: application/json
         "cell": "F75",
         "value": "1",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -426,11 +357,9 @@ Content-Type: application/json
       {
         "cell": "F76",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -478,11 +407,9 @@ Content-Type: application/json
         "cell": "F77",
         "value": "Calculation",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -492,13 +419,6 @@ Content-Type: application/json
         "cell": "B78",
         "style": {
           "valign": "center",
-          "bold": true,
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -508,13 +428,6 @@ Content-Type: application/json
         "cell": "C78",
         "style": {
           "valign": "center",
-          "bold": true,
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -525,13 +438,6 @@ Content-Type: application/json
         "value": "RETURN",
         "style": {
           "valign": "center",
-          "bold": true,
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -542,13 +448,6 @@ Content-Type: application/json
         "value": "factorial",
         "style": {
           "valign": "center",
-          "bold": true,
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -557,18 +456,9 @@ Content-Type: application/json
       {
         "cell": "F78",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
-          "bold": true,
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -578,14 +468,9 @@ Content-Type: application/json
         "cell": "B79",
         "value": "Calculation",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
-          "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
@@ -593,14 +478,9 @@ Content-Type: application/json
         "cell": "C79",
         "value": "multiplies by i",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
-          "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
@@ -608,42 +488,27 @@ Content-Type: application/json
         "cell": "D79",
         "value": "SUB",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
-          "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
       {
         "cell": "E79",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
-          "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
       {
         "cell": "F79",
         "style": {
-          "background": "#b4c6e7",
-          "align": "center",
           "valign": "center",
-          "bold": true,
-          "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       }
@@ -691,11 +556,9 @@ Content-Type: application/json
         "cell": "F80",
         "value": "factorial *= i",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -768,7 +631,6 @@ Content-Type: application/json
         "cell": "F81",
         "value": "i += 1",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "border": {
             "bottom": {
@@ -778,7 +640,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }

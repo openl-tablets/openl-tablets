@@ -5,9 +5,9 @@ import type { TablePaper } from './paper'
 import type { ThemeName } from './themes'
 
 /** The colours of the token a table takes. */
-type TableTokenKey = 'colorText' | 'colorTextSecondary' | 'colorBgContainer' | 'colorFill' | 'colorFillSecondary'
-    | 'colorFillTertiary' | 'colorPrimaryBg' | 'colorPrimaryBgHover' | 'colorBorder' | 'colorBorderSecondary'
-    | 'colorLink' | 'colorLinkHover' | 'colorPrimaryTextHover' | 'colorError'
+type TableTokenKey = 'colorText' | 'colorTextSecondary' | 'colorBgContainer' | 'colorFill' | 'colorPrimaryBg'
+    | 'colorPrimaryBgHover' | 'colorBorderSecondary' | 'colorLink' | 'colorLinkHover' | 'colorPrimaryTextHover'
+    | 'colorError'
 
 /** The part of the token of the application a table takes its colours from. */
 type TableToken = Pick<GlobalToken, TableTokenKey>
@@ -55,59 +55,43 @@ interface TableLook {
 }
 
 // The dark colours of the Standard table theme, each named as its file names the colour it takes the place of. The
-// order of the greys and of the blues is kept: the one further from the ground in the light appearance is further from
-// it here too, and the blues of what a table gives take the grounds of the primary colour.
+// blue of the titles of what a table gives is further from the ground than the light blue of what it gives, as in the
+// light appearance, and both take the grounds of the primary colour.
 const BLACK: TableTokenKey = 'colorText'
 const WHITE: TableTokenKey = 'colorBgContainer'
 const DARK_GREY: TableTokenKey = 'colorTextSecondary'
 const GREY: TableTokenKey = 'colorFill'
-const LIGHT_GREY: TableTokenKey = 'colorFillSecondary'
-const PALE_GREY: TableTokenKey = 'colorFillTertiary'
 const BLUE: TableTokenKey = 'colorPrimaryBgHover'
 const LIGHT_BLUE: TableTokenKey = 'colorPrimaryBg'
-const SILVER: TableTokenKey = 'colorBorder'
 
 // The parts several kinds share, shared as the Standard table theme file shares them by its aliases.
-const SPREADSHEET: LookColours = {
-    titles: { background: BLUE },
-    stepTitle: { background: GREY },
-    values: { background: LIGHT_BLUE },
-    sections: { background: BLUE },
-}
-const CALLS: LookColours = { name: { color: DARK_GREY } }
-const LOOKUP: LookColours = { horizontals: { background: BLUE } }
-const TECHNICAL: LookColours = {
-    header: { style: { background: LIGHT_GREY } },
-    style: { border: { bottom: { color: SILVER } } },
-    name: { background: PALE_GREY, border: { right: { color: SILVER } } },
-}
+const MUTED: LookColours = { color: DARK_GREY }
+const TITLE: LookColours = { background: GREY }
+const GIVEN_TITLE: LookColours = { background: BLUE }
+const GIVEN: LookColours = { background: LIGHT_BLUE }
+const SIMPLE: LookColours = { titles: TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN }
+const LOOKUP: LookColours = { titles: TITLE, horizontals: GIVEN_TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN }
 
 /**
  * The dark colours of the Standard table theme, at the keys of its file. Every key the file sets a colour at has one:
- * `tableColours.test.ts` reads the file to check it.
+ * `tableColours.test.ts` reads the file to check it. The kinds the file writes nothing for take the base alone, the
+ * General format, so they take the colours of the base here too.
  */
 const STANDARD_DARK: LookColours = {
     base: {
         style: { color: BLACK, background: WHITE },
-        header: { keyword: { color: DARK_GREY }, type: { color: DARK_GREY }, parameters: { color: DARK_GREY } },
-        properties: { color: DARK_GREY },
-        titles: { background: GREY },
-        returnTitles: { background: BLUE },
-        returns: { background: LIGHT_BLUE },
-        type: { color: DARK_GREY },
-        code: { color: DARK_GREY },
+        header: { keyword: MUTED, type: MUTED, parameters: MUTED },
+        properties: MUTED,
     },
-    datatype: { name: { background: LIGHT_BLUE }, values: { color: DARK_GREY } },
-    spreadsheet: SPREADSHEET,
-    tbasic: SPREADSHEET,
-    data: { name: { color: DARK_GREY }, titles: { background: BLUE }, values: { background: LIGHT_BLUE } },
-    test: CALLS,
-    run: CALLS,
+    datatype: { titles: TITLE, type: MUTED, name: GIVEN, values: MUTED },
+    spreadsheet: { titles: GIVEN_TITLE, stepTitle: TITLE, values: GIVEN, sections: GIVEN_TITLE },
+    data: { name: MUTED, titles: GIVEN_TITLE, values: GIVEN },
+    test: { name: MUTED, titles: TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN },
+    rules: { code: MUTED, titles: TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN },
+    simpleRules: SIMPLE,
+    smartRules: SIMPLE,
     simpleLookup: LOOKUP,
     smartLookup: LOOKUP,
-    environment: TECHNICAL,
-    properties: TECHNICAL,
-    constants: { name: { background: LIGHT_BLUE } },
 }
 
 /**

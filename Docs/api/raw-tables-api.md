@@ -121,8 +121,9 @@ The `style` of a cell leaves out an attribute that has its default value:
   beside the colour itself: the base or the kind, the part and the attribute, such as
   `spreadsheet.values.background` or `base.header.keyword.color`, the file read with its aliases and merge keys
   resolved. Set by the table theme only. A border side of the theme carries the `colorKey` of its line the same way,
-  naming the side the file sets, such as `environment.name.border.right.color`, whichever side the line is drawn on. A
-  client can draw the colour of a key its own way, as OpenL Studio does with **Override with Studio theme**.
+  naming the side the file sets, such as `spreadsheet.resultRow.border.top.color` of the Green theme, whichever side
+  the line is drawn on: that line is drawn as the bottom line of the row above. A client can draw the colour of a
+  key its own way, as OpenL Studio does with **Override with Studio theme**.
 - `source` — `theme` for the look of a table theme, which a read with `tableTheme` reports in place of the style of
   the workbook; absent for the style the workbook holds, `workbook`. The style of a run names its source the same way.
 

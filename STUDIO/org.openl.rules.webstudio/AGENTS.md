@@ -192,7 +192,7 @@ for the endpoints.
 - **The overlay tells where each colour is set.** `ThemeColourReader` gives every colour the key of the file it is
   read at (`ThemeColour.key`): the keys from the top of the file down, as Jackson reads the file with its aliases and
   merge keys resolved, such as `spreadsheet.values.background`, `base.header.keyword.color` or
-  `environment.name.border.right.color`, so a part an alias repeats has a key of its own. The key travels with the
+  `spreadsheet.resultRow.border.top.color`, so a part an alias repeats has a key of its own. The key travels with the
   colour through every part laid over another, and the overlay reports it beside the colour (`backgroundKey`,
   `colorKey` of a style, a run and a border side), so the screen can draw a key in a colour of its own theme
   (**Override with Studio theme**). The key is no part of the colour (`ThemeColour.equals`): parts that look alike take
@@ -218,18 +218,23 @@ for the endpoints.
   (`ThemesTable.inheritFromThemeAsRequired`), and `findOrCreateFont` reads every font of the workbook, so each font of
   a theme colour would be saved with an RGB beside it.
 - **A theme is one style for every kind.** Every theme styles every kind of table but Other, and a kind the theme
-  writes nothing for takes the base alone, as a Method table does in the shipped themes. The server decides which
+  writes nothing for takes the base alone. The shipped themes write a look only for the kinds the formatting standard
+  of OpenL tables describes — a Datatype and a Vocabulary, a Spreadsheet, a Data and a Test table, the decision tables
+  and the lookups — and give every other kind (TBasic, Method, Run, ColumnMatch, Conditions, Actions, Returns,
+  Environment, Properties, Constants) the base alone, which is the General format of the standard. The layouts of
+  those kinds stay, so a theme of one's own can still give them a look, and their tests read
+  `test-table-themes/every-kind.yaml` (`TestThemes.everyKind()`), which does. The server decides which
   tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a
   constant of `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of
   its body, so a new kind of table is one constant there and one part of `TableTheme`.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
   style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
   a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
-  and each layout reads its own: a part another kind takes is not used. The shipped themes therefore write what the
-  kinds share once in the base — the titles, the return titles, the returns, the types, the code, the groups — and
-  each kind only what it changes. A kind that looks like another is an alias in the file (`run: *calls`,
-  `smartRules: *simple`, `smartLookup: *lookup`), never a rule of the code, so a theme can still give it a look of its
-  own.
+  and each layout reads its own: a part another kind takes is not used. The base of the shipped themes is the General
+  format alone, so a part the kinds share — the titles, the return titles, the returns, the types, the code, the
+  groups — is written once under the first kind that takes it and repeated by an alias (`titles: *title`). A kind
+  that looks like another is an alias in the file (`smartRules: *simple`, `smartLookup: *lookup`), never a rule of
+  the code, so a theme can still give it a look of its own.
 - **One table is themed through its edit.** The `theme` action of `RawTableSourceAction` writes the theme inside the
   edit batch, after the values and before the styling, so the rows the batch added are themed and the styling the
   user set stands over the theme. Only the whole project has an endpoint of its own (`POST /projects/{id}/theme`).
@@ -333,15 +338,16 @@ for the endpoints.
   `DtColumnsDefinitionMetaInfoReader`) and the layout takes them where `TableMoves` moved them. A table written as
   the Reference Guide writes it, a part in each row, is compiled transposed: its rows read as the code and the titles
   of a Rules table, so it takes the looks upright, and a table with a part in each column takes them turned. The
-  shipped themes alias the look of a Rules table (`conditions: *rules`, `actions: *rules`, `returns: *rules`). A
-  table no declaration is read from takes the base alone.
+  shipped themes give these tables the General format alone; `every-kind.yaml` aliases the look of a Rules table
+  (`conditions: *rules`, `actions: *rules`, `returns: *rules`). A table no declaration is read from takes the base
+  alone.
 - **A TBasic and a ColumnMatch table are read as their builders read them.** Both name their columns by ids in the
   first row of the body, read by `ThemeLayouts.idsOf` trimmed and in lower case as `AlgorithmBuilder` and
   `ColumnMatchBuilder` read them, title them in the second row, and nest by the indent of a cell. No theme changes
   the indent: `ThemeStyle` has none, and the writer clones the style of the cell. `TBasicThemeLayout` gives the ids
   `code`, the titles `titles` with `stepTitle` over the title of the labels, the labels `steps`, the conditions
-  `condition` and what a step runs (`action`, `before`, `after`) `values`. The shipped themes write no `condition`, so
-  only what a step runs is filled, while a theme can still give the conditions a look of their own. It reads the
+  `condition` and what a step runs (`action`, `before`, `after`) `values`. A theme can leave the conditions out, as
+  `every-kind.yaml` does, so only what a step runs is filled, or give them a look of their own. It reads the
   operation of each row of the sheet as `AlgorithmBuilder.buildRows` does, and lays `sections` over every cell of a
   step that starts a subroutine (`SUB`, `FUNCTION`) and `result` over every cell of one that returns (`RETURN`).
   `ColumnMatchThemeLayout` takes the rows giving what the table returns or scores as the algorithm the header names
@@ -349,9 +355,10 @@ for the endpoints.
   `WEIGHTED`. Their `values` take `returns` and the rest `returnTitles`. The conditions under them take `name` in
   the `names` column and `values` elsewhere, and a condition whose name is not indented, with the conditions indented
   under it, makes a group: `groups` is laid over its first row and over the row after it. Both read the text of the
-  table, so a table being edited is themed before it is compiled. The shipped themes give a TBasic table the look of
-  a Spreadsheet (`tbasic: *spreadsheet`) and the code of the base, and a ColumnMatch table the titles, the returns
-  and the code of the base, with a line after the names and between the columns of its values.
+  table, so a table being edited is themed before it is compiled. The shipped themes give both the General format
+  alone; `every-kind.yaml` gives a TBasic table the look of a Spreadsheet (`tbasic: *spreadsheet`) and the code of
+  its base, and a ColumnMatch table the titles, the returns and the code of its base, with a line after the names and
+  between the columns of its values.
 - **An Environment, a Properties and a Constants table name a value in each row.** `NamedValuesThemeLayout` gives
   the first column of an Environment (the setting: `import`, `dependency`, `include`) and of a Properties table (the
   property) the `name` look and the rest `values`. The loader reads an Environment by its rows
@@ -359,9 +366,10 @@ for the endpoints.
   so both are read as written. A Constants table names its constants as a Datatype names its fields, so
   `DatatypeThemeLayout` lays it out: its `type`, `name` and `values` columns, oriented as a Datatype
   (`DatatypeHelper.getNormalizedDataPartTable`), with the orientation of the compiled table
-  (`ConstantsTableMetaInfoReader`, `getNormalizedData().isNormalOrientation()`). The shipped themes draw an
-  Environment, a technical table, in greys, and a Properties table is an alias of its look (`properties: *technical`);
-  the names of a Constants table take the fill of the field names of a Datatype (`name: *fieldName`).
+  (`ConstantsTableMetaInfoReader`, `getNormalizedData().isNormalOrientation()`). The shipped themes give these tables
+  the General format alone; `every-kind.yaml` draws an Environment in greys, a Properties table as an alias of its
+  look (`properties: *technical`), and the names of a Constants table in the fill of the field names of a Datatype
+  (`name: *fieldName`).
 - **A transposed Datatype is themed as it is compiled.** Only the compiler tells a transposed table apart, so the
   layout takes the orientation of the compiled body (`DatatypeTableMetaInfoReader`, `isNormalOrientation()`): the
   places follow the fields, and `lastRow` stays the last row as written. A table that did not compile is themed as

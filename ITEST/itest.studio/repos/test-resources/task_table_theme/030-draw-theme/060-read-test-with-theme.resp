@@ -176,7 +176,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "base.titles.background",
+          "backgroundKey": "test.titles.background",
           "source": "theme"
         }
       },
@@ -190,7 +190,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "base.returnTitles.background",
+          "backgroundKey": "test.returnTitles.background",
           "source": "theme"
         }
       }
@@ -229,7 +229,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "base.returns.background",
+          "backgroundKey": "test.returns.background",
           "source": "theme"
         }
       }
