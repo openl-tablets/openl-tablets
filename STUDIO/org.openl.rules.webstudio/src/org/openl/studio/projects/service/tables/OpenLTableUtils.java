@@ -5,7 +5,6 @@ import java.util.Objects;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
-import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -72,27 +71,17 @@ public abstract class OpenLTableUtils {
      * @return {@code true} if provided table is a vocabulary table, {@code false} otherwise
      */
     public static boolean isVocabularyTable(IOpenLTable table) {
-        return isDatatypeTable(table) && isVocabularyHeader(table.getSyntaxNode().getHeader().getSourceString());
-    }
-
-    /**
-     * Checks if the header of a Datatype table declares the type of the values of a Vocabulary, as in
-     * {@code Datatype Gender <String>}.
-     *
-     * @param header the text of the header cell of a Datatype table
-     * @return {@code true} if the header declares the type of the values, {@code false} otherwise
-     */
-    public static boolean isVocabularyHeader(@Nullable String header) {
-        if (header == null) {
-            return false;
+        if (isDatatypeTable(table)) {
+            var header = table.getSyntaxNode().getHeader().getSourceString();
+            var len = header.length();
+            var pos1 = StringUtils.first(header, 0, len, x -> x == VocabularyTableWriter.TYPE_OPEN);
+            if (pos1 < 0) {
+                return false;
+            }
+            var pos2 = StringUtils.first(header, pos1, len, x -> x == VocabularyTableWriter.TYPE_CLOSE);
+            return pos1 < pos2;
         }
-        var len = header.length();
-        var pos1 = StringUtils.first(header, 0, len, x -> x == VocabularyTableWriter.TYPE_OPEN);
-        if (pos1 < 0) {
-            return false;
-        }
-        var pos2 = StringUtils.first(header, pos1, len, x -> x == VocabularyTableWriter.TYPE_CLOSE);
-        return pos1 < pos2;
+        return false;
     }
 
     /**

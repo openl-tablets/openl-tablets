@@ -9,7 +9,8 @@ package org.openl.studio.projects.service.tables.theme;
  * after it the value look. Every cell starts from the look of the whole table, and a cell that reaches the bottom of
  * the table gets the last-row look over its own.
  *
- * <p>Both tables are read as they are written, as the properties of any table are.
+ * <p>Both tables are read as they are written, as the properties of any table are: the loader reads every Environment
+ * table by its rows, and the compiler binds a Properties table as the properties section of its tables.
  */
 final class NamedValuesThemeLayout {
 

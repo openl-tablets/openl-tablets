@@ -120,6 +120,16 @@ public final class TableTestProjects {
         throw new IllegalStateException("No table named " + name);
     }
 
+    /** The table of the module with the given header: a table the compiler did not bind has no name to find it by. */
+    public static IOpenLTable tableHeaded(ProjectModel projectModel, String header) {
+        for (var tsn : projectModel.getAllTableSyntaxNodes()) {
+            if (header.equals(tsn.getGridTable().getCell(0, 0).getStringValue())) {
+                return new TableSyntaxNodeAdapter(tsn);
+            }
+        }
+        throw new IllegalStateException("No table headed " + header);
+    }
+
     /** The values across one row of the sheet, written from the given column. */
     public static void row(Sheet sheet, int rowIndex, int from, String... values) {
         var sheetRow = sheet.createRow(rowIndex);

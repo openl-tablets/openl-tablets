@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -1051,6 +1052,43 @@ public class SpreadsheetStructureBuilder {
 
     public boolean isExistsReturnHeader() {
         return returnHeaderDefinition != null;
+    }
+
+    /**
+     * The header of each step, by the row of the body it names.
+     *
+     * <p>The rows are counted under the titles of the columns, so the row under them is row 0. A row whose name is
+     * empty, cannot be read, repeats another name or describes another row is not a step.
+     *
+     * @return the headers of the steps
+     */
+    public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {
+        return Collections.unmodifiableMap(rowHeaders);
+    }
+
+    /**
+     * The header of each column, by the column of the body it names.
+     *
+     * <p>The columns are counted after the column of the steps, so the column after it is column 0. A column whose
+     * name is empty, cannot be read, repeats another name or describes another column is not among them.
+     *
+     * @return the headers of the columns
+     */
+    public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {
+        return Collections.unmodifiableMap(columnHeaders);
+    }
+
+    /**
+     * The header of the step or the column whose value the Spreadsheet returns: the one named {@code RETURN}, or else
+     * the last step.
+     *
+     * <p>A Spreadsheet that returns {@code SpreadsheetResult} and names no {@code RETURN} returns every step, and has
+     * no such header.
+     *
+     * @return the header, or {@code null} for a Spreadsheet that returns every step
+     */
+    public SpreadsheetHeaderDefinition getReturnHeaderDefinition() {
+        return returnHeaderDefinition;
     }
 
     public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet,

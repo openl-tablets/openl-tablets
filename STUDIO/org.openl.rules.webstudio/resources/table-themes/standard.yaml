@@ -165,8 +165,8 @@ data:
   values: &given
     align: center
     background: lightBlue
-  # The keys, bold: the first column of a table that names no column "_PK_", which OpenL takes for its keys. A column
-  # "_PK_" names its keys itself.
+  # The keys, bold: the first column of a table, which OpenL takes for its keys unless it is a column "_PK_", which
+  # names its keys itself.
   ids: &ids
     bold: true
 

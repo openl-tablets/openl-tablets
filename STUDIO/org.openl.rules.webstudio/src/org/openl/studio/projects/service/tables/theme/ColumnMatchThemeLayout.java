@@ -3,17 +3,24 @@ package org.openl.studio.projects.service.tables.theme;
 import static org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler.NAMES;
 import static org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler.VALUES;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.EnumUtils;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.cmatch.ColumnMatch;
+import org.openl.rules.cmatch.SubValue;
+import org.openl.rules.cmatch.TableColumn;
+import org.openl.rules.cmatch.TableRow;
+import org.openl.rules.lang.xls.types.meta.ColumnMatchMetaInfoReader;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.ILogicalTable;
 
 /**
  * Decides which look a theme gives each cell of the body of a ColumnMatch table: a decision tree that checks its
@@ -25,56 +32,43 @@ import org.openl.rules.table.ILogicalTable;
  * look. Every row after those is a condition. The name it checks gets the name look, and what it checks the name with
  * and against gets the value look. The last row gets the last-row look over its own.
  *
- * <p>The algorithm the header names tells how many rows give what the table returns or scores: three for
- * {@code WEIGHTED} — the return values, the total score and the score — and one for {@code MATCH}, the return values,
- * and for {@code SCORE}, the score. A header naming no algorithm is matched.
+ * <p>The algorithm the compiler read in the header tells how many rows give what the table returns or scores: three
+ * for {@code WEIGHTED} — the return values, the total score and the score — and one for {@code MATCH}, the return
+ * values, and for {@code SCORE}, the score. A header naming no algorithm is matched.
  *
  * <p>A condition whose name is not indented starts a group with the conditions indented under it, which the table
  * checks together. The first row of a group and the row after it get the group look over their own. The indent tells
  * the compiler the group, and the theme never changes it.
+ *
+ * <p>The ids, the rows and their indents are the ones the compiler read, each found where the edits since the
+ * compilation moved it.
  */
 final class ColumnMatchThemeLayout {
 
-    /** The row of the body the rows giving what the table returns or scores start at, under the ids and the titles. */
-    private static final int RETURNS = 2;
+    /** The row of the body the ids stand in. */
+    private static final int IDS = 0;
 
-    /** No row of the body. */
-    private static final int NONE = -1;
+    /** The row of the body the titles stand in, under the ids. */
+    private static final int TITLES = 1;
+
+    /** The values of a column a row has none in. */
+    private static final SubValue[] NO_VALUES = {};
 
     private ColumnMatchThemeLayout() {
     }
 
     /**
-     * The places of the body of a ColumnMatch table, read as it is written. The header names the algorithm of the
-     * table.
+     * The places of the body of a ColumnMatch table the compiler read: its ids, its titles, the rows giving what it
+     * returns or scores, and its conditions.
      *
      * @param body the body of the table
      * @return the body and the look of each of its places
      */
     static BodyLayout.Placed layOut(ThemedBody body) {
-        return new BodyLayout.Placed(body.rows(), Places.of(body));
-    }
-
-    /** An algorithm a ColumnMatch table is compiled by, by the name {@code MatchAlgorithmFactory} knows it by. */
-    @RequiredArgsConstructor
-    private enum Algorithm {
-        MATCH(1),
-        SCORE(1),
-        WEIGHTED(3);
-
-        /** The rows giving what the table returns or scores, as the compiler of the algorithm counts them. */
-        private final int returns;
-
-        /**
-         * The algorithm a header names in angle brackets before the type it returns. A header naming none, or naming
-         * one by another name, is matched.
-         */
-        static Algorithm of(String header) {
-            var type = HeaderRuns.returnType(header);
-            var end = type.indexOf('>');
-            var name = type.startsWith("<") && end > 0 ? type.substring(1, end) : null;
-            return EnumUtils.getEnum(Algorithm.class, name, MATCH);
+        if (!(body.compiled().node().getMetaInfoReader() instanceof ColumnMatchMetaInfoReader reader)) {
+            return BodyLayout.Placed.plain(body);
         }
+        return new BodyLayout.Placed(body.rows(), Places.of(body, reader.getBoundNode().getColumnMatch()));
     }
 
     /**
@@ -87,8 +81,8 @@ final class ColumnMatchThemeLayout {
      * @param name        the look of a name the table checks
      * @param value       the look of what a condition checks its name with and against
      * @param groups      the look laid over the first row of a group and the row after it
-     * @param ids         the id of each column of the body
-     * @param conditions  the row of the body the conditions start at
+     * @param ids         the id of each column of the body the compiler read one for
+     * @param special     the rows of the body that give what the table returns or scores
      * @param groupEdges  the rows of the body a group starts at, and the rows after a group
      */
     @Builder
@@ -99,15 +93,18 @@ final class ColumnMatchThemeLayout {
                           ThemeStyle name,
                           ThemeStyle value,
                           @Nullable ThemeStyle groups,
-                          List<String> ids,
-                          int conditions,
+                          Map<Integer, String> ids,
+                          Set<Integer> special,
                           Set<Integer> groupEdges) implements ThemeLayouts.PlaceLook {
 
-        static Places of(ThemedBody body) {
+        static Places of(ThemedBody body, ColumnMatch columnMatch) {
             var base = body.base();
             var look = body.look();
-            var ids = ThemeLayouts.idsOf(body.rows());
-            var conditions = RETURNS + Algorithm.of(body.header()).returns;
+            var compiledIds = columnMatch.getColumns().stream().map(TableColumn::getId).toList();
+            var read = new Read(body, columnMatch.getRows(), compiledIds,
+                    CompiledReads.specialRowsOf(columnMatch.getAlgorithm()));
+            var ids = new HashMap<Integer, String>();
+            compiledIds.forEach(id -> read.columnsOf(id).forEach(at -> ids.put(at, id)));
             return Places.builder()
                     .code(base.with(look.code()))
                     .title(base.with(look.titles()))
@@ -116,23 +113,23 @@ final class ColumnMatchThemeLayout {
                     .name(base.with(look.name()))
                     .value(base.with(look.values()))
                     .groups(look.groups())
-                    .ids(ids)
-                    .conditions(conditions)
-                    .groupEdges(groupEdgesOf(body.rows(), ids.indexOf(NAMES), conditions))
+                    .ids(Map.copyOf(ids))
+                    .special(read.specialRows())
+                    .groupEdges(read.groupEdges())
                     .build();
         }
 
         /** The look of a cell of the body, by the place it stands in. */
         @Override
         public ThemeStyle at(ICell cell, int column, int row) {
-            if (row == 0) {
+            if (row == IDS) {
                 return code;
             }
-            if (row == 1) {
+            if (row == TITLES) {
                 return title;
             }
-            var id = ids.get(column);
-            if (row < conditions) {
+            var id = ids.getOrDefault(column, "");
+            if (special.contains(row)) {
                 return VALUES.equals(id) ? returned : returnTitle;
             }
             var style = NAMES.equals(id) ? name : value;
@@ -141,38 +138,87 @@ final class ColumnMatchThemeLayout {
     }
 
     /**
-     * The rows of the body a group of conditions starts at, and the rows after a group.
+     * The rows of a ColumnMatch table as the compiler read them, under its ids and its titles, and where they stand
+     * now.
      *
-     * <p>A group is a condition whose name is not indented, with the conditions indented under it. The row after the
-     * last group is beyond the body when the group ends the table.
-     *
-     * @param body       the body of the table
-     * @param names      the column of the names, or {@code -1} for a table that names none
-     * @param conditions the row of the body the conditions start at
-     * @return the rows of the body
+     * @param body    the body of the table
+     * @param rows    the rows the compiler read: the rows giving what the table returns or scores, then the conditions
+     * @param ids     the id of each column the compiler read, in the order of the columns
+     * @param special how many of the rows give what the table returns or scores
      */
-    private static Set<Integer> groupEdgesOf(ILogicalTable body, int names, int conditions) {
-        var edges = new HashSet<Integer>();
-        if (names < 0) {
-            return edges;
-        }
-        var head = NONE;
-        for (var row = conditions; row <= body.getHeight(); row++) {
-            if (row == body.getHeight() || !isIndented(body.getCell(names, row))) {
-                // Every row since the last condition that is not indented is indented under it.
-                if (head != NONE && row > head + 1) {
-                    edges.add(head);
-                    edges.add(row);
-                }
-                head = row;
-            }
-        }
-        return edges;
-    }
+    private record Read(ThemedBody body, List<TableRow> rows, List<String> ids, int special) {
 
-    /** Whether the text of a cell is indented, which the compiler reads as a condition under the one above. */
-    private static boolean isIndented(ICell cell) {
-        var style = cell.getStyle();
-        return style != null && style.getIndent() > 0;
+        /** The columns of the body the values of a column the compiler named by an id stand in now. */
+        Set<Integer> columnsOf(String id) {
+            var columns = new HashSet<Integer>();
+            for (var row : rows) {
+                for (var value : valuesOf(row, id)) {
+                    columns.addAll(body.placesNow(value.getGridRegion(), true));
+                }
+            }
+            return columns;
+        }
+
+        /** The rows of the body that give what the table returns or scores. */
+        Set<Integer> specialRows() {
+            var at = new HashSet<Integer>();
+            for (var row = 0; row < Math.min(special, rows.size()); row++) {
+                at.addAll(rowsOf(row));
+            }
+            return Set.copyOf(at);
+        }
+
+        /**
+         * The rows of the body a group of conditions starts at, and the rows after a group.
+         *
+         * <p>A group is a condition whose name is not indented, with the conditions indented under it. The row after
+         * the last group is beyond the body when the group ends the table.
+         */
+        Set<Integer> groupEdges() {
+            var edges = new HashSet<Integer>();
+            var head = ThemedBody.NONE;
+            for (var row = special; row <= rows.size(); row++) {
+                if (row == rows.size() || !isIndented(row)) {
+                    // Every row since the last condition that is not indented is indented under it.
+                    if (head != ThemedBody.NONE && row > head + 1) {
+                        edges.addAll(rowsOf(head));
+                        edges.addAll(row == rows.size() ? after(rows.size() - 1) : rowsOf(row));
+                    }
+                    head = row;
+                }
+            }
+            return Set.copyOf(edges);
+        }
+
+        /** Whether the compiler read the name a condition checks indented, as a condition under the one above. */
+        private boolean isIndented(int row) {
+            var names = valuesOf(rows.get(row), NAMES);
+            return names.length > 0 && names[0].getIndent() > 0;
+        }
+
+        /**
+         * The first row of the body a row the compiler read stands in now: where its name stands, or where its first
+         * value stands in a table that names no column {@code names}.
+         */
+        private Set<Integer> rowsOf(int row) {
+            var compiled = rows.get(row);
+            return Stream.concat(Stream.of(NAMES), ids.stream())
+                    .map(id -> valuesOf(compiled, id))
+                    .filter(values -> values.length > 0)
+                    .findFirst()
+                    .flatMap(values -> body.placesNow(values[0].getGridRegion(), false).stream()
+                            .min(Integer::compareTo))
+                    .map(Set::of)
+                    .orElse(Set.of());
+        }
+
+        /** The row of the body after the one a row the compiler read stands in now. */
+        private Set<Integer> after(int row) {
+            return rowsOf(row).stream().map(at -> at + 1).collect(Collectors.toUnmodifiableSet());
+        }
+
+        private static SubValue[] valuesOf(TableRow row, String id) {
+            return Optional.ofNullable(row.get(id)).orElse(NO_VALUES);
+        }
     }
 }

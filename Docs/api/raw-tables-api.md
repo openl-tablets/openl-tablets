@@ -391,6 +391,11 @@ workbook holds: the line the theme draws over a section of a Spreadsheet is the 
 of some rows reports the line over the row under them on its last row as well, while the first row of the next rows
 keeps it: the rows read one window after another draw the line as the whole table does.
 
+The parts of a table are the ones the compiler read. A table it read none of, such as a Data, a Test or a Run table
+whose type or tested table is missing, has no parts OpenL knows: the cells of its body take the base look of the
+theme, its General format, rather than a look guessed from where they stand, while its header, its properties and the
+line that closes it keep the theme.
+
 The theme is a view only: a client edits a table from a read without `tableTheme`, whose styles are the ones the
 workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table of the
 kind `Other` is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with `400`.
