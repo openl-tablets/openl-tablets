@@ -1,0 +1,3 @@
+GET /rest/projects/ZGVzaWduOkVQQkRTLTE2ODE0/tables/86c849899a9b00f07c1d36884b388aa1?raw=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

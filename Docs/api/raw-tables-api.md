@@ -235,7 +235,9 @@ The request applies one edit to the raw source of any table. The `operation` sel
   row 0 is the header. The position of a column is from 0 to the table width. Target types: `rows`, `columns`, with
   `position` and `cells`.
 - **`delete`** — deletes `count` rows or columns from a `position`. The header row cannot be deleted. Target types:
-  `rows`, `columns`.
+  `rows`, `columns`. A merged cell reaching past the block loses only the rows or columns it covers and keeps its
+  value, even when the block takes away the line the value stood on. A merged cell inside the block goes away with it,
+  value included, and one left a single cell is no longer merged.
 - **`update`** — overwrites a cell, a row, a column, or a rectangle. The table is not resized. Target types: `cell`
   (`row`, `column`, `value`), `row` and `column` (`position`, `cells`), and `range` (`row`, `column`, `cells`; more than
   one cell).

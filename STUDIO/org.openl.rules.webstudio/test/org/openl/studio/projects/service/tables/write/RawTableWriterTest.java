@@ -682,6 +682,61 @@ class RawTableWriterTest {
     }
 
     @Test
+    void takesAwayRowsAcrossTwoMergesAndShortensEachByTheRowsItHeld() throws IOException {
+        var project = writeProject("two-groups", new String[][]{
+                {HEADER, null},
+                {"A", "a1"},
+                {"A", "a2"},
+                {"A", "a3"},
+                {"B", "b1"},
+                {"B", "b2"},
+                {"B", "b3"}
+        });
+        apply(project, merge(1, 0, 3, 1));
+        apply(project, merge(4, 0, 3, 1));
+
+        // The last row of the first group and the first row of the second one.
+        apply(project, deleteRows(3, 2));
+
+        var source = reload(project);
+        assertEquals(5, source.size());
+        // Each group loses only its own row: the first one is not shortened by the whole block.
+        assertEquals("A", value(source, 1, 0));
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).getFirst().covered());
+        // The second group lost the row its value stood on, and keeps the value over the rows it has left.
+        assertEquals("B", value(source, 3, 0));
+        assertEquals(Integer.valueOf(2), source.get(3).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(4).getFirst().covered());
+        assertEquals(List.of("a1", "a2", "b2", "b3"),
+                source.subList(1, 5).stream().map(row -> row.get(1).value()).toList());
+    }
+
+    @Test
+    void takesAwayColumnsAcrossTwoMergesAndLeavesEachItsValue() throws IOException {
+        var project = writeProject("two-banks", new String[][]{
+                {HEADER, null, null, null},
+                {"x", "x", "y", "y"},
+                {"a", "b", "c", "d"}
+        });
+        apply(project, merge(1, 0, 1, 2));
+        apply(project, merge(1, 2, 1, 2));
+
+        // The last column of the first bank and the first column of the second one.
+        apply(project, deleteColumns(1, 2));
+
+        var source = reload(project);
+        assertEquals(2, width(source));
+        // Each bank is left one cell wide: no longer a merge, still carrying its value.
+        assertEquals("x", value(source, 1, 0));
+        assertNull(source.get(1).getFirst().colspan());
+        assertEquals("y", value(source, 1, 1));
+        assertNull(source.get(1).get(1).covered());
+        assertEquals("a", value(source, 2, 0));
+        assertEquals("d", value(source, 2, 1));
+    }
+
+    @Test
     void refusesToTakeAwayTheRowTheHeaderStandsOn() {
         // Nothing bars the first row itself. What bars this write is that the table would be left starting
         // with a line OpenL does not read as a header, which is a table nobody could find again.

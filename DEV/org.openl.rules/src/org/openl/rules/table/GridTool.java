@@ -2,6 +2,7 @@ package org.openl.rules.table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 
@@ -36,13 +37,14 @@ public class GridTool {
     private static final boolean REMOVE = false;
 
     /**
-     * Searches all merged regions inside the specified region of table for regions that have to be resized.
+     * Searches all merged regions inside the specified region of table for regions that grow over inserted lines.
+     *
+     * <p>Removal does not come here: {@link #shrinkMergedRegions} fits the merges to the lines taken away.
      *
      * @param grid                  Current writable grid.
-     * @param firstRowOrColumn      Index of row or column for insertion/removing.
-     * @param numberOfRowsOrColumns Number of elements to insert/remove.
-     * @param isInsert              Flag that defines what we have to do(insert/remove).
-     * @param isColumns             Flag that defines direction of insertion/removing.
+     * @param firstRowOrColumn      Index of row or column for insertion.
+     * @param numberOfRowsOrColumns Number of elements to insert.
+     * @param isColumns             Flag that defines direction of insertion.
      * @param regionOfTable         Region of current table.
      * @param metaInfoWriter        Needed to save meta info changes
      * @return All actions to resize merged regions.
@@ -50,7 +52,6 @@ public class GridTool {
     private static List<IUndoableGridTableAction> resizeMergedRegions(IGrid grid,
                                                                       int firstRowOrColumn,
                                                                       int numberOfRowsOrColumns,
-                                                                      boolean isInsert,
                                                                       boolean isColumns,
                                                                       IGridRegion regionOfTable,
                                                                       MetaInfoWriter metaInfoWriter) {
@@ -68,7 +69,7 @@ public class GridTool {
                         .getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom())
                         .getStyle();
 
-                if (!isColumns && isInsert) {
+                if (!isColumns) {
                     for (var j = 1; j <= numberOfRowsOrColumns; j++) {
                         grid.getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom() + 1)
                                 .getStyle();
@@ -81,7 +82,7 @@ public class GridTool {
 
                 resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion,
                         numberOfRowsOrColumns,
-                        isInsert,
+                        INSERT,
                         isColumns));
             }
         }
@@ -133,7 +134,7 @@ public class GridTool {
         actions.addAll(shiftColumns(colTo, nCols, INSERT, region, grid, metaInfoWriter));
         var block = new CellBlock(firstToMove, top, colTo, top, nCols, h);
         actions.addAll(copyCells(block, grid, metaInfoWriter));
-        actions.addAll(resizeMergedRegions(grid, beforeColumns, nCols, INSERT, COLUMNS, region, metaInfoWriter));
+        actions.addAll(resizeMergedRegions(grid, beforeColumns, nCols, COLUMNS, region, metaInfoWriter));
         actions.addAll(emptyCells(block, grid, true, COLUMNS, metaInfoWriter));
 
         return new UndoableCompositeAction(actions);
@@ -166,7 +167,7 @@ public class GridTool {
         actions.addAll(shiftRows(rowTo, nRows, INSERT, region, grid, metaInfoWriter));
         var block = new CellBlock(left, firstToMove, left, rowTo, w, nRows);
         actions.addAll(copyCells(block, grid, metaInfoWriter));
-        actions.addAll(resizeMergedRegions(grid, row, nRows, INSERT, ROWS, region, metaInfoWriter));
+        actions.addAll(resizeMergedRegions(grid, row, nRows, ROWS, region, metaInfoWriter));
         actions.addAll(emptyCells(block, grid, before, ROWS, metaInfoWriter));
 
         return new UndoableCompositeAction(actions);
@@ -517,7 +518,7 @@ public class GridTool {
             return new UndoableResizeMergedRegionAction(propHeaderRegion, 1, INSERT, ROWS);
         } else {
             return new UndoableCompositeAction(
-                    resizeMergedRegions(grid, firstPropertyRow, 1, INSERT, ROWS, tableRegion, metaInfoWriter));
+                    resizeMergedRegions(grid, firstPropertyRow, 1, ROWS, tableRegion, metaInfoWriter));
         }
 
     }
@@ -701,41 +702,133 @@ public class GridTool {
         return actions;
     }
 
+    /**
+     * Takes a block of columns away from the table and moves the columns to the right of it into its place.
+     *
+     * <p>Every merge of the table loses exactly the columns of the block it covers, see
+     * {@link #shrinkMergedRegions}.
+     */
     public static IUndoableGridTableAction removeColumns(int nCols,
                                                          int startColumn,
                                                          IGridRegion region,
                                                          IGrid grid,
                                                          MetaInfoWriter metaInfoWriter) {
-        var firstToMove = region.getLeft() + startColumn + nCols;
-        var w = GridRegionUtils.width(region);
-        var h = GridRegionUtils.height(region);
-
-        var actions = new ArrayList<IUndoableGridTableAction>(h * (w - startColumn));
-
-        // resize merged regions -> shift cells by column -> clear cells
-        actions.addAll(resizeMergedRegions(grid, startColumn, nCols, REMOVE, COLUMNS, region, metaInfoWriter));
-        actions.addAll(shiftColumns(firstToMove, nCols, REMOVE, region, grid, metaInfoWriter));
-        actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, grid, metaInfoWriter));
-
-        return new UndoableCompositeAction(actions);
+        return table -> {
+            // Which cells move and which are cleared is decided from the merges, so they are fitted first.
+            shrinkMergedRegions(table, startColumn, nCols, COLUMNS, region, metaInfoWriter);
+            var firstToMove = region.getLeft() + startColumn + nCols;
+            var h = GridRegionUtils.height(region);
+            var actions = new ArrayList<IUndoableGridTableAction>();
+            actions.addAll(shiftColumns(firstToMove, nCols, REMOVE, region, grid, metaInfoWriter));
+            actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, grid, metaInfoWriter));
+            new UndoableCompositeAction(actions).doAction(table);
+        };
     }
 
+    /**
+     * Takes a block of rows away from the table and moves the rows below it up into its place.
+     *
+     * <p>Every merge of the table loses exactly the rows of the block it covers, see {@link #shrinkMergedRegions}.
+     */
     public static IUndoableGridTableAction removeRows(int nRows,
                                                       int startRow,
                                                       IGridRegion region,
                                                       IGrid grid,
                                                       MetaInfoWriter metaInfoWriter) {
-        var w = GridRegionUtils.width(region);
-        var h = GridRegionUtils.height(region);
-        var firstToMove = region.getTop() + startRow + nRows;
+        return table -> {
+            // Which cells move and which are cleared is decided from the merges, so they are fitted first.
+            shrinkMergedRegions(table, startRow, nRows, ROWS, region, metaInfoWriter);
+            var w = GridRegionUtils.width(region);
+            var firstToMove = region.getTop() + startRow + nRows;
+            var actions = new ArrayList<IUndoableGridTableAction>();
+            actions.addAll(shiftRows(firstToMove, nRows, REMOVE, region, grid, metaInfoWriter));
+            actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, grid, metaInfoWriter));
+            new UndoableCompositeAction(actions).doAction(table);
+        };
+    }
 
-        var actions = new ArrayList<IUndoableGridTableAction>(w * (h - startRow));
+    /**
+     * Fits the merges of the table to a block of lines about to be taken away.
+     *
+     * <p>A merge loses exactly the lines of the block it covers, and one that survives keeps its value:
+     * <ul>
+     *   <li>a merge inside the block goes away with it, value included;
+     *   <li>a merge starting before the block gets shorter by the lines of the block it covers;
+     *   <li>a merge starting inside the block and reaching past it is moved onto its first line after the block,
+     *   value included, where the lines below the block carry it into place.
+     * </ul>
+     *
+     * <p>A merge left one cell big stops being a merge. A merge clear of the block is left as it is.
+     *
+     * @param firstRowOrColumn the first line taken away, counted from the table's own first line
+     * @param count            how many lines are taken away
+     * @param isColumns        whether the lines are columns rather than rows
+     */
+    private static void shrinkMergedRegions(IGridTable table,
+                                            int firstRowOrColumn,
+                                            int count,
+                                            boolean isColumns,
+                                            IGridRegion regionOfTable,
+                                            MetaInfoWriter metaInfoWriter) {
+        var first = (isColumns ? regionOfTable.getLeft() : regionOfTable.getTop()) + firstRowOrColumn;
+        var last = first + count - 1;
+        for (var merged : mergesStartingIn(table.getGrid(), regionOfTable)) {
+            fitMerge(table, merged, first, last, isColumns, metaInfoWriter);
+        }
+    }
 
-        // resize merged regions -> shift cells by row -> clear cells
-        actions.addAll(resizeMergedRegions(grid, startRow, nRows, REMOVE, ROWS, region, metaInfoWriter));
-        actions.addAll(shiftRows(firstToMove, nRows, REMOVE, region, grid, metaInfoWriter));
-        actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, grid, metaInfoWriter));
+    /** The merges whose top-left cell lies in the region, collected before any of them changes. */
+    private static List<IGridRegion> mergesStartingIn(IGrid grid, IGridRegion region) {
+        return IntStream.range(0, grid.getNumberOfMergedRegions())
+                .mapToObj(grid::getMergedRegion)
+                .filter(merged -> GridRegionUtils.contains(region, merged.getLeft(), merged.getTop()))
+                .toList();
+    }
 
-        return new UndoableCompositeAction(actions);
+    /** Fits one merge to the lines from {@code first} to {@code last} about to be taken away. */
+    private static void fitMerge(IGridTable table,
+                                 IGridRegion merged,
+                                 int first,
+                                 int last,
+                                 boolean isColumns,
+                                 MetaInfoWriter metaInfoWriter) {
+        var grid = (IWritableGrid) table.getGrid();
+        var start = isColumns ? merged.getLeft() : merged.getTop();
+        var end = isColumns ? merged.getRight() : merged.getBottom();
+        if (start < first && end >= first) {
+            var covered = Math.min(end, last) - first + 1;
+            grid.removeMergedRegion(merged);
+            mergeIfWider(grid, alongLines(merged, start, end - covered, isColumns));
+        } else if (start >= first && start <= last) {
+            grid.removeMergedRegion(merged);
+            if (end > last) {
+                moveMergeOrigin(merged, last + 1, isColumns, metaInfoWriter).doAction(table);
+                mergeIfWider(grid, alongLines(merged, last + 1, end, isColumns));
+            }
+        }
+    }
+
+    /** The same merge spanning the lines from {@code start} to {@code end} along the axis lines are taken from. */
+    private static IGridRegion alongLines(IGridRegion merged, int start, int end, boolean isColumns) {
+        return isColumns
+                ? new GridRegion(merged.getTop(), start, merged.getBottom(), end)
+                : new GridRegion(start, merged.getLeft(), end, merged.getRight());
+    }
+
+    /** Moves the value of a merge from its top-left cell to the given line, the merge itself already undone. */
+    private static AUndoableCellAction moveMergeOrigin(IGridRegion merged,
+                                                       int line,
+                                                       boolean isColumns,
+                                                       MetaInfoWriter metaInfoWriter) {
+        return isColumns
+                ? new UndoableShiftValueAction(merged.getLeft(), merged.getTop(), line, merged.getTop(), metaInfoWriter)
+                : new UndoableShiftValueAction(merged.getLeft(), merged.getTop(), merged.getLeft(), line, metaInfoWriter);
+    }
+
+    /** Merges the region unless it is a single cell. */
+    private static void mergeIfWider(IWritableGrid grid, IGridRegion region) {
+        if (GridRegionUtils.width(region) > 1 || GridRegionUtils.height(region) > 1) {
+            grid.addMergedRegion(region);
+        }
     }
 }
