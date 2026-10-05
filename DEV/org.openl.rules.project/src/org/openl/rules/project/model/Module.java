@@ -82,12 +82,24 @@ public class Module {
                 .toString();
     }
 
-    public boolean containsTable(String tableUri) {
+    /**
+     * Whether a table is one of this module.
+     *
+     * <p>The URI of a table names the file of its module, then the place of the table in the file after {@code ?}.
+     * A module owns the tables of its own file only: a module of {@code Main.xls} owns no table of
+     * {@code Main.xlsx}.
+     *
+     * @param tableUri the URI of the table, or {@code null}
+     * @return {@code true} if the table is in the file of this module
+     */
+    public boolean containsTable(@Nullable String tableUri) {
         if (tableUri == null || getRulesRootPath() == null) {
             // Eclipse project
             return false;
         }
-        return tableUri.startsWith(getRelativeUri());
+        var file = getRelativeUri();
+        return tableUri.startsWith(file)
+                && (tableUri.length() == file.length() || tableUri.charAt(file.length()) == '?');
     }
 
     @Override
