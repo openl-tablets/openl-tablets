@@ -12,14 +12,7 @@ import { notifyLoadFailure } from '../../services/apiCall'
 import { getRawTable, getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { useTableThemesOf } from '../../hooks/useTableThemes'
-import type {
-    RawCellStyleInput,
-    RawTableCell,
-    RawTableCellStyle,
-    RawTableTextRun,
-    TableLayout,
-    TableThemeOption,
-} from 'types/tables'
+import type { RawCellStyleInput, RawTableCell, RawTableCellStyle, RawTableTextRun, TableLayout } from 'types/tables'
 import type { EditorKind } from './CellValueEditor'
 import { withoutFirstRows } from './hiddenRows'
 import { OpenCell } from './OpenCell'
@@ -203,13 +196,6 @@ interface TableEditorProps {
      * keeps the colours of its table theme, and ignored while the table is edited.
      */
     look?: ThemeName | undefined
-    /**
-     * The table theme the settings name, where Studio offers it: offered first among the themes that style the table.
-     *
-     * <p>Only a table theme of the server is applied. What the screen draws the table with, the look of the Studio
-     * theme included, never decides what is offered.
-     */
-    namedTheme?: string | undefined
     /** Follows a piece of a cell's text to the table it names. */
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
@@ -290,12 +276,6 @@ const withTheme = (edited: EditedTable, looks: Map<string, ThemeLook>): RawTable
         return { ...rest, style: { ...theme.style, ...asked }, ...(theme.runs && { runs: theme.runs }) }
     }))
 
-/** The themes in the order they are offered: the one the reader starts from first. */
-const firstTheme = (themes: TableThemeOption[], first: string | undefined): TableThemeOption[] => [
-    ...themes.filter(theme => theme.id === first),
-    ...themes.filter(theme => theme.id !== first),
-]
-
 /**
  * The table, and the editing of it.
  *
@@ -315,7 +295,6 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     layout,
     formulas,
     look,
-    namedTheme,
     onOpenUsage,
     canWrite,
     editing,
@@ -433,9 +412,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // answer would let the reader fill in cells of a project somebody else may have taken in the meantime.
     useEffect(() => { setAsked(null) }, [tableId, maxRows, editing])
 
-    // The table themes that style this table, asked for when the reader starts editing it.
+    // The table themes that style this table, asked for when the reader starts editing it, in the order the server
+    // offers them: the primary theme first.
     const themes = useTableThemesOf(projectId, tableId, moduleName, editing)
-    const offeredThemes = themes === undefined ? undefined : firstTheme(themes, namedTheme)
 
     // A table drawn with a table theme carries the look of the theme in its cells, which no edit may start from: what
     // the reader styles and saves is the style the workbook holds. So the table is read again without the theme when
@@ -937,7 +916,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     picked={reading ? null : picked}
                     saving={saving}
                     theme={edited.theme}
-                    themes={offeredThemes}
+                    themes={themes}
                     whole={whole}
                     // The reader stays where they were, on the line that takes the place of the one gone, so
                     // several lines are taken away one after another without picking a cell each time. Picking

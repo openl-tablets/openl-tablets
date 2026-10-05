@@ -166,6 +166,10 @@ for the endpoints.
   parameter and the write actions carry; the `name` the file declares is only what the screen shows. Of two files of
   one identifier the first read is offered and the other logged as a warning (`TableThemeService`); two themes
   declaring one name are both offered.
+- **The primary theme is offered first.** A file writing `primary: true` (`standard`) is listed before the others,
+  then each group by name (`TableThemeService.inOfferedOrder`), in both theme lists. The screen applies a theme
+  starting from the first one offered, never from an identifier it knows, and never from the table theme of the
+  settings or the look of the Studio theme: those only decide what the screen draws.
 - **No theme means the Excel formatting.** The `table.theme` user setting is empty by default, and a setting that
   is empty or names a theme Studio no longer offers draws the tables as the workbook formats them: the screen asks a
   read for the theme only when it is offered (`offeredTheme`). A read naming a theme Studio does not offer is refused

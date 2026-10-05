@@ -111,7 +111,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForEveryKindOfDecisionTable() {
         for (var name : List.of(GREET, GREET_ROUND, GREETING, HELLO, RATE, FACTOR)) {
-            assertEquals(List.of("green", "standard"),
+            assertEquals(List.of("standard", "green"),
                     service.getThemes(table(name)).stream().map(TableThemeView::id).toList(), name);
         }
     }
@@ -354,7 +354,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForATableThatDeclaresWhatDecisionTablesTake() {
         for (var row : List.of(CONDITIONS_ROW, ACTIONS_ROW, HOURS_ROW, RETURNS_ROW)) {
-            assertEquals(List.of("green", "standard"),
+            assertEquals(List.of("standard", "green"),
                     service.getThemes(tableAt(row)).stream().map(TableThemeView::id).toList(), "row " + row);
         }
     }

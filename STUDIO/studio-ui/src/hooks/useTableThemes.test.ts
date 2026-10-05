@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getTableThemes, getTableThemesOf } from '../services/tables'
 import { errorHandler } from '../utils/errorHandling'
-import { defaultThemeOf, offeredTheme, toThemeOptions, useTableThemes, useTableThemesOf } from './useTableThemes'
+import { offeredTheme, toThemeOptions, useTableThemes, useTableThemesOf } from './useTableThemes'
 
 vi.mock('../services/tables', () => ({ getTableThemes: vi.fn(), getTableThemesOf: vi.fn() }))
 vi.mock('../utils/errorHandling', () => ({ errorHandler: { logError: vi.fn() } }))
@@ -104,21 +104,5 @@ describe('offeredTheme', () => {
         expect(offeredTheme(THEMES, 'removed')).toBeUndefined()
         expect(offeredTheme(THEMES, undefined)).toBeUndefined()
         expect(offeredTheme(undefined, 'green')).toBeUndefined()
-    })
-})
-
-describe('defaultThemeOf', () => {
-    it('starts from the theme the settings name while Studio offers it', () => {
-        expect(defaultThemeOf(THEMES, 'green')).toBe('green')
-    })
-
-    it('starts from the first theme offered when the settings name one Studio has no more', () => {
-        expect(defaultThemeOf(THEMES, 'removed')).toBe('default')
-        expect(defaultThemeOf(THEMES, undefined)).toBe('default')
-    })
-
-    it('starts from no theme while none is offered', () => {
-        expect(defaultThemeOf([], 'green')).toBeUndefined()
-        expect(defaultThemeOf(undefined, 'green')).toBeUndefined()
     })
 })

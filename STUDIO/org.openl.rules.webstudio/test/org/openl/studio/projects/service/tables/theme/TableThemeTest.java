@@ -186,12 +186,12 @@ class TableThemeTest {
         var model = TableTestProjects.projectModel(dir);
         var extension = new TableThemeService("classpath*:test-table-themes/datatype-extension.yaml");
 
-        assertEquals(List.of("green", "standard"), ids(service.getThemes(TableTestProjects.table(model, "Code"))));
-        assertEquals(List.of("green", "standard"), ids(service.getThemes(TableTestProjects.table(model, PREMIUM))));
+        assertEquals(List.of("standard", "green"), ids(service.getThemes(TableTestProjects.table(model, "Code"))));
+        assertEquals(List.of("standard", "green"), ids(service.getThemes(TableTestProjects.table(model, PREMIUM))));
         // A theme writing nothing for a kind of table other than a Datatype styles them all the same.
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
-        assertEquals(List.of("green", "standard"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
+        assertEquals(List.of("standard", "green"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
         assertTrue(service.getThemes(notes()).isEmpty(), "No theme styles a table of no kind OpenL knows");
     }
 

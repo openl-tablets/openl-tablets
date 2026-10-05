@@ -16,8 +16,8 @@ public class UserProfileBaseModel extends UserInfoModel {
 
     @Getter
     @Parameter(description = "Identifier of the table theme every table but a table of the type Other is drawn "
-            + "with and that is offered first when a theme is applied; empty to draw the tables with the "
-            + "formatting of the Excel file. The workbook is not changed")
+            + "with on the screen; empty to draw the tables with the formatting of the Excel file. A view only: the "
+            + "workbook is not changed, and applying a theme starts from the primary one whatever this names")
     private @Nullable String tableTheme;
 
     @Getter

@@ -69,7 +69,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void offersEveryThemeForAColumnMatchTable() {
-        assertEquals(List.of("green", "standard"),
+        assertEquals(List.of("standard", "green"),
                 service.getThemes(tableAt(APPROVAL_ROW)).stream().map(TableThemeView::id).toList());
     }
 

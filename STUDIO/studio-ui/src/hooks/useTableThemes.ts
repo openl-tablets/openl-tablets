@@ -4,7 +4,7 @@ import { getTableThemes, getTableThemesOf } from '../services/tables'
 import { errorHandler } from '../utils/errorHandling'
 
 /**
- * The table themes OpenL Studio offers, by name.
+ * The table themes OpenL Studio offers, in the order it offers them: the primary one first.
  *
  * Undefined until the list arrives. Empty when it cannot be read: a screen then offers no theme to choose rather
  * than failing, and the reason is kept for support.
@@ -34,7 +34,8 @@ export const useTableThemes = (): TableThemeOption[] | undefined => {
 }
 
 /**
- * The table themes that style a table, by name, asked for once per table while `asked` holds.
+ * The table themes that style a table, in the order OpenL Studio offers them, asked for once per table while `asked`
+ * holds.
  *
  * The themes style some kinds of table only, and the server says whether they suit the table. The answer is kept
  * for the table while it stays open.
@@ -72,13 +73,6 @@ export const useTableThemesOf = (projectId: string, tableId: string, moduleName:
 export const toThemeOptions = (themes: TableThemeOption[] | undefined): { value: string, label: string }[] =>
     (themes ?? []).map(theme => ({ value: theme.id, label: theme.name }))
 
-/** The theme the settings name, while Studio offers it; undefined otherwise. */
-export const offeredTheme = (themes: TableThemeOption[] | undefined, named: string | undefined)
-    : string | undefined => (themes?.some(theme => theme.id === named) ? named : undefined)
-
-/**
- * The theme a reader starts from: the one their settings name, where Studio still offers it, otherwise the first one
- * offered. Undefined while no theme is offered.
- */
-export const defaultThemeOf = (themes: TableThemeOption[] | undefined, named: string | undefined)
-    : string | undefined => offeredTheme(themes, named) ?? themes?.[0]?.id
+/** A theme named by its identifier, such as the one the settings name, while Studio offers it; undefined otherwise. */
+export const offeredTheme = (themes: TableThemeOption[] | undefined, named: string | undefined): string | undefined =>
+    (themes?.some(theme => theme.id === named) ? named : undefined)

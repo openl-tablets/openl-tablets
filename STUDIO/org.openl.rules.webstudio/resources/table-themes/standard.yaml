@@ -13,6 +13,10 @@
 
 name: Standard
 
+# The primary theme: listed before the others, so it is the one selected first when a theme is applied to a table or
+# to a project.
+primary: true
+
 # The theme colours of Excel the colours below are made of: Office 2013 - 2022, whose colours the standard names.
 # A workbook of these theme colours is written each colour as its theme colour, so Excel offers it in its palette;
 # any other workbook as #rrggbb, its theme left as it is.

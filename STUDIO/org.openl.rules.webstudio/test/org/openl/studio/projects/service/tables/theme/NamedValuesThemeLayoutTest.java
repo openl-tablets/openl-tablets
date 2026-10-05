@@ -64,7 +64,7 @@ class NamedValuesThemeLayoutTest {
     @Test
     void offersEveryThemeForAnEnvironmentAPropertiesAndAConstantsTable() {
         for (var row : List.of(ENVIRONMENT_ROW, PROPERTIES_ROW, CONSTANTS_ROW, TRANSPOSED_ROW)) {
-            assertEquals(List.of("green", "standard"),
+            assertEquals(List.of("standard", "green"),
                     service.getThemes(tableAt(row)).stream().map(TableThemeView::id).toList(), "row " + row);
         }
     }

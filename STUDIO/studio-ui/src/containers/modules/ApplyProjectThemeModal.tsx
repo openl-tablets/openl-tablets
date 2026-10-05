@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal, Select, Typography } from 'antd'
 import { FieldRow } from '../../components/FieldRow'
-import { defaultThemeOf, toThemeOptions, useTableThemes } from '../../hooks/useTableThemes'
+import { toThemeOptions, useTableThemes } from '../../hooks/useTableThemes'
 import { applyProjectTableTheme } from '../../services/tables'
-import { useUserStore } from '../../store'
 
 interface ApplyProjectThemeModalProps {
     open: boolean
@@ -17,15 +16,16 @@ interface ApplyProjectThemeModalProps {
 /**
  * Writes a table theme into every table of the project that the themes style, the theme chosen here.
  *
- * <p>The reader's own theme is chosen to begin with, as their settings name it.
+ * <p>The theme Studio offers first, its primary theme, is chosen to begin with. The table theme the reader's settings
+ * name plays no part: it only changes what the screen shows.
  */
 export const ApplyProjectThemeModal = ({ open, projectId, onClose, onApplied }: ApplyProjectThemeModalProps) => {
     const { t } = useTranslation('repository')
     const themes = useTableThemes()
-    const named = useUserStore(state => state.userProfile?.tableTheme)
-    // What the reader picked. Until they pick, the dialog stands on their own theme, and closing it forgets the pick.
+    // What the reader picked. Until they pick, the dialog stands on the theme offered first, and closing it forgets
+    // the pick.
     const [picked, setPicked] = useState<string | undefined>(undefined)
-    const theme = picked ?? defaultThemeOf(themes, named)
+    const theme = picked ?? themes?.[0]?.id
     const [applying, setApplying] = useState(false)
 
     const close = () => {

@@ -1670,24 +1670,14 @@ describe('TableEditor', () => {
 
         const drawnCell = (address: string): Element | null => document.querySelector(`[data-cell="${address}"]`)
 
-        it('offers the themes that style the table, the one the settings name first', async () => {
-            draw({ namedTheme: 'green' })
-
-            await userEvent.click(await screen.findByTestId('table-edit-theme'))
-
-            const offered = await screen.findAllByRole('menuitem')
-            expect(offered.map(item => item.textContent)).toEqual(['Green', 'Default'])
-            expect(getTableThemesOf).toHaveBeenCalledWith('repo:Rating', 'table-1', 'Claims')
-        })
-
-        it('offers the themes whatever the screen draws the table with, the look of the Studio theme too', async () => {
-            // Read in the look of the Studio theme, whose table theme the settings do not name.
-            draw({ look: 'standard' })
+        it('offers the themes that style the table in the order of the server, the primary one first', async () => {
+            draw()
 
             await userEvent.click(await screen.findByTestId('table-edit-theme'))
 
             const offered = await screen.findAllByRole('menuitem')
             expect(offered.map(item => item.textContent)).toEqual(['Default', 'Green'])
+            expect(getTableThemesOf).toHaveBeenCalledWith('repo:Rating', 'table-1', 'Claims')
         })
 
         it('offers no theme for a table no theme styles', async () => {

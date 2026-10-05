@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,9 +31,12 @@ class TableThemeServiceTest {
     private final TableThemeService service = new TableThemeService();
 
     @Test
-    void offersEveryThemeOfStudioByName() {
-        assertEquals(List.of(new TableThemeView("green", "Green"), new TableThemeView("standard", "Standard")),
+    void offersEveryThemeOfStudioTheStandardThemeFirst() {
+        // The Standard theme is the primary one, so it comes before the themes that come before it by name.
+        assertEquals(List.of(new TableThemeView("standard", "Standard"), new TableThemeView("green", "Green")),
                 service.getThemes());
+        assertTrue(service.theme("standard").primary());
+        assertFalse(service.theme("green").primary());
     }
 
     @Test
@@ -168,8 +172,10 @@ class TableThemeServiceTest {
 
     @Test
     void offersTheThemesItCanReadAndLeavesOutTheOnesItRefuses() {
-        // Next to the themes it reads lie the ones it refuses; Studio starts with the ones it can offer.
-        assertEquals(List.of(new TableThemeView("datatype-extension", "Datatype Extension"),
+        // Next to the themes it reads lie the ones it refuses; Studio starts with the ones it can offer, the primary
+        // one first and the others by name.
+        assertEquals(List.of(new TableThemeView("primary", "Primary"),
+                        new TableThemeView("datatype-extension", "Datatype Extension"),
                         new TableThemeView("decision-kinds", "Decision Kinds"),
                         new TableThemeView("excel-theme-colours", "Excel Theme Colours"),
                         new TableThemeView("extended-header", "Extended Header"),
