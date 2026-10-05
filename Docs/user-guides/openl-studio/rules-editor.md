@@ -421,7 +421,11 @@ OpenL Studio also ships the **Green** theme. How a theme file is written is desc
     the type **Other** is then drawn with the theme while it is viewed, and the Excel file keeps its own formatting.
     A table switched to the edit mode is drawn as the file holds it, so the formatting changed in the edit mode is
     the formatting of the file. To draw the tables with the formatting of the file again, select **Excel
-    Formatting**.
+    Formatting**. To draw them in the look of the OpenL Studio theme, dark in the dark appearance, select **Override
+    with Studio theme**: the **Standard** theme of OpenL Studio draws them with the **Standard** table theme whichever
+    theme the list selects, and under the other themes of OpenL Studio the list decides, as described in
+    [Modifying My Settings](getting-started.md#modifying-my-settings). Both settings change only the screen, never the
+    Excel file or the project.
 -   **Written into one table** — switch the table to the edit mode, click **Apply Theme**
     ![](images/edit-apply-theme-icon.png) on the toolbar, and select the theme. The table is drawn with the theme,
     and the theme is written into the Excel file with the other changes of the table when **Save** is clicked.

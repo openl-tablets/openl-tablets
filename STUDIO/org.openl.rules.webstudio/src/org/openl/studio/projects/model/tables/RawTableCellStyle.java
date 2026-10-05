@@ -29,9 +29,14 @@ import org.jspecify.annotations.Nullable;
  * @param fontFamily name of the font; set by the table theme only, absent in a style read from the workbook
  * @param fontSize   size of the font in points; set by the table theme only, absent in a style read from the
  *                   workbook
- * @param source     where the style comes from: {@link RawTableStyleSource#THEME} for the look a table theme draws
- *                   the cell with, which a read naming the theme reports in place of the style of the workbook;
- *                   absent for the style the workbook holds (the default, {@link RawTableStyleSource#WORKBOOK})
+ * @param backgroundKey the key of the table theme file the background colour is set at, such as
+ *                      {@code spreadsheet.values.background}; set by the table theme only, so a screen can draw the
+ *                      colour of the key its own way
+ * @param colorKey      the key of the table theme file the font colour is set at, such as
+ *                      {@code base.header.keyword.color}; set by the table theme only
+ * @param source        where the style comes from: {@link RawTableStyleSource#THEME} for the look a table theme draws
+ *                      the cell with, which a read naming the theme reports in place of the style of the workbook;
+ *                      absent for the style the workbook holds (the default, {@link RawTableStyleSource#WORKBOOK})
  */
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -74,6 +79,15 @@ public record RawTableCellStyle(
         @Parameter(description = "Size of the font in points; set by the table theme only")
         @Nullable Integer fontSize,
 
+        @Parameter(description = "Key of the table theme file the background colour is set at, such as "
+                + "spreadsheet.values.background; set by the table theme only, so a screen can draw the colour of the "
+                + "key its own way")
+        @Nullable String backgroundKey,
+
+        @Parameter(description = "Key of the table theme file the font colour is set at, such as "
+                + "base.header.keyword.color; set by the table theme only")
+        @Nullable String colorKey,
+
         @Parameter(description = "Where the style comes from: theme for the look a table theme draws the cell with, "
                 + "which a read naming the theme reports in place of the style of the workbook, a view only that no "
                 + "edit writes; absent for the style the workbook holds (workbook, the default)")
@@ -95,6 +109,8 @@ public record RawTableCellStyle(
                 && border == null
                 && fontFamily == null
                 && fontSize == null
+                && backgroundKey == null
+                && colorKey == null
                 && source == null;
     }
 }

@@ -17,3 +17,31 @@ let paper: PaperToken | undefined
  * Ant Design with a stand-in can still import whatever refers to it.
  */
 export const paperToken = (): PaperToken => (paper ??= antdTheme.getDesignToken())
+
+/** The colours a table is laid on and written in, under the colours its cells give themselves. */
+export interface TablePaper {
+    /** The ground of the table, which a cell filled no other way shows. */
+    background: string
+    /** A text and a line that name no colour. */
+    text: string
+    /** The lines of the grid between the cells. */
+    grid: string
+    /** A piece of a cell that names a table. */
+    link: string
+    /** A piece of a cell that names a table, under the pointer. */
+    linkHover: string
+    /** The mark of a note in the corner of a cell. */
+    note: string
+}
+
+let workbookPaperColours: TablePaper | undefined
+
+/** The paper of a workbook, in the colours of {@link paperToken}, worked out the first time it is asked for. */
+export const workbookPaper = (): TablePaper => (workbookPaperColours ??= {
+    background: paperToken().colorBgContainer,
+    text: paperToken().colorText,
+    grid: paperToken().colorBorderSecondary,
+    link: paperToken().colorLink,
+    linkHover: paperToken().colorLinkHover,
+    note: paperToken().colorError,
+})

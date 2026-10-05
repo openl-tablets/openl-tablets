@@ -14,6 +14,7 @@ import org.openl.studio.projects.model.tables.RawTableStyleSource;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.service.tables.theme.ThemeBorder;
 import org.openl.studio.projects.service.tables.theme.ThemeBorderLine;
+import org.openl.studio.projects.service.tables.theme.ThemeColour;
 import org.openl.studio.projects.service.tables.theme.ThemeHorizontalAlign;
 import org.openl.studio.projects.service.tables.theme.ThemeStyle;
 import org.openl.studio.projects.service.tables.theme.ThemeVerticalAlign;
@@ -23,6 +24,10 @@ import org.openl.studio.projects.service.tables.theme.ThemeVerticalAlign;
  *
  * <p>The style reported leaves out an attribute at its default, as the style read from the workbook does: a white
  * background, a black font, the left and bottom alignment, and a font that is not bold.
+ *
+ * <p>A colour the theme sets is reported with the key of the theme file it is set at, such as
+ * {@code spreadsheet.values.background}, so a screen can draw the colour of the key its own way, such as in the
+ * colours of its own theme. A colour left out at its default is left out with its key.
  *
  * <p>Every style the theme gives a cell, or a piece of its text, names the theme as its source
  * ({@link RawTableStyleSource#THEME}): a read naming the theme reports it in place of the style of the workbook.
@@ -43,7 +48,8 @@ final class ThemeStyles {
         var builder = (style == null ? RawTableCellStyle.builder() : style.toBuilder())
                 .source(RawTableStyleSource.THEME);
         if (theme.background() != null) {
-            builder.background(colour(theme.background().rgb(), RawTableStyles.WHITE));
+            var background = colour(theme.background().rgb(), RawTableStyles.WHITE);
+            builder.background(background).backgroundKey(keyOf(background, theme.background()));
         }
         if (theme.align() != null) {
             builder.align(horizontal(theme.align()));
@@ -86,7 +92,8 @@ final class ThemeStyles {
     /** Sets the font attributes the theme names, its colour among them. */
     private static void setFont(RawTableCellStyle.RawTableCellStyleBuilder builder, ThemeStyle theme) {
         if (theme.color() != null) {
-            builder.color(colour(theme.color().rgb(), RawTableStyles.BLACK));
+            var color = colour(theme.color().rgb(), RawTableStyles.BLACK);
+            builder.color(color).colorKey(keyOf(color, theme.color()));
         }
         if (theme.bold() != null) {
             builder.bold(RawTableStyles.flag(theme.bold()));
@@ -162,8 +169,27 @@ final class ThemeStyles {
         return line == null ? null : reported(line);
     }
 
-    /** A line as a read reports it: the line the workbook draws once the theme is written, or none at all. */
+    /**
+     * A line as a read reports it: the line the workbook draws once the theme is written, or none at all. A line of a
+     * colour the theme file sets keeps the key it is set at.
+     */
     private static @Nullable RawTableCellBorderSide reported(ThemeBorderLine line) {
-        return RawTableStyles.borderSide(BorderStyle.of(line.style().getExcel(), line.rgb()));
+        var side = RawTableStyles.borderSide(BorderStyle.of(line.style().getExcel(), line.rgb()));
+        if (side == null) {
+            return null;
+        }
+        var key = keyOf(side.color(), line.color());
+        return key == null ? side : side.toBuilder().colorKey(key).build();
+    }
+
+    /**
+     * The key a colour is reported with: the key of the theme file the colour is set at, or none for a colour left
+     * out at its default.
+     *
+     * @param reported the colour as the Tables API reports it, or {@code null} when it is left out
+     * @param colour   the colour the theme sets, or {@code null} when it sets none
+     */
+    private static @Nullable String keyOf(@Nullable String reported, @Nullable ThemeColour colour) {
+        return reported == null || colour == null ? null : colour.key();
     }
 }

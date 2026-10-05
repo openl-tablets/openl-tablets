@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Modal, Spin } from 'antd'
+import { useTheme, useThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router'
 import { PaperTheme } from '../../components/PaperTheme'
+import { inLook, inTheme, tableColoursOf } from '../../styles/tableColours'
+import type { ThemeName } from '../../styles/themes'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { notifyLoadFailure } from '../../services/apiCall'
@@ -194,8 +197,19 @@ interface TableEditorProps {
     layout?: TableLayout | undefined
     /** Draw the formula a cell was written with rather than the value it computed. */
     formulas?: boolean | undefined
-    /** The table theme the table is read with, which is offered first among the themes that style the table. */
-    theme?: string | undefined
+    /**
+     * The theme of the application whose look the table is drawn in, where the reader asked for the look of the
+     * Studio theme and the table is read with the table theme of that look ({@link inLook}). Absent where the table
+     * keeps the colours of its table theme, and ignored while the table is edited.
+     */
+    look?: ThemeName | undefined
+    /**
+     * The table theme the settings name, where Studio offers it: offered first among the themes that style the table.
+     *
+     * <p>Only a table theme of the server is applied. What the screen draws the table with, the look of the Studio
+     * theme included, never decides what is offered.
+     */
+    namedTheme?: string | undefined
     /** Follows a piece of a cell's text to the table it names. */
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
@@ -245,10 +259,6 @@ interface HeldTable {
     maxRows: number | undefined
     rows: RawTableCell[][]
 }
-
-/** Whether a table theme draws a cell: its style is the look of the theme, which names the theme as its source. */
-const inTheme = (cell: RawTableCell): cell is RawTableCell & { style: RawTableCellStyle } =>
-    cell.style?.source === 'theme'
 
 /** The look a theme gives each cell of a table read with it, by the address of the cell. */
 const themeCellsOf = (rows: RawTableCell[][]): Map<string, ThemeLook> => {
@@ -304,7 +314,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     hiddenRows,
     layout,
     formulas,
-    theme,
+    look,
+    namedTheme,
     onOpenUsage,
     canWrite,
     editing,
@@ -321,9 +332,20 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
+    const { isDarkMode } = useThemeMode()
+    const token = useTheme()
     // Whether the table was read in the look of a table theme: a kind of table no theme styles is read with the
     // formatting of the workbook, whatever theme the read named.
     const drawnInTheme = useMemo(() => rows.some(row => row.some(inTheme)), [rows])
+    // A table the theme does not style keeps the colours of the workbook, and so does one drawn without a look.
+    const styledByTheme = look !== undefined && drawnInTheme
+    // The colours of the look the theme of the application gives its tables. A table being edited keeps the paper of
+    // the workbook, since what is drawn there is what a save writes. Rebuilt with the look and the appearance, which
+    // the token follows: antd-style hands out a new token on every render.
+    const colours = useMemo(
+        () => (look !== undefined && styledByTheme && !editing ? tableColoursOf(look, isDarkMode, token) : undefined),
+        [editing, isDarkMode, look, styledByTheme]
+    )
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
     const [buffer, setBuffer] = useState(NO_EDITS)
@@ -413,7 +435,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     // The table themes that style this table, asked for when the reader starts editing it.
     const themes = useTableThemesOf(projectId, tableId, moduleName, editing)
-    const offeredThemes = themes === undefined ? undefined : firstTheme(themes, theme)
+    const offeredThemes = themes === undefined ? undefined : firstTheme(themes, namedTheme)
 
     // A table drawn with a table theme carries the look of the theme in its cells, which no edit may start from: what
     // the reader styles and saves is the style the workbook holds. So the table is read again without the theme when
@@ -634,10 +656,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     }, [open])
 
     /**
-     * The rows the grid is given: the ones the reader sees, with the header left off where it is hidden. The line under
-     * a hidden header is drawn over the first row left.
+     * The rows the grid is given: the ones the reader sees, with the header left off where it is hidden, in the
+     * colours of the look where the table is drawn in it. The line under a hidden header is drawn over the first row
+     * left.
      */
-    const drawn = useMemo(() => withoutFirstRows(shown, hidden), [hidden, shown])
+    const drawn = useMemo(() => {
+        const seen = withoutFirstRows(shown, hidden)
+        return colours === undefined ? seen : inLook(seen, colours)
+    }, [colours, hidden, shown])
 
     /** The cell a move in the given direction reaches, or null where the table ends. */
     const reached = (from: CellAt, key: string): CellAt | null => {
@@ -941,6 +967,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         onOpenCell={canWrite && !reading ? (row, column) => openCell(row + hidden, column) : undefined}
                         onOpenUsage={editing ? undefined : onOpenUsage}
                         onPickCell={canWrite && !reading ? (row, column) => pick(row + hidden, column) : undefined}
+                        paper={colours?.paper}
                         rows={drawn}
                         tableRef={grid}
                         testId={testId}

@@ -1,6 +1,6 @@
 import { FC, ReactNode, CSSProperties, useEffect, useState } from 'react'
 import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd'
-import type { FormRule } from 'antd'
+import type { FormItemProps, FormRule } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
 import { useRules } from './hooks'
 import { getFieldValueProps } from './utils'
@@ -14,6 +14,7 @@ export interface SelectOption extends DefaultOptionType {
 interface SelectProps extends Omit<AntdSelectProps, 'filterOption' | 'onSearch'> {
     name: string | string[]
     label?: string
+    tooltip?: FormItemProps['tooltip']
     options: SelectOption[]
     disabled?: boolean
     style?: CSSProperties

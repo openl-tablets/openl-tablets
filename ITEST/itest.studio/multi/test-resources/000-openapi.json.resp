@@ -27339,6 +27339,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "colorKey": {
+            "type": "string",
+            "description": "***"
+          },
           "style": {
             "type": "string",
             "description": "***",
@@ -27399,6 +27403,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "backgroundKey": {
+            "type": "string",
+            "description": "***"
+          },
           "bold": {
             "type": "boolean",
             "description": "***"
@@ -27407,6 +27415,10 @@ Content-Type: application/json
             "$ref": "#/components/schemas/RawTableCellBorder"
           },
           "color": {
+            "type": "string",
+            "description": "***"
+          },
+          "colorKey": {
             "type": "string",
             "description": "***"
           },

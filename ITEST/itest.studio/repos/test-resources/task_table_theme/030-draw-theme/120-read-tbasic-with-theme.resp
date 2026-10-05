@@ -37,6 +37,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -54,6 +55,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -88,6 +90,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.parameters.color",
               "source": "theme"
             }
           }
@@ -122,6 +125,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -140,6 +144,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -158,6 +163,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -176,6 +182,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -194,6 +201,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.code.color",
           "source": "theme"
         }
       }
@@ -209,6 +217,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.stepTitle.background",
           "source": "theme"
         }
       },
@@ -222,6 +231,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       },
@@ -235,6 +245,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       },
@@ -248,6 +259,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       },
@@ -261,6 +273,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.titles.background",
           "source": "theme"
         }
       }
@@ -313,6 +326,7 @@ Content-Type: application/json
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -365,6 +379,7 @@ Content-Type: application/json
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -415,6 +430,7 @@ Content-Type: application/json
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -466,6 +482,7 @@ Content-Type: application/json
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -551,6 +568,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -567,6 +585,7 @@ Content-Type: application/json
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
@@ -581,6 +600,7 @@ Content-Type: application/json
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
@@ -595,6 +615,7 @@ Content-Type: application/json
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
@@ -608,6 +629,7 @@ Content-Type: application/json
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       },
@@ -621,6 +643,7 @@ Content-Type: application/json
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.sections.background",
           "source": "theme"
         }
       }
@@ -672,6 +695,7 @@ Content-Type: application/json
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }
@@ -754,6 +778,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "tbasic.values.background",
           "source": "theme"
         }
       }

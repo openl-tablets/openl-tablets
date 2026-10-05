@@ -37,6 +37,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -54,6 +55,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -88,6 +90,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.parameters.color",
               "source": "theme"
             }
           }
@@ -115,6 +118,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.properties.color",
           "source": "theme"
         }
       },
@@ -132,6 +136,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.properties.color",
           "source": "theme"
         }
       },
@@ -149,6 +154,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "base.properties.color",
           "source": "theme"
         }
       }
@@ -164,6 +170,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.stepTitle.background",
           "source": "theme"
         }
       },
@@ -177,6 +184,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.titles.background",
           "source": "theme"
         }
       },
@@ -189,6 +197,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.titles.background",
           "source": "theme"
         }
       }
@@ -225,6 +234,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       },
@@ -241,6 +251,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       }
@@ -264,6 +275,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.sections.background",
           "source": "theme"
         }
       },
@@ -306,6 +318,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       },
@@ -322,6 +335,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       }

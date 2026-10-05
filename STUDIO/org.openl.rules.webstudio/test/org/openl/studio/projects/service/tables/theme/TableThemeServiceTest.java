@@ -191,6 +191,36 @@ class TableThemeServiceTest {
     }
 
     @Test
+    void keepsTheKeyOfTheFileEachColourIsSetAt() {
+        var theme = new TableThemeService(FIXTURES + "named-colours.yaml").theme("named-colours");
+        var datatype = theme.lookOf(theme.datatype());
+
+        // A part the kind takes from the base keeps the key of the base, and a part the kind writes its own key.
+        assertEquals("base.header.keyword.color", datatype.header().keyword().color().key());
+        assertEquals("base.lastRow.border.bottom.color", datatype.lastRow().border().bottom().color().key());
+        assertEquals("datatype.name.background", datatype.name().background().key());
+        assertEquals("datatype.name.color", datatype.name().color().key(), "A colour written as #rrggbb as well");
+        // The key tells where the colour is set, not the colour: both parts take one colour.
+        assertEquals(datatype.header().keyword().color(), datatype.lastRow().border().bottom().color());
+    }
+
+    @Test
+    void setsAColourAtTheKeyOfThePartAnAliasOrAMergeKeyGivesIt() {
+        var standard = service.theme("standard");
+
+        // A Run table repeats the look of a Test table, and a TBasic table that of a Spreadsheet: each part is set at a
+        // key of its own, so a screen can colour the kinds apart.
+        assertEquals("test.name.color", standard.lookOf(standard.test()).name().color().key());
+        assertEquals("run.name.color", standard.lookOf(standard.run()).name().color().key());
+        assertEquals("spreadsheet.values.background",
+                standard.lookOf(standard.spreadsheet()).values().background().key());
+        assertEquals("tbasic.values.background", standard.lookOf(standard.tbasic()).values().background().key());
+        // A colour a merge key brings is set at the part it is merged into.
+        var green = service.theme("green");
+        assertEquals("base.properties.color", green.lookOf(green.datatype()).properties().color().key());
+    }
+
+    @Test
     void readsAColourAsThePaletteOfExcelNamesAThemeColour() {
         var theme = new TableThemeService(FIXTURES + "excel-theme-colours.yaml").theme("excel-theme-colours");
         var datatype = theme.lookOf(theme.datatype());
@@ -204,7 +234,8 @@ class TableThemeServiceTest {
                 "White, Background 1, Darker 50%");
         assertEquals(new ThemeColour("#000000", new ThemedColor(1, 0)), datatype.name().color(),
                 "A theme colour named without the name Excel gives it, in another letter case");
-        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, new ThemeColour("#548235", new ThemedColor(9, -250))),
+        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN,
+                        new ThemeColour("#548235", new ThemedColor(9, -250))),
                 datatype.lastRow().border().bottom(), "The colour of a line");
         assertEquals(new ThemeColour("#ddebf7", new ThemedColor(8, 800)), datatype.values().background(),
                 "A theme colour a part names itself");

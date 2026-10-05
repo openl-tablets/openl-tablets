@@ -80,6 +80,14 @@ A theme is one style for every kind of table: it styles every table but a table 
 table of no kind that OpenL Tablets knows or a part of a table written as several partial tables. Each kind takes the
 base, and the key of the kind writes only what it changes. A kind the theme writes nothing for takes the base alone.
 
+OpenL Studio also tells the screen where each colour of a theme is set: the key of the file, such as
+`spreadsheet.values.background` or `base.header.keyword.color`, the file read with its aliases and merge keys
+resolved, so a kind an alias repeats has keys of its own, such as `tbasic.values.background`. With **Override with
+Studio theme** selected in **My Settings**, the **Standard** theme of OpenL Studio draws the tables with the
+**Standard** table theme, whichever table theme is selected, and in the dark appearance gives each key of its file a
+dark colour of its own. Under the other themes of OpenL Studio, or with **Override with Studio theme** cleared, a table
+theme is drawn in its own colours. Only the screen changes: the Excel file and the project are not changed.
+
 ### Parts of a Table
 
 A look consists of the following parts, each of them optional. Every kind of table takes these parts:

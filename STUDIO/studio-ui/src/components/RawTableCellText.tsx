@@ -20,6 +20,8 @@ interface RawTableCellTextProps {
     runs?: RawTableTextRun[] | undefined
     /** The cell is beside the point on this screen, so the colours of its runs are drawn in grey. */
     muted?: boolean | undefined
+    /** The ink of the paper the table is written on, which a run that names no colour is drawn in. */
+    ink: string
 }
 
 /** A run and where it stands in the text shown. */
@@ -79,11 +81,12 @@ export const RawTableCellText: React.FC<RawTableCellTextProps> = ({
     onOpenUsage,
     runs,
     muted = false,
+    ink,
 }) => {
     const usages = metaInfo?.usages ?? []
     const placed = placeRuns(text, runs)
     const slice = (start: number, end: number, linked = false) =>
-        styledSlice(text, start, end, placed, { muted, linked })
+        styledSlice(text, start, end, placed, { muted, linked, ink })
 
     if (usages.length === 0 && !metaInfo?.returnCell) {
         return <>{slice(0, text.length)}</>

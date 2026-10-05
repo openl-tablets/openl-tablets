@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style'
-import { paperToken } from '../styles/paper'
+import type { TablePaper } from '../styles/paper'
 
 /**
  * How wide a cell is at the least, in pixels: the width Excel gives a column its author never set.
@@ -10,10 +10,10 @@ import { paperToken } from '../styles/paper'
 const MIN_CELL_WIDTH = 64
 
 /**
- * The styles of a table of a workbook. The cells are drawn on its paper ({@link paperToken}); the margin beside the
- * table — the numbers of its lines — belongs to the screen and follows the theme.
+ * The styles of a table of a workbook. The cells are drawn on the paper the table is laid on ({@link TablePaper}); the
+ * margin beside the table — the numbers of its lines — belongs to the screen and follows the theme.
  */
-export const useStyles = createStyles(({ css, token }) => ({
+export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
     /**
      * The table is as wide as its own text needs and no wider: stretching it to the screen spreads a few short
      * columns across a whole monitor and leaves the reader's eye travelling between them.
@@ -31,8 +31,8 @@ export const useStyles = createStyles(({ css, token }) => ({
         table-layout: auto;
         font-size: ${token.fontSizeSM}px;
         /* The paper and the ink, which a cell's own fill and font colour paint over. */
-        background: ${paperToken().colorBgContainer};
-        color: ${paperToken().colorText};
+        background: ${paper.background};
+        color: ${paper.text};
     `,
     /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past
@@ -51,8 +51,8 @@ export const useStyles = createStyles(({ css, token }) => ({
      * has, which is where the reader of the workbook hands it.
      */
     cell: css`
-        border-right: 1px solid ${paperToken().colorBorderSecondary};
-        border-bottom: 1px solid ${paperToken().colorBorderSecondary};
+        border-right: 1px solid ${paper.grid};
+        border-bottom: 1px solid ${paper.grid};
         padding: ${token.paddingXXS}px ${token.paddingXS}px;
         text-align: left;
         vertical-align: top;
@@ -72,11 +72,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         }
 
         &[data-edge~='top'] {
-            border-top: 1px solid ${paperToken().colorBorderSecondary};
+            border-top: 1px solid ${paper.grid};
         }
 
         &[data-edge~='left'] {
-            border-left: 1px solid ${paperToken().colorBorderSecondary};
+            border-left: 1px solid ${paper.grid};
         }
     `,
     /**
@@ -108,7 +108,7 @@ export const useStyles = createStyles(({ css, token }) => ({
             position: absolute;
             top: 0;
             right: 0;
-            border-top: 6px solid ${paperToken().colorError};
+            border-top: 6px solid ${paper.note};
             border-left: 6px solid transparent;
         }
     `,
@@ -136,11 +136,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         background: none;
         font: inherit;
         cursor: pointer;
-        color: ${paperToken().colorLink};
+        color: ${paper.link};
 
         &:hover,
         &:focus-visible {
-            color: ${paperToken().colorLinkHover};
+            color: ${paper.linkHover};
             text-decoration: underline;
         }
     `,

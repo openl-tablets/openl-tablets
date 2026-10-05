@@ -32,6 +32,16 @@ export interface RawTableCellStyle {
     fontFamily?: string
     /** The size of the font in points; set by the table theme only */
     fontSize?: number
+    /**
+     * The key of the table theme file the background colour is set at, such as `spreadsheet.values.background`; set by
+     * the table theme only
+     */
+    backgroundKey?: string
+    /**
+     * The key of the table theme file the font colour is set at, such as `base.header.keyword.color`; set by the table
+     * theme only
+     */
+    colorKey?: string
     /** Where the style comes from: `theme` for the look of a table theme; absent for the style of the workbook */
     source?: RawTableStyleSource
 }
@@ -43,6 +53,11 @@ export interface RawTableCellBorderSide {
     width?: number
     /** Line colour as #rrggbb (absent when black) */
     color?: string
+    /**
+     * The key of the table theme file the line colour is set at, such as `environment.name.border.right.color`, which
+     * names the side the file sets whichever side the line is drawn on; set by the table theme only
+     */
+    colorKey?: string
 }
 
 /** The cell borders, one entry per side. */

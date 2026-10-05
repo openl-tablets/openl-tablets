@@ -28,6 +28,8 @@ import { offeredTheme, useTableThemes } from '../hooks/useTableThemes'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
+import { useAppTheme } from '../providers/AppThemeProvider'
+import { followedTableTheme } from '../styles/tableColours'
 import { CompileDot, getCompileTooltip, isNoteworthyCompileState } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { ValueText } from './projects/ValueText'
@@ -198,13 +200,21 @@ export const ModuleWorkspace = () => {
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
     const namedTheme = useUserStore(state => state.userProfile?.tableTheme)
-    // The table themes Studio offers, and the one this reader starts from: drawn over the tables they read, and
-    // offered first when they apply one. A reader whose settings name no theme Studio offers reads the tables with
-    // the formatting of the Excel file.
+    const { tablesFollowTheme, themeName } = useAppTheme()
+    // The table theme the look of the Studio theme lays its tables out with, where the reader asks for the look of
+    // the Studio theme and the theme has a look of its own for the tables.
+    const followedTheme = followedTableTheme(tablesFollowTheme, themeName)
+    // The table themes Studio offers. The one the settings name is offered first when the reader applies one: only
+    // a table theme of the server is applied, whatever the screen draws the tables with.
     const tableThemes = useTableThemes()
-    const drawnTheme = offeredTheme(tableThemes, namedTheme)
+    const settingsTheme = offeredTheme(tableThemes, namedTheme)
+    // The theme the tables are drawn with: the one of the look of the Studio theme, then the one the settings name.
+    // A reader with neither that Studio offers reads the tables with the formatting of the Excel file.
+    const drawnTheme = offeredTheme(tableThemes, followedTheme) ?? settingsTheme
     // A reader who names a theme has the table read once the themes are known: read before, it is drawn twice.
-    const themeKnown = !namedTheme || tableThemes !== undefined
+    const themeKnown = (!namedTheme && followedTheme === undefined) || tableThemes !== undefined
+    // The theme of the application whose look the table is drawn in: the one whose table theme the table is read with.
+    const look = followedTheme !== undefined && drawnTheme === followedTheme ? themeName : undefined
     // Bumped by Refresh, so the module is compiled again and its tables read afresh.
     // What the reader asked to be compiled again, and how many times. A refresh belongs to the module it was
     // pressed on: carried over to the next module, it would rebuild that one from the workbook as well.
@@ -933,9 +943,11 @@ export const ModuleWorkspace = () => {
                     formulas={showFormulas}
                     hiddenRows={hiddenRows}
                     layout={table.layout}
+                    look={look}
                     markCell={raisedCell}
                     maxRows={table.source.length}
                     moduleName={moduleName}
+                    namedTheme={settingsTheme}
                     onDirtyChange={setTableDirty}
                     onEditingChange={setEditing}
                     onOpenedAt={() => setEditCell(null)}
@@ -946,7 +958,6 @@ export const ModuleWorkspace = () => {
                     rows={table.source}
                     tableId={selected.id}
                     testId="module-table"
-                    theme={drawnTheme}
                     whole={shown >= total}
                 >
                     {shown < total && (

@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import lombok.AccessLevel;
+import lombok.With;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
@@ -20,11 +22,20 @@ import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
  * colour itself, so Excel offers it in its palette and the colour changes with the theme of the workbook. Written into
  * any other workbook, it is {@code #rrggbb}.
  *
+ * <p>A colour the theme file sets keeps the key it is set at, such as {@code spreadsheet.values.background}: the kind
+ * or the base, the part and the attribute, as the file reads with its aliases and merge keys resolved. A screen can
+ * draw the colour of a key its own way, such as a dark one in a dark appearance. The workbook is always written the
+ * colour itself.
+ *
+ * <p>The key is no part of the colour: two colours are equal when they are drawn and written alike, wherever the theme
+ * sets them, so parts that look alike take one style in a workbook and draw one line on the screen.
+ *
  * @param rgb    the colour as {@code #rrggbb}, as the screen draws it
  * @param themed the theme colour of Excel the colour is, made lighter or darker, or {@code null} for a colour of its
  *               own
+ * @param key    the key of the theme file the colour is set at, or {@code null} for a colour no theme file sets
  */
-public record ThemeColour(String rgb, @Nullable ThemedColor themed) {
+public record ThemeColour(String rgb, @Nullable ThemedColor themed, @With(AccessLevel.PACKAGE) @Nullable String key) {
 
     private static final Pattern RRGGBB = Pattern.compile("#[0-9a-fA-F]{6}");
 
@@ -51,6 +62,18 @@ public record ThemeColour(String rgb, @Nullable ThemedColor themed) {
     }
 
     /**
+     * A colour no theme file sets at a key.
+     *
+     * @param rgb    the colour as {@code #rrggbb}
+     * @param themed the theme colour of Excel the colour is, made lighter or darker, or {@code null} for a colour of
+     *               its own
+     * @throws IllegalArgumentException when the colour is drawn as written another way
+     */
+    ThemeColour(String rgb, @Nullable ThemedColor themed) {
+        this(rgb, themed, null);
+    }
+
+    /**
      * A colour of its own.
      *
      * @param rgb the colour as {@code #rrggbb}
@@ -59,6 +82,17 @@ public record ThemeColour(String rgb, @Nullable ThemedColor themed) {
      */
     static ThemeColour of(String rgb) {
         return new ThemeColour(rgb, null);
+    }
+
+    /** Whether another colour is drawn and written as this one, wherever a theme sets either. */
+    @Override
+    public boolean equals(@Nullable Object other) {
+        return other instanceof ThemeColour colour && rgb.equals(colour.rgb) && Objects.equals(themed, colour.themed);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rgb, themed);
     }
 
     /**

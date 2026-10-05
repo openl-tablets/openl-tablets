@@ -1,6 +1,5 @@
 import type React from 'react'
 import type { RawTableCellBorder, RawTableCellBorderSide, RawTableCellStyle, RawTableTextRun } from 'types/tables'
-import { paperToken } from '../styles/paper'
 
 /** How much of its brightness a muted colour keeps. */
 const MUTED_BRIGHTNESS = 0.8
@@ -33,9 +32,9 @@ export const tinted = (colour: string | undefined, muted: boolean): string | und
 
 /**
  * The colour Excel draws a line or a piece of text in when it names none: the ink of the paper the table is written
- * on ({@link paperToken}), whatever the theme. A muted cell is left to draw it in its grey.
+ * on, whatever the theme. A muted cell is left to draw it in its grey.
  */
-const automaticColour = (muted: boolean): string | undefined => (muted ? undefined : paperToken().colorText)
+const automaticColour = (muted: boolean, ink: string): string | undefined => (muted ? undefined : ink)
 
 /** The lines drawn through and under a text, or undefined when there are none. */
 export const textDecoration = (style: RawTableCellStyle | undefined): string | undefined => {
@@ -51,12 +50,12 @@ export const textDecoration = (style: RawTableCellStyle | undefined): string | u
  * A side the workbook names no colour for is drawn in the automatic colour, as Excel draws it. A colour the text of
  * the cell has does not reach the border, except in a muted cell, whose lines are drawn in its grey.
  */
-const line = (side: RawTableCellBorderSide | undefined, muted: boolean): string | undefined => {
+const line = (side: RawTableCellBorderSide | undefined, muted: boolean, ink: string): string | undefined => {
     if (side === undefined) {
         return undefined
     }
     const drawn = `${side.width ?? 1}px ${side.style ?? 'solid'}`
-    const colour = tinted(side.color, muted) ?? automaticColour(muted)
+    const colour = tinted(side.color, muted) ?? automaticColour(muted, ink)
     return colour === undefined ? drawn : `${drawn} ${colour}`
 }
 
@@ -76,13 +75,14 @@ const NO_BORDERS: React.CSSProperties = {}
  *
  * @param border the borders of the cell
  * @param muted  whether the cell is beside the point on this screen
+ * @param ink    the ink of the paper the table is written on, which a line that names no colour is drawn in
  */
-export const borders = (border: RawTableCellBorder | undefined, muted: boolean): React.CSSProperties =>
+export const borders = (border: RawTableCellBorder | undefined, muted: boolean, ink: string): React.CSSProperties =>
     (border === undefined ? NO_BORDERS : {
-        borderTop: line(border.top, muted),
-        borderRight: line(border.right, muted),
-        borderBottom: line(border.bottom, muted),
-        borderLeft: line(border.left, muted),
+        borderTop: line(border.top, muted, ink),
+        borderRight: line(border.right, muted, ink),
+        borderBottom: line(border.bottom, muted, ink),
+        borderLeft: line(border.left, muted, ink),
     })
 
 /** Where a run is drawn. */
@@ -91,6 +91,8 @@ export interface RunPlace {
     muted: boolean
     /** The run stands in a link, which keeps its own colour and underline. */
     linked: boolean
+    /** The ink of the paper the table is written on, which a run that names no colour is drawn in. */
+    ink: string
 }
 
 /**
@@ -109,7 +111,7 @@ export const runStyle = (run: RawTableTextRun, place: RunPlace): React.CSSProper
     return {
         color: place.linked
             ? undefined
-            : tinted(style.color, place.muted) ?? automaticColour(place.muted),
+            : tinted(style.color, place.muted) ?? automaticColour(place.muted, place.ink),
         fontWeight: style.bold ? 'bold' : 'normal',
         fontStyle: style.italic ? 'italic' : 'normal',
         textDecoration: place.linked ? undefined : textDecoration(style) ?? 'none',
