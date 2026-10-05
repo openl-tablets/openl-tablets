@@ -306,6 +306,27 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
       The table editor draws its grid inside `PaperTheme`, a `ConfigProvider` that drops the theme in force
       (`inherit: false`) and keeps the density, so the Ant Design controls written into a cell, and the notes over
       one, lie on the paper as well. The line numbers beside the table belong to the screen and follow the theme.
+      The one exception is the look a theme of the application gives the tables (`TABLE_LOOKS` in
+      `styles/tableColours.ts`: a table theme, and the token each key of its file takes in the dark appearance), where
+      the user asked for **Override with Studio theme** (My Settings, remembered under `openl.theme.tables`, view only
+      like the table theme of the settings: neither changes a workbook or a project). The table theme then decides
+      every colour of the cells, so no colour of an author is left to need the paper. `ModuleWorkspace` reads the
+      table with the table theme of the look (`followedTableTheme`: `standard` under the Standard theme) whatever
+      table theme the settings name, which stays the fallback under a theme with no look, and tells `TableEditor` the
+      `look` it reads the table with. The server reports the key of the theme file each colour is set at
+      (`backgroundKey`, `colorKey`, such as `spreadsheet.values.background`) in the style of each cell the table theme
+      draws, which names `theme` as its `source` (`inTheme`). `TableEditor` draws those cells as the look
+      recolours them by their keys (`inLook`), on the paper of the look (`TablePaper`), so `RawTableGrid` knows no look:
+      it lays its cells on the paper it is given, the paper of a workbook (`workbookPaper`) by default. The colours of
+      the look (`tableColoursOf`) are the ground and the ink of
+      its base style, the grid of the theme, and a solid colour of the token for each key. A look is written as the
+      table theme file nests its keys, and shares a part where the file repeats one by an alias (`tbasic: SPREADSHEET`
+      as `tbasic: *spreadsheet`); a colour of a key the look does not colour keeps the colour of the table theme. Only
+      the Standard theme has a look today, in the colours of the table theme in the light appearance. A theme joins
+      with a `TableLook` of its own: `tableColours.test.ts` reads the file of its table theme to hold an appearance it
+      colours to every key the file sets a colour at, and every text of it readable on every fill. A table being edited
+      and a table no theme styles keep the paper. A table read with a table theme is read again without it when the
+      user edits it (`TableEditor`), so the edit starts from the style the workbook holds.
     - **The logo is part of the palette.** `components/Logo.tsx` draws the cube from `primary`, `brand` and
       `primaryFg`, so it turns with the theme and the appearance; it carries no colour of its own.
     - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot

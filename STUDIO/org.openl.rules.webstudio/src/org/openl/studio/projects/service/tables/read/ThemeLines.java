@@ -121,11 +121,7 @@ final class ThemeLines {
         if (kept == null) {
             return moved;
         }
-        return RawTableCellBorderSide.builder()
-                .style(kept.style())
-                .width(Math.max(widthOf(kept), widthOf(moved)))
-                .color(kept.color())
-                .build();
+        return kept.toBuilder().width(Math.max(widthOf(kept), widthOf(moved))).build();
     }
 
     private static int widthOf(RawTableCellBorderSide side) {

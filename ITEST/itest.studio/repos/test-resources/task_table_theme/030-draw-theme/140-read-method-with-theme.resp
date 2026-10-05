@@ -36,6 +36,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -53,6 +54,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -79,6 +81,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.parameters.color",
               "source": "theme"
             }
           }

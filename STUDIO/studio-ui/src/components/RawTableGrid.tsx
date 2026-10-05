@@ -2,6 +2,7 @@ import React from 'react'
 import { Tooltip } from 'antd'
 import type { RawTableCell, TableLayout } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
+import { type TablePaper, workbookPaper } from '../styles/paper'
 import { type RawTableGridStyles, useStyles } from './RawTableGrid.styles'
 import { borders, fontFamilyOf, fontSizeOf, textDecoration, tinted } from './rawTableStyle'
 
@@ -24,6 +25,11 @@ interface RawTableGridProps {
     decorate?: ((cell: RawTableCell, row: number, column: number) => CellDecoration | undefined) | undefined
     /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
     formulas?: boolean | undefined
+    /**
+     * The paper the table is laid on: its ground and ink, its grid, its links and the marks of its notes. Absent
+     * where the table lies on the paper of a workbook ({@link workbookPaper}).
+     */
+    paper?: TablePaper | undefined
     /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
     onOpenUsage?: OpenUsage | undefined
     /** Told which cell the reader picked; absent on a screen where a cell cannot be picked. */
@@ -98,7 +104,8 @@ const edgeOf = (row: number, column: number): string | undefined => {
  * the grid, which the cell above or on the left draws where there is one. The font and its size are drawn only
  * where the table theme sets them: a read naming a theme reports the look of the theme as the style of the cell.
  */
-const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean): React.CSSProperties => {
+const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean,
+    ink: string): React.CSSProperties => {
     // Most cells of a workbook are written in no style at all, and a table holds thousands of them.
     if (style === undefined && !painted && !muted) {
         return PLAIN
@@ -114,7 +121,7 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
         // A font the machine does not have falls back to a sans-serif one, not to the browser's serif default.
         fontFamily: fontFamilyOf(style),
         fontSize: fontSizeOf(style),
-        ...borders(style?.border, muted),
+        ...borders(style?.border, muted, ink),
     }
 }
 
@@ -125,7 +132,7 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
  * cell shown as the formula it was written with is another text altogether, so it is drawn plain — which is
  * what the legacy editor did, where the formula replaced the marked content.
  */
-const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles: RawTableGridStyles,
+const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles: RawTableGridStyles, ink: string,
     onOpenUsage?: OpenUsage) => {
     const asFormula = formulas && Boolean(cell.formula)
     const text = formatValue(asFormula ? cell.formula : cell.value)
@@ -139,6 +146,7 @@ const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles:
     }
     return (
         <RawTableCellText
+            ink={ink}
             metaInfo={metaInfo}
             muted={muted}
             onOpenUsage={onOpenUsage}
@@ -155,7 +163,9 @@ const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles:
  * cells were written with, which every cell carries beside its value.
  *
  * The cells keep the colours Excel draws them in, whatever the theme: black text on white, under what the
- * workbook fills or colours itself, so a filled cell stays readable in a dark theme.
+ * workbook fills or colours itself, so a filled cell stays readable in a dark theme. A screen may lay the table on a
+ * paper of its own instead ({@link TablePaper}), as the table editor does for the look of the theme of the
+ * application.
  *
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
@@ -164,6 +174,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     rows,
     decorate,
     formulas,
+    paper,
     onOpenUsage,
     onPickCell,
     onOpenCell,
@@ -172,7 +183,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     layout,
     testId,
 }) => {
-    const { styles, cx } = useStyles()
+    const laidOn = paper ?? workbookPaper()
+    const { styles, cx } = useStyles(laidOn)
     // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
     // table, counted down the rows or across the columns according to how the table is written.
     // The grid is as wide as its widest row; a covered cell takes a place of its own in the matrix, so the
@@ -224,11 +236,12 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                 onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
                                 onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                 rowSpan={cell.rowspan}
-                                style={cellStyle(cell.style, painted, muted)}
+                                style={cellStyle(cell.style, painted, muted, laidOn.text)}
                                 className={cx(styles.cell, cell.comment !== undefined && styles.commented,
                                     decoration?.className)}
                             >
-                                {decoration?.content ?? cellText(cell, !!formulas, muted, styles, onOpenUsage)}
+                                {decoration?.content ?? cellText(cell, !!formulas, muted, styles, laidOn.text,
+                                    onOpenUsage)}
                             </td>
                         )
                         // The note is shown while the cell is read. A cell the screen has taken over — one

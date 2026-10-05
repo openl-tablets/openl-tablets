@@ -117,6 +117,12 @@ The `style` of a cell leaves out an attribute that has its default value:
 - `border` — the borders by side. Each side the workbook draws has its `style` (`solid`, `dashed`, `dotted`, `double`),
   its `width` in pixels, and its `color`, absent when black. A side without a border is absent.
 - `fontFamily`, `fontSize` — set by the table theme only. A style read from the workbook has neither.
+- `backgroundKey`, `colorKey` — the key of the table theme file the background and the font colour are set at,
+  beside the colour itself: the base or the kind, the part and the attribute, such as
+  `spreadsheet.values.background` or `base.header.keyword.color`, the file read with its aliases and merge keys
+  resolved. Set by the table theme only. A border side of the theme carries the `colorKey` of its line the same way,
+  naming the side the file sets, such as `environment.name.border.right.color`, whichever side the line is drawn on. A
+  client can draw the colour of a key its own way, as OpenL Studio does with **Override with Studio theme**.
 - `source` — `theme` for the look of a table theme, which a read with `tableTheme` reports in place of the style of
   the workbook; absent for the style the workbook holds, `workbook`. The style of a run names its source the same way.
 
@@ -368,7 +374,8 @@ GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
 **Drawing the theme.** A read with `tableTheme=<id>` reports every cell the theme reaches in the look of the theme, in
 place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:
 
-- `style` — the cell style with the attributes the theme sets laid over it, and `source` set to `theme`.
+- `style` — the cell style with the attributes the theme sets laid over it, each colour of the theme with its key, and
+  `source` set to `theme`.
 - `runs` — the pieces the theme formats the header text in, each style of theirs with `source` set to `theme`. Any
   other text the workbook formats in pieces keeps them where the theme sets nothing of the font of the cell, and is
   drawn in the font of the theme otherwise, as writing the theme gives.

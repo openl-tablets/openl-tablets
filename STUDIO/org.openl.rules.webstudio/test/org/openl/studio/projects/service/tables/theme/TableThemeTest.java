@@ -561,6 +561,32 @@ class TableThemeTest {
     }
 
     @Test
+    void reportsTheKeyOfTheThemeFileEachColourIsSetAt() {
+        // A screen may draw a colour of the theme its own way, by the key of the theme file the colour is set at.
+        var table = person();
+        var standard = readThemed(table, service.layoutOf(table, THEME)).source;
+
+        var name = standard.get(1).get(1).style();
+        assertEquals(LIGHT_BLUE, name.background());
+        assertEquals("datatype.name.background", name.backgroundKey(), "A part the kind writes");
+        assertEquals("base.type.color", standard.get(1).getFirst().style().colorKey(),
+                "A part the kind takes from the base");
+        assertEquals("base.header.keyword.color",
+                standard.getFirst().getFirst().runs().getFirst().style().colorKey(),
+                "A piece of the header");
+        var white = standard.get(2).getFirst().style();
+        assertNull(white.background(), "White, the default, is left out");
+        assertNull(white.backgroundKey(), "And so is its key");
+        assertNull(bottomOf(standard.getFirst().getFirst().style()).colorKey(),
+                "A line of no colour has no key");
+
+        var green = readThemed(table, service.layoutOf(table, GREEN)).source;
+        assertEquals("base.header.style.border.bottom.color",
+                bottomOf(green.getFirst().getFirst().style()).colorKey(),
+                "A line the file repeats by an alias is set at the side it is repeated on");
+    }
+
+    @Test
     void reachesAcrossAHeaderThatIsNotMergedOverTheTable() {
         var table = account();
         var themed = readThemed(table, service.layoutOf(table, THEME));

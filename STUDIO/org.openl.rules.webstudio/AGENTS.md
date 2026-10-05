@@ -185,6 +185,15 @@ for the endpoints.
   theme colour is tinted as Excel tints it (`PoiExcelHelper.applyTint`), the function the reader draws a workbook
   colour with, so the overlay and the written workbook draw alike. The shipped themes set every colour by its name,
   each a theme colour of **Office 2013 - 2022** but the palest green of `green`.
+- **The overlay tells where each colour is set.** `ThemeColourReader` gives every colour the key of the file it is
+  read at (`ThemeColour.key`): the keys from the top of the file down, as Jackson reads the file with its aliases and
+  merge keys resolved, such as `spreadsheet.values.background`, `base.header.keyword.color` or
+  `environment.name.border.right.color`, so a part an alias repeats has a key of its own. The key travels with the
+  colour through every part laid over another, and the overlay reports it beside the colour (`backgroundKey`,
+  `colorKey` of a style, a run and a border side), so the screen can draw a key in a colour of its own theme
+  (**Override with Studio theme**). The key is no part of the colour (`ThemeColour.equals`): parts that look alike take
+  one style in a workbook and draw one line. Which table theme the screen reads and which colour a key takes there is
+  the frontend's alone: the server knows no theme of OpenL Studio and never writes a key into a workbook.
 - **A theme colour is written as the theme colour only into a workbook of those theme colours.** The writer reads
   the theme colours of each workbook once (`ExcelThemeColours.areThoseOf`: all twelve compared by colour, not by the
   name, which Excel 2013-2022 writes as `Office`). When they are those of the theme, every colour of the theme is

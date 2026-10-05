@@ -137,10 +137,22 @@ To manage personal settings, proceed as follows:
     -   **Show Formulas** — display MS Excel formulas in table cells.
     -   **Table Theme** — how the tables are drawn while they are viewed: every table but a table of the type
         **Other**. The default, **Excel Formatting**, draws them with the formatting of the Excel file. A table theme
-        draws them with the theme and is selected first when a theme is applied to a project. Only the screen
-        changes: the Excel file keeps its own formatting, and a table being edited is drawn as the file holds it. To
-        write a theme into the Excel file, see [Applying the Table Theme](rules-editor.md#applying-the-table-theme).
-        For more information on themes, see [Appendix E: Table Themes](appendices/table-themes.md).
+        draws them with the theme and is selected first when a theme is applied to a project. A table being edited
+        is drawn as the file holds it. For more information on themes, see
+        [Appendix E: Table Themes](appendices/table-themes.md).
+    -   **Override with Studio theme** — draw the tables in the look of the OpenL Studio theme in place of the table
+        theme, so that in the dark appearance they are dark too. The **Standard** theme of OpenL Studio draws them
+        with the **Standard** table theme, in its own colours in the light appearance and in dark colours in the dark
+        one: the table theme decides which text is bold, which lines are drawn and how the text is aligned, and the
+        text takes the font of OpenL Studio. The other themes of OpenL Studio have no look for the tables, so under
+        them the tables are drawn as **Table Theme** selects. Like the theme of OpenL Studio, the choice is remembered
+        by the browser rather than in the user profile.
+
+    > [!Note]
+    > **Table Theme** and **Override with Studio theme** are view only: they change how the tables are shown on the
+    > screen and nothing else. The Excel files keep their own formatting, and the projects are not changed. Only a
+    > table theme can be written into the Excel file, never the look of the OpenL Studio theme, as described in
+    > [Applying the Table Theme](rules-editor.md#applying-the-table-theme).
 
 4.  In the **Testing Settings** section, configure the following options:
 

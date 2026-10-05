@@ -36,6 +36,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -53,6 +54,7 @@ Content-Type: application/json
               "color": "#808080",
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
+              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -92,6 +94,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "colorKey": "data.name.color",
           "source": "theme"
         }
       }
@@ -107,6 +110,7 @@ Content-Type: application/json
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "data.titles.background",
           "source": "theme"
         }
       }
@@ -128,6 +132,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
+          "backgroundKey": "data.values.background",
           "source": "theme"
         }
       }

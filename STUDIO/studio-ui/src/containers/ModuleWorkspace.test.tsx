@@ -9,6 +9,7 @@ import { getMessageStacktrace, getModuleTables, getRawTable, listModules, stopEd
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 import { getTableThemes } from '../services/tables'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
+import { renderInTheme } from '../testing/theme'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -164,14 +165,15 @@ vi.mock('./modules/TableEditor', async () => {
     const { useImperativeHandle } = await import('react')
     return {
         TableEditor: ({
-            ref, testId, rows, hiddenRows, editing, theme, onEditingChange, onOpenUsage, onSaved, children,
+            ref, testId, rows, hiddenRows, editing, namedTheme, look, onEditingChange, onOpenUsage, onSaved, children,
         }: {
             ref?: Ref<unknown>
             testId?: string
             rows?: unknown[]
             hiddenRows?: number
             editing?: boolean
-            theme?: string
+            namedTheme?: string
+            look?: string
             onEditingChange?: (editing: boolean) => void
             onOpenUsage?: (usage: typeof handed.usage) => void
             onSaved?: (written: string) => void
@@ -180,7 +182,12 @@ vi.mock('./modules/TableEditor', async () => {
             // What the screen asks the editor to write before the properties of the table are written.
             useImperativeHandle(ref, () => editorHandle.current)
             return (
-                <div data-editing={String(editing)} data-testid={testId} data-themed={String(theme !== undefined)}>
+                <div
+                    data-editing={String(editing)}
+                    data-look={look ?? ''}
+                    data-named-theme={namedTheme ?? ''}
+                    data-testid={testId}
+                >
                     {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
                     <button data-testid="table-edit-stop" onClick={() => onEditingChange?.(false)} type="button" />
                     <button data-testid="table-open-usage" onClick={() => onOpenUsage?.(handed.usage)} type="button" />
@@ -362,7 +369,7 @@ describe('ModuleWorkspace', () => {
             await Promise.resolve()
         })
 
-        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveAttribute('data-themed', 'true'))
+        await waitFor(() => expect(getRawTable).toHaveBeenCalled())
         expect(getRawTable).toHaveBeenCalledTimes(1)
         expect(vi.mocked(getRawTable).mock.calls[0]?.[2]).toMatchObject({ tableTheme: 'green' })
     })
@@ -374,7 +381,7 @@ describe('ModuleWorkspace', () => {
 
         render(<ModuleWorkspace />)
 
-        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveAttribute('data-themed', 'false'))
+        await waitFor(() => expect(getRawTable).toHaveBeenCalled())
         expect(getTableThemes).toHaveBeenCalled()
         expect(vi.mocked(getRawTable).mock.calls[0]?.[2]?.tableTheme).toBeUndefined()
     })
@@ -388,8 +395,75 @@ describe('ModuleWorkspace', () => {
 
         render(<ModuleWorkspace />)
 
-        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveAttribute('data-themed', 'false'))
+        await waitFor(() => expect(getRawTable).toHaveBeenCalled())
         expect(vi.mocked(getRawTable).mock.calls[0]?.[2]?.tableTheme).toBeUndefined()
+    })
+
+    describe('in the look of the Studio theme', () => {
+        const themes: TableThemeOption[] = [{ id: 'standard', name: 'Standard' }, { id: 'green', name: 'Green' }]
+        const drawIn = (look: Parameters<typeof renderInTheme>[1]) => {
+            workspace.opened = true
+            vi.mocked(getRawTable).mockClear()
+            vi.mocked(getTableThemes).mockResolvedValue(themes)
+            renderInTheme(<ModuleWorkspace />, { mode: 'dark', tablesFollowTheme: true, ...look })
+        }
+        const readWith = () => vi.mocked(getRawTable).mock.calls[0]?.[2]?.tableTheme
+
+        it('reads the table with the table theme of the look, whatever table theme the settings name', async () => {
+            useUserStore.setState({ userProfile: { tableTheme: 'green' } as never })
+
+            drawIn({ theme: 'standard' })
+
+            await waitFor(() => expect(getRawTable).toHaveBeenCalled())
+            expect(getRawTable).toHaveBeenCalledTimes(1)
+            expect(readWith()).toBe('standard')
+            // The editor is told whose look the table it draws is read with.
+            expect(screen.getByTestId('module-table')).toHaveAttribute('data-look', 'standard')
+            // Applying a theme still starts from the one the settings name: the look is a drawing only.
+            expect(screen.getByTestId('module-table')).toHaveAttribute('data-named-theme', 'green')
+        })
+
+        it('reads with the look of the Studio theme over the formatting of the Excel file', async () => {
+            useUserStore.setState({ userProfile: { tableTheme: undefined } as never })
+
+            drawIn({ theme: 'standard', mode: 'light' })
+
+            await waitFor(() => expect(getRawTable).toHaveBeenCalled())
+            // The look is a theme too: the table waits for the themes rather than being read twice.
+            expect(getRawTable).toHaveBeenCalledTimes(1)
+            expect(readWith()).toBe('standard')
+            // The settings name no theme, so applying one offers the themes in their own order.
+            expect(screen.getByTestId('module-table')).toHaveAttribute('data-named-theme', '')
+        })
+
+        it('falls back to the table theme of the settings under a Studio theme with no look for them', async () => {
+            useUserStore.setState({ userProfile: { tableTheme: 'green' } as never })
+
+            drawIn({ theme: 'dracula' })
+
+            await waitFor(() => expect(getRawTable).toHaveBeenCalled())
+            expect(readWith()).toBe('green')
+            expect(screen.getByTestId('module-table')).toHaveAttribute('data-look', '')
+        })
+
+        it('draws the Standard table theme the settings name in no look where the reader does not ask', async () => {
+            useUserStore.setState({ userProfile: { tableTheme: 'standard' } as never })
+
+            drawIn({ theme: 'standard', tablesFollowTheme: false })
+
+            await waitFor(() => expect(getRawTable).toHaveBeenCalled())
+            expect(readWith()).toBe('standard')
+            expect(screen.getByTestId('module-table')).toHaveAttribute('data-look', '')
+        })
+
+        it('falls back to the formatting of the Excel file the settings name', async () => {
+            useUserStore.setState({ userProfile: { tableTheme: undefined } as never })
+
+            drawIn({ theme: 'dracula' })
+
+            await waitFor(() => expect(getRawTable).toHaveBeenCalled())
+            expect(readWith()).toBeUndefined()
+        })
     })
 
     it('says nothing about a module that compiled, and marks one that raised something', async () => {

@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { paperToken } from 'styles/paper'
 import type { RawTableCell } from 'types/tables'
 import { RawTableCellText } from './RawTableCellText'
 import type { RawTableGridStyles } from './RawTableGrid.styles'
@@ -21,9 +20,12 @@ const metaInfo = (over: Partial<NonNullable<RawTableCell['metaInfo']>> = {}): Ra
 // The table reads its styles once and hands them to every cell it draws.
 const styles = { usageLink: 'usage-link' } as RawTableGridStyles
 
+/** The ink of the paper the table lies on, which the table hands to every cell it draws. */
+const INK = '#262626'
+
 describe('RawTableCellText', () => {
     it('marks the piece of the text the compiler resolved, and leaves the rest alone', () => {
-        render(<RawTableCellText metaInfo={metaInfo()} styles={styles} text="= DriverRisk(numDUI)" />)
+        render(<RawTableCellText ink={INK} metaInfo={metaInfo()} styles={styles} text="= DriverRisk(numDUI)" />)
 
         // The range is over the cell's own text, so exactly those characters are marked.
         expect(screen.getByTestId('cell-usage-0')).toHaveTextContent('DriverRisk')
@@ -34,6 +36,7 @@ describe('RawTableCellText', () => {
         const parent = metaInfo({ usages: [{ start: 23, end: 29, description: 'Datatype Parent', kind: 'datatype' }]})
         render(
             <RawTableCellText
+                ink={INK}
                 metaInfo={parent}
                 styles={styles}
                 text="Datatype Child extends Parent"
@@ -59,6 +62,7 @@ describe('RawTableCellText', () => {
         const type = metaInfo({ usages: [child]})
         render(
             <RawTableCellText
+                ink={INK}
                 metaInfo={type}
                 onOpenUsage={vi.fn()}
                 runs={[{ text: 'Datatype ', style: { color: '#808080' } }, { text: 'Child', style: { bold: true } }]}
@@ -77,14 +81,14 @@ describe('RawTableCellText', () => {
 
     it('draws a piece naming no colour in the ink of the paper, as Excel draws it', () => {
         const runs = [{ text: 'Datatype ', style: { color: '#808080' } }, { text: 'Child', style: { bold: true } }]
-        render(<RawTableCellText metaInfo={undefined} runs={runs} styles={styles} text="Datatype Child" />)
+        render(<RawTableCellText ink={INK} metaInfo={undefined} runs={runs} styles={styles} text="Datatype Child" />)
 
-        // The table lies on the paper of a workbook whatever the theme, and the piece is written in its ink.
-        expect(screen.getByText('Child')).toHaveStyle({ color: paperToken().colorText })
+        expect(screen.getByText('Child')).toHaveStyle({ color: INK })
     })
 
     it('draws the text plain where the runs do not spell it', () => {
         render(<RawTableCellText
+            ink={INK}
             metaInfo={undefined}
             runs={[{ text: 'other', style: { bold: true } }]}
             styles={styles}
@@ -96,7 +100,15 @@ describe('RawTableCellText', () => {
 
     it('follows a piece that names a table', async () => {
         const onOpenUsage = vi.fn()
-        render(<RawTableCellText metaInfo={metaInfo()} onOpenUsage={onOpenUsage} styles={styles} text="= DriverRisk(numDUI)" />)
+        render(
+            <RawTableCellText
+                ink={INK}
+                metaInfo={metaInfo()}
+                onOpenUsage={onOpenUsage}
+                styles={styles}
+                text="= DriverRisk(numDUI)"
+            />
+        )
 
         await userEvent.click(screen.getByTestId('cell-usage-0'))
 
@@ -108,7 +120,7 @@ describe('RawTableCellText', () => {
         const noTable = metaInfo({
             usages: [{ start: 0, end: 3, description: 'int', kind: 'other' }],
         })
-        render(<RawTableCellText metaInfo={noTable} onOpenUsage={onOpenUsage} styles={styles} text="int" />)
+        render(<RawTableCellText ink={INK} metaInfo={noTable} onOpenUsage={onOpenUsage} styles={styles} text="int" />)
 
         await userEvent.click(screen.getByTestId('cell-usage-0'))
 
@@ -116,13 +128,13 @@ describe('RawTableCellText', () => {
     })
 
     it('stars the cell a decision table returns, as the Editor did', () => {
-        render(<RawTableCellText metaInfo={{ returnCell: true }} styles={styles} text="RET1" />)
+        render(<RawTableCellText ink={INK} metaInfo={{ returnCell: true }} styles={styles} text="RET1" />)
 
         expect(screen.getByTestId('cell-return')).toBeInTheDocument()
     })
 
     it('shows the text as it stands when the compiler knows nothing about the cell', () => {
-        const { container } = render(<RawTableCellText metaInfo={undefined} styles={styles} text="plain" />)
+        const { container } = render(<RawTableCellText ink={INK} metaInfo={undefined} styles={styles} text="plain" />)
 
         expect(container).toHaveTextContent('plain')
         expect(screen.queryByTestId('cell-usage-0')).toBeNull()

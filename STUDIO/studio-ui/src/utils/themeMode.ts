@@ -76,3 +76,17 @@ export const readThemeName = (): ThemeName => {
 
 /** Remembers the picked theme for the next visit. */
 export const storeThemeName = (name: ThemeName): void => writeStored(THEME_NAME_KEY, name)
+
+/** Where the choice to draw the tables in the look of the theme is remembered between visits. */
+export const THEME_TABLES_KEY = 'openl.theme.tables'
+
+/**
+ * Whether the tables are drawn in the look of the theme of the application in place of the table theme.
+ *
+ * They are drawn with the table theme of the settings by default, so anything but a stored `true` — nothing picked
+ * yet, a browser that refuses storage, a value this version does not know — leaves them so.
+ */
+export const readTablesFollowTheme = (): boolean => readStored(THEME_TABLES_KEY) === 'true'
+
+/** Remembers the choice for the next visit. */
+export const storeTablesFollowTheme = (follow: boolean): void => writeStored(THEME_TABLES_KEY, String(follow))

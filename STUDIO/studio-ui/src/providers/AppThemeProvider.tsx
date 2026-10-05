@@ -4,9 +4,11 @@ import { theme as antdTheme, type ThemeConfig } from 'antd'
 import {
     appearanceOf,
     readCompactMode,
+    readTablesFollowTheme,
     readThemeMode,
     readThemeName,
     storeCompactMode,
+    storeTablesFollowTheme,
     storeThemeMode,
     storeThemeName,
 } from '../utils/themeMode'
@@ -22,6 +24,9 @@ interface AppTheme {
     /** The theme whose colours the application is painted in. */
     themeName: ThemeName
     setThemeName: (name: ThemeName) => void
+    /** Whether the tables are drawn in the look of the theme in place of the table theme, where it has one for them. */
+    tablesFollowTheme: boolean
+    setTablesFollowTheme: (follow: boolean) => void
 }
 
 const AppThemeContext = createContext<AppTheme>({
@@ -29,6 +34,8 @@ const AppThemeContext = createContext<AppTheme>({
     setCompact: () => {},
     themeName: 'standard',
     setThemeName: () => {},
+    tablesFollowTheme: false,
+    setTablesFollowTheme: () => {},
 })
 
 /** The theme and the density the user picked, and the way to change them. */
@@ -73,7 +80,9 @@ const ThemeColorMeta = () => {
  * they survive a reload. The first render is already drawn in the remembered appearance: antd-style would
  * otherwise start light and switch in an effect, which a dark reader sees as a white flash on every load.
  * Under `auto` the provider follows the system and repaints when the system switches. The three are
- * independent: every theme has a variant for either appearance, worn at either density.
+ * independent: every theme has a variant for either appearance, worn at either density. The provider also keeps,
+ * remembered the same way, whether the tables are drawn in the look of the theme in place of the table theme (My
+ * Settings).
  *
  * The provider adds the algorithm of the appearance, dark or default, to the tokens the theme hands over. The
  * palette of the theme and appearance in force is read off the token it works out, and travels down as the `openl`
@@ -84,6 +93,7 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     const [themeMode, setThemeMode] = useState<ThemeMode>(readThemeMode)
     const [compact, setCompact] = useState<boolean>(readCompactMode)
     const [themeName, setThemeName] = useState<ThemeName>(readThemeName)
+    const [tablesFollowTheme, setTablesFollowTheme] = useState<boolean>(readTablesFollowTheme)
 
     const onThemeModeChange = useCallback((mode: ThemeMode) => {
         storeThemeMode(mode)
@@ -100,9 +110,21 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
         setThemeName(next)
     }, [])
 
+    const rememberTablesFollowTheme = useCallback((next: boolean) => {
+        storeTablesFollowTheme(next)
+        setTablesFollowTheme(next)
+    }, [])
+
     const value = useMemo(
-        () => ({ compact, setCompact: rememberCompact, setThemeName: rememberThemeName, themeName }),
-        [compact, rememberCompact, rememberThemeName, themeName]
+        () => ({
+            compact,
+            setCompact: rememberCompact,
+            setTablesFollowTheme: rememberTablesFollowTheme,
+            setThemeName: rememberThemeName,
+            tablesFollowTheme,
+            themeName,
+        }),
+        [compact, rememberCompact, rememberTablesFollowTheme, rememberThemeName, tablesFollowTheme, themeName]
     )
 
     const theme = useCallback(

@@ -7,8 +7,9 @@ import { ApiHttpError, notifyLoadFailure } from '../../services/apiCall'
 import { getRawTable, getTableEditors, NO_EDITORS } from '../../services/modules'
 import { applyTableActions, getTableThemesOf } from '../../services/tables'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
+import { opaque } from '../../styles/colorMath'
 import { paperToken } from '../../styles/paper'
-import { renderInTheme } from '../../testing/theme'
+import { renderInTheme, tokenFor } from '../../testing/theme'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn(), getTableThemesOf: vi.fn() }))
 vi.mock('../../services/apiCall', async importOriginal => ({
@@ -187,6 +188,69 @@ describe('TableEditor', () => {
             await waitFor(() => expect(notifyLoadFailure)
                 .toHaveBeenCalledWith('browser.module.edit_read_failed', expect.any(Error)))
             expect(onEditingChange).toHaveBeenCalledWith(false)
+        })
+    })
+
+    describe('in the colours of the Studio theme', () => {
+        // A field name of a Datatype, which the Standard table theme fills in its light blue.
+        const named: RawTableCell[][] = [[{
+            cell: 'B4',
+            value: 'name',
+            style: { background: '#ddebf7', backgroundKey: 'datatype.name.background', source: 'theme' },
+        }]]
+        // The workspace tells the editor whose look the table is read with.
+        const drawIn = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => renderInTheme(
+            <TableEditor
+                canWrite
+                editing={false}
+                look="standard"
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={named}
+                tableId="table-1"
+                testId="module-table"
+                {...over}
+            />,
+            { theme: 'standard', mode: 'dark' }
+        )
+        const dark = tokenFor('standard', true)
+
+        it('draws a table read with the look of the theme in its dark colours, where the reader asks for them', () => {
+            drawIn()
+
+            expect(screen.getByText('name')).toHaveStyle({
+                backgroundColor: opaque(dark.colorPrimaryBg, dark.colorBgContainer),
+            })
+            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: dark.colorBgContainer })
+        })
+
+        it('keeps the colours of the table theme for a table drawn in no look', () => {
+            drawIn({ look: undefined })
+
+            expect(screen.getByText('name')).toHaveStyle({ backgroundColor: '#ddebf7' })
+            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
+        })
+
+        it('keeps the paper of the workbook while the table is edited, since that is what a save writes', async () => {
+            vi.mocked(getRawTable).mockReset().mockResolvedValue({
+                id: 'table-1',
+                source: [[{ cell: 'B4', value: 'name', style: { background: '#ffff00' } }]],
+            } as never)
+            drawIn({ editing: true })
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await waitFor(() => expect(screen.getByText('name')).toHaveStyle({ backgroundColor: '#ffff00' }))
+            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
+        })
+
+        it('keeps the paper of the workbook for a table the theme does not style', () => {
+            const plain: RawTableCell[][] = [[{ cell: 'B4', value: 'Other notes', style: { background: '#ffff00' } }]]
+
+            drawIn({ rows: plain })
+
+            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
         })
     })
 
@@ -1606,14 +1670,24 @@ describe('TableEditor', () => {
 
         const drawnCell = (address: string): Element | null => document.querySelector(`[data-cell="${address}"]`)
 
-        it('offers the themes that style the table, the one the reader starts from first', async () => {
-            draw({ theme: 'green' })
+        it('offers the themes that style the table, the one the settings name first', async () => {
+            draw({ namedTheme: 'green' })
 
             await userEvent.click(await screen.findByTestId('table-edit-theme'))
 
             const offered = await screen.findAllByRole('menuitem')
             expect(offered.map(item => item.textContent)).toEqual(['Green', 'Default'])
             expect(getTableThemesOf).toHaveBeenCalledWith('repo:Rating', 'table-1', 'Claims')
+        })
+
+        it('offers the themes whatever the screen draws the table with, the look of the Studio theme too', async () => {
+            // Read in the look of the Studio theme, whose table theme the settings do not name.
+            draw({ look: 'standard' })
+
+            await userEvent.click(await screen.findByTestId('table-edit-theme'))
+
+            const offered = await screen.findAllByRole('menuitem')
+            expect(offered.map(item => item.textContent)).toEqual(['Default', 'Green'])
         })
 
         it('offers no theme for a table no theme styles', async () => {

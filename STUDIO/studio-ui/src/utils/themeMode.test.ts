@@ -6,14 +6,17 @@ import {
     DEFAULT_THEME_MODE,
     DEFAULT_THEME_NAME,
     readCompactMode,
+    readTablesFollowTheme,
     readThemeMode,
     readThemeName,
     storeCompactMode,
+    storeTablesFollowTheme,
     storeThemeMode,
     storeThemeName,
     THEME_COMPACT_KEY,
     THEME_MODE_KEY,
     THEME_NAME_KEY,
+    THEME_TABLES_KEY,
 } from './themeMode'
 
 describe('themeMode', () => {
@@ -93,5 +96,26 @@ describe('themeMode', () => {
         localStorage.setItem(THEME_NAME_KEY, 'toString')
 
         expect(readThemeName()).toBe('standard')
+    })
+
+    it('keeps the tables in the colours of their table theme until the user asks for the theme', () => {
+        expect(readTablesFollowTheme()).toBe(false)
+    })
+
+    it('remembers the choice to draw the tables in the colours of the theme', () => {
+        storeTablesFollowTheme(true)
+
+        expect(localStorage.getItem(THEME_TABLES_KEY)).toBe('true')
+        expect(readTablesFollowTheme()).toBe(true)
+
+        storeTablesFollowTheme(false)
+
+        expect(readTablesFollowTheme()).toBe(false)
+    })
+
+    it('keeps the colours of the table theme when the stored choice is not one it knows', () => {
+        localStorage.setItem(THEME_TABLES_KEY, 'yes')
+
+        expect(readTablesFollowTheme()).toBe(false)
     })
 })

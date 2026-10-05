@@ -1,8 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import { UserSettings } from './UserSettings'
 import * as services from '../services'
+import { renderInTheme } from '../testing/theme'
+import { THEME_TABLES_KEY } from '../utils/themeMode'
 import { useUserStore } from 'store'
 import type { MockedFunction } from 'vitest'
 import type { UserProfile } from '../types/user'
@@ -52,6 +54,9 @@ vi.mock('antd', async () => {
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
+/** The page inside the provider that keeps what the browser remembers, as the application draws it. */
+const renderSettings = (tablesFollowTheme = false) => renderInTheme(<UserSettings />, { tablesFollowTheme })
+
 describe('UserSettings', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -64,7 +69,7 @@ describe('UserSettings', () => {
 
     it('shows a success notification when settings are saved', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
-        render(<UserSettings />)
+        renderSettings()
 
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
@@ -75,9 +80,9 @@ describe('UserSettings', () => {
 
     it('sends only the settings the user changed', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
-        render(<UserSettings />)
+        renderSettings()
 
-        await userEvent.click(screen.getAllByRole('checkbox')[1] as HTMLElement)
+        await userEvent.click(screen.getByLabelText('users:settings.show_formulas'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
         await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
@@ -92,13 +97,13 @@ describe('UserSettings', () => {
             }),
         })
         mockApiCall.mockResolvedValue(undefined)
-        render(<UserSettings />)
+        renderSettings()
 
-        await userEvent.click(screen.getAllByRole('checkbox')[1] as HTMLElement)
+        await userEvent.click(screen.getByLabelText('users:settings.show_formulas'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
-        await waitFor(() => expect(screen.getAllByRole('checkbox')[0]).not.toBeChecked())
+        await waitFor(() => expect(screen.getByLabelText('users:settings.show_header')).not.toBeChecked())
 
-        await userEvent.click(screen.getAllByRole('checkbox')[2] as HTMLElement)
+        await userEvent.click(screen.getByLabelText('users:settings.failures_only'))
         // jsdom never ends the leave motion of the loading icon, so the name keeps it: match the label, wait for the state.
         const save = screen.getByRole('button', { name: /common:btn\.save/ })
         await waitFor(() => expect(save).not.toHaveClass('ant-btn-loading'))
@@ -111,7 +116,7 @@ describe('UserSettings', () => {
 
     it('draws the tables with the formatting of the Excel file while the profile names no theme', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
-        render(<UserSettings />)
+        renderSettings()
 
         expect(await screen.findByTitle('users:settings.excel_formatting')).toBeInTheDocument()
         await userEvent.click(screen.getByLabelText('users:settings.table_theme'))
@@ -125,7 +130,7 @@ describe('UserSettings', () => {
     it('goes back to the formatting of the Excel file by naming no theme', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
         useUserStore.setState({ userProfile: { ...profile, tableTheme: 'green' } })
-        render(<UserSettings />)
+        renderSettings()
 
         await userEvent.click(screen.getByLabelText('users:settings.table_theme'))
         await userEvent.click(await screen.findByTitle('users:settings.excel_formatting'))
@@ -138,7 +143,7 @@ describe('UserSettings', () => {
     it('saves the table theme the user chooses, offered by its name', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
         useUserStore.setState({ userProfile: { ...profile, tableTheme: 'default' } })
-        render(<UserSettings />)
+        renderSettings()
 
         await userEvent.click(screen.getByLabelText('users:settings.table_theme'))
         await userEvent.click(await screen.findByTitle('Green'))
@@ -150,7 +155,7 @@ describe('UserSettings', () => {
 
     it('sends nothing to change when nothing was changed', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
-        render(<UserSettings />)
+        renderSettings()
 
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
@@ -158,9 +163,74 @@ describe('UserSettings', () => {
         expect(sentBody(0)).toEqual({})
     })
 
+    it('remembers in the browser, not in the profile, to draw the tables in the look of the Studio theme',
+        async () => {
+            mockApiCall.mockResolvedValueOnce(undefined)
+            renderSettings()
+
+            // The look of the Studio theme is asked for whatever table theme the profile names, Excel Formatting too.
+            expect(await screen.findByTitle('users:settings.excel_formatting')).toBeInTheDocument()
+            await userEvent.click(screen.getByLabelText('users:settings.override_with_studio_theme'))
+            await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
+
+            await waitFor(() => expect(localStorage.getItem(THEME_TABLES_KEY)).toBe('true'))
+            expect(sentBody(0)).toEqual({})
+        })
+
+    it('keeps showing what was saved while the profile is read anew', async () => {
+        // The save is answered once the test lets it, and the profile read after it is never answered.
+        let answerSave: (value?: unknown) => void = () => undefined
+        mockApiCall.mockReturnValueOnce(new Promise(resolve => {
+            answerSave = resolve
+        }))
+        useUserStore.setState({ fetchUserProfile: vi.fn(() => new Promise<void>(() => undefined)) })
+        renderSettings()
+
+        await userEvent.click(screen.getByLabelText('users:settings.show_formulas'))
+        await userEvent.click(screen.getByLabelText('users:settings.override_with_studio_theme'))
+        await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await act(async () => answerSave())
+
+        expect(localStorage.getItem(THEME_TABLES_KEY)).toBe('true')
+        expect(screen.getByLabelText('users:settings.show_formulas')).toBeChecked()
+        expect(screen.getByLabelText('users:settings.override_with_studio_theme')).toBeChecked()
+    })
+
+    it('tells that the table theme and its override change only what the screen shows', async () => {
+        renderSettings()
+
+        const [tableTheme, override] = await screen.findAllByRole('img', { name: 'question-circle' })
+        await userEvent.hover(tableTheme as HTMLElement)
+        expect(await screen.findByText('users:settings.table_theme_info')).toBeInTheDocument()
+        await userEvent.hover(override as HTMLElement)
+        expect(await screen.findByText('users:settings.override_with_studio_theme_info')).toBeInTheDocument()
+    })
+
+    it('shows the choice the browser remembers', async () => {
+        useUserStore.setState({ userProfile: { ...profile, tableTheme: 'green' } })
+        renderSettings(true)
+
+        // The table theme is named once the themes are read.
+        expect(await screen.findByTitle('Green')).toBeInTheDocument()
+        expect(screen.getByLabelText('users:settings.override_with_studio_theme')).toBeChecked()
+    })
+
+    it('keeps the choice the browser remembers when the save fails', async () => {
+        mockApiCall.mockRejectedValueOnce(new Error('save failed'))
+        useUserStore.setState({ userProfile: { ...profile, tableTheme: 'green' } })
+        renderSettings()
+
+        await userEvent.click(screen.getByLabelText('users:settings.override_with_studio_theme'))
+        await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalledWith({ title: 'save failed' }))
+        expect(localStorage.getItem(THEME_TABLES_KEY)).toBe('false')
+    })
+
     it('shows an error notification when saving settings fails', async () => {
         mockApiCall.mockRejectedValueOnce(new Error('save failed'))
-        render(<UserSettings />)
+        renderSettings()
 
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 

@@ -83,4 +83,9 @@ export interface UserProfileFormFields extends UserProfile {
         confirmPassword?: string
     }
     displayNameSelect?: DisplayUserName
+    /**
+     * Whether the tables are drawn in the look of the theme of OpenL Studio in place of the table theme, where the
+     * theme has a look for them. Remembered by the browser like the theme itself, so it is never sent with the profile.
+     */
+    overrideWithStudioTheme?: boolean
 }
