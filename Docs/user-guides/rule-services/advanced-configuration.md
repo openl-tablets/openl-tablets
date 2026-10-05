@@ -21,18 +21,19 @@ If a project has specific requirements, OpenL Rule Services customization algori
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice.ws</artifactId>
         <version>${org.openl.version}</version>
-        <type>war</type>
-        <scope>runtime</scope>
+        <scope>provided</scope>
     </dependency>
     ```
 
-    To use the Git, Amazon AWS S3, and Azure Blob Storage repositories, or the relational database storage of the request logs, extend the *all* web application `org.openl.rules.ruleservice.ws.all` instead.
+    Use the `provided` scope: the web application already contains the libraries of OpenL Rule Services, and they must not be added to it once more.
 
 3.  Add the required points of configuration:
     -   Spring configurations in the `org.openl.rules.ruleservice.spring` Java package or in the `META-INF/openl/extension-*.xml` files, as described in [Adding Spring Framework configurations](https://openl-tablets.github.io/openl-tablets/integration-guides/spring).
     -   Java and Groovy classes, such as interceptors, advices, and listeners, described further in this section.
     -   Settings in the `application.properties` file in `src/main/resources`.
-4.  Build the project with the `maven-war-plugin`, which adds the files of the project to the web application of the dependency, and deploy the resulting WAR file.
+4.  Build the project as a JAR file and put it to the `WEB-INF/lib` folder of the OpenL Rule Services web application, the `webservice.war` asset of the [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases). In the `openltablets/ws` Docker image, the web application is unpacked to the `/opt/openl/app/webapps/ROOT` folder.
+
+    To use the Git, Amazon AWS S3, and Azure Blob Storage repositories, or the relational database storage of the request logs, extend the *all* web application `webservice-all.war`, or the Docker image with the `-all` suffix of the tag, instead.
 
 ### Data Source Listeners
 

@@ -6,14 +6,16 @@ Docker images. The OpenL Tablets DEMO package runs both on Jetty without Docker;
 
 ## Artifacts
 
-| Product                  | Docker image                         | WAR (group `org.openl.rules`)       |
-|--------------------------|--------------------------------------|-------------------------------------|
-| OpenL Studio             | `openltablets/webstudio`             | `org.openl.rules.webstudio`         |
-| OpenL Rule Services      | `openltablets/ws`                    | `org.openl.rules.ruleservice.ws`    |
-| OpenL Rule Services, all | `openltablets/ws`, tag suffix `-all` | `org.openl.rules.ruleservice.ws.all` |
+| Product                  | Docker image                         | WAR                  |
+|--------------------------|--------------------------------------|----------------------|
+| OpenL Studio             | `openltablets/webstudio`             | `webstudio.war`      |
+| OpenL Rule Services      | `openltablets/ws`                    | `webservice.war`     |
+| OpenL Rule Services, all | `openltablets/ws`, tag suffix `-all` | `webservice-all.war` |
 
-- **Releases** — the WARs are published to Maven Central, and the images to
-  [Docker Hub](https://hub.docker.com/u/openltablets) with the release version and `latest` as tags.
+- **Releases** — the WARs are assets of the [GitHub release](https://github.com/openl-tablets/openl-tablets/releases),
+  each with its OpenPGP signature in the `.asc` asset of the same name. Maven Central gets the libraries only, not the
+  WARs. The images are published to [Docker Hub](https://hub.docker.com/u/openltablets) with the release version and
+  `latest` as tags.
 - **Nightly builds** — the images are pushed to the GitHub Container Registry as `ghcr.io/openl-tablets/webstudio`
   and `ghcr.io/openl-tablets/ws` with the tags `latest` and `<version>-<commit>`. The "all" variant of Rule Services
   has the tags `latest-all` and `<version>-<commit>-all`.

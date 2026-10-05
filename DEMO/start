@@ -23,6 +23,7 @@ set -e # Exit immediately if a command exits with a non-zero status.
 # -----------------------------------------------------------------------------------
 SKIP_OS_JAVA=false #To ignore system Java and use a local JRE
 MAVEN_URL="https://repo1.maven.org/maven2"
+RELEASES_URL="https://github.com/openl-tablets/openl-tablets/releases/download"
 
 # JETTY_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
 # Enforced by `mvn validate -N`.
@@ -299,8 +300,8 @@ EOF
 EOF
 
 else
-    download_war "webstudio" "${MAVEN_URL}/org/openl/rules/org.openl.rules.webstudio/${OPENL_VERSION}/org.openl.rules.webstudio-${OPENL_VERSION}.war"
-    download_war "webservice" "${MAVEN_URL}/org/openl/rules/org.openl.rules.ruleservice.ws/${OPENL_VERSION}/org.openl.rules.ruleservice.ws-${OPENL_VERSION}.war"
+    download_war "webstudio" "${RELEASES_URL}/${OPENL_VERSION}/webstudio.war"
+    download_war "webservice" "${RELEASES_URL}/${OPENL_VERSION}/webservice.war"
 fi
 
 # Init Default repository

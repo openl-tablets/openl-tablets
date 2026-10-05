@@ -2,12 +2,14 @@
 title: "OpenL Tablets 7.0.0 Migration Notes"
 ---
 
-Upgrading to OpenL Tablets 7.0.0 requires no database changes and no Java version change. Two changes need
+Upgrading to OpenL Tablets 7.0.0 requires no database changes and no Java version change. Three changes need
 attention. Groovy moves from `4.0.33` to `6.0.0`, skipping the whole 5.x line, so a project that carries Groovy
 sources needs a source-compatibility check; every deployment runs the new Groovy runtime, so the administrator
 notes below apply even where no project carries Groovy sources. Separately, the `/web` prefix of the OpenL Studio
 API is removed, `/rest` is the only prefix left, and the WebSocket endpoint moves out of it to `/ws` — which affects
-everyone who calls that API from outside the browser.
+everyone who calls that API from outside the browser. Finally, the WAR files are no longer published to Maven
+Central: they are the assets of the GitHub release, which affects every build and deployment that fetches them
+from Maven.
 
 ## Rules Authors
 
@@ -424,6 +426,13 @@ everyone who calls that API from outside the browser.
 
   A repository plugin that overrides one of the removed `BranchRepository` methods with `@Override` no longer
   compiles; delete the override.
+* **A Maven build can no longer extend the WAR of OpenL Rule Services.** Maven Central has no `war` of
+  `org.openl.rules.ruleservice.ws` and no `org.openl.rules.ruleservice.ws.all` or `org.openl.rules.webstudio`
+  at all, so a `war` dependency on them no longer resolves. Build the extension as a JAR file with the
+  `org.openl.rules.ruleservice.ws` dependency in the `provided` scope, and put it into `WEB-INF/lib` of the web
+  application, as the
+  [Advanced Configuration](https://openl-tablets.github.io/openl-tablets/user-guides/rule-services/advanced-configuration)
+  guide describes. The jar of `org.openl.rules.ruleservice.ws` and the other libraries stay in Maven Central.
 
 ## Administrators
 
@@ -483,6 +492,14 @@ everyone who calls that API from outside the browser.
 * **An e-mail verification link deployed under a context path containing `web` is fixed.** With the default
   `/webstudio` context path the link previously lost that path and did not resolve. No action is required
   beyond upgrading; a link sent by an earlier version stays broken.
+
+* **Download the WAR files from the GitHub release.** The release `7.0.0` on
+  [GitHub](https://github.com/openl-tablets/openl-tablets/releases) holds `webstudio.war`, `webservice.war` and
+  `webservice-all.war`; each is signed in the `.asc` file of the same name with the key that signs the Maven
+  Central artifacts. Repoint every script and pipeline that downloads a WAR from Maven Central, such as
+  `https://github.com/openl-tablets/openl-tablets/releases/download/7.0.0/webstudio.war` in place of
+  `org/openl/rules/org.openl.rules.webstudio/7.0.0/org.openl.rules.webstudio-7.0.0.war`. The Docker images and
+  the DEMO package need nothing.
 
 ## Testing Recommendations
 

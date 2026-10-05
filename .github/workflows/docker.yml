@@ -1,4 +1,6 @@
 # This workflow will publish Docker images to the Central Docker Hub repository.
+# The images are built from the wars of the published GitHub release and the OpenTelemetry extension
+# from the Central Maven repository.
 
 name: DockerHub Publisher
 
@@ -20,6 +22,9 @@ jobs:
     name: Publish ${{ github.event.inputs.version }} images to DockerHub
 
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
       - name: Define settings
@@ -59,47 +64,18 @@ jobs:
           echo "tags_11=$tags_11" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
 
-      - name: Download OpenL Studio
+      - name: Download the wars from the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          # Define urls
-          artifactUrl="$SERVER/org/openl/rules/org.openl.rules.webstudio"
-          downloadUrl="$artifactUrl/$version/org.openl.rules.webstudio-$version.war"
-          # Download artifact.
-          wget --progress=dot:giga -O app.war "$downloadUrl"
-          wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
-          # GPG verification
-          gpg --batch --verify app.war.asc app.war
-          unzip -q app.war -d webstudio
-          rm app.war.asc
-          rm app.war
-
-      - name: Download Rule Services
-        run: |
-          # Define urls
-          artifactUrl="$SERVER/org/openl/rules/org.openl.rules.ruleservice.ws"
-          downloadUrl="$artifactUrl/$version/org.openl.rules.ruleservice.ws-$version.war"
-          # Download artifact.
-          wget --progress=dot:giga -O app.war "$downloadUrl"
-          wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
-          # GPG verification
-          gpg --batch --verify app.war.asc app.war
-          unzip -q app.war -d webservice
-          rm app.war.asc
-          rm app.war
-
-      - name: Download Rule Services (ALL)
-        run: |
-          # Define urls
-          artifactUrl="$SERVER/org/openl/rules/org.openl.rules.ruleservice.ws.all"
-          downloadUrl="$artifactUrl/$version/org.openl.rules.ruleservice.ws.all-$version.war"
-          # Download artifact.
-          wget --progress=dot:giga -O app.war "$downloadUrl"
-          wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
-          # GPG verification
-          gpg --batch --verify app.war.asc app.war
-          unzip -q app.war -d webservice-all
-          rm app.war.asc
-          rm app.war
+          set -euo pipefail
+          gh release download "$version" --repo "$GITHUB_REPOSITORY" --pattern '*.war' --pattern '*.war.asc'
+          for app in webstudio webservice webservice-all; do
+            # GPG verification
+            gpg --batch --verify "$app.war.asc" "$app.war"
+            unzip -q "$app.war" -d "$app"
+            rm "$app.war.asc" "$app.war"
+          done
 
       - name: Download OpenTelemetry extension
         run: |

@@ -76,7 +76,7 @@ Studio installation, so both always ship and version as one unit.
     runs as the non-root `openl` user.
   - **`DEMO/start*`** — downloads a JRE and `jetty-home` and deploys Studio at `/webstudio` through a context XML,
     next to OpenL Rule Services; `webapps/ROOT` holds a static landing page.
-  - **WAR on Maven Central** — customers deploy it into Jetty or Apache Tomcat 10.1; both are
+  - **WAR on GitHub Releases** — customers deploy it into Jetty or Apache Tomcat 10.1; both are
     [supported platforms](../supported-platforms.md).
 - **Build and tests** — the root `pom.xml` manages `node.version`, `npm.version` and
   `frontend-maven-plugin.version`, which `STUDIO/studio-ui` already uses. ITEST boots the unpacked WAR in an embedded

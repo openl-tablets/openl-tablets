@@ -445,6 +445,16 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- The war is an asset of the GitHub release, not of Maven Central. Nothing else depends on this
+                 module, so it deploys nothing at all; it is still installed into the local repository for the
+                 integration tests. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>

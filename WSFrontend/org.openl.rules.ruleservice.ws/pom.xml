@@ -209,6 +209,9 @@
                     </webResources>
                 </configuration>
             </plugin>
+            <!-- The jar of the classes is the Maven artifact other projects depend on. The war is an asset of
+                 the GitHub release: the release workflow takes it out of the Maven Central bundle, as a deploy
+                 cannot leave out the main artifact of a module. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

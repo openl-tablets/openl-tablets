@@ -1,4 +1,6 @@
 # This workflow will release OpenL artifacts to the Central Maven repository.
+# The web applications (*.war) are not published there: they are the assets of the GitHub release,
+# together with their signatures and the DEMO package.
 
 name: Release OpenL Tablets
 
@@ -86,6 +88,25 @@ jobs:
           SIGN_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
           SIGN_KEY_PASS: ${{ secrets.OSSRH_GPG_PASSPHRASE }}
 
+        # The wars make up nine tenths of the bundle, so Maven Central gets the libraries only. The war modules
+        # deploy nothing, except Rule Services: other projects depend on its jar, and a deploy cannot leave out its
+        # war, the main artifact. The GitHub release takes each war under the file name the build gives it, with
+        # the signature the build made.
+      - name: Take the wars out of the Maven Central bundle
+        run: |
+          set -euo pipefail
+          mkdir release-assets
+          take() { # <module directory> <war file name>
+            local target="build/$1/target"
+            mv "$target/$2" release-assets/
+            mv "$target/${1##*/}-${RELEASE_TAG}.war.asc" "release-assets/$2.asc"
+          }
+          take STUDIO/org.openl.rules.webstudio webstudio.war
+          take WSFrontend/org.openl.rules.ruleservice.ws webservice.war
+          take WSFrontend/org.openl.rules.ruleservice.ws.all webservice-all.war
+          find mvn-staging \( -name '*.war' -o -name '*.war.*' \) -print -delete
+          ls -l release-assets
+
       - name: Store release.zip
         uses: actions/upload-artifact@v7
         with:
@@ -121,8 +142,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e
+          set -euo pipefail
+          echo "${RELEASE_TAG}" > ./openl.version
+          zip -r "../../openl-tablets-demo-${RELEASE_TAG}.zip" .
+          DOWNLOAD="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}"
           gh release create "${RELEASE_TAG}" \
+            ../../release-assets/* \
+            "../../openl-tablets-demo-${RELEASE_TAG}.zip#openl-tablets-demo.zip" \
             --repo "${GITHUB_REPOSITORY}" \
             --title "OpenL Tablets ${RELEASE_TAG} Released" \
             --draft \
@@ -131,13 +157,12 @@ jobs:
             More detailed information you can find at [Release Notes ${RELEASE_TAG}](//openl-tablets.org/release-notes?ver=${RELEASE_TAG}).
 
             All artifacts are ready for Downloads.
-            * [Download OpenL Studio](https://repo1.maven.org/maven2/org/openl/rules/org.openl.rules.webstudio/${RELEASE_TAG}/org.openl.rules.webstudio-${RELEASE_TAG}.war)
-            * [Download OpenL Rule Services](https://repo1.maven.org/maven2/org/openl/rules/org.openl.rules.ruleservice.ws/${RELEASE_TAG}/org.openl.rules.ruleservice.ws-${RELEASE_TAG}.war)
-            * [Download OpenL Rule Services (All)](https://repo1.maven.org/maven2/org/openl/rules/org.openl.rules.ruleservice.ws.all/${RELEASE_TAG}/org.openl.rules.ruleservice.ws.all-${RELEASE_TAG}.war)
-            * [Download OpenL DEMO installer](https://github.com/openl-tablets/openl-tablets/releases/download/${RELEASE_TAG}/openl-tablets-demo-${RELEASE_TAG}.zip)
+            * [Download OpenL Studio](${DOWNLOAD}/webstudio.war)
+            * [Download OpenL Rule Services](${DOWNLOAD}/webservice.war)
+            * [Download OpenL Rule Services (All)](${DOWNLOAD}/webservice-all.war)
+            * [Download OpenL DEMO installer](${DOWNLOAD}/openl-tablets-demo-${RELEASE_TAG}.zip)
+
+            Each war comes with its OpenPGP signature: the asset of the same name with the .asc extension.
 
             Enjoy!
           EOF
-          echo "${RELEASE_TAG}" > ./openl.version
-          zip -r ../../openl-tablets-demo-${RELEASE_TAG}.zip .
-          gh release upload "${RELEASE_TAG}" "../../openl-tablets-demo-${RELEASE_TAG}.zip#openl-tablets-demo.zip" --clobber --repo "${GITHUB_REPOSITORY}"
