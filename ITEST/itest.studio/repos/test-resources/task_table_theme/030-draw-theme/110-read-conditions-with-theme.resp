@@ -72,12 +72,9 @@ Content-Type: application/json
         "cell": "B65",
         "value": "Inputs",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -86,12 +83,9 @@ Content-Type: application/json
         "value": "Integer age",
         "colspan": 2,
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -104,12 +98,9 @@ Content-Type: application/json
         "cell": "B66",
         "value": "Expression",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -118,12 +109,9 @@ Content-Type: application/json
         "value": "age >= minAge && age <= maxAge",
         "colspan": 2,
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -136,18 +124,9 @@ Content-Type: application/json
         "cell": "B67",
         "value": "Parameter",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -155,18 +134,9 @@ Content-Type: application/json
         "cell": "C67",
         "value": "Integer minAge",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       },
@@ -174,18 +144,9 @@ Content-Type: application/json
         "cell": "D67",
         "value": "Integer maxAge",
         "style": {
-          "color": "#808080",
-          "align": "center",
           "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.code.color",
           "source": "theme"
         }
       }
@@ -195,10 +156,7 @@ Content-Type: application/json
         "cell": "B68",
         "value": "Title",
         "style": {
-          "background": "#bfbfbf",
-          "align": "center",
           "valign": "center",
-          "bold": true,
           "border": {
             "bottom": {
               "style": "solid",
@@ -207,7 +165,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "base.titles.background",
           "source": "theme"
         }
       },
@@ -216,10 +173,7 @@ Content-Type: application/json
         "value": "Age Band",
         "colspan": 2,
         "style": {
-          "background": "#bfbfbf",
-          "align": "center",
           "valign": "center",
-          "bold": true,
           "border": {
             "bottom": {
               "style": "solid",
@@ -228,7 +182,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "base.titles.background",
           "source": "theme"
         }
       },

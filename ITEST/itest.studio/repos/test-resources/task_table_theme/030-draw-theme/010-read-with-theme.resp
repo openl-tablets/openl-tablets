@@ -76,7 +76,7 @@ Content-Type: application/json
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.type.color",
+          "colorKey": "datatype.type.color",
           "source": "theme"
         }
       },
@@ -114,7 +114,7 @@ Content-Type: application/json
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.type.color",
+          "colorKey": "datatype.type.color",
           "source": "theme"
         }
       },
@@ -157,7 +157,7 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.type.color",
+          "colorKey": "datatype.type.color",
           "source": "theme"
         }
       },

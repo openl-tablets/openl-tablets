@@ -159,6 +159,10 @@ class TableThemeTest {
             new TableThemeService("classpath*:test-table-themes/extended-header.yaml");
     private static final String EXTENDED_THEME = "extended-header";
 
+    /** A theme that gives every kind of table a look of its own, beyond the kinds the shipped themes style. */
+    private static final TableThemeService LOOKS = TestThemes.everyKind();
+    private static final String LOOKS_THEME = TestThemes.EVERY_KIND;
+
     @TempDir
     Path dir;
 
@@ -186,12 +190,12 @@ class TableThemeTest {
         var model = TableTestProjects.projectModel(dir);
         var extension = new TableThemeService("classpath*:test-table-themes/datatype-extension.yaml");
 
-        assertEquals(List.of("standard", "green"), ids(service.getThemes(TableTestProjects.table(model, "Code"))));
-        assertEquals(List.of("standard", "green"), ids(service.getThemes(TableTestProjects.table(model, PREMIUM))));
+        assertEquals(service.getThemes(), service.getThemes(TableTestProjects.table(model, "Code")));
+        assertEquals(service.getThemes(), service.getThemes(TableTestProjects.table(model, PREMIUM)));
         // A theme writing nothing for a kind of table other than a Datatype styles them all the same.
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
-        assertEquals(List.of("standard", "green"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
+        assertEquals(service.getThemes(), service.getThemes(TableTestProjects.table(model, "people")));
         assertTrue(service.getThemes(notes()).isEmpty(), "No theme styles a table of no kind OpenL knows");
     }
 
@@ -569,11 +573,11 @@ class TableThemeTest {
         var name = standard.get(1).get(1).style();
         assertEquals(LIGHT_BLUE, name.background());
         assertEquals("datatype.name.background", name.backgroundKey(), "A part the kind writes");
-        assertEquals("base.type.color", standard.get(1).getFirst().style().colorKey(),
-                "A part the kind takes from the base");
+        assertEquals("datatype.type.color", standard.get(1).getFirst().style().colorKey(),
+                "Another part the kind writes");
         assertEquals("base.header.keyword.color",
                 standard.getFirst().getFirst().runs().getFirst().style().colorKey(),
-                "A piece of the header");
+                "A piece of the header, which the kind takes from the base");
         var white = standard.get(2).getFirst().style();
         assertNull(white.background(), "White, the default, is left out");
         assertNull(white.backgroundKey(), "And so is its key");
@@ -944,7 +948,10 @@ class TableThemeTest {
 
     @Test
     void givesARunTableTheLookOfATestTable() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_RUN), THEME);
+        // The shipped themes draw a Run table in the General format of the standard; this theme gives it the look of a
+        // Test table.
+        var layout = LOOKS.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_RUN),
+                LOOKS_THEME);
 
         assertEquals(MUTED, layout.at(RATED_RUN_ROW + 1, 1).style().color().rgb(), "The row naming the field");
         assertEquals(MUTED, layout.at(RATED_RUN_ROW + 2, 1).style().color().rgb(), "The row naming the Data table");
@@ -955,7 +962,7 @@ class TableThemeTest {
         assertTrue(lineBelow(layout.at(RATED_RUN_ROW + 4, 1)));
 
         // The header names the method the table runs, then the name of the table.
-        var theme = service.theme(THEME);
+        var theme = LOOKS.theme(LOOKS_THEME);
         var header = theme.lookOf(theme.run()).header();
         assertEquals(List.of("Run", " ", RATED, " ", RATED_RUN),
                 pieces("Run " + RATED + " " + RATED_RUN, ThemeStyle.NONE.with(header.style()), header));

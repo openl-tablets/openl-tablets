@@ -44,17 +44,15 @@ const colourKeysOf = (tableTheme: string): string[] => {
 }
 
 // The keys of the Standard table theme a text, a fill and a link lie at: the ink and the ground of its base, the
-// muted text, the grey and the blue titles, the fills of what a table gives, and of the technical tables.
+// muted text, the grey and the blue titles, and the fill of what a table gives.
 const INK = 'base.style.color'
-const MUTED = 'base.type.color'
+const MUTED = 'datatype.type.color'
 const GROUND = 'base.style.background'
-const GREY = 'base.titles.background'
-const BLUE = 'base.returnTitles.background'
-const LIGHT_BLUE = 'base.returns.background'
-const LIGHT_GREY = 'environment.header.style.background'
-const PALE_GREY = 'environment.name.background'
-const FILLS = [GROUND, GREY, BLUE, LIGHT_BLUE, LIGHT_GREY, PALE_GREY]
-const LINK_FILLS = [GROUND, LIGHT_BLUE, LIGHT_GREY, PALE_GREY]
+const GREY = 'rules.titles.background'
+const BLUE = 'rules.returnTitles.background'
+const LIGHT_BLUE = 'rules.returns.background'
+const FILLS = [GROUND, GREY, BLUE, LIGHT_BLUE]
+const LINK_FILLS = [GROUND, LIGHT_BLUE]
 
 describe('tableColours', () => {
     it('reads the tables with the table theme of the look of the Studio theme, where the reader asks for it', () => {
@@ -101,16 +99,15 @@ describe('tableColours', () => {
         expect(colours.paper.background).toBe(keyed(colours, GROUND))
         expect(colours.paper.text).toBe(keyed(colours, INK))
         // A part an alias repeats in the file takes the colour of the part it repeats.
-        expect(keyed(colours, 'tbasic.values.background')).toBe(keyed(colours, 'spreadsheet.values.background'))
+        expect(keyed(colours, 'smartRules.returns.background')).toBe(keyed(colours, 'simpleRules.returns.background'))
     })
 
-    it('keeps the greys and the blues as far from the ground as the table theme has them', () => {
+    it('keeps the blues as far from the ground as the table theme has them', () => {
         const colours = darkColoursOf('standard')
         const fromGround = (key: string) => contrastRatio(keyed(colours, key), colours.paper.background)
 
-        expect(fromGround(GREY)).toBeGreaterThan(fromGround(LIGHT_GREY))
-        expect(fromGround(LIGHT_GREY)).toBeGreaterThan(fromGround(PALE_GREY))
         expect(fromGround(BLUE)).toBeGreaterThan(fromGround(LIGHT_BLUE))
+        expect(fromGround(LIGHT_BLUE)).toBeGreaterThan(1)
     })
 
     it.each(LOOK_THEMES)('keeps every text of a table readable on every fill of %s in the dark', name => {
@@ -151,7 +148,7 @@ describe('tableColours', () => {
             cell: 'B1',
             value: 'name',
             style: { background: '#ddebf7', backgroundKey: 'datatype.name.background', fontSize: 10, source: 'theme' },
-            runs: [{ text: 'name', style: { color: '#808080', colorKey: 'base.type.color', source: 'theme' } }],
+            runs: [{ text: 'name', style: { color: '#808080', colorKey: 'datatype.type.color', source: 'theme' } }],
         }
 
         const [drawnPlain, drawnThemed] = inLook([[plain, themed]], colours)[0] ?? []
@@ -163,6 +160,6 @@ describe('tableColours', () => {
             backgroundKey: 'datatype.name.background',
             source: 'theme',
         })
-        expect(drawnThemed?.runs?.[0]?.style?.color).toBe(keyed(colours, 'base.type.color'))
+        expect(drawnThemed?.runs?.[0]?.style?.color).toBe(keyed(colours, 'datatype.type.color'))
     })
 })

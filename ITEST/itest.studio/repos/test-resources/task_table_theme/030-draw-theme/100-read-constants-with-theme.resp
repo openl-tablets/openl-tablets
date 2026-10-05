@@ -72,11 +72,9 @@ Content-Type: application/json
         "cell": "B60",
         "value": "Integer",
         "style": {
-          "color": "#808080",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.type.color",
           "source": "theme"
         }
       },
@@ -84,11 +82,9 @@ Content-Type: application/json
         "cell": "C60",
         "value": "DEFAULT_AGE",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "constants.name.background",
           "source": "theme"
         }
       },
@@ -108,7 +104,6 @@ Content-Type: application/json
         "cell": "B61",
         "value": "Double",
         "style": {
-          "color": "#808080",
           "valign": "center",
           "border": {
             "bottom": {
@@ -118,7 +113,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.type.color",
           "source": "theme"
         }
       },
@@ -126,7 +120,6 @@ Content-Type: application/json
         "cell": "C61",
         "value": "MAX_RATE",
         "style": {
-          "background": "#ddebf7",
           "valign": "center",
           "border": {
             "bottom": {
@@ -136,7 +129,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "constants.name.background",
           "source": "theme"
         }
       },

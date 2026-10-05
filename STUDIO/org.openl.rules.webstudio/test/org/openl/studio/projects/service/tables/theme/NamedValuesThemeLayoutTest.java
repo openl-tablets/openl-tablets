@@ -17,7 +17,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.studio.projects.model.tables.RawTableCell;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -27,9 +26,15 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class NamedValuesThemeLayoutTest {
 
     private static final String SHEET = "Settings";
-    private static final String THEME = "standard";
 
-    /** The looks the standard theme gives the places of these tables. */
+    /**
+     * A theme that gives these tables a look of their own, as the shipped themes do not: they draw them in the General
+     * format of the standard.
+     */
+    private static final TableThemeService LOOKS = TestThemes.everyKind();
+    private static final String THEME = TestThemes.EVERY_KIND;
+
+    /** The looks that theme gives the places of these tables. */
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
     private static final String GREY_HEADER = "#e7e6e6";
@@ -51,8 +56,6 @@ class NamedValuesThemeLayoutTest {
     /** A Constants table written transposed, a constant in each column. */
     private static final int TRANSPOSED_ROW = 16;
 
-    private final TableThemeService service = new TableThemeService();
-
     @TempDir
     Path dir;
 
@@ -64,8 +67,7 @@ class NamedValuesThemeLayoutTest {
     @Test
     void offersEveryThemeForAnEnvironmentAPropertiesAndAConstantsTable() {
         for (var row : List.of(ENVIRONMENT_ROW, PROPERTIES_ROW, CONSTANTS_ROW, TRANSPOSED_ROW)) {
-            assertEquals(List.of("standard", "green"),
-                    service.getThemes(tableAt(row)).stream().map(TableThemeView::id).toList(), "row " + row);
+            assertEquals(LOOKS.getThemes(), LOOKS.getThemes(tableAt(row)), "row " + row);
         }
     }
 
@@ -128,7 +130,7 @@ class NamedValuesThemeLayoutTest {
 
     @Test
     void writesTheLookOfAnEnvironmentTableIntoTheWorkbook() {
-        service.writer(THEME).writeAll(List.of(tableAt(ENVIRONMENT_ROW)), Map.of());
+        LOOKS.writer(THEME).writeAll(List.of(tableAt(ENVIRONMENT_ROW)), Map.of());
 
         var written = read(ENVIRONMENT_ROW);
         assertEquals("Environment", written.getFirst().getFirst().value(), "The theme changes no text");
@@ -143,7 +145,7 @@ class NamedValuesThemeLayoutTest {
     }
 
     private ThemedTable layoutAt(int row) {
-        return service.layoutOf(tableAt(row), THEME);
+        return LOOKS.layoutOf(tableAt(row), THEME);
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableTextRun;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -98,6 +97,14 @@ class DecisionThemeLayoutTest {
             new TableThemeService("classpath*:test-table-themes/decision-kinds.yaml");
     private static final String KINDS_THEME = "decision-kinds";
 
+    /**
+     * A theme giving the tables that declare what decision tables take the look of a Rules table, as the shipped themes
+     * do not: they draw them in the General format of the standard. Its decision tables look as the standard theme
+     * draws them.
+     */
+    private static final TableThemeService LOOKS = TestThemes.everyKind();
+    private static final String LOOKS_THEME = TestThemes.EVERY_KIND;
+
     private final TableThemeService service = new TableThemeService();
 
     @TempDir
@@ -111,8 +118,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForEveryKindOfDecisionTable() {
         for (var name : List.of(GREET, GREET_ROUND, GREETING, HELLO, RATE, FACTOR)) {
-            assertEquals(List.of("standard", "green"),
-                    service.getThemes(table(name)).stream().map(TableThemeView::id).toList(), name);
+            assertEquals(service.getThemes(), service.getThemes(table(name)), name);
         }
     }
 
@@ -354,8 +360,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForATableThatDeclaresWhatDecisionTablesTake() {
         for (var row : List.of(CONDITIONS_ROW, ACTIONS_ROW, HOURS_ROW, RETURNS_ROW)) {
-            assertEquals(List.of("standard", "green"),
-                    service.getThemes(tableAt(row)).stream().map(TableThemeView::id).toList(), "row " + row);
+            assertEquals(service.getThemes(), service.getThemes(tableAt(row)), "row " + row);
         }
     }
 
@@ -462,7 +467,7 @@ class DecisionThemeLayoutTest {
 
     @Test
     void writesTheLookOfAConditionsTableIntoTheWorkbook() {
-        service.writer(THEME).writeAll(List.of(tableAt(CONDITIONS_ROW)), Map.of());
+        LOOKS.writer(LOOKS_THEME).writeAll(List.of(tableAt(CONDITIONS_ROW)), Map.of());
 
         var written = TableTestProjects.styledSource(tableAt(CONDITIONS_ROW));
         assertEquals(List.of("Conditions", " ", "AgeBand"),
@@ -485,8 +490,9 @@ class DecisionThemeLayoutTest {
         return service.layoutOf(table(name), THEME);
     }
 
+    /** The look of a table that declares what decision tables take, found by the row its header stands in. */
     private ThemedTable layoutAt(int row) {
-        return service.layoutOf(tableAt(row), THEME);
+        return LOOKS.layoutOf(tableAt(row), LOOKS_THEME);
     }
 
     /** The fill the theme giving each kind a look of its own gives a cell of a table. */

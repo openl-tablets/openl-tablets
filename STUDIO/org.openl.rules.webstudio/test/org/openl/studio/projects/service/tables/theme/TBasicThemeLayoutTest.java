@@ -17,7 +17,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.RawTableCell;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -27,9 +26,15 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class TBasicThemeLayoutTest {
 
     private static final String SHEET = "Algorithms";
-    private static final String THEME = "standard";
 
-    /** The looks the standard theme gives the places of a TBasic table. */
+    /**
+     * A theme that gives a TBasic table a look of its own, as the shipped themes do not: they draw it in the General
+     * format of the standard.
+     */
+    private static final TableThemeService LOOKS = TestThemes.everyKind();
+    private static final String THEME = TestThemes.EVERY_KIND;
+
+    /** The looks that theme gives the places of a TBasic table. */
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
     private static final String TITLE = "#b4c6e7";
@@ -53,8 +58,6 @@ class TBasicThemeLayoutTest {
     private static final int SUBROUTINE_STEP = FIRST_STEP + 5;
     private static final int LAST_STEP = FIRST_STEP + 7;
 
-    private final TableThemeService service = new TableThemeService();
-
     /** A theme that gives the conditions of a TBasic table a look of their own, which the shipped themes do not. */
     private static final TableThemeService CONDITIONS =
             new TableThemeService("classpath*:test-table-themes/tbasic-condition.yaml");
@@ -70,8 +73,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void offersEveryThemeForATBasicTable() {
-        assertEquals(List.of("standard", "green"),
-                service.getThemes(factorial()).stream().map(TableThemeView::id).toList());
+        assertEquals(LOOKS.getThemes(), LOOKS.getThemes(factorial()));
     }
 
     @Test
@@ -147,7 +149,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void keepsTheIndentOfTheOperationsInTheWorkbook() {
-        service.writer(THEME).writeAll(List.of(factorial()), Map.of());
+        LOOKS.writer(THEME).writeAll(List.of(factorial()), Map.of());
 
         var written = read();
         // The rows of the body follow the header: the ids, the titles, then the steps.
@@ -162,7 +164,7 @@ class TBasicThemeLayoutTest {
     }
 
     private ThemedTable layout() {
-        return service.layoutOf(factorial(), THEME);
+        return LOOKS.layoutOf(factorial(), THEME);
     }
 
     /** The cells of the table as the workbook now holds them, with their styles. */

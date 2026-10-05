@@ -58,13 +58,13 @@ class TableThemeServiceTest {
         assertEquals("Franklin Gothic Book", datatype.style().fontFamily());
         assertEquals("#ddebf7", datatype.name().background().rgb());
         assertNull(theme.lookOf(theme.vocabulary()).name(), "A Vocabulary has no column of field names");
-        // The parts the kinds share are written once in the base: a Rules and a Test table title what they take and
-        // what they give alike, while a Spreadsheet titles its formulas as what a table gives.
+        // The parts the kinds share are written once and repeated by aliases: a Rules and a Test table title what they
+        // take and what they give alike, while a Spreadsheet titles its formulas as what a table gives.
         assertEquals(rules.titles(), test.titles());
         assertEquals(rules.returnTitles(), test.returnTitles());
         assertEquals(rules.returnTitles().background().rgb(), spreadsheet.titles().background().rgb());
         assertEquals(Boolean.TRUE, spreadsheet.titles().bold());
-        assertEquals(rules.code(), theme.lookOf(theme.tbasic()).code());
+        assertEquals(theme.base(), theme.lookOf(theme.tbasic()), "A kind the theme writes nothing for takes the base");
     }
 
     @Test
@@ -82,57 +82,25 @@ class TableThemeServiceTest {
     }
 
     @Test
-    void theThemesOfStudioDrawAPropertiesTableInTheGreysOfAnEnvironment() {
+    void theThemesOfStudioDrawTheKindsTheStandardDescribesNoLookForInItsGeneralFormat() {
         for (var id : List.of("standard", "green")) {
             var theme = service.theme(id);
-            var environment = theme.lookOf(theme.environment());
+            var base = theme.base();
 
-            assertEquals(environment, theme.lookOf(theme.properties()), id + ": a Properties table is as technical");
-            assertEquals("#e7e6e6", environment.header().style().background().rgb(), id);
-            assertEquals("#f2f2f2", environment.name().background().rgb(), id);
-            assertEquals(theme.lookOf(theme.datatype()).header().name(), environment.header().name(),
-                    id + ": it is signed as every table");
-        }
-    }
-
-    @Test
-    void theThemesOfStudioDrawTheTablesThatDeclareWhatADecisionTableTakesInTheLookOfARulesTable() {
-        for (var id : List.of("standard", "green")) {
-            var theme = service.theme(id);
-            var rules = theme.lookOf(theme.rules());
-
-            assertEquals(rules, theme.lookOf(theme.conditions()), id + ": a Conditions table");
-            assertEquals(rules, theme.lookOf(theme.actions()), id + ": an Actions table");
-            assertEquals(rules, theme.lookOf(theme.returns()), id + ": a Returns table");
-        }
-    }
-
-    @Test
-    void theThemesOfStudioDrawATBasicTableAsASpreadsheetAndAColumnMatchAsARulesTable() {
-        for (var id : List.of("standard", "green")) {
-            var theme = service.theme(id);
-            var spreadsheet = theme.lookOf(theme.spreadsheet());
-            var rules = theme.lookOf(theme.rules());
-            var tbasic = theme.lookOf(theme.tbasic());
-            var columnMatch = theme.lookOf(theme.columnMatch());
-
-            // A part the Spreadsheet leaves out, such as the values of the green theme, is left out alike.
-            assertEquals(Arrays.asList(spreadsheet.titles(), spreadsheet.stepTitle(), spreadsheet.values(),
-                            spreadsheet.sections(), spreadsheet.result()),
-                    Arrays.asList(tbasic.titles(), tbasic.stepTitle(), tbasic.values(), tbasic.sections(),
-                            tbasic.result()),
-                    id + ": a TBasic table looks like a Spreadsheet");
-            assertEquals(rules.code(), tbasic.code(), id + ": its column ids look like the code of a Rules table");
-            assertNull(tbasic.condition(), id + ": its conditions keep the look every cell starts from");
-            assertEquals(List.of(rules.code(), rules.titles(), rules.returnTitles(), rules.groups()),
-                    List.of(columnMatch.code(), columnMatch.titles(), columnMatch.returnTitles(), columnMatch.groups()),
-                    id + ": a ColumnMatch table looks like a Rules table");
-            // A line after the names it checks, and between the columns of its values.
-            assertEquals(ThemeLineStyle.THIN, columnMatch.name().border().right().style(), id);
-            assertEquals(ThemeLineStyle.THIN, columnMatch.values().border().right().style(), id);
-            assertEquals(rules.returns().background().rgb(), columnMatch.returns().background().rgb(), id);
-            assertEquals(ThemeLineStyle.THIN, columnMatch.returns().border().right().style(), id);
-            assertEquals(theme.base(), theme.lookOf(theme.method()), id + ": a Method table takes the base alone");
+            // The base is the General format of the standard alone: the cell style, the signature, the properties and
+            // the line that closes the table, and no part of a kind.
+            assertEquals(TableTheme.Look.builder()
+                    .style(base.style())
+                    .header(base.header())
+                    .properties(base.properties())
+                    .lastRow(base.lastRow())
+                    .build(), base, id);
+            for (var kind : Arrays.asList(theme.tbasic(), theme.method(), theme.run(), theme.columnMatch(),
+                    theme.conditions(), theme.actions(), theme.returns(), theme.environment(), theme.properties(),
+                    theme.constants())) {
+                assertNull(kind, id + ": the theme writes no look for a kind the standard describes none for");
+            }
+            assertEquals(base, theme.lookOf(theme.environment()), id + ": such a kind takes the General format");
         }
     }
 
@@ -177,6 +145,7 @@ class TableThemeServiceTest {
         assertEquals(List.of(new TableThemeView("primary", "Primary"),
                         new TableThemeView("datatype-extension", "Datatype Extension"),
                         new TableThemeView("decision-kinds", "Decision Kinds"),
+                        new TableThemeView("every-kind", "Every Kind"),
                         new TableThemeView("excel-theme-colours", "Excel Theme Colours"),
                         new TableThemeView("extended-header", "Extended Header"),
                         new TableThemeView("named-colours", "Named Colours"),
@@ -214,13 +183,14 @@ class TableThemeServiceTest {
     void setsAColourAtTheKeyOfThePartAnAliasOrAMergeKeyGivesIt() {
         var standard = service.theme("standard");
 
-        // A Run table repeats the look of a Test table, and a TBasic table that of a Spreadsheet: each part is set at a
-        // key of its own, so a screen can colour the kinds apart.
-        assertEquals("test.name.color", standard.lookOf(standard.test()).name().color().key());
-        assertEquals("run.name.color", standard.lookOf(standard.run()).name().color().key());
-        assertEquals("spreadsheet.values.background",
-                standard.lookOf(standard.spreadsheet()).values().background().key());
-        assertEquals("tbasic.values.background", standard.lookOf(standard.tbasic()).values().background().key());
+        // A SmartRules table repeats the look of a SimpleRules table, and a Test table titles what it takes as a
+        // Datatype titles its columns: each part is set at a key of its own, so a screen can colour the kinds apart.
+        assertEquals("simpleRules.returns.background",
+                standard.lookOf(standard.simpleRules()).returns().background().key());
+        assertEquals("smartRules.returns.background",
+                standard.lookOf(standard.smartRules()).returns().background().key());
+        assertEquals("datatype.titles.background", standard.lookOf(standard.datatype()).titles().background().key());
+        assertEquals("test.titles.background", standard.lookOf(standard.test()).titles().background().key());
         // A colour a merge key brings is set at the part it is merged into.
         var green = service.theme("green");
         assertEquals("base.properties.color", green.lookOf(green.datatype()).properties().color().key());

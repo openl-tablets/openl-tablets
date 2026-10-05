@@ -320,8 +320,8 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
       it lays its cells on the paper it is given, the paper of a workbook (`workbookPaper`) by default. The colours of
       the look (`tableColoursOf`) are the ground and the ink of
       its base style, the grid of the theme, and a solid colour of the token for each key. A look is written as the
-      table theme file nests its keys, and shares a part where the file repeats one by an alias (`tbasic: SPREADSHEET`
-      as `tbasic: *spreadsheet`); a colour of a key the look does not colour keeps the colour of the table theme. Only
+      table theme file nests its keys, and shares a part where the file repeats one by an alias (`smartRules: SIMPLE`
+      as `smartRules: *simple`); a colour of a key the look does not colour keeps the colour of the table theme. Only
       the Standard theme has a look today, in the colours of the table theme in the light appearance. A theme joins
       with a `TableLook` of its own: `tableColours.test.ts` reads the file of its table theme to hold an appearance it
       colours to every key the file sets a colour at, and every text of it readable on every fill. A table being edited

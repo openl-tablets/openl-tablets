@@ -362,12 +362,12 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 ### Applying the Table Theme
 
 A table theme gives every table but a table of the type **Other** one consistent look. For example, the **Standard**
-theme that OpenL Studio ships formats the tables as follows:
+theme that OpenL Studio ships follows the formatting standard of OpenL tables and formats the tables as follows:
 
--   **Every table** — Franklin Gothic Book 10, black on white, the text of every cell centered from top to bottom,
-    which shows in a cell merged over several rows. The header is centered between two lines, with the keyword, the
-    type, and the parameters in grey and the name in bold. The table properties are grey and closed by a line, and a
-    line under the last row closes the table.
+-   **Every table** — the General format of the standard: Franklin Gothic Book 10, black on white, the text of every
+    cell centered from top to bottom, which shows in a cell merged over several rows. The header is centered between
+    two lines, with the keyword, the type, and the parameters in grey and the name in bold. The table properties are
+    grey and closed by a line, and a line under the last row closes the table.
 -   **Titles** — the titles of the columns are bold and centered. The titles of what a table takes are filled grey,
     such as the conditions of a decision table, the inputs of a Test table, and the column of steps of a
     Spreadsheet. The titles of what a table gives are filled blue, such as the formulas of a Spreadsheet, what a
@@ -380,39 +380,23 @@ theme that OpenL Studio ships formats the tables as follows:
     line above it. A step marked with `*` for the result, such as `PolicyNumber*`, is bold. The step a Spreadsheet
     returns is bold, with a line above and below its row: the step named `RETURN`, or else the last step, also of a
     Spreadsheet that returns `SpreadsheetResult`.
--   **Algorithms** — a TBasic table looks like a Spreadsheet: the row of its column IDs, such as `operation`, is grey
-    and closed by a line, and its actions are filled, while its conditions are not. A step that starts a subroutine
-    with `SUB` or `FUNCTION` heads a section, and a step that returns with `RETURN` is bold. The operations keep
-    their indent, which tells the level of each step.
--   **Code** — the code of a Method table takes the look every cell starts from.
--   **Data** — the field names of a Data, a Test, or a Run table are grey, centered, and closed by a line, and its
-    values are centered. A Data table fills its titles blue and its values light blue. The keys are bold: the first
-    column of a Data table, which OpenL Tablets reads its rows by, unless it is a `_PK_` column, which names the keys
-    itself, and the values a Test or a Run table takes from a Data table by their keys, such as `Policy1`. In a
-    transposed table, which has a field in each row, the field names and the titles are aligned left, and no line goes
-    round the field names.
+-   **Data** — the field names of a Data or a Test table are grey, centered, and closed by a line, and its values are
+    centered. A Data table fills its titles blue and its values light blue. The keys are bold: the first column of a
+    Data table, which OpenL Tablets reads its rows by, unless it is a `_PK_` column, which names the keys itself, and
+    the values a Test table takes from a Data table by their keys, such as `Policy1`. In a transposed table, which has
+    a field in each row, the field names and the titles are aligned left, and no line goes round the field names.
 -   **Decision tables** — the rows of code of a Rules table, such as `C1` and `RET1`, are grey, centered, and closed
     by a line, and its values are aligned left. A SimpleRules and a SmartRules table center the values, with a fine
     dotted line between the rules. A SimpleLookup and a SmartLookup table also draw a line after each condition,
     fill the values of the horizontal conditions across the top blue with a line between their rows, and draw a
     fine dotted line between the columns of the values. A value of a condition merged over several rules sets them
     apart with a line, and so does a value of a horizontal condition merged over several columns.
--   **Column match** — a ColumnMatch table has the row of its column IDs grey and closed by a line, its titles
-    filled grey, and the rows that give what it returns or scores, such as **Return Values**, filled blue. A line
-    stands after the names it checks and between the columns of its values. A condition with the conditions
-    indented under it, which the table checks together, sets them apart with a line above and below them. The names
-    keep their indent.
--   **Declarations** — a Conditions, an Actions, and a Returns table, which declare what decision tables take by
-    their titles, look like the code and the titles of a Rules table: their inputs, expressions, and parameters
-    are grey and closed by a line, the titles of the conditions are filled grey, and the titles of the actions and
-    the returns are filled blue.
--   **Technical tables** — an Environment and a Properties table in greys: the header filled grey, the settings,
-    such as `import`, and the properties filled light grey, and a light line under every row. A Properties table
-    looks like an Environment table. The types of a Constants table are grey, and the names of its constants are
-    filled as the field names of a Datatype.
--   **Everything else** — the theme overrides the formatting the Excel file gives the table: its fills, lines,
-    fonts, and alignment. A cell the theme fills no other way is white, and a text the file formats in pieces of its
-    own, other than the header, is drawn in the font of its cell.
+-   **Every other table** — a TBasic, a Run, a ColumnMatch, a Conditions, an Actions, a Returns, an Environment, a
+    Properties, a Constants, and a Method table take the General format alone, as the standard describes no look of
+    their own for them. The operations of a TBasic table and the names a ColumnMatch table checks keep their indent.
+-   **The formatting of the Excel file** — the theme overrides the formatting the Excel file gives the table: its
+    fills, lines, fonts, and alignment. A cell the theme fills no other way is white, and a text the file formats in
+    pieces of its own, other than the header, is drawn in the font of its cell.
 
 OpenL Studio also ships the **Green** theme. How a theme file is written is described in
 [Appendix E: Table Themes](appendices/table-themes.md). A theme can be used in the following ways:

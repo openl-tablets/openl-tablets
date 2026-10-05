@@ -50,6 +50,7 @@ import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.theme.TableThemeService;
+import org.openl.studio.projects.service.tables.theme.TestThemes;
 
 /**
  * Verifies the raw-source edits applied by {@link RawTableWriter#apply}. Each test starts from a freshly written
@@ -62,6 +63,8 @@ class RawTableWriterTest {
 
     /** The themes a {@code theme} edit is written with. */
     private static final TableThemeService THEMES = new TableThemeService();
+    /** A theme that gives every kind of table a look of its own, beyond the kinds the shipped themes style. */
+    private static final TableThemeService LOOKS = TestThemes.everyKind();
 
     @TempDir
     Path tempDir;
@@ -309,7 +312,9 @@ class RawTableWriterTest {
                 {"Title", "Before", "From"}
         });
 
-        apply(conditions, List.of(deleteRow(1), new RawTableSourceAction.Theme("standard")));
+        // The shipped themes draw a Conditions table in the General format of the standard; this one gives it a look.
+        new RawTableWriter(load(conditions), LOOKS).apply(List.of(deleteRow(1),
+                new RawTableSourceAction.Theme(TestThemes.EVERY_KIND)));
 
         var source = reloadStyled(conditions);
         // The parts moved up a row with the rest: the code is muted and closed by a line, and the titles under it.

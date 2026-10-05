@@ -16,7 +16,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.RawTableCell;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -26,9 +25,15 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class ColumnMatchThemeLayoutTest {
 
     private static final String SHEET = "Matches";
-    private static final String THEME = "standard";
 
-    /** The looks the standard theme gives the places of a ColumnMatch table. */
+    /**
+     * A theme that gives a ColumnMatch table a look of its own, as the shipped themes do not: they draw it in the
+     * General format of the standard.
+     */
+    private static final TableThemeService LOOKS = TestThemes.everyKind();
+    private static final String THEME = TestThemes.EVERY_KIND;
+
+    /** The looks that theme gives the places of a ColumnMatch table. */
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
     private static final String TITLE = "#bfbfbf";
@@ -57,8 +62,6 @@ class ColumnMatchThemeLayoutTest {
     private static final int RATING_RETURNS = RATING_ROW + 3;
     private static final int AGE = RATING_RETURNS + 3;
 
-    private final TableThemeService service = new TableThemeService();
-
     @TempDir
     Path dir;
 
@@ -69,8 +72,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void offersEveryThemeForAColumnMatchTable() {
-        assertEquals(List.of("standard", "green"),
-                service.getThemes(tableAt(APPROVAL_ROW)).stream().map(TableThemeView::id).toList());
+        assertEquals(LOOKS.getThemes(), LOOKS.getThemes(tableAt(APPROVAL_ROW)));
     }
 
     @Test
@@ -154,7 +156,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void keepsTheIndentOfTheNamesInTheWorkbook() {
-        service.writer(THEME).writeAll(List.of(tableAt(APPROVAL_ROW)), Map.of());
+        LOOKS.writer(THEME).writeAll(List.of(tableAt(APPROVAL_ROW)), Map.of());
 
         // The rows read start at the header, and the columns at the names.
         var written = read(APPROVAL_ROW);
@@ -169,7 +171,7 @@ class ColumnMatchThemeLayoutTest {
     }
 
     private ThemedTable layoutAt(int row) {
-        return service.layoutOf(tableAt(row), THEME);
+        return LOOKS.layoutOf(tableAt(row), THEME);
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */
