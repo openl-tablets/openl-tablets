@@ -15,7 +15,7 @@ Content-Type: application/json
         "colspan": 5,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -112,7 +112,8 @@ Content-Type: application/json
         "value": "Label",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -129,7 +130,8 @@ Content-Type: application/json
         "value": "Description",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -146,7 +148,8 @@ Content-Type: application/json
         "value": "Operation",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -163,7 +166,8 @@ Content-Type: application/json
         "value": "Condition",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -180,7 +184,8 @@ Content-Type: application/json
         "value": "Action",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -198,9 +203,9 @@ Content-Type: application/json
         "cell": "B73",
         "value": "Name",
         "style": {
-          "background": "#d0cece",
+          "background": "#bfbfbf",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -213,7 +218,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -226,7 +231,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -239,7 +244,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -252,7 +257,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -264,7 +269,7 @@ Content-Type: application/json
       {
         "cell": "B74",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -274,7 +279,7 @@ Content-Type: application/json
         "cell": "C74",
         "value": "the result",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -284,7 +289,7 @@ Content-Type: application/json
         "cell": "D74",
         "value": "VAR",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -294,7 +299,7 @@ Content-Type: application/json
         "cell": "E74",
         "value": "factorial",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -305,7 +310,7 @@ Content-Type: application/json
         "value": "1",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -316,7 +321,7 @@ Content-Type: application/json
       {
         "cell": "B75",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -326,7 +331,7 @@ Content-Type: application/json
         "cell": "C75",
         "value": "the multiplier",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -336,7 +341,7 @@ Content-Type: application/json
         "cell": "D75",
         "value": "VAR",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -346,7 +351,7 @@ Content-Type: application/json
         "cell": "E75",
         "value": "i",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -357,7 +362,7 @@ Content-Type: application/json
         "value": "1",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -368,7 +373,7 @@ Content-Type: application/json
       {
         "cell": "B76",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -377,7 +382,7 @@ Content-Type: application/json
       {
         "cell": "C76",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -387,7 +392,7 @@ Content-Type: application/json
         "cell": "D76",
         "value": "WHILE",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -397,7 +402,7 @@ Content-Type: application/json
         "cell": "E76",
         "value": "i <= n",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -407,7 +412,7 @@ Content-Type: application/json
         "cell": "F76",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -418,7 +423,7 @@ Content-Type: application/json
       {
         "cell": "B77",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -427,7 +432,7 @@ Content-Type: application/json
       {
         "cell": "C77",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -437,7 +442,7 @@ Content-Type: application/json
         "cell": "D77",
         "value": "SET",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "indent": 1,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -447,7 +452,7 @@ Content-Type: application/json
       {
         "cell": "E77",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -458,7 +463,7 @@ Content-Type: application/json
         "value": "Calculation",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -469,7 +474,7 @@ Content-Type: application/json
       {
         "cell": "B78",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -485,7 +490,7 @@ Content-Type: application/json
       {
         "cell": "C78",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -502,7 +507,7 @@ Content-Type: application/json
         "cell": "D78",
         "value": "RETURN",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -519,7 +524,7 @@ Content-Type: application/json
         "cell": "E78",
         "value": "factorial",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -536,7 +541,7 @@ Content-Type: application/json
         "cell": "F78",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -557,7 +562,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
@@ -571,7 +576,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
@@ -585,7 +590,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
@@ -598,7 +603,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
@@ -611,7 +616,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "italic": true,
           "fontFamily": "Franklin Gothic Book",
@@ -624,7 +629,7 @@ Content-Type: application/json
       {
         "cell": "B80",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -633,7 +638,7 @@ Content-Type: application/json
       {
         "cell": "C80",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -643,7 +648,7 @@ Content-Type: application/json
         "cell": "D80",
         "value": "SET",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "indent": 1,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -653,7 +658,7 @@ Content-Type: application/json
       {
         "cell": "E80",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -664,7 +669,7 @@ Content-Type: application/json
         "value": "factorial *= i",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -675,7 +680,7 @@ Content-Type: application/json
       {
         "cell": "B81",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -691,7 +696,7 @@ Content-Type: application/json
         "cell": "C81",
         "value": "the next multiplier",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -707,7 +712,7 @@ Content-Type: application/json
         "cell": "D81",
         "value": "SET",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "indent": 1,
           "border": {
             "bottom": {
@@ -723,7 +728,7 @@ Content-Type: application/json
       {
         "cell": "E81",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -740,7 +745,7 @@ Content-Type: application/json
         "value": "i += 1",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",

@@ -15,7 +15,7 @@ Content-Type: application/json
         "colspan": 3,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -72,7 +72,7 @@ Content-Type: application/json
         "value": "Integer",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -83,7 +83,7 @@ Content-Type: application/json
         "value": "DEFAULT_AGE",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -93,7 +93,7 @@ Content-Type: application/json
         "cell": "D60",
         "value": 43,
         "style": {
-          "valign": "top",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -106,7 +106,7 @@ Content-Type: application/json
         "value": "Double",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -123,7 +123,7 @@ Content-Type: application/json
         "value": "MAX_RATE",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -139,7 +139,7 @@ Content-Type: application/json
         "cell": "D61",
         "value": 0.7,
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",

@@ -35,7 +35,13 @@ import org.openl.rules.table.ILogicalTable;
  * rules in. The titles and the values of a column the table returns or acts in get the return title and the return
  * look. A lookup also checks horizontal conditions, whose values stand across its top over the values it returns:
  * they get the horizontal look. A value of a condition merged over several rules makes them a group: the first of
- * them and the rule after the group get the group look over their own, which sets the group apart.
+ * them and the rule after the group get the group look over their own, which sets the group apart. A value of a
+ * horizontal condition merged over several columns of a lookup makes them a group as well: the first of them and the
+ * column after the group get the group look turned, a line above a rule being a line on the left of a column.
+ *
+ * <p>A line a look draws above a rule sets it apart from the rule before it, so the first rule, under the titles,
+ * draws none. Nor does the first column of the values a lookup returns, and of the horizontal conditions over it, draw
+ * a line on its left: the column stands beside the conditions, which close it.
  *
  * <p>Where each part stands is taken from the compiled table: the lines of the sheet its code, its titles and its
  * horizontal conditions take, and the columns its conditions and what it returns take. Every line under them holds
@@ -121,7 +127,7 @@ final class DecisionThemeLayout {
          * @param place the place of a row and a column of the sheet
          * @param into  the places to add to
          */
-        private void addPlaces(IGridTable part, IntBinaryOperator place, Set<Integer> into) {
+        void addPlaces(IGridTable part, IntBinaryOperator place, Set<Integer> into) {
             for (var row = 0; row < part.getHeight(); row++) {
                 for (var column = 0; column < part.getWidth(); column++) {
                     var cell = part.getCell(column, row);
@@ -193,12 +199,17 @@ final class DecisionThemeLayout {
             return transposed ? grid.getCell(line, cross) : grid.getCell(cross, line);
         }
 
+        /** The axes the other way round: the lines of these are the crosses of those. */
+        Axes swapped() {
+            return new Axes(!transposed);
+        }
+
         /**
          * A look as a table written the usual way takes it, turned to these axes: in a table written the other way
          * round, a line above a part is on its left. Turning a look twice gives it back.
          */
         ThemeStyle turned(ThemeStyle style) {
-            return transposed && style.border() != null ? style.withBorder(style.border().transposed()) : style;
+            return transposed ? style.transposed() : style;
         }
     }
 
@@ -216,6 +227,8 @@ final class DecisionThemeLayout {
      *                    that is not a lookup
      * @param rulesFrom   the first line of the rules
      * @param groups      the lines that set a group of rules apart: its first line, and the line after it
+     * @param columns     the crosses that set a group of columns of a lookup apart: its first cross, and the cross
+     *                    after it
      */
     @Builder
     private record Places(Axes axes,
@@ -225,7 +238,8 @@ final class DecisionThemeLayout {
                           Set<Integer> returns,
                           int gridFrom,
                           int rulesFrom,
-                          Set<Integer> groups) {
+                          Set<Integer> groups,
+                          Set<Integer> columns) {
 
         /**
          * The places of a compiled decision table, or {@code null} for a table that did not compile or the compiler
@@ -284,6 +298,7 @@ final class DecisionThemeLayout {
                     .gridFrom(Integer.MAX_VALUE)
                     .rulesFrom(axes.lineEnd(region) + 1)
                     .groups(Set.of())
+                    .columns(Set.of())
                     .build();
         }
 
@@ -412,7 +427,9 @@ final class DecisionThemeLayout {
                     .returns(Set.copyOf(returns))
                     .gridFrom(gridFrom)
                     .rulesFrom(rulesFrom)
-                    .groups(Set.copyOf(groupsOf(sheet, region, rulesFrom)))
+                    .groups(groupEdges(axes, conditions, rulesFrom, sheet, region))
+                    // The columns of a lookup are grouped by its horizontal conditions as its rules are by the others.
+                    .columns(groupEdges(axes.swapped(), horizontals, gridFrom, sheet, region))
                     .build();
         }
 
@@ -441,27 +458,35 @@ final class DecisionThemeLayout {
         }
 
         /**
-         * The lines that set a group of rules apart: the first line of the group, and the line after it. A group is
-         * the rules a value of a condition is merged over. A rule written over several lines, with every value of it
-         * merged over them, is one rule, not a group.
+         * The lines that set a group apart: the first line of the group, and the line after it. A group is the lines
+         * a value of one of the crosses is merged over, such as the rules a value of a condition is merged over. A
+         * line written over several lines of the sheet, with every value of it merged over them, is one line, not a
+         * group.
+         *
+         * @param axes    the axes the lines and the crosses run along
+         * @param crosses the crosses whose merged values make groups
+         * @param from    the first line a group can start at
+         * @param sheet   the sheet of the table
+         * @param region  where the body of the table stands on the sheet
          */
-        private Set<Integer> groupsOf(IGrid sheet, IGridRegion region, int rulesFrom) {
+        private static Set<Integer> groupEdges(Axes axes, Set<Integer> crosses, int from, IGrid sheet,
+                                               IGridRegion region) {
             var edges = new HashSet<Integer>();
-            for (var cross : conditions) {
-                for (var line = rulesFrom; line <= axes.lineEnd(region); line++) {
+            for (var cross : crosses) {
+                for (var line = from; line <= axes.lineEnd(region); line++) {
                     var merged = axes.cellAt(sheet, line, cross).getAbsoluteRegion();
                     if (axes.lineStart(merged) == line && axes.lineEnd(merged) > line
-                            && splitAcross(sheet, region, merged)) {
+                            && splitAcross(axes, sheet, region, merged)) {
                         edges.add(line);
                         edges.add(axes.lineEnd(merged) + 1);
                     }
                 }
             }
-            return edges;
+            return Set.copyOf(edges);
         }
 
-        /** Whether another column of the table is written in more than one cell along the lines of a merged value. */
-        private boolean splitAcross(IGrid sheet, IGridRegion region, IGridRegion merged) {
+        /** Whether another cross of the table is written in more than one cell along the lines of a merged value. */
+        private static boolean splitAcross(Axes axes, IGrid sheet, IGridRegion region, IGridRegion merged) {
             for (var cross = axes.crossStart(region); cross <= axes.crossEnd(region); cross++) {
                 if (cross < axes.crossStart(merged) || cross > axes.crossEnd(merged)) {
                     var next = axes.cellAt(sheet, axes.lineStart(merged), cross).getAbsoluteRegion();
@@ -519,6 +544,8 @@ final class DecisionThemeLayout {
      * @param returnTitle the look of a title of what the table returns
      * @param returns     the look of a value the table returns
      * @param groups      the look laid over the first rule of a group and over the rule after it
+     * @param columns     the look laid over the first column of a group of a lookup and over the column after it:
+     *                    the group look turned, a line above a rule being a line on the left of a column
      */
     @Builder
     private record Looks(Places places,
@@ -529,11 +556,13 @@ final class DecisionThemeLayout {
                          ThemeStyle horizontals,
                          ThemeStyle returnTitle,
                          ThemeStyle returns,
-                         @Nullable ThemeStyle groups) implements ThemeLayouts.PlaceLook {
+                         @Nullable ThemeStyle groups,
+                         @Nullable ThemeStyle columns) implements ThemeLayouts.PlaceLook {
 
         static Looks of(ThemedBody body, Places places) {
             var look = body.look();
             var upright = places.axes().turned(body.base());
+            var groups = look.groups();
             return Looks.builder()
                     .places(places)
                     .base(upright)
@@ -543,7 +572,8 @@ final class DecisionThemeLayout {
                     .horizontals(upright.with(look.horizontals()))
                     .returnTitle(upright.with(look.returnTitles()))
                     .returns(upright.with(look.returns()))
-                    .groups(look.groups())
+                    .groups(groups)
+                    .columns(groups == null ? null : groups.transposed())
                     .build();
         }
 
@@ -560,13 +590,38 @@ final class DecisionThemeLayout {
             }
             var inGrid = cross >= places.gridFrom();
             if (places.horizontals().contains(line) && inGrid) {
-                return horizontals;
+                return apart(columnAt(horizontals, cross), true, cross > places.gridFrom());
             }
             if (line < places.rulesFrom()) {
                 return headerAt(cross);
             }
             var style = valueAt(cross, inGrid);
-            return places.groups().contains(line) ? style.with(groups) : style;
+            style = places.groups().contains(line) ? style.with(groups) : style;
+            style = inGrid ? columnAt(style, cross) : style;
+            return apart(style, line > places.rulesFrom(), !inGrid || cross > places.gridFrom());
+        }
+
+        /** A look of a column of a lookup, with the group look turned over it when the column sets a group apart. */
+        private ThemeStyle columnAt(ThemeStyle style, int cross) {
+            return places.columns().contains(cross) ? style.with(columns) : style;
+        }
+
+        /**
+         * A look keeping the line it draws above and the line on its left only where they set the cell apart from one
+         * of its kind: the first rule draws none above it, under the titles, and the first column of the values a
+         * lookup returns none on its left, beside the conditions. Such a side is the one of the base.
+         *
+         * @param above whether the cell keeps the line above it
+         * @param left  whether the cell keeps the line on its left
+         */
+        private ThemeStyle apart(ThemeStyle style, boolean above, boolean left) {
+            var border = style.border();
+            if (border == null || above && left) {
+                return style;
+            }
+            var sides = base.border() == null ? ThemeBorder.KEEP : base.border();
+            return style.withBorder(border.withTop(above ? border.top() : sides.top())
+                    .withLeft(left ? border.left() : sides.left()));
         }
 
         private ThemeStyle headerAt(int cross) {

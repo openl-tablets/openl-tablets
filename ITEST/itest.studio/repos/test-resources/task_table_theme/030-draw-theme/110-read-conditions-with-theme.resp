@@ -15,7 +15,7 @@ Content-Type: application/json
         "colspan": 3,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -72,7 +72,8 @@ Content-Type: application/json
         "value": "Inputs",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -84,7 +85,8 @@ Content-Type: application/json
         "colspan": 2,
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -100,7 +102,8 @@ Content-Type: application/json
         "value": "Expression",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -112,7 +115,8 @@ Content-Type: application/json
         "colspan": 2,
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -128,7 +132,8 @@ Content-Type: application/json
         "value": "Parameter",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -145,7 +150,8 @@ Content-Type: application/json
         "value": "Integer minAge",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -162,7 +168,8 @@ Content-Type: application/json
         "value": "Integer maxAge",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -180,15 +187,11 @@ Content-Type: application/json
         "cell": "B68",
         "value": "Title",
         "style": {
-          "background": "#d0cece",
+          "background": "#bfbfbf",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
             "bottom": {
               "style": "solid",
               "width": 1
@@ -204,15 +207,11 @@ Content-Type: application/json
         "value": "Age Band",
         "colspan": 2,
         "style": {
-          "background": "#d0cece",
+          "background": "#bfbfbf",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
             "bottom": {
               "style": "solid",
               "width": 1

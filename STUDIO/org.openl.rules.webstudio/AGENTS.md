@@ -155,7 +155,8 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 The looks OpenL Studio gives every table but a table of the type Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the
 screen shows as Other) are the `table-themes/*.yaml` files of its classpath
-(`resources/table-themes/` ships `default` and `green`).
+(`resources/table-themes/` ships `default` and `green`). `default` follows the formatting standard of OpenL
+tables: its General section is the base, and the colours are the ones the standard names.
 `TableThemeService` reads them once at startup, with the YAML anchors, aliases and merge keys resolved by SnakeYAML,
 then binds them strictly with Jackson.
 See `Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md`
@@ -186,9 +187,11 @@ for the endpoints.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
   style, the closing line. `TableTheme.lookOf` lays what a kind writes over it part by part (`Look.extendedBy`), so
   a kind needs no YAML merge key and writes only what it changes. One `Look` record holds the parts of every kind,
-  and each layout reads its own: a part another kind takes is not used. A kind that looks like another is an alias in
-  the file (`test: *data`, `run: *data`, `simpleRules: *rules`), never a rule of the code, so a theme can still give
-  it a look of its own.
+  and each layout reads its own: a part another kind takes is not used. The shipped themes therefore write what the
+  kinds share once in the base — the titles, the return titles, the returns, the types, the code, the groups — and
+  each kind only what it changes. A kind that looks like another is an alias in the file (`run: *calls`,
+  `smartRules: *simple`, `smartLookup: *lookup`), never a rule of the code, so a theme can still give it a look of its
+  own.
 - **One table is themed through its edit.** The `theme` action of `RawTableSourceAction` writes the theme inside the
   edit batch, after the values and before the styling, so the rows the batch added are themed and the styling the
   user set stands over the theme. Only the whole project has an endpoint of its own (`POST /projects/{id}/theme`).
@@ -217,8 +220,10 @@ for the endpoints.
   the compiler takes it for a step with no value. A step or a column whose name ends with `*` before its `: type` is
   marked, read the way `SpreadsheetStructureBuilder.parseHeader` reads it, so a table being edited is marked before
   it is compiled. The step a Spreadsheet returns (`result`) is found as `SpreadsheetStructureBuilder.addHeaders`
-  finds it: a column or a step named `RETURN`, or else the last step, and none for `SpreadsheetResult` without
-  `RETURN`.
+  finds it: a column or a step named `RETURN`, or else the last step. A Spreadsheet returning `SpreadsheetResult`
+  returns every step; the formatting standard takes its last step for the result all the same, and so does the
+  layout. `resultRow` is laid over every cell of the row of that step, its lines round the whole step however many
+  rows of the sheet it takes (`ThemeStyle.atEdges`).
   `HeaderRuns` splits a header by its keyword: a Datatype names its type first, a Spreadsheet its return type, its
   name and its parameters, and a decision table reads as a Spreadsheet, its return type of several words at times
   (`Collect Error[]`). An Environment header is its keyword alone; a Properties, a Constants, a Conditions, an
@@ -241,11 +246,20 @@ for the endpoints.
   fields across, as `DataTableBindHelper` does: the field names, the row of references when `hasForeignKeysRow` finds
   one, the titles, then the values. A Run table is bound as a Test table without expected results
   (`TestMethodNodeBinder`), so it takes the same places. A transposed table is told apart by the compiled table
-  (`DataTableMetaInfoReader`, `ITable.getData().isNormalOrientation()`). `ids` marks the values that name a row of a
-  Data table: in a Data table its IDs, `_PK_` or else the first column, which is the column a reference reads; in a
-  Test and a Run table every column that takes its values from a Data table by their IDs. Its references to other
+  (`DataTableMetaInfoReader`, `ITable.getData().isNormalOrientation()`). `ids` marks the keys of a Data table as the
+  compiled table tells them, never by a position the theme assumes: in a Data table the column a reference reads its
+  rows by (`ITableModel.getKeyColumnIndex()`, the rule `ForeignKeyColumnDescriptor` reads a reference with) unless it
+  is a `_PK_` column, which names the keys itself and takes no `ids`, as the formatting standard writes it; in a Test
+  and a Run table every column the compiled model takes from a Data table (`ColumnDescriptor.isReference()`). Each is
+  found where the edits since the compilation moved it, by a cell of the compiled data mapped through `TableMoves`
+  (`DecisionThemeLayout.Compiled.addPlaces`), so a table that did not compile has no keys. Its references to other
   tables are left as values. `empty` is laid over a blank value, cell by cell — a fill written with the theme, not a
-  conditional format, so the workbook reads it back as the overlay draws it.
+  conditional format, so the workbook reads it back as the overlay draws it. A column of a Test table whose field
+  starts with `_res_` or `_error_` holds the result it expects, as `TestSuiteMethod.createFieldsToTest` tells it: its
+  title takes `returnTitles` over `titles` and its values `returns` over `values`. The rows naming the fields are one
+  block, the lines of `name` going round it (`ThemeStyle.atEdges`). A transposed table draws no line round them, and
+  its names and titles, which label its rows there, take the alignment of the base, as the formatting standard
+  writes them.
 - **A decision table is read as the compiler reads it.** Every kind is compiled into the `FunctionalRow`s of its
   conditions and its actions, the returns among them, so `DecisionThemeLayout` takes the places from those: the
   kind, the code and the parameters of a Rules table (`getInfoTable`, `getCodeTable`, `getParamsTable`), the titles
@@ -260,11 +274,16 @@ for the endpoints.
   The compiled places count from where the table stood when it was compiled: `RawTableWriter` keeps the rows and the
   columns its edits insert and delete as `TableMoves`, and a `theme` action after them finds each place where they
   moved it (`DecisionThemeLayout.Compiled`). A read and the project-wide writer theme a compiled table, so they pass
-  `TableMoves.NONE`. The column naming the rules is the one of kind `RULE` in a
+  `TableMoves.NONE`. A line a look draws above a rule sets it apart from the rule before it, so the first rule takes
+  the top side of the base, and so does a line on the left of the first column of the grid of a lookup, which the
+  right line of its conditions closes (`Looks.apart`): no two cells name a line on one edge. The column naming the
+  rules is the one of kind `RULE` in a
   Rules table, and the first column, when it holds no condition and nothing returned, in a table matched by its
   titles, as `DecisionTableHelper` allows it there only. A condition value merged over several rules while another
-  column is split makes them a group: `groups` is laid over the first rule and over the rule after it. A table that
-  did not compile takes the base alone.
+  column is split makes them a group: `groups` is laid over the first rule and over the rule after it. A value of a
+  horizontal condition merged over several columns of a lookup groups them the same way, the axes swapped
+  (`Reader.groupEdges`), and `groups` is laid over them turned (`ThemeStyle.transposed`). A table that did not compile
+  takes the base alone.
 - **A Conditions, an Actions and a Returns table are read as the compiler reads them.** They declare what decision
   tables take by their titles, each declaration in its inputs, its expression, its parameters and its titles: the
   code and the titles of a Rules table without its rules, so `DecisionThemeLayout.conditions` and `actions` lay them out
@@ -293,8 +312,8 @@ for the endpoints.
   the `names` column and `values` elsewhere, and a condition whose name is not indented, with the conditions indented
   under it, makes a group: `groups` is laid over its first row and over the row after it. Both read the text of the
   table, so a table being edited is themed before it is compiled. The shipped themes give a TBasic table the look of
-  a Spreadsheet with the code of a Rules table (`tbasic: {<<: *spreadsheet, code: *code}`), and a ColumnMatch table
-  the look of a Rules table with a line after the names and between the returns (`columnMatch: {<<: *rules, ...}`).
+  a Spreadsheet (`tbasic: *spreadsheet`) and the code of the base, and a ColumnMatch table the titles, the returns
+  and the code of the base, with a line after the names and between the columns of its values.
 - **An Environment, a Properties and a Constants table name a value in each row.** `NamedValuesThemeLayout` gives
   the first column of an Environment (the setting: `import`, `dependency`, `include`) and of a Properties table (the
   property) the `name` look and the rest `values`. The loader reads an Environment by its rows

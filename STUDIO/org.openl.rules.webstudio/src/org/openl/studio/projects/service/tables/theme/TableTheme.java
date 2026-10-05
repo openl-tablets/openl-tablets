@@ -92,15 +92,16 @@ public record TableTheme(String name,
      *
      * <p>Each kind takes the parts that suit it, and a part of another kind is not used. A Datatype takes the titles,
      * the types, the names and the values. A Vocabulary has one column of values: of the body only the values apply
-     * to it. A Spreadsheet takes the titles, the step title, the steps, the values, the sections, the marked names
-     * and the result, and a TBasic table the code, the titles, the step title, the steps, the condition, the values,
-     * the sections and the result. A Method table takes nothing but what every kind takes. A Data, a Test and a Run
-     * table take the names, the titles, the values, the IDs and the empty values. A decision table takes the code, the
-     * titles, the values, the horizontal conditions, the return titles, the returns and the groups, and a ColumnMatch
-     * table the code, the titles, the names, the values, the return titles, the returns and the groups. A Conditions
-     * table takes the code and the titles, and an Actions and a Returns table the code and the return titles. An
-     * Environment and a Properties table take the names and the values, and a Constants table the types, the names and
-     * the values. Every kind takes the style, the header, the properties and the last row.
+     * to it. A Spreadsheet takes the titles, the step title, the steps, the values, the sections, the marked names,
+     * the result and the result row, and a TBasic table the code, the titles, the step title, the steps, the
+     * condition, the values, the sections and the result. A Method table takes nothing but what every kind takes. A
+     * Data and a Run table take the names, the titles, the values, the IDs and the empty values, and a Test table also
+     * the return titles and the returns. A decision table takes the code, the titles, the values, the horizontal
+     * conditions, the return titles, the returns and the groups, and a ColumnMatch table the code, the titles, the
+     * names, the values, the return titles, the returns and the groups. A Conditions table takes the code and the
+     * titles, and an Actions and a Returns table the code and the return titles. An Environment and a Properties table
+     * take the names and the values, and a Constants table the types, the names and the values. Every kind takes the
+     * style, the header, the properties and the last row.
      *
      * @param style        the look every cell of the table starts from
      * @param header       the look of the header, the first row of the table
@@ -115,10 +116,10 @@ public record TableTheme(String name,
      * @param type         the look of the types: the column of field types of a Datatype, and of the types of the
      *                     constants of a Constants table
      * @param name         the look of the names: the column of field names of a Datatype, the rows of a Data, a Test
-     *                     or a Run table that name its fields and the tables they take their values from, the names a
-     *                     ColumnMatch table checks, the column of the settings of an Environment table, such as
-     *                     {@code import}, of the properties of a Properties table, and of the names of the constants
-     *                     of a Constants table
+     *                     or a Run table that name its fields and the tables they take their values from, a line it
+     *                     draws above or below going round these rows of an upright table, the names a ColumnMatch
+     *                     table checks, the column of the settings of an Environment table, such as {@code import}, of
+     *                     the properties of a Properties table, and of the names of the constants of a Constants table
      * @param steps        the look of the column of step names of a Spreadsheet, and of the labels of a TBasic table
      * @param values       the look of the values: the defaults and the other columns of a Datatype, the values of a
      *                     Vocabulary, the cells of the steps of a Spreadsheet, the actions of the steps of a TBasic
@@ -133,11 +134,16 @@ public record TableTheme(String name,
      *                     starts a subroutine, laid over its own look
      * @param marked       the look of a step or a column of a Spreadsheet whose name is marked with {@code *} for the
      *                     result, laid over its own look
-     * @param result       the look of the step whose value a Spreadsheet returns, when it returns a type other than
-     *                     {@code SpreadsheetResult}, and of a step of a TBasic table that returns, laid over its own
-     *                     look
-     * @param ids          the look laid over the values that name a row of a Data table: the IDs of a Data table, and
-     *                     the values a Test or a Run table takes from a Data table by their IDs
+     * @param result       the look laid over the name of the step a Spreadsheet returns: the step named
+     *                     {@code RETURN}, or else the last step, which a Spreadsheet returning
+     *                     {@code SpreadsheetResult} closes with; and over every cell of a step of a TBasic table that
+     *                     returns
+     * @param resultRow    the look laid over every cell of the row of the step a Spreadsheet returns, such as the
+     *                     lines that set the row apart
+     * @param ids          the look laid over the values that are keys of a Data table: the first column of a Data
+     *                     table, which the compiler takes for its keys, unless it is a {@code _PK_} column, which
+     *                     names the keys itself, and the values a Test or a Run table takes from a Data table by
+     *                     their keys
      * @param empty        the look laid over a value of a Data, a Test or a Run table that is not filled
      * @param code         the look of the rows a Rules table declares its columns in: the kind of each column, such
      *                     as {@code C1} or {@code RET1}, its expression and its parameters; of the inputs, the
@@ -146,13 +152,15 @@ public record TableTheme(String name,
      *                     below goes round the rows, not round each of them
      * @param horizontals  the look of the values of a horizontal condition, across the top of a lookup
      * @param returnTitles the look of the title of a column a decision table returns or acts in, of the titles an
-     *                     Actions or a Returns table declares, and of the rows a ColumnMatch table gives what it
-     *                     returns or scores in, but for their values
-     * @param returns      the look of the values a decision table returns or acts with, and of the values a ColumnMatch
-     *                     table returns or scores with
+     *                     Actions or a Returns table declares, of the rows a ColumnMatch table gives what it returns
+     *                     or scores in, but for their values, and of the titles of the results a Test table expects
+     * @param returns      the look of the values a decision table returns or acts with, of the values a ColumnMatch
+     *                     table returns or scores with, and of the results a Test table expects
      * @param groups       the look laid over the first rule of a group and over the rule after the group, such as
      *                     the line that sets the group apart: a group is the rules a value of a condition is merged
-     *                     over, or the rows of a ColumnMatch table that check their arguments together
+     *                     over, or the rows of a ColumnMatch table that check their arguments together; and, turned,
+     *                     over the first column of a group of a lookup and over the column after it, the columns a
+     *                     value of a horizontal condition is merged over
      * @param lastRow      the look laid over the last row, such as the line that closes the table
      */
     @Builder
@@ -169,6 +177,7 @@ public record TableTheme(String name,
                        @Nullable ThemeStyle sections,
                        @Nullable ThemeStyle marked,
                        @Nullable ThemeStyle result,
+                       @Nullable ThemeStyle resultRow,
                        @Nullable ThemeStyle ids,
                        @Nullable ThemeStyle empty,
                        @Nullable ThemeStyle code,
@@ -199,6 +208,7 @@ public record TableTheme(String name,
                     .sections(lay(sections, over.sections))
                     .marked(lay(marked, over.marked))
                     .result(lay(result, over.result))
+                    .resultRow(lay(resultRow, over.resultRow))
                     .ids(lay(ids, over.ids))
                     .empty(lay(empty, over.empty))
                     .code(lay(code, over.code))

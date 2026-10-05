@@ -13,7 +13,8 @@ Content-Type: application/json
         "cell": "B13",
         "value": "Data Person people",
         "style": {
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -81,7 +82,14 @@ Content-Type: application/json
         "value": "name",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -93,9 +101,9 @@ Content-Type: application/json
         "cell": "B15",
         "value": "Name",
         "style": {
-          "background": "#ddebf7",
+          "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -108,9 +116,9 @@ Content-Type: application/json
         "cell": "B16",
         "value": "Ann",
         "style": {
-          "background": "#fff2cc",
+          "background": "#ddebf7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {

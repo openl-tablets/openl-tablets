@@ -7,26 +7,34 @@
 # spreadsheet, tbasic, method, data, test, run, rules, simpleRules, smartRules, simpleLookup, smartLookup,
 # columnMatch, conditions, actions, returns, environment, properties, constants) takes the base alone, as a Method
 # table, whose cells hold code, does here.
+#
+# The theme follows the formatting standard of OpenL tables: the base is its General section, and the colours are
+# the ones it names.
 
 name: Default
 
 # The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place.
 colors:
+  # Automatic (Black) and White, Background 1: the text and the fill of every cell.
   black: "#000000"
   white: "#ffffff"
+  # White, Background 1, Darker 50%: what a table declares besides its name and its values, such as its types.
   darkGrey: "#808080"
-  grey: "#d0cece"
+  # White, Background 1, Darker 25%: the titles of what a table takes, such as its conditions.
+  grey: "#bfbfbf"
+  # Blue, Accent 1, Lighter 60%: the titles of what a table gives, such as its formulas and its results.
   blue: "#b4c6e7"
+  # Blue, Accent 5, Lighter 80%: the values a table gives, and the field names of a Datatype.
   lightBlue: "#ddebf7"
-  yellow: "#fff2cc"
-  # The greys of the technical tables.
+  # The greys of the technical tables, which the standard leaves out.
   paleGrey: "#f2f2f2"
   lightGrey: "#e7e6e6"
   silver: "#d9d9d9"
 
 base:
-  # The look every cell of the table starts from. It names every attribute, so the theme overrides the look the
-  # workbook gives the table: no fill, line, font or alignment of the workbook shows through.
+  # The General Standard: the look every cell of every table starts from, black on white. It names every attribute,
+  # so the theme overrides the look the workbook gives the table: no fill, line, font or alignment of the workbook
+  # shows through.
   style:
     fontFamily: Franklin Gothic Book
     fontSize: 10
@@ -37,63 +45,92 @@ base:
     color: black
     background: white
     align: left
-    valign: top
+    # Centred from top to bottom, which shows in a cell merged over several rows, such as the title of a condition
+    # of a lookup beside its horizontal conditions.
+    valign: center
     border:
       top: none
       right: none
       bottom: none
       left: none
-  # The signature of the table, unfilled. Its text is formatted in pieces; the text itself is never changed.
+  # The Table Header Standard: the signature of the table, centred between two lines, unfilled. Its text is formatted
+  # in pieces; the text itself is never changed.
   header:
     style:
       align: center
       border:
         top: thin
         bottom: thin
+    # Every piece but the name of the table is muted, such as the keyword.
     keyword: &muted
       color: darkGrey
     name:
       bold: true
-      color: black
     # The type the header names besides the table: "<String>" of a Vocabulary, "extends Parent" of a Datatype, or
     # the type a Spreadsheet or a decision table returns.
     type: *muted
     # The parameters of a Spreadsheet or a decision table, "( Policy policy )".
     parameters: *muted
-  # The rows of table properties under the header, closed by a line.
+  # The rows of table properties under the header, muted and closed by a line.
   properties:
+    <<: *muted
     border:
       bottom: thin
+  # The Table Body Standard: a line closes the table.
   lastRow:
     border:
       bottom: thin
 
-datatype:
-  # A Datatype fills its header, and so does a Vocabulary.
-  header: &filled
-    style:
-      background: blue
-  titles:
+  # The parts the kinds of tables share, each written once.
+
+  # The titles of the columns, bold and centred, grey for what a table takes: the conditions of a decision table, the
+  # inputs of a Test table.
+  titles: &title
     bold: true
+    align: center
+    background: grey
+  # The titles of what a table gives, blue: what a decision table returns, the results a Test table expects.
+  returnTitles:
+    <<: *title
+    background: blue
+  # The values a table gives, centred on light blue.
+  returns:
+    align: center
+    background: lightBlue
+  # The types a table declares, muted: the field types of a Datatype, the types of the constants.
+  type: *muted
+  # The code a table declares its columns in, muted, centred and closed by a line: the rows of code of a Rules table,
+  # the row naming the columns of a TBasic and a ColumnMatch table, the declarations of a Conditions, an Actions and
+  # a Returns table.
+  code:
+    <<: *muted
+    align: center
+    border:
+      bottom: thin
+  # The keys of a Data table, bold: the first column of one that names no column "_PK_", which OpenL takes for its
+  # keys, and the keys a Test or a Run table takes values from a Data table by. A column "_PK_" names its keys itself.
+  ids:
+    bold: true
+  # The rules of a decision table that share a value of a condition merged over them make a group, and so do the
+  # columns of a lookup under a merged value of a horizontal condition: a line sets the group apart.
+  groups:
+    border:
+      top: thin
+
+# A Datatype: its field names on light blue between muted types and defaults.
+datatype:
   name: &fieldName
     background: lightBlue
-  values:
-    align: center
+  values: *muted
 
 vocabulary:
-  header: *filled
   values:
     align: center
 
 spreadsheet: &spreadsheet
-  # The row naming the columns, such as "Formula".
+  # The titles of the columns, such as "Formula", blue, and the title of the column of steps, such as "Step", grey.
   titles:
-    bold: true
-    align: center
     background: blue
-    border:
-      top: thin
-  # The title of the column of steps, such as "Step", laid over the titles.
   stepTitle:
     background: grey
   # The formulas and the values of the steps.
@@ -110,83 +147,86 @@ spreadsheet: &spreadsheet
   # A step or a column marked with "*" for the result of the Spreadsheet.
   marked:
     bold: true
-  # The step whose value a Spreadsheet returns, when it returns a type other than SpreadsheetResult: the step
-  # named RETURN, or else the last step.
+  # The step a Spreadsheet returns: the step named RETURN, or else the last step, which closes a Spreadsheet
+  # returning SpreadsheetResult. Its name is bold, and lines set its row apart.
   result:
     bold: true
-
-data: &data
-  # The header reaches across every value of the table, so its text starts at the left.
-  header:
-    style:
-      align: left
-  # The rows naming the fields and the tables they take their values from, such as "policyNumber".
-  name: *muted
-  # The row naming the columns, such as "Policy Number".
-  titles:
-    bold: true
-    align: center
-    background: lightBlue
-  values:
-    align: center
-  # The IDs of a Data table, and the values a Test or a Run table takes from a Data table by their IDs.
-  ids:
-    bold: true
-    background: yellow
-  # A value that is not filled.
-  empty:
-    background: paleGrey
-
-# A Test and a Run table look like a Data table.
-test: *data
-run: *data
-
-rules: &rules
-  # The rows a Rules table declares its columns in: the kind of each column, such as "C1" or "RET1", its expression
-  # and its parameters, closed by a line. A SimpleRules, a SmartRules and a lookup have none.
-  code: &code
-    <<: *muted
-    border:
-      bottom: thin
-  # The titles of the conditions, with a line between the columns.
-  titles:
-    bold: true
-    align: center
-    background: grey
-    border:
-      right: thin
-  # The values the conditions are checked against.
-  values:
-    align: center
-    border:
-      right: thin
-  # The values of a horizontal condition, across the top of a lookup.
-  horizontals:
-    bold: true
-    align: center
-    background: blue
-    border:
-      bottom: thin
-  # The title of a column the table returns.
-  returnTitles:
-    bold: true
-    align: center
-    background: blue
-  # The values the table returns.
-  returns: &returned
-    align: center
-    background: lightBlue
-  # The rules that share a value of a condition merged over them make a group: a line over its first rule and over
-  # the rule after it sets the group apart.
-  groups:
+  resultRow:
     border:
       top: thin
+      bottom: thin
 
-# A SimpleRules, a SmartRules and a lookup look like a Rules table.
-simpleRules: *rules
-smartRules: *rules
-simpleLookup: *rules
-smartLookup: *rules
+# A TBasic table, an algorithm written in steps, looks like a Spreadsheet: the labels of its steps look like the step
+# names, and what the steps run, such as their actions, like the values. Their conditions keep the look every cell
+# starts from; a "condition" part would give them one. A step that starts a subroutine, SUB or FUNCTION, heads a
+# section, and a step that returns, RETURN, is the result. The row naming its columns, such as "operation", is code.
+tbasic: *spreadsheet
+
+data:
+  # The rows naming the fields and the tables they take their values from, such as "policyNumber", muted, centred
+  # and closed by a line.
+  name: &fields
+    <<: *muted
+    align: center
+    border:
+      bottom: thin
+  # The titles, such as "Policy Number", and the values look like what a table gives.
+  titles:
+    background: blue
+  values:
+    align: center
+    background: lightBlue
+
+# A Test and a Run table: the inputs are titled as what a table takes, and the results a Test table expects look like
+# what a table gives.
+test: &calls
+  name: *fields
+  values:
+    align: center
+
+run: *calls
+
+# A Rules table: what it returns lines up on the left, as its values do, the expressions and the texts they often are.
+rules: &rules
+  returns:
+    align: left
+
+# A SimpleRules and a SmartRules table: the values the conditions are checked against and the names of the rules
+# centred, and a fine line between the rules.
+simpleRules: &simple
+  values: &ruled
+    align: center
+    border:
+      top: hair
+  returns:
+    border:
+      top: hair
+
+smartRules: *simple
+
+# A lookup: a line after each of its conditions, its horizontal conditions blue with a line between their rows, and
+# a fine line between the columns of the values it returns.
+simpleLookup: &lookup
+  titles:
+    border:
+      right: thin
+  values:
+    <<: *ruled
+    border:
+      top: hair
+      right: thin
+  horizontals:
+    <<: *title
+    background: blue
+    border:
+      top: thin
+      left: hair
+  returns:
+    border:
+      top: hair
+      left: hair
+
+smartLookup: *lookup
 
 # A Conditions, an Actions and a Returns table declare what a decision table takes by its titles: the inputs, the
 # expression and the parameters look like the code of a Rules table, and the titles like its titles.
@@ -194,25 +234,18 @@ conditions: *rules
 actions: *rules
 returns: *rules
 
-# A TBasic table, an algorithm written in steps, looks like a Spreadsheet: the labels of its steps look like the step
-# names, and what the steps run, such as their actions, like the values. Their conditions keep the look every cell
-# starts from; a "condition" part would give them one. A step that starts a subroutine, SUB or FUNCTION, heads a
-# section, and a step that returns, RETURN, is the result. The row naming its columns, such as "operation", looks
-# like the code of a Rules table.
-tbasic:
-  <<: *spreadsheet
-  code: *code
-
-# A ColumnMatch table looks like a Rules table. The rows giving what it returns or scores, such as "Return Values",
-# look like the returns, with a line between the values; a line sets the names it checks apart from the values, and
-# a group of conditions it checks together is set apart as a group of rules.
+# A ColumnMatch table: a line after the names it checks, and between the columns of its values. The rows giving what
+# it returns or scores, such as "Return Values", look like what a table gives, and a group of conditions it checks
+# together is set apart as a group of rules.
 columnMatch:
-  <<: *rules
   name:
     border:
       right: thin
+  values:
+    align: center
+    border:
+      right: thin
   returns:
-    <<: *returned
     border:
       right: thin
 
@@ -237,9 +270,7 @@ environment: &technical
 # A Properties table, the properties a module or a category of tables shares, is as technical as an Environment.
 properties: *technical
 
-# A Constants table: the type, the name and the value of each constant.
+# A Constants table: the type, the name and the value of each constant, its names filled as the field names of a
+# Datatype.
 constants:
-  # The type of a constant, muted beside its name.
-  type: *muted
-  # The names of the constants, filled as the field names of a Datatype.
   name: *fieldName

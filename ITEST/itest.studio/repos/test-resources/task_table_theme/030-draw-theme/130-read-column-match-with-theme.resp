@@ -15,7 +15,7 @@ Content-Type: application/json
         "colspan": 4,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -109,7 +109,8 @@ Content-Type: application/json
         "value": "names",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -126,7 +127,8 @@ Content-Type: application/json
         "value": "operation",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -144,7 +146,8 @@ Content-Type: application/json
         "colspan": 2,
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -165,16 +168,10 @@ Content-Type: application/json
         "cell": "B86",
         "value": "Expenses",
         "style": {
-          "background": "#d0cece",
+          "background": "#bfbfbf",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
-          "border": {
-            "right": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -184,16 +181,10 @@ Content-Type: application/json
         "cell": "C86",
         "value": "Condition",
         "style": {
-          "background": "#d0cece",
+          "background": "#bfbfbf",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
-          "border": {
-            "right": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -204,16 +195,10 @@ Content-Type: application/json
         "value": "Need Approval Of",
         "colspan": 2,
         "style": {
-          "background": "#d0cece",
+          "background": "#bfbfbf",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
-          "border": {
-            "right": {
-              "style": "solid",
-              "width": 1
-            }
-          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -230,7 +215,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -248,7 +233,7 @@ Content-Type: application/json
         "style": {
           "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -267,7 +252,7 @@ Content-Type: application/json
         "style": {
           "background": "#ddebf7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -289,7 +274,7 @@ Content-Type: application/json
         "style": {
           "background": "#ddebf7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -311,7 +296,7 @@ Content-Type: application/json
         "cell": "B88",
         "value": "area",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -328,7 +313,7 @@ Content-Type: application/json
         "value": "match",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -345,7 +330,7 @@ Content-Type: application/json
         "value": "Hardware",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -362,7 +347,7 @@ Content-Type: application/json
         "value": "Hardware",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -380,7 +365,7 @@ Content-Type: application/json
         "cell": "B89",
         "value": "money",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "indent": 1,
           "border": {
             "right": {
@@ -402,7 +387,7 @@ Content-Type: application/json
         "value": "min",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -423,7 +408,7 @@ Content-Type: application/json
         "value": 100000,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -444,7 +429,7 @@ Content-Type: application/json
         "value": 5000,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -466,7 +451,7 @@ Content-Type: application/json
         "cell": "B90",
         "value": "area",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -483,7 +468,7 @@ Content-Type: application/json
         "value": "match",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -500,7 +485,7 @@ Content-Type: application/json
         "value": "Software",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -517,7 +502,7 @@ Content-Type: application/json
         "value": "Software",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -535,7 +520,7 @@ Content-Type: application/json
         "cell": "B91",
         "value": "money",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "indent": 1,
           "border": {
             "right": {
@@ -557,7 +542,7 @@ Content-Type: application/json
         "value": "min",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -578,7 +563,7 @@ Content-Type: application/json
         "value": 20000,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -599,7 +584,7 @@ Content-Type: application/json
         "value": 1000,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",

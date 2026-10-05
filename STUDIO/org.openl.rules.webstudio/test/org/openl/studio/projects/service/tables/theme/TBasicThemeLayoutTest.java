@@ -33,7 +33,7 @@ class TBasicThemeLayoutTest {
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
     private static final String TITLE = "#b4c6e7";
-    private static final String LABEL_TITLE = "#d0cece";
+    private static final String LABEL_TITLE = "#bfbfbf";
     private static final String CODE = "#ddebf7";
 
     /**

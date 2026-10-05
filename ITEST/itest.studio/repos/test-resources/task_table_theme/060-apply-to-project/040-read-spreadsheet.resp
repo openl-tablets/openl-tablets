@@ -15,7 +15,7 @@ Content-Type: application/json
         "colspan": 3,
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -80,7 +80,8 @@ Content-Type: application/json
         "cell": "B20",
         "value": "properties",
         "style": {
-          "valign": "top",
+          "color": "#548235",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -94,7 +95,8 @@ Content-Type: application/json
         "cell": "C20",
         "value": "description",
         "style": {
-          "valign": "top",
+          "color": "#548235",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -108,7 +110,8 @@ Content-Type: application/json
         "cell": "D20",
         "value": "The premium of a person",
         "style": {
-          "valign": "top",
+          "color": "#548235",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -126,7 +129,7 @@ Content-Type: application/json
         "style": {
           "background": "#e2efda",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true
         }
       },
@@ -134,18 +137,18 @@ Content-Type: application/json
         "cell": "C21",
         "value": "Formula",
         "style": {
-          "background": "#e2efda",
+          "background": "#c6e0b4",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true
         }
       },
       {
         "cell": "D21",
         "style": {
-          "background": "#e2efda",
+          "background": "#c6e0b4",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true
         }
       }
@@ -155,7 +158,7 @@ Content-Type: application/json
         "cell": "B22",
         "value": "Base*",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -170,7 +173,8 @@ Content-Type: application/json
         "cell": "C22",
         "value": "= 10",
         "style": {
-          "valign": "top",
+          "background": "#ebf1de",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -183,7 +187,8 @@ Content-Type: application/json
       {
         "cell": "D22",
         "style": {
-          "valign": "top",
+          "background": "#ebf1de",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -202,9 +207,16 @@ Content-Type: application/json
         "style": {
           "background": "#e2efda",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
-          "italic": true
+          "italic": true,
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1,
+              "color": "#548235"
+            }
+          }
         }
       },
       {
@@ -219,7 +231,7 @@ Content-Type: application/json
         "cell": "B24",
         "value": "Total*",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {
@@ -234,7 +246,8 @@ Content-Type: application/json
         "cell": "C24",
         "value": "= $Base * 2",
         "style": {
-          "valign": "top",
+          "background": "#ebf1de",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -247,7 +260,8 @@ Content-Type: application/json
       {
         "cell": "D24",
         "style": {
-          "valign": "top",
+          "background": "#ebf1de",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",

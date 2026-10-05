@@ -364,45 +364,52 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 A table theme gives every table but a table of the type **Other** one consistent look. For example, the **Default**
 theme that OpenL Studio ships formats the tables as follows:
 
--   **Header** — the keyword, the type, and the parameters in grey and the name in bold, alike for every kind of
-    table. The header of a Datatype or a Vocabulary is filled, and the header of a Data, a Test, or a Run table
-    starts at the left.
--   **Properties** — a line under the table properties, alike for every kind of table.
--   **Fields** — the field names filled, the default values centered. In a transposed Datatype table, which has a
-    field in each column, the field names are a row.
--   **Values** — the values of a Vocabulary centered.
--   **Steps** — the column titles of a Spreadsheet in bold and filled, and its formulas filled. A step whose name is
-    merged across its row heads a section, such as **Policy Factors Calculation**, and is written in bold italic. A
-    step marked with `*` for the result, such as `PolicyNumber*`, is bold, and so is the step whose value a
-    Spreadsheet returns when it returns a type other than `SpreadsheetResult`.
--   **Algorithms** — a TBasic table looks like a Spreadsheet: the row of its column IDs, such as `operation`, in
-    grey and closed by a line, its titles in bold and filled, and its actions filled, while its conditions are not. A
-    step that starts a subroutine with `SUB` or `FUNCTION` heads a section and is written in bold italic, and a step
-    that returns with `RETURN` is bold. The operations keep their indent, which tells the level of each step.
--   **Code** — the code of a Method table in the look every cell starts from.
--   **Data** — the field names of a Data, a Test, or a Run table in grey, its titles in bold and filled, and its
-    values centered. The IDs of a Data table, and the values a Test or a Run table takes from a Data table by their
-    IDs, are bold and highlighted. A value that is not filled is grey. A Test and a Run table look like a Data table.
--   **Decision tables** — the titles of the conditions of a Rules, SimpleRules, SmartRules, SimpleLookup, or
-    SmartLookup table in bold and filled grey, with a line between the columns of conditions, and the titles and the
-    values of what the table returns filled blue. The values of the horizontal conditions across the top of a lookup
-    table are bold and filled, and the rows of code of a Rules table, such as `C1` and `RET1`, are grey and closed by
-    a line. A value of a condition merged over several rules sets them apart with a line above and below them. Every
-    kind of decision table looks like a Rules table.
--   **Column match** — a ColumnMatch table looks like a Rules table: the row of its column IDs in grey and closed by
-    a line, its titles filled grey, the rows that give what it returns or scores, such as **Return Values**, filled
-    blue, and a line after the names it checks and between its values. A condition with the conditions indented
-    under it, which the table checks together, sets them apart with a line above and below them. The names keep
-    their indent.
+-   **Every table** — Franklin Gothic Book 10, black on white, the text of every cell centered from top to bottom,
+    which shows in a cell merged over several rows. The header is centered between two lines, with the keyword, the
+    type, and the parameters in grey and the name in bold. The table properties are grey and closed by a line, and a
+    line under the last row closes the table.
+-   **Titles** — the titles of the columns are bold and centered. The titles of what a table takes are filled grey,
+    such as the conditions of a decision table, the inputs of a Test table, and the column of steps of a
+    Spreadsheet. The titles of what a table gives are filled blue, such as the formulas of a Spreadsheet, what a
+    decision table returns, and the results a Test table expects, and its values are filled light blue.
+-   **Fields** — the field names of a Datatype are filled light blue, and its types and default values are grey. In
+    a transposed Datatype table, which has a field in each column, the field names are a row. The values of a
+    Vocabulary are centered.
+-   **Steps** — the formulas of a Spreadsheet are filled light blue. A step whose name is merged across its row heads
+    a section, such as **Policy Factors Calculation**, and is written in bold italic, centered, and filled blue, with a
+    line above it. A step marked with `*` for the result, such as `PolicyNumber*`, is bold. The step a Spreadsheet
+    returns is bold, with a line above and below its row: the step named `RETURN`, or else the last step, also of a
+    Spreadsheet that returns `SpreadsheetResult`.
+-   **Algorithms** — a TBasic table looks like a Spreadsheet: the row of its column IDs, such as `operation`, is grey
+    and closed by a line, and its actions are filled, while its conditions are not. A step that starts a subroutine
+    with `SUB` or `FUNCTION` heads a section, and a step that returns with `RETURN` is bold. The operations keep
+    their indent, which tells the level of each step.
+-   **Code** — the code of a Method table takes the look every cell starts from.
+-   **Data** — the field names of a Data, a Test, or a Run table are grey, centered, and closed by a line, and its
+    values are centered. A Data table fills its titles blue and its values light blue. The keys are bold: the first
+    column of a Data table, which OpenL Tablets reads its rows by, unless it is a `_PK_` column, which names the keys
+    itself, and the values a Test or a Run table takes from a Data table by their keys, such as `Policy1`. In a
+    transposed table, which has a field in each row, the field names and the titles are aligned left, and no line goes
+    round the field names.
+-   **Decision tables** — the rows of code of a Rules table, such as `C1` and `RET1`, are grey, centered, and closed
+    by a line, and its values are aligned left. A SimpleRules and a SmartRules table center the values, with a fine
+    dotted line between the rules. A SimpleLookup and a SmartLookup table also draw a line after each condition,
+    fill the values of the horizontal conditions across the top blue with a line between their rows, and draw a
+    fine dotted line between the columns of the values. A value of a condition merged over several rules sets them
+    apart with a line, and so does a value of a horizontal condition merged over several columns.
+-   **Column match** — a ColumnMatch table has the row of its column IDs grey and closed by a line, its titles
+    filled grey, and the rows that give what it returns or scores, such as **Return Values**, filled blue. A line
+    stands after the names it checks and between the columns of its values. A condition with the conditions
+    indented under it, which the table checks together, sets them apart with a line above and below them. The names
+    keep their indent.
 -   **Declarations** — a Conditions, an Actions, and a Returns table, which declare what decision tables take by
     their titles, look like the code and the titles of a Rules table: their inputs, expressions, and parameters
     are grey and closed by a line, the titles of the conditions are filled grey, and the titles of the actions and
     the returns are filled blue.
 -   **Technical tables** — an Environment and a Properties table in greys: the header filled grey, the settings,
     such as `import`, and the properties filled light grey, and a light line under every row. A Properties table
-    looks like an Environment table. The types of a Constants table are grey and the names of its constants
-    filled, as the field names of a Datatype.
--   **Last row** — a line under the last row that closes the table.
+    looks like an Environment table. The types of a Constants table are grey, and the names of its constants are
+    filled as the field names of a Datatype.
 -   **Everything else** — the theme overrides the formatting the Excel file gives the table: its fills, lines,
     fonts, and alignment. A cell the theme fills no other way is white, and a text the file formats in pieces of its
     own, other than the header, is drawn in the font of its cell.

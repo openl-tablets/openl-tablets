@@ -100,6 +100,16 @@ public record ThemeStyle(@Nullable String fontFamily,
         return withBorder(around.atEdges(inside.border == null ? ThemeBorder.KEEP : inside.border, first, last));
     }
 
+    /**
+     * This look turned over the diagonal from the top left corner, for a place that runs the other way round: a line
+     * above is on the left, a line below on the right, and the other way about. Turning a look twice gives it back.
+     *
+     * @return the look turned
+     */
+    ThemeStyle transposed() {
+        return border == null ? this : withBorder(border.transposed());
+    }
+
     /** Whether the look sets anything about the font. */
     boolean hasFont() {
         return fontFamily != null || fontSize != null || bold != null || italic != null || underline != null

@@ -47,18 +47,19 @@ A theme file holds the following keys:
 -   **`method`** — what a Method table changes in the base: a method written as code. The themes that OpenL Studio
     ships write nothing for it, so it takes the base alone.
 -   **`data`** — what a Data table changes in the base.
--   **`test`** — what a Test table changes in the base. The themes that OpenL Studio ships give a Test table the look
-    of a Data table, as described in [Reusing Parts of a Theme](#reusing-parts-of-a-theme).
+-   **`test`** — what a Test table changes in the base.
 -   **`run`** — what a Run table changes in the base. A Run table is written as a Test table without the expected
-    results, and the themes that OpenL Studio ships give it the look of a Data table as well.
--   **`rules`** — what a Rules table changes in the base. The themes that OpenL Studio ships give every other kind of
-    decision table the look of a Rules table.
+    results, and the themes that OpenL Studio ships give it the look of a Test table, as described in
+    [Reusing Parts of a Theme](#reusing-parts-of-a-theme).
+-   **`rules`** — what a Rules table changes in the base.
 -   **`simpleRules`** — what a SimpleRules table changes in the base.
--   **`smartRules`** — what a SmartRules table changes in the base.
+-   **`smartRules`** — what a SmartRules table changes in the base. The themes that OpenL Studio ships give it the
+    look of a SimpleRules table.
 -   **`simpleLookup`** — what a SimpleLookup table changes in the base.
--   **`smartLookup`** — what a SmartLookup table changes in the base.
+-   **`smartLookup`** — what a SmartLookup table changes in the base. The themes that OpenL Studio ships give it the
+    look of a SimpleLookup table.
 -   **`columnMatch`** — what a ColumnMatch table changes in the base: a decision tree that checks the arguments row
-    by row. The themes that OpenL Studio ships give it the look of a Rules table.
+    by row.
 -   **`conditions`** — what a Conditions table changes in the base: the conditions that decision tables take by
     their titles. The themes that OpenL Studio ships give a Conditions, an Actions, and a Returns table the look of
     a Rules table.
@@ -122,9 +123,12 @@ A Spreadsheet table also takes the following parts:
     heads the steps that follow it, such as **Policy Factors Calculation**.
 -   **`marked`** — a step or a column whose name is marked with `*` for the result of the Spreadsheet, such as
     `PolicyNumber*`, laid over its own style.
--   **`result`** — the step whose value a Spreadsheet returns when it returns a type other than `SpreadsheetResult`,
-    laid over its own style. It is the step named `RETURN`, or the last step when no step is named so; a column named
-    `RETURN` takes its place.
+-   **`result`** — the name of the step a Spreadsheet returns, laid over its own style. It is the step named
+    `RETURN`, or the last step when no step is named so. A Spreadsheet that returns `SpreadsheetResult` returns every
+    step, and its last step, which closes the calculation, is the result too. A column named `RETURN` takes the place
+    of the step, and its title takes `result`.
+-   **`resultRow`** — every cell of the row of the step a Spreadsheet returns, laid over its own style. A line the
+    style draws above or below goes round the whole step, however many rows of the sheet the step takes.
 
 A TBasic table also takes the following parts:
 
@@ -148,17 +152,26 @@ A Method table takes no part of its own: the code it holds takes `style`.
 A Data, a Test, and a Run table also take the following parts:
 
 -   **`name`** — the row of field names, such as `policyNumber`, and the row of the tables that some fields take
-    their values from, such as `>PolicyData`.
+    their values from, such as `>PolicyData`. A line the style draws above or below goes round both rows, not round
+    each of them.
 -   **`titles`** — the row of titles, such as **Policy Number**.
 -   **`values`** — the values.
--   **`ids`** — the values that name a row of a Data table, laid over `values`. In a Data table, these are its IDs:
-    the column `_PK_`, or the first column when the table has none. In a Test and a Run table, these are the values
-    of every column that takes them from a Data table by their IDs, such as `Policy1`.
+-   **`ids`** — the values that name a row of a Data table, laid over `values`. In a Data table, these are the values
+    of its first column, which OpenL Tablets takes for the IDs, unless it is a column `_PK_`, which names the IDs
+    itself and takes no `ids`. In a Test and a Run table, these are the values of every column that takes them from a
+    Data table by their IDs, such as `Policy1`.
 -   **`empty`** — a value that is not filled, laid over its own style.
 
+A Test table also takes the following parts for the results it expects: the columns whose field starts with `_res_`,
+the value the tested method returns, or with `_error_`, the error it reports.
+
+-   **`returnTitles`** — the titles of the results, laid over `titles`.
+-   **`returns`** — the results, laid over `values`.
+
 A Data, a Test, or a Run table can be written transposed, with a field in each row. The parts then follow the fields:
-`name` styles the column of field names, `titles` styles the column of titles, and `ids` styles the row of IDs.
-`lastRow` still styles the last row of the table.
+`name` styles the column of field names, `titles` styles the column of titles, and `ids` styles the row of IDs. The
+field names and the titles then label the rows, so they take the alignment of `style`, and no line goes round the
+field names. `lastRow` still styles the last row of the table.
 
 A decision table — a Rules, SimpleRules, SmartRules, SimpleLookup, or SmartLookup table — also takes the following
 parts:
@@ -175,6 +188,13 @@ parts:
     conditions meet.
 -   **`groups`** — the style laid over the first rule of a group and over the rule after the group, for example, a
     line above that sets the group apart. The rules that share a value of a condition merged over them make a group.
+    In a lookup table, the columns that share a value of a horizontal condition merged over them make a group as
+    well: `groups` is laid over the first column of the group and over the column after it, turned, so a line above
+    a rule is a line on the left of a column.
+
+A line that `values`, `returns`, or `groups` draws above a rule sets it apart from the rule before it, so the first
+rule, under the titles, draws none. So does a line on the left of the first column of the values a lookup table
+returns, and of the horizontal conditions over it: the column stands beside the conditions, which close it.
 
 A decision table can be written transposed, with a rule in each column. The parts then follow the conditions and the
 returns: each of them is a row that holds its code, its title, and a value of each rule. The lines the parts draw
@@ -291,7 +311,7 @@ base:
     color: "#000000"
     background: "#ffffff"
     align: left
-    valign: top
+    valign: center
     border: {top: none, right: none, bottom: none, left: none}
 ```
 
@@ -326,8 +346,8 @@ themes that OpenL Studio ships name their colours this way.
 
 Each kind of table extends the base: it writes only what it changes, and takes the rest of the base as it is. A part
 that the kind writes is laid over the same part of the base attribute by attribute, and the header piece by piece. In
-the following example, a Datatype takes the header of the base and only fills it, as the themes that OpenL Studio
-ships do; its alignment, its lines, and the fonts of its pieces stay those of the base:
+the following example, a Datatype takes the header of the base and only fills it, as the **Green** theme does; its
+alignment, its lines, and the fonts of its pieces stay those of the base:
 
 ```yaml
 base:
@@ -339,6 +359,20 @@ base:
 datatype:
   header:
     style: {background: "#b4c6e7"}
+```
+
+A part that several kinds of tables take alike is written once in the base, and every kind that takes it extends it.
+The themes that OpenL Studio ships write so the parts the kinds share, such as the titles of the columns, the titles
+of what a table returns, and the values it returns. In the following example, a Rules and a Test table take the
+titles of the base, while a Spreadsheet table fills them another colour:
+
+```yaml
+base:
+  titles: {bold: true, align: center, background: "#bfbfbf"}
+  returnTitles: {bold: true, align: center, background: "#b4c6e7"}
+
+spreadsheet:
+  titles: {background: "#b4c6e7"}
 ```
 
 ### Reusing Parts of a Theme
@@ -369,16 +403,19 @@ base:
     border: {bottom: *line}
 ```
 
-In the following example, a Test and a Run table take the look of a Data table, as in the themes that OpenL Studio
-ships:
+In the following example, a Run table takes the look of a Test table, as in the themes that OpenL Studio ships, and a
+Data table takes it with titles of its own:
 
 ```yaml
-data: &data
-  titles: {bold: true, background: "#ddebf7"}
+test: &calls
+  titles: {bold: true, background: "#bfbfbf"}
   ids: {bold: true, background: "#fff2cc"}
 
-test: *data
-run: *data
+run: *calls
+
+data:
+  <<: *calls
+  titles: {bold: true, background: "#b4c6e7"}
 ```
 
 In the following example, every kind of decision table takes the look of a Rules table, and a SimpleLookup table

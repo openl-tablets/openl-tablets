@@ -1,5 +1,8 @@
 # A table theme of OpenL Studio: the look it gives every table it styles, one part for each kind of table below.
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
+#
+# The Default theme in greens, its lines green as well. It also fills the header of a Datatype and a Vocabulary, the
+# IDs, and the values that are not filled.
 
 name: Green
 
@@ -29,7 +32,7 @@ base:
     color: black
     background: white
     align: left
-    valign: top
+    valign: center
     border:
       top: none
       right: none
@@ -48,11 +51,38 @@ base:
     type: *muted
     parameters: *muted
   properties:
+    <<: *muted
     border:
       bottom: *line
   lastRow:
     border:
       bottom: *line
+
+  # The parts the kinds of tables share, each written once.
+  titles: &title
+    bold: true
+    align: center
+    background: lightGreen
+  returnTitles:
+    <<: *title
+    background: green
+  returns:
+    align: center
+    background: paleGreen
+  type: *muted
+  code:
+    <<: *muted
+    align: center
+    border:
+      bottom: *line
+  ids:
+    bold: true
+    background: green
+  empty:
+    background: paleGrey
+  groups:
+    border:
+      top: *line
 
 datatype:
   # A Datatype fills its header, and so does a Vocabulary.
@@ -61,6 +91,7 @@ datatype:
       background: green
   name: &fieldName
     background: lightGreen
+  values: *muted
 
 vocabulary:
   header: *filled
@@ -69,9 +100,11 @@ vocabulary:
 
 spreadsheet: &spreadsheet
   titles:
-    bold: true
-    align: center
+    background: green
+  stepTitle:
     background: lightGreen
+  values:
+    background: paleGreen
   sections:
     bold: true
     italic: true
@@ -83,82 +116,84 @@ spreadsheet: &spreadsheet
     bold: true
   result:
     bold: true
-
-data: &data
-  header:
-    style:
-      align: left
-  name: *muted
-  titles:
-    bold: true
-    align: center
-    background: lightGreen
-  values:
-    align: center
-  ids:
-    bold: true
-    background: green
-  empty:
-    background: paleGrey
-
-test: *data
-run: *data
-
-rules: &rules
-  code: &code
-    <<: *muted
-    border:
-      bottom: *line
-  titles:
-    bold: true
-    align: center
-    background: lightGreen
-    border:
-      right: *line
-  values:
-    align: center
-    border:
-      right: *line
-  horizontals:
-    bold: true
-    align: center
-    background: green
-    border:
-      bottom: *line
-  returnTitles:
-    bold: true
-    align: center
-    background: green
-  returns: &returned
-    align: center
-    background: paleGreen
-  groups:
+  resultRow:
     border:
       top: *line
+      bottom: *line
 
-simpleRules: *rules
-smartRules: *rules
-simpleLookup: *rules
-smartLookup: *rules
+tbasic: *spreadsheet
+
+data:
+  name: &fields
+    <<: *muted
+    align: center
+    border:
+      bottom: *line
+  titles:
+    background: green
+  values:
+    align: center
+    background: paleGreen
+
+test: &calls
+  name: *fields
+  values:
+    align: center
+
+run: *calls
+
+rules: &rules
+  returns:
+    align: left
+
+simpleRules: &simple
+  values: &ruled
+    align: center
+    border:
+      top: &fine {style: hair, color: darkGreen}
+  returns:
+    border:
+      top: *fine
+
+smartRules: *simple
+
+simpleLookup: &lookup
+  titles:
+    border:
+      right: *line
+  values:
+    <<: *ruled
+    border:
+      top: *fine
+      right: *line
+  horizontals:
+    <<: *title
+    background: green
+    border:
+      top: *line
+      left: *fine
+  returns:
+    border:
+      top: *fine
+      left: *fine
+
+smartLookup: *lookup
 
 # The tables that declare what a decision table takes by its titles look like the code and the titles of a Rules table.
 conditions: *rules
 actions: *rules
 returns: *rules
 
-# A TBasic table looks like a Spreadsheet, the row naming its columns like the code of a Rules table.
-tbasic:
-  <<: *spreadsheet
-  code: *code
-
-# A ColumnMatch table looks like a Rules table, with a line after the names it checks and between its values.
+# A ColumnMatch table: a line after the names it checks, and between the columns of its values.
 columnMatch:
-  <<: *rules
   name:
     border:
       right: *line
+  values:
+    align: center
+    border:
+      right: *line
   returns:
-    <<: *returned
     border:
       right: *line
 
@@ -180,5 +215,4 @@ environment: &technical
 properties: *technical
 
 constants:
-  type: *muted
   name: *fieldName
