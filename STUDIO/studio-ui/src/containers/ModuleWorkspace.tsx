@@ -204,13 +204,11 @@ export const ModuleWorkspace = () => {
     // The table theme the look of the Studio theme lays its tables out with, where the reader asks for the look of
     // the Studio theme and the theme has a look of its own for the tables.
     const followedTheme = followedTableTheme(tablesFollowTheme, themeName)
-    // The table themes Studio offers. The one the settings name is offered first when the reader applies one: only
-    // a table theme of the server is applied, whatever the screen draws the tables with.
+    // The table themes Studio offers, and the one the tables are drawn with: the one of the look of the Studio theme,
+    // then the one the settings name. A reader with neither that Studio offers reads the tables with the formatting
+    // of the Excel file. A drawing only: applying a theme starts from the one the server offers first.
     const tableThemes = useTableThemes()
-    const settingsTheme = offeredTheme(tableThemes, namedTheme)
-    // The theme the tables are drawn with: the one of the look of the Studio theme, then the one the settings name.
-    // A reader with neither that Studio offers reads the tables with the formatting of the Excel file.
-    const drawnTheme = offeredTheme(tableThemes, followedTheme) ?? settingsTheme
+    const drawnTheme = offeredTheme(tableThemes, followedTheme) ?? offeredTheme(tableThemes, namedTheme)
     // A reader who names a theme has the table read once the themes are known: read before, it is drawn twice.
     const themeKnown = (!namedTheme && followedTheme === undefined) || tableThemes !== undefined
     // The theme of the application whose look the table is drawn in: the one whose table theme the table is read with.
@@ -947,7 +945,6 @@ export const ModuleWorkspace = () => {
                     markCell={raisedCell}
                     maxRows={table.source.length}
                     moduleName={moduleName}
-                    namedTheme={settingsTheme}
                     onDirtyChange={setTableDirty}
                     onEditingChange={setEditing}
                     onOpenedAt={() => setEditCell(null)}

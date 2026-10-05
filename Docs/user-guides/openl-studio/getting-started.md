@@ -137,9 +137,8 @@ To manage personal settings, proceed as follows:
     -   **Show Formulas** — display MS Excel formulas in table cells.
     -   **Table Theme** — how the tables are drawn while they are viewed: every table but a table of the type
         **Other**. The default, **Excel Formatting**, draws them with the formatting of the Excel file. A table theme
-        draws them with the theme and is selected first when a theme is applied to a project. A table being edited
-        is drawn as the file holds it. For more information on themes, see
-        [Appendix E: Table Themes](appendices/table-themes.md).
+        draws them with the theme. A table being edited is drawn as the file holds it. For more information on themes,
+        see [Appendix E: Table Themes](appendices/table-themes.md).
     -   **Override with Studio theme** — draw the tables in the look of the OpenL Studio theme in place of the table
         theme, so that in the dark appearance they are dark too. The **Standard** theme of OpenL Studio draws them
         with the **Standard** table theme, in its own colours in the light appearance and in dark colours in the dark
@@ -150,8 +149,9 @@ To manage personal settings, proceed as follows:
 
     > [!Note]
     > **Table Theme** and **Override with Studio theme** are view only: they change how the tables are shown on the
-    > screen and nothing else. The Excel files keep their own formatting, and the projects are not changed. Only a
-    > table theme can be written into the Excel file, never the look of the OpenL Studio theme, as described in
+    > screen and nothing else. The Excel files keep their own formatting, and the projects are not changed. Neither
+    > decides what is written into an Excel file: only a table theme can be written, never the look of the OpenL Studio
+    > theme, and the theme selected first is the primary one, **Standard**, as described in
     > [Applying the Table Theme](rules-editor.md#applying-the-table-theme).
 
 4.  In the **Testing Settings** section, configure the following options:

@@ -56,7 +56,7 @@ interface TableEditToolbarProps {
      * <p>What is shown this way is not an edit: nothing of it is kept, taken back or saved.
      */
     onPreview: (style: RawCellStyleInput | null) => void
-    /** The table themes the reader may write into the table, the one they start from first; absent for none. */
+    /** The table themes the reader may write into the table, the primary one first; absent for none. */
     themes?: TableThemeOption[] | undefined
     /** The theme the reader chose to write into the table, or null when they chose none. */
     theme?: string | null | undefined

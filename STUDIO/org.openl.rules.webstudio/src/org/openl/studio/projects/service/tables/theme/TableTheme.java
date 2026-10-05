@@ -21,6 +21,8 @@ import org.jspecify.annotations.Nullable;
  * colour into a workbook of those theme colours.
  *
  * @param name         the name OpenL Studio shows the theme by
+ * @param primary      whether the theme is the primary one: listed before the others, so it is the theme a screen
+ *                     selects first when a theme is applied
  * @param themeColors  the theme colours of Excel the theme makes its colours of, or {@code null} for a theme whose
  *                     colours are all its own
  * @param base         the skin every kind of table extends, or {@code null} for a theme whose kinds write everything
@@ -53,6 +55,7 @@ import org.jspecify.annotations.Nullable;
  * @param constants    what a Constants table changes in the base, or {@code null} for nothing
  */
 public record TableTheme(String name,
+                         boolean primary,
                          @Nullable ExcelThemeColours themeColors,
                          @Nullable Look base,
                          @Nullable Look datatype,

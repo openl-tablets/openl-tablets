@@ -70,7 +70,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void offersEveryThemeForATBasicTable() {
-        assertEquals(List.of("green", "standard"),
+        assertEquals(List.of("standard", "green"),
                 service.getThemes(factorial()).stream().map(TableThemeView::id).toList());
     }
 

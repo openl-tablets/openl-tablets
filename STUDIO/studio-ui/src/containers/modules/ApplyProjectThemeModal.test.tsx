@@ -12,12 +12,14 @@ vi.mock('react-i18next', () => {
 
 vi.mock('../../services/tables', () => ({ applyProjectTableTheme: vi.fn(), getTableThemes: vi.fn() }))
 
-const THEMES = [{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]
+// As the server offers them: the primary theme first.
+const THEMES = [{ id: 'standard', name: 'Standard' }, { id: 'green', name: 'Green' }]
 
 describe('ApplyProjectThemeModal', () => {
     beforeEach(() => {
         vi.mocked(applyProjectTableTheme).mockReset().mockResolvedValue({ themed: ['t1'], skipped: []})
         vi.mocked(getTableThemes).mockResolvedValue(THEMES)
+        // The settings name another theme, which only changes what the screen shows.
         useUserStore.setState({ userProfile: { tableTheme: 'green' } as never })
     })
 
@@ -28,14 +30,14 @@ describe('ApplyProjectThemeModal', () => {
         return { onApplied, onClose }
     }
 
-    it('starts from the theme the reader\'s settings name', async () => {
+    it('starts from the primary theme, which Studio offers first, whatever theme the settings name', async () => {
         const { onApplied, onClose } = draw()
         await waitFor(() => expect(screen.getByTestId('apply-project-theme-ok')).toBeEnabled())
 
         await userEvent.click(screen.getByTestId('apply-project-theme-ok'))
 
         await waitFor(() => expect(onClose).toHaveBeenCalled())
-        expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'green')
+        expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'standard')
         expect(onApplied).toHaveBeenCalled()
     })
 
@@ -44,13 +46,13 @@ describe('ApplyProjectThemeModal', () => {
         await waitFor(() => expect(screen.getByTestId('apply-project-theme-ok')).toBeEnabled())
 
         await userEvent.click(screen.getByRole('combobox'))
-        await userEvent.click(await screen.findByTitle('Default'))
+        await userEvent.click(await screen.findByTitle('Green'))
         await userEvent.click(screen.getByTestId('apply-project-theme-ok'))
 
-        await waitFor(() => expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'default'))
+        await waitFor(() => expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'green'))
     })
 
-    it('forgets the theme picked once the dialog is closed, and starts again from the reader\'s own', async () => {
+    it('forgets the theme picked once the dialog is closed, and starts again from the primary one', async () => {
         const onClose = vi.fn()
         const dialog = (open: boolean) => (
             <ApplyProjectThemeModal onApplied={vi.fn()} onClose={onClose} open={open} projectId="p1" />
@@ -58,7 +60,7 @@ describe('ApplyProjectThemeModal', () => {
         const { rerender } = render(dialog(true))
         await waitFor(() => expect(screen.getByTestId('apply-project-theme-ok')).toBeEnabled())
         await userEvent.click(screen.getByRole('combobox'))
-        await userEvent.click(await screen.findByTitle('Default'))
+        await userEvent.click(await screen.findByTitle('Green'))
 
         await userEvent.keyboard('{Escape}')
         expect(onClose).toHaveBeenCalled()
@@ -66,7 +68,7 @@ describe('ApplyProjectThemeModal', () => {
         rerender(dialog(true))
         await userEvent.click(await screen.findByTestId('apply-project-theme-ok'))
 
-        await waitFor(() => expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'green'))
+        await waitFor(() => expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'standard'))
     })
 
     it('stays open when the theme could not be written', async () => {

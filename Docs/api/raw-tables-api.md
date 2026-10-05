@@ -364,12 +364,15 @@ GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
 ```
 
 ```json
-[{"id": "green", "name": "Green"}, {"id": "standard", "name": "Standard"}]
+[{"id": "standard", "name": "Standard"}, {"id": "green", "name": "Green"}]
 ```
 
-- The first lists every theme OpenL Studio offers, ordered by name.
-- The second lists the themes that can be drawn over the table and written into it. Every theme styles every table
-  but a table of the kind `Other`, so the list holds every theme for such a table, and none for an `Other` table.
+- The first lists every theme OpenL Studio offers: the primary themes first, which a theme file marks with
+  `primary: true`, then the others, each in the order of their names. A client selects the first theme when a theme
+  is applied, so it never chooses one by its identifier.
+- The second lists the themes that can be drawn over the table and written into it, in the same order. Every theme
+  styles every table but a table of the kind `Other`, so the list holds every theme for such a table, and none for an
+  `Other` table.
 
 **Drawing the theme.** A read with `tableTheme=<id>` reports every cell the theme reaches in the look of the theme, in
 place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:

@@ -66,8 +66,9 @@ export interface UserProfile {
     showHeader: boolean
     showRealNumbers: boolean
     /**
-     * The table theme the tables it styles are drawn with, and that is offered first when a theme is applied, by its
-     * identifier. Absent or empty, the tables are drawn with the formatting of the Excel file.
+     * The table theme the tables it styles are drawn with on the screen, by its identifier. Absent or empty, the
+     * tables are drawn with the formatting of the Excel file. A view only: applying a theme starts from the primary
+     * one, which the server offers first.
      */
     tableTheme?: string
     testsFailuresOnly: boolean

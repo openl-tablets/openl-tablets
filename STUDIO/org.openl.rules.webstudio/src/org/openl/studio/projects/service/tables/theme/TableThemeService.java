@@ -38,6 +38,10 @@ import org.openl.util.StringUtils;
  * part takes one. It can write the theme colours of Excel it makes its colours of under {@code themeColors}, and write
  * a colour as the palette of Excel names a theme colour, such as {@code Blue, Accent 1, Lighter 60%}.
  *
+ * <p>The themes are offered with the primary ones first, which a file marks with {@code primary: true}, and the
+ * others after them, each in the order of their names. A screen therefore selects a primary theme first when a theme
+ * is applied, whatever it is called.
+ *
  * <p>A theme file that cannot be read, that declares no name, that names an attribute a theme does not know, a
  * colour it gives no name, or a theme colour of Excel without its theme colours, is not offered. Studio starts with
  * the other themes and logs why the file was refused, so a mistyped attribute is never silently ignored.
@@ -87,11 +91,11 @@ public class TableThemeService {
                         file.getDescription());
             }
         }
-        themes = sortedByName(read);
+        themes = inOfferedOrder(read);
     }
 
     /**
-     * The themes OpenL Studio offers, by name.
+     * The themes OpenL Studio offers: the primary ones first, then the others, each in the order of their names.
      *
      * @return the themes, each with the identifier it is asked for by and the name it is shown by
      */
@@ -100,7 +104,7 @@ public class TableThemeService {
     }
 
     /**
-     * The themes that can be drawn over a table or written into it, by name.
+     * The themes that can be drawn over a table or written into it, in the order {@link #getThemes()} offers them.
      *
      * @param table the table
      * @return every theme for a table the themes style; none for a table of any other kind
@@ -244,12 +248,14 @@ public class TableThemeService {
         return colours;
     }
 
-    private static Map<String, TableTheme> sortedByName(Map<String, TableTheme> themes) {
-        var byName = Comparator.comparing(TableTheme::name, String.CASE_INSENSITIVE_ORDER);
+    /** The themes in the order they are offered: the primary ones first, each group in the order of their names. */
+    private static Map<String, TableTheme> inOfferedOrder(Map<String, TableTheme> themes) {
+        var order = Comparator.comparing((TableTheme theme) -> !theme.primary())
+                .thenComparing(TableTheme::name, String.CASE_INSENSITIVE_ORDER);
         var sorted = new LinkedHashMap<String, TableTheme>();
         themes.entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByValue(byName))
+                .sorted(Map.Entry.comparingByValue(order))
                 .forEach(theme -> sorted.put(theme.getKey(), theme.getValue()));
         return sorted;
     }

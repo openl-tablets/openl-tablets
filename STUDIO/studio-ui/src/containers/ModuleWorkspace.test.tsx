@@ -165,14 +165,13 @@ vi.mock('./modules/TableEditor', async () => {
     const { useImperativeHandle } = await import('react')
     return {
         TableEditor: ({
-            ref, testId, rows, hiddenRows, editing, namedTheme, look, onEditingChange, onOpenUsage, onSaved, children,
+            ref, testId, rows, hiddenRows, editing, look, onEditingChange, onOpenUsage, onSaved, children,
         }: {
             ref?: Ref<unknown>
             testId?: string
             rows?: unknown[]
             hiddenRows?: number
             editing?: boolean
-            namedTheme?: string
             look?: string
             onEditingChange?: (editing: boolean) => void
             onOpenUsage?: (usage: typeof handed.usage) => void
@@ -185,7 +184,6 @@ vi.mock('./modules/TableEditor', async () => {
                 <div
                     data-editing={String(editing)}
                     data-look={look ?? ''}
-                    data-named-theme={namedTheme ?? ''}
                     data-testid={testId}
                 >
                     {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
@@ -419,8 +417,6 @@ describe('ModuleWorkspace', () => {
             expect(readWith()).toBe('standard')
             // The editor is told whose look the table it draws is read with.
             expect(screen.getByTestId('module-table')).toHaveAttribute('data-look', 'standard')
-            // Applying a theme still starts from the one the settings name: the look is a drawing only.
-            expect(screen.getByTestId('module-table')).toHaveAttribute('data-named-theme', 'green')
         })
 
         it('reads with the look of the Studio theme over the formatting of the Excel file', async () => {
@@ -432,8 +428,6 @@ describe('ModuleWorkspace', () => {
             // The look is a theme too: the table waits for the themes rather than being read twice.
             expect(getRawTable).toHaveBeenCalledTimes(1)
             expect(readWith()).toBe('standard')
-            // The settings name no theme, so applying one offers the themes in their own order.
-            expect(screen.getByTestId('module-table')).toHaveAttribute('data-named-theme', '')
         })
 
         it('falls back to the table theme of the settings under a Studio theme with no look for them', async () => {

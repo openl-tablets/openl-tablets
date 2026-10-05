@@ -433,8 +433,12 @@ OpenL Studio also ships the **Green** theme. How a theme file is written is desc
 -   **Written into the whole project** — above the table, click **More**, select **Apply Table Theme to Project**,
     select the theme, and click **Apply Theme**. The theme is written into every table of every module of the
     project but the tables of the type **Other**. A module set to compile alone has the whole project compiled first,
-    and a project whose compilation was stopped is not themed. The theme selected first is the one that **My
-    Settings** names, or the first theme in the list when **My Settings** names **Excel Formatting**.
+    and a project whose compilation was stopped is not themed.
+
+Both ways offer the table themes of OpenL Studio with the primary one, **Standard**, listed first, and the dialog of
+the project selects it to begin with. The theme files decide which theme is primary, as described in
+[Theme File](appendices/table-themes.md#theme-file): what **My Settings** selects in **Table Theme** and **Override
+with Studio theme** only changes the screen and never the themes offered.
 
 > [!Note]
 > Until **Save** is clicked, the theme is drawn as it fits the table without the changes made in the edit mode. A row

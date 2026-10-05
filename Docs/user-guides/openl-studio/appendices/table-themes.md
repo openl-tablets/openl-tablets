@@ -34,6 +34,9 @@ described in this appendix. The reason is written to the OpenL Studio log, and t
 A theme file holds the following keys:
 
 -   **`name`** — required. The name of the theme shown in OpenL Studio.
+-   **`primary`** — `true` for the primary theme, which OpenL Studio lists before the other themes and selects first
+    when a theme is applied to a table or to a project. The other themes follow in the order of their names. The
+    **Standard** theme is the primary one; the key is `false` when the file does not write it.
 -   **`themeColors`** — the theme colours of Excel that the colours of the theme are made of, as described in
     [Theme Colours of Excel](#theme-colours-of-excel).
 -   **`colors`** — the colours of the theme, each under the name that a style sets it by, as described in

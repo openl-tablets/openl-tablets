@@ -3,11 +3,11 @@ Content-Type: application/json
 
 [
   {
-    "id": "green",
-    "name": "Green"
-  },
-  {
     "id": "standard",
     "name": "Standard"
+  },
+  {
+    "id": "green",
+    "name": "Green"
   }
 ]
