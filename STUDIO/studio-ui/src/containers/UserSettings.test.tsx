@@ -197,6 +197,21 @@ describe('UserSettings', () => {
         expect(screen.getByLabelText('users:settings.override_with_studio_theme')).toBeChecked()
     })
 
+    it('sets the table theme and its override apart as experimental settings', async () => {
+        renderSettings()
+
+        const experimental = await screen.findByText('users:settings.experimental')
+        const testing = screen.getByText('users:settings.testing_settings')
+        for (const label of ['users:settings.table_theme', 'users:settings.override_with_studio_theme']) {
+            const field = screen.getByLabelText(label)
+            expect(experimental.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+            expect(field.compareDocumentPosition(testing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+        }
+        // The other table settings stay above the experimental ones.
+        const formulas = screen.getByLabelText('users:settings.show_formulas')
+        expect(formulas.compareDocumentPosition(experimental) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
     it('tells that the table theme and its override change only what the screen shows', async () => {
         renderSettings()
 

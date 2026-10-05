@@ -127,7 +127,7 @@ To manage personal settings, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **My Settings**.
 
-    ![My Settings page with the Table Settings, Testing Settings and Trace Settings sections](images/user-settings-form.png "My Settings page")
+    ![My Settings page with the Table Settings section and its experimental settings, and the Testing Settings and Trace Settings sections](images/user-settings-form.png "My Settings page")
 
     *My Settings page*
 
@@ -135,17 +135,18 @@ To manage personal settings, proceed as follows:
 
     -   **Show Header** — display the table header row.
     -   **Show Formulas** — display MS Excel formulas in table cells.
-    -   **Table Theme** — how the tables are drawn while they are viewed: every table but a table of the type
-        **Other**. The default, **Excel Formatting**, draws them with the formatting of the Excel file. A table theme
-        draws them with the theme. A table being edited is drawn as the file holds it. For more information on themes,
-        see [Appendix E: Table Themes](appendices/table-themes.md).
-    -   **Override with Studio theme** — draw the tables in the look of the OpenL Studio theme in place of the table
-        theme, so that in the dark appearance they are dark too. The **Standard** theme of OpenL Studio draws them
-        with the **Standard** table theme, in its own colours in the light appearance and in dark colours in the dark
-        one: the table theme decides which text is bold, which lines are drawn and how the text is aligned, and the
-        text takes the font of OpenL Studio. The other themes of OpenL Studio have no look for the tables, so under
-        them the tables are drawn as **Table Theme** selects. Like the theme of OpenL Studio, the choice is remembered
-        by the browser rather than in the user profile.
+    -   **Experimental** — the settings of the table themes, an experimental feature:
+        -   **Table Theme** — how the tables are drawn while they are viewed: every table but a table of the type
+            **Other**. The default, **Excel Formatting**, draws them with the formatting of the Excel file. A table
+            theme draws them with the theme. A table being edited is drawn as the file holds it. For more information
+            on themes, see [Appendix E: Table Themes](appendices/table-themes.md).
+        -   **Override with Studio theme** — draw the tables in the look of the OpenL Studio theme in place of the
+            table theme, so that in the dark appearance they are dark too. The **Standard** theme of OpenL Studio
+            draws them with the **Standard** table theme, in its own colours in the light appearance and in dark
+            colours in the dark one: the table theme decides which text is bold, which lines are drawn and how the
+            text is aligned, and the text takes the font of OpenL Studio. The other themes of OpenL Studio have no
+            look for the tables, so under them the tables are drawn as **Table Theme** selects. Like the theme of
+            OpenL Studio, the choice is remembered by the browser rather than in the user profile.
 
     > [!Note]
     > **Table Theme** and **Override with Studio theme** are view only: they change how the tables are shown on the

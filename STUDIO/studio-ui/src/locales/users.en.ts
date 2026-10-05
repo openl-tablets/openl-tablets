@@ -54,6 +54,7 @@ i18next.addResourceBundle('en', 'users', {
         table_settings: 'Table Settings',
         show_header: 'Show Header',
         show_formulas: 'Show Formulas',
+        experimental: 'Experimental',
         table_theme: 'Table Theme',
         table_theme_info: 'View only: changes how the tables are shown on the screen. The Excel files and the '
             + 'projects are not changed.',

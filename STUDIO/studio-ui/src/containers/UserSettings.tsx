@@ -97,6 +97,8 @@ export const UserSettings: React.FC = () => {
             <Divider titlePlacement="start">{t('users:settings.table_settings')}</Divider>
             <Checkbox label={t('users:settings.show_header')} name="showHeader" />
             <Checkbox label={t('users:settings.show_formulas')} name="showFormulas" />
+            {/* The table themes are experimental, so their settings stand apart under a heading of their own. */}
+            <Divider dashed plain titlePlacement="start">{t('users:settings.experimental')}</Divider>
             <Select
                 label={t('users:settings.table_theme')}
                 name="tableTheme"
