@@ -38,12 +38,13 @@ class TableThemeServiceTest {
         var theme = service.theme("default");
         var datatype = theme.lookOf(theme.datatype());
         var spreadsheet = theme.lookOf(theme.spreadsheet());
+        var rules = theme.lookOf(theme.rules());
+        var test = theme.lookOf(theme.test());
 
-        // The signature, the properties and the closing line come from the base; the fill of the header and the
-        // field names are the Datatype's own.
-        assertEquals("#b4c6e7", datatype.header().style().background());
-        assertNull(spreadsheet.header().style().background(), "The base leaves the header unfilled");
-        assertEquals(datatype.header().name(), spreadsheet.header().name(), "Every kind of table is signed alike");
+        // The signature, the properties and the closing line come from the base; the field names are the Datatype's
+        // own.
+        assertNull(datatype.header().style().background(), "The base leaves the header unfilled");
+        assertEquals(datatype.header(), spreadsheet.header(), "Every kind of table is signed alike");
         assertEquals(datatype.properties(), spreadsheet.properties(),
                 "Every kind of table closes its properties alike");
         assertEquals(ThemeLineStyle.THIN, spreadsheet.properties().border().bottom().style());
@@ -51,6 +52,13 @@ class TableThemeServiceTest {
         assertEquals("Franklin Gothic Book", datatype.style().fontFamily());
         assertEquals("#ddebf7", datatype.name().background());
         assertNull(theme.lookOf(theme.vocabulary()).name(), "A Vocabulary has no column of field names");
+        // The parts the kinds share are written once in the base: a Rules and a Test table title what they take and
+        // what they give alike, while a Spreadsheet titles its formulas as what a table gives.
+        assertEquals(rules.titles(), test.titles());
+        assertEquals(rules.returnTitles(), test.returnTitles());
+        assertEquals(rules.returnTitles().background(), spreadsheet.titles().background());
+        assertEquals(Boolean.TRUE, spreadsheet.titles().bold());
+        assertEquals(rules.code(), theme.lookOf(theme.tbasic()).code());
     }
 
     @Test
@@ -110,12 +118,12 @@ class TableThemeServiceTest {
                     id + ": a TBasic table looks like a Spreadsheet");
             assertEquals(rules.code(), tbasic.code(), id + ": its column ids look like the code of a Rules table");
             assertNull(tbasic.condition(), id + ": its conditions keep the look every cell starts from");
-            assertEquals(List.of(rules.code(), rules.titles(), rules.values(), rules.returnTitles(), rules.groups()),
-                    List.of(columnMatch.code(), columnMatch.titles(), columnMatch.values(), columnMatch.returnTitles(),
-                            columnMatch.groups()),
+            assertEquals(List.of(rules.code(), rules.titles(), rules.returnTitles(), rules.groups()),
+                    List.of(columnMatch.code(), columnMatch.titles(), columnMatch.returnTitles(), columnMatch.groups()),
                     id + ": a ColumnMatch table looks like a Rules table");
-            // A line after the names it checks, and between the values it returns.
+            // A line after the names it checks, and between the columns of its values.
             assertEquals(ThemeLineStyle.THIN, columnMatch.name().border().right().style(), id);
+            assertEquals(ThemeLineStyle.THIN, columnMatch.values().border().right().style(), id);
             assertEquals(rules.returns().background(), columnMatch.returns().background(), id);
             assertEquals(ThemeLineStyle.THIN, columnMatch.returns().border().right().style(), id);
             assertEquals(theme.base(), theme.lookOf(theme.method()), id + ": a Method table takes the base alone");
@@ -123,7 +131,7 @@ class TableThemeServiceTest {
     }
 
     @Test
-    void theThemesOfStudioSignEveryKindOfTableAlikeAndFillTheHeaderOfADatatype() {
+    void theThemesOfStudioSignEveryKindOfTableAlike() {
         for (var id : List.of("default", "green")) {
             var theme = service.theme(id);
             var datatype = theme.lookOf(theme.datatype()).header();
@@ -134,9 +142,12 @@ class TableThemeServiceTest {
                     List.of(spreadsheet.keyword(), spreadsheet.name(), spreadsheet.type(), spreadsheet.parameters()),
                     id + ": every piece of the signature is the one of the base");
             assertEquals(datatype.style().withBackground(null), spreadsheet.style(),
-                    id + ": only the fill of the header is a Datatype's own");
+                    id + ": at most the fill of the header is a Datatype's own");
             assertNull(spreadsheet.style().background(), id);
         }
+        var green = service.theme("green");
+        assertEquals("#c6e0b4", green.lookOf(green.datatype()).header().style().background(),
+                "The green theme fills the header of a Datatype");
     }
 
     @Test

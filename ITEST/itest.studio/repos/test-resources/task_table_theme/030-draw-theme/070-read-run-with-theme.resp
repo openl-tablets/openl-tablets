@@ -13,7 +13,8 @@ Content-Type: application/json
         "cell": "B42",
         "value": "Run Premium PremiumRun",
         "style": {
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -81,7 +82,8 @@ Content-Type: application/json
         "value": "person",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -94,7 +96,14 @@ Content-Type: application/json
         "value": ">people",
         "style": {
           "color": "#808080",
-          "valign": "top",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
           "source": "theme"
@@ -106,9 +115,9 @@ Content-Type: application/json
         "cell": "B45",
         "value": "Insured",
         "style": {
-          "background": "#ddebf7",
+          "background": "#bfbfbf",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
@@ -121,9 +130,8 @@ Content-Type: application/json
         "cell": "B46",
         "value": "Ann",
         "style": {
-          "background": "#fff2cc",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "bold": true,
           "border": {
             "bottom": {

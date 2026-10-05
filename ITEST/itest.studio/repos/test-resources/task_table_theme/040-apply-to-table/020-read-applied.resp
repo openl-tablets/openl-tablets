@@ -14,9 +14,8 @@ Content-Type: application/json
         "value": "Datatype Person",
         "colspan": 3,
         "style": {
-          "background": "#b4c6e7",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -59,7 +58,8 @@ Content-Type: application/json
         "cell": "B3",
         "value": "String",
         "style": {
-          "valign": "top"
+          "color": "#808080",
+          "valign": "center"
         }
       },
       {
@@ -67,15 +67,15 @@ Content-Type: application/json
         "value": "name",
         "style": {
           "background": "#ddebf7",
-          "valign": "top"
+          "valign": "center"
         }
       },
       {
         "cell": "D3",
         "value": "Bob",
         "style": {
-          "align": "center",
-          "valign": "top"
+          "color": "#808080",
+          "valign": "center"
         }
       }
     ],
@@ -84,7 +84,8 @@ Content-Type: application/json
         "cell": "B4",
         "value": "Double",
         "style": {
-          "valign": "top"
+          "color": "#808080",
+          "valign": "center"
         }
       },
       {
@@ -92,14 +93,14 @@ Content-Type: application/json
         "value": "rate",
         "style": {
           "background": "#ddebf7",
-          "valign": "top"
+          "valign": "center"
         }
       },
       {
         "cell": "D4",
         "style": {
-          "align": "center",
-          "valign": "top"
+          "color": "#808080",
+          "valign": "center"
         }
       }
     ],
@@ -108,7 +109,8 @@ Content-Type: application/json
         "cell": "B5",
         "value": "Integer",
         "style": {
-          "valign": "top",
+          "color": "#808080",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -122,7 +124,7 @@ Content-Type: application/json
         "value": "age",
         "style": {
           "background": "#ddebf7",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -134,8 +136,8 @@ Content-Type: application/json
       {
         "cell": "D5",
         "style": {
-          "align": "center",
-          "valign": "top",
+          "color": "#808080",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",

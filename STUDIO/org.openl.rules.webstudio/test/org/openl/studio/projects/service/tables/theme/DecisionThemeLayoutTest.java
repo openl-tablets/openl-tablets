@@ -39,7 +39,7 @@ class DecisionThemeLayoutTest {
     private static final String WHITE = "#ffffff";
     private static final String BLACK = "#000000";
     private static final String MUTED = "#808080";
-    private static final String TITLE = "#d0cece";
+    private static final String TITLE = "#bfbfbf";
     private static final String HORIZONTAL = "#b4c6e7";
     private static final String RETURN_TITLE = "#b4c6e7";
     private static final String RETURN = "#ddebf7";
@@ -141,26 +141,30 @@ class DecisionThemeLayoutTest {
             assertEquals(Boolean.TRUE, layout.at(titles, column).style().bold());
         }
         assertEquals(RETURN_TITLE, layout.at(titles, 4).style().background());
-        // The names of the rules and the values of the conditions, a line between their columns, then the returns.
+        // The names of the rules and the values of the conditions, then the returns, all on the left with no line
+        // between their columns.
         var rule = GREET_ROW + 5;
         assertEquals(WHITE, layout.at(rule, 1).style().background());
-        assertEquals(ThemeHorizontalAlign.CENTER, layout.at(rule, 1).style().align());
-        assertEquals(ThemeLineStyle.THIN, layout.at(rule, 3).style().border().right().style());
+        assertEquals(ThemeHorizontalAlign.LEFT, layout.at(rule, 1).style().align());
+        assertEquals(ThemeLineStyle.NONE, right(layout.at(rule, 3)));
         assertEquals(RETURN, layout.at(rule, 4).style().background());
-        assertEquals(ThemeLineStyle.NONE, layout.at(rule, 4).style().border().right().style());
+        assertEquals(ThemeHorizontalAlign.LEFT, layout.at(rule, 4).style().align());
+        assertEquals(ThemeLineStyle.NONE, right(layout.at(rule, 4)));
     }
 
     @Test
     void setsAGroupOfRulesApartWithALine() {
         var layout = layoutOf(GREET);
 
-        // The first condition is merged over the first two rules: a line goes over them and over the rule after them.
+        // The first condition is merged over the first two rules: a line goes over the rule after them. The first
+        // rule draws none above it, under the titles, and a Rules table draws none between its rules.
         for (var column = 1; column <= 4; column++) {
-            assertEquals(ThemeLineStyle.THIN, top(layout.at(GREET_ROW + 5, column)));
+            assertEquals(ThemeLineStyle.NONE, top(layout.at(GREET_ROW + 5, column)));
             assertEquals(ThemeLineStyle.THIN, top(layout.at(GREET_ROW + 7, column)));
         }
-        assertEquals(ThemeLineStyle.NONE, top(layout.at(GREET_ROW + 6, 1)), "No line inside the group");
-        assertEquals(ThemeLineStyle.NONE, top(layout.at(GREET_ROW + 6, 4)));
+        for (var column : List.of(1, 3, 4)) {
+            assertEquals(ThemeLineStyle.NONE, top(layout.at(GREET_ROW + 6, column)), "No line inside the group");
+        }
     }
 
     @Test
@@ -190,17 +194,15 @@ class DecisionThemeLayoutTest {
         // The line that closes the code stands on the right of its last column.
         assertEquals(ThemeLineStyle.THIN, right(layout.at(hour, 3)));
         assertEquals(ThemeLineStyle.NONE, right(layout.at(hour, 2)));
-        // The lines between the conditions run between their rows.
-        assertEquals(ThemeLineStyle.THIN, bottom(layout.at(day, 4)));
-        assertEquals(ThemeLineStyle.THIN, bottom(layout.at(hour, 7)));
-        assertEquals(ThemeLineStyle.NONE, right(layout.at(hour, 6)));
-        // The first condition is merged over the first two rules: lines on the left of them and of the rule after them.
+        // The first condition is merged over the first two rules: a line on the left of the rule after them, and none
+        // on the left of the first rule, beside the titles.
         for (var row = day; row <= GREET_ROUND_ROW + 3; row++) {
-            assertEquals(ThemeLineStyle.THIN, left(layout.at(row, 5)));
+            assertEquals(ThemeLineStyle.NONE, left(layout.at(row, 5)));
             assertEquals(ThemeLineStyle.THIN, left(layout.at(row, 7)));
         }
         assertEquals(ThemeLineStyle.NONE, left(layout.at(hour, 6)), "No line inside the group");
-        assertEquals(ThemeLineStyle.NONE, top(layout.at(hour, 5)), "The line over a group turns with the table");
+        assertEquals(ThemeLineStyle.NONE, top(layout.at(hour, 7)), "The line over a group turns with the table");
+        assertEquals(ThemeLineStyle.NONE, bottom(layout.at(day, 6)), "No line between the conditions");
     }
 
     @Test
@@ -211,9 +213,11 @@ class DecisionThemeLayoutTest {
         assertEquals(RETURN_TITLE, layout.at(GREETING_ROW + 1, 2).style().background());
         assertEquals(WHITE, layout.at(GREETING_ROW + 2, 1).style().background());
         assertEquals(RETURN, layout.at(GREETING_ROW + 2, 2).style().background());
-        // A rule written over two rows, with every value of it merged over both, is one rule, not a group.
+        // A rule written over two rows, with every value of it merged over both, is one rule, not a group: the rule
+        // after it is set apart by the fine line between the rules.
         assertEquals(ThemeLineStyle.NONE, top(layout.at(GREETING_ROW + 2, 1)));
-        assertEquals(ThemeLineStyle.NONE, top(layout.at(GREETING_ROW + 4, 2)));
+        assertEquals(ThemeLineStyle.HAIR, top(layout.at(GREETING_ROW + 4, 1)));
+        assertEquals(ThemeLineStyle.HAIR, top(layout.at(GREETING_ROW + 4, 2)));
     }
 
     @Test
@@ -227,7 +231,8 @@ class DecisionThemeLayoutTest {
         assertEquals(RETURN_TITLE, layout.at(titles, 3).style().background());
         assertEquals(RETURN_TITLE, layout.at(titles, 4).style().background());
         assertEquals(WHITE, layout.at(titles + 1, 1).style().background());
-        assertEquals(ThemeLineStyle.THIN, layout.at(titles + 1, 1).style().border().right().style());
+        assertEquals(ThemeLineStyle.NONE, right(layout.at(titles + 1, 1)));
+        assertEquals(ThemeLineStyle.HAIR, top(layout.at(titles + 2, 1)), "A fine line between the rules");
         assertEquals(RETURN, layout.at(titles + 1, 3).style().background());
         assertEquals(RETURN, layout.at(titles + 1, 4).style().background());
     }
@@ -236,36 +241,70 @@ class DecisionThemeLayoutTest {
     void givesTheHorizontalConditionOfALookupTheHorizontalLook() {
         var layout = layoutOf(RATE);
 
-        // The titles of the vertical conditions stand beside the values of the horizontal one.
+        // The titles of the vertical conditions stand beside the values of the horizontal one, a line after each.
         assertEquals(TITLE, layout.at(RATE_ROW + 1, 1).style().background());
         assertEquals(TITLE, layout.at(RATE_ROW + 1, 2).style().background());
+        assertEquals(ThemeLineStyle.THIN, right(layout.at(RATE_ROW + 1, 1)));
+        assertEquals(ThemeLineStyle.THIN, right(layout.at(RATE_ROW + 1, 2)));
         var horizontal = layout.at(RATE_ROW + 1, 3).style();
         assertEquals(HORIZONTAL, horizontal.background());
         assertEquals(Boolean.TRUE, horizontal.bold());
-        assertEquals(ThemeLineStyle.THIN, horizontal.border().bottom().style());
-        // The values the lookup returns stand where the conditions meet.
+        assertEquals(ThemeLineStyle.THIN, horizontal.border().top().style());
+        // A fine line between the columns, but on the left of the first: the conditions close it.
+        assertEquals(ThemeLineStyle.NONE, horizontal.border().left().style());
+        assertEquals(ThemeLineStyle.HAIR, left(layout.at(RATE_ROW + 1, 4)));
+        // The values the lookup returns stand where the conditions meet, lined as the horizontal values are.
         assertEquals(WHITE, layout.at(RATE_ROW + 2, 2).style().background());
+        assertEquals(ThemeLineStyle.THIN, right(layout.at(RATE_ROW + 2, 2)));
         assertEquals(RETURN, layout.at(RATE_ROW + 2, 3).style().background());
         assertEquals(RETURN, layout.at(RATE_ROW + 4, 4).style().background());
-        // The first vertical condition is merged over two rules, which makes them a group.
-        assertEquals(ThemeLineStyle.THIN, top(layout.at(RATE_ROW + 2, 3)));
-        assertEquals(ThemeLineStyle.NONE, top(layout.at(RATE_ROW + 3, 3)));
+        assertEquals(ThemeLineStyle.NONE, left(layout.at(RATE_ROW + 2, 3)));
+        assertEquals(ThemeLineStyle.HAIR, left(layout.at(RATE_ROW + 2, 4)));
+        // The first vertical condition is merged over two rules, which makes them a group: a line over the rule after
+        // it, a fine line between its rules, and none over the first rule.
+        assertEquals(ThemeLineStyle.NONE, top(layout.at(RATE_ROW + 2, 3)));
+        assertEquals(ThemeLineStyle.HAIR, top(layout.at(RATE_ROW + 3, 3)));
         assertEquals(ThemeLineStyle.THIN, top(layout.at(RATE_ROW + 4, 3)));
+        assertEquals(ThemeLineStyle.THIN, top(layout.at(RATE_ROW + 4, 2)));
     }
 
     @Test
     void givesEveryRowOfHorizontalConditionsTheHorizontalLook() {
         var layout = layoutOf(FACTOR);
 
-        // The title of the vertical condition is merged down over both rows of horizontal conditions.
+        // The title of the vertical condition is merged down over both rows of horizontal conditions, its text in the
+        // middle of them.
         assertEquals(TITLE, layout.at(FACTOR_ROW + 1, 1).style().background());
         assertEquals(TITLE, layout.at(FACTOR_ROW + 2, 1).style().background());
+        assertEquals(ThemeLineStyle.THIN, right(layout.at(FACTOR_ROW + 2, 1)));
+        assertEquals(ThemeVerticalAlign.CENTER, layout.at(FACTOR_ROW + 1, 1).style().valign());
         for (var column = 2; column <= 5; column++) {
             assertEquals(HORIZONTAL, layout.at(FACTOR_ROW + 1, column).style().background());
             assertEquals(HORIZONTAL, layout.at(FACTOR_ROW + 2, column).style().background());
+            assertEquals(ThemeLineStyle.THIN, top(layout.at(FACTOR_ROW + 2, column)), "A line between their rows");
             assertEquals(RETURN, layout.at(FACTOR_ROW + 3, column).style().background());
         }
         assertEquals(WHITE, layout.at(FACTOR_ROW + 3, 1).style().background());
+    }
+
+    @Test
+    void setsTheColumnsAValueOfAHorizontalConditionIsMergedOverApart() {
+        var layout = layoutOf(FACTOR);
+
+        // The first year is merged over the first two columns, the second year over the next two: a line on the left
+        // of the second group, down the rows of horizontal conditions and the values. The first group stands beside
+        // the conditions, which close it.
+        for (var row = FACTOR_ROW + 1; row <= FACTOR_ROW + 4; row++) {
+            assertEquals(ThemeLineStyle.THIN, left(layout.at(row, 4)), "row " + row);
+            assertEquals(ThemeLineStyle.NONE, left(layout.at(row, 2)), "row " + row);
+        }
+        // Inside a group, a fine line stands between the columns.
+        for (var row = FACTOR_ROW + 2; row <= FACTOR_ROW + 4; row++) {
+            assertEquals(ThemeLineStyle.HAIR, left(layout.at(row, 3)), "row " + row);
+            assertEquals(ThemeLineStyle.HAIR, left(layout.at(row, 5)), "row " + row);
+        }
+        assertEquals(ThemeLineStyle.NONE, top(layout.at(FACTOR_ROW + 3, 2)), "No line over the first rule");
+        assertEquals(ThemeLineStyle.HAIR, top(layout.at(FACTOR_ROW + 4, 2)));
     }
 
     @Test
@@ -302,8 +341,13 @@ class DecisionThemeLayoutTest {
         assertEquals(TITLE, written.get(4).get(1).style().background());
         assertEquals(RETURN, written.get(5).get(3).style().background());
         try (var in = Files.newInputStream(dir.resolve(SHEET + ".xlsx")); var workbook = new XSSFWorkbook(in)) {
-            var first = workbook.getSheet(SHEET).getRow(GREET_ROW + 5).getCell(1);
-            assertEquals(BorderStyle.THIN, first.getCellStyle().getBorderTop(), "The line over the group");
+            var sheet = workbook.getSheet(SHEET);
+            assertEquals(BorderStyle.NONE, sheet.getRow(GREET_ROW + 5).getCell(1).getCellStyle().getBorderTop(),
+                    "No line over the first rule");
+            assertEquals(BorderStyle.NONE, sheet.getRow(GREET_ROW + 6).getCell(1).getCellStyle().getBorderTop(),
+                    "No line inside the group");
+            assertEquals(BorderStyle.THIN, sheet.getRow(GREET_ROW + 7).getCell(1).getCellStyle().getBorderTop(),
+                    "The line over the rule after the group");
         }
     }
 
@@ -336,14 +380,13 @@ class DecisionThemeLayoutTest {
         var layout = layoutAt(CONDITIONS_ROW);
         var titles = CONDITIONS_ROW + 4;
 
-        // The keyword of the row takes the look of the titles it names, and a line stands between the conditions.
+        // The keyword of the row takes the look of the titles it names, the merged title of the first condition too.
         for (var column = 1; column <= 4; column++) {
             assertEquals(TITLE, layout.at(titles, column).style().background(), "column " + column);
             assertEquals(Boolean.TRUE, layout.at(titles, column).style().bold());
+            assertEquals(ThemeHorizontalAlign.CENTER, layout.at(titles, column).style().align());
             assertEquals(ThemeLineStyle.THIN, bottom(layout.at(titles, column)), "The last row closes the table");
         }
-        assertEquals(ThemeLineStyle.THIN, right(layout.at(titles, 1)));
-        assertEquals(ThemeLineStyle.THIN, right(layout.at(titles, 3)), "The merged title of the first condition");
         assertEquals(BLACK, layout.at(titles, 2).style().color());
     }
 
@@ -373,12 +416,12 @@ class DecisionThemeLayoutTest {
             assertEquals(ThemeLineStyle.NONE, right(layout.at(row, 2)));
             assertEquals(ThemeLineStyle.THIN, right(layout.at(row, 3)));
         }
-        // The titles are a column, and the line between the conditions runs between their rows.
+        // The titles are a column.
         for (var row = HOURS_ROW + 1; row <= HOURS_ROW + 3; row++) {
             assertEquals(TITLE, layout.at(row, 4).style().background());
-            assertEquals(ThemeLineStyle.THIN, bottom(layout.at(row, 4)));
             assertEquals(ThemeLineStyle.NONE, right(layout.at(row, 4)));
         }
+        assertEquals(ThemeLineStyle.NONE, bottom(layout.at(HOURS_ROW + 2, 4)), "No line between the conditions");
         assertEquals(ThemeLineStyle.NONE, bottom(layout.at(HOURS_ROW + 1, 2)), "No line between the conditions");
         assertEquals(ThemeLineStyle.THIN, bottom(layout.at(HOURS_ROW + 3, 2)), "The last row closes the table");
     }

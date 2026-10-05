@@ -31,7 +31,7 @@ class ColumnMatchThemeLayoutTest {
     /** The looks the default theme gives the places of a ColumnMatch table. */
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
-    private static final String TITLE = "#d0cece";
+    private static final String TITLE = "#bfbfbf";
     private static final String RETURN_TITLE = "#b4c6e7";
     private static final String RETURNED = "#ddebf7";
 

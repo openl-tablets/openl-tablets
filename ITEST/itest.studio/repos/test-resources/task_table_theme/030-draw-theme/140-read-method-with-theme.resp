@@ -14,7 +14,7 @@ Content-Type: application/json
         "value": "Method Integer Answer()",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -90,7 +90,7 @@ Content-Type: application/json
         "cell": "B39",
         "value": "return 42;",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",

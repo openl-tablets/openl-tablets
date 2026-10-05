@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.write;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,6 +38,7 @@ import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawCellStyleInput;
+import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
@@ -179,7 +181,8 @@ class RawTableWriterTest {
         apply(new RawTableSourceAction.Theme("default"));
 
         var source = reloadStyled(mainProject);
-        assertEquals("#b4c6e7", styleOf(source, 0, 0).background());
+        assertNotNull(styleOf(source, 0, 0).border().bottom(), "The header is closed by a line");
+        assertEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 0, 0).align());
         assertEquals("#ddebf7", styleOf(source, 1, 1).background(), "The field names take the look of their column");
         assertNull(styleOf(source, 2, 0).border(), "A row before the last is not closed");
         assertNotNull(styleOf(source, 3, 0).border().bottom(), "The last row is closed");
@@ -242,9 +245,10 @@ class RawTableWriterTest {
 
         var source = reloadStyled(rules);
         // The rule added in the same change is a rule like the others, and the line closing the table is under it.
+        // The rule last before the change is closed no more: the fine line between the rules stands under it.
         assertEquals("#ddebf7", styleOf(source, 3, 1).background());
-        assertNotNull(styleOf(source, 3, 0).border().bottom());
-        assertNull(styleOf(source, 2, 0).border().bottom(), "The rule last before the change is closed no more");
+        assertEquals(RawTableBorderLineStyle.SOLID, styleOf(source, 3, 0).border().bottom().style());
+        assertEquals(RawTableBorderLineStyle.DOTTED, styleOf(source, 2, 0).border().bottom().style());
     }
 
     @Test
@@ -265,9 +269,9 @@ class RawTableWriterTest {
         var source = reloadStyled(rules);
         // The column inserted is not compiled yet: it takes the white of the base, read as no fill of its own. The
         // columns after it keep the looks of their parts.
-        assertEquals("#d0cece", styleOf(source, 4, 0).background());
+        assertEquals("#bfbfbf", styleOf(source, 4, 0).background());
         assertNull(styleOf(source, 4, 1).background());
-        assertEquals("#d0cece", styleOf(source, 4, 2).background(), "The title of the condition that moved right");
+        assertEquals("#bfbfbf", styleOf(source, 4, 2).background(), "The title of the condition that moved right");
         assertEquals("#b4c6e7", styleOf(source, 4, 3).background(), "The title of what the table returns");
         assertEquals("#ddebf7", styleOf(source, 5, 3).background());
     }
@@ -290,7 +294,7 @@ class RawTableWriterTest {
         // The code moved up a row with the rest: its first row is muted and its last row closes it.
         assertEquals("#808080", styleOf(source, 1, 0).color());
         assertNotNull(styleOf(source, 3, 0).border().bottom());
-        assertEquals("#d0cece", styleOf(source, 4, 0).background(), "The title of the condition moved up");
+        assertEquals("#bfbfbf", styleOf(source, 4, 0).background(), "The title of the condition moved up");
         assertEquals("#ddebf7", styleOf(source, 5, 2).background(), "The value the rule returns");
     }
 
@@ -311,7 +315,7 @@ class RawTableWriterTest {
         // The parts moved up a row with the rest: the code is muted and closed by a line, and the titles under it.
         assertEquals("#808080", styleOf(source, 1, 1).color());
         assertNotNull(styleOf(source, 3, 1).border().bottom(), "The line that closes the code");
-        assertEquals("#d0cece", styleOf(source, 4, 1).background(), "The titles moved up");
+        assertEquals("#bfbfbf", styleOf(source, 4, 1).background(), "The titles moved up");
     }
 
     @Test
@@ -330,9 +334,11 @@ class RawTableWriterTest {
         // The note lays the properties down under the header, and the code moves down under them with its look.
         var source = reloadStyled(rules);
         assertEquals("modifiedBy", value(source, 1, 1));
-        assertNull(styleOf(source, 1, 0).color(), "The properties are not muted as the code is");
+        assertNotEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 1, 0).align(),
+                "The properties are not centred as the code is");
         assertNotNull(styleOf(source, 1, 2).border().bottom(), "The properties are closed by a line");
         assertEquals("#808080", styleOf(source, 2, 0).color(), "The first row of the code is muted");
+        assertEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 2, 0).align());
     }
 
     @Test

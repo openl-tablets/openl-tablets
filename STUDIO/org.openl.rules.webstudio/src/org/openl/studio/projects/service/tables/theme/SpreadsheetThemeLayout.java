@@ -3,7 +3,6 @@ package org.openl.studio.projects.service.tables.theme;
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetSymbols;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
@@ -21,10 +20,13 @@ import org.openl.rules.table.ILogicalTable;
  * it for a step with no value. It gets the section look over the step look. A step or a column whose name ends with
  * {@code *} is marked for the result of the Spreadsheet, and gets the marked look over its own.
  *
- * <p>A Spreadsheet that returns a type other than {@code SpreadsheetResult} returns the value of one step: the step
- * named {@code RETURN}, or else the last step. That step gets the result look over its own, and so does a column named
- * {@code RETURN}, which the compiler takes in its place. The steps are told as the compiler tells them from the text of
- * the table, so a table being edited is themed before it is compiled.
+ * <p>A Spreadsheet that returns a value returns the value of one step: the step named {@code RETURN}, or else the last
+ * step. Its name gets the result look over its own, and every cell of its row the result row look: a line it draws
+ * above or below goes round the step, however many rows of the sheet the step takes. A Spreadsheet returning
+ * {@code SpreadsheetResult} returns every step, and its last step closes the calculation: it is themed as the result
+ * too. A column named {@code RETURN}, which the compiler takes in place of a step, gets the result look over its
+ * title. The steps are told as the compiler tells them from the text of the table, so a table being edited is themed
+ * before it is compiled.
  */
 final class SpreadsheetThemeLayout {
 
@@ -63,9 +65,12 @@ final class SpreadsheetThemeLayout {
      * @param section      the look of a step heading a section
      * @param value        the look of the value of a step
      * @param marked       the look laid over a name marked for the result
-     * @param result       the look laid over the name of the step whose value the Spreadsheet returns
+     * @param result       the look laid over the name of the step the Spreadsheet returns
+     * @param resultRow    the look laid over every cell of the row of the step the Spreadsheet returns
      * @param stepsEnd     the last column of the sheet the column of steps takes
-     * @param resultRow    the row of the body holding the step whose value the Spreadsheet returns, if any
+     * @param resultStep   the row of the body holding the step the Spreadsheet returns, if any
+     * @param resultTop    the first row of the sheet the step the Spreadsheet returns takes
+     * @param resultBottom the last row of the sheet the step the Spreadsheet returns takes
      * @param resultColumn the column of the body named {@code RETURN}, if any
      */
     @Builder
@@ -76,8 +81,11 @@ final class SpreadsheetThemeLayout {
                           ThemeStyle value,
                           @Nullable ThemeStyle marked,
                           @Nullable ThemeStyle result,
+                          @Nullable ThemeStyle resultRow,
                           int stepsEnd,
-                          int resultRow,
+                          int resultStep,
+                          int resultTop,
+                          int resultBottom,
                           int resultColumn) implements ThemeLayouts.PlaceLook {
 
         /**
@@ -90,8 +98,10 @@ final class SpreadsheetThemeLayout {
             var base = body.base();
             var look = body.look();
             var rows = body.rows();
-            var type = HeaderRuns.returnType(body.header());
-            var returnColumn = VOID.equals(type) ? NONE : returnColumnOf(rows);
+            var returns = !VOID.equals(HeaderRuns.returnType(body.header()));
+            var returnColumn = returns ? returnColumnOf(rows) : NONE;
+            var resultStep = returns && returnColumn == NONE ? resultStepOf(rows) : NONE;
+            var resultRows = resultStep == NONE ? null : rows.getRow(resultStep).getSource().getRegion();
             return Places.builder()
                     .title(base.with(look.titles()))
                     .stepTitle(base.with(look.titles()).with(look.stepTitle()))
@@ -100,8 +110,11 @@ final class SpreadsheetThemeLayout {
                     .value(base.with(look.values()))
                     .marked(look.marked())
                     .result(look.result())
+                    .resultRow(look.resultRow())
                     .stepsEnd(rows.getCell(0, 0).getAbsoluteRegion().getRight())
-                    .resultRow(VOID.equals(type) || returnColumn != NONE ? NONE : resultRowOf(rows, type))
+                    .resultStep(resultStep)
+                    .resultTop(resultRows == null ? NONE : resultRows.getTop())
+                    .resultBottom(resultRows == null ? NONE : resultRows.getBottom())
                     .resultColumn(returnColumn)
                     .build();
         }
@@ -113,11 +126,11 @@ final class SpreadsheetThemeLayout {
                 return column == 0 ? stepTitle : resultIf(markedIf(title, cell), column == resultColumn);
             }
             if (column > 0) {
-                return value;
+                return resultRowIf(value, cell, row);
             }
             // A step name merged over the values of its row heads a section.
             var name = cell.getAbsoluteRegion().getRight() > stepsEnd ? section : step;
-            return resultIf(markedIf(name, cell), row == resultRow);
+            return resultRowIf(resultIf(markedIf(name, cell), row == resultStep), cell, row);
         }
 
         private ThemeStyle markedIf(ThemeStyle style, ICell cell) {
@@ -127,20 +140,29 @@ final class SpreadsheetThemeLayout {
         private ThemeStyle resultIf(ThemeStyle style, boolean returned) {
             return returned ? style.with(result) : style;
         }
+
+        /**
+         * A look of a cell with the result row look laid over it in the row of the step the Spreadsheet returns, its
+         * lines above and below on the edges of the step only.
+         */
+        private ThemeStyle resultRowIf(ThemeStyle style, ICell cell, int row) {
+            if (row != resultStep || resultRow == null) {
+                return style;
+            }
+            var region = cell.getAbsoluteRegion();
+            return style.with(resultRow).atEdges(style, region.getTop() <= resultTop,
+                    region.getBottom() >= resultBottom);
+        }
     }
 
     /**
-     * The row of the step whose value a Spreadsheet returns, as the compiler finds it, for a Spreadsheet that returns a
-     * value and names no column {@code RETURN}.
+     * The row of the step a Spreadsheet returns, as the compiler finds it, for a Spreadsheet that returns a value and
+     * names no column {@code RETURN}: the step named {@code RETURN}, or else the last step. A row whose name is empty
+     * or describes the others is not a step.
      *
-     * <p>The step named {@code RETURN} is returned, or else the last step, unless the Spreadsheet returns
-     * {@code SpreadsheetResult}: then it returns the whole table. A row whose name is empty or describes the others is
-     * not a step.
-     *
-     * @param type the type the Spreadsheet returns
-     * @return the row of the body, or {@link #NONE} when the Spreadsheet returns no single step
+     * @return the row of the body, or {@link #NONE} for a body that has no step
      */
-    private static int resultRowOf(ILogicalTable body, String type) {
+    private static int resultStepOf(ILogicalTable body) {
         var last = NONE;
         for (var row = 1; row < body.getHeight(); row++) {
             var text = body.getCell(0, row).getStringValue();
@@ -149,12 +171,7 @@ final class SpreadsheetThemeLayout {
             }
             last = isStep(text) ? row : last;
         }
-        return returnsWholeTable(type) ? NONE : last;
-    }
-
-    /** Whether the type is the one a Spreadsheet returns every step of it as, by its simple name or its full one. */
-    private static boolean returnsWholeTable(String type) {
-        return SpreadsheetResult.class.getSimpleName().equals(type) || SpreadsheetResult.class.getName().equals(type);
+        return last;
     }
 
     /** The column of the body named {@code RETURN}, or {@link #NONE} for a body that has none. */

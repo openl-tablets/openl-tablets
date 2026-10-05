@@ -15,7 +15,7 @@ Content-Type: application/json
         "style": {
           "background": "#c6e0b4",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -65,7 +65,7 @@ Content-Type: application/json
         "value": "A",
         "style": {
           "align": "center",
-          "valign": "top"
+          "valign": "center"
         }
       }
     ],
@@ -75,7 +75,7 @@ Content-Type: application/json
         "value": "B",
         "style": {
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",

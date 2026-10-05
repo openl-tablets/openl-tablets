@@ -16,7 +16,7 @@ Content-Type: application/json
         "style": {
           "background": "#e7e6e6",
           "align": "center",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "top": {
               "style": "solid",
@@ -54,7 +54,7 @@ Content-Type: application/json
         "rowspan": 2,
         "style": {
           "background": "#f2f2f2",
-          "valign": "top",
+          "valign": "center",
           "border": {
             "right": {
               "style": "solid",
@@ -75,7 +75,7 @@ Content-Type: application/json
         "cell": "C50",
         "value": "java.util",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
@@ -97,7 +97,7 @@ Content-Type: application/json
         "cell": "C51",
         "value": "java.time",
         "style": {
-          "valign": "top",
+          "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
