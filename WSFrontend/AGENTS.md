@@ -6,8 +6,10 @@ Exposes compiled OpenL rules as REST web services. Stateless and horizontally sc
 
 **Core**:
 - **org.openl.rules.ruleservice** — Core service logic: `core/` (compilation, execution), `loader/` (rule loading), `management/` (lifecycle), `publish/` (service publishing), `conf/` (configuration)
-- **org.openl.rules.ruleservice.ws** — Web service layer: REST (`jaxrs/`), Kafka (`kafka/`), admin API (`admin/`), store log data (`storelogdata/`), servlets, Spring config
-- **org.openl.rules.ruleservice.ws.all** — Aggregate packaging module
+- **org.openl.rules.ruleservice.ws** — Web service layer: REST (`jaxrs/`), Kafka (`kafka/`), admin API (`admin/`), store log data (`storelogdata/`), servlets, Spring config.
+  Maven Central gets its jar, the library other projects use; its war is a GitHub release asset
+- **org.openl.rules.ruleservice.ws.all** — Aggregate packaging module. Its war is a GitHub release asset: the module
+  is installed into the local repository but never deployed
 - **org.openl.rules.ruleservice.deployer** — Hot-deploy rule artifacts
 
 **Annotations & common**:

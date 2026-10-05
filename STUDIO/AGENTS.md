@@ -42,7 +42,8 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 ## Submodules
 
 **Core application**:
-- **org.openl.rules.webstudio** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`)
+- **org.openl.rules.webstudio** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`).
+  Its war is a GitHub release asset: the module is installed into the local repository but never deployed
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
 - **studio-docs/** — packs `Docs/user-guides` into a jar the war serves at `/docs`; never deployed to a remote
   repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib` itself. Its tests validate the

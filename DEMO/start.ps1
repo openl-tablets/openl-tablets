@@ -22,6 +22,7 @@ $ErrorActionPreference = 'Stop'
 # -----------------------------------------------------------------------------------
 $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
+$RELEASES_URL = "https://github.com/openl-tablets/openl-tablets/releases/download"
 
 # JETTY_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
 # Enforced by `mvn validate -N`.
@@ -254,8 +255,8 @@ if ($OPENL_VERSION -eq "SNAPSHOT") {
 '@ | Set-Content (Join-Path $WEBAPPS_DIR "webservice.xml")
 
 } else {
-    Download-War "webstudio" "$MAVEN_URL/org/openl/rules/org.openl.rules.webstudio/$OPENL_VERSION/org.openl.rules.webstudio-$OPENL_VERSION.war"
-    Download-War "webservice" "$MAVEN_URL/org/openl/rules/org.openl.rules.ruleservice.ws/$OPENL_VERSION/org.openl.rules.ruleservice.ws-$OPENL_VERSION.war"
+    Download-War "webstudio" "$RELEASES_URL/$OPENL_VERSION/webstudio.war"
+    Download-War "webservice" "$RELEASES_URL/$OPENL_VERSION/webservice.war"
 }
 
 # Init Default repository
