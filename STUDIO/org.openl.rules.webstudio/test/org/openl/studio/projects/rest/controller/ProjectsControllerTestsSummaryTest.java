@@ -68,7 +68,6 @@ import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
-import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
@@ -117,7 +116,6 @@ class ProjectsControllerTestsSummaryTest {
                 objectMapperService,
                 mock(ProjectsMergeConflictsSessionHolder.class),
                 projectIdentifierMapper,
-                mock(ProjectStatusMapper.class),
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 mock(ProjectMetadataService.class),

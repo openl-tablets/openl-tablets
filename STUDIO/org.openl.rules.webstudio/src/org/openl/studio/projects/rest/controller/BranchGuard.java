@@ -10,8 +10,8 @@ import org.openl.util.StringUtils;
  * Asserts that a project is currently on the requested branch.
  *
  * <p>A blank branch is ignored. The files API operates on the project's checked-out branch;
- * the {@code branch} parameter lets a caller confirm it is acting on the branch it expects,
- * consistent with the project status endpoint. Switching branches is done separately.
+ * the {@code branch} parameter lets a caller confirm it is acting on the branch it expects.
+ * Switching branches is done separately.
  *
  * @author Yury Molchan
  */

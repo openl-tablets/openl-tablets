@@ -2,7 +2,7 @@ export { default as apiCall, ApiHttpError, NotFoundError, EmptyError, ForbiddenE
 export type { ApiCallOptions } from './apiCall'
 export { default as CONFIG } from './config'
 export { default as webSocketService } from './websocket'
-export { fetchProjectStatus, subscribeProjectStatus } from './projectStatus'
+export { subscribeProjectStatus } from './projectStatus'
 export type {
     ProjectStatusUpdate,
     ProjectStatusSubscription,

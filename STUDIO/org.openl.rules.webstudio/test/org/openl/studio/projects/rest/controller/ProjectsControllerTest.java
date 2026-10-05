@@ -63,7 +63,6 @@ import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
-import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
@@ -80,7 +79,7 @@ class ProjectsControllerTest {
     @Test
     void getProjectPassesIncludesToService() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var expected = mock(ProjectViewModel.class);
         var includes = List.of(ProjectInclude.STATUS, ProjectInclude.DESCRIPTOR);
@@ -95,7 +94,7 @@ class ProjectsControllerTest {
     @Test
     void updateProjectStatusKeepsSaveRequestWithoutGeneratedComment() throws ProjectException {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var request = ProjectStatusUpdateModel.builder()
                 .save(true)
@@ -113,7 +112,7 @@ class ProjectsControllerTest {
     @Test
     void deleteProjectDelegatesToHardDeleteService() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
 
         controller.deleteProject(project, "comment");
@@ -124,7 +123,7 @@ class ProjectsControllerTest {
     @Test
     void getModulesDelegatesToProjectService() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var expected = List.of(ModuleViewModel.module("Main", "rules/Main.xlsx"));
         when(projectService.getModules(project)).thenReturn(expected);
@@ -136,7 +135,7 @@ class ProjectsControllerTest {
     @Test
     void getModuleSheetsDelegatesToProjectService() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         when(projectService.getModuleSheets(project, "Main")).thenReturn(List.of("Rules", "Data"));
 
@@ -147,8 +146,7 @@ class ProjectsControllerTest {
     @Test
     void getPropertiesDelegatesToMetadataService() {
         var metadataService = mock(ProjectMetadataService.class);
-        var controller = controller(mock(WorkspaceProjectService.class), mock(ProjectStatusMapper.class),
-                metadataService);
+        var controller = controller(mock(WorkspaceProjectService.class), metadataService);
         var expected = List.of(new PropertyDefinitionView("state", "US States", "Business Dimension", "enum", true,
                 true, null, null, List.of(new PropertyValueView("AL", "Alabama"))));
         when(metadataService.getProperties("Rules")).thenReturn(expected);
@@ -160,7 +158,7 @@ class ProjectsControllerTest {
     @Test
     void createNewTableReadsTheResponseByTheWrittenTableId() throws ProjectException {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var table = RawTableView.builder()
                 .kind(TableKind.CONSTANTS)
@@ -186,7 +184,7 @@ class ProjectsControllerTest {
     @Test
     void copyTableReadsTheResponseByTheCopyName() throws ProjectException {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var request = new CopyTableRequest("Main", "Rules", null, "GreetingCopy", null);
         var expected = SummaryTableView.builder()
@@ -209,7 +207,7 @@ class ProjectsControllerTest {
     @Test
     void getTablePropertiesDelegatesToProjectService() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var expected = new TablePropertiesView("Greeting", TableKind.RULES, List.of(), null);
         when(projectService.getTableProperties(project, "table-id")).thenReturn(expected);
@@ -221,7 +219,7 @@ class ProjectsControllerTest {
     @Test
     void getTablesCarriesWhatTheTreeAsksForToTheQuery() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var page = Pageable.unpaged();
         var query = ArgumentCaptor.forClass(ProjectTableCriteriaQuery.class);
@@ -349,7 +347,6 @@ class ProjectsControllerTest {
                 mock(ProjectObjectMapperService.class),
                 mock(ProjectsMergeConflictsSessionHolder.class),
                 mock(ProjectIdentifierMapper.class),
-                mock(ProjectStatusMapper.class),
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 mock(ProjectMetadataService.class),
@@ -363,9 +360,8 @@ class ProjectsControllerTest {
         };
     }
 
-    private static ProjectsController controller(WorkspaceProjectService projectService,
-                                                 ProjectStatusMapper projectStatusMapper) {
-        return controller(projectService, projectStatusMapper, mock(ProjectMetadataService.class));
+    private static ProjectsController controller(WorkspaceProjectService projectService) {
+        return controller(projectService, mock(ProjectMetadataService.class));
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
@@ -378,30 +374,26 @@ class ProjectsControllerTest {
                                                  TestsExecutorService testsExecutorService,
                                                  ExecutionTestsResultRegistry testsResultRegistry,
                                                  SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
-        return controller(projectService, mock(ProjectStatusMapper.class), mock(ProjectMetadataService.class),
-                mock(TableInputService.class), mock(ProjectObjectMapperService.class), testsExecutorService,
-                testsResultRegistry, listeners);
+        return controller(projectService, mock(ProjectMetadataService.class), mock(TableInputService.class),
+                mock(ProjectObjectMapperService.class), testsExecutorService, testsResultRegistry, listeners);
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
-                                                 ProjectStatusMapper projectStatusMapper,
                                                  ProjectMetadataService metadataService) {
-        return controller(projectService, projectStatusMapper, metadataService, mock(TableInputService.class),
+        return controller(projectService, metadataService, mock(TableInputService.class),
                 mock(ProjectObjectMapperService.class));
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
-                                                 ProjectStatusMapper projectStatusMapper,
                                                  ProjectMetadataService metadataService,
                                                  TableInputService tableInputService,
                                                  ProjectObjectMapperService objectMapperService) {
-        return controller(projectService, projectStatusMapper, metadataService, tableInputService, objectMapperService,
+        return controller(projectService, metadataService, tableInputService, objectMapperService,
                 mock(TestsExecutorService.class), mock(ExecutionTestsResultRegistry.class),
                 mock(SocketProjectAllTestsExecutionProgressListenerFactory.class));
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
-                                                 ProjectStatusMapper projectStatusMapper,
                                                  ProjectMetadataService metadataService,
                                                  TableInputService tableInputService,
                                                  ProjectObjectMapperService objectMapperService,
@@ -417,7 +409,6 @@ class ProjectsControllerTest {
                 objectMapperService,
                 mock(ProjectsMergeConflictsSessionHolder.class),
                 mock(ProjectIdentifierMapper.class),
-                projectStatusMapper,
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 metadataService,
@@ -446,8 +437,8 @@ class ProjectsControllerTest {
         var projectService = mock(WorkspaceProjectService.class);
         var tableInputService = mock(TableInputService.class);
         var objectMapperService = mock(ProjectObjectMapperService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class),
-                mock(ProjectMetadataService.class), tableInputService, objectMapperService);
+        var controller = controller(projectService, mock(ProjectMetadataService.class), tableInputService,
+                objectMapperService);
         var project = mock(RulesProject.class);
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);
@@ -468,8 +459,8 @@ class ProjectsControllerTest {
         var projectService = mock(WorkspaceProjectService.class);
         var tableInputService = mock(TableInputService.class);
         var objectMapperService = mock(ProjectObjectMapperService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class),
-                mock(ProjectMetadataService.class), tableInputService, objectMapperService);
+        var controller = controller(projectService, mock(ProjectMetadataService.class), tableInputService,
+                objectMapperService);
         var project = mock(RulesProject.class);
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);
@@ -491,8 +482,8 @@ class ProjectsControllerTest {
         var projectService = mock(WorkspaceProjectService.class);
         var tableInputService = mock(TableInputService.class);
         var objectMapperService = mock(ProjectObjectMapperService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class),
-                mock(ProjectMetadataService.class), tableInputService, objectMapperService);
+        var controller = controller(projectService, mock(ProjectMetadataService.class), tableInputService,
+                objectMapperService);
         var project = mock(RulesProject.class);
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);
@@ -514,8 +505,8 @@ class ProjectsControllerTest {
         var projectService = mock(WorkspaceProjectService.class);
         var tableInputService = mock(TableInputService.class);
         var objectMapperService = mock(ProjectObjectMapperService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class),
-                mock(ProjectMetadataService.class), tableInputService, objectMapperService);
+        var controller = controller(projectService, mock(ProjectMetadataService.class), tableInputService,
+                objectMapperService);
         var project = mock(RulesProject.class);
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);
@@ -534,7 +525,7 @@ class ProjectsControllerTest {
     @Test
     void getTableInputCaseRejectsUnknownTable() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);
@@ -637,7 +628,7 @@ class ProjectsControllerTest {
     @Test
     void getTableInputRejectsUnknownTable() {
         var projectService = mock(WorkspaceProjectService.class);
-        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);

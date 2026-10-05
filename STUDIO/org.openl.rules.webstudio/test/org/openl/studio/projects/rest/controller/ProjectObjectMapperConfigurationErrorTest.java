@@ -40,7 +40,6 @@ import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
-import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
 import org.openl.studio.projects.service.run.RunExecutorService;
 import org.openl.studio.projects.service.tables.TableInputService;
@@ -123,7 +122,6 @@ class ProjectObjectMapperConfigurationErrorTest {
                 objectMapperService,
                 mock(ProjectsMergeConflictsSessionHolder.class),
                 projectIdentifierMapper,
-                mock(ProjectStatusMapper.class),
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 mock(ProjectMetadataService.class),

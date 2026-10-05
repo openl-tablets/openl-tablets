@@ -88,7 +88,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         return map(project, model, Detail.PROGRESS);
     }
 
-    // Read-only check: do not initiate any compilation. The status endpoint must only
+    // Read-only check: do not initiate any compilation. A status read must only
     // report whatever is already registered in the client-scoped compilation registry.
     @Nullable
     private ProjectModel resolveModel(RulesProject project) {

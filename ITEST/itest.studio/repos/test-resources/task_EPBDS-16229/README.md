@@ -7,7 +7,7 @@ project id names.
 The test requires the id the listing hands out to keep working:
 
 - `GET /projects` returns the new business name under the unchanged id;
-- `GET /projects/{id}` and `GET /projects/{id}/status` answer for that id;
+- `GET /projects/{id}` answers for that id, also with the compilation status it includes on request;
 - `DELETE /projects/{id}` removes the project instead of answering
   `openl.error.404.project.identifier.message`.
 

@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.AProject;
@@ -44,10 +42,8 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
-import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
@@ -55,7 +51,6 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
-import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.converter.ProjectIdentityConverter;
@@ -63,7 +58,6 @@ import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
-import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
 import org.openl.studio.repositories.model.RepositoryConfigModel;
 import org.openl.studio.repositories.model.RepositoryViewModel;
@@ -71,12 +65,10 @@ import org.openl.studio.repositories.rest.resolver.DesignRepository;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
 import org.openl.studio.repositories.service.ProjectCreationService;
 import org.openl.studio.repositories.service.ProjectCreationTargetResolver;
-import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
 import org.openl.studio.repositories.service.ZipProjectSaveStrategy;
 import org.openl.studio.repositories.validator.CreateUpdateProjectModelValidator;
 import org.openl.studio.repositories.validator.ZipArchiveValidator;
-import org.openl.studio.rest.resolver.PaginationDefault;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -98,7 +90,6 @@ public class DesignTimeRepositoryController {
     private final RepositoryAclService designRepositoryAclService;
     private final AclProjectsHelper aclProjectsHelper;
     private final DesignTimeRepositoryService designTimeRepositoryService;
-    private final ProjectRevisionService projectRevisionService;
     private final ProtectedBranchBypassService bypassService;
     private final ProjectCreationService projectCreationService;
     private final ProjectCreationTargetResolver projectCreationTargetResolver;
@@ -114,7 +105,6 @@ public class DesignTimeRepositoryController {
                                           @Value("${openl.home.shared}") String homeDirectory,
                                           AclProjectsHelper aclProjectsHelper,
                                           DesignTimeRepositoryService designTimeRepositoryService,
-                                          ProjectRevisionService projectRevisionService,
                                           ProtectedBranchBypassService bypassService,
                                           ProjectCreationService projectCreationService,
                                           ProjectCreationTargetResolver projectCreationTargetResolver,
@@ -128,7 +118,6 @@ public class DesignTimeRepositoryController {
         this.lockManager = new LockManager(Path.of(homeDirectory).resolve("locks/api"));
         this.aclProjectsHelper = aclProjectsHelper;
         this.designTimeRepositoryService = designTimeRepositoryService;
-        this.projectRevisionService = projectRevisionService;
         this.bypassService = bypassService;
         this.projectCreationService = projectCreationService;
         this.projectCreationTargetResolver = projectCreationTargetResolver;
@@ -162,37 +151,6 @@ public class DesignTimeRepositoryController {
     @GetMapping("/{repo-name}/branches")
     public List<String> listBranches(@DesignRepository("repo-name") Repository repository) throws IOException {
         return designTimeRepositoryService.getBranches(repository);
-    }
-
-    /**
-     * Returns the revisions of a project named by the name the repository published it under.
-     *
-     * <p>That name stops being the name the user knows the project by once the project is renamed in
-     * {@code rules.xml}.
-     *
-     * @deprecated Superseded by {@code GET /projects/{projectId}/history}, which the Revisions tab — the only caller
-     *             this ever had — now asks instead.
-     */
-    // A published REST endpoint that API clients may still call.
-    @SuppressWarnings("java:S1133")
-    @GetMapping({"/{repo-name}/projects/{project-name}/history",
-            "/{repo-name}/branches/{branch-name}/projects/{project-name}/history"})
-    @Operation(summary = "repos.get-project-revs.summary", description = "repos.get-project-revs.desc")
-    @JsonView({UserInfoModel.View.Short.class})
-    @Deprecated(forRemoval = false)
-    public PageResponse<ProjectRevision> getProjectRevision(@DesignRepository("repo-name") Repository repository,
-                                                            @Parameter(description = "repo.param.branch-name.desc") @PathVariable("branch-name") Optional<String> branch,
-                                                            @Parameter(description = "repo.param.project-name.desc") @PathVariable("project-name") String projectName,
-                                                            @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
-                                                            @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,
-                                                            @PaginationDefault Pageable page) throws IOException, ProjectException {
-        return projectRevisionService.getProjectRevision(
-                repository,
-                projectName,
-                branch.orElse(null),
-                searchTerm,
-                techRevs,
-                page);
     }
 
     @PutMapping(value = "/{repo-name}/projects/{project-name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

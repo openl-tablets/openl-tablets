@@ -23,7 +23,7 @@ import org.openl.itest.core.StompTester;
  * <ol>
  *     <li>OpenL Studio starts in multi-user mode.</li>
  *     <li>A project is created in the design repository (see {@code test-resources-socket/projects-multi}).</li>
- *     <li>{@code GET /projects/{id}/status} reports {@code idle} — nothing compiled yet.</li>
+ *     <li>{@code GET /projects/{id}?include=status} reports {@code idle} — nothing compiled yet.</li>
  *     <li>The client subscribes to the per-user status topic over {@code /ws}, authenticated by an
  *     {@code Authorization: Basic} header the way any API client is.</li>
  *     <li>{@code GET /projects/{id}/tables} initializes project compilation.</li>
@@ -54,6 +54,10 @@ class WebSocketProjectStatusTest {
     record StatusUpdate(String projectId, String compileState) {
     }
 
+    /** The project response, reduced to the compilation status it carries on request. */
+    record ProjectWithStatus(StatusUpdate compileStatus) {
+    }
+
     @Test
     void streams_compilation_progress() throws Exception {
         // 1-2. Create and open the project (the {PROJECT} placeholder in the setup requests is resolved
@@ -61,12 +65,13 @@ class WebSocketProjectStatusTest {
         client.localEnv.put("PROJECT", PROJECT);
         client.test(SETUP_RESOURCES);
 
-        var statusUrl = "/rest/projects/" + PROJECT + "/status";
+        var statusUrl = "/rest/projects/" + PROJECT + "?include=status";
         var tablesUrl = "/rest/projects/" + PROJECT + "/tables";
 
         // 3. Status is idle before any compilation is triggered. Reuse the encoded project id
         //    from the response so the WebSocket topic always matches what the server publishes.
-        var initial = client.getForObject(statusUrl, StatusUpdate.class, 200, "Authorization", ADMIN_BASIC);
+        var initial = client.getForObject(statusUrl, ProjectWithStatus.class, 200, "Authorization", ADMIN_BASIC)
+                .compileStatus();
         assertEquals("idle", initial.compileState(), "Project must be idle before compilation");
 
         // 4. Subscribe to the per-user project status topic. The server URL-encodes the project id in

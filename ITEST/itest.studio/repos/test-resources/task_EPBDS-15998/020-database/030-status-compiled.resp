@@ -2,28 +2,30 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
-  "revision": "*",
-  "compileState": "ok",
-  "lastModifiedBy": {
-    "author": "admin",
-    "date": "*"
-  },
-  "compilation": {
-    "messages": {
-      "total": 0,
-      "errors": 0,
-      "warnings": 0
+  "compileStatus": {
+    "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+    "revision": "*",
+    "compileState": "ok",
+    "lastModifiedBy": {
+      "author": "admin",
+      "date": "*"
     },
-    "modules": {
-      "compiledModules": [
-        "Bank Rating"
-      ],
-      "total": 1,
-      "compiled": 1
-    },
-    "tests": {
-      "total": 14
+    "compilation": {
+      "messages": {
+        "total": 0,
+        "errors": 0,
+        "warnings": 0
+      },
+      "modules": {
+        "compiledModules": [
+          "Bank Rating"
+        ],
+        "total": 1,
+        "compiled": 1
+      },
+      "tests": {
+        "total": 14
+      }
     }
   }
 }

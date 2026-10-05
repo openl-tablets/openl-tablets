@@ -2,24 +2,26 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "projectId": "ZGVzaWduOkVQQkRTLTE2MDY4",
-  "revision": "*",
-  "compileState": "idle",
-  "lastModifiedBy": {
-    "author": "admin",
-    "date": "*"
-  },
-  "pendingChanges": {
-    "total": 2,
-    "files": [
-      {
-        "path": "DESIGN/rules/EPBDS-16068/Main.xlsx",
-        "type": "modified"
-      },
-      {
-        "path": "DESIGN/rules/EPBDS-16068/rules.xml",
-        "type": "modified"
-      }
-    ]
+  "compileStatus": {
+    "projectId": "ZGVzaWduOkVQQkRTLTE2MDY4",
+    "revision": "*",
+    "compileState": "idle",
+    "lastModifiedBy": {
+      "author": "admin",
+      "date": "*"
+    },
+    "pendingChanges": {
+      "total": 2,
+      "files": [
+        {
+          "path": "DESIGN/rules/EPBDS-16068/Main.xlsx",
+          "type": "modified"
+        },
+        {
+          "path": "DESIGN/rules/EPBDS-16068/rules.xml",
+          "type": "modified"
+        }
+      ]
+    }
   }
 }
