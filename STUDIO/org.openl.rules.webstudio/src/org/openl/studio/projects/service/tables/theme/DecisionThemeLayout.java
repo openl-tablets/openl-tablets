@@ -1,8 +1,9 @@
 package org.openl.studio.projects.service.tables.theme;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.IntBinaryOperator;
 import java.util.stream.Collectors;
@@ -103,8 +104,9 @@ final class DecisionThemeLayout {
 
     /** The body with the look of each of its places, or with the base alone where the compiler laid out none. */
     private static BodyLayout.Placed placed(ThemedBody body, @Nullable Places places) {
-        return places == null ? BodyLayout.Placed.plain(body)
-                : new BodyLayout.Placed(body.rows(), Looks.of(body, places));
+        return Optional.ofNullable(places)
+                .map(laid -> new BodyLayout.Placed(body.rows(), Looks.of(body, laid)))
+                .orElseGet(() -> BodyLayout.Placed.plain(body));
     }
 
     /**
@@ -306,15 +308,11 @@ final class DecisionThemeLayout {
          * The rows of a compiled table the compiler laid out: its conditions, or its actions, the returns among them.
          */
         private static List<FunctionalRow> rowsOf(Object @Nullable [] compiled) {
-            var rows = new ArrayList<FunctionalRow>();
-            if (compiled != null) {
-                for (var element : compiled) {
-                    if (element instanceof FunctionalRow row) {
-                        rows.add(row);
-                    }
-                }
-            }
-            return rows;
+            return Optional.ofNullable(compiled).stream()
+                    .flatMap(Arrays::stream)
+                    .filter(FunctionalRow.class::isInstance)
+                    .map(FunctionalRow.class::cast)
+                    .toList();
         }
     }
 
@@ -355,7 +353,9 @@ final class DecisionThemeLayout {
             this.lookup = info != null && info.getNumberHConditions() > 0;
             this.declared = !DecisionTableHelper.isSimple(node) && !DecisionTableHelper.isSmart(node);
             this.rules = decision.getNumberOfRules();
-            this.rulesPerHorizontal = info == null ? 1 : info.getScale().getHScale().getMultiplier();
+            this.rulesPerHorizontal = Optional.ofNullable(info)
+                    .map(found -> found.getScale().getHScale().getMultiplier())
+                    .orElse(1);
         }
 
         /** Reads where one condition stands: down the rules, or across the top of a lookup. */
@@ -516,9 +516,9 @@ final class DecisionThemeLayout {
          * @param place the line or the cross of a row and a column of the sheet
          */
         private void add(@Nullable ILogicalTable part, Set<Integer> into, IntBinaryOperator place) {
-            if (part != null) {
-                compiled.addPlaces(part.getSource(), place, into);
-            }
+            Optional.ofNullable(part)
+                    .map(ILogicalTable::getSource)
+                    .ifPresent(source -> compiled.addPlaces(source, place, into));
         }
 
         /** Whether a condition is checked across the top of a lookup rather than down its rules. */
@@ -573,7 +573,7 @@ final class DecisionThemeLayout {
                     .returnTitle(upright.with(look.returnTitles()))
                     .returns(upright.with(look.returns()))
                     .groups(groups)
-                    .columns(groups == null ? null : groups.transposed())
+                    .columns(Optional.ofNullable(groups).map(ThemeStyle::transposed).orElse(null))
                     .build();
         }
 
@@ -619,7 +619,7 @@ final class DecisionThemeLayout {
             if (border == null || above && left) {
                 return style;
             }
-            var sides = base.border() == null ? ThemeBorder.KEEP : base.border();
+            var sides = Optional.ofNullable(base.border()).orElse(ThemeBorder.KEEP);
             return style.withBorder(border.withTop(above ? border.top() : sides.top())
                     .withLeft(left ? border.left() : sides.left()));
         }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import lombok.Builder;
 import org.apache.commons.lang3.EnumUtils;
@@ -148,10 +149,8 @@ final class TBasicThemeLayout {
             var steps = body.getRows(STEPS).getSource();
             for (var row = 0; row < steps.getHeight(); row++) {
                 var cell = steps.getCell(operation, row);
-                var overlay = overlayOf(cell.getStringValue(), look);
-                if (overlay != null) {
-                    overlays.put(cell.getAbsoluteRow(), overlay);
-                }
+                Optional.ofNullable(overlayOf(cell.getStringValue(), look))
+                        .ifPresent(overlay -> overlays.put(cell.getAbsoluteRow(), overlay));
             }
             return overlays;
         }

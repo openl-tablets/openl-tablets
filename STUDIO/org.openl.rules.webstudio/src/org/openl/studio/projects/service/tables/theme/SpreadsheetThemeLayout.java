@@ -1,10 +1,13 @@
 package org.openl.studio.projects.service.tables.theme;
 
+import java.util.Optional;
+
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.SpreadsheetSymbols;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 
 /**
@@ -113,8 +116,8 @@ final class SpreadsheetThemeLayout {
                     .resultRow(look.resultRow())
                     .stepsEnd(rows.getCell(0, 0).getAbsoluteRegion().getRight())
                     .resultStep(resultStep)
-                    .resultTop(resultRows == null ? NONE : resultRows.getTop())
-                    .resultBottom(resultRows == null ? NONE : resultRows.getBottom())
+                    .resultTop(Optional.ofNullable(resultRows).map(IGridRegion::getTop).orElse(NONE))
+                    .resultBottom(Optional.ofNullable(resultRows).map(IGridRegion::getBottom).orElse(NONE))
                     .resultColumn(returnColumn)
                     .build();
         }

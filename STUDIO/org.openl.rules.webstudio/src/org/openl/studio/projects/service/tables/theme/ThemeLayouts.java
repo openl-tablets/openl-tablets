@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
@@ -140,7 +141,7 @@ final class ThemeLayouts {
      */
     private static Map<Cell, ThemedCell> themeHead(IGridTable table, ILogicalTable logical, ThemeStyle base,
                                                    TableTheme.Look look) {
-        var header = look.header() == null ? TableTheme.Header.builder().build() : look.header();
+        var header = Optional.ofNullable(look.header()).orElseGet(() -> TableTheme.Header.builder().build());
         var style = base.with(header.style());
         var cells = new HashMap<Cell, ThemedCell>();
         // The header look reaches across the table, whether the header is merged over it or not.

@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
+import java.util.Optional;
+
 import lombok.With;
 import org.jspecify.annotations.Nullable;
 
@@ -42,10 +44,10 @@ public record ThemeBorder(@Nullable ThemeBorderLine top,
         if (over == null) {
             return this;
         }
-        return new ThemeBorder(over.top != null ? over.top : top,
-                over.right != null ? over.right : right,
-                over.bottom != null ? over.bottom : bottom,
-                over.left != null ? over.left : left);
+        return new ThemeBorder(Optional.ofNullable(over.top).orElse(top),
+                Optional.ofNullable(over.right).orElse(right),
+                Optional.ofNullable(over.bottom).orElse(bottom),
+                Optional.ofNullable(over.left).orElse(left));
     }
 
     /**

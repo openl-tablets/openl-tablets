@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.theme;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,10 +61,10 @@ public enum ExcelThemeColour {
      * The colour a theme file writes under a key.
      *
      * @param key the key, such as {@code accent1}
-     * @return the colour, or {@code null} for a key no colour has
+     * @return the colour, or nothing for a key no colour has
      */
-    static @Nullable ExcelThemeColour keyed(String key) {
-        return BY_KEY.get(key);
+    static Optional<ExcelThemeColour> keyed(String key) {
+        return Optional.ofNullable(BY_KEY.get(key));
     }
 
     /**

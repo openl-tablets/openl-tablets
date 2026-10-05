@@ -118,14 +118,13 @@ final class ThemeLines {
      * @param moved the line of the lower or the right cell
      */
     private static RawTableCellBorderSide shared(@Nullable RawTableCellBorderSide kept, RawTableCellBorderSide moved) {
-        if (kept == null) {
-            return moved;
-        }
-        return kept.toBuilder().width(Math.max(widthOf(kept), widthOf(moved))).build();
+        return Optional.ofNullable(kept)
+                .map(line -> line.toBuilder().width(Math.max(widthOf(line), widthOf(moved))).build())
+                .orElse(moved);
     }
 
     private static int widthOf(RawTableCellBorderSide side) {
-        return side.width() == null ? 1 : side.width();
+        return Optional.ofNullable(side.width()).orElse(1);
     }
 
     /** Draws a line under a cell, as one with the line the cell has there. */
@@ -156,7 +155,8 @@ final class ThemeLines {
     private void change(Place place, UnaryOperator<RawTableCellBorder> sides) {
         var cell = matrix.get(place.row()).get(place.column());
         var style = cell.style();
-        var border = sides.apply(style.border() == null ? RawTableCellBorder.builder().build() : style.border());
+        var border = sides.apply(Optional.ofNullable(style.border())
+                .orElseGet(() -> RawTableCellBorder.builder().build()));
         var drawn = style.toBuilder().border(border.isEmpty() ? null : border).build();
         matrix.get(place.row()).set(place.column(), cell.toBuilder().style(drawn).build());
     }
@@ -203,7 +203,7 @@ final class ThemeLines {
     }
 
     private static int spanOf(@Nullable Integer span) {
-        return span == null ? 1 : span;
+        return Optional.ofNullable(span).orElse(1);
     }
 
     /** A place in the table, by its row and column. */

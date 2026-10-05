@@ -2,6 +2,7 @@ package org.openl.excel.grid;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -98,7 +99,7 @@ public class ParsedCell implements ICell {
     @Override
     public List<TextRun> getTextRuns() {
         initializeStyles();
-        return tableStyles == null ? List.of() : tableStyles.getTextRuns(row, column);
+        return Optional.ofNullable(tableStyles).map(styles -> styles.getTextRuns(row, column)).orElse(List.of());
     }
 
     @Override
