@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { RawTableCell, RawTableCellBorderSide, RawTableCellStyle } from 'types/tables'
 import { withoutFirstRows } from './hiddenRows'
 
+const THIN: RawTableCellBorderSide = { style: 'solid', width: 1 }
 const THEMED: RawTableCellBorderSide = { style: 'solid', width: 1, color: '#4472c4' }
 const DASHED: RawTableCellBorderSide = { style: 'dashed', width: 1 }
 
@@ -24,6 +25,17 @@ describe('withoutFirstRows', () => {
         const left = withoutFirstRows(rows, 1)
 
         expect(left[0]?.[0]?.style).toEqual({ background: '#ffffff', source: 'theme', border: { top: THEMED } })
+    })
+
+    it('draws the line the workbook holds under the rows kept out of sight on the first row left', () => {
+        const rows: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Rules', style: { bold: true, border: { bottom: THIN } } }],
+            [{ cell: 'A2', value: 'Age', style: { bold: true } }],
+        ]
+
+        const left = withoutFirstRows(rows, 1)
+
+        expect(left).toEqual([[{ cell: 'A2', value: 'Age', style: { bold: true, border: { top: THIN } } }]])
     })
 
     it('keeps the line a cell draws on its top itself', () => {
