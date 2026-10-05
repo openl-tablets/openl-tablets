@@ -65,7 +65,7 @@ class TableThemeTest {
 
     /** The most cell styles an .xls workbook holds, as POI counts them. */
     private static final int XLS_STYLES = 4030;
-    /** The fills of the default theme: the titles of what a table takes and gives, and the values it gives. */
+    /** The fills of the standard theme: the titles of what a table takes and gives, and the values it gives. */
     private static final String TITLE_GREY = "#bfbfbf";
     private static final String TITLE_BLUE = "#b4c6e7";
     private static final String LIGHT_BLUE = "#ddebf7";
@@ -75,7 +75,7 @@ class TableThemeTest {
     private static final String GREY = "#c0c0c0";
     private static final String PERCENT = "0.00%";
 
-    private static final String THEME = "default";
+    private static final String THEME = "standard";
 
     /** A Datatype whose header is not merged over the table, written bold in 10.5 points. */
     private static final String ACCOUNT = "Account";
@@ -141,7 +141,7 @@ class TableThemeTest {
     /** A table of no kind OpenL knows, which no theme styles. */
     private static final int NOTES_ROW = 126;
 
-    /** The fills the green theme gives an ID and a value that is not filled; the default theme gives them none. */
+    /** The fills the green theme gives an ID and a value that is not filled; the standard theme gives them none. */
     private static final String GREEN = "green";
     private static final String GREEN_ID = "#c6e0b4";
     private static final String GREEN_EMPTY = "#f2f2f2";
@@ -186,12 +186,12 @@ class TableThemeTest {
         var model = TableTestProjects.projectModel(dir);
         var extension = new TableThemeService("classpath*:test-table-themes/datatype-extension.yaml");
 
-        assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, "Code"))));
-        assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, PREMIUM))));
+        assertEquals(List.of("green", "standard"), ids(service.getThemes(TableTestProjects.table(model, "Code"))));
+        assertEquals(List.of("green", "standard"), ids(service.getThemes(TableTestProjects.table(model, PREMIUM))));
         // A theme writing nothing for a kind of table other than a Datatype styles them all the same.
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
         assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
-        assertEquals(List.of("default", "green"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
+        assertEquals(List.of("green", "standard"), ids(service.getThemes(TableTestProjects.table(model, "people"))));
         assertTrue(service.getThemes(notes()).isEmpty(), "No theme styles a table of no kind OpenL knows");
     }
 

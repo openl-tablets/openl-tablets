@@ -33,9 +33,9 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class DecisionThemeLayoutTest {
 
     private static final String SHEET = "Rules";
-    private static final String THEME = "default";
+    private static final String THEME = "standard";
 
-    /** The looks the default theme gives the places of a decision table. */
+    /** The looks the standard theme gives the places of a decision table. */
     private static final String WHITE = "#ffffff";
     private static final String BLACK = "#000000";
     private static final String MUTED = "#808080";
@@ -111,7 +111,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForEveryKindOfDecisionTable() {
         for (var name : List.of(GREET, GREET_ROUND, GREETING, HELLO, RATE, FACTOR)) {
-            assertEquals(List.of("default", "green"),
+            assertEquals(List.of("green", "standard"),
                     service.getThemes(table(name)).stream().map(TableThemeView::id).toList(), name);
         }
     }
@@ -354,7 +354,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForATableThatDeclaresWhatDecisionTablesTake() {
         for (var row : List.of(CONDITIONS_ROW, ACTIONS_ROW, HOURS_ROW, RETURNS_ROW)) {
-            assertEquals(List.of("default", "green"),
+            assertEquals(List.of("green", "standard"),
                     service.getThemes(tableAt(row)).stream().map(TableThemeView::id).toList(), "row " + row);
         }
     }

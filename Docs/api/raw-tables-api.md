@@ -348,7 +348,7 @@ The `style` operation sets the style of every cell of a rectangle:
 
 A table theme gives every table but a table of the kind `Other` one look: a table of no kind OpenL Tablets knows and a
 part of a table written as several partial tables take no theme. OpenL Studio offers every theme file in the
-`table-themes` folder of its classpath and ships `default` and `green`. A theme is asked for by its identifier, the
+`table-themes` folder of its classpath and ships `standard` and `green`. A theme is asked for by its identifier, the
 name of its file without the extension. How a theme file is written is described in
 [Appendix E: Table Themes](../user-guides/openl-studio/appendices/table-themes.md).
 
@@ -360,7 +360,7 @@ GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
 ```
 
 ```json
-[{"id": "default", "name": "Default"}, {"id": "green", "name": "Green"}]
+[{"id": "green", "name": "Green"}, {"id": "standard", "name": "Standard"}]
 ```
 
 - The first lists every theme OpenL Studio offers, ordered by name.
@@ -388,7 +388,7 @@ kind `Other` is read with the styles of the workbook alone. A theme OpenL Studio
 a batch:
 
 ```json
-{"operation": "theme", "theme": "default"}
+{"operation": "theme", "theme": "standard"}
 ```
 
 In a batch, the theme is written over the table as the edits before it left it, so the rows the batch adds are

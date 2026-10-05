@@ -2,7 +2,7 @@
 
 A table theme describes the look OpenL Studio gives its tables: every table but a table of the type **Other**. A
 theme is drawn over the tables while they are viewed, or written into the Excel file, as described in
-[Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Default** and
+[Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Standard** and
 **Green** themes. This appendix describes how a theme file is written.
 
 The following topics are included:

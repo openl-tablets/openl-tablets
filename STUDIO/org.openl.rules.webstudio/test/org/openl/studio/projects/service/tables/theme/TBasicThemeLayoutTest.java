@@ -27,9 +27,9 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class TBasicThemeLayoutTest {
 
     private static final String SHEET = "Algorithms";
-    private static final String THEME = "default";
+    private static final String THEME = "standard";
 
-    /** The looks the default theme gives the places of a TBasic table. */
+    /** The looks the standard theme gives the places of a TBasic table. */
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
     private static final String TITLE = "#b4c6e7";
@@ -70,7 +70,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void offersEveryThemeForATBasicTable() {
-        assertEquals(List.of("default", "green"),
+        assertEquals(List.of("green", "standard"),
                 service.getThemes(factorial()).stream().map(TableThemeView::id).toList());
     }
 
