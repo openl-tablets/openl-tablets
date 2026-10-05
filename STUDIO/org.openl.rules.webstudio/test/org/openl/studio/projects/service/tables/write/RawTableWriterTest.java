@@ -178,7 +178,7 @@ class RawTableWriterTest {
 
     @Test
     void writesATableThemeIntoTheTable() {
-        apply(new RawTableSourceAction.Theme("default"));
+        apply(new RawTableSourceAction.Theme("standard"));
 
         var source = reloadStyled(mainProject);
         assertNotNull(styleOf(source, 0, 0).border().bottom(), "The header is closed by a line");
@@ -193,7 +193,7 @@ class RawTableWriterTest {
     void writesATableThemeIntoTheTableAsTheEditsBeforeItLeftIt() {
         apply(List.of(
                 appendRow(row("double", "rate", "delta")),
-                new RawTableSourceAction.Theme("default")));
+                new RawTableSourceAction.Theme("standard")));
 
         var source = reloadStyled(mainProject);
         // The row added in the same change is themed with the rest, and the line closing the table is under it.
@@ -204,7 +204,7 @@ class RawTableWriterTest {
 
     @Test
     void themesThePropertiesTheNoteOfTheEditLaysDown() {
-        applyNoted(mainProject, new RawTableSourceAction.Theme("default"));
+        applyNoted(mainProject, new RawTableSourceAction.Theme("standard"));
 
         // The table had no properties: the note of the edit lays them down after the theme, and they take it too.
         var source = reloadStyled(mainProject);
@@ -224,7 +224,7 @@ class RawTableWriterTest {
                 {"String", "code", "alpha"}
         });
 
-        applyNoted(described, new RawTableSourceAction.Theme("default"));
+        applyNoted(described, new RawTableSourceAction.Theme("standard"));
 
         // The note adds its property over the one the table declares: one line still closes the properties.
         var source = reloadStyled(described);
@@ -241,7 +241,7 @@ class RawTableWriterTest {
                 {"< 12", "Good Morning"}
         });
 
-        apply(rules, List.of(appendRow(row(">= 12", "Good Day")), new RawTableSourceAction.Theme("default")));
+        apply(rules, List.of(appendRow(row(">= 12", "Good Day")), new RawTableSourceAction.Theme("standard")));
 
         var source = reloadStyled(rules);
         // The rule added in the same change is a rule like the others, and the line closing the table is under it.
@@ -264,7 +264,7 @@ class RawTableWriterTest {
         });
 
         apply(rules, List.of(insertColumn(1, row(null, "C3", "hour > from", "Integer from", "After", "0", "0")),
-                new RawTableSourceAction.Theme("default")));
+                new RawTableSourceAction.Theme("standard")));
 
         var source = reloadStyled(rules);
         // The column inserted is not compiled yet: it takes the white of the base, read as no fill of its own. The
@@ -288,7 +288,7 @@ class RawTableWriterTest {
                 {"Weekday", "12", "Good Morning"}
         });
 
-        apply(rules, List.of(deleteRow(1), new RawTableSourceAction.Theme("default")));
+        apply(rules, List.of(deleteRow(1), new RawTableSourceAction.Theme("standard")));
 
         var source = reloadStyled(rules);
         // The code moved up a row with the rest: its first row is muted and its last row closes it.
@@ -309,7 +309,7 @@ class RawTableWriterTest {
                 {"Title", "Before", "From"}
         });
 
-        apply(conditions, List.of(deleteRow(1), new RawTableSourceAction.Theme("default")));
+        apply(conditions, List.of(deleteRow(1), new RawTableSourceAction.Theme("standard")));
 
         var source = reloadStyled(conditions);
         // The parts moved up a row with the rest: the code is muted and closed by a line, and the titles under it.
@@ -329,7 +329,7 @@ class RawTableWriterTest {
                 {"Weekday", "12", "Good Morning"}
         });
 
-        applyNoted(rules, new RawTableSourceAction.Theme("default"));
+        applyNoted(rules, new RawTableSourceAction.Theme("standard"));
 
         // The note lays the properties down under the header, and the code moves down under them with its look.
         var source = reloadStyled(rules);
@@ -344,7 +344,7 @@ class RawTableWriterTest {
     @Test
     void writesTheStylingAskedForAfterTheTableThemeOverIt() {
         apply(List.of(
-                new RawTableSourceAction.Theme("default"),
+                new RawTableSourceAction.Theme("standard"),
                 style(1, 1, 1, 1, new RawCellStyleInput("#ffff00", null, null, null, null, null, null))));
 
         assertEquals("#ffff00", styleOf(reloadStyled(mainProject), 1, 1).background());
@@ -355,7 +355,7 @@ class RawTableWriterTest {
         // A table of no kind OpenL knows.
         var notes = writeProject("notes", new String[][]{{"Notes on the model"}, {"Written by hand"}});
 
-        var theme = new RawTableSourceAction.Theme("default");
+        var theme = new RawTableSourceAction.Theme("standard");
         var refused = assertThrows(BadRequestException.class, () -> apply(notes, theme));
 
         assertEquals("openl.error.400.table.theme.unsupported.message", refused.getErrorCode());
@@ -374,7 +374,7 @@ class RawTableWriterTest {
     void refusesATableThemeWhereTheWriterIsGivenNoThemes() {
         var writer = new RawTableWriter(load(mainProject));
 
-        var theme = new RawTableSourceAction.Theme("default");
+        var theme = new RawTableSourceAction.Theme("standard");
         assertThrows(IllegalStateException.class, () -> writer.apply(theme));
     }
 

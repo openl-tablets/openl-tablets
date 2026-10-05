@@ -4,5 +4,5 @@ Content-Type: application/json
 
 {
   "operation": "theme",
-  "theme": "default"
+  "theme": "standard"
 }

@@ -11,7 +11,7 @@
 # The theme follows the formatting standard of OpenL tables: the base is its General section, and the colours are
 # the ones it names.
 
-name: Default
+name: Standard
 
 # The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place.
 colors:

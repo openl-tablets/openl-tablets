@@ -1,7 +1,7 @@
 # A table theme of OpenL Studio: the look it gives every table it styles, one part for each kind of table below.
 # The format and every attribute: OpenL Studio User Guide > Table Themes.
 #
-# The Default theme in greens, its lines green as well. It also fills the header of a Datatype and a Vocabulary, the
+# The Standard theme in greens, its lines green as well. It also fills the header of a Datatype and a Vocabulary, the
 # IDs, and the values that are not filled.
 
 name: Green

@@ -26,9 +26,9 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class NamedValuesThemeLayoutTest {
 
     private static final String SHEET = "Settings";
-    private static final String THEME = "default";
+    private static final String THEME = "standard";
 
-    /** The looks the default theme gives the places of these tables. */
+    /** The looks the standard theme gives the places of these tables. */
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
     private static final String GREY_HEADER = "#e7e6e6";
@@ -61,7 +61,7 @@ class NamedValuesThemeLayoutTest {
     @Test
     void offersEveryThemeForAnEnvironmentAPropertiesAndAConstantsTable() {
         for (var row : List.of(ENVIRONMENT_ROW, PROPERTIES_ROW, CONSTANTS_ROW, TRANSPOSED_ROW)) {
-            assertEquals(List.of("default", "green"),
+            assertEquals(List.of("green", "standard"),
                     service.getThemes(tableAt(row)).stream().map(TableThemeView::id).toList(), "row " + row);
         }
     }

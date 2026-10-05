@@ -26,9 +26,9 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class ColumnMatchThemeLayoutTest {
 
     private static final String SHEET = "Matches";
-    private static final String THEME = "default";
+    private static final String THEME = "standard";
 
-    /** The looks the default theme gives the places of a ColumnMatch table. */
+    /** The looks the standard theme gives the places of a ColumnMatch table. */
     private static final String WHITE = "#ffffff";
     private static final String MUTED = "#808080";
     private static final String TITLE = "#bfbfbf";
@@ -69,7 +69,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void offersEveryThemeForAColumnMatchTable() {
-        assertEquals(List.of("default", "green"),
+        assertEquals(List.of("green", "standard"),
                 service.getThemes(tableAt(APPROVAL_ROW)).stream().map(TableThemeView::id).toList());
     }
 

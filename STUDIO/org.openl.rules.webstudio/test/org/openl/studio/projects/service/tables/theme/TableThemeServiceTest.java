@@ -29,13 +29,13 @@ class TableThemeServiceTest {
 
     @Test
     void offersEveryThemeOfStudioByName() {
-        assertEquals(List.of(new TableThemeView("default", "Default"), new TableThemeView("green", "Green")),
+        assertEquals(List.of(new TableThemeView("green", "Green"), new TableThemeView("standard", "Standard")),
                 service.getThemes());
     }
 
     @Test
     void everyKindExtendsTheSkinOfTheBase() {
-        var theme = service.theme("default");
+        var theme = service.theme("standard");
         var datatype = theme.lookOf(theme.datatype());
         var spreadsheet = theme.lookOf(theme.spreadsheet());
         var rules = theme.lookOf(theme.rules());
@@ -77,7 +77,7 @@ class TableThemeServiceTest {
 
     @Test
     void theThemesOfStudioDrawAPropertiesTableInTheGreysOfAnEnvironment() {
-        for (var id : List.of("default", "green")) {
+        for (var id : List.of("standard", "green")) {
             var theme = service.theme(id);
             var environment = theme.lookOf(theme.environment());
 
@@ -91,7 +91,7 @@ class TableThemeServiceTest {
 
     @Test
     void theThemesOfStudioDrawTheTablesThatDeclareWhatADecisionTableTakesInTheLookOfARulesTable() {
-        for (var id : List.of("default", "green")) {
+        for (var id : List.of("standard", "green")) {
             var theme = service.theme(id);
             var rules = theme.lookOf(theme.rules());
 
@@ -103,7 +103,7 @@ class TableThemeServiceTest {
 
     @Test
     void theThemesOfStudioDrawATBasicTableAsASpreadsheetAndAColumnMatchAsARulesTable() {
-        for (var id : List.of("default", "green")) {
+        for (var id : List.of("standard", "green")) {
             var theme = service.theme(id);
             var spreadsheet = theme.lookOf(theme.spreadsheet());
             var rules = theme.lookOf(theme.rules());
@@ -132,7 +132,7 @@ class TableThemeServiceTest {
 
     @Test
     void theThemesOfStudioSignEveryKindOfTableAlike() {
-        for (var id : List.of("default", "green")) {
+        for (var id : List.of("standard", "green")) {
             var theme = service.theme(id);
             var datatype = theme.lookOf(theme.datatype()).header();
             var spreadsheet = theme.lookOf(theme.spreadsheet()).header();

@@ -361,7 +361,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
 ### Applying the Table Theme
 
-A table theme gives every table but a table of the type **Other** one consistent look. For example, the **Default**
+A table theme gives every table but a table of the type **Other** one consistent look. For example, the **Standard**
 theme that OpenL Studio ships formats the tables as follows:
 
 -   **Every table** — Franklin Gothic Book 10, black on white, the text of every cell centered from top to bottom,

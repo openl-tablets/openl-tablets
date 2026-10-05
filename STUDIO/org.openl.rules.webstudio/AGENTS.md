@@ -155,7 +155,7 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 The looks OpenL Studio gives every table but a table of the type Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the
 screen shows as Other) are the `table-themes/*.yaml` files of its classpath
-(`resources/table-themes/` ships `default` and `green`). `default` follows the formatting standard of OpenL
+(`resources/table-themes/` ships `standard` and `green`). `standard` follows the formatting standard of OpenL
 tables: its General section is the base, and the colours are the ones the standard names.
 `TableThemeService` reads them once at startup, with the YAML anchors, aliases and merge keys resolved by SnakeYAML,
 then binds them strictly with Jackson.
