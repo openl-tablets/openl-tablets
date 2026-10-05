@@ -43,7 +43,7 @@ final class ThemeStyles {
         var builder = (style == null ? RawTableCellStyle.builder() : style.toBuilder())
                 .source(RawTableStyleSource.THEME);
         if (theme.background() != null) {
-            builder.background(colour(theme.background(), RawTableStyles.WHITE));
+            builder.background(colour(theme.background().rgb(), RawTableStyles.WHITE));
         }
         if (theme.align() != null) {
             builder.align(horizontal(theme.align()));
@@ -86,7 +86,7 @@ final class ThemeStyles {
     /** Sets the font attributes the theme names, its colour among them. */
     private static void setFont(RawTableCellStyle.RawTableCellStyleBuilder builder, ThemeStyle theme) {
         if (theme.color() != null) {
-            builder.color(colour(theme.color(), RawTableStyles.BLACK));
+            builder.color(colour(theme.color().rgb(), RawTableStyles.BLACK));
         }
         if (theme.bold() != null) {
             builder.bold(RawTableStyles.flag(theme.bold()));

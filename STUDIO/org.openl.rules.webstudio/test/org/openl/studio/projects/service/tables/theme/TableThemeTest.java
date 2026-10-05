@@ -224,16 +224,16 @@ class TableThemeTest {
 
         // B2 is the header, merged over B2:D2; every cell of the merge is themed, unfilled between two lines.
         for (var column = 1; column <= 3; column++) {
-            assertEquals(WHITE, layout.at(1, column).style().background());
+            assertEquals(WHITE, layout.at(1, column).style().background().rgb());
             assertTrue(lineBelow(layout.at(1, column)));
         }
         assertNotNull(layout.at(1, 1).header(), "The cell holding the header text formats it in pieces");
         assertNull(layout.at(1, 3).header());
         // The types and the defaults are muted on either side of the field names; the last row is closed.
-        assertEquals(MUTED, layout.at(2, 1).style().color());
-        assertEquals(LIGHT_BLUE, layout.at(2, 2).style().background());
-        assertEquals("#000000", layout.at(2, 2).style().color());
-        assertEquals(MUTED, layout.at(2, 3).style().color());
+        assertEquals(MUTED, layout.at(2, 1).style().color().rgb());
+        assertEquals(LIGHT_BLUE, layout.at(2, 2).style().background().rgb());
+        assertEquals("#000000", layout.at(2, 2).style().color().rgb());
+        assertEquals(MUTED, layout.at(2, 3).style().color().rgb());
         assertEquals(ThemeHorizontalAlign.LEFT, layout.at(2, 3).style().align());
         assertFalse(lineBelow(layout.at(2, 1)), "A row other than the last is not closed");
         assertEquals(ThemeLineStyle.THIN, layout.at(4, 1).style().border().bottom().style());
@@ -247,8 +247,8 @@ class TableThemeTest {
         var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), "Titled"), THEME);
 
         assertEquals(Boolean.TRUE, layout.at(20, 1).style().bold());
-        assertEquals(TITLE_GREY, layout.at(20, 2).style().background(), "The titles are not the field names");
-        assertEquals(LIGHT_BLUE, layout.at(21, 2).style().background());
+        assertEquals(TITLE_GREY, layout.at(20, 2).style().background().rgb(), "The titles are not the field names");
+        assertEquals(LIGHT_BLUE, layout.at(21, 2).style().background().rgb());
     }
 
     @Test
@@ -257,9 +257,9 @@ class TableThemeTest {
 
         // Each field runs down a column, so each place runs across the table: the types, the names, the defaults.
         for (var column = 1; column <= 3; column++) {
-            assertEquals(WHITE, layout.at(POINT_ROW + 1, column).style().background(), "A type is not a name");
-            assertEquals(LIGHT_BLUE, layout.at(POINT_ROW + 2, column).style().background());
-            assertEquals(MUTED, layout.at(POINT_ROW + 3, column).style().color(), "A default is muted");
+            assertEquals(WHITE, layout.at(POINT_ROW + 1, column).style().background().rgb(), "A type is not a name");
+            assertEquals(LIGHT_BLUE, layout.at(POINT_ROW + 2, column).style().background().rgb());
+            assertEquals(MUTED, layout.at(POINT_ROW + 3, column).style().color().rgb(), "A default is muted");
             // The last row closes the table, as it closes an upright one.
             assertFalse(lineBelow(layout.at(POINT_ROW + 2, column)), "Only the last row is closed");
             assertEquals(ThemeLineStyle.THIN, layout.at(POINT_ROW + 3, column).style().border().bottom().style());
@@ -278,10 +278,11 @@ class TableThemeTest {
 
         assertEquals(Boolean.TRUE, layout.at(ITEM_ROW + 1, 1).style().bold());
         assertEquals(Boolean.TRUE, layout.at(ITEM_ROW + 2, 1).style().bold());
-        assertEquals(TITLE_GREY, layout.at(ITEM_ROW + 2, 1).style().background(), "The titles are not the field names");
+        assertEquals(TITLE_GREY, layout.at(ITEM_ROW + 2, 1).style().background().rgb(),
+                "The titles are not the field names");
         assertEquals(Boolean.FALSE, layout.at(ITEM_ROW + 1, 2).style().bold(), "A type is not a title");
-        assertEquals(LIGHT_BLUE, layout.at(ITEM_ROW + 2, 2).style().background());
-        assertEquals(LIGHT_BLUE, layout.at(ITEM_ROW + 2, 3).style().background());
+        assertEquals(LIGHT_BLUE, layout.at(ITEM_ROW + 2, 2).style().background().rgb());
+        assertEquals(LIGHT_BLUE, layout.at(ITEM_ROW + 2, 3).style().background().rgb());
     }
 
     @Test
@@ -290,19 +291,19 @@ class TableThemeTest {
 
         // The header is signed as every kind of table is, across the table, its text formatted in pieces. Only a
         // Datatype fills it: a Spreadsheet keeps it white, as any cell the theme fills no other way.
-        assertEquals(WHITE, layout.at(PREMIUM_ROW, 1).style().background());
+        assertEquals(WHITE, layout.at(PREMIUM_ROW, 1).style().background().rgb());
         assertEquals(ThemeLineStyle.THIN, layout.at(PREMIUM_ROW, 2).style().border().bottom().style());
         assertNotNull(layout.at(PREMIUM_ROW, 1).header());
         // The row naming the columns, with the title of the column of steps set apart.
         var stepTitle = layout.at(PREMIUM_ROW + 1, 1).style();
-        assertEquals(TITLE_GREY, stepTitle.background());
+        assertEquals(TITLE_GREY, stepTitle.background().rgb());
         assertEquals(Boolean.TRUE, stepTitle.bold());
         assertEquals(ThemeHorizontalAlign.CENTER, stepTitle.align());
-        assertEquals(TITLE_BLUE, layout.at(PREMIUM_ROW + 1, 2).style().background());
+        assertEquals(TITLE_BLUE, layout.at(PREMIUM_ROW + 1, 2).style().background().rgb());
         // A step marked for the result is bold; the others keep what the workbook says.
         assertEquals(Boolean.TRUE, layout.at(PREMIUM_ROW + 2, 1).style().bold());
         assertEquals(Boolean.FALSE, layout.at(PREMIUM_ROW + 4, 1).style().bold(), "A step that is not marked");
-        assertEquals(LIGHT_BLUE, layout.at(PREMIUM_ROW + 2, 2).style().background());
+        assertEquals(LIGHT_BLUE, layout.at(PREMIUM_ROW + 2, 2).style().background().rgb());
         assertEquals(ThemeHorizontalAlign.LEFT, layout.at(PREMIUM_ROW + 2, 2).style().align());
         assertEquals(Boolean.FALSE, layout.at(PREMIUM_ROW + 2, 2).style().bold(),
                 "The value of a marked step is not marked");
@@ -319,13 +320,14 @@ class TableThemeTest {
         // The heading is merged over the values of its row: every cell of it is the section, none a value.
         for (var column = 1; column <= 2; column++) {
             var section = layout.at(PREMIUM_ROW + 3, column).style();
-            assertEquals(TITLE_BLUE, section.background());
+            assertEquals(TITLE_BLUE, section.background().rgb());
             assertEquals(Boolean.TRUE, section.bold());
             assertEquals(Boolean.TRUE, section.italic());
             assertEquals(ThemeHorizontalAlign.CENTER, section.align());
             assertEquals(ThemeLineStyle.THIN, section.border().top().style());
         }
-        assertEquals(WHITE, layout.at(PREMIUM_ROW + 4, 1).style().background(), "A step under the heading is a step");
+        assertEquals(WHITE, layout.at(PREMIUM_ROW + 4, 1).style().background().rgb(),
+                "A step under the heading is a step");
     }
 
     @Test
@@ -512,10 +514,10 @@ class TableThemeTest {
                 HeaderRuns.returnType("Spreadsheet org.openl.rules.calc.SpreadsheetResult Premium()"));
 
         var runs = HeaderRuns.split(PREMIUM_HEADER, cell, header);
-        assertEquals("#808080", runs.get(0).style().color());
-        assertEquals("#808080", runs.get(2).style().color());
+        assertEquals("#808080", runs.get(0).style().color().rgb());
+        assertEquals("#808080", runs.get(2).style().color().rgb());
         assertEquals(Boolean.TRUE, runs.get(4).style().bold());
-        assertEquals("#808080", runs.get(6).style().color());
+        assertEquals("#808080", runs.get(6).style().color().rgb());
     }
 
     @Test
@@ -531,8 +533,8 @@ class TableThemeTest {
 
         var runs = HeaderRuns.split("Datatype Code <String>", cell, header);
         assertEquals(Boolean.TRUE, runs.get(2).style().bold());
-        assertEquals("#808080", runs.get(0).style().color());
-        assertEquals("#808080", runs.get(4).style().color());
+        assertEquals("#808080", runs.get(0).style().color().rgb());
+        assertEquals("#808080", runs.get(4).style().color().rgb());
     }
 
     @Test
@@ -808,12 +810,12 @@ class TableThemeTest {
         var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), ANSWER), THEME);
 
         var code = layout.at(ANSWER_ROW + 1, 1).style();
-        assertEquals(WHITE, code.background());
+        assertEquals(WHITE, code.background().rgb());
         assertEquals(ThemeHorizontalAlign.LEFT, code.align());
         assertEquals(Boolean.FALSE, code.bold());
         assertTrue(lineBelow(layout.at(ANSWER_ROW + 1, 1)), "The last row closes the table");
         var runs = layout.at(ANSWER_ROW, 1).runs("Method Integer " + ANSWER + "()");
-        assertEquals(MUTED, runs.getFirst().style().color(), "It is signed as every table");
+        assertEquals(MUTED, runs.getFirst().style().color().rgb(), "It is signed as every table");
     }
 
     @Test
@@ -821,8 +823,8 @@ class TableThemeTest {
         var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TALL), THEME);
 
         // The step takes two rows of the sheet: its name is merged down over both, its value is written in each.
-        assertEquals(LIGHT_BLUE, layout.at(TALL_ROW + 2, 2).style().background());
-        assertEquals(LIGHT_BLUE, layout.at(TALL_ROW + 3, 2).style().background());
+        assertEquals(LIGHT_BLUE, layout.at(TALL_ROW + 2, 2).style().background().rgb());
+        assertEquals(LIGHT_BLUE, layout.at(TALL_ROW + 3, 2).style().background().rgb());
         // Only the row of the sheet that ends the table is closed.
         assertFalse(lineBelow(layout.at(TALL_ROW + 2, 2)));
         assertTrue(lineBelow(layout.at(TALL_ROW + 3, 2)));
@@ -836,22 +838,22 @@ class TableThemeTest {
         // The header of a Data table is signed as every table is, its text centred.
         assertEquals(ThemeHorizontalAlign.CENTER, layout.at(TEAMS_ROW, 1).style().align());
         // The field names and the table a field takes its values from are muted, one line closing both rows.
-        assertEquals(MUTED, layout.at(TEAMS_ROW + 1, 2).style().color());
-        assertEquals(MUTED, layout.at(TEAMS_ROW + 2, 3).style().color());
+        assertEquals(MUTED, layout.at(TEAMS_ROW + 1, 2).style().color().rgb());
+        assertEquals(MUTED, layout.at(TEAMS_ROW + 2, 3).style().color().rgb());
         assertFalse(lineBelow(layout.at(TEAMS_ROW + 1, 2)), "No line between the field names and the references");
         assertTrue(lineBelow(layout.at(TEAMS_ROW + 2, 2)));
         assertTrue(lineBelow(layout.at(TEAMS_ROW + 2, 3)));
         // The titles and the values look like what a table gives.
-        assertEquals(TITLE_BLUE, layout.at(TEAMS_ROW + 3, 2).style().background());
+        assertEquals(TITLE_BLUE, layout.at(TEAMS_ROW + 3, 2).style().background().rgb());
         assertEquals(Boolean.TRUE, layout.at(TEAMS_ROW + 3, 2).style().bold());
-        assertEquals(LIGHT_BLUE, layout.at(TEAMS_ROW + 4, 2).style().background());
+        assertEquals(LIGHT_BLUE, layout.at(TEAMS_ROW + 4, 2).style().background().rgb());
         assertEquals(ThemeHorizontalAlign.CENTER, layout.at(TEAMS_ROW + 4, 2).style().align());
         // The column _PK_ names the keys itself: its values look like every value. So does a reference.
         assertEquals(Boolean.FALSE, layout.at(TEAMS_ROW + 4, 1).style().bold());
-        assertEquals(LIGHT_BLUE, layout.at(TEAMS_ROW + 4, 1).style().background());
+        assertEquals(LIGHT_BLUE, layout.at(TEAMS_ROW + 4, 1).style().background().rgb());
         assertEquals(Boolean.FALSE, layout.at(TEAMS_ROW + 4, 3).style().bold());
         // A value that is not filled looks like any value, and the line closing the last row.
-        assertEquals(LIGHT_BLUE, layout.at(TEAMS_ROW + 5, 2).style().background());
+        assertEquals(LIGHT_BLUE, layout.at(TEAMS_ROW + 5, 2).style().background().rgb());
         assertFalse(lineBelow(layout.at(TEAMS_ROW + 4, 1)), "A row other than the last is not closed");
         assertTrue(lineBelow(layout.at(TEAMS_ROW + 5, 3)));
     }
@@ -861,8 +863,8 @@ class TableThemeTest {
         var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), CREW), THEME);
 
         // Each field runs across a row: its name, its title, then a value of each row of the table.
-        assertEquals(MUTED, layout.at(CREW_ROW + 2, 1).style().color());
-        assertEquals(TITLE_BLUE, layout.at(CREW_ROW + 2, 2).style().background());
+        assertEquals(MUTED, layout.at(CREW_ROW + 2, 1).style().color().rgb());
+        assertEquals(TITLE_BLUE, layout.at(CREW_ROW + 2, 2).style().background().rgb());
         // The field names and the titles label the rows: they line up on the left, and no line goes round the names.
         assertFalse(lineRight(layout.at(CREW_ROW + 1, 1)));
         assertFalse(lineBelow(layout.at(CREW_ROW + 1, 1)), "No line between the field names");
@@ -874,8 +876,8 @@ class TableThemeTest {
         assertEquals(Boolean.TRUE, layout.at(CREW_ROW + 1, 3).style().bold());
         assertEquals(Boolean.TRUE, layout.at(CREW_ROW + 1, 4).style().bold());
         assertEquals(Boolean.FALSE, layout.at(CREW_ROW + 2, 3).style().bold());
-        assertEquals(LIGHT_BLUE, layout.at(CREW_ROW + 2, 3).style().background());
-        assertEquals(LIGHT_BLUE, layout.at(CREW_ROW + 2, 4).style().background());
+        assertEquals(LIGHT_BLUE, layout.at(CREW_ROW + 2, 3).style().background().rgb());
+        assertEquals(LIGHT_BLUE, layout.at(CREW_ROW + 2, 4).style().background().rgb());
         // The last row as written closes the table.
         assertFalse(lineBelow(layout.at(CREW_ROW + 1, 3)));
         assertTrue(lineBelow(layout.at(CREW_ROW + 2, 3)));
@@ -885,17 +887,17 @@ class TableThemeTest {
     void givesTheValuesATestTakesFromADataTableTheIdLook() {
         var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST), THEME);
 
-        assertEquals(MUTED, layout.at(RATED_TEST_ROW + 2, 1).style().color(), "The row naming the Data table");
+        assertEquals(MUTED, layout.at(RATED_TEST_ROW + 2, 1).style().color().rgb(), "The row naming the Data table");
         assertTrue(lineBelow(layout.at(RATED_TEST_ROW + 2, 1)), "The rows naming the fields are closed");
-        assertEquals(TITLE_GREY, layout.at(RATED_TEST_ROW + 3, 1).style().background());
+        assertEquals(TITLE_GREY, layout.at(RATED_TEST_ROW + 3, 1).style().background().rgb());
         // The person is filled from the Data table by its key, on white as every input and bold, as a key is; the
         // expected result beside it is not a key.
         assertEquals(Boolean.TRUE, layout.at(RATED_TEST_ROW + 4, 1).style().bold());
-        assertEquals(WHITE, layout.at(RATED_TEST_ROW + 4, 1).style().background());
+        assertEquals(WHITE, layout.at(RATED_TEST_ROW + 4, 1).style().background().rgb());
         assertEquals(Boolean.FALSE, layout.at(RATED_TEST_ROW + 4, 2).style().bold());
         // The green theme fills it too.
         var green = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST), GREEN);
-        assertEquals(GREEN_ID, green.at(RATED_TEST_ROW + 4, 1).style().background());
+        assertEquals(GREEN_ID, green.at(RATED_TEST_ROW + 4, 1).style().background().rgb());
     }
 
     @Test
@@ -904,11 +906,12 @@ class TableThemeTest {
 
         // The value the tested method returns and the error it reports are titled blue, their values light blue.
         for (var column = 2; column <= 3; column++) {
-            assertEquals(TITLE_BLUE, layout.at(RATED_TEST_ROW + 3, column).style().background());
+            assertEquals(TITLE_BLUE, layout.at(RATED_TEST_ROW + 3, column).style().background().rgb());
             assertEquals(Boolean.TRUE, layout.at(RATED_TEST_ROW + 3, column).style().bold());
-            assertEquals(LIGHT_BLUE, layout.at(RATED_TEST_ROW + 4, column).style().background());
+            assertEquals(LIGHT_BLUE, layout.at(RATED_TEST_ROW + 4, column).style().background().rgb());
             assertEquals(ThemeHorizontalAlign.CENTER, layout.at(RATED_TEST_ROW + 4, column).style().align());
-            assertEquals(MUTED, layout.at(RATED_TEST_ROW + 1, column).style().color(), "The field is a field name");
+            assertEquals(MUTED, layout.at(RATED_TEST_ROW + 1, column).style().color().rgb(),
+                    "The field is a field name");
         }
         assertEquals(Boolean.FALSE, layout.at(RATED_TEST_ROW + 4, 2).style().bold(), "A result is not an ID");
     }
@@ -917,9 +920,9 @@ class TableThemeTest {
     void givesARunTableTheLookOfATestTable() {
         var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_RUN), THEME);
 
-        assertEquals(MUTED, layout.at(RATED_RUN_ROW + 1, 1).style().color(), "The row naming the field");
-        assertEquals(MUTED, layout.at(RATED_RUN_ROW + 2, 1).style().color(), "The row naming the Data table");
-        assertEquals(TITLE_GREY, layout.at(RATED_RUN_ROW + 3, 1).style().background());
+        assertEquals(MUTED, layout.at(RATED_RUN_ROW + 1, 1).style().color().rgb(), "The row naming the field");
+        assertEquals(MUTED, layout.at(RATED_RUN_ROW + 2, 1).style().color().rgb(), "The row naming the Data table");
+        assertEquals(TITLE_GREY, layout.at(RATED_RUN_ROW + 3, 1).style().background().rgb());
         // The person is filled from the Data table by its key, and its row closes the table.
         assertEquals(ThemeHorizontalAlign.CENTER, layout.at(RATED_RUN_ROW + 4, 1).style().align());
         assertEquals(Boolean.TRUE, layout.at(RATED_RUN_ROW + 4, 1).style().bold());
@@ -978,9 +981,10 @@ class TableThemeTest {
         var people = service.layoutOf(TableTestProjects.table(model, "people"), GREEN);
         var teams = service.layoutOf(TableTestProjects.table(model, TEAMS), GREEN);
 
-        assertEquals(GREEN_ID, people.at(15, 1).style().background());
-        assertNotEquals(GREEN_ID, teams.at(TEAMS_ROW + 4, 1).style().background(), "A column _PK_ is no key look");
-        assertEquals(GREEN_EMPTY, teams.at(TEAMS_ROW + 5, 2).style().background());
+        assertEquals(GREEN_ID, people.at(15, 1).style().background().rgb());
+        assertNotEquals(GREEN_ID, teams.at(TEAMS_ROW + 4, 1).style().background().rgb(),
+                "A column _PK_ is no key look");
+        assertEquals(GREEN_EMPTY, teams.at(TEAMS_ROW + 5, 2).style().background().rgb());
 
         write(tables(TableTestProjects.projectModel(dir), "people", TEAMS), GREEN);
 

@@ -70,7 +70,8 @@ class ThemeModelTest {
         if (type == Boolean.class) {
             return second;
         }
-        if (type == Integer.class) {
+        // A size, or the theme colour and the tint a colour is made of.
+        if (type == Integer.class || type == int.class) {
             return second ? 12 : 10;
         }
         if (type == String.class) {

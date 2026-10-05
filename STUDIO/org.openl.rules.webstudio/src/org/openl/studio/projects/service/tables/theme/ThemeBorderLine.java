@@ -15,30 +15,21 @@ import org.openl.rules.table.xls.PoiExcelHelper;
  * One side of a cell border a theme draws.
  *
  * <p>The theme file writes a side either as the name of a line, such as {@code thin}, or with its colour:
- * {@code {style: thin, color: "#7f7f7f"}}, the colour written as {@code #rrggbb} or by the name the theme gives it. A
- * side without a colour is black.
+ * {@code {style: thin, color: "#7f7f7f"}}, the colour written as {@code #rrggbb}, as the palette of Excel names a
+ * theme colour, or by the name the theme gives it. A side without a colour is black.
  *
  * @param style the line
- * @param color the colour of the line as {@code #rrggbb}, or {@code null} for black
+ * @param color the colour of the line, or {@code null} for black
  */
 @JsonDeserialize(using = ThemeBorderLine.Reader.class)
-public record ThemeBorderLine(ThemeLineStyle style, @Nullable String color) {
+public record ThemeBorderLine(ThemeLineStyle style, @Nullable ThemeColour color) {
 
     /** The colour of a line that names none. */
     private static final String BLACK = "#000000";
 
-    /**
-     * A side, its colour written as {@code #rrggbb}.
-     *
-     * @throws IllegalArgumentException when the colour is written another way
-     */
-    public ThemeBorderLine {
-        ThemeStyle.requireColour(color);
-    }
-
     /** The colour the line is drawn in, as the red, the green and the blue of it: black when it names none. */
     public short[] rgb() {
-        return PoiExcelHelper.toRgb(color == null ? BLACK : color);
+        return PoiExcelHelper.toRgb(color == null ? BLACK : color.rgb());
     }
 
     /** Whether the side is drawn with a line, rather than taken away. */
@@ -48,7 +39,7 @@ public record ThemeBorderLine(ThemeLineStyle style, @Nullable String color) {
 
     /** A side written with its colour. */
     private record Written(@Nullable ThemeLineStyle style,
-                           @JsonDeserialize(using = ThemeColourReader.class) @Nullable String color) {
+                           @JsonDeserialize(using = ThemeColourReader.class) @Nullable ThemeColour color) {
     }
 
     /** Reads a side written either way. */

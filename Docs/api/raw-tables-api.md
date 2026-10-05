@@ -423,6 +423,12 @@ Writing changes only the look of a table. Each cell keeps its value and every at
 as its number format. The header keeps its text, cells outside the table are not touched, and a table of a
 dependency project is left as it is. Writing the theme again adds no styles or fonts to the workbook.
 
+A theme that makes its colours of the theme colours of Excel (`themeColors`) writes each such colour as the theme
+colour, made lighter or darker, into a workbook whose twelve theme colours are those, so Excel offers it in its
+palette, and as `#rrggbb` into any other workbook, an `.xls` one and one without a theme among them. The project
+endpoint and the `theme` action write alike, and neither changes the theme of a workbook: Apache POI, which writes
+the workbooks, has no way to set it.
+
 ### Applying Several Edits
 
 ```http

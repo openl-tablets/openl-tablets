@@ -80,7 +80,7 @@ class TBasicThemeLayoutTest {
 
         assertEquals(List.of("TBasic", " ", "Integer", " ", "Factorial", " ", "(Integer n)"),
                 runs.stream().map(run -> FACTORIAL.substring(run.start(), run.end())).toList());
-        assertEquals(MUTED, runs.getFirst().style().color());
+        assertEquals(MUTED, runs.getFirst().style().color().rgb());
         assertEquals(Boolean.TRUE, runs.get(4).style().bold(), "The name of the table is bold");
     }
 
@@ -90,11 +90,11 @@ class TBasicThemeLayoutTest {
 
         for (var column = LABEL; column <= ACTION; column++) {
             var id = layout.at(FACTORIAL_ROW + 1, column).style();
-            assertEquals(MUTED, id.color(), "column " + column);
+            assertEquals(MUTED, id.color().rgb(), "column " + column);
             assertEquals(ThemeLineStyle.THIN, id.border().bottom().style(), "A line closes the ids");
             var title = layout.at(FACTORIAL_ROW + 2, column).style();
             assertEquals(Boolean.TRUE, title.bold(), "column " + column);
-            assertEquals(column == LABEL ? LABEL_TITLE : TITLE, title.background(), "column " + column);
+            assertEquals(column == LABEL ? LABEL_TITLE : TITLE, title.background().rgb(), "column " + column);
         }
     }
 
@@ -102,13 +102,14 @@ class TBasicThemeLayoutTest {
     void fillsWhatAStepRunsAndLeavesTheRestOfItAsEveryCellStarts() {
         var layout = layout();
 
-        assertEquals(CODE, layout.at(FIRST_STEP, ACTION).style().background(), "The action of a step");
+        assertEquals(CODE, layout.at(FIRST_STEP, ACTION).style().background().rgb(), "The action of a step");
         assertEquals(Boolean.FALSE, layout.at(FIRST_STEP, ACTION).style().bold());
-        assertEquals(WHITE, layout.at(FIRST_STEP, CONDITION).style().background(), "The themes fill no condition");
-        assertEquals(WHITE, layout.at(FIRST_STEP, LABEL).style().background(), "The label of a step");
-        assertEquals(WHITE, layout.at(FIRST_STEP, DESCRIPTION).style().background());
+        assertEquals(WHITE, layout.at(FIRST_STEP, CONDITION).style().background().rgb(),
+                "The themes fill no condition");
+        assertEquals(WHITE, layout.at(FIRST_STEP, LABEL).style().background().rgb(), "The label of a step");
+        assertEquals(WHITE, layout.at(FIRST_STEP, DESCRIPTION).style().background().rgb());
         var operation = layout.at(LOOP_STEP + 1, OPERATION).style();
-        assertEquals(WHITE, operation.background());
+        assertEquals(WHITE, operation.background().rgb());
         assertEquals(ThemeHorizontalAlign.LEFT, operation.align(), "An indent shows in a text aligned to the left");
     }
 
@@ -117,7 +118,7 @@ class TBasicThemeLayoutTest {
         var layout = CONDITIONS.layoutOf(factorial(), "tbasic-condition");
 
         for (var row = FIRST_STEP; row <= LAST_STEP; row++) {
-            assertEquals(CONDITION_FILL, layout.at(row, CONDITION).style().background(), "row " + row);
+            assertEquals(CONDITION_FILL, layout.at(row, CONDITION).style().background().rgb(), "row " + row);
             assertNull(layout.at(row, ACTION).style().background(), "The theme writes nothing for the actions");
         }
     }
@@ -133,7 +134,7 @@ class TBasicThemeLayoutTest {
             assertEquals(Boolean.TRUE, layout.at(RETURN_STEP, column).style().bold(), "Every cell of the step");
             assertEquals(Boolean.FALSE, layout.at(LOOP_STEP, column).style().bold(), "A step that does not return");
         }
-        assertEquals(CODE, layout.at(RETURN_STEP, ACTION).style().background(), "Bold over its own look");
+        assertEquals(CODE, layout.at(RETURN_STEP, ACTION).style().background().rgb(), "Bold over its own look");
     }
 
     @Test

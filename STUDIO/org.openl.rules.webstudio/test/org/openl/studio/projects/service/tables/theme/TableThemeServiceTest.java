@@ -10,10 +10,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableThemeView;
 
@@ -50,13 +52,13 @@ class TableThemeServiceTest {
         assertEquals(ThemeLineStyle.THIN, spreadsheet.properties().border().bottom().style());
         assertEquals(ThemeLineStyle.THIN, datatype.lastRow().border().bottom().style());
         assertEquals("Franklin Gothic Book", datatype.style().fontFamily());
-        assertEquals("#ddebf7", datatype.name().background());
+        assertEquals("#ddebf7", datatype.name().background().rgb());
         assertNull(theme.lookOf(theme.vocabulary()).name(), "A Vocabulary has no column of field names");
         // The parts the kinds share are written once in the base: a Rules and a Test table title what they take and
         // what they give alike, while a Spreadsheet titles its formulas as what a table gives.
         assertEquals(rules.titles(), test.titles());
         assertEquals(rules.returnTitles(), test.returnTitles());
-        assertEquals(rules.returnTitles().background(), spreadsheet.titles().background());
+        assertEquals(rules.returnTitles().background().rgb(), spreadsheet.titles().background().rgb());
         assertEquals(Boolean.TRUE, spreadsheet.titles().bold());
         assertEquals(rules.code(), theme.lookOf(theme.tbasic()).code());
     }
@@ -70,9 +72,9 @@ class TableThemeServiceTest {
         assertEquals(Boolean.TRUE, datatype.name().bold(), "A kind named with nothing in it takes the base alone");
         assertEquals(Boolean.FALSE, vocabulary.name().bold(), "The Vocabulary writes its own name look");
         // The rest of the Vocabulary header is the one of the base, an alias reused for the type as well.
-        assertEquals("#c6e0b4", vocabulary.style().background());
-        assertEquals("#548235", vocabulary.keyword().color());
-        assertEquals("#548235", vocabulary.type().color());
+        assertEquals("#c6e0b4", vocabulary.style().background().rgb());
+        assertEquals("#548235", vocabulary.keyword().color().rgb());
+        assertEquals("#548235", vocabulary.type().color().rgb());
     }
 
     @Test
@@ -82,8 +84,8 @@ class TableThemeServiceTest {
             var environment = theme.lookOf(theme.environment());
 
             assertEquals(environment, theme.lookOf(theme.properties()), id + ": a Properties table is as technical");
-            assertEquals("#e7e6e6", environment.header().style().background(), id);
-            assertEquals("#f2f2f2", environment.name().background(), id);
+            assertEquals("#e7e6e6", environment.header().style().background().rgb(), id);
+            assertEquals("#f2f2f2", environment.name().background().rgb(), id);
             assertEquals(theme.lookOf(theme.datatype()).header().name(), environment.header().name(),
                     id + ": it is signed as every table");
         }
@@ -124,7 +126,7 @@ class TableThemeServiceTest {
             // A line after the names it checks, and between the columns of its values.
             assertEquals(ThemeLineStyle.THIN, columnMatch.name().border().right().style(), id);
             assertEquals(ThemeLineStyle.THIN, columnMatch.values().border().right().style(), id);
-            assertEquals(rules.returns().background(), columnMatch.returns().background(), id);
+            assertEquals(rules.returns().background().rgb(), columnMatch.returns().background().rgb(), id);
             assertEquals(ThemeLineStyle.THIN, columnMatch.returns().border().right().style(), id);
             assertEquals(theme.base(), theme.lookOf(theme.method()), id + ": a Method table takes the base alone");
         }
@@ -146,7 +148,7 @@ class TableThemeServiceTest {
             assertNull(spreadsheet.style().background(), id);
         }
         var green = service.theme("green");
-        assertEquals("#c6e0b4", green.lookOf(green.datatype()).header().style().background(),
+        assertEquals("#c6e0b4", green.lookOf(green.datatype()).header().style().background().rgb(),
                 "The green theme fills the header of a Datatype");
     }
 
@@ -159,8 +161,9 @@ class TableThemeServiceTest {
         // The Datatype also merges the base with the YAML merge key, which extends the base by what it already is.
         var datatype = theme.lookOf(theme.datatype());
         assertEquals(Boolean.TRUE, datatype.style().italic(), "The Datatype extends the base");
-        assertEquals(new ThemeBorderLine(ThemeLineStyle.MEDIUM, "#ff0000"), datatype.lastRow().border().bottom());
-        assertEquals("#fff2cc", datatype.name().background());
+        assertEquals(new ThemeBorderLine(ThemeLineStyle.MEDIUM, ThemeColour.of("#ff0000")),
+                datatype.lastRow().border().bottom());
+        assertEquals("#fff2cc", datatype.name().background().rgb());
     }
 
     @Test
@@ -168,6 +171,7 @@ class TableThemeServiceTest {
         // Next to the themes it reads lie the ones it refuses; Studio starts with the ones it can offer.
         assertEquals(List.of(new TableThemeView("datatype-extension", "Datatype Extension"),
                         new TableThemeView("decision-kinds", "Decision Kinds"),
+                        new TableThemeView("excel-theme-colours", "Excel Theme Colours"),
                         new TableThemeView("extended-header", "Extended Header"),
                         new TableThemeView("named-colours", "Named Colours"),
                         new TableThemeView("tbasic-condition", "TBasic Condition")),
@@ -179,11 +183,62 @@ class TableThemeServiceTest {
         var theme = new TableThemeService(FIXTURES + "named-colours.yaml").theme("named-colours");
         var datatype = theme.lookOf(theme.datatype());
 
-        assertEquals("#1f4e78", datatype.header().keyword().color(), "The colour of a font");
-        assertEquals("#ddebf7", datatype.name().background(), "The colour of a fill");
-        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, "#1f4e78"), datatype.lastRow().border().bottom(),
-                "The colour of a line");
-        assertEquals("#000000", datatype.name().color(), "A colour written as #rrggbb");
+        assertEquals("#1f4e78", datatype.header().keyword().color().rgb(), "The colour of a font");
+        assertEquals("#ddebf7", datatype.name().background().rgb(), "The colour of a fill");
+        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, ThemeColour.of("#1f4e78")),
+                datatype.lastRow().border().bottom(), "The colour of a line");
+        assertEquals("#000000", datatype.name().color().rgb(), "A colour written as #rrggbb");
+    }
+
+    @Test
+    void readsAColourAsThePaletteOfExcelNamesAThemeColour() {
+        var theme = new TableThemeService(FIXTURES + "excel-theme-colours.yaml").theme("excel-theme-colours");
+        var datatype = theme.lookOf(theme.datatype());
+
+        assertEquals("Office 2013 - 2022", theme.themeColors().name());
+        assertEquals("#4472c4", theme.themeColors().colours().get(ExcelThemeColour.ACCENT_1));
+        // Drawn as Excel draws the theme colour made lighter or darker, and written as that theme colour.
+        assertEquals(new ThemeColour("#b4c6e7", new ThemedColor(4, 600)), datatype.name().background(),
+                "Blue, Accent 1, Lighter 60%");
+        assertEquals(new ThemeColour("#808080", new ThemedColor(0, -500)), datatype.header().keyword().color(),
+                "White, Background 1, Darker 50%");
+        assertEquals(new ThemeColour("#000000", new ThemedColor(1, 0)), datatype.name().color(),
+                "A theme colour named without the name Excel gives it, in another letter case");
+        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, new ThemeColour("#548235", new ThemedColor(9, -250))),
+                datatype.lastRow().border().bottom(), "The colour of a line");
+        assertEquals(new ThemeColour("#ddebf7", new ThemedColor(8, 800)), datatype.values().background(),
+                "A theme colour a part names itself");
+        assertEquals(ThemeColour.of("#7f7f7f"), datatype.values().color(), "A colour of its own beside them");
+    }
+
+    @Test
+    void theThemesOfStudioMakeTheirColoursOfTheThemeColoursTheStandardNames() {
+        for (var themeId : List.of("standard", "green")) {
+            var theme = service.theme(themeId);
+            var style = theme.base().style();
+
+            assertEquals("Office 2013 - 2022", theme.themeColors().name(), themeId);
+            assertEquals(new ThemeColour("#000000", new ThemedColor(1, 0)), style.color(), "Black, Text 1");
+            assertEquals(new ThemeColour("#ffffff", new ThemedColor(0, 0)), style.background(),
+                    "White, Background 1");
+        }
+        var standard = service.theme("standard");
+        assertEquals(new ThemeColour("#ddebf7", new ThemedColor(8, 800)),
+                standard.lookOf(standard.datatype()).name().background(), "Blue, Accent 5, Lighter 80%");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "theme-colour-without-theme-colours, the theme writes under themeColors",
+            "misnamed-tint, as the palette of Excel names it",
+            "overnamed-theme-colour, as the palette of Excel names it",
+            "incomplete-theme-colours, give no followedHyperlink",
+            "unknown-theme-colour, have no colour accent7",
+            "nameless-theme-colours, declare no name"})
+    void refusesAThemeColourOfExcelWrittenAnotherWayOrWithoutItsThemeColours(String theme, String reason) {
+        var refused = refusalOf(fixture(theme));
+        var message = refused.getCause().getMessage();
+        assertTrue(message.contains(reason), message);
     }
 
     @Test

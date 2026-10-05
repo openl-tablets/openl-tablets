@@ -175,10 +175,35 @@ for the endpoints.
 - **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off), names an unknown attribute or a
   colour it gives no name is logged as an error and not offered; Studio starts with the rest.
-- **A theme names its colours once.** The `colors` key of the file maps a name to `#rrggbb`. `TableThemeService`
-  takes it out of the file before binding, and hands it to `ThemeColourReader`, which reads a name wherever a part
-  sets a colour (`color`, `background`, the `color` of a line). `ThemeStyle` and `ThemeBorderLine` therefore only
-  ever hold `#rrggbb`, which they check. The shipped themes set every colour by its name.
+- **A theme names its colours once.** The `colors` key of the file maps a name to `#rrggbb` or to a theme colour of
+  Excel as its palette names it (`Blue, Accent 1, Lighter 60%`: `ThemeColour.read`), made of the twelve colours the
+  file writes under `themeColors` (`ExcelThemeColours`, keyed by `ExcelThemeColour`). `TableThemeService` takes
+  `colors` out of the file before binding and reads `themeColors` beforehand, which also stays a key of the theme,
+  and hands both to `ThemeColourReader`, which reads a colour wherever a part sets one (`color`, `background`, the
+  `color` of a line). `ThemeStyle` and `ThemeBorderLine` therefore hold a `ThemeColour`: the `#rrggbb` the screen
+  draws, which it checks, and the theme colour and tint it is written as (`PoiExcelHelper.ThemedColor`). The RGB of a
+  theme colour is tinted as Excel tints it (`PoiExcelHelper.applyTint`), the function the reader draws a workbook
+  colour with, so the overlay and the written workbook draw alike. The shipped themes set every colour by its name,
+  each a theme colour of **Office 2013 - 2022** but the palest green of `green`.
+- **A theme colour is written as the theme colour only into a workbook of those theme colours.** The writer reads
+  the theme colours of each workbook once (`ExcelThemeColours.areThoseOf`: all twelve compared by colour, not by the
+  name, which Excel 2013-2022 writes as `Office`). When they are those of the theme, every colour of the theme is
+  written as the theme colour, so the palette of Excel offers it; otherwise every colour is written as RGB, and so
+  into an `.xls` workbook and one without a theme part. One table (`write`, the `theme` action) and the project
+  (`writeAll`) write alike. A cell holding the colour the other way round, RGB for a theme colour or the reverse, has
+  not the look, so writing again turns it into the way the workbook takes it.
+- **The theme of a workbook is never changed: a limit of Apache POI.** POI reads the theme colours
+  (`ThemesTable.getThemeColor`) but has no API to set them or to give a workbook another theme; `ensureThemesTable()`
+  makes an empty, Excel-invalid part. Replacing the colour scheme through the schema classes (`ThemeDocument`, then
+  `ThemesTable.readFrom`) was tried and dropped: the part held the new colours, yet Excel kept drawing the theme
+  colours of Office 2007 - 2010 from the hybrid theme. So any workbook of other theme colours takes RGB, and the guide
+  says how to give a workbook the theme colours in Excel before writing the theme. The usermodel writes a theme colour
+  with a tint into fills and lines (`XSSFColor.setTheme`, `setTint`), but `XSSFFont.setColor(XSSFColor)` keeps the RGB
+  alone (a themed colour turns into `<color rgb=""/>`), so a font of a theme colour is coloured through
+  `getCTFont()` (`PoiExcelHelper.setThemedColor`). The colour of a font of a workbook is read there too, from a copy
+  (`PoiExcelHelper.colourOf`): POI writes the RGB of a theme colour into the colour it reads
+  (`ThemesTable.inheritFromThemeAsRequired`), and `findOrCreateFont` reads every font of the workbook, so each font of
+  a theme colour would be saved with an RGB beside it.
 - **A theme is one style for every kind.** Every theme styles every kind of table but Other, and a kind the theme
   writes nothing for takes the base alone, as a Method table does in the shipped themes. The server decides which
   tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a
@@ -351,13 +376,14 @@ for the endpoints.
   mappings as a style read from the workbook (`RawTableStyles`, `BorderStyle.of`), so a line the theme draws looks
   like the one the written workbook shows. `ThemeStyles` sits beside `RawTableStyles` in the `read` package, so the
   theme package never depends on the reader. The writer tells fonts apart by `PoiExcelHelper.FontAttributes`, with
-  the size in twips and the colour as RGB, and a theme colour must be `#rrggbb`, which the theme model checks when
-  the file is read.
+  the size in twips, the colour as RGB and the theme colour it is made of (`themed`), and the RGB of a theme colour
+  must be `#rrggbb`, which `ThemeColour` checks when the file is read.
 - **Writing keeps what the theme does not set.** `ThemeExcelWriter` clones the style of each cell and sets only
   the attributes the theme names, keeps a cell that already has the look, and reuses the fonts the workbook has.
   Writing the theme again adds no styles or fonts, which matters because unused `cellXfs` are never compacted. A
   colour is compared as the workbook holds it (`PoiExcelHelper.toStoredRgb`): the full palette of an `.xls`
-  workbook holds a colour of the theme as the nearest one it has. A batch (`writeAll`) saves every workbook it
+  workbook holds a colour of the theme as the nearest one it has, and a theme colour is compared by the theme colour
+  and the tint it is written as (`ThemedColor.of`). A batch (`writeAll`) saves every workbook it
   reaches once, and notes the edit on each table it themes as a save of the table does (`TableWriter.recordEdit`),
   after the theme, naming the table by where it stands once written. Each property the note adds is a row inserted
   at the top of the properties with the style of the row under it, a table without properties getting them so. The

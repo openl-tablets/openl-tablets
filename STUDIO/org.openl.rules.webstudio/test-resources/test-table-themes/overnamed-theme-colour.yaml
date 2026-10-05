@@ -1,0 +1,19 @@
+name: Overnamed Theme Colour
+themeColors:
+  name: Office 2013 - 2022
+  background1: "#ffffff"
+  text1: "#000000"
+  background2: "#e7e6e6"
+  text2: "#44546a"
+  accent1: "#4472c4"
+  accent2: "#ed7d31"
+  accent3: "#a5a5a5"
+  accent4: "#ffc000"
+  accent5: "#5b9bd5"
+  accent6: "#70ad47"
+  hyperlink: "#0563c1"
+  followedHyperlink: "#954f72"
+datatype:
+  name:
+    # The palette of Excel gives a colour one name before it.
+    background: Dark, Blue, Accent 1, Lighter 60%

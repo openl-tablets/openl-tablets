@@ -1,7 +1,5 @@
 package org.openl.studio.projects.service.tables.theme;
 
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,9 +18,10 @@ import org.jspecify.annotations.Nullable;
  * @param italic     whether the font is italic
  * @param underline  whether the font is underlined
  * @param strikeout  whether the font is struck out
- * @param color      the colour of the font as {@code #rrggbb}; the theme file may name it by one of its colours
- * @param background the colour the cell is filled with as {@code #rrggbb}; the theme file may name it by one of its
- *                   colours
+ * @param color      the colour of the font; the theme file writes it as {@code #rrggbb}, as the palette of Excel
+ *                   names a theme colour, or by one of its colours
+ * @param background the colour the cell is filled with; the theme file writes it as {@code #rrggbb}, as the palette
+ *                   of Excel names a theme colour, or by one of its colours
  * @param align      how the text lines up across the cell
  * @param valign     how the text lines up from top to bottom
  * @param border     the borders of the cell
@@ -35,26 +34,22 @@ public record ThemeStyle(@Nullable String fontFamily,
                          @Nullable Boolean italic,
                          @Nullable Boolean underline,
                          @Nullable Boolean strikeout,
-                         @JsonDeserialize(using = ThemeColourReader.class) @Nullable String color,
-                         @JsonDeserialize(using = ThemeColourReader.class) @Nullable String background,
+                         @JsonDeserialize(using = ThemeColourReader.class) @Nullable ThemeColour color,
+                         @JsonDeserialize(using = ThemeColourReader.class) @Nullable ThemeColour background,
                          @Nullable ThemeHorizontalAlign align,
                          @Nullable ThemeVerticalAlign valign,
                          @Nullable ThemeBorder border) {
-
-    private static final Pattern COLOUR = Pattern.compile("#[0-9a-fA-F]{6}");
 
     /** The smallest and the largest font Excel writes, in points. */
     private static final int SMALLEST_FONT = 1;
     private static final int LARGEST_FONT = 409;
 
     /**
-     * A look, its colours written as {@code #rrggbb} and its font sized as Excel sizes one.
+     * A look, its font sized as Excel sizes one.
      *
-     * @throws IllegalArgumentException when a colour is written another way, or the font is of a size Excel has not
+     * @throws IllegalArgumentException when the font is of a size Excel has not
      */
     public ThemeStyle {
-        requireColour(color);
-        requireColour(background);
         requireFontSize(fontSize);
     }
 
@@ -114,19 +109,6 @@ public record ThemeStyle(@Nullable String fontFamily,
     boolean hasFont() {
         return fontFamily != null || fontSize != null || bold != null || italic != null || underline != null
                 || strikeout != null || color != null;
-    }
-
-    /**
-     * Refuses a colour written any other way than {@code #rrggbb}, which is how the workbook and the screen both take
-     * it: a shorter or a named colour would draw one colour and write another.
-     *
-     * @param colour the colour, or {@code null} for none
-     * @throws IllegalArgumentException when the colour is written another way
-     */
-    static void requireColour(@Nullable String colour) {
-        if (colour != null && !COLOUR.matcher(colour).matches()) {
-            throw new IllegalArgumentException("A colour is written as #rrggbb: " + colour);
-        }
     }
 
     /**

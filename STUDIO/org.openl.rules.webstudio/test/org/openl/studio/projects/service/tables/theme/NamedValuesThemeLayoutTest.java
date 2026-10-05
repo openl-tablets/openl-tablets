@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
@@ -35,6 +36,8 @@ class NamedValuesThemeLayoutTest {
     private static final String SETTING = "#f2f2f2";
     private static final String LIGHT_LINE = "#d9d9d9";
     private static final String CONSTANT_NAME = "#ddebf7";
+    /** The colour of the light line, a theme colour of Excel: White, Background 1, Darker 15%. */
+    private static final ThemeColour LIGHT_LINE_COLOUR = new ThemeColour(LIGHT_LINE, new ThemedColor(0, -150));
 
     /** An Environment table importing two packages, the setting merged over both. */
     private static final int ENVIRONMENT_ROW = 1;
@@ -70,15 +73,16 @@ class NamedValuesThemeLayoutTest {
     void drawsAnEnvironmentTableInGreys() {
         var layout = layoutAt(ENVIRONMENT_ROW);
 
-        assertEquals(GREY_HEADER, layout.at(ENVIRONMENT_ROW, 1).style().background());
+        assertEquals(GREY_HEADER, layout.at(ENVIRONMENT_ROW, 1).style().background().rgb());
         // The setting is merged over both of its values: every cell of it takes the look of the setting.
         for (var row = ENVIRONMENT_ROW + 1; row <= ENVIRONMENT_ROW + 2; row++) {
-            assertEquals(SETTING, layout.at(row, 1).style().background());
-            assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, LIGHT_LINE), right(layout.at(row, 1)));
-            assertEquals(WHITE, layout.at(row, 2).style().background());
+            assertEquals(SETTING, layout.at(row, 1).style().background().rgb());
+            assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, LIGHT_LINE_COLOUR), right(layout.at(row, 1)));
+            assertEquals(WHITE, layout.at(row, 2).style().background().rgb());
         }
         // A light line runs under each value, and the line closing the table under the last one.
-        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, LIGHT_LINE), bottom(layout.at(ENVIRONMENT_ROW + 1, 2)));
+        assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, LIGHT_LINE_COLOUR),
+                bottom(layout.at(ENVIRONMENT_ROW + 1, 2)));
         assertEquals(new ThemeBorderLine(ThemeLineStyle.THIN, null), bottom(layout.at(ENVIRONMENT_ROW + 2, 2)));
     }
 
@@ -86,12 +90,12 @@ class NamedValuesThemeLayoutTest {
     void drawsAPropertiesTableAsAnEnvironmentAndSignsItAsEveryTable() {
         var layout = layoutAt(PROPERTIES_ROW);
 
-        assertEquals(GREY_HEADER, layout.at(PROPERTIES_ROW, 1).style().background());
-        assertEquals(SETTING, layout.at(PROPERTIES_ROW + 1, 1).style().background());
-        assertEquals(WHITE, layout.at(PROPERTIES_ROW + 2, 2).style().background());
+        assertEquals(GREY_HEADER, layout.at(PROPERTIES_ROW, 1).style().background().rgb());
+        assertEquals(SETTING, layout.at(PROPERTIES_ROW + 1, 1).style().background().rgb());
+        assertEquals(WHITE, layout.at(PROPERTIES_ROW + 2, 2).style().background().rgb());
         // The keyword is muted and the name of the table bold, as in the header of every table.
         var runs = layout.at(PROPERTIES_ROW, 1).runs("Properties Catalogue");
-        assertEquals(MUTED, runs.getFirst().style().color());
+        assertEquals(MUTED, runs.getFirst().style().color().rgb());
         assertEquals(Boolean.TRUE, runs.getLast().style().bold());
     }
 
@@ -100,11 +104,11 @@ class NamedValuesThemeLayoutTest {
         var layout = layoutAt(CONSTANTS_ROW);
 
         for (var row = CONSTANTS_ROW + 1; row <= CONSTANTS_ROW + 2; row++) {
-            assertEquals(MUTED, layout.at(row, 1).style().color());
-            assertEquals(CONSTANT_NAME, layout.at(row, 2).style().background());
-            assertEquals(WHITE, layout.at(row, 3).style().background());
+            assertEquals(MUTED, layout.at(row, 1).style().color().rgb());
+            assertEquals(CONSTANT_NAME, layout.at(row, 2).style().background().rgb());
+            assertEquals(WHITE, layout.at(row, 3).style().background().rgb());
         }
-        assertEquals(WHITE, layout.at(CONSTANTS_ROW, 1).style().background(), "A Constants table is not grey");
+        assertEquals(WHITE, layout.at(CONSTANTS_ROW, 1).style().background().rgb(), "A Constants table is not grey");
         assertEquals(ThemeLineStyle.NONE, bottom(layout.at(CONSTANTS_ROW + 1, 3)).style());
         assertEquals(ThemeLineStyle.THIN, bottom(layout.at(CONSTANTS_ROW + 2, 3)).style(), "The last row closes it");
     }
@@ -115,9 +119,9 @@ class NamedValuesThemeLayoutTest {
 
         // A constant in each column: its type, then its name, then its value.
         for (var column = 1; column <= 2; column++) {
-            assertEquals(MUTED, layout.at(TRANSPOSED_ROW + 1, column).style().color());
-            assertEquals(CONSTANT_NAME, layout.at(TRANSPOSED_ROW + 2, column).style().background());
-            assertEquals(WHITE, layout.at(TRANSPOSED_ROW + 3, column).style().background());
+            assertEquals(MUTED, layout.at(TRANSPOSED_ROW + 1, column).style().color().rgb());
+            assertEquals(CONSTANT_NAME, layout.at(TRANSPOSED_ROW + 2, column).style().background().rgb());
+            assertEquals(WHITE, layout.at(TRANSPOSED_ROW + 3, column).style().background().rgb());
         }
         assertEquals(ThemeLineStyle.THIN, bottom(layout.at(TRANSPOSED_ROW + 3, 2)).style(), "The last row closes it");
     }

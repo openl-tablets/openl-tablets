@@ -122,7 +122,7 @@ class DecisionThemeLayoutTest {
 
         // The kinds of the columns, their expressions and their parameters are muted and closed by one line.
         for (var row = GREET_ROW + 1; row <= GREET_ROW + 3; row++) {
-            assertEquals(MUTED, layout.at(row, 2).style().color());
+            assertEquals(MUTED, layout.at(row, 2).style().color().rgb());
         }
         assertEquals(ThemeLineStyle.NONE, bottom(layout.at(GREET_ROW + 1, 2)), "No line between the rows of code");
         assertEquals(ThemeLineStyle.NONE, bottom(layout.at(GREET_ROW + 2, 4)));
@@ -137,17 +137,17 @@ class DecisionThemeLayoutTest {
         // The column naming the rules is titled as the conditions are, then comes the title of what is returned.
         var titles = GREET_ROW + 4;
         for (var column = 1; column <= 3; column++) {
-            assertEquals(TITLE, layout.at(titles, column).style().background());
+            assertEquals(TITLE, layout.at(titles, column).style().background().rgb());
             assertEquals(Boolean.TRUE, layout.at(titles, column).style().bold());
         }
-        assertEquals(RETURN_TITLE, layout.at(titles, 4).style().background());
+        assertEquals(RETURN_TITLE, layout.at(titles, 4).style().background().rgb());
         // The names of the rules and the values of the conditions, then the returns, all on the left with no line
         // between their columns.
         var rule = GREET_ROW + 5;
-        assertEquals(WHITE, layout.at(rule, 1).style().background());
+        assertEquals(WHITE, layout.at(rule, 1).style().background().rgb());
         assertEquals(ThemeHorizontalAlign.LEFT, layout.at(rule, 1).style().align());
         assertEquals(ThemeLineStyle.NONE, right(layout.at(rule, 3)));
-        assertEquals(RETURN, layout.at(rule, 4).style().background());
+        assertEquals(RETURN, layout.at(rule, 4).style().background().rgb());
         assertEquals(ThemeHorizontalAlign.LEFT, layout.at(rule, 4).style().align());
         assertEquals(ThemeLineStyle.NONE, right(layout.at(rule, 4)));
     }
@@ -175,12 +175,12 @@ class DecisionThemeLayoutTest {
 
         // Each column is written in a row: its kind, its code and its parameters, its title, then a value of each rule.
         for (var column = 1; column <= 3; column++) {
-            assertEquals(MUTED, layout.at(day, column).style().color());
+            assertEquals(MUTED, layout.at(day, column).style().color().rgb());
         }
-        assertEquals(TITLE, layout.at(day, 4).style().background());
-        assertEquals(RETURN_TITLE, layout.at(result, 4).style().background());
-        assertEquals(WHITE, layout.at(day + 1, 5).style().background());
-        assertEquals(RETURN, layout.at(result, 6).style().background());
+        assertEquals(TITLE, layout.at(day, 4).style().background().rgb());
+        assertEquals(RETURN_TITLE, layout.at(result, 4).style().background().rgb());
+        assertEquals(WHITE, layout.at(day + 1, 5).style().background().rgb());
+        assertEquals(RETURN, layout.at(result, 6).style().background().rgb());
         // The last row as written closes the table.
         assertEquals(ThemeLineStyle.THIN, bottom(layout.at(result, 5)));
     }
@@ -209,10 +209,10 @@ class DecisionThemeLayoutTest {
     void givesASimpleRulesTableTheLookOfARulesTable() {
         var layout = layoutOf(GREETING);
 
-        assertEquals(TITLE, layout.at(GREETING_ROW + 1, 1).style().background());
-        assertEquals(RETURN_TITLE, layout.at(GREETING_ROW + 1, 2).style().background());
-        assertEquals(WHITE, layout.at(GREETING_ROW + 2, 1).style().background());
-        assertEquals(RETURN, layout.at(GREETING_ROW + 2, 2).style().background());
+        assertEquals(TITLE, layout.at(GREETING_ROW + 1, 1).style().background().rgb());
+        assertEquals(RETURN_TITLE, layout.at(GREETING_ROW + 1, 2).style().background().rgb());
+        assertEquals(WHITE, layout.at(GREETING_ROW + 2, 1).style().background().rgb());
+        assertEquals(RETURN, layout.at(GREETING_ROW + 2, 2).style().background().rgb());
         // A rule written over two rows, with every value of it merged over both, is one rule, not a group: the rule
         // after it is set apart by the fine line between the rules.
         assertEquals(ThemeLineStyle.NONE, top(layout.at(GREETING_ROW + 2, 1)));
@@ -225,16 +225,16 @@ class DecisionThemeLayoutTest {
         var layout = layoutOf(HELLO);
         var titles = HELLO_ROW + 1;
 
-        assertEquals(TITLE, layout.at(titles, 1).style().background());
-        assertEquals(TITLE, layout.at(titles, 2).style().background());
+        assertEquals(TITLE, layout.at(titles, 1).style().background().rgb());
+        assertEquals(TITLE, layout.at(titles, 2).style().background().rgb());
         // A value of two fields is returned in two columns.
-        assertEquals(RETURN_TITLE, layout.at(titles, 3).style().background());
-        assertEquals(RETURN_TITLE, layout.at(titles, 4).style().background());
-        assertEquals(WHITE, layout.at(titles + 1, 1).style().background());
+        assertEquals(RETURN_TITLE, layout.at(titles, 3).style().background().rgb());
+        assertEquals(RETURN_TITLE, layout.at(titles, 4).style().background().rgb());
+        assertEquals(WHITE, layout.at(titles + 1, 1).style().background().rgb());
         assertEquals(ThemeLineStyle.NONE, right(layout.at(titles + 1, 1)));
         assertEquals(ThemeLineStyle.HAIR, top(layout.at(titles + 2, 1)), "A fine line between the rules");
-        assertEquals(RETURN, layout.at(titles + 1, 3).style().background());
-        assertEquals(RETURN, layout.at(titles + 1, 4).style().background());
+        assertEquals(RETURN, layout.at(titles + 1, 3).style().background().rgb());
+        assertEquals(RETURN, layout.at(titles + 1, 4).style().background().rgb());
     }
 
     @Test
@@ -242,22 +242,22 @@ class DecisionThemeLayoutTest {
         var layout = layoutOf(RATE);
 
         // The titles of the vertical conditions stand beside the values of the horizontal one, a line after each.
-        assertEquals(TITLE, layout.at(RATE_ROW + 1, 1).style().background());
-        assertEquals(TITLE, layout.at(RATE_ROW + 1, 2).style().background());
+        assertEquals(TITLE, layout.at(RATE_ROW + 1, 1).style().background().rgb());
+        assertEquals(TITLE, layout.at(RATE_ROW + 1, 2).style().background().rgb());
         assertEquals(ThemeLineStyle.THIN, right(layout.at(RATE_ROW + 1, 1)));
         assertEquals(ThemeLineStyle.THIN, right(layout.at(RATE_ROW + 1, 2)));
         var horizontal = layout.at(RATE_ROW + 1, 3).style();
-        assertEquals(HORIZONTAL, horizontal.background());
+        assertEquals(HORIZONTAL, horizontal.background().rgb());
         assertEquals(Boolean.TRUE, horizontal.bold());
         assertEquals(ThemeLineStyle.THIN, horizontal.border().top().style());
         // A fine line between the columns, but on the left of the first: the conditions close it.
         assertEquals(ThemeLineStyle.NONE, horizontal.border().left().style());
         assertEquals(ThemeLineStyle.HAIR, left(layout.at(RATE_ROW + 1, 4)));
         // The values the lookup returns stand where the conditions meet, lined as the horizontal values are.
-        assertEquals(WHITE, layout.at(RATE_ROW + 2, 2).style().background());
+        assertEquals(WHITE, layout.at(RATE_ROW + 2, 2).style().background().rgb());
         assertEquals(ThemeLineStyle.THIN, right(layout.at(RATE_ROW + 2, 2)));
-        assertEquals(RETURN, layout.at(RATE_ROW + 2, 3).style().background());
-        assertEquals(RETURN, layout.at(RATE_ROW + 4, 4).style().background());
+        assertEquals(RETURN, layout.at(RATE_ROW + 2, 3).style().background().rgb());
+        assertEquals(RETURN, layout.at(RATE_ROW + 4, 4).style().background().rgb());
         assertEquals(ThemeLineStyle.NONE, left(layout.at(RATE_ROW + 2, 3)));
         assertEquals(ThemeLineStyle.HAIR, left(layout.at(RATE_ROW + 2, 4)));
         // The first vertical condition is merged over two rules, which makes them a group: a line over the rule after
@@ -274,17 +274,17 @@ class DecisionThemeLayoutTest {
 
         // The title of the vertical condition is merged down over both rows of horizontal conditions, its text in the
         // middle of them.
-        assertEquals(TITLE, layout.at(FACTOR_ROW + 1, 1).style().background());
-        assertEquals(TITLE, layout.at(FACTOR_ROW + 2, 1).style().background());
+        assertEquals(TITLE, layout.at(FACTOR_ROW + 1, 1).style().background().rgb());
+        assertEquals(TITLE, layout.at(FACTOR_ROW + 2, 1).style().background().rgb());
         assertEquals(ThemeLineStyle.THIN, right(layout.at(FACTOR_ROW + 2, 1)));
         assertEquals(ThemeVerticalAlign.CENTER, layout.at(FACTOR_ROW + 1, 1).style().valign());
         for (var column = 2; column <= 5; column++) {
-            assertEquals(HORIZONTAL, layout.at(FACTOR_ROW + 1, column).style().background());
-            assertEquals(HORIZONTAL, layout.at(FACTOR_ROW + 2, column).style().background());
+            assertEquals(HORIZONTAL, layout.at(FACTOR_ROW + 1, column).style().background().rgb());
+            assertEquals(HORIZONTAL, layout.at(FACTOR_ROW + 2, column).style().background().rgb());
             assertEquals(ThemeLineStyle.THIN, top(layout.at(FACTOR_ROW + 2, column)), "A line between their rows");
-            assertEquals(RETURN, layout.at(FACTOR_ROW + 3, column).style().background());
+            assertEquals(RETURN, layout.at(FACTOR_ROW + 3, column).style().background().rgb());
         }
-        assertEquals(WHITE, layout.at(FACTOR_ROW + 3, 1).style().background());
+        assertEquals(WHITE, layout.at(FACTOR_ROW + 3, 1).style().background().rgb());
     }
 
     @Test
@@ -326,7 +326,7 @@ class DecisionThemeLayoutTest {
         // The header is signed as the header of every table is; the body takes the look every cell starts from.
         assertEquals(ThemeLineStyle.THIN, bottom(layout.at(BROKEN_ROW, 1)));
         assertEquals(Boolean.FALSE, layout.at(BROKEN_ROW + 1, 1).style().bold());
-        assertEquals(WHITE, layout.at(BROKEN_ROW + 2, 2).style().background());
+        assertEquals(WHITE, layout.at(BROKEN_ROW + 2, 2).style().background().rgb());
         assertEquals(ThemeLineStyle.THIN, bottom(layout.at(BROKEN_ROW + 2, 2)), "The last row closes the table");
     }
 
@@ -366,7 +366,7 @@ class DecisionThemeLayoutTest {
         // Every part is muted as the code of a Rules table, the keyword naming it included.
         for (var row = CONDITIONS_ROW + 1; row <= CONDITIONS_ROW + 3; row++) {
             for (var column = 1; column <= 4; column++) {
-                assertEquals(MUTED, layout.at(row, column).style().color(), row + ":" + column);
+                assertEquals(MUTED, layout.at(row, column).style().color().rgb(), row + ":" + column);
             }
         }
         assertEquals(ThemeLineStyle.NONE, bottom(layout.at(CONDITIONS_ROW + 1, 2)), "No line between the parts");
@@ -382,12 +382,12 @@ class DecisionThemeLayoutTest {
 
         // The keyword of the row takes the look of the titles it names, the merged title of the first condition too.
         for (var column = 1; column <= 4; column++) {
-            assertEquals(TITLE, layout.at(titles, column).style().background(), "column " + column);
+            assertEquals(TITLE, layout.at(titles, column).style().background().rgb(), "column " + column);
             assertEquals(Boolean.TRUE, layout.at(titles, column).style().bold());
             assertEquals(ThemeHorizontalAlign.CENTER, layout.at(titles, column).style().align());
             assertEquals(ThemeLineStyle.THIN, bottom(layout.at(titles, column)), "The last row closes the table");
         }
-        assertEquals(BLACK, layout.at(titles, 2).style().color());
+        assertEquals(BLACK, layout.at(titles, 2).style().color().rgb());
     }
 
     @Test
@@ -396,9 +396,9 @@ class DecisionThemeLayoutTest {
         var titles = ACTIONS_ROW + 4;
 
         for (var column = 1; column <= 2; column++) {
-            assertEquals(MUTED, layout.at(ACTIONS_ROW + 1, column).style().color());
+            assertEquals(MUTED, layout.at(ACTIONS_ROW + 1, column).style().color().rgb());
             assertEquals(ThemeLineStyle.THIN, bottom(layout.at(ACTIONS_ROW + 3, column)));
-            assertEquals(RETURN_TITLE, layout.at(titles, column).style().background());
+            assertEquals(RETURN_TITLE, layout.at(titles, column).style().background().rgb());
             assertEquals(Boolean.TRUE, layout.at(titles, column).style().bold());
         }
     }
@@ -411,14 +411,14 @@ class DecisionThemeLayoutTest {
         // its last column.
         for (var row = HOURS_ROW + 1; row <= HOURS_ROW + 3; row++) {
             for (var column = 1; column <= 3; column++) {
-                assertEquals(MUTED, layout.at(row, column).style().color(), row + ":" + column);
+                assertEquals(MUTED, layout.at(row, column).style().color().rgb(), row + ":" + column);
             }
             assertEquals(ThemeLineStyle.NONE, right(layout.at(row, 2)));
             assertEquals(ThemeLineStyle.THIN, right(layout.at(row, 3)));
         }
         // The titles are a column.
         for (var row = HOURS_ROW + 1; row <= HOURS_ROW + 3; row++) {
-            assertEquals(TITLE, layout.at(row, 4).style().background());
+            assertEquals(TITLE, layout.at(row, 4).style().background().rgb());
             assertEquals(ThemeLineStyle.NONE, right(layout.at(row, 4)));
         }
         assertEquals(ThemeLineStyle.NONE, bottom(layout.at(HOURS_ROW + 2, 4)), "No line between the conditions");
@@ -431,9 +431,9 @@ class DecisionThemeLayoutTest {
         var layout = layoutAt(RETURNS_ROW);
 
         for (var row = RETURNS_ROW + 1; row <= RETURNS_ROW + 2; row++) {
-            assertEquals(RETURN_TITLE, layout.at(row, 1).style().background());
-            assertEquals(MUTED, layout.at(row, 2).style().color());
-            assertEquals(WHITE, layout.at(row, 4).style().background());
+            assertEquals(RETURN_TITLE, layout.at(row, 1).style().background().rgb());
+            assertEquals(MUTED, layout.at(row, 2).style().color().rgb());
+            assertEquals(WHITE, layout.at(row, 4).style().background().rgb());
         }
     }
 
@@ -444,8 +444,8 @@ class DecisionThemeLayoutTest {
         // The header is signed as the header of every table is; the body takes the look every cell starts from.
         assertEquals(Boolean.TRUE, layout.at(UNDECLARED_ROW, 1).runs("Conditions Undeclared").getLast().style().bold());
         for (var column = 1; column <= 3; column++) {
-            assertEquals(BLACK, layout.at(UNDECLARED_ROW + 1, column).style().color());
-            assertEquals(WHITE, layout.at(UNDECLARED_ROW + 1, column).style().background());
+            assertEquals(BLACK, layout.at(UNDECLARED_ROW + 1, column).style().color().rgb());
+            assertEquals(WHITE, layout.at(UNDECLARED_ROW + 1, column).style().background().rgb());
             assertEquals(ThemeLineStyle.THIN, bottom(layout.at(UNDECLARED_ROW + 1, column)), "The last row closes it");
         }
     }
@@ -453,9 +453,9 @@ class DecisionThemeLayoutTest {
     @Test
     void givesEachKindOfDeclarationTableTheLookTheThemeWritesForIt() {
         assertEquals("#fce4d6", KINDS.layoutOf(tableAt(CONDITIONS_ROW), KINDS_THEME)
-                .at(CONDITIONS_ROW + 4, 2).style().background(), "A Conditions table fills its titles");
+                .at(CONDITIONS_ROW + 4, 2).style().background().rgb(), "A Conditions table fills its titles");
         assertEquals("#e2efda", KINDS.layoutOf(tableAt(RETURNS_ROW), KINDS_THEME)
-                .at(RETURNS_ROW + 2, 1).style().background(), "A Returns table writes a look of its own");
+                .at(RETURNS_ROW + 2, 1).style().background().rgb(), "A Returns table writes a look of its own");
         assertNull(KINDS.layoutOf(tableAt(ACTIONS_ROW), KINDS_THEME).at(ACTIONS_ROW + 4, 1).style().background(),
                 "An Actions table the theme writes nothing for takes the base alone");
     }
@@ -491,7 +491,8 @@ class DecisionThemeLayoutTest {
 
     /** The fill the theme giving each kind a look of its own gives a cell of a table. */
     private @Nullable String returnOf(String name, int row, int column) {
-        return KINDS.layoutOf(table(name), KINDS_THEME).at(row, column).style().background();
+        var background = KINDS.layoutOf(table(name), KINDS_THEME).at(row, column).style().background();
+        return background == null ? null : background.rgb();
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */
