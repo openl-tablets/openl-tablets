@@ -1,0 +1,20 @@
+# A theme that names its colours once: a font, a fill and a line each take one by its name.
+name: Named Colours
+
+colors:
+  ink: "#1f4e78"
+  paper: "#ddebf7"
+
+base:
+  header:
+    keyword:
+      color: ink
+  lastRow:
+    border:
+      bottom: {style: thin, color: ink}
+
+datatype:
+  name:
+    # A colour written as #rrggbb stands beside the named ones.
+    color: "#000000"
+    background: paper

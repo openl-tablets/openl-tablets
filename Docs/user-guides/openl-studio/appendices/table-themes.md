@@ -10,6 +10,7 @@ The following topics are included:
 -   [Theme File](#theme-file)
 -   [Parts of a Table](#parts-of-a-table)
 -   [Style Attributes](#style-attributes)
+-   [Naming Colours](#naming-colours)
 -   [Extending the Base](#extending-the-base)
 -   [Reusing Parts of a Theme](#reusing-parts-of-a-theme)
 -   [Theme Example](#theme-example)
@@ -25,12 +26,15 @@ A theme is a YAML file with the `.yaml` extension:
     one name.
 
 A file is not offered when it cannot be read, declares no name, writes a key twice, writes a colour in another way than
-`#rrggbb`, writes a font size that is not a whole number from 1 to 409, or contains an attribute that is not described
-in this appendix. The reason is written to the OpenL Studio log, and the other themes are offered as usual.
+`#rrggbb` or a name the theme gives a colour, writes a font size that is not a whole number from 1 to 409, or contains
+an attribute that is not described in this appendix. The reason is written to the OpenL Studio log, and the other themes
+are offered as usual.
 
 A theme file holds the following keys:
 
 -   **`name`** — required. The name of the theme shown in OpenL Studio.
+-   **`colors`** — the colours of the theme, each under the name that a style sets it by, as described in
+    [Naming Colours](#naming-colours).
 -   **`base`** — the skin every table shares, such as its header and its properties. Each kind of table extends it,
     as described in [Extending the Base](#extending-the-base). The base styles no table by itself.
 -   **`datatype`** — what a Datatype table changes in the base.
@@ -243,14 +247,15 @@ formatting the theme says nothing about.
 | `italic`     | `true` or `false`                    | Whether the font is italic.                                  |
 | `underline`  | `true` or `false`                    | Whether the text is underlined.                              |
 | `strikeout`  | `true` or `false`                    | Whether the text is struck out.                              |
-| `color`      | `"#rrggbb"`                          | Colour of the font.                                          |
-| `background` | `"#rrggbb"`                          | Colour the cell is filled with.                              |
+| `color`      | `"#rrggbb"` or a colour name         | Colour of the font.                                          |
+| `background` | `"#rrggbb"` or a colour name         | Colour the cell is filled with.                              |
 | `align`      | `left`, `center`, `right`, `justify` | Horizontal alignment of the text.                            |
 | `valign`     | `top`, `center`, `bottom`            | Vertical alignment of the text.                              |
 | `border`     | Sides of the cell                    | Borders of the cell, as described below.                     |
 
-Write a colour as `#rrggbb`, with six hexadecimal digits, and in quotes: in YAML, `#` starts a comment. A shorter
-or named colour, such as `#fff` or `red`, is refused. An `.xls` file holds its colours in a palette of 56: a colour
+Write a colour as `#rrggbb`, with six hexadecimal digits, and in quotes: in YAML, `#` starts a comment. A colour can
+also be set by the name the theme gives it, as described in [Naming Colours](#naming-colours). A shorter colour, such
+as `#fff`, is refused, and so is a name the theme gives no colour, such as `red`. An `.xls` file holds its colours in a palette of 56: a colour
 of the theme the palette has no room for is written as the nearest colour it holds, while the screen draws the
 colour of the theme. An `.xls` file also holds at most 4,000 cell styles, and an `.xlsx` file 64,000: a theme that
 needs more styles than the file has room for is refused, and the file is left as it was. Save an `.xls` file as
@@ -289,6 +294,33 @@ base:
     valign: top
     border: {top: none, right: none, bottom: none, left: none}
 ```
+
+### Naming Colours
+
+A theme can name its colours once, under `colors`, and set a colour by its name wherever a style takes one: the
+colour of a font, the colour a cell is filled with, and the colour of a line. A colour changed under `colors` changes
+in every part that names it. In the following example, the keyword of the header and the line that closes the table
+take one grey, and the titles of a Spreadsheet table are filled blue:
+
+```yaml
+colors:
+  grey: "#808080"
+  blue: "#b4c6e7"
+
+base:
+  header:
+    keyword: {color: grey}
+  lastRow:
+    border:
+      bottom: {style: thin, color: grey}
+
+spreadsheet:
+  titles: {background: blue}
+```
+
+Each colour under `colors` is written as `#rrggbb`, and a style can still write a colour so. A theme that names a
+colour `colors` does not give, or gives a name to a colour written another way than `#rrggbb`, is refused. The
+themes that OpenL Studio ships name their colours this way.
 
 ### Extending the Base
 
@@ -379,19 +411,31 @@ properties: *technical
 
 ### Theme Example
 
-The following theme gives every table a dark header with light text. Its base style names every attribute, so it
-overrides the look the Excel file gives a table, and it draws only its own lines: one under the properties and one
-under the last row. A Spreadsheet table also gets a filled row of column titles, bold italic headings of its
-sections, and bold steps that are marked for the result or give it; a TBasic table looks like a Spreadsheet table
-with muted column IDs. A Data, a Test, and a Run table get muted field names, filled titles, highlighted IDs, and grey
-values that are not filled. A decision table gets muted code closed by a line, filled titles of its conditions and of
-what it returns, bold horizontal conditions, filled returns, and a line over every group of rules, and a ColumnMatch
-table looks like it; a Conditions, an Actions, and a Returns table look like its code and its titles. An Environment
-and a Properties table get a dark grey header and grey settings, and a Constants table gets muted types and filled
-names. A Method table takes the base alone:
+The following theme names its colours once and gives every table a dark header with light text. Its base style names
+every attribute, so it overrides the look the Excel file gives a table, and it draws only its own lines: one under the
+properties and one under the last row. A Spreadsheet table also gets a filled row of column titles, bold italic
+headings of its sections, and bold steps that are marked for the result or give it; a TBasic table looks like a
+Spreadsheet table with muted column IDs. A Data, a Test, and a Run table get muted field names, filled titles,
+highlighted IDs, and grey values that are not filled. A decision table gets muted code closed by a line, filled
+titles of its conditions and of what it returns, bold horizontal conditions, filled returns, and a line over every
+group of rules, and a ColumnMatch table looks like it; a Conditions, an Actions, and a Returns table look like its
+code and its titles. An Environment and a Properties table get a dark grey header and grey settings, and a Constants
+table gets muted types and filled names. A Method table takes the base alone:
 
 ```yaml
 name: Corporate
+
+colors:
+  black: "#000000"
+  white: "#ffffff"
+  navy: "#1f4e78"
+  lightBlue: "#bdd7ee"
+  paleBlue: "#ddebf7"
+  grey: "#808080"
+  lightGrey: "#d9d9d9"
+  paleGrey: "#f2f2f2"
+  yellow: "#fff2cc"
+  darkGrey: "#595959"
 
 base:
   style:
@@ -401,57 +445,57 @@ base:
     italic: false
     underline: false
     strikeout: false
-    color: "#000000"
-    background: "#ffffff"
+    color: black
+    background: white
     align: left
     valign: top
     border: {top: none, right: none, bottom: none, left: none}
   header:
     style:
-      background: "#1f4e78"
-      color: "#ffffff"
+      background: navy
+      color: white
       align: center
-    keyword: &light {color: "#bdd7ee"}
+    keyword: &light {color: lightBlue}
     name: {bold: true}
     type: *light
     parameters: *light
   properties:
     border:
-      bottom: &line {style: medium, color: "#1f4e78"}
+      bottom: &line {style: medium, color: navy}
   lastRow:
     border:
       bottom: *line
 
 datatype:
   titles: {bold: true}
-  name: &fieldName {background: "#ddebf7"}
+  name: &fieldName {background: paleBlue}
 
 vocabulary:
   values: {align: center}
 
 spreadsheet: &spreadsheet
-  titles: {bold: true, background: "#ddebf7"}
-  sections: {bold: true, italic: true, background: "#ddebf7"}
+  titles: {bold: true, background: paleBlue}
+  sections: {bold: true, italic: true, background: paleBlue}
   marked: {bold: true}
   result: {bold: true}
 
 data: &data
   header: {style: {align: left}}
-  name: {color: "#808080"}
-  titles: {bold: true, align: center, background: "#ddebf7"}
-  ids: {bold: true, background: "#fff2cc"}
-  empty: {background: "#f2f2f2"}
+  name: {color: grey}
+  titles: {bold: true, align: center, background: paleBlue}
+  ids: {bold: true, background: yellow}
+  empty: {background: paleGrey}
 
 test: *data
 run: *data
 
 rules: &rules
-  code: &code {color: "#808080", border: {bottom: *line}}
-  titles: {bold: true, align: center, background: "#d9d9d9"}
+  code: &code {color: grey, border: {bottom: *line}}
+  titles: {bold: true, align: center, background: lightGrey}
   values: {align: center}
-  horizontals: {bold: true, align: center, background: "#bdd7ee"}
-  returnTitles: {bold: true, align: center, background: "#bdd7ee"}
-  returns: {align: center, background: "#ddebf7"}
+  horizontals: {bold: true, align: center, background: lightBlue}
+  returnTitles: {bold: true, align: center, background: lightBlue}
+  returns: {align: center, background: paleBlue}
   groups: {border: {top: *line}}
 
 simpleRules: *rules
@@ -470,12 +514,12 @@ tbasic:
 columnMatch: *rules
 
 environment: &technical
-  header: {style: {background: "#595959"}}
-  name: {background: "#f2f2f2"}
+  header: {style: {background: darkGrey}}
+  name: {background: paleGrey}
 
 properties: *technical
 
 constants:
-  type: {color: "#808080"}
+  type: {color: grey}
   name: *fieldName
 ```

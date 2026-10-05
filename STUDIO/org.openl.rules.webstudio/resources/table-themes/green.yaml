@@ -3,6 +3,19 @@
 
 name: Green
 
+# The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place.
+colors:
+  black: "#000000"
+  white: "#ffffff"
+  darkGreen: "#548235"
+  green: "#c6e0b4"
+  lightGreen: "#e2efda"
+  paleGreen: "#ebf1de"
+  # The greys of the technical tables.
+  paleGrey: "#f2f2f2"
+  lightGrey: "#e7e6e6"
+  silver: "#d9d9d9"
+
 base:
   # The look every cell of the table starts from. It names every attribute, so the theme overrides the look the
   # workbook gives the table: no fill, line, font or alignment of the workbook shows through.
@@ -13,8 +26,8 @@ base:
     italic: false
     underline: false
     strikeout: false
-    color: "#000000"
-    background: "#ffffff"
+    color: black
+    background: white
     align: left
     valign: top
     border:
@@ -26,10 +39,10 @@ base:
     style:
       align: center
       border:
-        top: &line {style: thin, color: "#548235"}
+        top: &line {style: thin, color: darkGreen}
         bottom: *line
     keyword: &muted
-      color: "#548235"
+      color: darkGreen
     name:
       bold: true
     type: *muted
@@ -45,9 +58,9 @@ datatype:
   # A Datatype fills its header, and so does a Vocabulary.
   header: &filled
     style:
-      background: "#c6e0b4"
+      background: green
   name: &fieldName
-    background: "#e2efda"
+    background: lightGreen
 
 vocabulary:
   header: *filled
@@ -58,12 +71,12 @@ spreadsheet: &spreadsheet
   titles:
     bold: true
     align: center
-    background: "#e2efda"
+    background: lightGreen
   sections:
     bold: true
     italic: true
     align: center
-    background: "#e2efda"
+    background: lightGreen
     border:
       top: *line
   marked:
@@ -79,14 +92,14 @@ data: &data
   titles:
     bold: true
     align: center
-    background: "#e2efda"
+    background: lightGreen
   values:
     align: center
   ids:
     bold: true
-    background: "#c6e0b4"
+    background: green
   empty:
-    background: "#f2f2f2"
+    background: paleGrey
 
 test: *data
 run: *data
@@ -99,7 +112,7 @@ rules: &rules
   titles:
     bold: true
     align: center
-    background: "#e2efda"
+    background: lightGreen
     border:
       right: *line
   values:
@@ -109,16 +122,16 @@ rules: &rules
   horizontals:
     bold: true
     align: center
-    background: "#c6e0b4"
+    background: green
     border:
       bottom: *line
   returnTitles:
     bold: true
     align: center
-    background: "#c6e0b4"
+    background: green
   returns: &returned
     align: center
-    background: "#ebf1de"
+    background: paleGreen
   groups:
     border:
       top: *line
@@ -153,14 +166,14 @@ columnMatch:
 environment: &technical
   header:
     style:
-      background: "#e7e6e6"
+      background: lightGrey
   style:
     border:
       bottom: &light
         style: thin
-        color: "#d9d9d9"
+        color: silver
   name:
-    background: "#f2f2f2"
+    background: paleGrey
     border:
       right: *light
 

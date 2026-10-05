@@ -10,6 +10,20 @@
 
 name: Default
 
+# The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place.
+colors:
+  black: "#000000"
+  white: "#ffffff"
+  darkGrey: "#808080"
+  grey: "#d0cece"
+  blue: "#b4c6e7"
+  lightBlue: "#ddebf7"
+  yellow: "#fff2cc"
+  # The greys of the technical tables.
+  paleGrey: "#f2f2f2"
+  lightGrey: "#e7e6e6"
+  silver: "#d9d9d9"
+
 base:
   # The look every cell of the table starts from. It names every attribute, so the theme overrides the look the
   # workbook gives the table: no fill, line, font or alignment of the workbook shows through.
@@ -20,8 +34,8 @@ base:
     italic: false
     underline: false
     strikeout: false
-    color: "#000000"
-    background: "#ffffff"
+    color: black
+    background: white
     align: left
     valign: top
     border:
@@ -37,10 +51,10 @@ base:
         top: thin
         bottom: thin
     keyword: &muted
-      color: "#808080"
+      color: darkGrey
     name:
       bold: true
-      color: "#000000"
+      color: black
     # The type the header names besides the table: "<String>" of a Vocabulary, "extends Parent" of a Datatype, or
     # the type a Spreadsheet or a decision table returns.
     type: *muted
@@ -58,11 +72,11 @@ datatype:
   # A Datatype fills its header, and so does a Vocabulary.
   header: &filled
     style:
-      background: "#b4c6e7"
+      background: blue
   titles:
     bold: true
   name: &fieldName
-    background: "#ddebf7"
+    background: lightBlue
   values:
     align: center
 
@@ -76,21 +90,21 @@ spreadsheet: &spreadsheet
   titles:
     bold: true
     align: center
-    background: "#b4c6e7"
+    background: blue
     border:
       top: thin
   # The title of the column of steps, such as "Step", laid over the titles.
   stepTitle:
-    background: "#d0cece"
+    background: grey
   # The formulas and the values of the steps.
   values:
-    background: "#ddebf7"
+    background: lightBlue
   # A step whose name is merged across its row: a heading that splits the steps into sections.
   sections:
     bold: true
     italic: true
     align: center
-    background: "#b4c6e7"
+    background: blue
     border:
       top: thin
   # A step or a column marked with "*" for the result of the Spreadsheet.
@@ -112,16 +126,16 @@ data: &data
   titles:
     bold: true
     align: center
-    background: "#ddebf7"
+    background: lightBlue
   values:
     align: center
   # The IDs of a Data table, and the values a Test or a Run table takes from a Data table by their IDs.
   ids:
     bold: true
-    background: "#fff2cc"
+    background: yellow
   # A value that is not filled.
   empty:
-    background: "#f2f2f2"
+    background: paleGrey
 
 # A Test and a Run table look like a Data table.
 test: *data
@@ -138,7 +152,7 @@ rules: &rules
   titles:
     bold: true
     align: center
-    background: "#d0cece"
+    background: grey
     border:
       right: thin
   # The values the conditions are checked against.
@@ -150,18 +164,18 @@ rules: &rules
   horizontals:
     bold: true
     align: center
-    background: "#b4c6e7"
+    background: blue
     border:
       bottom: thin
   # The title of a column the table returns.
   returnTitles:
     bold: true
     align: center
-    background: "#b4c6e7"
+    background: blue
   # The values the table returns.
   returns: &returned
     align: center
-    background: "#ddebf7"
+    background: lightBlue
   # The rules that share a value of a condition merged over them make a group: a line over its first rule and over
   # the rule after it sets the group apart.
   groups:
@@ -207,16 +221,16 @@ columnMatch:
 environment: &technical
   header:
     style:
-      background: "#e7e6e6"
+      background: lightGrey
   # A light line under every setting and every value, so each reads as a row of its own.
   style:
     border:
       bottom: &light
         style: thin
-        color: "#d9d9d9"
+        color: silver
   # The settings, such as "import" or "dependency", set apart from their values.
   name:
-    background: "#f2f2f2"
+    background: paleGrey
     border:
       right: *light
 

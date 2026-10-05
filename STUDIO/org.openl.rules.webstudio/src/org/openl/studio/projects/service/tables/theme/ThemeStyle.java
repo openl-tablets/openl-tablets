@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.theme;
 
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.With;
@@ -19,8 +20,9 @@ import org.jspecify.annotations.Nullable;
  * @param italic     whether the font is italic
  * @param underline  whether the font is underlined
  * @param strikeout  whether the font is struck out
- * @param color      the colour of the font as {@code #rrggbb}
- * @param background the colour the cell is filled with as {@code #rrggbb}
+ * @param color      the colour of the font as {@code #rrggbb}; the theme file may name it by one of its colours
+ * @param background the colour the cell is filled with as {@code #rrggbb}; the theme file may name it by one of its
+ *                   colours
  * @param align      how the text lines up across the cell
  * @param valign     how the text lines up from top to bottom
  * @param border     the borders of the cell
@@ -33,8 +35,8 @@ public record ThemeStyle(@Nullable String fontFamily,
                          @Nullable Boolean italic,
                          @Nullable Boolean underline,
                          @Nullable Boolean strikeout,
-                         @Nullable String color,
-                         @Nullable String background,
+                         @JsonDeserialize(using = ThemeColourReader.class) @Nullable String color,
+                         @JsonDeserialize(using = ThemeColourReader.class) @Nullable String background,
                          @Nullable ThemeHorizontalAlign align,
                          @Nullable ThemeVerticalAlign valign,
                          @Nullable ThemeBorder border) {

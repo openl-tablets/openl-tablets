@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -31,11 +33,12 @@ import org.openl.util.StringUtils;
  *
  * <p>A theme is known by the name of its file without the extension, and shown by the name the file declares.
  * The file is read with its YAML anchors, aliases and merge keys resolved, so one part of a theme can extend or
- * repeat another.
+ * repeat another. The file can name its colours once, under {@code colors}, and set a colour by its name wherever a
+ * part takes one.
  *
- * <p>A theme file that cannot be read, that declares no name, or that names an attribute a theme does not know
- * is not offered. Studio starts with the other themes and logs why the file was refused, so a mistyped attribute
- * is never silently ignored.
+ * <p>A theme file that cannot be read, that declares no name, that names an attribute a theme does not know, or a
+ * colour it gives no name, is not offered. Studio starts with the other themes and logs why the file was refused, so
+ * a mistyped attribute is never silently ignored.
  */
 @Slf4j
 @Service
@@ -43,6 +46,12 @@ public class TableThemeService {
 
     /** Where the themes live on the classpath. */
     static final String LOCATION = "classpath*:table-themes/*.yaml";
+
+    /** The key of a theme file that gives its colours their names. */
+    private static final String COLOURS = "colors";
+
+    private static final TypeReference<Map<String, String>> NAMED_COLOURS = new TypeReference<>() {
+    };
 
     private static final JsonMapper MAPPER = JsonMapper.builder()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
@@ -157,8 +166,8 @@ public class TableThemeService {
      *
      * @param file the theme file
      * @return the theme
-     * @throws IllegalStateException when the file is not a theme, names an attribute a theme does not know, writes a
-     *                               key twice or declares no name
+     * @throws IllegalStateException when the file is not a theme, names an attribute a theme does not know or a
+     *                               colour it does not name, writes a key twice or declares no name
      * @throws UncheckedIOException  when the file cannot be read
      */
     static TableTheme read(Resource file) {
@@ -167,8 +176,7 @@ public class TableThemeService {
         options.setAllowDuplicateKeys(false);
         TableTheme theme;
         try (var in = file.getInputStream()) {
-            Object tree = new Yaml(new SafeConstructor(options)).load(in);
-            theme = MAPPER.convertValue(tree, TableTheme.class);
+            theme = bind(new Yaml(new SafeConstructor(options)).load(in));
         } catch (IOException e) {
             throw new UncheckedIOException("The table theme cannot be read: " + file.getDescription(), e);
         } catch (RuntimeException e) {
@@ -178,6 +186,33 @@ public class TableThemeService {
             throw new IllegalStateException("The table theme declares no name: " + file.getDescription());
         }
         return theme;
+    }
+
+    /**
+     * The theme the YAML of a file describes, each colour it names by name read as the colour it gives the name.
+     *
+     * @param tree the YAML of the file, read with its anchors, aliases and merge keys resolved
+     * @return the theme, or {@code null} for an empty file
+     * @throws IllegalArgumentException when the theme writes one of its colours another way than {@code #rrggbb}, or
+     *                                  the file is not a theme
+     */
+    private static @Nullable TableTheme bind(@Nullable Object tree) {
+        if (tree == null) {
+            return null;
+        }
+        // The colours are a key of the file, not of the theme it describes: each part that takes a colour has it.
+        var named = tree instanceof Map<?, ?> keys ? keys.remove(COLOURS) : null;
+        Map<String, String> colours = MAPPER.convertValue(named, NAMED_COLOURS);
+        if (colours != null) {
+            colours.values().forEach(ThemeStyle::requireColour);
+        }
+        try {
+            return MAPPER.readerFor(TableTheme.class)
+                    .withAttribute(ThemeColourReader.COLOURS, colours == null ? Map.of() : colours)
+                    .readValue(MAPPER.<JsonNode>valueToTree(tree));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     private static Map<String, TableTheme> sortedByName(Map<String, TableTheme> themes) {
