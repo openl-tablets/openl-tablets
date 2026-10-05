@@ -18,7 +18,6 @@ import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.RemoveMergedRegionsAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
@@ -421,22 +420,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // The block (position..position+count-1) must stay within the table — the first row included, which
         // is the reader's to take away as it was in the Editor.
         requirePosition(position, 0, GridRegionUtils.height(developerView.getRegion()) - count);
-        // Drop the merges the deleted rows hold whole first: removeRows only resizes a merge taller than the
-        // block, so a merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
-        var tableRegion = developerView.getRegion();
-        removeMergedRegionsWithin(developerView, new GridRegion(tableRegion.getTop() + position,
-                tableRegion.getLeft(), tableRegion.getTop() + position + count - 1, tableRegion.getRight()));
         removeRows(developerView, count, position);
     }
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
         requirePosition(position, 0, GridRegionUtils.width(developerView.getRegion()) - count);
-        // Same as deleteRows: drop the merges the deleted columns hold whole so none of them lingers.
-        var tableRegion = developerView.getRegion();
-        removeMergedRegionsWithin(developerView, new GridRegion(tableRegion.getTop(),
-                tableRegion.getLeft() + position, tableRegion.getBottom(),
-                tableRegion.getLeft() + position + count - 1));
         removeColumns(developerView, count, position);
     }
 
@@ -659,26 +648,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     private void removeMergedRegionsIn(IGridTable developerView, IGridRegion region) {
         run(developerView, new RemoveMergedRegionsAction(region));
-    }
-
-    /**
-     * Drops the merges a block of lines holds whole, before the block is taken away.
-     *
-     * <p>A merge reaching past the block is left alone: the removal shrinks it, and dropping it here would take
-     * its value away with the line its top-left cell sits on. A table's header is written as one cell banked
-     * across every column, so taking the first column away would otherwise take the header with it.
-     */
-    private void removeMergedRegionsWithin(IGridTable developerView, IGridRegion block) {
-        var grid = (IWritableGrid) developerView.getGrid();
-        var held = new ArrayList<IGridRegion>();
-        for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
-            var merged = grid.getMergedRegion(i);
-            if (GridRegionUtils.contains(block, merged.getLeft(), merged.getTop())
-                    && GridRegionUtils.contains(block, merged.getRight(), merged.getBottom())) {
-                held.add(merged);
-            }
-        }
-        held.forEach(merged -> run(developerView, new RemoveMergedRegionsAction(merged)));
     }
 
     private IGridTable developerView() {

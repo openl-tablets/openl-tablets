@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "d8c0bbf6c1de487a8ce89e6d424a18db",
+      "kind": "Datatype",
+      "name": "Choice",
+      "pos": "B2:C4"
+    },
+    {
+      "id": "86c849899a9b00f07c1d36884b388aa1",
+      "kind": "Rules",
+      "name": "Choices",
+      "pos": "B7:D18"
+    },
+    {
+      "id": "cab1919f6bf59af93b7b6e1d638b1199",
+      "kind": "Datatype",
+      "name": "Item",
+      "pos": "B24:C28"
+    },
+    {
+      "id": "77c36706eb1a4bcc21ba57722448cbbb",
+      "kind": "Data",
+      "name": "items",
+      "pos": "B31:E35"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 4,
+  "total": 4
+}

@@ -1,0 +1,173 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pos": "B7:D18",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "SmartRules Collect Choice[] Choices(String group)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Group"
+      },
+      {
+        "cell": "C8",
+        "value": "Code"
+      },
+      {
+        "cell": "D8",
+        "value": "Order"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "Single"
+      },
+      {
+        "cell": "C9",
+        "value": "Only"
+      },
+      {
+        "cell": "D9",
+        "value": 0
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "Fruit",
+        "rowspan": 3
+      },
+      {
+        "cell": "C10",
+        "value": "Apple"
+      },
+      {
+        "cell": "D10",
+        "value": 0
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C11",
+        "value": "Banana"
+      },
+      {
+        "cell": "D11",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C12",
+        "value": "Cherry"
+      },
+      {
+        "cell": "D12",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": "Colour",
+        "rowspan": 2
+      },
+      {
+        "cell": "C13",
+        "value": "Green"
+      },
+      {
+        "cell": "D13",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C14",
+        "value": "Blue"
+      },
+      {
+        "cell": "D14",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "Size",
+        "rowspan": 3
+      },
+      {
+        "cell": "C15",
+        "value": "Small"
+      },
+      {
+        "cell": "D15",
+        "value": 0
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C16",
+        "value": "Medium"
+      },
+      {
+        "cell": "D16",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C17",
+        "value": "Large"
+      },
+      {
+        "cell": "D17",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "cell": "B18",
+        "value": "Shape"
+      },
+      {
+        "cell": "C18",
+        "value": "Round"
+      },
+      {
+        "cell": "D18",
+        "value": 0
+      }
+    ]
+  ]
+}

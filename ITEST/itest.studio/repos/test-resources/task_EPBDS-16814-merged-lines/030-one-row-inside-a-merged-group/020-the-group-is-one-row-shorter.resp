@@ -1,0 +1,204 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "86c849899a9b00f07c1d36884b388aa1",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Choices",
+  "pos": "B7:D20",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "SmartRules Collect Choice[] Choices(String group)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Group"
+      },
+      {
+        "cell": "C8",
+        "value": "Code"
+      },
+      {
+        "cell": "D8",
+        "value": "Order"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "Single"
+      },
+      {
+        "cell": "C9",
+        "value": "Only"
+      },
+      {
+        "cell": "D9",
+        "value": 0
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "Fruit",
+        "rowspan": 4
+      },
+      {
+        "cell": "C10",
+        "value": "Apple"
+      },
+      {
+        "cell": "D10",
+        "value": 0
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C11",
+        "value": "Banana"
+      },
+      {
+        "cell": "D11",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C12",
+        "value": "Cherry"
+      },
+      {
+        "cell": "D12",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C13",
+        "value": "Date"
+      },
+      {
+        "cell": "D13",
+        "value": 3
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "Colour",
+        "rowspan": 3
+      },
+      {
+        "cell": "C14",
+        "value": "Red"
+      },
+      {
+        "cell": "D14",
+        "value": 0
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C15",
+        "value": "Green"
+      },
+      {
+        "cell": "D15",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C16",
+        "value": "Blue"
+      },
+      {
+        "cell": "D16",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "cell": "B17",
+        "value": "Size",
+        "rowspan": 3
+      },
+      {
+        "cell": "C17",
+        "value": "Small"
+      },
+      {
+        "cell": "D17",
+        "value": 0
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C18",
+        "value": "Medium"
+      },
+      {
+        "cell": "D18",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C19",
+        "value": "Large"
+      },
+      {
+        "cell": "D19",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "cell": "B20",
+        "value": "Shape"
+      },
+      {
+        "cell": "C20",
+        "value": "Round"
+      },
+      {
+        "cell": "D20",
+        "value": 0
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

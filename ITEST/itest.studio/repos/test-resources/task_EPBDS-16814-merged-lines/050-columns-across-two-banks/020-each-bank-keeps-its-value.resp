@@ -1,0 +1,58 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pos": "B31:C35",
+  "source": [
+    [
+      {
+        "cell": "B31",
+        "value": "Data Item items",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B32",
+        "value": "a"
+      },
+      {
+        "cell": "C32",
+        "value": "d"
+      }
+    ],
+    [
+      {
+        "cell": "B33",
+        "value": "A"
+      },
+      {
+        "cell": "C33",
+        "value": "D"
+      }
+    ],
+    [
+      {
+        "cell": "B34",
+        "value": "x"
+      },
+      {
+        "cell": "C34",
+        "value": "y"
+      }
+    ],
+    [
+      {
+        "cell": "B35",
+        "value": "a1"
+      },
+      {
+        "cell": "C35",
+        "value": "d1"
+      }
+    ]
+  ]
+}

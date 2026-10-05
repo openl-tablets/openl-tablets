@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.action.line.all-empty.message",
+  "message": "A row or column cannot be entirely empty. A blank line would split the table and drop the data beyond it, so leave at least one cell with a value."
+}

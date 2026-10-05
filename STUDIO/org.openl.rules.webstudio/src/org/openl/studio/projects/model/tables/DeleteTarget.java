@@ -22,7 +22,8 @@ public sealed interface DeleteTarget permits DeleteTarget.Rows, DeleteTarget.Col
     @Schema(name = "DeleteRows", description = """
             Deletes one or more rows starting at the given position, shifting the \
             rows below the block up. The header row (position 0) cannot be deleted, and the block must stay within \
-            the body.""")
+            the body. A merged cell reaching past the block loses only the rows it covers and keeps its value; one \
+            inside the block goes away with it.""")
     record Rows(
             @Schema(description = "0-based index of the first body row to delete (1..height-1).")
             @NotNull
@@ -38,7 +39,9 @@ public sealed interface DeleteTarget permits DeleteTarget.Rows, DeleteTarget.Col
             Deletes one or more columns starting at the given position, \
             shifting the columns to the right of the block left. The first column goes with the rest: a header \
             banked across the table narrows over the columns that are left. A write that would leave the table \
-            without a header OpenL recognises is refused, as is one reaching past the table.""")
+            without a header OpenL recognises is refused, as is one reaching past the table. A merged cell reaching \
+            past the block loses only the columns it covers and keeps its value; one inside the block goes away \
+            with it.""")
     record Columns(
             @Schema(description = "0-based index of the first column to delete (0..width-1).")
             @NotNull
