@@ -3,6 +3,7 @@ package org.openl.rules.table.xls;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -17,10 +18,13 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 
 class PoiExcelHelperTest {
 
@@ -230,18 +234,45 @@ class PoiExcelHelperTest {
     }
 
     @Test
+    void writesATintAsExcelWritesIt() {
+        // Excel writes a tint in steps of 1 / 32767: Lighter 60% as 0.59999389629810485.
+        assertEquals(0.59999389629810485, new ThemedColor(4, 600).writtenTint());
+        assertEquals(0.79998168889431442, new ThemedColor(8, 800).writtenTint());
+        assertEquals(-0.249977111117893, new ThemedColor(0, -250).writtenTint());
+        assertEquals(4.9989318521683403E-2, new ThemedColor(1, 50).writtenTint());
+        assertEquals(0, new ThemedColor(1, 0).writtenTint());
+    }
+
+    @Test
+    void readsAColourOfTheThemeWithItsTintInThousandths() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var written = new ThemedColor(4, 600).toColor(workbook);
+
+            assertTrue(written.isThemed());
+            assertEquals(4, written.getTheme());
+            assertEquals(0.59999389629810485, written.getTint());
+            assertEquals(new ThemedColor(4, 600), ThemedColor.of(written));
+            assertFalse(new ThemedColor(1, 0).toColor(workbook).hasTint(), "A colour of no tint is written without");
+            assertNull(ThemedColor.of(PoiExcelHelper.getColor(DARK_BLUE, workbook)), "A colour of its own");
+            assertNull(ThemedColor.of(null));
+        }
+    }
+
+    @Test
     void readsTheColourOfAnXlsxFontWithoutWritingIntoTheFont() throws IOException {
         try (var workbook = themedWorkbook()) {
-            // White, Background 1: a font coloured by the theme alone, with no RGB of its own.
-            var font = workbook.createFont();
-            var written = font.getCTFont().addNewColor();
-            written.setTheme(0);
+            // White, Background 1, Darker 50%: a font coloured by the theme alone, with no RGB of its own.
+            var muted = new ThemedColor(0, -500);
+            var font = (XSSFFont) PoiExcelHelper.findOrCreateFont(workbook,
+                    PoiExcelHelper.FontAttributes.of(workbook.getFontAt(0), workbook).withThemed(muted));
+            var written = font.getCTFont().getColorArray(0);
 
             var read = PoiExcelHelper.getFontColor(font, workbook);
             var attributes = PoiExcelHelper.FontAttributes.of(font, workbook);
 
-            assertArrayEquals(WHITE, read);
-            assertEquals(0xFFFFFF, attributes.color());
+            assertArrayEquals(new short[]{0x80, 0x80, 0x80}, read);
+            assertEquals(muted, attributes.themed());
+            assertEquals(0x808080, attributes.color());
             // POI writes the RGB of a theme colour into the colour it reads, so a saved workbook would keep it.
             assertFalse(written.isSetRgb(), "Reading the colour writes nothing into the font");
             // A font read without its workbook, as the SAX reader reads one, resolves its theme colour itself.
@@ -264,6 +295,40 @@ class PoiExcelHelperTest {
                 </a:theme>
                 """.getBytes(StandardCharsets.UTF_8)));
         return workbook;
+    }
+
+    @Test
+    void keepsTheThemeColourOfTheTextWhenAFontIsMadeBold() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            // White, Background 1, Darker 50%: a font coloured by the theme, with a tint.
+            var muted = new ThemedColor(0, -500);
+            var font = PoiExcelHelper.findOrCreateFont(workbook,
+                    PoiExcelHelper.FontAttributes.of(workbook.getFontAt(0), workbook).withThemed(muted));
+            var cell = workbook.createSheet().createRow(0).createCell(0);
+            var style = workbook.createCellStyle();
+            style.setFont(font);
+            cell.setCellStyle(style);
+
+            PoiExcelHelper.setCellFontBold(cell, true);
+
+            var bold = (XSSFFont) PoiExcelHelper.getCellFont(cell);
+            assertTrue(bold.getBold());
+            assertEquals(muted, ThemedColor.of(bold.getXSSFColor()));
+            assertEquals(-0.499984740745262, bold.getXSSFColor().getTint());
+        }
+    }
+
+    @Test
+    void takesNoFontOfAColourOfItsOwnForOneOfTheSameColourOfTheTheme() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var own = fontOf(workbook, WHITE);
+            var attributes = PoiExcelHelper.FontAttributes.of(own, workbook);
+
+            var themed = PoiExcelHelper.findOrCreateFont(workbook, attributes.withThemed(new ThemedColor(0, 0)));
+
+            assertNotEquals(own.getIndex(), themed.getIndex());
+            assertEquals(own.getIndex(), PoiExcelHelper.findOrCreateFont(workbook, attributes).getIndex());
+        }
     }
 
     /** A Calibri font of 11 points in the given colour. */

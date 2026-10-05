@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import lombok.AccessLevel;
@@ -19,6 +21,9 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder.BorderSide;
 import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
@@ -31,6 +36,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.PoiExcelHelper.FontAttributes;
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
@@ -51,6 +57,10 @@ import org.openl.studio.projects.service.tables.write.TableWriter;
  *
  * <p>A colour is compared as the workbook holds it. The palette of an {@code .xls} workbook may have no room for a
  * colour of the theme, which it then holds as the nearest colour it has: a cell holding that one has the look.
+ *
+ * <p>A colour the theme makes of a theme colour of Excel is written as that theme colour into a workbook whose theme
+ * colours are those of the theme, so Excel offers it in its palette, and as {@code #rrggbb} into any other workbook.
+ * A cell holding the colour the other way round has not the look. The theme of a workbook is never changed.
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ThemeExcelWriter {
@@ -105,7 +115,11 @@ public final class ThemeExcelWriter {
      * @return whether the theme was written into the table
      */
     public boolean write(IOpenLTable table, IGridTable grid, TableMoves moves) {
-        return write(table, grid, moves, at -> true);
+        var layout = ThemeLayouts.of(table, grid, theme, moves);
+        if (layout != null) {
+            write(layout, grid, at -> true);
+        }
+        return layout != null;
     }
 
     /**
@@ -130,7 +144,10 @@ public final class ThemeExcelWriter {
             // Only the header and the properties are laid out: the body under them keeps the look it has, so no part
             // the compiler found is looked for, and the edits that moved such parts do not matter.
             var head = grid.getSubtable(0, 0, grid.getWidth(), rows.getBottom() - grid.getRegion().getTop() + 1);
-            write(table, head, TableMoves.NONE, at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added);
+            var layout = ThemeLayouts.of(table, head, theme, TableMoves.NONE);
+            if (layout != null) {
+                write(layout, head, at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added);
+            }
         }
     }
 
@@ -144,14 +161,12 @@ public final class ThemeExcelWriter {
         return properties == null ? 0 : properties.getSource().getHeight();
     }
 
-    /** Writes the theme into the cells of a table the filter keeps. */
-    private boolean write(IOpenLTable table, IGridTable grid, TableMoves moves, Predicate<ThemedTable.Cell> kept) {
-        var layout = ThemeLayouts.of(table, grid, theme, moves);
-        if (layout == null) {
-            return false;
-        }
+    /** Writes the look of a table into the cells the filter keeps. */
+    private void write(ThemedTable layout, IGridTable grid, Predicate<ThemedTable.Cell> kept) {
         var sheet = ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite();
-        var looks = workbooks.computeIfAbsent(sheet.getWorkbook(), WorkbookLooks::new);
+        var colours = theme.themeColors();
+        var looks = workbooks.computeIfAbsent(sheet.getWorkbook(),
+                workbook -> new WorkbookLooks(workbook, colours != null && colours.areThoseOf(workbook)));
         layout.cells().forEach((at, themed) -> {
             if (kept.test(at)) {
                 var cell = PoiExcelHelper.getOrCreateCell(at.column(), at.row(), sheet);
@@ -164,7 +179,6 @@ public final class ThemeExcelWriter {
                 writeRuns(cell, themed, looks);
             }
         });
-        return true;
     }
 
     /**
@@ -194,30 +208,6 @@ public final class ThemeExcelWriter {
     }
 
     /**
-     * The font a look gives text written in a font of a workbook: the font with every font attribute the look sets,
-     * its colour as the workbook holds it. The superscript and the character set stay those of the font.
-     */
-    private static FontAttributes themed(FontAttributes font, ThemeStyle theme, Workbook workbook) {
-        return font.toBuilder()
-                .name(theme.fontFamily() != null ? theme.fontFamily() : font.name())
-                .height(theme.fontSize() != null ? (short) (theme.fontSize() * Font.TWIPS_PER_POINT) : font.height())
-                .bold(theme.bold() != null ? theme.bold() : font.bold())
-                .italic(theme.italic() != null ? theme.italic() : font.italic())
-                .underline(underline(font.underline(), theme.underline()))
-                .strikeout(theme.strikeout() != null ? theme.strikeout() : font.strikeout())
-                .color(theme.color() != null ? storedColour(theme.color(), workbook) : font.color())
-                .build();
-    }
-
-    /**
-     * The colour {@code #rrggbb} as one number, as the workbook holds it. Boxed, so that a font with the automatic
-     * colour keeps it rather than being unboxed.
-     */
-    private static Integer storedColour(String hex, Workbook workbook) {
-        return PoiExcelHelper.toRgbValue(PoiExcelHelper.toStoredRgb(hex, workbook));
-    }
-
-    /**
      * Why a theme is refused by a workbook with no room for another style. Only an {@code .xls} file has a format with
      * more room to be saved as: an {@code .xlsx} file holds 64,000 styles.
      */
@@ -227,11 +217,20 @@ public final class ThemeExcelWriter {
                 : "table.theme.styles.full.xlsx.message";
     }
 
-    private static byte underline(byte font, @Nullable Boolean themed) {
-        if (themed == null) {
-            return font;
-        }
-        return themed ? Font.U_SINGLE : Font.U_NONE;
+    /** A side of a cell: where the theme names its line, and how the workbook writes it. */
+    @RequiredArgsConstructor
+    private enum Side {
+
+        // In the order PoiExcelHelper.getCellBorderColors reports the colours of the sides.
+        TOP(ThemeBorder::top, BorderSide.TOP, CellStyle::getBorderTop, CellStyle::setBorderTop),
+        RIGHT(ThemeBorder::right, BorderSide.RIGHT, CellStyle::getBorderRight, CellStyle::setBorderRight),
+        BOTTOM(ThemeBorder::bottom, BorderSide.BOTTOM, CellStyle::getBorderBottom, CellStyle::setBorderBottom),
+        LEFT(ThemeBorder::left, BorderSide.LEFT, CellStyle::getBorderLeft, CellStyle::setBorderLeft);
+
+        private final Function<ThemeBorder, @Nullable ThemeBorderLine> line;
+        private final BorderSide excel;
+        private final Function<CellStyle, BorderStyle> lineOf;
+        private final BiConsumer<CellStyle, BorderStyle> setLine;
     }
 
     /** The styles and fonts one workbook was given by the theme, so each is made once. */
@@ -239,8 +238,20 @@ public final class ThemeExcelWriter {
     private static final class WorkbookLooks {
 
         private final Workbook workbook;
+
+        /** Whether the theme colours of the workbook are those the theme makes its colours of. */
+        private final boolean themeColours;
+
         private final Map<StyleKey, CellStyle> styles = new HashMap<>();
         private final Map<FontAttributes, Font> fonts = new HashMap<>();
+
+        /**
+         * The theme colour the workbook writes a colour as: the theme colour the colour is, when the theme colours of
+         * the workbook are those of the theme, or else {@code null}, for {@code #rrggbb}.
+         */
+        private @Nullable ThemedColor asThemeColour(ThemeColour colour) {
+            return themeColours ? colour.themed() : null;
+        }
 
         /**
          * The style a cell gets: its own with the look of the theme laid over it.
@@ -265,29 +276,41 @@ public final class ThemeExcelWriter {
                     && (!theme.hasFont() || hasFont(workbook.getFontAt(style.getFontIndex()), theme));
         }
 
-        private boolean hasFill(CellStyle style, String background) {
-            return style.getFillPattern() == FillPatternType.SOLID_FOREGROUND
-                    && Arrays.equals(PoiExcelHelper.toRgb(style.getFillForegroundColorColor()),
-                            PoiExcelHelper.toStoredRgb(background, workbook));
+        private boolean hasFill(CellStyle style, ThemeColour background) {
+            if (style.getFillPattern() != FillPatternType.SOLID_FOREGROUND) {
+                return false;
+            }
+            var fill = style.getFillForegroundColorColor();
+            var themed = asThemeColour(background);
+            return themed != null
+                    ? themed.equals(ThemedColor.of(fill))
+                    : Arrays.equals(PoiExcelHelper.toRgb(fill), PoiExcelHelper.toStoredRgb(background.rgb(), workbook));
         }
 
         private boolean hasBorder(CellStyle style, ThemeBorder border) {
             var colors = PoiExcelHelper.getCellBorderColors(style, workbook);
-            return hasSide(style.getBorderTop(), colors[0], border.top())
-                    && hasSide(style.getBorderRight(), colors[1], border.right())
-                    && hasSide(style.getBorderBottom(), colors[2], border.bottom())
-                    && hasSide(style.getBorderLeft(), colors[3], border.left());
+            return Arrays.stream(Side.values())
+                    .allMatch(side -> hasSide(style, side, colors[side.ordinal()], side.line.apply(border)));
         }
 
-        private boolean hasSide(BorderStyle line, short @Nullable [] color, @Nullable ThemeBorderLine side) {
-            // A side without a line has no colour to match.
-            return side == null || line == side.style().getExcel()
-                    && (!side.isLine() || Arrays.equals(color, PoiExcelHelper.toStoredRgb(side.rgb(), workbook)));
+        /** Whether a side of a style has the line of the theme: a side without a line has no colour to match. */
+        private boolean hasSide(CellStyle style, Side side, short @Nullable [] color, @Nullable ThemeBorderLine line) {
+            if (line == null) {
+                return true;
+            }
+            if (side.lineOf.apply(style) != line.style().getExcel()) {
+                return false;
+            }
+            var themed = line.isLine() && line.color() != null ? asThemeColour(line.color()) : null;
+            if (themed != null) {
+                return themed.equals(ThemedColor.of(((XSSFCellStyle) style).getBorderColor(side.excel)));
+            }
+            return !line.isLine() || Arrays.equals(color, PoiExcelHelper.toStoredRgb(line.rgb(), workbook));
         }
 
         private boolean hasFont(Font font, ThemeStyle theme) {
             var attributes = FontAttributes.of(font, workbook);
-            return attributes.equals(themed(attributes, theme, workbook));
+            return attributes.equals(themed(attributes, theme));
         }
 
         /**
@@ -295,16 +318,51 @@ public final class ThemeExcelWriter {
          * workbook has is reused.
          */
         Font font(Font original, ThemeStyle theme) {
-            return fonts.computeIfAbsent(themed(FontAttributes.of(original, workbook), theme, workbook),
+            return fonts.computeIfAbsent(themed(FontAttributes.of(original, workbook), theme),
                     attributes -> PoiExcelHelper.findOrCreateFont(workbook, attributes));
+        }
+
+        /**
+         * The font a look gives text written in a font of the workbook: the font with every font attribute the look
+         * sets, its colour as the workbook holds it. The superscript and the character set stay those of the font.
+         */
+        private FontAttributes themed(FontAttributes font, ThemeStyle theme) {
+            var colour = theme.color();
+            return font.toBuilder()
+                    .name(theme.fontFamily() != null ? theme.fontFamily() : font.name())
+                    .height(theme.fontSize() != null ? (short) (theme.fontSize() * Font.TWIPS_PER_POINT)
+                            : font.height())
+                    .bold(theme.bold() != null ? theme.bold() : font.bold())
+                    .italic(theme.italic() != null ? theme.italic() : font.italic())
+                    .underline(underline(font.underline(), theme.underline()))
+                    .strikeout(theme.strikeout() != null ? theme.strikeout() : font.strikeout())
+                    .color(colour != null ? storedColour(colour.rgb()) : font.color())
+                    .themed(colour != null ? asThemeColour(colour) : font.themed())
+                    .build();
+        }
+
+        /**
+         * The colour {@code #rrggbb} as one number, as the workbook holds it. Boxed, so that a font with the automatic
+         * colour keeps it rather than being unboxed.
+         */
+        private Integer storedColour(String hex) {
+            return PoiExcelHelper.toRgbValue(PoiExcelHelper.toStoredRgb(hex, workbook));
+        }
+
+        private static byte underline(byte font, @Nullable Boolean themed) {
+            if (themed == null) {
+                return font;
+            }
+            return themed ? Font.U_SINGLE : Font.U_NONE;
         }
 
         private CellStyle create(CellStyle original, ThemeStyle theme) {
             CellStyle style = newStyle();
             style.cloneStyleFrom(original);
-            if (theme.background() != null) {
+            var background = theme.background();
+            if (background != null) {
                 style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                PoiExcelHelper.setCellFillColors(style, PoiExcelHelper.toRgb(theme.background()), null, workbook);
+                setFill(style, background);
             }
             if (theme.align() != null) {
                 style.setAlignment(theme.align().getExcel());
@@ -333,25 +391,38 @@ public final class ThemeExcelWriter {
             }
         }
 
+        /** Fills a style with a colour: the theme colour it is, or else {@code #rrggbb}. */
+        private void setFill(CellStyle style, ThemeColour background) {
+            var themed = asThemeColour(background);
+            if (themed != null) {
+                ((XSSFCellStyle) style).setFillForegroundColor(themed.toColor((XSSFWorkbook) workbook));
+            } else {
+                PoiExcelHelper.setCellFillColors(style, PoiExcelHelper.toRgb(background.rgb()), null, workbook);
+            }
+        }
+
         private void setBorder(CellStyle style, ThemeBorder border) {
-            var colors = new short[4][];
-            if (border.top() != null) {
-                style.setBorderTop(border.top().style().getExcel());
-                colors[0] = colourOf(border.top());
-            }
-            if (border.right() != null) {
-                style.setBorderRight(border.right().style().getExcel());
-                colors[1] = colourOf(border.right());
-            }
-            if (border.bottom() != null) {
-                style.setBorderBottom(border.bottom().style().getExcel());
-                colors[2] = colourOf(border.bottom());
-            }
-            if (border.left() != null) {
-                style.setBorderLeft(border.left().style().getExcel());
-                colors[3] = colourOf(border.left());
+            var colors = new short[Side.values().length][];
+            for (var side : Side.values()) {
+                var line = side.line.apply(border);
+                if (line != null) {
+                    side.setLine.accept(style, line.style().getExcel());
+                    colors[side.ordinal()] = setThemeColour(style, side, line) ? null : colourOf(line);
+                }
             }
             PoiExcelHelper.setCellBorderColors(style, colors, workbook);
+        }
+
+        /**
+         * Colours a side of a style by the theme colour its line is, and tells whether the line was one: a line of
+         * any other colour is coloured with the rest of the sides.
+         */
+        private boolean setThemeColour(CellStyle style, Side side, ThemeBorderLine line) {
+            var themed = line.isLine() && line.color() != null ? asThemeColour(line.color()) : null;
+            if (themed != null) {
+                ((XSSFCellStyle) style).setBorderColor(side.excel, themed.toColor((XSSFWorkbook) workbook));
+            }
+            return themed != null;
         }
 
         /** The colour a side is written in; a side without a line is given none. */

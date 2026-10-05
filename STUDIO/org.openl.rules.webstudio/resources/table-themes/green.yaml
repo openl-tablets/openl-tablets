@@ -6,18 +6,36 @@
 
 name: Green
 
-# The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place.
+# The theme colours of Excel the colours below are made of, those of the Standard theme. A workbook of these theme
+# colours is written each colour as its theme colour; any other workbook as #rrggbb, its theme left as it is.
+themeColors:
+  name: Office 2013 - 2022
+  background1: "#ffffff"
+  text1: "#000000"
+  background2: "#e7e6e6"
+  text2: "#44546a"
+  accent1: "#4472c4"
+  accent2: "#ed7d31"
+  accent3: "#a5a5a5"
+  accent4: "#ffc000"
+  accent5: "#5b9bd5"
+  accent6: "#70ad47"
+  hyperlink: "#0563c1"
+  followedHyperlink: "#954f72"
+
+# The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place. The
+# greens are made of the sixth accent, but for the palest, the fill of the values, which is a colour of its own.
 colors:
-  black: "#000000"
-  white: "#ffffff"
-  darkGreen: "#548235"
-  green: "#c6e0b4"
-  lightGreen: "#e2efda"
+  black: Black, Text 1
+  white: White, Background 1
+  darkGreen: Green, Accent 6, Darker 25%
+  green: Green, Accent 6, Lighter 60%
+  lightGreen: Green, Accent 6, Lighter 80%
   paleGreen: "#ebf1de"
   # The greys of the technical tables.
-  paleGrey: "#f2f2f2"
-  lightGrey: "#e7e6e6"
-  silver: "#d9d9d9"
+  paleGrey: White, Background 1, Darker 5%
+  lightGrey: Background 2
+  silver: White, Background 1, Darker 15%
 
 base:
   # The look every cell of the table starts from. It names every attribute, so the theme overrides the look the

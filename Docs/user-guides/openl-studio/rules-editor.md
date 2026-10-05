@@ -444,6 +444,11 @@ Writing the theme changes only the look of a table:
     cell.
 -   The header keeps its text, and its keyword, name, type, and parameters are formatted in pieces.
 -   Cells outside the table are not changed, and applying the theme again changes nothing more.
+-   The **Standard** theme makes its colours of the theme colours **Office 2013 - 2022**, and so does **Green** but for
+    its palest green. In an Excel file of these theme colours, a colour made of them is written as the theme colour, so
+    Excel offers it in its palette. In any other file, a colour is written as a colour of its own, and the theme of the
+    file stays as it is: OpenL Studio cannot change the theme of a file, as described in
+    [Theme Colours of Excel](appendices/table-themes.md#theme-colours-of-excel).
 -   The formatting set in the edit mode is written over the theme, so a cell formatted by hand keeps that
     formatting.
 -   A table written as several partial tables and a table of a dependency project are left as they are.

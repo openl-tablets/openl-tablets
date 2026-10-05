@@ -11,6 +11,7 @@ The following topics are included:
 -   [Parts of a Table](#parts-of-a-table)
 -   [Style Attributes](#style-attributes)
 -   [Naming Colours](#naming-colours)
+-   [Theme Colours of Excel](#theme-colours-of-excel)
 -   [Extending the Base](#extending-the-base)
 -   [Reusing Parts of a Theme](#reusing-parts-of-a-theme)
 -   [Theme Example](#theme-example)
@@ -26,13 +27,15 @@ A theme is a YAML file with the `.yaml` extension:
     one name.
 
 A file is not offered when it cannot be read, declares no name, writes a key twice, writes a colour in another way than
-`#rrggbb` or a name the theme gives a colour, writes a font size that is not a whole number from 1 to 409, or contains
-an attribute that is not described in this appendix. The reason is written to the OpenL Studio log, and the other themes
-are offered as usual.
+`#rrggbb`, a theme colour of Excel, or a name the theme gives a colour, names a theme colour of Excel without the theme
+colours it is made of, writes a font size that is not a whole number from 1 to 409, or contains an attribute that is not
+described in this appendix. The reason is written to the OpenL Studio log, and the other themes are offered as usual.
 
 A theme file holds the following keys:
 
 -   **`name`** — required. The name of the theme shown in OpenL Studio.
+-   **`themeColors`** — the theme colours of Excel that the colours of the theme are made of, as described in
+    [Theme Colours of Excel](#theme-colours-of-excel).
 -   **`colors`** — the colours of the theme, each under the name that a style sets it by, as described in
     [Naming Colours](#naming-colours).
 -   **`base`** — the skin every table shares, such as its header and its properties. Each kind of table extends it,
@@ -267,19 +270,20 @@ formatting the theme says nothing about.
 | `italic`     | `true` or `false`                    | Whether the font is italic.                                  |
 | `underline`  | `true` or `false`                    | Whether the text is underlined.                              |
 | `strikeout`  | `true` or `false`                    | Whether the text is struck out.                              |
-| `color`      | `"#rrggbb"` or a colour name         | Colour of the font.                                          |
-| `background` | `"#rrggbb"` or a colour name         | Colour the cell is filled with.                              |
+| `color`      | `"#rrggbb"`, theme colour or name    | Colour of the font.                                          |
+| `background` | `"#rrggbb"`, theme colour or name    | Colour the cell is filled with.                              |
 | `align`      | `left`, `center`, `right`, `justify` | Horizontal alignment of the text.                            |
 | `valign`     | `top`, `center`, `bottom`            | Vertical alignment of the text.                              |
 | `border`     | Sides of the cell                    | Borders of the cell, as described below.                     |
 
 Write a colour as `#rrggbb`, with six hexadecimal digits, and in quotes: in YAML, `#` starts a comment. A colour can
-also be set by the name the theme gives it, as described in [Naming Colours](#naming-colours). A shorter colour, such
-as `#fff`, is refused, and so is a name the theme gives no colour, such as `red`. An `.xls` file holds its colours in a palette of 56: a colour
-of the theme the palette has no room for is written as the nearest colour it holds, while the screen draws the
-colour of the theme. An `.xls` file also holds at most 4,000 cell styles, and an `.xlsx` file 64,000: a theme that
-needs more styles than the file has room for is refused, and the file is left as it was. Save an `.xls` file as
-`.xlsx` to write the theme into it.
+also be written as the palette of Excel names a theme colour, such as `Blue, Accent 1, Lighter 60%`, as described in
+[Theme Colours of Excel](#theme-colours-of-excel), or set by the name the theme gives it, as described in
+[Naming Colours](#naming-colours). A shorter colour, such as `#fff`, is refused, and so is a name the theme gives no
+colour, such as `red`. An `.xls` file holds its colours in a palette of 56: a colour of the theme the palette has no
+room for is written as the nearest colour it holds, while the screen draws the colour of the theme. An `.xls` file
+also holds at most 4,000 cell styles, and an `.xlsx` file 64,000: a theme that needs more styles than the file has
+room for is refused, and the file is left as it was. Save an `.xls` file as `.xlsx` to write the theme into it.
 
 The `border` attribute holds the `top`, `right`, `bottom`, and `left` sides. A side that the theme does not set keeps
 the border the cell has. A side is a line style, which is drawn in black, or a line style with a colour:
@@ -338,9 +342,68 @@ spreadsheet:
   titles: {background: blue}
 ```
 
-Each colour under `colors` is written as `#rrggbb`, and a style can still write a colour so. A theme that names a
-colour `colors` does not give, or gives a name to a colour written another way than `#rrggbb`, is refused. The
-themes that OpenL Studio ships name their colours this way.
+Each colour under `colors` is written as `#rrggbb` or as a theme colour of Excel, and a style can still write a
+colour either way. A theme that names a colour `colors` does not give, or gives a name to a colour written another
+way, is refused. The themes that OpenL Studio ships name their colours this way, each a theme colour of Excel but the
+palest green of **Green**, which is written as `#ebf1de`.
+
+### Theme Colours of Excel
+
+A colour can be written as the palette of Excel names a theme colour: the theme colour, then `Lighter` or `Darker`
+by a whole per cent from 1 to 100. The name that Excel gives the colour may be written before it, as the formatting
+standard of OpenL tables writes it, and is not checked. The theme colours are **Text 1**, **Background 1**,
+**Text 2**, **Background 2**, **Accent 1** to **Accent 6**, **Hyperlink**, and **Followed Hyperlink**:
+
+```yaml
+colors:
+  blue: Blue, Accent 1, Lighter 60%
+  grey: White, Background 1, Darker 50%
+  ink: Text 1
+```
+
+A theme colour is a colour of a theme of Excel, so a theme that names one writes the theme colours its colours are
+made of under `themeColors`: the name that Excel shows them by, and each of the twelve colours as `#rrggbb`. The
+themes that OpenL Studio ships make their colours of **Office 2013 - 2022**, whose colours the formatting standard
+names:
+
+```yaml
+themeColors:
+  name: Office 2013 - 2022
+  background1: "#ffffff"
+  text1: "#000000"
+  background2: "#e7e6e6"
+  text2: "#44546a"
+  accent1: "#4472c4"
+  accent2: "#ed7d31"
+  accent3: "#a5a5a5"
+  accent4: "#ffc000"
+  accent5: "#5b9bd5"
+  accent6: "#70ad47"
+  hyperlink: "#0563c1"
+  followedHyperlink: "#954f72"
+```
+
+The screen draws a theme colour as Excel draws it, made lighter or darker. How the colour is written into an Excel
+file depends on the theme colours of the file, whether the theme is written into one table or into the whole
+project:
+
+-   **A file whose theme colours are those under `themeColors`** — every colour of the theme is written as the theme
+    colour it is made of, so Excel offers it in its palette. The twelve colours are compared, not their name: a file
+    that Excel 2013 to 2022 created names these colours **Office**.
+-   **A file of other theme colours** — every colour of the theme is written as `#rrggbb`. Excel draws it the same,
+    but does not offer it among the theme colours of its palette.
+-   **An `.xls` file, or a file without a theme** — every colour is written as `#rrggbb`. A file that a program
+    wrote rather than Excel may have no theme.
+
+> [!Note]
+> OpenL Studio never changes the theme of an Excel file. It writes the files with Apache POI, which reads the theme
+> colours of a file but has no way to set them, so a file keeps the theme colours it has. To have Excel offer the
+> colours of the theme in its palette, give the file the theme colours under `themeColors` in Excel first: on the
+> **Page Layout** tab, under **Colors**, select **Office 2013 - 2022** for the themes that OpenL Studio ships. Then
+> write the theme into the tables again.
+
+A theme that names a theme colour without `themeColors` is refused, and so is a theme whose `themeColors` lack the
+name or one of the twelve colours, or name a colour that Excel does not have.
 
 ### Extending the Base
 

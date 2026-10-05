@@ -79,7 +79,7 @@ class ColumnMatchThemeLayoutTest {
         var runs = layoutAt(APPROVAL_ROW).at(APPROVAL_ROW, NAMES).runs(header);
 
         assertEquals("<MATCH> String", header.substring(runs.get(2).start(), runs.get(2).end()));
-        assertEquals(MUTED, runs.get(2).style().color());
+        assertEquals(MUTED, runs.get(2).style().color().rgb());
         assertEquals(Boolean.TRUE, runs.get(4).style().bold(), "The name of the table is bold");
     }
 
@@ -89,9 +89,9 @@ class ColumnMatchThemeLayoutTest {
 
         for (var column = NAMES; column <= LAST_VALUE; column++) {
             var id = layout.at(APPROVAL_ROW + 1, column).style();
-            assertEquals(MUTED, id.color(), "column " + column);
+            assertEquals(MUTED, id.color().rgb(), "column " + column);
             assertEquals(ThemeLineStyle.THIN, id.border().bottom().style(), "A line closes the ids");
-            assertEquals(TITLE, layout.at(APPROVAL_ROW + 2, column).style().background(), "column " + column);
+            assertEquals(TITLE, layout.at(APPROVAL_ROW + 2, column).style().background().rgb(), "column " + column);
         }
     }
 
@@ -99,12 +99,12 @@ class ColumnMatchThemeLayoutTest {
     void givesTheRowOfReturnValuesTheLookOfTheReturnsOfARulesTable() {
         var layout = layoutAt(APPROVAL_ROW);
 
-        assertEquals(RETURN_TITLE, layout.at(RETURN_VALUES, NAMES).style().background());
-        assertEquals(RETURN_TITLE, layout.at(RETURN_VALUES, OPERATION).style().background());
+        assertEquals(RETURN_TITLE, layout.at(RETURN_VALUES, NAMES).style().background().rgb());
+        assertEquals(RETURN_TITLE, layout.at(RETURN_VALUES, OPERATION).style().background().rgb());
         // Every value the table returns, with a line between them.
         for (var column = VALUES; column <= LAST_VALUE; column++) {
             var returned = layout.at(RETURN_VALUES, column).style();
-            assertEquals(RETURNED, returned.background(), "column " + column);
+            assertEquals(RETURNED, returned.background().rgb(), "column " + column);
             assertEquals(ThemeLineStyle.THIN, returned.border().right().style(), "column " + column);
         }
     }
@@ -114,7 +114,7 @@ class ColumnMatchThemeLayoutTest {
         var layout = layoutAt(APPROVAL_ROW);
 
         var name = layout.at(HARDWARE + 1, NAMES).style();
-        assertEquals(WHITE, name.background());
+        assertEquals(WHITE, name.background().rgb());
         assertEquals(ThemeHorizontalAlign.LEFT, name.align(), "An indent shows in a text aligned to the left");
         assertEquals(ThemeLineStyle.THIN, name.border().right().style(), "A line after the names");
         for (var column = OPERATION; column <= LAST_VALUE; column++) {
@@ -143,12 +143,12 @@ class ColumnMatchThemeLayoutTest {
         var layout = layoutAt(RATING_ROW);
 
         for (var row = RATING_RETURNS; row < AGE; row++) {
-            assertEquals(RETURN_TITLE, layout.at(row, NAMES).style().background(), "row " + row);
-            assertEquals(RETURN_TITLE, layout.at(row, WEIGHT).style().background(), "row " + row);
-            assertEquals(RETURNED, layout.at(row, RATING_VALUES).style().background(), "row " + row);
+            assertEquals(RETURN_TITLE, layout.at(row, NAMES).style().background().rgb(), "row " + row);
+            assertEquals(RETURN_TITLE, layout.at(row, WEIGHT).style().background().rgb(), "row " + row);
+            assertEquals(RETURNED, layout.at(row, RATING_VALUES).style().background().rgb(), "row " + row);
         }
-        assertEquals(WHITE, layout.at(AGE, NAMES).style().background(), "The first condition");
-        assertEquals(WHITE, layout.at(AGE, RATING_VALUES).style().background());
+        assertEquals(WHITE, layout.at(AGE, NAMES).style().background().rgb(), "The first condition");
+        assertEquals(WHITE, layout.at(AGE, RATING_VALUES).style().background().rgb());
         assertEquals(ThemeLineStyle.NONE, top(layout.at(AGE + 1, NAMES)), "No condition is indented: no group");
     }
 

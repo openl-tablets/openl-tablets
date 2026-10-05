@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.theme;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +35,12 @@ import org.openl.util.StringUtils;
  * <p>A theme is known by the name of its file without the extension, and shown by the name the file declares.
  * The file is read with its YAML anchors, aliases and merge keys resolved, so one part of a theme can extend or
  * repeat another. The file can name its colours once, under {@code colors}, and set a colour by its name wherever a
- * part takes one.
+ * part takes one. It can write the theme colours of Excel it makes its colours of under {@code themeColors}, and write
+ * a colour as the palette of Excel names a theme colour, such as {@code Blue, Accent 1, Lighter 60%}.
  *
- * <p>A theme file that cannot be read, that declares no name, that names an attribute a theme does not know, or a
- * colour it gives no name, is not offered. Studio starts with the other themes and logs why the file was refused, so
- * a mistyped attribute is never silently ignored.
+ * <p>A theme file that cannot be read, that declares no name, that names an attribute a theme does not know, a
+ * colour it gives no name, or a theme colour of Excel without its theme colours, is not offered. Studio starts with
+ * the other themes and logs why the file was refused, so a mistyped attribute is never silently ignored.
  */
 @Slf4j
 @Service
@@ -49,6 +51,9 @@ public class TableThemeService {
 
     /** The key of a theme file that gives its colours their names. */
     private static final String COLOURS = "colors";
+
+    /** The key of a theme file that writes the theme colours of Excel it makes its colours of. */
+    private static final String THEME_COLOURS = "themeColors";
 
     private static final TypeReference<Map<String, String>> NAMED_COLOURS = new TypeReference<>() {
     };
@@ -193,8 +198,8 @@ public class TableThemeService {
      *
      * @param tree the YAML of the file, read with its anchors, aliases and merge keys resolved
      * @return the theme, or {@code null} for an empty file
-     * @throws IllegalArgumentException when the theme writes one of its colours another way than {@code #rrggbb}, or
-     *                                  the file is not a theme
+     * @throws IllegalArgumentException when the theme writes one of its colours another way than {@code #rrggbb} or as
+     *                                  the palette of Excel names a theme colour, or the file is not a theme
      */
     private static @Nullable TableTheme bind(@Nullable Object tree) {
         if (tree == null) {
@@ -202,17 +207,41 @@ public class TableThemeService {
         }
         // The colours are a key of the file, not of the theme it describes: each part that takes a colour has it.
         var named = tree instanceof Map<?, ?> keys ? keys.remove(COLOURS) : null;
-        Map<String, String> colours = MAPPER.convertValue(named, NAMED_COLOURS);
-        if (colours != null) {
-            colours.values().forEach(ThemeStyle::requireColour);
+        // The theme colours stay a key of the theme, which writes them into a workbook, and make the colours named.
+        var themeColours = tree instanceof Map<?, ?> keys
+                ? MAPPER.convertValue(keys.get(THEME_COLOURS), ExcelThemeColours.class)
+                : null;
+        var reader = MAPPER.readerFor(TableTheme.class)
+                .withAttribute(ThemeColourReader.COLOURS, coloursOf(MAPPER.convertValue(named, NAMED_COLOURS),
+                        themeColours));
+        if (themeColours != null) {
+            reader = reader.withAttribute(ThemeColourReader.THEME_COLOURS, themeColours);
         }
         try {
-            return MAPPER.readerFor(TableTheme.class)
-                    .withAttribute(ThemeColourReader.COLOURS, colours == null ? Map.of() : colours)
-                    .readValue(MAPPER.<JsonNode>valueToTree(tree));
+            return reader.readValue(MAPPER.<JsonNode>valueToTree(tree));
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * The colours a theme names, each read as it is written: as {@code #rrggbb}, or as the palette of Excel names a
+     * theme colour.
+     */
+    private static Map<String, ThemeColour> coloursOf(@Nullable Map<String, String> named,
+                                                      @Nullable ExcelThemeColours themeColours) {
+        var colours = new HashMap<String, ThemeColour>();
+        if (named != null) {
+            named.forEach((name, text) -> {
+                var colour = text == null ? null : ThemeColour.read(text, themeColours);
+                if (colour == null) {
+                    throw new IllegalArgumentException("A colour the theme names is written as #rrggbb or as the "
+                            + "palette of Excel names a theme colour: " + name + ": " + text);
+                }
+                colours.put(name, colour);
+            });
+        }
+        return colours;
     }
 
     private static Map<String, TableTheme> sortedByName(Map<String, TableTheme> themes) {

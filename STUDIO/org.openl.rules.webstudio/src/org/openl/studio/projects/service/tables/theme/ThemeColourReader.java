@@ -10,36 +10,45 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 /**
  * Reads a colour a theme file sets: the colour of a font, of a fill or of a line.
  *
- * <p>The file writes a colour as {@code #rrggbb}, or by the name the theme gives it among its colours. A theme names
- * its colours once, so every part that takes a colour names it and changing the colour changes it everywhere.
+ * <p>The file writes a colour as {@code #rrggbb}, as the palette of Excel names a theme colour, such as
+ * {@code Blue, Accent 1, Lighter 60%}, or by the name the theme gives it among its colours. A theme names its colours
+ * once, so every part that takes a colour names it and changing the colour changes it everywhere.
  *
- * <p>A name the theme gives no colour is refused, and so is the theme. A colour written as {@code #rrggbb} is taken as
- * it is written: the look it is set in checks it.
+ * <p>A colour written another way, a name the theme gives no colour, and a theme colour of a theme that writes no
+ * theme colours are refused, and so is the theme.
  */
-final class ThemeColourReader extends StdDeserializer<String> {
+final class ThemeColourReader extends StdDeserializer<ThemeColour> {
 
     /** The attribute that hands the reader the colours of the theme being read, by name. */
-    static final String COLOURS = ThemeColourReader.class.getName();
+    static final String COLOURS = ThemeColourReader.class.getName() + ".colours";
 
-    /** What starts a colour written as {@code #rrggbb} rather than by its name. */
-    private static final String WRITTEN = "#";
+    /** The attribute that hands the reader the theme colours of Excel the theme makes its colours of. */
+    static final String THEME_COLOURS = ThemeColourReader.class.getName() + ".themeColours";
 
     ThemeColourReader() {
-        super(String.class);
+        super(ThemeColour.class);
     }
 
     @Override
-    public String deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public ThemeColour deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         var text = parser.getValueAsString();
         if (text == null) {
-            return (String) context.handleUnexpectedToken(String.class, parser);
+            return (ThemeColour) context.handleUnexpectedToken(ThemeColour.class, parser);
         }
-        if (text.startsWith(WRITTEN)) {
-            return text;
+        if (context.getAttribute(COLOURS) instanceof Map<?, ?> colours
+                && colours.get(text) instanceof ThemeColour named) {
+            return named;
         }
-        var colour = context.getAttribute(COLOURS) instanceof Map<?, ?> colours ? colours.get(text) : null;
-        return colour instanceof String named ? named
-                : context.reportInputMismatch(this,
-                        "A colour is written as #rrggbb or by a name the theme gives it under colors: %s", text);
+        ThemeColour written;
+        try {
+            var themeColours = context.getAttribute(THEME_COLOURS) instanceof ExcelThemeColours given ? given : null;
+            written = ThemeColour.read(text, themeColours);
+        } catch (IllegalArgumentException e) {
+            return context.reportInputMismatch(this, "%s", e.getMessage());
+        }
+        return written != null ? written
+                : context.reportInputMismatch(this, "A colour is written as #rrggbb, as the palette of Excel names a "
+                        + "theme colour, such as Blue, Accent 1, Lighter 60%%, or by a name the theme gives it under "
+                        + "colors: %s", text);
     }
 }

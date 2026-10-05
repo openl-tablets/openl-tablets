@@ -13,23 +13,43 @@
 
 name: Standard
 
-# The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place.
+# The theme colours of Excel the colours below are made of: Office 2013 - 2022, whose colours the standard names.
+# A workbook of these theme colours is written each colour as its theme colour, so Excel offers it in its palette;
+# any other workbook as #rrggbb, its theme left as it is.
+themeColors:
+  name: Office 2013 - 2022
+  background1: "#ffffff"
+  text1: "#000000"
+  background2: "#e7e6e6"
+  text2: "#44546a"
+  accent1: "#4472c4"
+  accent2: "#ed7d31"
+  accent3: "#a5a5a5"
+  accent4: "#ffc000"
+  accent5: "#5b9bd5"
+  accent6: "#70ad47"
+  hyperlink: "#0563c1"
+  followedHyperlink: "#954f72"
+
+# The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place. Each
+# is a theme colour, written as the standard and the palette of Excel name it.
 colors:
-  # Automatic (Black) and White, Background 1: the text and the fill of every cell.
-  black: "#000000"
-  white: "#ffffff"
-  # White, Background 1, Darker 50%: what a table declares besides its name and its values, such as its types.
-  darkGrey: "#808080"
-  # White, Background 1, Darker 25%: the titles of what a table takes, such as its conditions.
-  grey: "#bfbfbf"
-  # Blue, Accent 1, Lighter 60%: the titles of what a table gives, such as its formulas and its results.
-  blue: "#b4c6e7"
-  # Blue, Accent 5, Lighter 80%: the values a table gives, and the field names of a Datatype.
-  lightBlue: "#ddebf7"
+  # The text and the fill of every cell: Automatic (Black), which the sample of the standard writes as the first text
+  # colour, and the first background colour.
+  black: Black, Text 1
+  white: White, Background 1
+  # What a table declares besides its name and its values, such as its types.
+  darkGrey: White, Background 1, Darker 50%
+  # The titles of what a table takes, such as its conditions.
+  grey: White, Background 1, Darker 25%
+  # The titles of what a table gives, such as its formulas and its results.
+  blue: Blue, Accent 1, Lighter 60%
+  # The values a table gives, and the field names of a Datatype.
+  lightBlue: Blue, Accent 5, Lighter 80%
   # The greys of the technical tables, which the standard leaves out.
-  paleGrey: "#f2f2f2"
-  lightGrey: "#e7e6e6"
-  silver: "#d9d9d9"
+  paleGrey: White, Background 1, Darker 5%
+  lightGrey: Background 2
+  silver: White, Background 1, Darker 15%
 
 base:
   # The General Standard: the look every cell of every table starts from, black on white. It names every attribute,
