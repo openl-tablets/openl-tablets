@@ -2,7 +2,6 @@ package org.openl.rules.rest.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
-import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.security.UserExternalFlags;
 
@@ -46,46 +45,6 @@ public class UserProfileModel extends UserProfileBaseModel {
     @Override
     public UserProfileModel setDisplayName(String displayName) {
         return (UserProfileModel) super.setDisplayName(displayName);
-    }
-
-    @Override
-    public UserProfileModel setShowHeader(@Nullable Boolean showHeader) {
-        return (UserProfileModel) super.setShowHeader(showHeader);
-    }
-
-    @Override
-    public UserProfileModel setShowFormulas(@Nullable Boolean showFormulas) {
-        return (UserProfileModel) super.setShowFormulas(showFormulas);
-    }
-
-    @Override
-    public UserProfileModel setTableTheme(@Nullable String tableTheme) {
-        return (UserProfileModel) super.setTableTheme(tableTheme);
-    }
-
-    @Override
-    public UserProfileModel setTestsPerPage(@Nullable Integer testsPerPage) {
-        return (UserProfileModel) super.setTestsPerPage(testsPerPage);
-    }
-
-    @Override
-    public UserProfileModel setTestsFailuresOnly(@Nullable Boolean testsFailuresOnly) {
-        return (UserProfileModel) super.setTestsFailuresOnly(testsFailuresOnly);
-    }
-
-    @Override
-    public UserProfileModel setTestsFailuresPerTest(@Nullable Integer testsFailuresPerTest) {
-        return (UserProfileModel) super.setTestsFailuresPerTest(testsFailuresPerTest);
-    }
-
-    @Override
-    public UserProfileModel setShowComplexResult(@Nullable Boolean showComplexResult) {
-        return (UserProfileModel) super.setShowComplexResult(showComplexResult);
-    }
-
-    @Override
-    public UserProfileModel setShowRealNumbers(@Nullable Boolean showRealNumbers) {
-        return (UserProfileModel) super.setShowRealNumbers(showRealNumbers);
     }
 
     public UserProfileModel setAdministrator(boolean administrator) {

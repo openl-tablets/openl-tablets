@@ -218,6 +218,7 @@ class UsersControllerTest {
         var model = new UserProfileEditModel().setShowHeader(showHeader)
                 .setShowFormulas(true)
                 .setTableTheme("green")
+                .setOverrideWithStudioTheme(true)
                 .setTestsPerPage(20)
                 .setTestsFailuresOnly(true)
                 .setTestsFailuresPerTest(-1)
@@ -230,6 +231,7 @@ class UsersControllerTest {
         verify(userSettingsManager).setProperty("jdoe", "table.view", tableView);
         verify(userSettingsManager).setProperty("jdoe", "table.formulas.show", "true");
         verify(userSettingsManager).setProperty("jdoe", "table.theme", "green");
+        verify(userSettingsManager).setProperty("jdoe", "table.theme-override", "true");
         verify(userSettingsManager).setProperty("jdoe", "test.tests.perpage", "20");
         verify(userSettingsManager).setProperty("jdoe", "test.failures.only", "true");
         verify(userSettingsManager).setProperty("jdoe", "test.failures.pertest", "-1");
@@ -249,6 +251,8 @@ class UsersControllerTest {
                 "true",
                 "table.theme",
                 "green",
+                "table.theme-override",
+                "true",
                 "test.tests.perpage",
                 "20",
                 "test.failures.only",
@@ -267,6 +271,7 @@ class UsersControllerTest {
         assertEquals(false, profile.getShowHeader());
         assertEquals(true, profile.getShowFormulas());
         assertEquals("green", profile.getTableTheme());
+        assertEquals(true, profile.getOverrideWithStudioTheme());
         assertEquals(Integer.valueOf(20), profile.getTestsPerPage());
         assertEquals(true, profile.getTestsFailuresOnly());
         assertEquals(Integer.valueOf(-1), profile.getTestsFailuresPerTest());
@@ -286,6 +291,7 @@ class UsersControllerTest {
 
         assertEquals("jdoe", profile.getUsername());
         assertNull(profile.getShowFormulas());
+        assertNull(profile.getOverrideWithStudioTheme());
         assertNull(profile.getTestsPerPage());
         assertNull(profile.getTestsFailuresPerTest());
     }

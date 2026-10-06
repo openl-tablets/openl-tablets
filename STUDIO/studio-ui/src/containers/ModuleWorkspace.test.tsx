@@ -399,18 +399,23 @@ describe('ModuleWorkspace', () => {
 
     describe('in the look of the Studio theme', () => {
         const themes: TableThemeOption[] = [{ id: 'standard', name: 'Standard' }, { id: 'green', name: 'Green' }]
-        const drawIn = (look: Parameters<typeof renderInTheme>[1]) => {
+        /**
+         * The workspace in the look given, for a profile that asks for the look of the Studio theme unless it says not.
+         */
+        const drawIn = (
+            profile: { tableTheme?: string | undefined, overrideWithStudioTheme?: boolean },
+            look: Parameters<typeof renderInTheme>[1]
+        ) => {
             workspace.opened = true
             vi.mocked(getRawTable).mockClear()
             vi.mocked(getTableThemes).mockResolvedValue(themes)
-            renderInTheme(<ModuleWorkspace />, { mode: 'dark', tablesFollowTheme: true, ...look })
+            useUserStore.setState({ userProfile: { overrideWithStudioTheme: true, ...profile } as never })
+            renderInTheme(<ModuleWorkspace />, { mode: 'dark', ...look })
         }
         const readWith = () => vi.mocked(getRawTable).mock.calls[0]?.[2]?.tableTheme
 
         it('reads the table with the table theme of the look, whatever table theme the settings name', async () => {
-            useUserStore.setState({ userProfile: { tableTheme: 'green' } as never })
-
-            drawIn({ theme: 'standard' })
+            drawIn({ tableTheme: 'green' }, { theme: 'standard' })
 
             await waitFor(() => expect(getRawTable).toHaveBeenCalled())
             expect(getRawTable).toHaveBeenCalledTimes(1)
@@ -420,9 +425,7 @@ describe('ModuleWorkspace', () => {
         })
 
         it('reads with the look of the Studio theme over the formatting of the Excel file', async () => {
-            useUserStore.setState({ userProfile: { tableTheme: undefined } as never })
-
-            drawIn({ theme: 'standard', mode: 'light' })
+            drawIn({ tableTheme: undefined }, { theme: 'standard', mode: 'light' })
 
             await waitFor(() => expect(getRawTable).toHaveBeenCalled())
             // The look is a theme too: the table waits for the themes rather than being read twice.
@@ -431,9 +434,7 @@ describe('ModuleWorkspace', () => {
         })
 
         it('falls back to the table theme of the settings under a Studio theme with no look for them', async () => {
-            useUserStore.setState({ userProfile: { tableTheme: 'green' } as never })
-
-            drawIn({ theme: 'dracula' })
+            drawIn({ tableTheme: 'green' }, { theme: 'dracula' })
 
             await waitFor(() => expect(getRawTable).toHaveBeenCalled())
             expect(readWith()).toBe('green')
@@ -441,9 +442,7 @@ describe('ModuleWorkspace', () => {
         })
 
         it('draws the Standard table theme the settings name in no look where the reader does not ask', async () => {
-            useUserStore.setState({ userProfile: { tableTheme: 'standard' } as never })
-
-            drawIn({ theme: 'standard', tablesFollowTheme: false })
+            drawIn({ tableTheme: 'standard', overrideWithStudioTheme: false }, { theme: 'standard' })
 
             await waitFor(() => expect(getRawTable).toHaveBeenCalled())
             expect(readWith()).toBe('standard')
@@ -451,9 +450,7 @@ describe('ModuleWorkspace', () => {
         })
 
         it('falls back to the formatting of the Excel file the settings name', async () => {
-            useUserStore.setState({ userProfile: { tableTheme: undefined } as never })
-
-            drawIn({ theme: 'dracula' })
+            drawIn({ tableTheme: undefined }, { theme: 'dracula' })
 
             await waitFor(() => expect(getRawTable).toHaveBeenCalled())
             expect(readWith()).toBeUndefined()

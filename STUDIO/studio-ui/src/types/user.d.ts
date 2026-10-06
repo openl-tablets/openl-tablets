@@ -71,6 +71,11 @@ export interface UserProfile {
      * one, which the server offers first.
      */
     tableTheme?: string
+    /**
+     * Whether the tables are drawn in the look of the theme of OpenL Studio in place of the table theme, where the
+     * theme has a look for them. A view only, like the table theme.
+     */
+    overrideWithStudioTheme: boolean
     testsFailuresOnly: boolean
     testsFailuresPerTest: number
     testsPerPage: number
@@ -84,9 +89,4 @@ export interface UserProfileFormFields extends UserProfile {
         confirmPassword?: string
     }
     displayNameSelect?: DisplayUserName
-    /**
-     * Whether the tables are drawn in the look of the theme of OpenL Studio in place of the table theme, where the
-     * theme has a look for them. Remembered by the browser like the theme itself, so it is never sent with the profile.
-     */
-    overrideWithStudioTheme?: boolean
 }

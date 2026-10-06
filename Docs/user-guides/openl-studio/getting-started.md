@@ -145,8 +145,7 @@ To manage personal settings, proceed as follows:
             draws them with the **Standard** table theme, in its own colours in the light appearance and in dark
             colours in the dark one: the table theme decides which text is bold, which lines are drawn and how the
             text is aligned, and the text takes the font of OpenL Studio. The other themes of OpenL Studio have no
-            look for the tables, so under them the tables are drawn as **Table Theme** selects. Like the theme of
-            OpenL Studio, the choice is remembered by the browser rather than in the user profile.
+            look for the tables, so under them the tables are drawn as **Table Theme** selects.
 
     > [!Note]
     > **Table Theme** and **Override with Studio theme** are view only: they change how the tables are shown on the

@@ -183,6 +183,11 @@ The build writes two pages (`build.rollupOptions.input`):
   `densityTheme(compact)` from `AppThemeProvider` and read with `useAppTheme()`. antd-style builds the algorithm
   chain as `[appearance, ...theme.algorithm]`, and a nested provider starts that chain again — so **every scoped
   theme merges `densityTheme(compact)` in**, or its area stays comfortable inside a compact application.
+- **Settings live in the profile.** Every setting of **My Settings** is a field of the user profile (`GET` and
+  `PUT /users/profile`, `UserProfile` in `types/user.d.ts`), kept on the server, so it follows the user from browser
+  to browser and no user reads another's. `localStorage` keeps only what the header picks for the browser — the
+  appearance, the theme and the density — and the state of a screen, such as the width of a panel or a filter. A new
+  setting is a field of the profile, never a key of the browser.
 
 ## Development
 
@@ -308,8 +313,8 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
       one, lie on the paper as well. The line numbers beside the table belong to the screen and follow the theme.
       The one exception is the look a theme of the application gives the tables (`TABLE_LOOKS` in
       `styles/tableColours.ts`: a table theme, and the token each key of its file takes in the dark appearance), where
-      the user asked for **Override with Studio theme** (My Settings, remembered under `openl.theme.tables`, view only
-      like the table theme of the settings: neither changes a workbook or a project). The table theme then decides
+      the user asked for **Override with Studio theme** (My Settings, `overrideWithStudioTheme` of the profile, view
+      only like the table theme of the settings: neither changes a workbook or a project). The table theme then decides
       every colour of the cells, so no colour of an author is left to need the paper. `ModuleWorkspace` reads the
       table with the table theme of the look (`followedTableTheme`: `standard` under the Standard theme) whatever
       table theme the settings name, which stays the fallback under a theme with no look, and tells `TableEditor` the

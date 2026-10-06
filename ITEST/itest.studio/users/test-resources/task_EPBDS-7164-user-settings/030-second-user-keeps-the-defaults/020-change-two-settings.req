@@ -1,0 +1,8 @@
+PUT /rest/users/profile HTTP/1.1
+Authorization: Basic Ym9iOmJvYi1wYXNz
+Content-Type: application/json
+
+{
+  "tableTheme": "standard",
+  "testsPerPage": 1
+}
