@@ -93,11 +93,6 @@ public class Table implements ITable {
     }
 
     @Override
-    public String getColumnDisplay(int n) {
-        return dataModel.getDescriptor(n).getDisplayName();
-    }
-
-    @Override
     public int getColumnIndex(String columnName) {
         for (ColumnDescriptor descriptor : dataModel.getDescriptors()) {
             if (descriptor.getName().equals(columnName)) {
@@ -173,15 +168,6 @@ public class Table implements ITable {
     @Override
     public int getSize() {
         return Array.getLength(dataArray);
-    }
-
-    @Override
-    public Object getValue(int col, int row) {
-        var startRows = getStartRowForData();
-        var idx = row - startRows;
-        Object rowObject = rowIndexMap == null ? Array.get(dataArray, idx) : rowIndexMap.get(idx);
-
-        return dataModel.getDescriptor(col).getColumnValue(rowObject);
     }
 
     @Override
