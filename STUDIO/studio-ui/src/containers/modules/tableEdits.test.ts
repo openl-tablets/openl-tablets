@@ -302,15 +302,31 @@ describe('tableEdits', () => {
             expect(sent(write(1, 0, '6')).some(edit => edit.operation === 'theme')).toBe(false)
         })
 
-        it('writes the theme over the rows the reader added, and the styling they asked for over the theme', () => {
-            const edits = sent(
-                { kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } },
-                { kind: 'theme', theme: 'default' },
-                { kind: 'insertRow', at: 3 }
-            )
+        it('takes no change of the table while a theme is chosen, leaving the buffer as it was', () => {
+            const themed = withStep(NO_EDITS, { kind: 'theme', theme: 'default' })
 
-            expect(edits.map(edit => edit.operation)).toEqual(['insert', 'theme', 'style'])
-            expect(edits[1]).toEqual({ operation: 'theme', theme: 'default' })
+            // The theme is laid out by the table as it was saved, which an edit saved with it would change.
+            expect(withStep(themed, write(1, 0, '6'))).toBe(themed)
+            expect(withStep(themed, { kind: 'insertRow', at: 3 })).toBe(themed)
+            expect(withStep(themed, { kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } })).toBe(themed)
+        })
+
+        it('takes no theme while the table holds edits, and keeps what was taken back to put again', () => {
+            const edited = undo(withStep(withStep(NO_EDITS, write(1, 0, '6')), write(1, 1, 'Buenos Dias')))
+
+            const refused = withStep(edited, { kind: 'theme', theme: 'default' })
+
+            expect(refused).toBe(edited)
+            expect(redo(refused).steps).toHaveLength(2)
+        })
+
+        it('takes a theme once every edit is taken back, and an edit once the theme is', () => {
+            const themed = withStep(undo(withStep(NO_EDITS, write(1, 0, '6'))), { kind: 'theme', theme: 'default' })
+
+            expect(themed.steps).toEqual([{ kind: 'theme', theme: 'default' }])
+            // The edit taken back cannot be put again: it would be saved with the theme.
+            expect(themed.undone).toEqual([])
+            expect(withStep(undo(themed), write(1, 0, '6')).steps).toEqual([write(1, 0, '6')])
         })
 
         it('writes the table with the theme the reader chose last', () => {

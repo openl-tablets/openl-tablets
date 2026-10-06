@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -39,15 +38,12 @@ import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.projects.model.tables.InsertTarget;
-import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellBorder;
 import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
-import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableStyleSource;
 import org.openl.studio.projects.model.tables.RawTableTextRun;
 import org.openl.studio.projects.model.tables.RawTableView;
@@ -55,7 +51,6 @@ import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
-import org.openl.studio.projects.service.tables.write.RawTableWriter;
 
 /**
  * Covers the table theme end to end: the theme file, the look each cell gets, the look drawn over a table on the
@@ -219,7 +214,7 @@ class TableThemeTest {
         var grid = GridTableUtils.getOriginalTable(code.getGridTable());
         grid.edit();
         try {
-            assertTrue(extension.writer("datatype-extension").write(code, grid, TableMoves.NONE));
+            assertTrue(extension.writer("datatype-extension").write(code, grid));
         } finally {
             grid.stopEditing();
         }
@@ -1046,25 +1041,6 @@ class TableThemeTest {
         assertEquals(Boolean.TRUE, layout.at(15, 1).style().bold());
         assertEquals(Boolean.TRUE, layout.at(14, 1).style().bold(), "The title is bold as every title");
         assertNotEquals(Boolean.TRUE, layout.at(13, 1).style().bold(), "The field name is not a key");
-    }
-
-    @Test
-    void findsTheKeyAnEditMovedBeforeTheThemeWhereItStandsNow() {
-        var crew = TableTestProjects.table(TableTestProjects.projectModel(dir), CREW);
-        var rate = Stream.of("rate", "Rate", "1.5", "2.5").map(value -> new RawCellInput(value, null, null, null))
-                .toList();
-
-        // A field inserted before the key in the same edit is the first field now; the key is the one the compiler
-        // read, where the edit moved it.
-        new RawTableWriter(crew, service).apply(List.of(
-                new RawTableSourceAction.Insert(new InsertTarget.Rows(1, List.of(rate))),
-                new RawTableSourceAction.Theme(THEME)));
-
-        var written = read(CREW);
-        assertEquals("Bob", written.get(2).get(2).value());
-        assertEquals(Boolean.TRUE, written.get(2).get(2).style().bold(), "The key moved down");
-        assertEquals(Boolean.TRUE, written.get(2).get(3).style().bold());
-        assertNotEquals(Boolean.TRUE, written.get(1).get(2).style().bold(), "The field inserted is not the key");
     }
 
     @Test

@@ -19,7 +19,7 @@ const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace 
     setSearchParamsMock: vi.fn(),
     // What the workspace holds of the project: closed until the reader answers the question to open it, and
     // what the compilation of its module came to.
-    workspace: { opened: false, state: 'ok', branch: 'master' },
+    workspace: { opened: false, state: 'ok', branch: 'master', verifyNeeded: false },
 }))
 
 // What the details panel is handed to write the cells before the properties, and what the editor answers it with.
@@ -84,6 +84,7 @@ vi.mock('./modules/useModuleCompilation', () => ({
         tests: 0,
         state: workspace.opened ? workspace.state : 'idle',
         status: null,
+        verifyNeeded: workspace.verifyNeeded,
     }),
 }))
 
@@ -165,7 +166,7 @@ vi.mock('./modules/TableEditor', async () => {
     const { useImperativeHandle } = await import('react')
     return {
         TableEditor: ({
-            ref, testId, rows, hiddenRows, editing, look, onEditingChange, onOpenUsage, onSaved, children,
+            ref, testId, rows, hiddenRows, editing, look, verifyNeeded, onEditingChange, onOpenUsage, onSaved, children,
         }: {
             ref?: Ref<unknown>
             testId?: string
@@ -173,6 +174,7 @@ vi.mock('./modules/TableEditor', async () => {
             hiddenRows?: number
             editing?: boolean
             look?: string
+            verifyNeeded?: boolean
             onEditingChange?: (editing: boolean) => void
             onOpenUsage?: (usage: typeof handed.usage) => void
             onSaved?: (written: string) => void
@@ -185,6 +187,7 @@ vi.mock('./modules/TableEditor', async () => {
                     data-editing={String(editing)}
                     data-look={look ?? ''}
                     data-testid={testId}
+                    data-verify-needed={String(verifyNeeded)}
                 >
                     {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
                     <button data-testid="table-edit-stop" onClick={() => onEditingChange?.(false)} type="button" />
@@ -229,6 +232,7 @@ describe('ModuleWorkspace', () => {
         workspace.opened = false
         workspace.state = 'ok'
         workspace.branch = 'master'
+        workspace.verifyNeeded = false
         routeParams.projectId = 'p1'
         searchParams.set('table', 't-1')
         vi.mocked(getProject).mockImplementation(() =>
@@ -268,6 +272,14 @@ describe('ModuleWorkspace', () => {
         // Writing the cells may move the table, so the properties go to the table as it stands afterwards.
         await expect(detailsPanel.beforeSave?.()).resolves.toEqual({ tableId: 't-2', changed: true })
         expect(write).toHaveBeenCalled()
+    })
+
+    it('tells the editor that the module waits for Verify, which no theme is applied before', async () => {
+        workspace.opened = true
+        workspace.verifyNeeded = true
+        render(<ModuleWorkspace />)
+
+        expect(await screen.findByTestId('module-table')).toHaveAttribute('data-verify-needed', 'true')
     })
 
     it('answers the table on screen, with nothing written, when no editor holds cells of it', async () => {

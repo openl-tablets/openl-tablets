@@ -26,9 +26,9 @@ public record ProjectStatusViewModel (
         CompilationDetails compilation,
 
         @Parameter(description = """
-                Set when the module the session has open was written to while automatic compilation is \
-                switched off, so it is the reader who asks for it to be compiled. Absent where nothing is \
-                waiting""")
+                Set when a workbook the module the session has open is compiled with was written to while \
+                automatic compilation is switched off, so it is the reader who asks for it to be compiled. Absent \
+                where nothing is waiting""")
         Boolean manualCompileNeeded,
 
         @Parameter(description = "Files modified locally and not yet committed to the design repository.")

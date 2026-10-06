@@ -2510,18 +2510,35 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * the order they are given, each seeing the table as the previous one left it. The workbook is saved once, after
      * the last of them.
      *
+     * <p>A table theme is laid out by the table as it was compiled, so it is applied on its own. A sequence holding a
+     * theme and any other edit is refused before the table is read: the theme would miss what the other edits change,
+     * such as a condition inserted into a decision table. A theme is refused too while a workbook of the project was
+     * written to since it was compiled ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation
+     * off, until the module is verified.
+     *
      * @param project project
      * @param tableId table id
      * @param actions the edits to apply, in order
      * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
-     * @throws ConflictException if the project is held by another user
+     * @throws BadRequestException if a theme is sent with another edit
+     * @throws ConflictException   if the project is held by another user, or a theme is asked for while a write waits
+     *                             to be compiled
      */
     @LockForEditing
     public String editTableSource(RulesProject project,
                                   String tableId,
                                   List<RawTableSourceAction> actions,
                                   @Nullable String moduleName) {
+        var themed = actions.stream().anyMatch(RawTableSourceAction.Theme.class::isInstance);
+        if (themed && actions.size() > 1) {
+            throw new BadRequestException("table.theme.alone.message");
+        }
         var context = getWritableTable(project, tableId, moduleName);
+        if (themed) {
+            // Asked once the module is open: with automatic compilation on, opening the module a write changed is what
+            // compiles it again.
+            compiledAsWritten(context.module());
+        }
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
         return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
@@ -2537,6 +2554,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * <p>The theme reaches every module, so a project compiled only in part, such as one whose module compiles
      * alone, is compiled whole first. A project whose compilation the reader stopped is refused.
      *
+     * <p>A theme is laid out by the tables as they were compiled, so a project with a workbook written to since it was
+     * compiled is refused too ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation off, until
+     * the module is verified.
+     *
      * <p>Each table themed is noted as edited, as any edit of a table is, where the installation records who edits
      * tables and when.
      *
@@ -2551,12 +2572,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param themeId the theme, by its identifier
      * @return the tables themed, by their identifiers once written, and the tables left as they are
      * @throws BadRequestException when no theme has the identifier
-     * @throws ConflictException   if the project is held by another user, or its compilation was stopped
+     * @throws ConflictException   if the project is held by another user, its compilation was stopped, or a write
+     *                             waits to be compiled
      */
     @LockForEditing
     public TableThemeResultView applyProjectTableTheme(RulesProject project, String themeId) {
         var writer = tableThemeService.writer(themeId);
-        var model = compiledWhole(openProject(project).awaitCompiled());
+        var model = compiledWhole(compiledAsWritten(openProject(project).awaitCompiled()));
         var modules = getProjectDescriptor(project).getModules();
         var themed = new ArrayList<IOpenLTable>();
         var skipped = new ArrayList<String>();
@@ -2594,6 +2616,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         if (!model.isProjectCompilationCompleted()) {
             throw new ConflictException("table.theme.project.stopped.message");
+        }
+        return model;
+    }
+
+    /**
+     * The project as long as what it compiled answers for its workbooks.
+     *
+     * <p>A table theme is laid out by the tables as they were compiled, so it is refused while a workbook of the project
+     * was written to since it was compiled ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation
+     * off, until the module is verified.
+     */
+    private static ProjectModel compiledAsWritten(ProjectModel model) {
+        if (model.isWrittenSinceCompiled()) {
+            throw new ConflictException("table.theme.verify.message");
         }
         return model;
     }

@@ -280,6 +280,7 @@ export const ModuleActionBar = ({
                 onClose={() => setThemeOpen(false)}
                 open={themeOpen}
                 projectId={project.id}
+                verifyNeeded={verifyNeeded}
             />
         </Space>
     )

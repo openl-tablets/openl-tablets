@@ -280,7 +280,7 @@ The request applies one edit to the raw source of any table. The `operation` sel
 - **`unmerge`** — splits the merged cell that covers a position. Target type `cells` with `row` and `column`.
 - **`style`** — sets the style of a rectangle; see [Styling Cells](#styling-cells). Target type `cells`.
 - **`theme`** — writes a table theme into the table; see [Table Theme](#table-theme). The edit names the `theme` and has
-  no `target`.
+  no `target`, and it is applied on its own.
 
 A cell of a request has a `value`, optional `colspan` and `rowspan`, and `covered`. Examples:
 
@@ -398,22 +398,25 @@ The theme is a view only: a client edits a table from a read without `tableTheme
 workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table of the
 kind `Other` is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with `400`.
 
-**Writing the theme into a table.** The `theme` action writes a theme into the table, alone or with other edits in
-a batch:
+**Writing the theme into a table.** The `theme` action writes a theme into the table:
 
 ```json
 {"operation": "theme", "theme": "standard"}
 ```
 
-In a batch, the theme is written over the table as the edits before it left it, so the rows the batch adds are
-themed with the rest: a row added under the rules of a decision table is a rule. A decision table is themed by where
-the compiler found its conditions and what it returns, and a Conditions, an Actions or a Returns table by where it
-found the titles of what the table declares, each where the rows and the columns the batch inserted or deleted before
-the theme moved it; a column the batch inserted into a decision table holds nothing compiled yet and takes the base
-look.
-A `style` action that follows sets its styling over the theme. Where OpenL Studio records who edits a table and
-when, a property the note of the edit adds takes the theme too. A table of the kind `Other` is refused with `400`, and
-so is a theme OpenL Studio does not offer.
+The theme is laid out by the table as it was saved and compiled: a decision table by where the compiler found its
+conditions and what it returns, a Conditions, an Actions or a Returns table by where it found the titles of what the
+table declares. An edit sent with the theme would change the table the compiler read, and a column it inserted into a
+decision table would be a condition the compiler has not read yet. So the theme is applied on its own: a batch
+holding a `theme` action and any other edit, another theme included, is refused with `400` and
+`openl.error.400.table.theme.alone.message` before the table is read, and nothing of it is written. Send the edits
+first, then the theme, or the other way round. A theme is refused with `409` and
+`openl.error.409.table.theme.verify.message` while a workbook of the project was written to since it was compiled:
+with **Verify on Edit** turned off, a write leaves the project compiled as it stood before the write until the module
+is verified. Compile the module first, with `POST /rest/projects/{projectId}/modules/{moduleName}/compile?reset=true`,
+which compiles every module of the project again. Where OpenL Studio records who edits a table and when, a property
+the note of the edit adds takes the theme too. A table of the kind `Other` is refused with `400`, and so is a theme
+OpenL Studio does not offer.
 
 **Writing the theme into the project.** One endpoint writes a theme into every table of every module of the project
 but the tables of the kind `Other`, and recompiles what it changes:
@@ -425,9 +428,10 @@ POST /rest/projects/{projectId}/theme?theme={id}
 It answers `200` with the identifiers of the tables themed and of the ones left as they are, which are written as
 several partial tables. A table of any other kind is in neither list. A project compiled only in part, such as one whose
 module compiles alone, is compiled whole first, so the theme reaches every module; a project whose compilation was
-stopped is refused with `409`. Where OpenL Studio records who edits a table and when, each table themed is noted as
-edited, as any edit of a table is. A property the note adds takes the theme, and a table without room for the note moves
-and is named by where it stands once written:
+stopped is refused with `409`, and so is a project written to since it was compiled, as one table is
+(`openl.error.409.table.theme.verify.message`). Where OpenL Studio records who edits a table and when, each table
+themed is noted as edited, as any edit of a table is. A property the note adds takes the theme, and a table without
+room for the note moves and is named by where it stands once written:
 
 ```json
 { "themed": ["f55d6ff710d930c7cf6d43a377446bcd"], "skipped": [] }
@@ -462,6 +466,8 @@ Content-Type: application/json
   An insert or a delete shifts the coordinates of everything that follows it.
 - **One write** — the table is written once, after the last edit. An edit that is refused ends the sequence, and nothing
   of it reaches the table.
+- **A theme alone** — a `theme` action is the only edit of its batch. A batch holding it and any other edit, another
+  theme included, is refused with `400`; see [Table Theme](#table-theme).
 - **Response** — as for a single edit: `204`, or `200` with the new id and the `Location` header.
 
 ## Editing a Table

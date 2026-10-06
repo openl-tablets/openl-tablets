@@ -17,7 +17,7 @@ import org.openl.rules.table.ILogicalTable;
  * @param base       the look every cell of the table starts from
  * @param look       the look of the table
  * @param transposed whether the compiler read the table with its rows and columns swapped
- * @param compiled   the table as it was compiled, and where its cells stand now
+ * @param compiled   the table as it was compiled
  */
 @Builder
 record ThemedBody(ILogicalTable rows,
@@ -35,45 +35,42 @@ record ThemedBody(ILogicalTable rows,
     }
 
     /**
-     * The columns of the body, read the way the compiler reads it, that a column of the compiled table stands in now.
-     *
-     * <p>A column stands where the edits since the compilation moved it. A column an edit deleted stands nowhere.
+     * The columns of the body, read the way the compiler reads it, that a column of the compiled table takes.
      *
      * @param compiled the compiled table, read the way the compiler reads it
      * @param column   the column of the compiled table, or {@code null} for none
      * @return the columns of {@link #upright()}
      */
-    Set<Integer> columnsNow(ILogicalTable compiled, @Nullable Integer column) {
+    Set<Integer> columnsOf(ILogicalTable compiled, @Nullable Integer column) {
         if (column == null || column < 0 || column >= compiled.getWidth()) {
             return Set.of();
         }
-        return placesNow(compiled.getColumn(column).getSource(), true);
+        return placesOf(compiled.getColumn(column).getSource(), true);
     }
 
     /**
-     * The rows of the body, read the way the compiler reads it, that a row of the compiled table stands in now, as
-     * {@link #columnsNow} tells it of a column.
+     * The rows of the body, read the way the compiler reads it, that a row of the compiled table takes, as
+     * {@link #columnsOf} tells it of a column.
      *
      * @param compiled the compiled table, read the way the compiler reads it
      * @param row      the row of the compiled table
      * @return the rows of {@link #upright()}
      */
-    Set<Integer> rowsNow(ILogicalTable compiled, int row) {
+    Set<Integer> rowsOf(ILogicalTable compiled, int row) {
         if (row < 0 || row >= compiled.getHeight()) {
             return Set.of();
         }
-        return placesNow(compiled.getRow(row).getSource(), false);
+        return placesOf(compiled.getRow(row).getSource(), false);
     }
 
     /**
-     * The rows or the columns of the body, read the way the compiler reads it, that a part of the compiled table stands
-     * in now.
+     * The rows or the columns of the body, read the way the compiler reads it, that a part of the compiled table takes.
      *
      * @param part    the part of the compiled table
      * @param columns whether to tell the columns, rather than the rows
      * @return the rows or the columns of {@link #upright()}
      */
-    Set<Integer> placesNow(IGridTable part, boolean columns) {
+    Set<Integer> placesOf(IGridTable part, boolean columns) {
         var upright = upright();
         var places = new HashSet<Integer>();
         compiled.addPlaces(part, (row, column) -> placeAt(upright, columns, row, column), places);
@@ -82,13 +79,13 @@ record ThemedBody(ILogicalTable rows,
 
     /**
      * The rows or the columns of the body, read the way the compiler reads it, that the cells of the sheet the compiler
-     * read in a region stand in now.
+     * read in a region take.
      *
      * @param region  where the compiler read a part of the table on the sheet
      * @param columns whether to tell the columns, rather than the rows
      * @return the rows or the columns of {@link #upright()}
      */
-    Set<Integer> placesNow(IGridRegion region, boolean columns) {
+    Set<Integer> placesOf(IGridRegion region, boolean columns) {
         var upright = upright();
         var places = new HashSet<Integer>();
         compiled.addPlaces(region, (row, column) -> placeAt(upright, columns, row, column), places);

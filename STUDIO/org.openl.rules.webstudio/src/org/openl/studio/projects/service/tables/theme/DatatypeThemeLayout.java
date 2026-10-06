@@ -19,8 +19,8 @@ import org.openl.rules.table.ICell;
  *
  * <p>The columns are the ones the compiler read. A Datatype names them on a row of titles, or keeps the type, the name
  * and the default value of a field in its first three columns when it names none. A Constants table is read by place
- * alone: the type, the name and the value of each constant in its first three columns, under no titles. Each column is
- * found where the edits since the compilation moved it. Every value of a Vocabulary gets the value look.
+ * alone: the type, the name and the value of each constant in its first three columns, under no titles. Every value
+ * of a Vocabulary gets the value look.
  *
  * <p>A Datatype written transposed keeps a field in each column, and a Constants table a constant. It takes the looks
  * the way it is compiled: the row of types takes the type look, the row of names takes the name look, and a column
@@ -51,9 +51,9 @@ final class DatatypeThemeLayout {
         var compiled = datatype.getTable();
         var order = datatype.getColumnTitlesOrder();
         return new BodyLayout.Placed(body.upright(), Places.of(body,
-                datatype.hasColumnTitles() ? body.rowsNow(compiled, 0) : Set.of(),
-                body.columnsNow(compiled, order.get(DatatypeHelper.TYPE_COLUMN_TITLE)),
-                body.columnsNow(compiled, order.get(DatatypeHelper.NAME_COLUMN_TITLE))));
+                datatype.hasColumnTitles() ? body.rowsOf(compiled, 0) : Set.of(),
+                body.columnsOf(compiled, order.get(DatatypeHelper.TYPE_COLUMN_TITLE)),
+                body.columnsOf(compiled, order.get(DatatypeHelper.NAME_COLUMN_TITLE))));
     }
 
     /**
@@ -69,8 +69,8 @@ final class DatatypeThemeLayout {
         }
         var compiled = reader.getBoundNode().getNormalizedData();
         return new BodyLayout.Placed(body.upright(), Places.of(body, Set.of(),
-                body.columnsNow(compiled, CONSTANT_TYPE),
-                body.columnsNow(compiled, CONSTANT_NAME)));
+                body.columnsOf(compiled, CONSTANT_TYPE),
+                body.columnsOf(compiled, CONSTANT_NAME)));
     }
 
     /**

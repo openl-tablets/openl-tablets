@@ -102,6 +102,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * nobody wrote to.
      */
     private final AtomicReference<Module> moduleToVerify = new AtomicReference<>();
+    /** The compilation the screens were last told a write left waiting. */
+    private final AtomicReference<RegisteredCompilation> announcedWrite = new AtomicReference<>();
     private final Map<String, Object> externalProperties;
 
     private final RulesUserSession rulesUserSession;
@@ -442,6 +444,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * exists to avoid, so the module is left waiting and the reader asks for it with Verify when they are
      * ready. Until then the tables read as they are written — it is the same workbook — and what the compiler
      * said about them is what it said before the write.
+     *
+     * <p>Every screen following the project is told that it waits, not only the one that wrote: another screen
+     * holding a table theme to save would lay it out by the tables as they were compiled before the write. They are
+     * told once for each compilation: a later write leaves the project waiting as the first one did.
      */
     public synchronized void recompileCurrentModule() {
         if (isAutoCompile()) {
@@ -450,6 +456,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
         moduleToVerify.set(getCurrentModule());
         publishWorkspaceReset();
+        var compilation = model.getCurrentCompilation();
+        if (announcedWrite.getAndSet(compilation) != compilation) {
+            model.publishStatusChanged();
+        }
     }
 
     /**
@@ -511,10 +521,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public boolean isAutoCompile() {
         return Props.bool(AdministrationSettings.AUTO_COMPILE);
-    }
-
-    public boolean isManualCompileNeeded() {
-        return !isAutoCompile() && moduleToVerify.get() != null;
     }
 
     public void invokeManualCompile() {

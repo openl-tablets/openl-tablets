@@ -50,7 +50,7 @@ const ROWS: RawTableCell[][] = [
 const draw = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
     const onEditingChange = vi.fn()
     const onSaved = vi.fn()
-    render(
+    const editor = (props: Partial<Parameters<typeof TableEditor>[0]>) => (
         <TableEditor
             canWrite
             editing
@@ -61,10 +61,13 @@ const draw = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
             rows={ROWS}
             tableId="table-1"
             testId="module-table"
-            {...over}
+            {...props}
         />
     )
-    return { onEditingChange, onSaved }
+    const { rerender } = render(editor(over))
+    /** Draws the editor again with more of its props changed, as the screen holding it does. */
+    const redraw = (more: Partial<Parameters<typeof TableEditor>[0]>) => rerender(editor({ ...over, ...more }))
+    return { onEditingChange, onSaved, redraw }
 }
 
 /** The cell drawn at the given place, for a place that holds nothing to search for by its text. */
@@ -1755,19 +1758,52 @@ describe('TableEditor', () => {
             expect(screen.getByTestId('table-edit-save')).toBeDisabled()
         })
 
-        it('draws the styling the reader asked for over the theme, and writes it after the theme', async () => {
+        it('opens no cell while a theme is chosen, and says why above the table', async () => {
+            draw()
+            await chooseTheme('Green')
+
+            expect(await screen.findByTestId('table-edit-theme-alone'))
+                .toHaveTextContent('browser.module.edit_theme_alone')
+            await userEvent.dblClick(screen.getByText('Good Morning'))
+            expect(screen.queryByTestId('table-cell-input')).toBeNull()
+            expect(screen.getByTestId('table-edit-bold')).toBeDisabled()
+
+            await userEvent.click(screen.getByTestId('table-edit-undo'))
+
+            expect(screen.queryByTestId('table-edit-theme-alone')).toBeNull()
+            await userEvent.dblClick(screen.getByText('Good Morning'))
+            expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
+        })
+
+        it('offers no theme while the module waits for Verify', async () => {
+            draw({ verifyNeeded: true })
+
+            expect(await screen.findByTestId('table-edit-theme')).toBeDisabled()
+        })
+
+        it('saves no theme chosen before the project came to wait for Verify, and says why', async () => {
+            const { redraw } = draw()
+            await chooseTheme('Green')
+            await waitFor(() => expect(screen.getByTestId('table-edit-save')).toBeEnabled())
+
+            // A write from elsewhere leaves the project compiled as it stood before that write.
+            redraw({ verifyNeeded: true })
+
+            expect(screen.getByTestId('table-edit-save')).toBeDisabled()
+            await userEvent.hover(screen.getByTestId('table-edit-save'))
+            expect(await screen.findByText('browser.module.theme_verify_first')).toBeInTheDocument()
+        })
+
+        it('offers no theme once the reader changed the table, until the change is taken back', async () => {
             draw()
             await userEvent.click(cellOf(1, 1))
             await userEvent.click(screen.getByTestId('table-edit-bold'))
 
-            await chooseTheme('Green')
+            expect(await screen.findByTestId('table-edit-theme')).toBeDisabled()
 
-            await waitFor(() => expect(drawnCell('C5')).toHaveStyle({ backgroundColor: '#e2efda' }))
-            expect((drawnCell('C5') as HTMLElement).style.fontWeight).toBe('bold')
-            await userEvent.click(screen.getByTestId('table-edit-save'))
-            await waitFor(() => expect(applyTableActions).toHaveBeenCalled())
-            const [, , actions] = vi.mocked(applyTableActions).mock.calls[0] ?? []
-            expect(actions?.map(action => action.operation)).toEqual(['theme', 'style'])
+            await userEvent.click(screen.getByTestId('table-edit-undo'))
+
+            expect(screen.getByTestId('table-edit-theme')).toBeEnabled()
         })
 
         it('draws a text the workbook formats in pieces in the one font the theme gives it, as the save writes it',

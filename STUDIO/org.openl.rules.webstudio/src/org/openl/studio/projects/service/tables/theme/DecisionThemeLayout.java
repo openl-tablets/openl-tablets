@@ -45,9 +45,7 @@ import org.openl.rules.table.ILogicalTable;
  *
  * <p>Where each part stands is taken from the compiled table: the lines of the sheet its code, its titles and its
  * horizontal conditions take, and the columns its conditions and what it returns take. Every line under them holds
- * rules, so the rules a table being edited gained are themed before it is compiled. A row or a column an edit
- * inserted or deleted since the table was compiled moves the parts after it, and each part is themed where the edit
- * moved it. A table that did not compile takes the base skin alone.
+ * rules. A table that did not compile takes the base skin alone.
  *
  * <p>A table written the other way round, with a rule in each column, takes the looks with its rows and columns
  * swapped, and so are the lines of a look: a line it draws above a part is drawn on the left of the part, a line
@@ -269,12 +267,12 @@ final class DecisionThemeLayout {
         }
     }
 
-    /** Collects the places of a table, one compiled row after another, where they stand now. */
+    /** Collects the places of a table, one compiled row after another. */
     private static final class Reader {
 
         /** The axes of the table. */
         private final Axes axes;
-        /** The table as it was compiled, and where its cells stand now. */
+        /** The table as it was compiled. */
         private final CompiledTable compiled;
         /** Whether the table checks horizontal conditions. */
         private final boolean lookup;
@@ -295,7 +293,7 @@ final class DecisionThemeLayout {
          * A reader of a compiled decision table.
          *
          * @param decision the table as the compiler laid it out
-         * @param compiled the table as it was compiled, and where its cells stand now
+         * @param compiled the table as it was compiled
          * @param axes     the axes of the table
          */
         Reader(DecisionTable decision, CompiledTable compiled, Axes axes) {
@@ -408,7 +406,7 @@ final class DecisionThemeLayout {
             return found;
         }
 
-        /** The crosses of the titles the compiler matched as the one of the rules, where they stand now. */
+        /** The crosses of the titles the compiler matched as the one of the rules. */
         private Set<Integer> matchedRuleNames() {
             if (!(compiled.node().getMetaInfoReader() instanceof DecisionTableMetaInfoReader reader)) {
                 return Set.of();
@@ -416,7 +414,7 @@ final class DecisionThemeLayout {
             var found = new HashSet<Integer>();
             reader.getMetaInfos()
                     .getRules()
-                    .forEach(title -> compiled.addPlace(title.getRow(), title.getColumn(), axes::crossOf, found));
+                    .forEach(title -> found.add(axes.crossOf(title.getRow(), title.getColumn())));
             return found;
         }
 
@@ -461,18 +459,18 @@ final class DecisionThemeLayout {
             return false;
         }
 
-        /** Adds the lines of the sheet a part of a row takes now. */
+        /** Adds the lines of the sheet a part of a row takes. */
         private void lines(@Nullable ILogicalTable part, Set<Integer> into) {
             add(part, into, axes::lineOf);
         }
 
-        /** Adds the crosses of the sheet a part of a row takes now. */
+        /** Adds the crosses of the sheet a part of a row takes. */
         private void crosses(@Nullable ILogicalTable part, Set<Integer> into) {
             add(part, into, axes::crossOf);
         }
 
         /**
-         * Adds the line or the cross each cell of a part of a row stands in now. A cell an edit deleted adds nothing.
+         * Adds the line or the cross each cell of a part of a row stands in.
          *
          * @param part  the part of a compiled row
          * @param into  the lines or the crosses to add to

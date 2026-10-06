@@ -114,7 +114,9 @@ import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
+import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.EditableTableView;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
@@ -1797,6 +1799,67 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("openl.error.409.table.theme.project.stopped.message", refused.getErrorCode());
         verify(model, never()).getAllTableSyntaxNodes();
+    }
+
+    @Test
+    void the_table_theme_waits_for_a_project_written_to_since_it_was_compiled() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var model = stubCompiledProject(service, project, new LinkedHashSet<>());
+        // A write left a workbook of the project compiled as it stood before the write.
+        when(model.isWrittenSinceCompiled()).thenReturn(true);
+
+        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project, "green"));
+
+        assertEquals("openl.error.409.table.theme.verify.message", refused.getErrorCode());
+        // Refused before the project is compiled whole or anything is written.
+        verify(model, never()).compileProject(anyBoolean(), anyBoolean());
+        verify(model, never()).getAllTableSyntaxNodes();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
+    void a_table_theme_sent_with_another_edit_is_refused_before_the_table_is_read() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class), null,
+                mock(ProjectStateValidator.class), webStudio));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        RawTableSourceAction theme = new RawTableSourceAction.Theme("standard");
+        RawTableSourceAction edit = new RawTableSourceAction.Delete(new DeleteTarget.Rows(1, 1));
+
+        // Another theme is another edit too: the theme is the only edit of its request.
+        for (var actions : List.of(List.of(edit, theme), List.of(theme, edit), List.of(theme, theme))) {
+            var refused = assertThrows(BadRequestException.class,
+                    () -> service.editTableSource(project, "src-id", actions, null));
+            assertEquals("openl.error.400.table.theme.alone.message", refused.getErrorCode());
+        }
+        // Nothing is opened or written, so the session has nothing to read again.
+        verify(service, never()).openProject(project);
+        verify(webStudio, never()).rebuildCurrentModule();
+    }
+
+    @Test
+    void a_table_theme_waits_until_a_write_is_compiled() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class), null,
+                mock(ProjectStateValidator.class), webStudio));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
+        // A write left a workbook of the project compiled as it stood before the write, as automatic compilation
+        // turned off leaves it until the module is verified.
+        when(model.isWrittenSinceCompiled()).thenReturn(true);
+        List<RawTableSourceAction> theme = List.of(new RawTableSourceAction.Theme("standard"));
+
+        var refused = assertThrows(ConflictException.class,
+                () -> service.editTableSource(project, "src-id", theme, null));
+
+        assertEquals("openl.error.409.table.theme.verify.message", refused.getErrorCode());
+        // Refused before anything is written, so the session has nothing to read again.
+        verify(webStudio, never()).rebuildCurrentModule();
     }
 
     /** A Datatype of the project that only tells its kind, its header, its address and its identifier. */

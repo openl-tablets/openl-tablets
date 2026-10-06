@@ -33,10 +33,10 @@ import org.openl.util.StringUtils;
  * <p>The keys of a Data table get the ID look over their own, as the compiled table tells them. In a Data table they
  * are the values of the column a reference reads its rows by, the key of the table, unless the table names that column
  * {@code _PK_}: such a column names the keys itself and takes no ID look. In a Test and a Run table they are the values
- * of every column that takes them from a Data table by their keys. Each column is found where the edits since the
- * compilation moved it. A value that is not filled gets the empty look over its own. A column of a Test table whose
- * field starts with {@code _res_} or {@code _error_} holds the result the test expects: its title gets the return
- * title look over the title look, and its values the return look over the value look.
+ * of every column that takes them from a Data table by their keys. A value that is not filled gets the empty look
+ * over its own. A column of a Test table whose field starts with {@code _res_} or {@code _error_} holds the result the
+ * test expects: its title gets the return title look over the title look, and its values the return look over the
+ * value look.
  *
  * <p>A table written transposed holds a field in each row and the values of one row in each column. It takes the
  * looks the way it is compiled, so each place runs the other way. Its field names and its titles then label its rows:
@@ -111,10 +111,10 @@ final class DataThemeLayout {
     }
 
     /**
-     * The columns of the body whose values are keys of a Data table, as the compiler reads the table, where they stand
-     * now. In a Data table it is the column a reference reads its rows by, unless the table names it {@code _PK_}: such
-     * a column names the keys itself. In a Test and a Run table they are the columns that take their values from a
-     * Data table by their keys.
+     * The columns of the body whose values are keys of a Data table, as the compiler reads the table. In a Data table
+     * it is the column a reference reads its rows by, unless the table names it {@code _PK_}: such a column names the
+     * keys itself. In a Test and a Run table they are the columns that take their values from a Data table by their
+     * keys.
      */
     private static Set<Integer> keyColumns(ThemedBody body, boolean calls) {
         if (!(body.compiled().node().getMetaInfoReader() instanceof DataTableMetaInfoReader reader)
@@ -122,12 +122,12 @@ final class DataThemeLayout {
             return Set.of();
         }
         var model = table.getDataModel();
-        // The first row the compiler read values or titles from, each of its cells where the edits since then moved it.
+        // The first row the compiler read values or titles from.
         var first = table.getData().getRow(0);
         var columns = new HashSet<Integer>();
         (calls ? referencesOf(model) : keyOf(model))
                 .filter(key -> key < first.getWidth())
-                .forEach(key -> columns.addAll(body.placesNow(first.getColumn(key).getSource(), true)));
+                .forEach(key -> columns.addAll(body.placesOf(first.getColumn(key).getSource(), true)));
         return Set.copyOf(columns);
     }
 

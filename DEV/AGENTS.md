@@ -89,6 +89,10 @@ write changes lives only in that workbook until it is saved, so it must not be c
 `XlsWorkbookSourceCodeModule.save()` clears the mark. Reading through `getSheet()` and writing into what it
 returned loses the change whenever the workbook is collected in between.
 
+A saved workbook says so (`XlsWorkbookSourceCodeModule.isSavedSinceRead()`): what was compiled from it no longer
+answers for the file. A compilation reads every workbook again, so the mark belongs to one compilation, and OpenL
+Studio tells by it whether what it compiled is out of date.
+
 **One thread at a time**: a `Workbook` is an Apache POI object over an XmlBeans store, and neither is safe to
 touch from two threads. A write racing a save leaves the store's cursor list with a broken link — which spins at
 a whole core until the server is restarted — fails the store's own assertion halfway through the save, or writes

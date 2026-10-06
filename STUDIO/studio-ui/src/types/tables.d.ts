@@ -180,7 +180,8 @@ export type TableEdit =
         }
     }
     /**
-     * Writes a table theme into a table the server offers themes for, as the edits before it left it.
+     * Writes a table theme into a table the server offers themes for, as the table was saved. It is sent alone: a
+     * batch holding it and another edit is refused.
      */
     | { operation: 'theme', theme: string }
 

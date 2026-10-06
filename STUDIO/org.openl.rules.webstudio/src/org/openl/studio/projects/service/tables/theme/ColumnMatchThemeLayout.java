@@ -40,8 +40,7 @@ import org.openl.rules.table.ICell;
  * checks together. The first row of a group and the row after it get the group look over their own. The indent tells
  * the compiler the group, and the theme never changes it.
  *
- * <p>The ids, the rows and their indents are the ones the compiler read, each found where the edits since the
- * compilation moved it.
+ * <p>The ids, the rows and their indents are the ones the compiler read.
  */
 final class ColumnMatchThemeLayout {
 
@@ -138,8 +137,7 @@ final class ColumnMatchThemeLayout {
     }
 
     /**
-     * The rows of a ColumnMatch table as the compiler read them, under its ids and its titles, and where they stand
-     * now.
+     * The rows of a ColumnMatch table as the compiler read them, under its ids and its titles.
      *
      * @param body    the body of the table
      * @param rows    the rows the compiler read: the rows giving what the table returns or scores, then the conditions
@@ -148,12 +146,12 @@ final class ColumnMatchThemeLayout {
      */
     private record Read(ThemedBody body, List<TableRow> rows, List<String> ids, int special) {
 
-        /** The columns of the body the values of a column the compiler named by an id stand in now. */
+        /** The columns of the body the values of a column the compiler named by an id stand in. */
         Set<Integer> columnsOf(String id) {
             var columns = new HashSet<Integer>();
             for (var row : rows) {
                 for (var value : valuesOf(row, id)) {
-                    columns.addAll(body.placesNow(value.getGridRegion(), true));
+                    columns.addAll(body.placesOf(value.getGridRegion(), true));
                 }
             }
             return columns;
@@ -197,8 +195,8 @@ final class ColumnMatchThemeLayout {
         }
 
         /**
-         * The first row of the body a row the compiler read stands in now: where its name stands, or where its first
-         * value stands in a table that names no column {@code names}.
+         * The first row of the body a row the compiler read stands in: where its name stands, or where its first value
+         * stands in a table that names no column {@code names}.
          */
         private Set<Integer> rowsOf(int row) {
             var compiled = rows.get(row);
@@ -206,13 +204,13 @@ final class ColumnMatchThemeLayout {
                     .map(id -> valuesOf(compiled, id))
                     .filter(values -> values.length > 0)
                     .findFirst()
-                    .flatMap(values -> body.placesNow(values[0].getGridRegion(), false).stream()
+                    .flatMap(values -> body.placesOf(values[0].getGridRegion(), false).stream()
                             .min(Integer::compareTo))
                     .map(Set::of)
                     .orElse(Set.of());
         }
 
-        /** The row of the body after the one a row the compiler read stands in now. */
+        /** The row of the body after the one a row the compiler read stands in. */
         private Set<Integer> after(int row) {
             return rowsOf(row).stream().map(at -> at + 1).collect(Collectors.toUnmodifiableSet());
         }

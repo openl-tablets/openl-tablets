@@ -956,6 +956,7 @@ export const ModuleWorkspace = () => {
                     rows={table.source}
                     tableId={selected.id}
                     testId="module-table"
+                    verifyNeeded={compilation.verifyNeeded}
                     whole={shown >= total}
                 >
                     {shown < total && (

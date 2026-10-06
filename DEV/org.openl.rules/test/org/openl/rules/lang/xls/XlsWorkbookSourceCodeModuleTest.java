@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,6 +67,18 @@ class XlsWorkbookSourceCodeModuleTest {
         assertThrows(OutOfMemoryError.class, module::save);
 
         assertEquals(4, tempFile.length(), "File should not cleared if there are no actual write operations");
+        assertFalse(module.isSavedSinceRead(), "a save that failed leaves the file as it was read");
+    }
+
+    /** What was compiled from a workbook answers for its file until a write is saved into it. */
+    @Test
+    void a_workbook_is_saved_since_it_was_read_once_a_save_writes_it() throws IOException {
+        var workbook = written();
+        assertFalse(workbook.isSavedSinceRead(), "a workbook just read stands as its file does");
+
+        workbook.save();
+
+        assertTrue(workbook.isSavedSinceRead());
     }
 
     /**

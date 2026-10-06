@@ -138,7 +138,7 @@ public class TableThemeService {
      * @throws BadRequestException when no theme has the identifier
      */
     public @Nullable ThemedTable layoutOf(IOpenLTable table, String themeId) {
-        return ThemeLayouts.of(table, table.getGridTable(), theme(themeId), TableMoves.NONE);
+        return ThemeLayouts.of(table, table.getGridTable(), theme(themeId));
     }
 
     /**

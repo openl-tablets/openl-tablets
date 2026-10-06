@@ -28,9 +28,8 @@ import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedCell;
  *
  * <p>The screen, the editor and the project-wide writer all ask here, so the screen shows what writing the theme
  * gives. The body of a table is themed by what the compiler read of it, see {@link CompiledReads}: each part stands
- * where the compiler found it, moved by the rows and the columns the edits since the compilation inserted or deleted.
- * A table the compiler read none of has no parts it knows, so its body takes the look every cell starts from rather
- * than a look guessed from where its cells stand.
+ * where the compiler found it. A table the compiler read none of has no parts it knows, so its body takes the look
+ * every cell starts from rather than a look guessed from where its cells stand.
  *
  * <p>The kind of a table, {@link ThemeKind}, tells which part of a theme it takes its look from and which
  * {@link BodyLayout} lays out its body. A table of no kind a theme styles takes no theme. Each layout tells the look of
@@ -63,10 +62,9 @@ final class ThemeLayouts {
      * @param table the table, which tells its kind
      * @param grid  the table as it stands on its grid, header included
      * @param theme the theme
-     * @param moves the rows and the columns edits inserted into the table or deleted from it since it was compiled
      * @return the look of each cell the theme reaches, or {@code null} for a table of a kind no theme styles
      */
-    static @Nullable ThemedTable of(IOpenLTable table, IGridTable grid, TableTheme theme, TableMoves moves) {
+    static @Nullable ThemedTable of(IOpenLTable table, IGridTable grid, TableTheme theme) {
         var kind = ThemeKind.of(table);
         if (kind == null) {
             return null;
@@ -84,7 +82,7 @@ final class ThemeLayouts {
                     .base(base)
                     .look(look)
                     .transposed(read.orElse(false))
-                    .compiled(new CompiledTable(node, grid.getRegion(), moves))
+                    .compiled(new CompiledTable(node))
                     .build();
             var placed = read.isPresent() ? kind.getLayout().layOut(body) : BodyLayout.Placed.plain(body);
             themePlaces(cells, placed, rows.getSource().getRegion().getBottom(), look.lastRow());

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { Modal, Spin } from 'antd'
+import { Alert, Modal, Spin } from 'antd'
 import { useTheme, useThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router'
@@ -200,6 +200,11 @@ interface TableEditorProps {
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
     canWrite: boolean
+    /**
+     * Whether a write left the project to be verified, so it is compiled as its workbooks stood before. A theme is laid
+     * out by the tables as they were compiled, so none is applied or saved until then.
+     */
+    verifyNeeded?: boolean | undefined
     /** Whether the reader is editing the table. */
     editing: boolean
     /** Told when the reader starts editing by opening a cell, and when they stop. */
@@ -258,22 +263,21 @@ const themeCellsOf = (rows: RawTableCell[][]): Map<string, ThemeLook> => {
 }
 
 /**
- * The table as it is being edited, drawn with a theme the reader chose: each cell read with the table takes the
- * look the theme gives it, with the styling the reader asked for laid over it — which is what the save writes.
+ * The table drawn with a theme the reader chose: each cell takes the look the theme gives it, which is what the save
+ * writes. A table given a theme holds no other edit, so every cell stands where it was read.
  *
  * <p>Only the drawing takes the look. What the toolbar and the save read is the table as it is edited, whose cells
  * keep the style the workbook has.
  */
-const withTheme = (edited: EditedTable, looks: Map<string, ThemeLook>): RawTableCell[][] =>
-    edited.rows.map((cells, row) => cells.map((cell, column) => {
+const withTheme = (rows: RawTableCell[][], looks: Map<string, ThemeLook>): RawTableCell[][] =>
+    rows.map(cells => cells.map(cell => {
         const theme = cell.cell === undefined ? undefined : looks.get(cell.cell)
         if (theme === undefined) {
             return cell
         }
-        const asked = edited.styled.get(keyOf(edited, { row, column }))
         // The pieces the workbook formats the text in give way to the theme, as in a table that is read.
         const { runs: _workbookRuns, ...rest } = cell
-        return { ...rest, style: { ...theme.style, ...asked }, ...(theme.runs && { runs: theme.runs }) }
+        return { ...rest, style: theme.style, ...(theme.runs && { runs: theme.runs }) }
     }))
 
 /**
@@ -297,6 +301,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     look,
     onOpenUsage,
     canWrite,
+    verifyNeeded = false,
     editing,
     onEditingChange,
     onDirtyChange,
@@ -335,8 +340,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // take the pointer away or choose it.
     const [preview, setPreview] = useState<RawCellStyleInput | null>(null)
     // How each theme chosen while editing draws each cell, read once per theme for this table and the rows it was read
-    // as. It is a drawing only: what the save writes is the theme the reader chose, laid over the table as the save
-    // leaves it.
+    // as. It is a drawing only: what the save writes is the theme the reader chose, which the server lays out over the
+    // table as it does for this read.
     const [themePreviews, setThemePreviews] = useState<ThemePreviews | null>(null)
     const [open, setOpen] = useState<OpenAt | null>(null)
     const [saving, setSaving] = useState(false)
@@ -543,8 +548,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         ? themePreviews.looks
         : undefined
     const previewed = chosenTheme === null ? undefined : previews?.get(chosenTheme)
-    const themedRows = useMemo(() => (previewed === undefined ? written : withTheme(edited, previewed)),
-        [edited, previewed, written])
+    const themedRows = useMemo(() => (previewed === undefined ? written : withTheme(written, previewed)),
+        [previewed, written])
 
     // The look of the theme the reader chose is read whichever way they came to it: by choosing it, or by taking a
     // later choice back. Each theme is read once; an answer for a theme no longer chosen is dropped.
@@ -594,10 +599,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     /**
      * Writes a theme into the table when the reader saves, and draws it over the table until then.
      *
-     * <p>The look is read from the server, which knows how the table is laid out, for the table as it was read. Each
-     * cell takes the look of the address it was read at. So until the save, a row the reader has added is drawn
-     * plain, and a cell that a row or a column inserted or deleted has moved shows the look of its old place. The
-     * save themes the table as it then stands.
+     * <p>The look is read from the server, which lays the theme out as the save does. A theme is applied on its own, to
+     * the table as it was saved, so what is drawn is what the save writes.
      */
     const chooseTheme = (theme: string) => step({ kind: 'theme', theme })
     /**
@@ -611,10 +614,15 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         ? layout
         : { ...layout, firstDataLine: layout.firstDataLine - hidden }), [hidden, layout])
 
+    // Why the table cannot be saved, or null when it can. A theme chosen before a write elsewhere left the project to
+    // be verified would be laid out by the tables as they were compiled before that write.
     const blocked = useMemo(() => {
+        if (chosenTheme !== null && verifyNeeded) {
+            return t('browser.module.theme_verify_first')
+        }
         const line = blankLine(edited)
         return line === null ? null : t(`browser.module.edit_blank_${line}`)
-    }, [edited, t])
+    }, [chosenTheme, edited, t, verifyNeeded])
 
     /** Notes one more thing the reader did. */
     const step = (one: EditStep) => setBuffer(current => withStep(current, one))
@@ -689,6 +697,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     /**
      * Opens a cell for writing, starting from what it holds now — or from the character the reader typed,
      * which is what typing on a picked cell does: the cell opens and takes that character as its new value.
+     *
+     * <p>A table given a theme only picks the cell: the theme is applied on its own, as the note above the table
+     * says.
      */
     const openCell = useCallback((row: number, column: number, typed?: string) => {
         const cell = written[row]?.[column]
@@ -696,11 +707,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             return
         }
         setPicked({ row, column })
+        if (chosenTheme !== null) {
+            return
+        }
         // Measured while the cell still shows what it holds: once it is open, the field is what stands there.
         const from = typed ?? heldBy(cell)
         setOpen({ row, column, from, several: takesSeveralLines(cell.cell, from) })
         onEditingChange(true)
-    }, [onEditingChange, written])
+    }, [chosenTheme, onEditingChange, written])
 
     // A message names the cell it was raised against, and the reader asks for that cell from beside it.
     useEffect(() => {
@@ -917,6 +931,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     saving={saving}
                     theme={edited.theme}
                     themes={themes}
+                    verifyNeeded={verifyNeeded}
                     whole={whole}
                     // The reader stays where they were, on the line that takes the place of the one gone, so
                     // several lines are taken away one after another without picking a cell each time. Picking
@@ -929,6 +944,15 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         step({ kind: 'removeRow', at: at.row, lines: rowsOfChosen })
                         pick(at.row, at.column)
                     }}
+                />
+            )}
+            {/* The cells of a table given a theme do not open, and the reader is told why before they try. */}
+            {chosenTheme !== null && (
+                <Alert
+                    banner
+                    data-testid="table-edit-theme-alone"
+                    title={t('browser.module.edit_theme_alone')}
+                    type="info"
                 />
             )}
             <div className={canvasClassName}>
