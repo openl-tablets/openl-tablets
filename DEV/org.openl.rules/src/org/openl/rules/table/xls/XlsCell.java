@@ -136,10 +136,6 @@ public class XlsCell implements ICell {
         return res == null ? null : String.valueOf(res);
     }
 
-    public void setStringValue(String value) {
-        getCell().setCellValue(value);
-    }
-
     @Override
     public ICell getTopLeftCellFromRegion() {
         // Gets the top left cell in this region
