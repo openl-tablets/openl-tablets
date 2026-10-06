@@ -3,6 +3,7 @@ import { App, Button, Divider, Form, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
+import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { UserProfileFormFields } from '../types/user'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { useUserStore } from 'store'
@@ -58,17 +59,18 @@ export const UserSettings: React.FC = () => {
             setSaving(true)
             // Only what was changed here: the rest of the profile keeps what is stored, whatever was saved meanwhile.
             const body = changedValues(values, profile)
+            // A rejected save is reported below, never as saved.
             await apiCall('/users/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(body)
-            })
+            }, LOCAL_LOAD_API_OPTIONS)
             await fetchUserProfile()
             notification.success({ title: t('users:user_settings_updated_successfully') })
         } catch (error) {
-            notification.error({ title: error instanceof Error ? error.message : t('common:error') })
+            notifyLoadFailure(t('users:user_settings_save_failed'), error)
         } finally {
             setSaving(false)
         }
