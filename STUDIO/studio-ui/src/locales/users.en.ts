@@ -87,6 +87,7 @@ i18next.addResourceBundle('en', 'users', {
     failed_to_send_verification_email: 'Failed to send verification email.',
     user_profile_updated_successfully: 'User profile updated successfully',
     user_settings_updated_successfully: 'User settings updated successfully',
+    user_settings_save_failed: 'Failed to save the user settings',
     profile_completion: {
         title: 'Complete Your Profile',
         description: 'Enter the missing profile details to continue to OpenL Studio.',

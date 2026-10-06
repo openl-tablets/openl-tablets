@@ -3,11 +3,18 @@ import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import { UserSettings } from './UserSettings'
 import * as services from '../services'
+import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { useUserStore } from 'store'
 import type { MockedFunction } from 'vitest'
 import type { UserProfile } from '../types/user'
 
 vi.mock('../services', () => ({ apiCall: vi.fn() }))
+
+// The page hands a rejected save to the reporter the screens share, under the options it is read with.
+vi.mock('../services/apiCall', () => ({
+    LOCAL_LOAD_API_OPTIONS: { throwError: true, suppressErrorPages: true },
+    notifyLoadFailure: vi.fn(),
+}))
 
 vi.mock('../services/tables', () => ({
     getTableThemes: () => Promise.resolve([{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]),
@@ -63,6 +70,10 @@ describe('UserSettings', () => {
     const sentBody = (call: number): unknown =>
         JSON.parse((mockApiCall.mock.calls[call]?.[1] as RequestInit).body as string)
 
+    /** That the page saved the profile, asking for a rejected save to be thrown rather than reported as done. */
+    const expectSaved = () =>
+        expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything(), LOCAL_LOAD_API_OPTIONS)
+
     it('shows a success notification when settings are saved', async () => {
         mockApiCall.mockResolvedValueOnce(undefined)
         render(<UserSettings />)
@@ -81,7 +92,7 @@ describe('UserSettings', () => {
         await userEvent.click(screen.getByLabelText('users:settings.show_formulas'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
-        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await waitFor(expectSaved)
         expect(sentBody(0)).toEqual({ showFormulas: true })
     })
 
@@ -119,7 +130,7 @@ describe('UserSettings', () => {
         await userEvent.click(await screen.findByTitle('Green'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
-        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await waitFor(expectSaved)
         expect(sentBody(0)).toEqual({ tableTheme: 'green' })
     })
 
@@ -132,7 +143,7 @@ describe('UserSettings', () => {
         await userEvent.click(await screen.findByTitle('users:settings.excel_formatting'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
-        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await waitFor(expectSaved)
         expect(sentBody(0)).toEqual({ tableTheme: '' })
     })
 
@@ -145,7 +156,7 @@ describe('UserSettings', () => {
         await userEvent.click(await screen.findByTitle('Green'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
-        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await waitFor(expectSaved)
         expect(sentBody(0)).toEqual({ tableTheme: 'green' })
     })
 
@@ -155,7 +166,7 @@ describe('UserSettings', () => {
 
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
-        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await waitFor(expectSaved)
         expect(sentBody(0)).toEqual({})
     })
 
@@ -168,7 +179,7 @@ describe('UserSettings', () => {
         await userEvent.click(screen.getByLabelText('users:settings.override_with_studio_theme'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
-        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await waitFor(expectSaved)
         expect(sentBody(0)).toEqual({ overrideWithStudioTheme: true })
     })
 
@@ -183,7 +194,7 @@ describe('UserSettings', () => {
 
         await userEvent.click(screen.getByLabelText('users:settings.show_formulas'))
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
-        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith('/users/profile', expect.anything()))
+        await waitFor(expectSaved)
         await act(async () => answerSave())
 
         expect(screen.getByLabelText('users:settings.show_formulas')).toBeChecked()
@@ -229,6 +240,9 @@ describe('UserSettings', () => {
 
         await userEvent.click(screen.getByRole('button', { name: 'common:btn.save' }))
 
-        await waitFor(() => expect(notification.error).toHaveBeenCalledWith({ title: 'save failed' }))
+        await waitFor(() => expect(notifyLoadFailure)
+            .toHaveBeenCalledWith('users:user_settings_save_failed', new Error('save failed')))
+        expectSaved()
+        expect(notification.success).not.toHaveBeenCalled()
     })
 })
