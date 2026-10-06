@@ -246,9 +246,29 @@ for the endpoints.
   groups — is written once under the first kind that takes it and repeated by an alias (`titles: *title`). A kind
   that looks like another is an alias in the file (`smartRules: *simple`, `smartLookup: *lookup`), never a rule of
   the code, so a theme can still give it a look of its own.
-- **One table is themed through its edit.** The `theme` action of `RawTableSourceAction` writes the theme inside the
-  edit batch, after the values and before the styling, so the rows the batch added are themed and the styling the
-  user set stands over the theme. Only the whole project has an endpoint of its own (`POST /projects/{id}/theme`).
+- **One table is themed through its edit, alone.** The `theme` action of `RawTableSourceAction` writes the theme
+  into the table as it was saved. A theme is laid out by the compiled table, which any other edit of the batch would
+  change: a column inserted into a decision table is a condition the compiler has not read. So
+  `WorkspaceProjectService.editTableSource` refuses a batch holding a `theme` action and any other edit, another theme
+  included (`table.theme.alone.message`, `400`), before the table is read: refused inside the write, it would have the
+  module read again for nothing. The editor of the screen never builds one (`withStep` in `studio-ui`'s
+  `tableEdits.ts`): while a theme is chosen the cells do not open and every action changing the table is off, and
+  while the table holds edits the theme is, each saying why.
+- **A theme waits until what was written is compiled.** A workbook remembers that it was saved after a compilation
+  read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`), and a compilation reads every workbook again, so
+  `ProjectModel.isWrittenSinceCompiled` tells whether what the session compiled for the project open, the modules and
+  the projects it depends on included, still answers for its workbooks. While it does not, a theme of one table and of
+  the project is refused (`table.theme.verify.message`, `409`), whatever automatic compilation is set to. With it on,
+  opening the module a write changed builds it again (`WebStudio.recompileCurrentModule`), so a theme sent once the
+  edits are saved is laid out by the table they left (`070-apply-theme-alone` of `task_table_theme`). With it off,
+  the project stays compiled as its workbooks stood until the reader verifies a module, which compiles every module
+  again (`080-apply-theme-after-verify`). `ProjectModel.isManualCompileNeeded`, the `manualCompileNeeded` of the
+  status, asks the same with automatic compilation off: the Verify button, the theme of the editor (`verifyNeeded`,
+  which also keeps a theme chosen before from being saved) and the dialog of the project theme follow what was
+  compiled, not the module written to last, and Verify on any module answers for every write before it. Such a write
+  tells every screen of the project (`WebStudio.recompileCurrentModule` publishes the status), so another one holding
+  a theme to save learns it too, once for each compilation: a later write leaves the project waiting as the first did.
+- **The whole project has an endpoint of its own** (`POST /projects/{id}/theme`).
   It takes the tables from what the session compiled, so a project compiled only in part — its module set to compile
   alone — is compiled whole first, and a project whose compilation the reader stopped is refused (`409`): the tables
   of the modules left out would be missed without a word.
@@ -274,8 +294,8 @@ for the endpoints.
   table whose type is missing or defined with errors or whose tested table does not exist, a Spreadsheet, a TBasic or
   a ColumnMatch table whose body could not be built, a ColumnMatch table of an algorithm the compiler does not know.
   Such a table has no parts the compiler knows, so its body takes the base alone: the theme never guesses the parts
-  from where the cells stand. Every layout takes its parts from the compiled table, each found where the edits since
-  the compilation moved it (`CompiledTable`, `ThemedBody.columnsNow`, `rowsNow`, `placesNow`); only an Environment,
+  from where the cells stand. Every layout takes its parts from the compiled table (`CompiledTable`,
+  `ThemedBody.columnsOf`, `rowsOf`, `placesOf`); only an Environment,
   which the loader reads by its rows, and a Method table, whose body is code, are read as written. A Conditions, an
   Actions and a Returns table take their axes from the titles the compiler found.
 - **A Spreadsheet section is a merge.** A step whose name cell is merged over the values of its row heads a section:
@@ -315,8 +335,8 @@ for the endpoints.
   rows by (`ITableModel.getKeyColumnIndex()`, the rule `ForeignKeyColumnDescriptor` reads a reference with) unless it
   is a `_PK_` column, which names the keys itself and takes no `ids`, as the formatting standard writes it; in a Test
   and a Run table every column the compiled model takes from a Data table (`ColumnDescriptor.isReference()`). Each is
-  found where the edits since the compilation moved it, by a cell of the compiled data mapped through `TableMoves`
-  (`CompiledTable.addPlaces`), and a table the compiler read none of takes the base alone. Its
+  found by a cell of the compiled data (`CompiledTable.addPlaces`), and a table the compiler read none of takes the
+  base alone. Its
   references to other
   tables are left as values. `empty` is laid over a blank value, cell by cell — a fill written with the theme, not a
   conditional format, so the workbook reads it back as the overlay draws it. A column of a Test table whose field
@@ -335,13 +355,10 @@ for the endpoints.
   look draws above a part is on its left, while the base style keeps its lines where it names them. Unlike a
   transposed Datatype or Data table, whose shipped looks draw no lines inside the table, a decision table needs it:
   the lines between the conditions and over a group would stand across its rules. Every line under the code, the
-  titles and the horizontal conditions holds rules, so a rule an edit adds is themed before the table is compiled.
-  The compiled places count from where the table stood when it was compiled: `RawTableWriter` keeps the rows and the
-  columns its edits insert and delete as `TableMoves`, and a `theme` action after them finds each place where they
-  moved it (`CompiledTable`). A read and the project-wide writer theme a compiled table, so they pass
-  `TableMoves.NONE`. A line a look draws above a rule sets it apart from the rule before it, so the first rule takes
-  the top side of the base, and so does a line on the left of the first column of the grid of a lookup, which the
-  right line of its conditions closes (`Looks.apart`): no two cells name a line on one edge. The column naming the
+  titles and the horizontal conditions holds rules. A line a look draws above a rule sets it apart from the rule
+  before it, so the first rule takes the top side of the base, and so does a line on the left of the first column of
+  the grid of a lookup, which the right line of its conditions closes (`Looks.apart`): no two cells name a line on
+  one edge. The column naming the
   rules is the one of kind `RULE` in a Rules table, and in a table matched by its titles the one whose title the
   compiler matched as the names of the rules (`DecisionTableMetaInfoReader.getMetaInfos().getRules()`): a title it
   matched as nothing names no rules. A condition value merged over several rules while another
@@ -357,7 +374,7 @@ for the endpoints.
   Rules table, each run of it apart where the titles stand between; a keyword naming a part takes the look of the
   part. The compiler reads a part in each column and finds the titles by their keyword or by their place, so the
   engine keeps where it found them (`ADtColumnsDefinitionTableBoundNode.getTitles`, through
-  `DtColumnsDefinitionMetaInfoReader`) and the layout takes them where `TableMoves` moved them. A table written as
+  `DtColumnsDefinitionMetaInfoReader`) and the layout takes them from there. A table written as
   the Reference Guide writes it, a part in each row, is compiled transposed: its rows read as the code and the titles
   of a Rules table, so it takes the looks upright, and a table with a part in each column takes them turned. The
   shipped themes give these tables the General format alone; `every-kind.yaml` aliases the look of a Rules table
@@ -410,10 +427,9 @@ for the endpoints.
   user chose to write, which the save sends as a `theme` action, never as styles. The preview is laid over a copy of
   the rows that is only drawn: the toolbar and the save read the edited rows, so a theme drawn on the screen never
   reaches the workbook through an edit. Keep it that way: never edit the rows of a read naming a theme, and never
-  fold the theme into the `style` of the edited rows. The preview is the look of the table as it was read,
-  matched by the address each cell was read at, so it is approximate once the edit inserts or deletes rows or
-  columns; the user guide says so. An exact preview would need a dry run of the edit on the server, which is
-  deliberately not done.
+  fold the theme into the `style` of the edited rows. The preview is the look of the table as it was read, matched by
+  the address each cell was read at, and it is exact: a table given a theme holds no other edit, so every cell stands
+  where it was read and the save lays the theme out as the read did.
 - **A written theme is not kept up to date.** An edit after the theme was written, such as rows or columns inserted
   or deleted, writes no theme by itself: laying the theme out needs the table compiled, and its cost grows with the
   table, so the user applies the theme again by hand once the edits are finished; the user guide says so. Only the
@@ -437,7 +453,7 @@ for the endpoints.
   at the top of the properties with the style of the row under it, a table without properties getting them so. The
   note therefore goes through `ThemeExcelWriter.noting`, which lays out the header and the properties alone and
   themes the rows the note inserted, nothing else; the save of a `theme` edit notes it the same way
-  (`RawTableWriter.recordEdit`), so the styling of the edit stands.
+  (`RawTableWriter.recordEdit`).
 
 ## Regenerating OpenAPI Goldens
 

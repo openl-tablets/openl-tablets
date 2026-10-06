@@ -9,6 +9,15 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
 })
 
+/** The actions that change the table, after the ones that save it and take steps back or forth. */
+const CHANGING = [
+    'insert_row', 'remove_row', 'insert_column', 'remove_column',
+    'align_left', 'align_center', 'align_right',
+    'bold', 'italic', 'underline',
+    'fill_colour', 'font_colour',
+    'outdent', 'indent',
+]
+
 const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
     const acted = {
         onUndo: vi.fn(),
@@ -55,14 +64,7 @@ describe('TableEditToolbar', () => {
     it('carries every action the legacy editor had, in one strip', () => {
         draw()
 
-        const expected = [
-            'save', 'undo', 'redo',
-            'insert_row', 'remove_row', 'insert_column', 'remove_column',
-            'align_left', 'align_center', 'align_right',
-            'bold', 'italic', 'underline',
-            'fill_colour', 'font_colour',
-            'outdent', 'indent',
-        ]
+        const expected = ['save', 'undo', 'redo', ...CHANGING]
         expected.forEach(action => expect(screen.getByTestId(`table-edit-${action}`)).toBeInTheDocument())
     })
 
@@ -169,7 +171,7 @@ describe('TableEditToolbar', () => {
 
     it('offers the table themes by name, and chooses one with no cell picked', async () => {
         const onTheme = vi.fn()
-        draw({ picked: null, cell: undefined, themes: THEMES, theme: null, onTheme })
+        draw({ picked: null, cell: undefined, dirty: false, canUndo: false, themes: THEMES, theme: null, onTheme })
 
         await userEvent.click(screen.getByTestId('table-edit-theme'))
         await userEvent.click(await screen.findByText('Green'))
@@ -191,5 +193,55 @@ describe('TableEditToolbar', () => {
         draw({ themes: []})
 
         expect(screen.queryByTestId('table-edit-theme')).toBeNull()
+    })
+
+    it('turns off every action that changes the table while a theme is chosen, and says why', async () => {
+        const acted = draw({ themes: THEMES, theme: 'green', onTheme: vi.fn() })
+
+        CHANGING.forEach(action => expect(screen.getByTestId(`table-edit-${action}`)).toBeDisabled())
+        // A theme is applied on its own: it is saved, taken back, or replaced by another.
+        expect(screen.getByTestId('table-edit-save')).toBeEnabled()
+        expect(screen.getByTestId('table-edit-undo')).toBeEnabled()
+        expect(screen.getByTestId('table-edit-theme')).toBeEnabled()
+        await userEvent.click(screen.getByTestId('table-edit-bold'))
+        expect(acted.onStyle).not.toHaveBeenCalled()
+
+        await userEvent.hover(screen.getByTestId('table-edit-bold'))
+        expect(await screen.findByText('browser.module.edit_theme_alone')).toBeInTheDocument()
+    })
+
+    it('says why a colour cannot be set while a theme is chosen', async () => {
+        draw({ themes: THEMES, theme: 'green', onTheme: vi.fn() })
+
+        await userEvent.hover(screen.getByTestId('table-edit-fill_colour'))
+
+        expect(await screen.findByText('browser.module.edit_theme_alone')).toBeInTheDocument()
+    })
+
+    it('turns the theme off while the module waits for Verify, and says why', async () => {
+        draw({ dirty: false, canUndo: false, themes: THEMES, theme: null, onTheme: vi.fn(), verifyNeeded: true })
+
+        const theme = screen.getByTestId('table-edit-theme')
+        expect(theme).toBeDisabled()
+        // The cells of the table are still the reader's to edit.
+        expect(screen.getByTestId('table-edit-bold')).toBeEnabled()
+
+        await userEvent.hover(theme)
+        expect(await screen.findByText('browser.module.theme_verify_first')).toBeInTheDocument()
+    })
+
+    it('turns the theme off while the table holds edits, and says why', async () => {
+        const onTheme = vi.fn()
+        draw({ themes: THEMES, theme: null, onTheme })
+
+        const theme = screen.getByTestId('table-edit-theme')
+        expect(theme).toBeDisabled()
+        await userEvent.click(theme)
+        expect(screen.queryByText('Green')).toBeNull()
+        // The edits themselves go on.
+        expect(screen.getByTestId('table-edit-bold')).toBeEnabled()
+
+        await userEvent.hover(theme)
+        expect(await screen.findByText('browser.module.edit_theme_after_edits')).toBeInTheDocument()
     })
 })

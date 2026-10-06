@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,6 +25,10 @@ class WebStudioWrittenModuleTest {
         // The mock skips the constructor, so the holders the real methods write to are supplied here.
         ReflectionTestUtils.setField(studio, "rewrittenModule", new AtomicReference<>());
         ReflectionTestUtils.setField(studio, "moduleToVerify", new AtomicReference<>());
+        ReflectionTestUtils.setField(studio, "announcedWrite", new AtomicReference<>());
+        var model = mock(ProjectModel.class);
+        when(model.getCurrentCompilation()).thenReturn(RegisteredCompilation.completed());
+        ReflectionTestUtils.setField(studio, "model", model);
         doReturn(new Module()).when(studio).getCurrentModule();
         doReturn(autoCompile).when(studio).isAutoCompile();
         return studio;
@@ -33,7 +41,8 @@ class WebStudioWrittenModuleTest {
         studio.recompileCurrentModule();
 
         assertTrue(studio.isAwaitingRecompile(), "the written module is read again on the next request");
-        assertFalse(studio.isManualCompileNeeded(), "and nothing is left for the reader to ask for");
+        // Building it again tells the screens how the project stands.
+        verify(studio.getModel(), never()).publishStatusChanged();
     }
 
     @Test
@@ -45,20 +54,22 @@ class WebStudioWrittenModuleTest {
         // Compiling after every edit is the wait the setting exists to avoid: the module stands as it was
         // compiled, and Verify is what builds it.
         assertFalse(studio.isAwaitingRecompile(), "the module is not built behind the reader's back");
-        assertTrue(studio.isManualCompileNeeded(), "the screen is told there is something to verify");
+        verify(studio.getModel()).publishStatusChanged();
     }
 
     @Test
-    void keepsTheRequestWhenTheReaderReadsAnotherModuleBeforeVerifying() {
+    void tellsTheScreensOnceForEachCompilation() {
         var studio = studio(false);
+
+        studio.recompileCurrentModule();
         studio.recompileCurrentModule();
 
-        // The reader goes on to another module before they come back to compile the one they wrote to.
-        doReturn(new Module()).when(studio).getCurrentModule();
-
-        // Opening a module nobody wrote to must not answer the request made for the one they did: the write
-        // would be left compiled from the workbook as it stood before it, with nothing offering to build it.
-        assertTrue(studio.isManualCompileNeeded());
+        // The second write leaves the project waiting as the first one did.
+        verify(studio.getModel()).publishStatusChanged();
+        // Verify compiles the project again, and the next write leaves it waiting anew.
+        when(studio.getModel().getCurrentCompilation()).thenReturn(RegisteredCompilation.completed());
+        studio.recompileCurrentModule();
+        verify(studio.getModel(), times(2)).publishStatusChanged();
     }
 
     @Test
@@ -69,11 +80,5 @@ class WebStudioWrittenModuleTest {
 
         // A refused write leaves a workbook no author wrote; it cannot be left standing until Verify.
         assertTrue(studio.isAwaitingRecompile());
-    }
-
-    @Test
-    void asksForNothingUntilSomethingIsWritten() {
-        assertFalse(studio(false).isManualCompileNeeded());
-        assertFalse(studio(true).isAwaitingRecompile());
     }
 }

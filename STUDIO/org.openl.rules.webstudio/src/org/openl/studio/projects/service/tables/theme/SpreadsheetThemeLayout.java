@@ -2,9 +2,7 @@ package org.openl.studio.projects.service.tables.theme;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
@@ -36,7 +34,7 @@ import org.openl.util.OpenClassUtils;
  * too. A column named {@code RETURN}, which the compiler returns in place of a step, gets the result look over its
  * title. A Spreadsheet returning {@code void} returns nothing.
  *
- * <p>Every step and column is the one the compiler read, found where the edits since the compilation moved it.
+ * <p>Every step and column is the one the compiler read.
  */
 final class SpreadsheetThemeLayout {
 
@@ -102,7 +100,7 @@ final class SpreadsheetThemeLayout {
             var base = body.base();
             var look = body.look();
             var spreadsheet = reader.getBoundNode();
-            var read = new Read(body.compiled(), spreadsheet.getStructureBuilder());
+            var read = new Read(spreadsheet.getStructureBuilder());
             var returned = OpenClassUtils.isVoid(spreadsheet.getHeader().getType())
                     ? Optional.<SpreadsheetHeaderDefinition>empty()
                     : read.returned();
@@ -118,11 +116,8 @@ final class SpreadsheetThemeLayout {
                     .stepsEnd(body.rows().getCell(0, 0).getAbsoluteRegion().getRight())
                     .markedRows(read.marked(true))
                     .markedColumns(read.marked(false))
-                    .resultRows(returned.filter(SpreadsheetHeaderDefinition::isRow).flatMap(read::rowsOf).orElse(null))
-                    .resultColumn(returned.filter(header -> !header.isRow())
-                            .flatMap(read::columnsOf)
-                            .map(Span::from)
-                            .orElse(NONE))
+                    .resultRows(returned.filter(SpreadsheetHeaderDefinition::isRow).map(read::rowsOf).orElse(null))
+                    .resultColumn(returned.filter(header -> !header.isRow()).map(read::columnOf).orElse(NONE))
                     .build();
         }
 
@@ -165,17 +160,16 @@ final class SpreadsheetThemeLayout {
         }
     }
 
-    /** The first and the last row, or column, of the sheet a part of the table takes now. */
+    /** The first and the last row of the sheet a step takes. */
     private record Span(int from, int to) {
     }
 
     /**
-     * The steps and the columns of a Spreadsheet as the compiler read them, and where they stand now.
+     * The steps and the columns of a Spreadsheet as the compiler read them.
      *
-     * @param compiled the table as it was compiled, and where its cells stand now
-     * @param builder  how the compiler read the body of the table
+     * @param builder how the compiler read the body of the table
      */
-    private record Read(CompiledTable compiled, SpreadsheetStructureBuilder builder) {
+    private record Read(SpreadsheetStructureBuilder builder) {
 
         /**
          * The header of the step or the column the Spreadsheet returns, or its last step for a Spreadsheet that returns
@@ -189,8 +183,8 @@ final class SpreadsheetThemeLayout {
         }
 
         /**
-         * The first rows of the sheet the steps marked for the result take now, or the first columns of the columns
-         * marked so.
+         * The first rows of the sheet the steps marked for the result take, or the first columns of the columns marked
+         * so.
          *
          * @param rows whether to tell the steps, rather than the columns
          */
@@ -198,30 +192,20 @@ final class SpreadsheetThemeLayout {
             var headers = rows ? builder.getRowHeaders() : builder.getColumnHeaders();
             return headers.values().stream()
                     .filter(header -> header.getDefinition().isAsteriskPresented())
-                    .flatMap(header -> (rows ? rowsOf(header) : columnsOf(header)).stream())
-                    .map(Span::from)
+                    .map(this::nameOf)
+                    .map(name -> rows ? name.getTop() : name.getLeft())
                     .collect(Collectors.toUnmodifiableSet());
         }
 
-        /** The rows of the sheet the name of a step takes now, or empty for one the edits deleted. */
-        Optional<Span> rowsOf(SpreadsheetHeaderDefinition header) {
-            var region = nameOf(header);
-            return spanOf(region.getTop(), region.getBottom(), compiled::rowNow);
+        /** The rows of the sheet the name of a step takes. */
+        Span rowsOf(SpreadsheetHeaderDefinition header) {
+            var name = nameOf(header);
+            return new Span(name.getTop(), name.getBottom());
         }
 
-        /** The columns of the sheet the name of a column takes now, or empty for one the edits deleted. */
-        Optional<Span> columnsOf(SpreadsheetHeaderDefinition header) {
-            var region = nameOf(header);
-            return spanOf(region.getLeft(), region.getRight(), compiled::columnNow);
-        }
-
-        /** The rows, or the columns, of the sheet the compiler read from one to another that the edits left. */
-        private static Optional<Span> spanOf(int from, int to, IntUnaryOperator now) {
-            var left = IntStream.rangeClosed(from, to)
-                    .map(now)
-                    .filter(place -> place != TableMoves.DELETED)
-                    .summaryStatistics();
-            return left.getCount() == 0 ? Optional.empty() : Optional.of(new Span(left.getMin(), left.getMax()));
+        /** The first column of the sheet the name of a column takes. */
+        int columnOf(SpreadsheetHeaderDefinition header) {
+            return nameOf(header).getLeft();
         }
 
         /**

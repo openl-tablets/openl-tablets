@@ -540,6 +540,12 @@ i18next.addResourceBundle('en', 'repository', {
             edit_indent: 'Increase Indent',
             edit_theme: 'Apply Theme',
             edit_theme_failed: 'Failed to draw the table with the theme',
+            edit_theme_alone: 'A theme is applied to the table as it was saved, with no other changes. Save the theme '
+                + 'or undo it to edit the table.',
+            edit_theme_after_edits: 'A theme is applied to the table as it was saved, with no other changes. Save your '
+                + 'changes or undo them to apply a theme.',
+            theme_verify_first: 'The project has changes that are not compiled yet, and a theme is laid out by the '
+                + 'tables as they were compiled. Click Verify, then apply a theme.',
             edit_read_failed: 'Failed to read the table as the Excel file holds it',
             related_more_one: '{{count}} more',
             related_more_other: '{{count}} more',

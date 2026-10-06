@@ -208,7 +208,7 @@ class ExcelThemeColoursTest {
         var grid = GridTableUtils.getOriginalTable(table.getGridTable());
         grid.edit();
         try {
-            assertTrue(service.writer(THEME).write(table, grid, TableMoves.NONE));
+            assertTrue(service.writer(THEME).write(table, grid));
             return (XSSFWorkbook) ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite().getWorkbook();
         } finally {
             grid.stopEditing();

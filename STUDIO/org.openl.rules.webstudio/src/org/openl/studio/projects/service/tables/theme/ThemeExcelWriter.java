@@ -91,7 +91,7 @@ public final class ThemeExcelWriter {
                 var grid = GridTableUtils.getOriginalTable(table.getGridTable());
                 grid.edit();
                 edited.add(grid);
-                if (write(table, grid, TableMoves.NONE)) {
+                if (write(table, grid)) {
                     noting(table, grid, () -> TableWriter.recordEdit(table, edit));
                     var sheet = (XlsSheetGridModel) grid.getGrid();
                     saved.putIfAbsent(sheet.getSheetSource().getWorkbookSource(), sheet);
@@ -112,11 +112,10 @@ public final class ThemeExcelWriter {
      *
      * @param table the table to theme
      * @param grid  the table as it stands on its sheet, header included; its sheet is opened for writing
-     * @param moves the rows and the columns edits inserted into the table or deleted from it since it was compiled
      * @return whether the theme was written into the table
      */
-    public boolean write(IOpenLTable table, IGridTable grid, TableMoves moves) {
-        var layout = Optional.ofNullable(ThemeLayouts.of(table, grid, theme, moves));
+    public boolean write(IOpenLTable table, IGridTable grid) {
+        var layout = Optional.ofNullable(ThemeLayouts.of(table, grid, theme));
         layout.ifPresent(laid -> write(laid, grid, at -> true));
         return layout.isPresent();
     }
@@ -125,8 +124,7 @@ public final class ThemeExcelWriter {
      * Notes an edit on a table the theme was written into, as a save of the table notes it.
      *
      * <p>The note is written after the theme. Each property it adds is a row of the properties of its own, and that
-     * row takes the theme; a table without properties gets them so. The rest of the table is left as the theme and the
-     * edits after it left it.
+     * row takes the theme; a table without properties gets them so. The rest of the table is left as the theme left it.
      *
      * @param table the table the theme was written into
      * @param grid  the table as it stands on its sheet, header included; its sheet is opened for writing
@@ -141,9 +139,9 @@ public final class ThemeExcelWriter {
             // The note inserts each property it adds at the top of the properties, and the rows under them move down.
             var rows = properties.getSource().getRegion();
             // Only the header and the properties are laid out: the body under them keeps the look it has, so no part
-            // the compiler found is looked for, and the edits that moved such parts do not matter.
+            // the compiler found is looked for.
             var head = grid.getSubtable(0, 0, grid.getWidth(), rows.getBottom() - grid.getRegion().getTop() + 1);
-            Optional.ofNullable(ThemeLayouts.of(table, head, theme, TableMoves.NONE))
+            Optional.ofNullable(ThemeLayouts.of(table, head, theme))
                     .ifPresent(laid -> write(laid, head,
                             at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added));
         }

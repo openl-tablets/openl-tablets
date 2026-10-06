@@ -1,14 +1,11 @@
 package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,11 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
-import org.openl.studio.projects.model.tables.InsertTarget;
-import org.openl.studio.projects.model.tables.RawCellInput;
-import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.service.tables.TableTestProjects;
-import org.openl.studio.projects.service.tables.write.RawTableWriter;
 
 /**
  * Covers the rule every layout follows: a table is themed by what the compiler read of it, never by a structure the
@@ -67,9 +60,6 @@ class CompiledReadsTest {
 
     /** A ColumnMatch table of an algorithm that does not exist. */
     private static final int FUZZY_ROW = 40;
-
-    /** A Spreadsheet an edit inserts a row into before the theme is written. */
-    private static final int MOVED_ROW = 47;
 
     private static final int NAMES = 1;
 
@@ -162,23 +152,6 @@ class CompiledReadsTest {
         assertEquals(WHITE, layout.at(FUZZY_ROW + 2, NAMES).style().background().rgb(), "The titles are not grey");
     }
 
-    @Test
-    void returnsTheStepTheCompilerReadWhereAnEditMovedIt() {
-        var moved = tableAt(MOVED_ROW);
-        var extra = Stream.of("Extra", "= 5").map(value -> new RawCellInput(value, null, null, null)).toList();
-
-        // A step inserted before the step returned in the same edit: the step returned is the one the compiler read,
-        // where the edit moved it.
-        new RawTableWriter(moved, LOOKS).apply(List.of(
-                new RawTableSourceAction.Insert(new InsertTarget.Rows(3, List.of(extra))),
-                new RawTableSourceAction.Theme(THEME)));
-
-        var written = TableTestProjects.styledSource(tableAt(MOVED_ROW));
-        assertEquals("Total", written.get(4).getFirst().value());
-        assertEquals(Boolean.TRUE, written.get(4).getFirst().style().bold(), "The step returned moved down");
-        assertNotEquals(Boolean.TRUE, written.get(3).getFirst().style().bold(), "The step inserted is not returned");
-    }
-
     private IOpenLTable tableAt(int row) {
         return TableTestProjects.tableAt(dir, row);
     }
@@ -233,10 +206,5 @@ class CompiledReadsTest {
         TableTestProjects.row(sheet, FUZZY_ROW + 3, NAMES, "Return Values", null, "High");
         TableTestProjects.row(sheet, FUZZY_ROW + 4, NAMES, "age", "min", "40");
 
-        TableTestProjects.row(sheet, MOVED_ROW, 1, "Spreadsheet Double Moved ( )");
-        merge(sheet, MOVED_ROW, MOVED_ROW, 1, 2);
-        TableTestProjects.row(sheet, MOVED_ROW + 1, 1, "Step", "Formula");
-        TableTestProjects.row(sheet, MOVED_ROW + 2, 1, "Base", "= 1");
-        TableTestProjects.row(sheet, MOVED_ROW + 3, 1, "Total", "= $Base");
     }
 }

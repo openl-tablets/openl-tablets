@@ -38,7 +38,6 @@ import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawCellStyleInput;
-import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
@@ -50,7 +49,6 @@ import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.theme.TableThemeService;
-import org.openl.studio.projects.service.tables.theme.TestThemes;
 
 /**
  * Verifies the raw-source edits applied by {@link RawTableWriter#apply}. Each test starts from a freshly written
@@ -63,8 +61,6 @@ class RawTableWriterTest {
 
     /** The themes a {@code theme} edit is written with. */
     private static final TableThemeService THEMES = new TableThemeService();
-    /** A theme that gives every kind of table a look of its own, beyond the kinds the shipped themes style. */
-    private static final TableThemeService LOOKS = TestThemes.everyKind();
 
     @TempDir
     Path tempDir;
@@ -193,19 +189,6 @@ class RawTableWriterTest {
     }
 
     @Test
-    void writesATableThemeIntoTheTableAsTheEditsBeforeItLeftIt() {
-        apply(List.of(
-                appendRow(row("double", "rate", "delta")),
-                new RawTableSourceAction.Theme("standard")));
-
-        var source = reloadStyled(mainProject);
-        // The row added in the same change is themed with the rest, and the line closing the table is under it.
-        assertEquals("#ddebf7", styleOf(source, 4, 1).background());
-        assertNotNull(styleOf(source, 4, 0).border().bottom());
-        assertNull(styleOf(source, 3, 0).border(), "The row that was last before the change is closed no more");
-    }
-
-    @Test
     void themesThePropertiesTheNoteOfTheEditLaysDown() {
         applyNoted(mainProject, new RawTableSourceAction.Theme("standard"));
 
@@ -237,25 +220,7 @@ class RawTableWriterTest {
     }
 
     @Test
-    void writesATableThemeIntoTheRuleAnEditAddedToADecisionTable() throws IOException {
-        var rules = writeProject("rules", new String[][]{
-                {"SimpleRules String Greeting(Integer hour)", null},
-                {"Hour", "Greeting"},
-                {"< 12", "Good Morning"}
-        });
-
-        apply(rules, List.of(appendRow(row(">= 12", "Good Day")), new RawTableSourceAction.Theme("standard")));
-
-        var source = reloadStyled(rules);
-        // The rule added in the same change is a rule like the others, and the line closing the table is under it.
-        // The rule last before the change is closed no more: the fine line between the rules stands under it.
-        assertEquals("#ddebf7", styleOf(source, 3, 1).background());
-        assertEquals(RawTableBorderLineStyle.SOLID, styleOf(source, 3, 0).border().bottom().style());
-        assertEquals(RawTableBorderLineStyle.DOTTED, styleOf(source, 2, 0).border().bottom().style());
-    }
-
-    @Test
-    void writesATableThemeIntoTheColumnsOfADecisionTableWhereAnInsertBeforeItMovedThem() throws IOException {
+    void themesTheConditionAnEarlierChangeInsertedIntoADecisionTable() throws IOException {
         var rules = writeProject("inserted", new String[][]{
                 {"Rules String Greet(String day, Integer hour)", null, null},
                 {"C1", "C2", "RET1"},
@@ -266,61 +231,16 @@ class RawTableWriterTest {
                 {"Weekend", "24", "Rest"}
         });
 
-        apply(rules, List.of(insertColumn(1, row(null, "C3", "hour > from", "Integer from", "After", "0", "0")),
-                new RawTableSourceAction.Theme("standard")));
+        apply(rules, insertColumn(1, row(null, "C3", "hour > from", "Integer from", "After", "0", "0")));
+        // The theme follows in a change of its own, so the table it is laid out by is compiled with the new condition.
+        apply(rules, new RawTableSourceAction.Theme("standard"));
 
         var source = reloadStyled(rules);
-        // The column inserted is not compiled yet: it takes the white of the base, read as no fill of its own. The
-        // columns after it keep the looks of their parts.
         assertEquals("#bfbfbf", styleOf(source, 4, 0).background());
-        assertNull(styleOf(source, 4, 1).background());
+        assertEquals("#bfbfbf", styleOf(source, 4, 1).background(), "The title of the condition inserted");
         assertEquals("#bfbfbf", styleOf(source, 4, 2).background(), "The title of the condition that moved right");
         assertEquals("#b4c6e7", styleOf(source, 4, 3).background(), "The title of what the table returns");
         assertEquals("#ddebf7", styleOf(source, 5, 3).background());
-    }
-
-    @Test
-    void writesATableThemeIntoTheRowsOfADecisionTableWhereADeleteBeforeItMovedThem() throws IOException {
-        var rules = writeProject("deleted", new String[][]{
-                {"Rules String Greet(String day, Integer hour)", null, null},
-                {"properties", "description", "Greets"},
-                {"C1", "C2", "RET1"},
-                {"day == dayName", "hour < limit", "greeting"},
-                {"String dayName", "Integer limit", "String greeting"},
-                {"Day", "Before", "Greeting"},
-                {"Weekday", "12", "Good Morning"}
-        });
-
-        apply(rules, List.of(deleteRow(1), new RawTableSourceAction.Theme("standard")));
-
-        var source = reloadStyled(rules);
-        // The code moved up a row with the rest: its first row is muted and its last row closes it.
-        assertEquals("#808080", styleOf(source, 1, 0).color());
-        assertNotNull(styleOf(source, 3, 0).border().bottom());
-        assertEquals("#bfbfbf", styleOf(source, 4, 0).background(), "The title of the condition moved up");
-        assertEquals("#ddebf7", styleOf(source, 5, 2).background(), "The value the rule returns");
-    }
-
-    @Test
-    void writesATableThemeIntoTheTitlesOfAConditionsTableWhereADeleteBeforeItMovedThem() throws IOException {
-        var conditions = writeProject("declared", new String[][]{
-                {"Conditions Hours", null, null},
-                {"properties", "description", "Hours of a day"},
-                {"Inputs", "Integer hour", "Integer hour"},
-                {"Expression", "hour < limit", "hour >= start"},
-                {"Parameter", "Integer limit", "Integer start"},
-                {"Title", "Before", "From"}
-        });
-
-        // The shipped themes draw a Conditions table in the General format of the standard; this one gives it a look.
-        new RawTableWriter(load(conditions), LOOKS).apply(List.of(deleteRow(1),
-                new RawTableSourceAction.Theme(TestThemes.EVERY_KIND)));
-
-        var source = reloadStyled(conditions);
-        // The parts moved up a row with the rest: the code is muted and closed by a line, and the titles under it.
-        assertEquals("#808080", styleOf(source, 1, 1).color());
-        assertNotNull(styleOf(source, 3, 1).border().bottom(), "The line that closes the code");
-        assertEquals("#bfbfbf", styleOf(source, 4, 1).background(), "The titles moved up");
     }
 
     @Test
@@ -344,15 +264,6 @@ class RawTableWriterTest {
         assertNotNull(styleOf(source, 1, 2).border().bottom(), "The properties are closed by a line");
         assertEquals("#808080", styleOf(source, 2, 0).color(), "The first row of the code is muted");
         assertEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 2, 0).align());
-    }
-
-    @Test
-    void writesTheStylingAskedForAfterTheTableThemeOverIt() {
-        apply(List.of(
-                new RawTableSourceAction.Theme("standard"),
-                style(1, 1, 1, 1, new RawCellStyleInput("#ffff00", null, null, null, null, null, null))));
-
-        assertEquals("#ffff00", styleOf(reloadStyled(mainProject), 1, 1).background());
     }
 
     @Test

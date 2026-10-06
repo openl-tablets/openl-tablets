@@ -60,8 +60,10 @@ interface TableEditToolbarProps {
     themes?: TableThemeOption[] | undefined
     /** The theme the reader chose to write into the table, or null when they chose none. */
     theme?: string | null | undefined
-    /** Chooses a theme to write into the table with the rest when the reader saves. */
+    /** Chooses a theme to write into the table when the reader saves, with no other change. */
     onTheme?: ((theme: string) => void) | undefined
+    /** Whether the module waits to be verified, so its tables are not compiled as they stand and take no theme. */
+    verifyNeeded?: boolean | undefined
 }
 
 /** How far one press of the indent buttons moves a cell, as the legacy editor moved it. */
@@ -76,6 +78,9 @@ const MAX_INDENT = 15
  *
  * <p>Every action here changes the table on screen alone. Nothing reaches the server until the reader saves,
  * and then all of it goes at once.
+ *
+ * <p>A table theme is applied on its own. While a theme is chosen, every action that changes the table is off; while
+ * the table holds edits, the theme is. Each says why.
  */
 export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     picked,
@@ -99,6 +104,7 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     themes,
     theme,
     onTheme,
+    verifyNeeded = false,
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -110,7 +116,7 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
         key: string,
         icon: React.ReactNode,
         onClick: () => void,
-        options: { disabled?: boolean, on?: boolean, why?: string } = {}
+        options: { disabled?: boolean, on?: boolean, why?: string | null } = {}
     ) => (
         // A button that is off says why it is off, so the reader is not left guessing at a grey icon.
         <Tooltip key={key} title={options.disabled && options.why ? options.why : t(`browser.module.edit_${key}`)}>
@@ -124,6 +130,44 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                 type="text"
             />
         </Tooltip>
+    )
+
+    // Why the actions that change the table are off, or null while no theme is chosen.
+    const themed = theme ? t('browser.module.edit_theme_alone') : null
+
+    /**
+     * Why no theme can be chosen, or null when one can. A theme is laid out by the table as it was saved and compiled,
+     * so a table holding edits of the reader takes none, and nor does one of a module that waits to be verified.
+     */
+    const themeOff = (): string | null => {
+        // A theme chosen can always be changed for another.
+        if (theme) {
+            return null
+        }
+        if (dirty) {
+            return t('browser.module.edit_theme_after_edits')
+        }
+        return verifyNeeded ? t('browser.module.theme_verify_first') : null
+    }
+    const noTheme = themeOff()
+
+    /** An action that changes the table, which is off while a theme is chosen. */
+    const edit: typeof action = (key, icon, onClick, options = {}) =>
+        action(key, icon, onClick, themed === null ? options : { ...options, disabled: true, why: themed })
+
+    /** A colour of the picked cell, which is off while a theme is chosen, as every action changing the table is. */
+    const colour = (key: string, icon: React.ReactNode, styled: (chosen: string) => RawCellStyleInput,
+        value: string) => (
+        <CellColourPicker
+            className={styles.button}
+            disabled={themed !== null || picked === null}
+            icon={icon}
+            onPick={chosen => onStyle(styled(chosen))}
+            onPreview={chosen => onPreview(chosen === null ? null : styled(chosen))}
+            testId={`table-edit-${key}`}
+            title={themed ?? t(`browser.module.edit_${key}`)}
+            value={value}
+        />
     )
 
     const rule = <span className={styles.rule} />
@@ -155,54 +199,37 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('undo', <UndoOutlined />, onUndo, { disabled: !canUndo })}
             {action('redo', <RedoOutlined />, onRedo, { disabled: !canRedo })}
             {rule}
-            {action('insert_row', <InsertRowBelowOutlined />, onInsertRow)}
-            {action('remove_row', <DeleteRowOutlined />, onRemoveRow,
+            {edit('insert_row', <InsertRowBelowOutlined />, onInsertRow)}
+            {edit('remove_row', <DeleteRowOutlined />, onRemoveRow,
                 { disabled: picked === null || row < 1, why: off('browser.module.edit_header_row_kept') })}
             {rule}
-            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn, {
+            {edit('insert_column', <InsertRowLeftOutlined />, onInsertColumn, {
                 disabled: picked === null || !whole,
                 why: off('browser.module.edit_whole_table'),
             })}
-            {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
+            {edit('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
             {rule}
-            {action('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
+            {edit('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
                 { on: style?.align === undefined || style.align === 'left' })}
-            {action('align_center', <AlignCenterOutlined />, () => onStyle({ align: 'center' }),
+            {edit('align_center', <AlignCenterOutlined />, () => onStyle({ align: 'center' }),
                 { on: style?.align === 'center' })}
-            {action('align_right', <AlignRightOutlined />, () => onStyle({ align: 'right' }),
+            {edit('align_right', <AlignRightOutlined />, () => onStyle({ align: 'right' }),
                 { on: style?.align === 'right' })}
             {rule}
-            {action('bold', <BoldOutlined />, () => onStyle({ bold: !style?.bold }), { on: !!style?.bold })}
-            {action('italic', <ItalicOutlined />, () => onStyle({ italic: !style?.italic }),
+            {edit('bold', <BoldOutlined />, () => onStyle({ bold: !style?.bold }), { on: !!style?.bold })}
+            {edit('italic', <ItalicOutlined />, () => onStyle({ italic: !style?.italic }),
                 { on: !!style?.italic })}
-            {action('underline', <UnderlineOutlined />, () => onStyle({ underline: !style?.underline }),
+            {edit('underline', <UnderlineOutlined />, () => onStyle({ underline: !style?.underline }),
                 { on: !!style?.underline })}
             {rule}
-            <CellColourPicker
-                className={styles.button}
-                disabled={picked === null}
-                icon={<BgColorsOutlined />}
-                onPick={chosen => onStyle({ background: chosen })}
-                onPreview={chosen => onPreview(chosen === null ? null : { background: chosen })}
-                testId="table-edit-fill_colour"
-                title={t('browser.module.edit_fill_colour')}
-                value={style?.background ?? '#ffffff'}
-            />
-            <CellColourPicker
-                className={styles.button}
-                disabled={picked === null}
-                icon={<FontColorsOutlined />}
-                onPick={chosen => onStyle({ color: chosen })}
-                onPreview={chosen => onPreview(chosen === null ? null : { color: chosen })}
-                testId="table-edit-font_colour"
-                title={t('browser.module.edit_font_colour')}
-                value={style?.color ?? '#000000'}
-            />
+            {colour('fill_colour', <BgColorsOutlined />, chosen => ({ background: chosen }),
+                style?.background ?? '#ffffff')}
+            {colour('font_colour', <FontColorsOutlined />, chosen => ({ color: chosen }), style?.color ?? '#000000')}
             {rule}
-            {action('outdent', <MenuUnfoldOutlined />,
+            {edit('outdent', <MenuUnfoldOutlined />,
                 () => onStyle({ indent: Math.max(0, (style?.indent ?? 0) - INDENT_STEP) }),
                 { disabled: picked === null || (style?.indent ?? 0) === 0 })}
-            {action('indent', <MenuFoldOutlined />,
+            {edit('indent', <MenuFoldOutlined />,
                 () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
                 { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
             {themes !== undefined && themes.length > 0 && (
@@ -218,8 +245,10 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                             selectedKeys: theme ? [theme] : [],
                         }}
                     >
-                        {/* The menu opens on a click, so the button itself does nothing more. */}
-                        {action('theme', <FormatPainterOutlined />, () => undefined, { disabled: false, on: !!theme })}
+                        {/* The menu opens on a click, so the button itself does nothing more. A button that is off
+                            takes no click, so it opens nothing, and its tooltip still says why. */}
+                        {action('theme', <FormatPainterOutlined />, () => undefined,
+                            { disabled: noTheme !== null, on: !!theme, why: noTheme })}
                     </Dropdown>
                 </>
             )}

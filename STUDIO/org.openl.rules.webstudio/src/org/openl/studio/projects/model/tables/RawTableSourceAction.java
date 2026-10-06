@@ -75,14 +75,16 @@ public sealed interface RawTableSourceAction
     }
 
     /**
-     * Writes a table theme into a table of a kind the themes style, as the table stands after the edits before it.
+     * Writes a table theme into a table of a kind the themes style, as the table was saved. The theme is the only edit
+     * of its change.
      *
      * @param theme the identifier of the theme, as the list of table themes names it
      */
     @Schema(name = "Theme", description = """
-            Writes a table theme into a table of any kind but `Other`, as the table stands after the edits before \
-            it. Only the look of the table changes: each cell keeps its value and every attribute the theme does \
-            not set. A table of the kind `Other` is refused.""")
+            Writes a table theme into a table of any kind but `Other`, as the table was saved. The theme is applied \
+            on its own: a request holding it and another edit is refused. Only the look of the table changes: each \
+            cell keeps its value and every attribute the theme does not set. A table of the kind `Other` is \
+            refused.""")
     record Theme(
             @Parameter(description = "Identifier of the theme, as the list of table themes names it")
             @NotBlank String theme) implements RawTableSourceAction {

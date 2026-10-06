@@ -420,12 +420,23 @@ OpenL Studio also ships the **Green** theme. How a theme file is written is desc
     Excel file or the project.
 -   **Written into one table** — switch the table to the edit mode, click **Apply Theme**
     ![](images/edit-apply-theme-icon.png) on the toolbar, and select the theme. The table is drawn with the theme,
-    and the theme is written into the Excel file with the other changes of the table when **Save** is clicked.
-    **Undo** takes the theme back. The button is displayed for every table but a table of the type **Other**.
+    and the theme is written into the Excel file when **Save** is clicked. **Undo** takes the theme back. The button
+    is displayed for every table but a table of the type **Other**. The theme is applied on its own, to the table as
+    it was saved:
+    -   While a theme is selected, the cells do not open, and the buttons that change the table are unavailable. A
+        note above the table says so. Save the theme or undo it to edit the table.
+    -   While the table holds changes, **Apply Theme** is unavailable, and its tooltip says so. Save the changes or
+        undo them to apply a theme.
+    -   With **Verify on Edit** turned off, as described in [System Settings](administration/02-system-settings.md),
+        **Apply Theme** is also unavailable once a change to the project is saved, until the module is verified, and
+        its tooltip says so. A theme selected before that change is not saved: **Save** is unavailable, and its tooltip
+        says so. Click **Verify**, then apply a theme.
 -   **Written into the whole project** — above the table, click **More**, select **Apply Table Theme to Project**,
     select the theme, and click **Apply Theme**. The theme is written into every table of every module of the
     project but the tables of the type **Other**. A module set to compile alone has the whole project compiled first,
-    and a project whose compilation was stopped is not themed.
+    and a project whose compilation was stopped is not themed. With **Verify on Edit** turned off, the project is not
+    themed either once a change to it is saved, until the module is verified: the dialog says so, and **Apply Theme**
+    is unavailable.
 
 Both ways offer the table themes of OpenL Studio with the primary one, **Standard**, listed first, and the dialog of
 the project selects it to begin with. The theme files decide which theme is primary, as described in
@@ -433,9 +444,11 @@ the project selects it to begin with. The theme files decide which theme is prim
 with Studio theme** only changes the screen and never the themes offered.
 
 > [!Note]
-> Until **Save** is clicked, the theme is drawn as it fits the table without the changes made in the edit mode. A row
-> added there is drawn without the theme, and once a row or a column is inserted or deleted, a cell may show the look
-> of the place it had before. The theme is written over the table as it is when saved.
+> A theme is laid out by the tables as OpenL Tablets compiled them, such as the conditions of a decision table where
+> OpenL Tablets found them. A change saved with the theme would not be part of that table: a column inserted as a
+> condition would miss the look of a condition. So the changes and the theme are saved one after the other, with the
+> module verified in between when **Verify on Edit** is turned off, and the table drawn with the theme is exactly what
+> **Save** writes.
 
 Writing the theme changes only the look of a table:
 
@@ -449,8 +462,8 @@ Writing the theme changes only the look of a table:
     Excel offers it in its palette. In any other file, a colour is written as a colour of its own, and the theme of the
     file stays as it is: OpenL Studio cannot change the theme of a file, as described in
     [Theme Colours of Excel](appendices/table-themes.md#theme-colours-of-excel).
--   The formatting set in the edit mode is written over the theme, so a cell formatted by hand keeps that
-    formatting.
+-   The formatting set in the edit mode once the theme is saved stays over the theme until the theme is applied
+    again.
 -   A table written as several partial tables and a table of a dependency project are left as they are.
 
 Like any other change of a table, the change is kept in the workspace until the project is saved.

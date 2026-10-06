@@ -61,6 +61,15 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     @Setter
     private Map<String, Object> params;
 
+    /**
+     * Whether the workbook was saved since it was read.
+     *
+     * <p>What was compiled from the workbook as it was read no longer answers for the file then. A compilation reads
+     * every workbook again, so a workbook it reads starts unsaved.
+     */
+    @Getter
+    private volatile boolean savedSinceRead;
+
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
         this(src, WorkbookLoaders.getWorkbookLoader(src));
     }
@@ -144,6 +153,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
             fileOut.close();
             // The file says what the workbook says again, so the workbook may be unloaded and read back from it.
             workbookLoader.setModified(false);
+            savedSinceRead = true;
 
             for (XlsWorkbookListener wl : listeners) {
                 wl.afterSave(this);

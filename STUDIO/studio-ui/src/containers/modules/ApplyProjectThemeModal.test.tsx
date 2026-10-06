@@ -23,10 +23,10 @@ describe('ApplyProjectThemeModal', () => {
         useUserStore.setState({ userProfile: { tableTheme: 'green' } as never })
     })
 
-    const draw = () => {
+    const draw = (over: Partial<Parameters<typeof ApplyProjectThemeModal>[0]> = {}) => {
         const onApplied = vi.fn()
         const onClose = vi.fn()
-        render(<ApplyProjectThemeModal open onApplied={onApplied} onClose={onClose} projectId="p1" />)
+        render(<ApplyProjectThemeModal open onApplied={onApplied} onClose={onClose} projectId="p1" {...over} />)
         return { onApplied, onClose }
     }
 
@@ -91,5 +91,15 @@ describe('ApplyProjectThemeModal', () => {
         await waitFor(() => expect(getTableThemes).toHaveBeenCalled())
 
         expect(screen.getByTestId('apply-project-theme-ok')).toBeDisabled()
+    })
+
+    it('says the project waits to be verified, and writes nothing until it is', async () => {
+        draw({ verifyNeeded: true })
+        // The themes are read, so only the wait for Verify holds the theme back.
+        expect(await screen.findByText('Standard')).toBeInTheDocument()
+
+        expect(screen.getByTestId('apply-project-theme-verify')).toHaveTextContent('browser.module.theme_verify_first')
+        expect(screen.getByTestId('apply-project-theme-ok')).toBeDisabled()
+        expect(applyProjectTableTheme).not.toHaveBeenCalled()
     })
 })

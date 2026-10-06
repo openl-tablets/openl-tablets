@@ -265,6 +265,24 @@ describe('ModuleActionBar', () => {
         expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'default')
     })
 
+    it('writes no table theme into a project that waits for Verify, and says why', async () => {
+        render(
+            <App>
+                <ModuleActionBar
+                    verifyNeeded
+                    moduleName="Claims"
+                    project={project({ canWrite: true } as Project['capabilities'])}
+                />
+            </App>
+        )
+
+        await userEvent.click(screen.getByTestId('module-more'))
+        await userEvent.click(await screen.findByText('browser.module.apply_theme_project'))
+
+        expect(await screen.findByTestId('apply-project-theme-verify')).toBeInTheDocument()
+        expect(screen.getByTestId('apply-project-theme-ok')).toBeDisabled()
+    })
+
     it('offers the table theme only to a reader who may write the project', async () => {
         await bar({ canViewHistory: true } as Project['capabilities'])
 

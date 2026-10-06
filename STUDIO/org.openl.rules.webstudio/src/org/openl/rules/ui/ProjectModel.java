@@ -1240,7 +1240,7 @@ public class ProjectModel {
      * current project and user name at publish time so the listener doesn't depend on
      * thread-bound context.
      */
-    private void publishStatusChanged() {
+    void publishStatusChanged() {
         var publisher = studio.getEventPublisher();
         if (publisher == null) {
             return;
@@ -1435,12 +1435,36 @@ public class ProjectModel {
     /**
      * Whether the module that is open is waiting for the reader to compile it.
      *
-     * <p>True only where automatic compilation is switched off and the module has been written to since it was
-     * last built: what the compiler says about it is what it said before that write, and the reader asks for it
-     * to be built again when they are ready.
+     * <p>True only where automatic compilation is switched off and a workbook was written to since it was compiled
+     * ({@link #isWrittenSinceCompiled()}): what the compiler says about the module is what it said before that write,
+     * and the reader asks for it to be built again when they are ready.
      */
     public boolean isManualCompileNeeded() {
-        return studio.isManualCompileNeeded();
+        return !studio.isAutoCompile() && isWrittenSinceCompiled();
+    }
+
+    /**
+     * Whether a workbook the session compiled was written to since it was compiled.
+     *
+     * <p>What the compiler read from such a workbook is what it held before the write: a part the write added, such
+     * as a condition inserted into a decision table, is no part of the table the compilation built. Every module
+     * compiled for the project open is asked, the modules and the projects it depends on included, since they are
+     * compiled into it.
+     *
+     * <p>A compilation reads its workbooks again, so the answer turns false once every module written to is compiled
+     * again, whichever module the reader asked to compile.
+     *
+     * <p>Answered without taking the lock of the model: the status of a project asks it while a module is being
+     * compiled.
+     */
+    public boolean isWrittenSinceCompiled() {
+        return Stream.concat(Stream.ofNullable(xlsModuleSyntaxNode), xlsModuleSyntaxNodes.stream())
+                .map(XlsModuleSyntaxNode::getWorkbookSyntaxNodes)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream)
+                .map(WorkbookSyntaxNode::getWorkbookSourceCodeModule)
+                .filter(Objects::nonNull)
+                .anyMatch(XlsWorkbookSourceCodeModule::isSavedSinceRead);
     }
 
     /** Whether anything can be run against what was compiled, or the module failed before it had a class. */

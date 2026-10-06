@@ -1,0 +1,37 @@
+POST /rest/projects/{PROJECT_ID}/tables/{GREETING_TABLE_ID}/actions/batch HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 0,
+        "column": 0,
+        "value": "SimpleRules String Greeting(Integer hour, String name)"
+      }
+    },
+    {
+      "operation": "insert",
+      "target": {
+        "type": "columns",
+        "position": 1,
+        "cells": [
+          [
+            {
+              "value": ""
+            },
+            {
+              "value": "Name"
+            },
+            {
+              "value": "Bob"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}
