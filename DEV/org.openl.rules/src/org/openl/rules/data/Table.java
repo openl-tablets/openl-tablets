@@ -678,9 +678,9 @@ public class Table implements ITable {
     }
 
     private Object createLiteral() throws OpenLCompilationException {
-        if (dataModel.getInstanceClass().isArray()) {
+        Class<?> type = dataModel.getInstanceClass();
+        if (type != null && type.isArray()) {
             var dim = 0;
-            Class<?> type = dataModel.getInstanceClass();
             while (type.isArray()) {
                 type = type.getComponentType();
                 dim++;
