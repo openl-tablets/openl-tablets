@@ -29,6 +29,7 @@ export interface AWSS3RepositorySettings extends DefaultSettings {
     secretKey?: string
     serviceEndpoint?: string,
     sseAlgorithm?: AWS_SSE_ALGORITHM
+    sseKmsKeyId?: string
 }
 
 interface AzureBlobRepositorySettings extends DefaultSettings {

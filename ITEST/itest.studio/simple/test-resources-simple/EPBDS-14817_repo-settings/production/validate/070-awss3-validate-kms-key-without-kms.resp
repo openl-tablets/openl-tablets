@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.default.message",
+  "message": "Repository 'S3 with KMS key' : The KMS key is set, but the server-side encryption algorithm is 'AES256'. A KMS key requires 'aws:kms' or 'aws:kms:dsse'."
+}

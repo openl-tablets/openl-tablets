@@ -1,7 +1,8 @@
 import { FC, useMemo } from 'react'
+import { Form } from 'antd'
 import { Input, InputNumber, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
-import { AWS_SSE_ALGORITHM } from './constants'
+import { AWS_KMS_SSE_ALGORITHMS, AWS_SSE_ALGORITHM } from './constants'
 import { AWSS3RepositorySettings } from './index'
 
 interface RepositoryAWSS3ConfigurationProps {
@@ -12,6 +13,8 @@ interface RepositoryAWSS3ConfigurationProps {
 
 export const RepositoryAWSS3Configuration: FC<RepositoryAWSS3ConfigurationProps> = ({ configuration }) => {
     const { t } = useTranslation()
+    const form = Form.useFormInstance()
+    const sseAlgorithm = Form.useWatch(['settings', 'sseAlgorithm'], form)
     const { allAllowedRegions, allSseAlgorithms } = configuration?.settings || {}
 
     const regionOptions = allAllowedRegions?.map(region => ({
@@ -39,6 +42,14 @@ export const RepositoryAWSS3Configuration: FC<RepositoryAWSS3ConfigurationProps>
         ]
     }, [allSseAlgorithms, t])
 
+    // A KMS key belongs to the algorithms that use KMS, so it goes away with them. The field stays in the form while
+    // it is hidden: a form submits only the fields it holds, and the server keeps the stored value of a missing one.
+    const clearKmsKeyUnlessUsed = (algorithm: string) => {
+        if (!AWS_KMS_SSE_ALGORITHMS.includes(algorithm)) {
+            form.setFieldValue(['settings', 'sseKmsKeyId'], '')
+        }
+    }
+
     return (
         <>
             <Input label={t('repository:service_endpoint')} name={['settings', 'serviceEndpoint']} />
@@ -47,7 +58,8 @@ export const RepositoryAWSS3Configuration: FC<RepositoryAWSS3ConfigurationProps>
             <Input label={t('repository:access_key')} name={['settings', 'accessKey']} />
             <Input label={t('repository:secret_key')} name={['settings', 'secretKey']} />
             <InputNumber label={t('repository:listener_timer_period_sec')} name={['settings', 'listenerTimerPeriod']} />
-            <Select label={t('repository:sse_algorithm')} name={['settings', 'sseAlgorithm']} options={sseAlgorithmOptions} />
+            <Select label={t('repository:sse_algorithm')} name={['settings', 'sseAlgorithm']} onChange={clearKmsKeyUnlessUsed} options={sseAlgorithmOptions} />
+            <Input hidden={!AWS_KMS_SSE_ALGORITHMS.includes(sseAlgorithm)} label={t('repository:sse_kms_key_id')} name={['settings', 'sseKmsKeyId']} />
         </>
     )
 }

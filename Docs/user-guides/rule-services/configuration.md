@@ -166,7 +166,15 @@ To use an AWS S3 repository as a data source, proceed as follows:
     production-repository.secret-key = yourSecretKey
     ```
 
-3.  Optionally, set `production-repository.service-endpoint` to use a non-standard S3 compatible endpoint, `production-repository.sse-algorithm` to encrypt the objects on the server side (`AES256` or `aws:kms`), and `production-repository.listener-timer-period` to change the interval in seconds in which the repository is checked for changes.
+3.  Optionally, set `production-repository.service-endpoint` to use a non-standard S3 compatible endpoint, and `production-repository.listener-timer-period` to change the interval in seconds in which the repository is checked for changes.
+4.  Optionally, set `production-repository.sse-algorithm` to encrypt the objects on the server side, and `production-repository.sse-kms-key-id` to choose the AWS KMS key:
+
+    ```properties
+    production-repository.sse-algorithm = aws:kms
+    production-repository.sse-kms-key-id = arn:aws:kms:eu-central-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+    ```
+
+    For the values and the permissions of the key, see [Server-Side Encryption](../installation-guide/configuration.md#server-side-encryption).
 
 ##### Azure Blob Storage
 

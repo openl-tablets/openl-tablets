@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -66,8 +67,12 @@ public class S3Repository implements Repository, Closeable {
     @Setter
     private String sseAlgorithm;
     @Setter
+    @Nullable
+    private String sseKmsKeyId;
+    @Setter
     private int listenerTimerPeriod = 10;
 
+    private S3Encryption encryption = S3Encryption.NONE;
     private S3Client s3;
     private ChangesMonitor monitor;
     @Getter
@@ -90,6 +95,7 @@ public class S3Repository implements Repository, Closeable {
     }
 
     public void initialize() {
+        encryption = S3Encryption.of(sseAlgorithm, sseKmsKeyId);
         var builder = S3Client.builder();
         if (!StringUtils.isBlank(serviceEndpoint)) {
             builder.endpointOverride(URI.create(serviceEndpoint)).region(Region.of(regionName))
@@ -275,7 +281,10 @@ public class S3Repository implements Repository, Closeable {
 
     private void doSave(FileData data, InputStream stream) {
 
-        s3.putObject(it -> it.bucket(bucketName).key(data.getName()).metadata(createInsertFileMetadata(data)),
+        s3.putObject(it -> it.bucket(bucketName)
+                        .key(data.getName())
+                        .metadata(createInsertFileMetadata(data))
+                        .applyMutation(encryption::applyTo),
                 RequestBody.fromInputStream(stream, data.getSize()));
     }
 
@@ -283,10 +292,6 @@ public class S3Repository implements Repository, Closeable {
         Map<String, String> userMetadata = new HashMap<>();
 
         userMetadata.put("Content-Type", "application/zip");
-
-        if (!StringUtils.isBlank(sseAlgorithm)) {
-            userMetadata.put("sseAlgorithm", sseAlgorithm);
-        }
 
         String username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
         if (!StringUtils.isBlank(username)) {
@@ -489,7 +494,8 @@ public class S3Repository implements Repository, Closeable {
                     .sourceKey(srcName)
                     .sourceVersionId(version)
                     .destinationBucket(bucketName)
-                    .destinationKey(destData.getName()));
+                    .destinationKey(destData.getName())
+                    .applyMutation(encryption::applyTo));
             onModified();
             return checkHistory(destData.getName(), response.versionId());
         } catch (SdkClientException e) {
@@ -522,12 +528,8 @@ public class S3Repository implements Repository, Closeable {
         deleteAllVersions(MODIFICATION_FILE);
 
         // Create new version of modification marker file with new id
-        var metadataMap = new HashMap<String, String>();
-        if (StringUtils.isNotBlank(sseAlgorithm)) {
-            metadataMap.put("sseAlgorithm", sseAlgorithm);
-        }
-
-        s3.putObject(it -> it.bucket(bucketName).key(MODIFICATION_FILE).metadata(metadataMap), RequestBody.empty());
+        s3.putObject(it -> it.bucket(bucketName).key(MODIFICATION_FILE).applyMutation(encryption::applyTo),
+                RequestBody.empty());
 
         // Invoke listener if exist
         if (monitor != null) {

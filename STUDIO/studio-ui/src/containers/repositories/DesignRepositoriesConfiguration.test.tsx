@@ -9,6 +9,7 @@ import { DesignRepositoriesConfiguration } from './DesignRepositoriesConfigurati
 import { RepositoryDataType, RepositoryType } from './constants'
 import type { FormRefProps } from './index'
 import * as services from '../../services'
+import { chooseOption, openOptions } from 'testing/select'
 
 vi.mock('../../services', () => ({ apiCall: vi.fn() }))
 
@@ -86,11 +87,6 @@ const renderAndAddRepository = async (repositoryDataType: RepositoryDataType, ex
     return ref
 }
 
-const chooseOption = async (fieldLabel: string, optionTitle: string) => {
-    fireEvent.mouseDown(screen.getByRole('combobox', { name: fieldLabel }))
-    await userEvent.click(await screen.findByTitle(optionTitle))
-}
-
 describe('DesignRepositoriesConfiguration, adding a repository', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -104,7 +100,7 @@ describe('DesignRepositoriesConfiguration, adding a repository', () => {
             await chooseOption('repository:type', 'AWS S3')
 
             await waitFor(() => expect(templateRequests()).toEqual([RepositoryType.GIT, RepositoryType.AWS_S3]))
-            fireEvent.mouseDown(screen.getByRole('combobox', { name: 'repository:region_name' }))
+            openOptions('repository:region_name')
             expect(await screen.findByTitle(REGION.description)).toBeInTheDocument()
         }
     )

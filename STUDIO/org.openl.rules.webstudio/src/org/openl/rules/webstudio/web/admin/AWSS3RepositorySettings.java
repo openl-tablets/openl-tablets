@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.studio.settings.converter.SettingPropertyName;
+import org.openl.util.StringUtils;
 
 @Schema(allOf = RepositorySettings.class)
 public class AWSS3RepositorySettings extends RepositorySettings {
@@ -28,6 +29,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private static final String ACCESS_KEY_PATH_SUFFIX = ".access-key";
     private static final String SECRET_KEY_PATH_SUFFIX = ".secret-key";
     private static final String SSE_ALGORITHM_PATH_SUFFIX = ".sse-algorithm";
+    private static final String SSE_KMS_KEY_ID_PATH_SUFFIX = ".sse-kms-key-id";
     private static final String LISTENER_TIMER_PERIOD_PATH_SUFFIX = ".listener-timer-period";
 
     @Getter
@@ -75,6 +77,13 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private ServerSideEncryption sseAlgorithm;
 
     @Getter
+    @Parameter(description = "The ID, ARN or alias of the AWS KMS key for the 'aws:kms' and 'aws:kms:dsse' algorithms. If it is left blank, the AWS managed key 'aws/s3' is used.")
+    @Setter
+    @SettingPropertyName(suffix = SSE_KMS_KEY_ID_PATH_SUFFIX)
+    @JsonView(Views.Base.class)
+    private String sseKmsKeyId;
+
+    @Getter
     @Parameter(description = "Repository changes check interval. Must be greater than 0.")
     @Setter
     @SettingPropertyName(suffix = LISTENER_TIMER_PERIOD_PATH_SUFFIX)
@@ -89,6 +98,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String accessKeyPath;
     private final String secretKeyPath;
     private final String sseAlgorithmPath;
+    private final String sseKmsKeyIdPath;
     private final String listenerTimerPeriodPath;
 
     AWSS3RepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryMode repositoryMode) {
@@ -99,6 +109,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         accessKeyPath = configPrefix + ACCESS_KEY_PATH_SUFFIX;
         secretKeyPath = configPrefix + SECRET_KEY_PATH_SUFFIX;
         sseAlgorithmPath = configPrefix + SSE_ALGORITHM_PATH_SUFFIX;
+        sseKmsKeyIdPath = configPrefix + SSE_KMS_KEY_ID_PATH_SUFFIX;
         listenerTimerPeriodPath = configPrefix + LISTENER_TIMER_PERIOD_PATH_SUFFIX;
 
         loadProperties(properties);
@@ -110,7 +121,8 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         regionName = properties.getProperty(regionNamePath);
         accessKey = properties.getProperty(accessKeyPath);
         secretKey = properties.getProperty(secretKeyPath);
-        sseAlgorithm = ServerSideEncryption.fromValue(properties.getProperty(sseAlgorithmPath));
+        sseAlgorithm = ServerSideEncryption.fromValue(StringUtils.trim(properties.getProperty(sseAlgorithmPath)));
+        sseKmsKeyId = properties.getProperty(sseKmsKeyIdPath);
         listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
                 .map(Integer::parseInt)
                 .orElse(null);
@@ -135,7 +147,11 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(regionNamePath, regionName);
         propertiesHolder.setProperty(accessKeyPath, accessKey);
         propertiesHolder.setProperty(secretKeyPath, secretKey);
-        propertiesHolder.setProperty(sseAlgorithmPath, sseAlgorithm);
+        // The SDK reports 'no algorithm' as an unknown one, whose text is "null". An empty value, unlike a removed
+        // one, replaces the stored value when unsaved settings are validated.
+        var noSseAlgorithm = sseAlgorithm == null || sseAlgorithm == ServerSideEncryption.UNKNOWN_TO_SDK_VERSION;
+        propertiesHolder.setProperty(sseAlgorithmPath, noSseAlgorithm ? "" : sseAlgorithm);
+        propertiesHolder.setProperty(sseKmsKeyIdPath, StringUtils.trimToEmpty(sseKmsKeyId));
         propertiesHolder.setProperty(listenerTimerPeriodPath, listenerTimerPeriod);
     }
 
@@ -150,6 +166,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
                 accessKeyPath,
                 secretKeyPath,
                 sseAlgorithmPath,
+                sseKmsKeyIdPath,
                 listenerTimerPeriodPath
         );
         loadProperties(properties);

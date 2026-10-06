@@ -1,0 +1,20 @@
+POST /rest/admin/settings/repos/production/validate HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "name": "S3 with KMS key",
+  "settings": {
+    "basePath": "",
+    "mainBranchOnly": false,
+    "serviceEndpoint": "",
+    "bucketName": "bucket",
+    "regionName": "us-east-1",
+    "accessKey": "",
+    "secretKey": "",
+    "sseAlgorithm": "AES256",
+    "sseKmsKeyId": "alias/openl",
+    "listenerTimerPeriod": 10
+  },
+  "type": "repo-aws-s3"
+}
