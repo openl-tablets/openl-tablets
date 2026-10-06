@@ -31,8 +31,6 @@ public interface ITable {
      */
     Object findObject(int columnIndex, String key, IBindingContext bindingContext);
 
-    String getColumnDisplay(int n);
-
     String getColumnName(int n);
 
     /**
@@ -69,8 +67,6 @@ public interface ITable {
     int getSize();
 
     TableSyntaxNode getTableSyntaxNode();
-
-    Object getValue(int col, int row);
 
     Map<String, Integer> makeUniqueIndex(int idx, IBindingContext cxt);
 
