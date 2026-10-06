@@ -24,12 +24,22 @@ import org.openl.types.IOpenClass;
  */
 public interface ITable {
 
+    /**
+     * Finds the row object whose value in the column is the key.
+     *
+     * <p>Gives {@code null} when no row has the key. A column with no field holds no keys.
+     */
     Object findObject(int columnIndex, String key, IBindingContext bindingContext);
 
     String getColumnDisplay(int n);
 
     String getColumnName(int n);
 
+    /**
+     * Gives the type of the field the column fills.
+     *
+     * <p>Gives {@code null} for a column with no field and for a column that builds the row object itself.
+     */
     IOpenClass getColumnType(int n);
 
     int getColumnIndex(String columnName);
