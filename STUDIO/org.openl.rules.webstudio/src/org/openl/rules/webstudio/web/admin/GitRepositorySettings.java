@@ -248,6 +248,9 @@ public class GitRepositorySettings extends RepositorySettings {
                 newBranchRegexErrorProperty,
                 tagPrefixProperty,
                 listenerTimerPeriodProperty,
+                connectionTimeoutProperty,
+                failedAuthenticationSecondsProperty,
+                maxAuthenticationAttemptsProperty,
                 protectedBranchesProperty);
         loadProperties(properties);
     }
