@@ -8,15 +8,13 @@ import { AppThemeProvider } from '../providers/AppThemeProvider'
 import { appTheme } from '../styles/appTheme'
 import { paletteOf, type Palette } from '../styles/listPageTheme'
 import type { ThemeName } from '../styles/themes'
-import { storeCompactMode, storeTablesFollowTheme, storeThemeMode, storeThemeName } from '../utils/themeMode'
+import { storeCompactMode, storeThemeMode, storeThemeName } from '../utils/themeMode'
 
 /** The look a test draws in, as a reader would have picked it. */
 interface Look {
     theme?: ThemeName
     mode?: ThemeMode
     compact?: boolean
-    /** Whether the tables drawn with a table theme take the colours of the theme. */
-    tablesFollowTheme?: boolean
 }
 
 /**
@@ -24,12 +22,10 @@ interface Look {
  *
  * The look is put where the provider reads it — the browser's storage — and taken out again when the test ends.
  */
-export const renderInTheme = (ui: ReactElement,
-    { theme = 'standard', mode = 'light', compact = false, tablesFollowTheme = false }: Look = {}) => {
+export const renderInTheme = (ui: ReactElement, { theme = 'standard', mode = 'light', compact = false }: Look = {}) => {
     storeThemeName(theme)
     storeThemeMode(mode)
     storeCompactMode(compact)
-    storeTablesFollowTheme(tablesFollowTheme)
     onTestFinished(() => localStorage.clear())
     return render(<AppThemeProvider>{ui}</AppThemeProvider>)
 }

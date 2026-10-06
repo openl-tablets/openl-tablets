@@ -1,0 +1,15 @@
+PUT /rest/users/profile HTTP/1.1
+Authorization: Basic YWxpY2U6YWxpY2UtcGFzcw==
+Content-Type: application/json
+
+{
+  "showHeader": false,
+  "showFormulas": true,
+  "tableTheme": "green",
+  "overrideWithStudioTheme": true,
+  "testsPerPage": 20,
+  "testsFailuresOnly": true,
+  "testsFailuresPerTest": -1,
+  "showComplexResult": true,
+  "showRealNumbers": true
+}

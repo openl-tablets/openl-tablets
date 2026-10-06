@@ -78,6 +78,11 @@ public class UserProfileEditModel extends UserProfileBaseModel {
     }
 
     @Override
+    public UserProfileEditModel setOverrideWithStudioTheme(@Nullable Boolean overrideWithStudioTheme) {
+        return (UserProfileEditModel) super.setOverrideWithStudioTheme(overrideWithStudioTheme);
+    }
+
+    @Override
     @TestsCountConstraint
     public @Nullable Integer getTestsPerPage() {
         return super.getTestsPerPage();

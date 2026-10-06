@@ -200,10 +200,11 @@ export const ModuleWorkspace = () => {
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
     const namedTheme = useUserStore(state => state.userProfile?.tableTheme)
-    const { tablesFollowTheme, themeName } = useAppTheme()
+    const overrideWithStudioTheme = useUserStore(state => state.userProfile?.overrideWithStudioTheme ?? false)
+    const { themeName } = useAppTheme()
     // The table theme the look of the Studio theme lays its tables out with, where the reader asks for the look of
     // the Studio theme and the theme has a look of its own for the tables.
-    const followedTheme = followedTableTheme(tablesFollowTheme, themeName)
+    const followedTheme = followedTableTheme(overrideWithStudioTheme, themeName)
     // The table themes Studio offers, and the one the tables are drawn with: the one of the look of the Studio theme,
     // then the one the settings name. A reader with neither that Studio offers reads the tables with the formatting
     // of the Excel file. A drawing only: applying a theme starts from the one the server offers first.

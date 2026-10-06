@@ -122,6 +122,11 @@ class UsersRestTest {
     }
 
     @Test
+    void userSettingsStayWithTheirUser() {
+        client.test("test-resources/task_EPBDS-7164-user-settings");
+    }
+
+    @Test
     void testExternalGroups() throws SQLException {
         client.send("users-service/users-create-1.put");
         client.send("users-service/users-5.get");

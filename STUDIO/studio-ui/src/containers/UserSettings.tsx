@@ -8,7 +8,6 @@ import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { useUserStore } from 'store'
 import { changedValues } from 'utils/userProfile'
 import { toThemeOptions, useTableThemes } from '../hooks/useTableThemes'
-import { useAppTheme } from '../providers/AppThemeProvider'
 
 /** The table theme a profile names when its tables are drawn with the formatting of the Excel file. */
 const EXCEL_FORMATTING = ''
@@ -17,7 +16,6 @@ export const UserSettings: React.FC = () => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
     const { userProfile, fetchUserProfile } = useUserStore()
-    const { tablesFollowTheme, setTablesFollowTheme } = useAppTheme()
     const [form] = Form.useForm()
     const tableThemes = useTableThemes()
     // A profile that names no theme draws its tables with the formatting of the Excel file. Built once per read of
@@ -33,12 +31,6 @@ export const UserSettings: React.FC = () => {
             form.setFieldsValue(profile)
         }
     }, [form, profile])
-
-    // The choice the browser remembers is no part of the profile, so its field follows the choice alone: a save
-    // that changes it sets no other field back to the profile read before the save.
-    useEffect(() => {
-        form.setFieldsValue({ overrideWithStudioTheme: tablesFollowTheme })
-    }, [form, tablesFollowTheme])
 
     const testsPerPageOptions = [
         {
@@ -61,7 +53,7 @@ export const UserSettings: React.FC = () => {
 
     const [saving, setSaving] = useState(false)
 
-    const handleSubmit = async ({ overrideWithStudioTheme, ...values }: UserProfileFormFields) => {
+    const handleSubmit = async (values: UserProfileFormFields) => {
         try {
             setSaving(true)
             // Only what was changed here: the rest of the profile keeps what is stored, whatever was saved meanwhile.
@@ -73,8 +65,6 @@ export const UserSettings: React.FC = () => {
                 },
                 body: JSON.stringify(body)
             })
-            // Kept by the browser, as the Studio theme is, once the profile is saved with it.
-            setTablesFollowTheme(overrideWithStudioTheme === true)
             await fetchUserProfile()
             notification.success({ title: t('users:user_settings_updated_successfully') })
         } catch (error) {
@@ -88,7 +78,7 @@ export const UserSettings: React.FC = () => {
         <Form
             labelWrap
             form={form}
-            {...(profile && { initialValues: { ...profile, overrideWithStudioTheme: tablesFollowTheme } })}
+            {...(profile && { initialValues: profile })}
             labelAlign="right"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={handleSubmit}

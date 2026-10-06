@@ -30317,6 +30317,10 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           },
+          "overrideWithStudioTheme": {
+            "type": "boolean",
+            "description": "***"
+          },
           "showComplexResult": {
             "type": "boolean",
             "description": "***"
@@ -30390,6 +30394,10 @@ Content-Type: application/json
             "example": "Doe",
             "maxLength": 25,
             "minLength": 0
+          },
+          "overrideWithStudioTheme": {
+            "type": "boolean",
+            "description": "***"
           },
           "showComplexResult": {
             "type": "boolean",

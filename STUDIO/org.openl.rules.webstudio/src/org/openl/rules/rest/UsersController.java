@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.rest.model.ChangePasswordModel;
 import org.openl.rules.rest.model.GroupModel;
 import org.openl.rules.rest.model.GroupType;
@@ -66,15 +65,6 @@ import org.openl.util.StringUtils;
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Users")
 public class UsersController {
-
-    private static final String TABLE_VIEW = "table.view";
-    private static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
-    private static final String TABLE_THEME = "table.theme";
-    private static final String TEST_TESTS_PERPAGE = "test.tests.perpage";
-    private static final String TEST_FAILURES_ONLY = "test.failures.only";
-    private static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
-    private static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
-    private static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
 
     private final UserManagementService userManagementService;
     private final boolean canCreateInternalUsers;
@@ -208,9 +198,10 @@ public class UsersController {
         // The details and the settings are saved together, so a failure leaves the profile as it was, and the
         // verification link is mailed only once the new e-mail is saved.
         var verifyEmail = txTemplate.execute(status -> {
-            var dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+            var username = currentUserInfo.getUserName();
+            var dbUser = userManagementService.getUser(username);
             var emailChanged = updateCurrentUserData(dbUser, withStoredDetails(userModel, dbUser), newPassword);
-            updateUserSettings(userModel);
+            userModel.store((key, value) -> userSettingsManager.setProperty(username, key, value));
             return emailChanged;
         });
         if (Boolean.TRUE.equals(verifyEmail)) {
@@ -250,32 +241,6 @@ public class UsersController {
                 .setDisplayName(ObjectUtils.firstNonNull(sent.getDisplayName(), stored.getDisplayName()));
     }
 
-    private void updateUserSettings(UserProfileEditModel settings) {
-        var username = currentUserInfo.getUserName();
-        var showHeader = settings.getShowHeader();
-        if (showHeader != null) {
-            saveSetting(username,
-                    TABLE_VIEW,
-                    showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
-        }
-        saveSetting(username, TABLE_FORMULAS_SHOW, settings.getShowFormulas());
-        saveSetting(username, TABLE_THEME, settings.getTableTheme());
-        saveSetting(username, TEST_TESTS_PERPAGE, settings.getTestsPerPage());
-        saveSetting(username, TEST_FAILURES_ONLY, settings.getTestsFailuresOnly());
-        saveSetting(username, TEST_FAILURES_PERTEST, settings.getTestsFailuresPerTest());
-        saveSetting(username, TEST_RESULT_COMPLEX_SHOW, settings.getShowComplexResult());
-        saveSetting(username, TRACE_REALNUMBERS_SHOW, settings.getShowRealNumbers());
-    }
-
-    /**
-     * Saves a setting that the request carries. A setting left out keeps its stored value.
-     */
-    private void saveSetting(String username, String key, @Nullable Object value) {
-        if (value != null) {
-            userSettingsManager.setProperty(username, key, value.toString());
-        }
-    }
-
     @Operation(description = "users.get-user-profile.desc", summary = "users.get-user-profile.summary")
     @GetMapping("/profile")
     public UserProfileModel getUserProfile() {
@@ -284,23 +249,16 @@ public class UsersController {
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var isAdmin = SecurityUtils.hasAuthority(authentication, Privileges.ADMIN.getAuthority());
-        var settings = userSettingsManager.getSettings(user.getUsername());
 
-        return new UserProfileModel().setFirstName(user.getFirstName())
+        var profile = new UserProfileModel().setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setEmail(user.getEmail())
-                .setShowHeader(IXlsTableNames.VIEW_DEVELOPER.equals(settings.getString(TABLE_VIEW)))
-                .setShowFormulas(settings.getBoolean(TABLE_FORMULAS_SHOW))
-                .setTableTheme(settings.getString(TABLE_THEME))
-                .setTestsPerPage(settings.getInteger(TEST_TESTS_PERPAGE))
-                .setTestsFailuresOnly(settings.getBoolean(TEST_FAILURES_ONLY))
-                .setTestsFailuresPerTest(settings.getInteger(TEST_FAILURES_PERTEST))
-                .setShowComplexResult(settings.getBoolean(TEST_RESULT_COMPLEX_SHOW))
-                .setShowRealNumbers(settings.getBoolean(TRACE_REALNUMBERS_SHOW))
                 .setDisplayName(user.getDisplayName())
                 .setUsername(user.getUsername())
                 .setExternalFlags(user.getExternalFlags())
                 .setAdministrator(isAdmin);
+        profile.load(userSettingsManager.getSettings(user.getUsername()));
+        return profile;
     }
 
     @Operation(description = "users.delete-user.desc", summary = "users.delete-user.summary")

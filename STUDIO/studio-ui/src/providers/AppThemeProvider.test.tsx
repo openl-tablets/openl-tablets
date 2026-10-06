@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { theme as antdTheme } from 'antd'
 import { createStyles } from 'antd-style'
 import { AppThemeProvider, densityTheme, useAppTheme } from './AppThemeProvider'
-import { THEME_COMPACT_KEY, THEME_MODE_KEY, THEME_NAME_KEY, THEME_TABLES_KEY } from '../utils/themeMode'
+import { THEME_COMPACT_KEY, THEME_MODE_KEY, THEME_NAME_KEY } from '../utils/themeMode'
 import { paletteFor } from '../testing/theme'
 
 // A co-located style, the way every component writes one — it must see the palette in force.
@@ -15,7 +15,7 @@ const usePaletteStyles = createStyles(({ css, token }) => ({
 
 const ThemeProbe = () => {
     const { isDarkMode, setThemeMode, themeMode } = useThemeMode()
-    const { compact, setCompact, setTablesFollowTheme, setThemeName, tablesFollowTheme, themeName } = useAppTheme()
+    const { compact, setCompact, setThemeName, themeName } = useAppTheme()
     const { theme } = usePaletteStyles()
 
     return (
@@ -24,14 +24,12 @@ const ThemeProbe = () => {
             <span data-testid="dark">{String(isDarkMode)}</span>
             <span data-testid="compact">{String(compact)}</span>
             <span data-testid="theme">{themeName}</span>
-            <span data-testid="tables">{String(tablesFollowTheme)}</span>
             <span data-testid="palette">{theme.openl.primary}</span>
             <span data-testid="primary">{theme.colorPrimary}</span>
             <span data-testid="surface">{theme.colorBgContainer}</span>
             <button onClick={() => setThemeMode('dark')} type="button">go dark</button>
             <button onClick={() => setCompact(!compact)} type="button">toggle density</button>
             <button onClick={() => setThemeName('dracula')} type="button">go dracula</button>
-            <button onClick={() => setTablesFollowTheme(!tablesFollowTheme)} type="button">toggle tables</button>
         </>
     )
 }
@@ -128,26 +126,6 @@ describe('AppThemeProvider', () => {
         expect(screen.getByTestId('primary').textContent).toBe(paletteFor('dracula', false).primary)
         expect(screen.getByTestId('surface').textContent).toBe('#fffbeb')
         expect(localStorage.getItem(THEME_NAME_KEY)).toBe('dracula')
-    })
-
-    it('draws the tables in the colours of their table theme until asked for the theme, remembering the choice',
-        async () => {
-            renderProbe()
-
-            expect(screen.getByTestId('tables').textContent).toBe('false')
-
-            await userEvent.click(screen.getByText('toggle tables'))
-
-            expect(screen.getByTestId('tables').textContent).toBe('true')
-            expect(localStorage.getItem(THEME_TABLES_KEY)).toBe('true')
-        })
-
-    it('starts with the tables in the colours chosen on the previous visit', () => {
-        localStorage.setItem(THEME_TABLES_KEY, 'true')
-
-        renderProbe()
-
-        expect(screen.getByTestId('tables').textContent).toBe('true')
     })
 
     it('keeps the theme and the appearance independent', () => {

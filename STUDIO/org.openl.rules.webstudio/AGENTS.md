@@ -116,6 +116,17 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   return it with `releaseUserWorkspace`; never call `UserWorkspace.release()` directly — other clients of the user
   still work in it.
 
+## User Settings
+
+- **A user setting is a field of the profile.** Every setting of **My Settings** is kept on the server, so it follows
+  the user from browser to browser and no user reads another's (`task_EPBDS-7164-user-settings` of
+  `itest.studio/users`). `UserProfileBaseModel` names the key each one is stored under, reads the settings of the
+  user (`load`) and saves the ones a request carries (`store`), as `AdministrationSettings` does for the settings of
+  the system, so no controller names the key of a setting, and a new setting adds a field to the profile and nothing
+  else to the API. The default of each is in `openl-default.properties` under *Default values for user settings*,
+  and `UserSettingManagementService` stores a value only where it differs from the default. The same store keeps the
+  e-mail verification token (`MailController`), which is no setting and never part of the profile.
+
 ## Request Validation
 
 - **A `@RequestBody` needs `@Valid`** for its bean constraints to run. Without it, `@ProjectNameConstraint`, `@NotBlank`,

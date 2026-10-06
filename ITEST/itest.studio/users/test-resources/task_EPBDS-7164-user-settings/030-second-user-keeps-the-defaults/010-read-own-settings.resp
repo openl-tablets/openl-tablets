@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "username": "bob",
+  "email": "bob@example.com",
+  "displayName": "Bob Green",
+  "firstName": "Bob",
+  "lastName": "Green",
+  "showHeader": true,
+  "showFormulas": false,
+  "overrideWithStudioTheme": false,
+  "testsPerPage": 5,
+  "testsFailuresOnly": false,
+  "testsFailuresPerTest": 5,
+  "showComplexResult": false,
+  "showRealNumbers": false,
+  "administrator": false,
+  "externalFlags": {
+    "lastNameExternal": false,
+    "emailExternal": false,
+    "emailVerified": false,
+    "displayNameExternal": false,
+    "firstNameExternal": false
+  }
+}
