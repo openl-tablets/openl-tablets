@@ -36,6 +36,7 @@ i18next.addResourceBundle('en', 'repository', {
     secret_key: 'Secret key',
     listener_timer_period_sec: 'Listener timer period (sec)',
     sse_algorithm: 'SSE algorithm',
+    sse_kms_key_id: 'KMS key ID',
     none: 'None',
     home: {
         tree: {

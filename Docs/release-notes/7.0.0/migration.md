@@ -462,6 +462,21 @@ everyone who calls that API from outside the browser.
   upgrade headers and an idle timeout long enough for a connection that stays open. It no longer shares a location
   with `/rest`.
 
+* **The `sse-algorithm` of an AWS S3 repository now encrypts the objects, and the new `sse-kms-key-id` chooses the
+  KMS key.** Before, OpenL only saved the value in the metadata of each object, so the default encryption of the
+  bucket applied whatever the value was. Now every object that OpenL writes is sent with the algorithm. Objects
+  written before the upgrade keep their encryption.
+
+  - With `aws:kms` or `aws:kms:dsse`, grant the identity that OpenL uses the `kms:GenerateDataKey` and `kms:Decrypt`
+    permissions on the key.
+  - Clear the setting for a storage that is compatible with S3 but does not support the algorithm, because it refuses
+    the writes.
+  - A value that the S3 API does not define, such as `AWS_KMS`, or a key set for another algorithm is refused. OpenL
+    Rule Services does not start, OpenL Studio does not save the repository settings, and a repository that is
+    configured in the properties file is shown as failed, with the reason in the log.
+  - OpenL Studio saved the text `null` when **None** was chosen. It is read as no algorithm, and the next save of the
+    repository settings removes it.
+
 * **An e-mail verification link deployed under a context path containing `web` is fixed.** With the default
   `/webstudio` context path the link previously lost that path and did not resolve. No action is required
   beyond upgrading; a link sent by an earlier version stays broken.

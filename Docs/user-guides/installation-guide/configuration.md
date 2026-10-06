@@ -331,6 +331,37 @@ driver-specific parameter such as `sslmode` for PostgreSQL, in the driver, or in
 | Secret key             | `.secret-key`            |
 | Listener period        | `.listener-timer-period` |
 | SSE algorithm          | `.sse-algorithm`         |
+| KMS key ID             | `.sse-kms-key-id`        |
+
+##### Server-Side Encryption
+
+The **SSE algorithm** field sets the server-side encryption that OpenL requests for every object it writes to the
+bucket: when it saves or deploys a project, when it restores a revision, and when it updates the service object
+`.openl-settings/.modification` that signals a change of the repository. Objects that are already in the bucket keep
+their encryption. An empty value, shown as **None**, requests no encryption, so the default encryption of the bucket
+applies.
+
+The value is one of the algorithms that the AWS S3 API defines:
+
+- **`AES256`** — Amazon S3 managed keys (SSE-S3).
+- **`aws:kms`** — AWS Key Management Service (AWS KMS) keys (SSE-KMS).
+- **`aws:kms:dsse`** — dual-layer encryption with AWS KMS keys (DSSE-KMS).
+- **`aws:fsx`** and **`aws:backup`** — values of other AWS services that the S3 API accepts. OpenL sends them as they
+  are, and S3 decides whether the bucket accepts them.
+
+The names are case-sensitive. A value that is not listed, such as `AES-256`, is refused: OpenL Studio does not save the
+settings and shows the reason, and OpenL Rule Services does not start.
+
+The **KMS key ID** field is available for `aws:kms` and `aws:kms:dsse` and takes the ID, the ARN, or the alias of a
+symmetric encryption key of AWS KMS from the Region of the bucket. Without a key, AWS uses its managed key `aws/s3`.
+A key set for any other algorithm is refused in the same way.
+
+- Prefer the full ARN of a customer managed key. AWS KMS resolves an alias in the account of the requester, and a key
+  of another account must be given as an ARN.
+- A bucket policy that denies an upload without the `x-amz-server-side-encryption-aws-kms-key-id` header accepts the
+  objects of OpenL only when the key is set.
+- The identity that OpenL uses to access the bucket needs the `kms:GenerateDataKey` permission on the key to write
+  objects and the `kms:Decrypt` permission on it to read them.
 
 #### Azure Blob Storage
 
@@ -519,12 +550,15 @@ repository.production.bucket-name = openl-rules-prod
 repository.production.region-name = eu-central-1
 repository.production.access-key = AKIAIOSFODNN7EXAMPLE
 repository.production.secret-key = ENC(uVwXyZaBcDeFgHiJkLmN==)
+repository.production.sse-algorithm = aws:kms
+repository.production.sse-kms-key-id = arn:aws:kms:eu-central-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
 repository.production.base.path = deploy/
 repository.production.deploy-from-branch = MAIN_BRANCH
 ```
 
 Leave the access and secret keys empty to let the AWS SDK resolve credentials from the environment, an instance
-profile, or another standard location.
+profile, or another standard location. For the SSE algorithm and the KMS key, see
+[Server-Side Encryption](#server-side-encryption).
 
 ### Two Design Repositories
 

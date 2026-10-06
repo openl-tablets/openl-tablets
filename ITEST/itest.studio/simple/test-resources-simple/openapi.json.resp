@@ -20353,6 +20353,10 @@ Content-Type: application/json
                   "aws:kms:dsse",
                   "null"
                 ]
+              },
+              "sseKmsKeyId": {
+                "type": "string",
+                "description": "***"
               }
             }
           }

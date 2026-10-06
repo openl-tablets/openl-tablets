@@ -20,6 +20,8 @@ To add a repository, proceed as follows:
 
     For more information on repository settings, see [OpenL Tablets Rule Services Usage and Customization Guide > Configuring a Data Source](../../../rule-services/configuration.md#configuring-a-data-source).
 
+    For **AWS S3**, the **SSE algorithm** field sets the server-side encryption of the stored objects, and the **KMS key ID** field, which is available for the algorithms that use AWS KMS, chooses the key. For the values and the permissions of the key, see [OpenL Tablets Installation Guide > Server-Side Encryption](../../../installation-guide/configuration.md#server-side-encryption).
+
 5.  Provide the URL value.
 
     The following table provides examples of JDBC URL values for different databases.

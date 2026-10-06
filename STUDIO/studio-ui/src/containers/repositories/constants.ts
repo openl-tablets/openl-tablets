@@ -9,10 +9,15 @@ export const RepositoryType = {
 
 export const AWS_SSE_ALGORITHM = {
     AES256: 'AES256',
+    AWS_FSX: 'aws:fsx',
+    AWS_BACKUP: 'aws:backup',
     AWS_KMS: 'aws:kms',
     AWS_KMS_DSSE: 'aws:kms:dsse',
     UNKNOWN_TO_SDK_VERSION: 'None'
 } as Record<string, string>
+
+/** The algorithms that encrypt with an AWS KMS key. */
+export const AWS_KMS_SSE_ALGORITHMS = ['AWS_KMS', 'AWS_KMS_DSSE']
 
 export enum RepositoryDataType {
     DESIGN = 'design',
