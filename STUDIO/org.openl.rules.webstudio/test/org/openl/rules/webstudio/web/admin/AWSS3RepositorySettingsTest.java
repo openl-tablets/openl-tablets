@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 import org.openl.config.InMemoryProperties;
 
 /**
- * The server-side encryption settings of an AWS S3 repository, as OpenL Studio reads, validates and stores them.
+ * The settings of an AWS S3 repository, as OpenL Studio reads, validates, stores and reverts them.
  *
  * @author Yury Molchan
  */
@@ -25,6 +26,7 @@ class AWSS3RepositorySettingsTest {
 
     private static final String ALGORITHM = "repository.s3.sse-algorithm";
     private static final String KMS_KEY = "repository.s3.sse-kms-key-id";
+    private static final String SERVICE_ENDPOINT = "repository.s3.service-endpoint";
 
     private static InMemoryProperties properties(Map<String, Object> stored) {
         var environment = new StandardEnvironment();
@@ -95,5 +97,19 @@ class AWSS3RepositorySettingsTest {
         assertSame(ServerSideEncryption.AWS_KMS, settings.getSseAlgorithm());
         assertEquals("alias/openl", settings.getSseKmsKeyId());
         assertNull(target.getConfig().get(KMS_KEY));
+    }
+
+    @Test
+    void revertsTheServiceEndpoint() {
+        var target = properties(Map.of(SERVICE_ENDPOINT, "http://minio:9000"));
+        var settings = settings(target);
+        settings.setServiceEndpoint("http://changed:9000");
+        settings.store(target);
+
+        settings.revert(target);
+
+        assertEquals("http://minio:9000", settings.getServiceEndpoint());
+        assertTrue(target.getConfig().containsKey(SERVICE_ENDPOINT));
+        assertNull(target.getConfig().get(SERVICE_ENDPOINT));
     }
 }

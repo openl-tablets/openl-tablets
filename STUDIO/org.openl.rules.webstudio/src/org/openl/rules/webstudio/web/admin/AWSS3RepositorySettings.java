@@ -160,7 +160,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(
-                serviceEndpoint,
+                serviceEndpointPath,
                 bucketNamePath,
                 regionNamePath,
                 accessKeyPath,
