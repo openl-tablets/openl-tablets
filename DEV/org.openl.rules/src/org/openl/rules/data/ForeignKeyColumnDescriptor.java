@@ -184,8 +184,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 foreignKeyColumnChainTokens = ArrayUtils.add(foreignKeyColumnChainTokens,
                         foreignTable.getColumnName(foreignKeyIndex));
                 var foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor(foreignKeyIndex);
-                if (foreignColumnDescriptor
-                        .isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
+                if (foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor descriptor
+                        && descriptor.isReference()) {
                     // In the case when foreign key is like: ">policies.driver"
                     var endOfChain = descriptor.foreignKeyColumnChainTokens;
                     foreignKeyColumnChainTokens = ArrayUtils.addAll(foreignKeyColumnChainTokens, endOfChain);
@@ -612,7 +612,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private DomainOpenClass getDomainClass(ITable foreignTable, int foreignKeyIndex) throws SyntaxNodeException {
-        if (getField() == null) {
+        // A key column with no field holds no keys to choose from.
+        if (getField() == null || foreignTable.getColumnDescriptor(foreignKeyIndex) == null) {
             return null;
         }
         final var foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);

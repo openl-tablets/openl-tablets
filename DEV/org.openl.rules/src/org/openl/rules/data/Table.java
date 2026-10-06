@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -115,13 +116,10 @@ public class Table implements ITable {
 
     @Override
     public IOpenClass getColumnType(int n) {
-        var descriptor = dataModel.getDescriptor(n);
-
-        if (!descriptor.isConstructor()) {
-            return descriptor.getType();
-        }
-
-        return null;
+        return Optional.ofNullable(dataModel.getDescriptor(n))
+                .filter(descriptor -> !descriptor.isConstructor())
+                .map(ColumnDescriptor::getType)
+                .orElse(null);
     }
 
     @Override
@@ -399,8 +397,9 @@ public class Table implements ITable {
         var foreignKeyIndex = 0;
         var foreignDataModel = foreignTable.getDataModel();
         var d1 = foreignDataModel.getDescriptors()[0];
-        if (!d1.isPrimaryKey()) {
-            var firstColDescriptor = foreignDataModel.getDescriptor(0);
+        var firstColDescriptor = foreignDataModel.getDescriptor(0);
+        // A first column with no field holds no keys to index.
+        if (!d1.isPrimaryKey() && firstColDescriptor != null) {
             if (firstColDescriptor.isPrimaryKey()) {
                 // first column is primary key for another level. So return column index for first
                 // descriptor
@@ -798,17 +797,10 @@ public class Table implements ITable {
 
     @Override
     public Object findObject(int columnIndex, String skey, IBindingContext cxt) {
-        var descriptor = dataModel.getDescriptor(columnIndex);
-
-        Map<String, Integer> index = descriptor.getUniqueIndex(this, columnIndex, cxt);
-
-        var found = index.get(skey);
-
-        if (found == null) {
-            return null;
-        }
-
-        return Array.get(dataArray, found);
+        return Optional.ofNullable(dataModel.getDescriptor(columnIndex))
+                .map(descriptor -> descriptor.getUniqueIndex(this, columnIndex, cxt).get(skey))
+                .map(found -> Array.get(dataArray, found))
+                .orElse(null);
     }
 
     private void addToRowIndex(int rowIndex, Object target) {
