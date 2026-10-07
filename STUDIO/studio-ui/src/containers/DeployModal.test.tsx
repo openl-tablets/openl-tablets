@@ -250,6 +250,12 @@ describe('DeployModal', () => {
             detail: { projectId: 'proj-1' },
             type: 'projectDeployed',
         }))
+        // Deploying into an existing deployment says the project was deployed, once.
+        expect(notification.success).toHaveBeenCalledTimes(1)
+        expect(notification.success).toHaveBeenCalledWith(expect.objectContaining({
+            title: 'deploy:notifications.deploy_success',
+            description: 'deploy:notifications.deploy_success_description',
+        }))
         window.removeEventListener('projectDeployed', deployed)
     })
 
@@ -314,7 +320,11 @@ describe('DeployModal', () => {
             }),
             { throwError: true, suppressErrorPages: true }
         ))
-        expect(notification.success).toHaveBeenCalled()
+        // A new deployment says the same: the project was deployed.
+        await waitFor(() => expect(notification.success).toHaveBeenCalledTimes(1))
+        expect(notification.success).toHaveBeenCalledWith(expect.objectContaining({
+            title: 'deploy:notifications.deploy_success',
+        }))
     })
 
     it('shows a warning when deploy is forbidden', async () => {
