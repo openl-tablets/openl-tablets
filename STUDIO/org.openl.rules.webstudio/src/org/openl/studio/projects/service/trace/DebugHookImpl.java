@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.dt.ActionInvoker;
@@ -60,6 +61,14 @@ final class DebugHookImpl implements DebugHook {
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
     private @Nullable Throwable brokenException;
+    /**
+     * The stack as it was where a stack overflow surfaced, kept until the error reaches the root call.
+     *
+     * <p>Parking needs stack, and an overflowing run has none left: an attempt to park there overflows again and
+     * unwinds a little further each time. So the run parks once the error has unwound to the root call, and shows
+     * this stack there. {@code null} when no overflow is on its way up.
+     */
+    private @Nullable List<DebugFrame> overflowStack;
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
     private boolean profiling;
     /** Build the classic detailed titles (signature, result, cell values) into the tree — the business view only. */
@@ -363,6 +372,8 @@ final class DebugHookImpl implements DebugHook {
             handleEvent(DebugEvent.ENTER, depth, descriptor.uri(), null, descriptor.name(),
                     frame.getInvocationIndex());
             R result = executor.invoke(target, params, env);
+            // A frame that returns has caught an overflow on its way up, so there is no failure left to show.
+            overflowStack = null;
             frame.completeWith(result);
             // Time the frame the moment it finishes, before Step Out can suspend at its exit, so a completed
             // frame already on the stack carries its timing.
@@ -444,7 +455,7 @@ final class DebugHookImpl implements DebugHook {
             throw new DebugTerminationError();
         }
         if (stepController.shouldSuspend(event, depth, uri, location, name, instance)) {
-            suspendAndAwait(depth);
+            suspendAndAwait(depth, rootToTop());
         }
     }
 
@@ -456,23 +467,43 @@ final class DebugHookImpl implements DebugHook {
      * <p>Every live frame on the stack is stamped with the same throwable. The business view keeps a
      * clicked ancestor selected when the run parks deeper on the throwing frame; without the stamp those
      * callers would show {@code = ERROR} in the tree but have empty error details when inspected.
+     *
+     * <p>A stack overflow breaks at the root call instead, once the error has unwound there, and shows the
+     * stack as it was where the stack ran out. Every frame on it has failed by then.
      */
     private void breakOnException(int depth, Throwable ex) {
         if (!breakOnErrors || ex == brokenException || channel.isTerminateRequested()) {
             return;
         }
+        var overflow = ExceptionUtils.indexOfType(ex, StackOverflowError.class) >= 0;
+        if (overflow && depth > 1) {
+            // No stack is left to park on: keep the stack where it overflowed, once, and park at the root call.
+            if (overflowStack == null) {
+                markErrors(ex);
+                overflowStack = rootToTop();
+            }
+            return;
+        }
+        markErrors(ex);
         brokenException = ex;
+        // Another error raised after code caught the overflow parks on the stack it is raised on.
+        var shown = overflow && overflowStack != null ? overflowStack : rootToTop();
+        overflowStack = null;
+        suspendAndAwait(depth, shown);
+    }
+
+    /** Stamp every live frame that has not failed yet with the error, so inspecting it reads the failure. */
+    private void markErrors(Throwable ex) {
         for (DebugFrame frame : stack) {
             if (frame.getError() == null) {
                 frame.markError(ex);
             }
         }
-        suspendAndAwait(depth);
     }
 
-    /** Publish the current stack, park the worker as suspended, then re-arm stepping from the resuming command. */
-    private void suspendAndAwait(int depth) {
-        publishSnapshot();
+    /** Publish the given stack, park the worker as suspended, then re-arm stepping from the resuming command. */
+    private void suspendAndAwait(int depth, List<DebugFrame> shown) {
+        published.set(shown);
         listener.onStatusChanged(DebugStatus.SUSPENDED);
         long parkStart = System.nanoTime();
         DebugCommand command = channel.awaitCommand();
@@ -480,13 +511,9 @@ final class DebugHookImpl implements DebugHook {
         stepController.arm(command, depth);
     }
 
-    private void publishSnapshot() {
-        List<DebugFrame> rootToTop = new ArrayList<>(stack.size());
-        Iterator<DebugFrame> it = stack.descendingIterator();
-        while (it.hasNext()) {
-            rootToTop.add(it.next());
-        }
-        published.set(List.copyOf(rootToTop));
+    /** The live stack, ordered from the root call to the current frame. */
+    private List<DebugFrame> rootToTop() {
+        return List.copyOf(stack.reversed());
     }
 
     /** The most recently published stack, ordered from the root call to the current frame. */

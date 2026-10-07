@@ -141,7 +141,9 @@ via `PUT /breakpoints`) apply immediately.
   **active** frame, so stepping does not re-send every frame's `steps`; read another frame's steps with
   `GET /stack?view=full` or its variables endpoint.
 - `breakOnErrors` (boolean, default `true`) — suspend on the frame that throws an uncaught rule error so it can be
-  inspected. With `false` the error ends the run, and the executed tree with the failed branch is returned whole.
+  inspected. A `StackOverflowError` leaves no stack to suspend on, so the run suspends once the error reaches the
+  root call, and the stack shown is the one where the overflow happened. With `false` the error ends the run, and
+  the executed tree with the failed branch is returned whole.
 - `detailedTitles` (boolean, default `false`) — build the detailed titles into the executed tree: each table node reads
   as its signature and result, and each spreadsheet cell as its value. It carries the values of the run, so it is off
   by default.

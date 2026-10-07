@@ -185,6 +185,11 @@ Two refinements on top of the threshold:
   the business view does when a click keeps the selected table while the run parks deeper) still returns
   the error details. The stack view's `error` flag stays on the completed throwing frame only, so
   Advanced Trace still marks waiting callers distinctly from the failed frame.
+- **A stack overflow breaks at the root call.** Parking needs stack, and a `StackOverflowError` leaves the
+  worker none: an attempt to park on the throwing frame overflows again, and used to park a little higher
+  each time while the client read a stack that kept changing. The hook keeps the stack as it was where the
+  overflow surfaced, lets the error unwind to the root call, and parks there once, showing the kept stack.
+  Every frame on it has failed by then, so each carries the `error` flag.
 
 The hook evaluates this at every safepoint (a frame enter, a frame exit, or a current-line change):
 
