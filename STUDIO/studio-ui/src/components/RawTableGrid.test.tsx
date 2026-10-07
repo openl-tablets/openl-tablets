@@ -38,6 +38,26 @@ describe('RawTableGrid', () => {
         expect(cells[1]).toHaveTextContent('String')
     })
 
+    // A row whose cells all run on into the next one would otherwise fold away, and a1 would read as covering
+    // one rule while a2 covered two.
+    it('stands every row at least one line tall, a row of cells merged into the next one included', () => {
+        const staggered: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'a1', rowspan: 2 }, { cell: 'B1', value: 'false' }, { cell: 'C1', value: 'AAA' }],
+            [{ covered: true }, { cell: 'B2', value: 'true', rowspan: 3 }, { cell: 'C2', value: 'BBB', rowspan: 3 }],
+            [{ cell: 'A3', value: 'a2', rowspan: 2 }, { covered: true }, { covered: true }],
+            [{ covered: true }, { covered: true }, { covered: true }],
+            [{ cell: 'A5', value: 'a3' }, { cell: 'B5', value: 'false' }, { cell: 'C5', value: 'CCC' }],
+        ]
+        render(<RawTableGrid rows={staggered} testId="grid" />)
+
+        const heights = [...screen.getByTestId('grid').querySelectorAll('tr')].map(line => getComputedStyle(line).height)
+        expect(heights).toHaveLength(5)
+        // The second row has no cell of its own height, the fourth no cell at all: both are given the same line
+        // as the others.
+        expect(new Set(heights).size).toBe(1)
+        expect(Number.parseFloat(heights[0]!)).toBeGreaterThan(0)
+    })
+
     it('numbers the lines of data down the side of a table written the usual way round', () => {
         const table: RawTableCell[][] = [
             [{ cell: 'A1', value: 'Test greeting greetingTest' }, { covered: true }],
