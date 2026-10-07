@@ -366,9 +366,10 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 - **A component drawn many times over reads no styles of its own.** antd-style's `useStyles()` copies the whole
   theme for every component that calls it, about 40 KB each: a table of test results with a hook in every cell
   ran the browser out of memory. Whatever draws the many — a list, a table, a tree — reads the styles once and
-  hands them down as a prop, typed off the hook (`ReturnType<typeof useStyles>['styles']`). `useValueStyles()`
-  with `ValueCell` shows it for the values of a test run, `RawTableGrid` with `RawTableCellText` for the cells
-  of a workbook table. A part that needs no class of its own takes no hook at all.
+  hands them down as a prop, typed off the hook (`ReturnType<typeof useStyles>['styles']`, or the whole hook
+  result when the part also needs `cx`). `useValueStyles()` with `ValueCell` shows it for the values of a test
+  run, `RawTableGrid` with `RawTableCellText` for the cells of a workbook table, `TraceTree` with `Twisty` and
+  `DispatchBadge` for the rows of a trace. A part that needs no class of its own takes no hook at all.
 - **What is being written lives in the cell it is written in.** A table draws every cell it holds on every
   render, so a draft kept in the table's own state redraws all of them at every keystroke — on a 22 000-cell
   test table a key cost an extra frame, 67 ms against 34. `OpenCell` in `containers/modules` owns the draft

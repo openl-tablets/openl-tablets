@@ -3,16 +3,20 @@ import { Tooltip } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { DispatchInfo } from 'types/trace'
-import { useStyles } from './TraceTree.styles'
+import type { TraceTreeStyles } from './TraceTree.styles'
 
 /**
  * Badge on a dispatched table (versioned by dimension properties): the table is shown in place, badged
  * with the number of versions it was chosen from, and the tooltip lists them with the chosen one flagged.
  * Renders nothing for an undispatched table.
  */
-const DispatchBadge: React.FC<{ dispatch?: DispatchInfo | null | undefined }> = ({ dispatch }) => {
+const DispatchBadge: React.FC<{
+    dispatch?: DispatchInfo | null | undefined
+    /** The tree's styles, read once by the tree: a badge reads none of its own. */
+    treeStyles: TraceTreeStyles
+}> = ({ dispatch, treeStyles }) => {
     const { t } = useTranslation('trace')
-    const { styles, cx } = useStyles()
+    const { styles, cx } = treeStyles
     if (!dispatch || dispatch.candidates.length === 0) {
         return null
     }

@@ -306,3 +306,12 @@ export const useStyles = createStyles(({ css, token }) => ({
         }
     `,
 }))
+
+/**
+ * The tree's styles, as the tree that draws them reads them.
+ *
+ * Read once per tree and handed to its rows. `useStyles()` copies the whole theme for every component that calls
+ * it, so a hook in a row is a copy of the theme per row — a call stack hundreds of tables deep then keeps the tab
+ * busy for minutes before the tree is drawn.
+ */
+export type TraceTreeStyles = ReturnType<typeof useStyles>

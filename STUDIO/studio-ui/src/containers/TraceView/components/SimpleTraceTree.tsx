@@ -227,7 +227,8 @@ const collectErrorPath = (root: CallNodeView, open: Set<string>): void => {
  */
 const SimpleTraceTree: React.FC = () => {
     const { t } = useTranslation('trace')
-    const { styles, cx } = useStyles()
+    const treeStyles = useStyles()
+    const { styles, cx } = treeStyles
     const tree = useTraceStore(s => s.simpleTree)
     const children = useTraceStore(s => s.simpleChildren)
     const ready = useTraceStore(s => s.simpleReady)
@@ -290,7 +291,7 @@ const SimpleTraceTree: React.FC = () => {
     const toggle = (key: string): void => setExpanded(toggleKey(key))
 
     const twisty = (expandKey?: string): React.ReactNode =>
-        <Twisty expanded={expanded} expandKey={expandKey} onToggle={toggle} testIdPrefix="simple" />
+        <Twisty expanded={expanded} expandKey={expandKey} onToggle={toggle} testIdPrefix="simple" treeStyles={treeStyles} />
 
     const renderNode = (row: SimpleRow): React.ReactNode => {
         const node = row.node as CallNodeView
@@ -323,7 +324,7 @@ const SimpleTraceTree: React.FC = () => {
                 >
                     {node.name}
                 </Typography.Text>
-                <DispatchBadge dispatch={node.dispatch} />
+                <DispatchBadge dispatch={node.dispatch} treeStyles={treeStyles} />
             </div>
         )
     }
@@ -370,6 +371,7 @@ const SimpleTraceTree: React.FC = () => {
             depth={row.depth}
             step={row.step as StepValueView}
             testId={`simple-condition-${row.key}`}
+            treeStyles={treeStyles}
         />
     )
 
@@ -393,7 +395,7 @@ const SimpleTraceTree: React.FC = () => {
     }
 
     const renderNotRetained = (row: SimpleRow): React.ReactNode =>
-        <NotRetainedRow key={row.key} count={row.count ?? 0} depth={row.depth} />
+        <NotRetainedRow key={row.key} count={row.count ?? 0} depth={row.depth} treeStyles={treeStyles} />
 
     const render = (row: SimpleRow): React.ReactNode => {
         switch (row.type) {

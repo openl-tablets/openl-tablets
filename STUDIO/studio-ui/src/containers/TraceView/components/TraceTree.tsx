@@ -190,7 +190,8 @@ const rowTiming = (row: TreeRow, timeMode: TimeMode): number | null => {
  */
 const TraceTree: React.FC = () => {
     const { t } = useTranslation('trace')
-    const { styles, cx } = useStyles()
+    const treeStyles = useStyles()
+    const { styles, cx } = treeStyles
     const frames = useTraceStore(s => s.frames)
     const tree = useTraceStore(s => s.tree)
     const selectedFrameIndex = useTraceStore(s => s.selectedFrameIndex)
@@ -277,7 +278,7 @@ const TraceTree: React.FC = () => {
     }
 
     const twisty = (expandKey?: string): React.ReactNode =>
-        <Twisty expanded={expanded} expandKey={expandKey} onToggle={onToggle} testIdPrefix="tree" />
+        <Twisty expanded={expanded} expandKey={expandKey} onToggle={onToggle} testIdPrefix="tree" treeStyles={treeStyles} />
 
     // Plain, self-explanatory marks instead of coloured dots: a » points along the call path the
     // calculation is on right now (bright on the current line, muted on the callers waiting above it),
@@ -340,7 +341,7 @@ const TraceTree: React.FC = () => {
                     </Tooltip>
                 )}
                 <span className={styles.kind}>{frame.kind}</span>
-                <DispatchBadge dispatch={frame.dispatch} />
+                <DispatchBadge dispatch={frame.dispatch} treeStyles={treeStyles} />
                 {ms != null && durationCell(ms)}
                 {frame.completed && replayButton(`${frame.uri}@${frame.instance}`, frame.name,
                     `tree-replay-${frame.uri}`, t('tree.replayHint'))}
@@ -433,7 +434,7 @@ const TraceTree: React.FC = () => {
                 {kindIcon(node.kind)}
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
-                <DispatchBadge dispatch={node.dispatch} />
+                <DispatchBadge dispatch={node.dispatch} treeStyles={treeStyles} />
                 {ms != null && durationCell(ms)}
                 {replayButton(`${node.uri}@${node.instance}`, node.name, `tree-replay-${node.uri}`, t('tree.replayHint'))}
             </div>
@@ -448,6 +449,7 @@ const TraceTree: React.FC = () => {
             rowKey={row.key}
             step={row.step as StepValueView}
             testId={`tree-condition-${row.key}`}
+            treeStyles={treeStyles}
         />
     )
 
@@ -521,6 +523,7 @@ const TraceTree: React.FC = () => {
             count={row.moreCount ?? 0}
             depth={row.depth}
             testId={`tree-not-retained-${row.key}`}
+            treeStyles={treeStyles}
         />)
 
     const render = (row: TreeRow): React.ReactNode => {

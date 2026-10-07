@@ -1,7 +1,7 @@
 import React from 'react'
 import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useStyles } from './TraceTree.styles'
+import type { TraceTreeStyles } from './TraceTree.styles'
 
 /**
  * Row primitives shared by the advanced ({@link TraceTree}) and business ({@link SimpleTraceTree}) trees:
@@ -28,11 +28,13 @@ interface TwistyProps {
     onToggle: (key: string) => void
     /** Prefix for the toggle's data-testid, e.g. `tree` or `simple`. */
     testIdPrefix: string
+    /** The tree's styles, read once by the tree: a row reads none of its own. */
+    treeStyles: TraceTreeStyles
 }
 
 /** A chevron that expands/collapses a row, or an empty slot when the row has nothing to expand. */
-export const Twisty: React.FC<TwistyProps> = ({ expandKey, expanded, onToggle, testIdPrefix }) => {
-    const { styles } = useStyles()
+export const Twisty: React.FC<TwistyProps> = ({ expandKey, expanded, onToggle, testIdPrefix, treeStyles }) => {
+    const { styles } = treeStyles
     const { t } = useTranslation('trace')
     if (!expandKey) {
         return <span className={styles.chevronSlot} />
@@ -54,10 +56,14 @@ export const Twisty: React.FC<TwistyProps> = ({ expandKey, expanded, onToggle, t
 }
 
 /** The "+N sub-calls not retained" info row shown where the executed tree hit its size cap. */
-export const NotRetainedRow: React.FC<{ depth: number; count: number; testId?: string }> = (
-    { depth, count, testId }
-) => {
-    const { styles, cx } = useStyles()
+export const NotRetainedRow: React.FC<{
+    depth: number
+    count: number
+    testId?: string
+    /** The tree's styles, read once by the tree: a row reads none of its own. */
+    treeStyles: TraceTreeStyles
+}> = ({ depth, count, testId, treeStyles }) => {
+    const { styles, cx } = treeStyles
     const { t } = useTranslation('trace')
     return (
         <div className={cx(styles.row, styles.inactive, styles.notRetained)} data-testid={testId} style={treeIndent(depth)}>
