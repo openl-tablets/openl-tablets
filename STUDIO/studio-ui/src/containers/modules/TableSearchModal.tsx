@@ -13,10 +13,24 @@ import {
     type TableSearchScope,
 } from '../../services/modules'
 import { getProjectProperties } from '../../services/projects'
+import { isApiHttpError } from '../../services/apiCall'
 import { errorMessage } from '../../utils/errorMessage'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import { tableIcon } from './tableIcons'
+
+/**
+ * The longest text a field of the search takes.
+ *
+ * The search is asked in the address of the request, which the server takes up to a size it is configured with:
+ * 32 KB in the OpenL Studio image and the demo, 8 KB by default in Jetty. Three fields of this length fit in 32 KB
+ * however their characters are written, and in 8 KB when they are written in Latin letters. A longer address is
+ * refused, and the search then says so ({@link URI_TOO_LONG}).
+ */
+const SEARCH_TEXT_MAX_LENGTH = 1000
+
+/** The status Jetty answers an address too long for it with. */
+const URI_TOO_LONG = 414
 
 /** The families of table the search can narrow to, as the Tables API names them. */
 const KINDS = [
@@ -179,7 +193,7 @@ const TableSearchForm = ({
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [scope, setScope] = useState<TableSearchScope>('module')
-    const [name, setName] = useState(initialName)
+    const [name, setName] = useState(initialName.slice(0, SEARCH_TEXT_MAX_LENGTH))
     const [header, setHeader] = useState('')
     const [text, setText] = useState('')
     const [kinds, setKinds] = useState<string[]>([])
@@ -223,10 +237,13 @@ const TableSearchForm = ({
             .then(found => setResults(found))
             .catch((error: unknown) => {
                 setResults([])
-                setFailure(errorMessage(error))
+                // An address too long for the server is refused with no reason of its own: say what to change.
+                setFailure(isApiHttpError(error) && error.status === URI_TOO_LONG
+                    ? t('browser.module.search_too_long')
+                    : errorMessage(error))
             })
             .finally(() => setSearching(false))
-    }, [projectId, moduleName, scope, name, header, text, kinds, filters])
+    }, [projectId, moduleName, scope, name, header, text, kinds, filters, t])
 
     /** Where one result is written, which is the project and module its body is read through. */
     const at = (table: ModuleTable) => ({
@@ -361,15 +378,30 @@ const TableSearchForm = ({
                 </label>
                 <label className={styles.field}>
                     <span className={styles.label}>{t('browser.module.search_name')}</span>
-                    <Input data-testid="table-search-name" onChange={e => setName(e.target.value)} value={name} />
+                    <Input
+                        data-testid="table-search-name"
+                        maxLength={SEARCH_TEXT_MAX_LENGTH}
+                        onChange={e => setName(e.target.value)}
+                        value={name}
+                    />
                 </label>
                 <label className={styles.field}>
                     <span className={styles.label}>{t('browser.module.search_header')}</span>
-                    <Input data-testid="table-search-header" onChange={e => setHeader(e.target.value)} value={header} />
+                    <Input
+                        data-testid="table-search-header"
+                        maxLength={SEARCH_TEXT_MAX_LENGTH}
+                        onChange={e => setHeader(e.target.value)}
+                        value={header}
+                    />
                 </label>
                 <label className={cx(styles.field, styles.wide)}>
                     <span className={styles.label}>{t('browser.module.search_text')}</span>
-                    <Input data-testid="table-search-text" onChange={e => setText(e.target.value)} value={text} />
+                    <Input
+                        data-testid="table-search-text"
+                        maxLength={SEARCH_TEXT_MAX_LENGTH}
+                        onChange={e => setText(e.target.value)}
+                        value={text}
+                    />
                 </label>
                 <div className={cx(styles.field, styles.wide)}>
                     <span className={styles.label}>{t('browser.module.search_properties')}</span>

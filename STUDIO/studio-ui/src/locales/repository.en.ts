@@ -438,6 +438,7 @@ i18next.addResourceBundle('en', 'repository', {
             search_view_table: 'View table',
             search_body_part: 'First {{shown}} rows of {{total}} — the whole table opens in the editor',
             search_no_match: 'No table matches the search',
+            search_too_long: 'The search is too long for the server. Shorten the text or the property values it looks for.',
             no_match: 'No table matches the search',
             test_elsewhere: 'Written in project "{{project}}", which is not open here',
             problems: 'Problems',
