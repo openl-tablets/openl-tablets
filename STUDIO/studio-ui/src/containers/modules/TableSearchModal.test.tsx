@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable } from 'types/tables'
 import { getRawTable, searchTables } from '../../services/modules'
 import { getProjectProperties } from '../../services/projects'
+import { ApiHttpError } from '../../services/apiCall'
 import { TableSearchModal } from './TableSearchModal'
 
 vi.mock('react-i18next', () => {
@@ -294,5 +295,45 @@ describe('TableSearchModal', () => {
 
         await waitFor(() => expect(screen.getByTestId('table-search-results'))
             .toHaveTextContent('browser.module.search_no_match'))
+    })
+
+    // The search is asked in the address of the request, which the server takes up to a size.
+    it('takes no longer a text than the address of the search can carry', async () => {
+        render(
+            <TableSearchModal
+                open
+                initialName={'n'.repeat(5000)}
+                moduleName="Claims"
+                onClose={vi.fn()}
+                onOpen={vi.fn()}
+                projectId="p1"
+            />
+        )
+
+        expect(screen.getByTestId('table-search-name')).toHaveValue('n'.repeat(1000))
+        for (const field of ['table-search-name', 'table-search-header', 'table-search-text']) {
+            expect(screen.getByTestId(field)).toHaveAttribute('maxLength', '1000')
+        }
+        await userEvent.click(screen.getByTestId('table-search-run'))
+
+        expect(searchTables).toHaveBeenCalledWith('p1', expect.objectContaining({ name: 'n'.repeat(1000) }))
+    })
+
+    it('says the search is too long when the server refuses its address', async () => {
+        vi.mocked(searchTables).mockRejectedValue(new ApiHttpError(414, 'Something went wrong on API server!'))
+        open()
+
+        await userEvent.click(screen.getByTestId('table-search-run'))
+
+        expect(await screen.findByText('browser.module.search_too_long')).toBeInTheDocument()
+    })
+
+    it('says what failed when the search fails otherwise', async () => {
+        vi.mocked(searchTables).mockRejectedValue(new ApiHttpError(409, 'The project is not compiled yet'))
+        open()
+
+        await userEvent.click(screen.getByTestId('table-search-run'))
+
+        expect(await screen.findByText('The project is not compiled yet')).toBeInTheDocument()
     })
 })
