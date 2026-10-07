@@ -8,6 +8,7 @@ i18next.addResourceBundle('en', 'execution', {
         json: 'JSON',
         jsonPlaceholder: 'Input JSON here',
         jsonInvalid: 'Invalid JSON: {{message}}',
+        tooManyValues: 'The table takes {{count}} parameters, and the list gives more values',
         runtimeContext: 'Runtime Context',
         create: 'Create',
         edit: 'Edit',
