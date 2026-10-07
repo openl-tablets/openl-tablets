@@ -412,7 +412,9 @@ const SimpleTraceTree: React.FC = () => {
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
             </div>
-            {rows.map(render)}
+            <div className={styles.rows}>
+                {rows.map(render)}
+            </div>
         </div>
     )
 }
