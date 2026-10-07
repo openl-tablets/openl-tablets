@@ -561,7 +561,7 @@ const TraceTree: React.FC = () => {
             {truncated && (
                 <div className={styles.truncated} data-testid="trace-tree-truncated">{t('tree.truncated')}</div>
             )}
-            <div aria-label={t('tree.title')} role="tree">
+            <div aria-label={t('tree.title')} className={styles.rows} role="tree">
                 {rows.map(render)}
             </div>
         </div>

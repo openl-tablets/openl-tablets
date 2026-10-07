@@ -64,6 +64,14 @@ export const useStyles = createStyles(({ css, token }) => ({
         padding: ${token.paddingLG}px;
         color: ${token.colorTextSecondary};
     `,
+    // The rows of a tree: as wide as the widest row and never narrower than the panel, so a branch indented past
+    // the panel's edge scrolls into view whole, with its label and its highlight.
+    rows: css`
+        display: flex;
+        flex-direction: column;
+        width: min-content;
+        min-width: 100%;
+    `,
     row: css`
         display: flex;
         align-items: center;
@@ -133,10 +141,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         text-overflow: ellipsis;
     `,
     // A business-tree row's main label: takes the remaining width so a long detailed title truncates in place.
-    // Typography.Text then shows the full text on hover only when it does not fit.
+    // Typography.Text then shows the full text on hover only when it does not fit. However deep its row is
+    // indented, the label keeps a readable width: the rows widen past the panel instead, and scroll.
     labelText: css`
-        flex: 1;
-        min-width: 0;
+        flex: 1 0 auto;
+        width: 240px;
     `,
     // Executed-tree node header: a returned table, kept readable so its name and timing stand out.
     callNode: css`
