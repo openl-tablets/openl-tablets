@@ -2,6 +2,7 @@ package org.openl.studio.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.InvalidPathException;
@@ -11,6 +12,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.TypeDescriptor;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
@@ -53,6 +56,23 @@ class ApiExceptionControllerAdviceTest {
         var error = assertInstanceOf(BaseError.class, response.getBody());
         assertEquals("openl.error.400.default.message", error.code);
         assertEquals("Readable failure", error.message);
+    }
+
+    @Test
+    void committedResponseIsLeftAsItIs() {
+        // A body that failed half way through has already been sent in part: there is no error left to write.
+        var advice = advice();
+        var response = new MockHttpServletResponse();
+        response.setCommitted(true);
+        var request = new ServletWebRequest(new MockHttpServletRequest(), response);
+
+        var handled = advice.handleExceptionInternal(
+                new IllegalStateException("nesting depth"), null, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR,
+                request);
+
+        assertNull(handled);
+        assertNull(advice.handleTypeMismatch(new TypeMismatchException("x", Integer.class), new HttpHeaders(),
+                HttpStatus.BAD_REQUEST, request), "a type mismatch after the commit is left alone too");
     }
 
     @Test

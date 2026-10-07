@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionFailedException;
@@ -177,13 +178,22 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return handleExceptionInternal(e, body, new HttpHeaders(), status, request);
     }
 
+    /**
+     * Writes every error as a {@link BaseError}.
+     *
+     * <p>Returns {@code null} once the response is already committed, for example when its body failed half way
+     * through. Nothing can be sent then, and the failure is only logged.
+     */
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception e,
-                                                             Object body,
-                                                             HttpHeaders headers,
-                                                             HttpStatusCode status,
-                                                             WebRequest request) {
+    protected @Nullable ResponseEntity<Object> handleExceptionInternal(Exception e,
+                                                                       @Nullable Object body,
+                                                                       HttpHeaders headers,
+                                                                       HttpStatusCode status,
+                                                                       WebRequest request) {
         var handledEx = super.handleExceptionInternal(e, body, headers, status, request);
+        if (handledEx == null) {
+            return null;
+        }
         if (handledEx.hasBody()) {
             var handledBody = handledEx.getBody();
             if (handledBody instanceof BaseError) {
@@ -246,14 +256,17 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @Override
     @SuppressWarnings("unchecked")
-    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
-                                                        HttpHeaders headers,
-                                                        HttpStatusCode status,
-                                                        WebRequest request) {
+    protected @Nullable ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatusCode status,
+                                                                  WebRequest request) {
         if (ex.getCause() instanceof ConversionFailedException) {
             return (ResponseEntity<Object>) handleConversionFailedException((ConversionFailedException) ex.getCause(), request);
         }
         var handledEx = super.handleTypeMismatch(ex, headers, status, request);
+        if (handledEx == null) {
+            return null;
+        }
         return new ResponseEntity<>(exceptionMappingService.processException(ex), handledEx.getHeaders(), handledEx.getStatusCode());
     }
 
