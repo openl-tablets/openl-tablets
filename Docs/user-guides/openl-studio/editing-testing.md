@@ -223,9 +223,9 @@ included in this section:
 
     *Running every test of a rule table*
 
-1.  To run only the rules of the current module and skip the modules it depends on, select **Within Current
-    Module Only**. While the project is still loading, or another module has errors, only the current module can
-    be used: the option is selected and cannot be changed.
+1.  To leave out the other modules of the project, select **Within Current Module Only**. The current module is
+    then used with the modules and projects it depends on. While the project is still loading, or another module
+    has errors, only the current module can be used: the option is selected and cannot be changed.
 1.  **Failures Only**, **Failures per test** and **Compound Result** say what the results show; they can be
     changed there as well.
 1.  Click **Test**. Every test table that tests this rule table runs, and the results open in a window over the
@@ -245,10 +245,11 @@ the table does not have starts nothing: the panel says which case it is.
 ##### Running All Tests of a Module
 
 1.  Click **Test** in the module toolbar, above the module tree. The number next to it counts the tests of the
-    project.
-1.  In the panel that opens, leave **Within Current Module Only** clear to run every test of the project,
-    including the modules it depends on, or select it to run the tests of the current module only. **Tests per
-    page**, **Failures Only**, **Failures per test** and **Compound Result** say what the results show.
+    project and of the modules and projects it depends on.
+1.  In the panel that opens, leave **Within Current Module Only** clear to run every test of the project and of
+    the modules and projects it depends on. Select it to leave out the other modules of the project: the tests of
+    the current module run with the tests of the modules and projects it depends on. **Tests per page**, **Failures Only**,
+    **Failures per test** and **Compound Result** say what the results show.
 1.  Click **Test**. The results are shown the same way as the tests of a single table, so only one kind of
     results screen has to be read. **Test into File** saves them as a workbook without showing them.
 
@@ -443,7 +444,7 @@ Tracing is available for everything that can be run:
 
         *Providing input as JSON*
 
-1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**. While the project is still loading, or another module has errors, only the current module can be traced: the option is selected and cannot be changed.
+1.  To leave out the other modules of the project, select **Within Current Module Only**. The rule is then traced within the current module and the modules and projects it depends on. While the project is still loading, or another module has errors, only the current module can be traced: the option is selected and cannot be changed.
 1.  Leave **Advanced tracer** off — the default — to open the business view. Select it only for the full step debugger; see [The Advanced Mode](#the-advanced-mode). The mode is chosen here, before the trace starts, and stays fixed for the trace window.
 1.  Click **Trace**. The trace window opens and runs the calculation. A table that takes no parameters is traced as soon as **Trace** is clicked in the toolbar; no panel opens for it.
 
@@ -607,8 +608,8 @@ section:
     it runs, over every case at once, or untick the cases to leave out. Selecting the cases is described in
     [Starting a Trace](#starting-a-trace), which lists them the same way, and **Use the Range** names them by
     their IDs instead, as described in [Running the Tests of a Table](#running-the-tests-of-a-table).
-1.  To measure only the rules of the current module and skip the modules it depends on, select **Within Current
-    Module Only**.
+1.  To leave out the other modules of the project, select **Within Current Module Only**. The table is then
+    measured within the current module and the modules and projects it depends on.
 1.  Click **Benchmark**. The table runs over and over until the measurement lasts long enough to be meaningful,
     so it takes a few seconds. The results then open in a window over the table.
 
