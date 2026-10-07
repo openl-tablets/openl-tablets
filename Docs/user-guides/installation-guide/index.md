@@ -57,10 +57,10 @@ java -version
 # Download from https://tomcat.apache.org/
 
 # 3. Download OpenL Studio WAR
-# Download from https://openl-tablets.org/downloads
+# Download openl-studio.war from https://github.com/openl-tablets/openl-tablets/releases
 
-# 4. Deploy to Tomcat
-cp webstudio.war $TOMCAT_HOME/webapps/
+# 4. Deploy to Tomcat; the file name sets the context path
+cp openl-studio.war $TOMCAT_HOME/webapps/webstudio.war
 
 # 5. Start Tomcat
 $TOMCAT_HOME/bin/startup.sh

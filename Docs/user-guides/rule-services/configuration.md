@@ -84,10 +84,10 @@ The system supports the following data source implementations:
 -   [Azure Blob Storage](#azure-blob-storage)
 -   [GIT](#git)
 
-The Git, Amazon AWS S3, and Azure Blob Storage repositories are included in the OpenL Rule Services *all* web application only. Use the `webservice-all.war` asset of the [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases), or the `openltablets/ws` Docker image with the `-all` suffix of the tag. To download the WAR, use the following command:
+The Git, Amazon AWS S3, and Azure Blob Storage repositories are included in the OpenL Rule Services *all* web application only. Use the `ruleservices-all.war` asset of the [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases), or the `openltablets/ws` Docker image with the `-all` suffix of the tag. To download the WAR, use the following command:
 
 ```bash
-curl -fLO https://github.com/openl-tablets/openl-tablets/releases/download/<openl version here>/webservice-all.war
+curl -fLO https://github.com/openl-tablets/openl-tablets/releases/download/<openl version here>/ruleservices-all.war
 ```
 
 The properties of all repository types, with their descriptions, are published by a running instance at `<context path>/admin/config/application.properties`.

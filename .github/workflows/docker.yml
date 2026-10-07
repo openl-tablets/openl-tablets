@@ -70,7 +70,7 @@ jobs:
         run: |
           set -euo pipefail
           gh release download "$version" --repo "$GITHUB_REPOSITORY" --pattern '*.war' --pattern '*.war.asc'
-          for app in webstudio webservice webservice-all; do
+          for app in openl-studio ruleservices ruleservices-all; do
             # GPG verification
             gpg --batch --verify "$app.war.asc" "$app.war"
             unzip -q "$app.war" -d "$app"
@@ -105,7 +105,7 @@ jobs:
           eval docker buildx build
           $tags_11
           --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webservice-all
+          --build-arg APP=ruleservices-all
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
           --label '"org.opencontainers.image.title=OpenL RuleServices (All)"'
           --label "org.opencontainers.image.version=${version}"
@@ -121,7 +121,7 @@ jobs:
           eval docker buildx build
           $tags_11
           --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webservice
+          --build-arg APP=ruleservices
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
           --label '"org.opencontainers.image.title=OpenL RuleServices"'
           --label "org.opencontainers.image.version=${version}"
@@ -137,7 +137,7 @@ jobs:
           eval docker buildx build
           $tags_11
           --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webstudio
+          --build-arg APP=openl-studio
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
           --label '"org.opencontainers.image.title=OpenL Studio"'
           --label "org.opencontainers.image.version=${version}"

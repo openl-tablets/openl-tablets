@@ -494,13 +494,15 @@ from Maven.
   `/webstudio` context path the link previously lost that path and did not resolve. No action is required
   beyond upgrading; a link sent by an earlier version stays broken.
 
-* **Download the WAR files from the GitHub release.** The release `7.0.0` on
-  [GitHub](https://github.com/openl-tablets/openl-tablets/releases) holds `webstudio.war`, `webservice.war` and
-  `webservice-all.war`; each is signed in the `.asc` file of the same name with the key that signs the Maven
-  Central artifacts. Repoint every script and pipeline that downloads a WAR from Maven Central, such as
-  `https://github.com/openl-tablets/openl-tablets/releases/download/7.0.0/webstudio.war` in place of
-  `org/openl/rules/org.openl.rules.webstudio/7.0.0/org.openl.rules.webstudio-7.0.0.war`. The Docker images and
-  the DEMO package need nothing.
+* **Download the WAR files from the GitHub release, under new names.** The release `7.0.0` on
+  [GitHub](https://github.com/openl-tablets/openl-tablets/releases) holds `openl-studio.war`, `ruleservices.war`
+  and `ruleservices-all.war`, the former `org.openl.rules.webstudio`, `org.openl.rules.ruleservice.ws` and
+  `org.openl.rules.ruleservice.ws.all` WARs. Each is signed in the `.asc` file of the same name with the key that
+  signs the Maven Central artifacts. Repoint every script and pipeline that downloads a WAR from Maven Central, such
+  as `https://github.com/openl-tablets/openl-tablets/releases/download/7.0.0/openl-studio.war` in place of
+  `org/openl/rules/org.openl.rules.webstudio/7.0.0/org.openl.rules.webstudio-7.0.0.war`. A servlet container takes
+  the context path from the file name, so deploy `openl-studio.war` as `webstudio.war` to keep the `/webstudio`
+  path. The Docker images and the DEMO package need nothing.
 
 ## Testing Recommendations
 

@@ -104,7 +104,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>webservice</finalName>
+        <finalName>ruleservices</finalName>
         <resources>
             <resource>
                 <filtering>true</filtering>
