@@ -63,6 +63,16 @@ describe('ModuleTablesTree', () => {
         expect(onExtendedSearch).toHaveBeenCalledWith('greet')
     })
 
+    it('carries what was typed to the extended search with its spaces', async () => {
+        const onExtendedSearch = vi.fn()
+        rail({ onExtendedSearch })
+
+        await userEvent.type(screen.getByTestId('module-tables-search'), ' greet ')
+        await userEvent.click(screen.getByTestId('module-tables-search-extended'))
+
+        expect(onExtendedSearch).toHaveBeenCalledWith(' greet ')
+    })
+
     it('asks for the utility tables to be listed from the filter dialog, as the Editor\'s filter let a reader ask', async () => {
         const onShowOther = rail()
 
