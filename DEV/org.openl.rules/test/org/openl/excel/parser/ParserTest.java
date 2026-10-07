@@ -211,11 +211,15 @@ class ParserTest {
         _testErrorMsg("x % 3", "Lexical error at line");
         _testErrorMsg("x ** 3", "Encountered");
         _testErrorMsg("x -> y", "Encountered");
-        _testErrorMsg("x++", "Encountered");
-        _testErrorMsg("++x", "Encountered");
-        _testErrorMsg("x--", "Encountered");
-        _testErrorMsg("--x", "Encountered");
-        _testErrorMsg("for (int i = 0; i < 3; i++) {}", "Encountered");
+    }
+
+    @Test
+    void testIncrementOperators() throws OpenLConfigurationException {
+        _testType("x++", "op.suffix.inc");
+        _testType("++x", "op.prefix.inc");
+        _testType("x--", "op.suffix.dec");
+        _testType("--x", "op.prefix.dec");
+        _testType("- -x", "op.unary.negative");
     }
 
     @Test

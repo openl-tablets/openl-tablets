@@ -17,6 +17,7 @@ import org.openl.binding.impl.IdentifierBinder;
 import org.openl.binding.impl.IdentifierSequenceBinder;
 import org.openl.binding.impl.IfNodeBinder;
 import org.openl.binding.impl.IfNodeBinderWithCSRSupport;
+import org.openl.binding.impl.IncrementNodeBinder;
 import org.openl.binding.impl.IndexNodeBinder;
 import org.openl.binding.impl.IndexParameterDeclarationBinder;
 import org.openl.binding.impl.IntNodeBinder;
@@ -82,6 +83,9 @@ public class NodeBinders {
         BINDERS.put("op.binary.and", new BinaryOperatorAndNodeBinder());
         BINDERS.put("op.binary.or", new BinaryOperatorOrNodeBinder());
         BINDERS.put("op.unary", new UnaryOperatorNodeBinder());
+        var incrementNodeBinder = new IncrementNodeBinder();
+        BINDERS.put("op.prefix", incrementNodeBinder);
+        BINDERS.put("op.suffix", incrementNodeBinder);
         BINDERS.put("op.assign", new AssignOperatorNodeBinder());
         BINDERS.put("op.new.object", new NewNodeBinder());
         BINDERS.put("op.new.array", new NewArrayNodeBinder());

@@ -58,6 +58,17 @@ class InspectionsTest {
     }
 
     @Test
+    void testDeprecatedIncrementOperators() {
+        var increment = "DEPRECATED '++' operator will be removed in the next version. Use 'x += 1' instead.";
+        var decrement = "DEPRECATED '--' operator will be removed in the next version. Use 'x -= 1' instead.";
+        assertEquals(3, (Integer) checkWarning("int x = 3; x++", increment));
+        assertEquals(4, (Integer) checkWarning("int x = 3; ++x", increment));
+        assertEquals(3, (Integer) checkWarning("int x = 3; x--", decrement));
+        assertEquals(2, (Integer) checkWarning("int x = 3; --x", decrement));
+        assertEquals(3, (Integer) checkNoMessage("int x = 3; - -x"));
+    }
+
+    @Test
     void testNoWarning() {
         Object result;
 

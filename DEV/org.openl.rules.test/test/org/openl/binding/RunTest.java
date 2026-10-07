@@ -263,6 +263,54 @@ class RunTest {
         assertToExpected(expression, expected);
     }
 
+    static Stream<Arguments> testIncrementOperators() {
+        return Stream.of(arguments("int x = 3; int y = x++; y * 10 + x", 34),
+                arguments("int x = 3; int y = ++x; y * 10 + x", 44),
+                arguments("int x = 3; int y = x--; y * 10 + x", 32),
+                arguments("int x = 3; int y = --x; y * 10 + x", 22),
+                arguments("int sum = 0; for (int i = 0; i < 10; i++) sum += i; sum", 45),
+                arguments("Double x = 1.5; x--; x", 0.5),
+                arguments("int[] ary = {1, 2}; ary[1]++; ary[1]", 3),
+                arguments("java.awt.Point p = new java.awt.Point(1, 2); --p.y; p.y", 1));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testIncrementOperators(String expression, Object expected) {
+        assertToExpected(expression, expected);
+    }
+
+    static Stream<Arguments> testIncrementOperatorTypes() {
+        return Stream.of(arguments("byte", (byte) 2, (byte) 4),
+                arguments("Byte", (byte) 2, (byte) 4),
+                arguments("short", (short) 2, (short) 4),
+                arguments("Short", (short) 2, (short) 4),
+                arguments("int", 2, 4),
+                arguments("Integer", 2, 4),
+                arguments("long", 2L, 4L),
+                arguments("Long", 2L, 4L),
+                arguments("float", 2f, 4f),
+                arguments("Float", 2f, 4f),
+                arguments("double", 2d, 4d),
+                arguments("Double", 2d, 4d),
+                arguments("BigInteger", BigInteger.TWO, BigInteger.valueOf(4)),
+                arguments("BigDecimal", BigDecimal.TWO, BigDecimal.valueOf(4)));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testIncrementOperatorTypes(String type, Object decremented, Object incremented) {
+        assertToExpected(type + " x = 3; --x", decremented);
+        assertToExpected(type + " x = 3; ++x", incremented);
+    }
+
+    @Test
+    void testIncrementOperatorErrors() {
+        assertError("5++", "The node is not an Lvalue");
+        assertError("int[] ary = {1}; ary++", "Operator 'inc(int[])' is not found.");
+        assertError("char c = 'a'; --c", "Operator '--' must return the same type as its operand.");
+    }
+
     @Test
     void testRemovedBusinessLiteral() {
         assertToExpected("int[] ary = {1,000}; ary.length", 2);

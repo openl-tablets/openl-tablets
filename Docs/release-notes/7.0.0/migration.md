@@ -89,21 +89,24 @@ everyone who calls that API from outside the browser.
   `Float` cell reads the same value as before. A percent literal also takes any number of decimals and an exponent:
   `0.5%`, `12.345%` and `1.5e2%` compile, while before it had no decimals or exactly two.
 
-* **The deprecated `%`, `**`, `->`, `++` and `--` operators are removed.** A rule that still uses one of them no
-  longer compiles. Rewrite the expression:
+* **The deprecated `%`, `**` and `->` operators are removed.** A rule that still uses one of them no longer
+  compiles. Rewrite the expression with a function:
 
-  | Before         | After             |
-  |----------------|-------------------|
-  | `x % y`        | `remainder(x, y)` |
-  | `x ** y`       | `pow(x, y)`       |
-  | `x++` or `++x` | `x += 1`          |
-  | `x--` or `--x` | `x -= 1`          |
+  | Before   | After             |
+  |----------|-------------------|
+  | `x % y`  | `remainder(x, y)` |
+  | `x ** y` | `pow(x, y)`       |
 
   `remainder` keeps the sign of the dividend, exactly as `%` did. `mod` keeps the sign of the divisor, so it gives a
   different result when the operands have opposite signs. `pow` returns a `Double`, while `**` kept the operand
-  type. `->` was never backed by an implementation, so no working rule uses it. A loop such as
-  `for (int i = 0; i < n; i++)` becomes `for (int i = 0; i < n; i += 1)`; where a rule used the value of `x++`
-  itself, as in `y = x++`, read it first: `y = x; x += 1;`. Percent literals such as `10%` are not affected.
+  type. `->` was never backed by an implementation, so no working rule uses it. Percent literals such as `10%` are
+  not affected.
+
+* **The deprecated `++` and `--` operators show a warning.** They still work, and OpenL Studio marks every use, for
+  example with `DEPRECATED '++' operator will be removed in the next version. Use 'x += 1' instead.` Rewrite the
+  expression: `x++` and `++x` become `x += 1`, `x--` and `--x` become `x -= 1`, and a loop such as
+  `for (int i = 0; i < n; i++)` becomes `for (int i = 0; i < n; i += 1)`. Where a rule uses the value of `x++`
+  itself, as in `y = x++`, read it first: `y = x; x += 1;`.
 
 * **The functions `format`, `dateToString`, `stringToDate`, `parseFormattedDouble`, `addIgnoreNull` and
   `addArrayElementIgnoreNull` are removed.** A rule that still calls one of them no longer compiles, for example with
