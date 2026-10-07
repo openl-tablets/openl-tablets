@@ -1485,6 +1485,51 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_table_the_compiler_built_to_choose_a_version_is_not_written_to() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
+        when(model.isGeneratedTable(any())).thenReturn(true);
+
+        var editors = assertThrows(BadRequestException.class,
+                () -> service.getTableEditors(project, "src-id", null, null, null));
+        var state = List.of(new TableProperty("state", "AL"));
+        var properties = assertThrows(BadRequestException.class,
+                () -> service.updateTableProperties(project, "src-id", state, null));
+
+        // It is built again from the versions it chooses between, so nothing written to it would last: refused,
+        // saying why, before anything is asked of how its cells are written.
+        assertEquals("openl.error.400.table.generated.message", editors.getErrorCode());
+        assertEquals("openl.error.400.table.generated.message", properties.getErrorCode());
+        verifyNoInteractions(tablePropertiesService);
+    }
+
+    @Test
+    void a_table_the_compiler_built_to_choose_a_version_is_not_copied() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                tableCopyService, mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        var model = stubResolvedSource(service, project, source);
+        when(model.isGeneratedTable(source)).thenReturn(true);
+        var request = new CopyTableRequest("Rules", null, null, "CopyName", null);
+
+        var refused = assertThrows(BadRequestException.class, () -> service.copyTable(project, "src-id", request));
+
+        // A copy of it would be a rule nobody wrote: refused, saying why, before any module is opened for it.
+        assertEquals("openl.error.400.table.generated.message", refused.getErrorCode());
+        verifyNoInteractions(tableCopyService);
+        verify(service, never()).openProject(project, "Rules");
+    }
+
+    @Test
     void a_table_of_a_project_this_one_depends_on_is_not_taken_up_here() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);
@@ -2187,12 +2232,10 @@ class WorkspaceProjectServiceTest {
         var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
         var handle = mock(ProjectHandle.class);
         var table = mock(IOpenLTable.class);
-        var moduleInfo = mock(Module.class);
         when(handle.project()).thenReturn(moduleModel);
         when(moduleModel.getTableById("claims-id")).thenReturn(table);
         when(table.getUri()).thenReturn("Pricing/Claims.xlsx?sheet=Rules");
-        when(moduleModel.getModuleInfo()).thenReturn(moduleInfo);
-        when(moduleInfo.containsTable("Pricing/Claims.xlsx?sheet=Rules")).thenReturn(true);
+        when(moduleModel.holdsTable("Pricing/Claims.xlsx?sheet=Rules")).thenReturn(true);
         when(moduleModel.getTestAndRunMethods("Pricing/Claims.xlsx?sheet=Rules", false))
                 .thenReturn(IOpenMethod.EMPTY_ARRAY);
         doReturn(handle).when(service).openProject(project, "Claims");

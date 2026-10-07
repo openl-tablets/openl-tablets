@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -61,21 +63,26 @@ public final class TableModules {
 
     private final List<ModuleLocation> modules;
 
-    private TableModules(List<ModuleLocation> modules) {
+    /** Where a table the compiler built, and no workbook holds, is read: the module it is reached from. */
+    private final Function<String, @Nullable TableLocation> generated;
+
+    private TableModules(List<ModuleLocation> modules, Function<String, @Nullable TableLocation> generated) {
         this.modules = modules;
+        this.generated = generated;
     }
 
     /** Locates the modules that have a workbook to hold tables and a name to be opened by. */
     private static TableModules locate(Stream<Module> modules) {
-        return locate(modules, module -> null);
+        return new TableModules(locations(modules, module -> null), tableUri -> null);
     }
 
-    private static TableModules locate(Stream<Module> modules, Function<Module, ProjectAddress> addressing) {
-        return new TableModules(modules
+    private static List<ModuleLocation> locations(Stream<Module> modules,
+                                                  Function<Module, ProjectAddress> addressing) {
+        return modules
                 .filter(module -> module.getName() != null && module.getRulesRootPath() != null)
                 .map(module -> new ModuleLocation(module.getName(), module.getRelativeUri(),
                         addressing.apply(module)))
-                .toList());
+                .toList();
     }
 
     /**
@@ -90,7 +97,7 @@ public final class TableModules {
 
     /** No modules to ask: a table read outside a project, which has no module to be opened through. */
     public static TableModules none() {
-        return new TableModules(List.of());
+        return new TableModules(List.of(), tableUri -> null);
     }
 
     /**
@@ -140,11 +147,28 @@ public final class TableModules {
         if (dependencyManager == null) {
             return none();
         }
-        return locate(dependencyManager.getDependencyLoaders()
+        var opened = Optional.ofNullable(model.getModuleInfo())
+                .flatMap(module -> locations(Stream.of(module), addressing).stream().findFirst())
+                .map(ModuleLocation::asTableLocation);
+        return new TableModules(locations(dependencyManager.getDependencyLoaders()
                 .stream()
                 .filter(loader -> !loader.isProjectLoader())
                 .map(IDependencyLoader::getModule)
-                .filter(Objects::nonNull), addressing);
+                .filter(Objects::nonNull), addressing),
+                opened.map(location -> generatedIn(model, location)).orElse(tableUri -> null));
+    }
+
+    /**
+     * The module open, for a table the compiler built for it.
+     *
+     * <p>Only a location in a workbook the engine built itself is looked for among those tables, each once: a table
+     * read cell by cell asks again and again about the same ones. The compiler builds such a table when a word
+     * leading to it is read, which is before its location is asked about.
+     */
+    private static Function<String, @Nullable TableLocation> generatedIn(ProjectModel model, TableLocation opened) {
+        var answered = new ConcurrentHashMap<String, Boolean>();
+        return tableUri -> ProjectModel.inCompilersWorkbook(tableUri)
+                && answered.computeIfAbsent(tableUri, model::holdsTable) ? opened : null;
     }
 
     /**
@@ -195,6 +219,10 @@ public final class TableModules {
     /**
      * Where the table at the given location lives: the module holding it, and the project of that module.
      *
+     * <p>A table the compiler built to choose between the versions of an overloaded rule is written in no
+     * workbook. It lives in the module open, which it is reached from, as long as the modules were located through
+     * that module's compilation.
+     *
      * @param tableUri location the engine knows the table at
      * @return where it lives, or {@code null} for a table none of these modules holds
      */
@@ -206,6 +234,6 @@ public final class TableModules {
                 .filter(module -> tableUri.startsWith(module.uri()))
                 .findFirst()
                 .map(ModuleLocation::asTableLocation)
-                .orElse(null);
+                .orElseGet(() -> generated.apply(tableUri));
     }
 }

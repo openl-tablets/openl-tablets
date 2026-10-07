@@ -678,7 +678,8 @@ public class ProjectsController {
         var moduleName = StringUtils.trimToNull(fromModule);
         var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
         var objectMapper = objectMapperService.createObjectMapper();
-        return tableInputService.describe(projectModel, requireTable(projectModel, tableId), moduleName != null,
+        var table = RunnableTables.require(projectModel, tableId);
+        return tableInputService.describe(projectModel, table, moduleName != null,
                 objectMapper, getInputSchemaGenerator(objectMapper));
     }
 
@@ -691,7 +692,8 @@ public class ProjectsController {
         var moduleName = StringUtils.trimToNull(fromModule);
         var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
         var objectMapper = objectMapperService.createObjectMapper();
-        return tableInputService.listTestCases(projectModel, requireTable(projectModel, tableId), moduleName != null,
+        var table = RunnableTables.require(projectModel, tableId);
+        return tableInputService.listTestCases(projectModel, table, moduleName != null,
                 page, objectMapper, getInputSchemaGenerator(objectMapper));
     }
 
@@ -704,16 +706,9 @@ public class ProjectsController {
         var moduleName = StringUtils.trimToNull(fromModule);
         var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
         var objectMapper = objectMapperService.createObjectMapper();
-        return tableInputService.describeTestCase(projectModel, requireTable(projectModel, tableId), moduleName != null,
+        var table = RunnableTables.require(projectModel, tableId);
+        return tableInputService.describeTestCase(projectModel, table, moduleName != null,
                 caseId, objectMapper, getInputSchemaGenerator(objectMapper));
-    }
-
-    private static IOpenLTable requireTable(ProjectModel projectModel, String tableId) {
-        var table = projectModel.getTableById(tableId);
-        if (table == null) {
-            throw new NotFoundException("table.message");
-        }
-        return table;
     }
 
     @GetMapping("/{projectId}/tables/graph")
@@ -867,7 +862,7 @@ public class ProjectsController {
         var currentOpenedModule = moduleName != null;
         // Refused before any run is cancelled or announced: a request refused leaves the run before it going,
         // and announces no run whose end nobody would hear.
-        var table = StringUtils.isBlank(tableId) ? null : requireTable(projectModel, tableId);
+        var table = StringUtils.isBlank(tableId) ? null : RunnableTables.require(projectModel, tableId);
         var testSuite = table == null ? null : testSuiteOf(projectModel, table, currentOpenedModule);
         if (testSuite != null && StringUtils.isNotBlank(testRanges)) {
             TestCaseRanges.requireKnownCases(testSuite, testRanges);

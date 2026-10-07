@@ -98,10 +98,16 @@ final class CompiledReads {
                 : Optional.empty();
     }
 
-    /** A decision table: a rule in each row, or in each column of a table compiled transposed. */
+    /**
+     * A decision table: a rule in each row, or in each column of a table compiled transposed.
+     *
+     * <p>The table is the one the node stands for, as {@link DecisionThemeLayout} reads it: the table the compiler
+     * built to choose between the versions of a rule is bound outside the module, so its node holds it and its bound
+     * node does not.
+     */
     static Optional<Boolean> decision(TableSyntaxNode node) {
-        return node.getMetaInfoReader() instanceof DecisionTableMetaInfoReader reader
-                && reader.getBoundNode().getDecisionTable() instanceof DecisionTable decision
+        return node.getMetaInfoReader() instanceof DecisionTableMetaInfoReader
+                && node.getMember() instanceof DecisionTable decision
                 ? Optional.of(decision.getDtInfo() instanceof DTInfo info && info.isTransposed())
                 : Optional.empty();
     }

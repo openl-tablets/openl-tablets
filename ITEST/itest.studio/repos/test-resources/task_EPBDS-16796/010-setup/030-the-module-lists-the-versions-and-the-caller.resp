@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "bc8a240e779f1260f5af239b7e0c3712",
+      "kind": "Method",
+      "name": "CallHello",
+      "pos": "B12:B13"
+    },
+    {
+      "id": "4ee7ddc02c59003fa26eaa3f58e5df7b",
+      "kind": "Rules",
+      "name": "Hello",
+      "pos": "B2:D5"
+    },
+    {
+      "id": "1920c8ca73615c809ac5cc4846f76ed0",
+      "kind": "Rules",
+      "name": "Hello",
+      "pos": "B7:D10"
+    },
+    {
+      "id": "84db36b768c100b353ed42d2e64d5ac6",
+      "kind": "Rules",
+      "name": "validateGapOverlapCheck",
+      "pos": "B15:C17"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 4,
+  "total": 4
+}

@@ -137,6 +137,7 @@ import org.openl.studio.projects.service.project.compile.ModuleCompilationLaunch
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.GeneratedTables;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
@@ -2363,7 +2364,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var moduleModel = openProject(project, moduleName).project();
         var table = moduleModel.getTableById(tableId);
-        if (table == null || !moduleModel.getModuleInfo().containsTable(table.getUri())) {
+        if (table == null || !moduleModel.holdsTable(table.getUri())) {
             throw new NotFoundException("table.in.module.message", moduleName);
         }
         return new OpenLTableContext(table, moduleModel);
@@ -2385,6 +2386,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = moduleName == null
                 ? getOpenLTable(project, tableId, true)
                 : getOpenLTableInModule(project, tableId, moduleName);
+        GeneratedTables.refuseAction(context.module(), context.table());
         // A table gathered from several partial tables is drawn from cells that do not sit together, and the
         // grid it is read through holds no place to write back into. Refused here, where every write resolves
         // its table, rather than left to fail on the grid itself.
@@ -2718,7 +2720,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                       CopyTableRequest request) throws ProjectException {
         // Resolve the source (with its live grid) before opening the destination module. The resolved POI grid stays
         // valid across the reopen — the copy only reads it — so a copy into another module still sees the source cells.
-        var source = getOpenLTable(project, sourceTableId).table();
+        var resolved = getOpenLTable(project, sourceTableId);
+        var source = resolved.table();
+        // A copy of the table the compiler built would be a rule nobody wrote.
+        GeneratedTables.refuseAction(resolved.module(), source);
         var requestedSheet = request.sheetName();
         var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet)
                 ? requestedSheet

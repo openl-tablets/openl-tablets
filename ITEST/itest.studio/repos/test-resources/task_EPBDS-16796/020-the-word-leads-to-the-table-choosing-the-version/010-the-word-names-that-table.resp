@@ -1,0 +1,40 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "bc8a240e779f1260f5af239b7e0c3712",
+  "tableType": "RawSource",
+  "kind": "Method",
+  "name": "CallHello",
+  "pos": "B12:B13",
+  "source": [
+    [
+      {
+        "cell": "B12",
+        "value": "Method String CallHello()"
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": "return Hello(\"x\");",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 7,
+              "end": 12,
+              "description": "String Hello(String name)",
+              "tableId": "@@@",
+              "module": "Rules",
+              "projectId": "ZGVzaWduOkVQQkRTLTE2Nzk2",
+              "kind": "rule"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 0
+}

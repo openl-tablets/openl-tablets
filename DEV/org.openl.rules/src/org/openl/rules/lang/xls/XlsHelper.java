@@ -29,6 +29,12 @@ public final class XlsHelper {
     private XlsHelper() {
     }
 
+    /**
+     * The start of the location of a workbook the engine builds itself and that has no file, such as the one holding
+     * the table that chooses between the versions of an overloaded rule.
+     */
+    public static final String VIRTUAL_WORKBOOK_URI_PREFIX = "VIRTUAL_WORKBOOK@";
+
     /** Delimiters that split a table header into tokens: space, newline and carriage return. */
     private static final String TOKEN_DELIMITERS = " \n\r";
 

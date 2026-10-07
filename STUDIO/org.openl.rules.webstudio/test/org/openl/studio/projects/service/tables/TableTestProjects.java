@@ -18,6 +18,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.tables.RawTableCell;
@@ -120,6 +121,15 @@ public final class TableTestProjects {
         throw new IllegalStateException("No table named " + name);
     }
 
+    /** The cell of a read whose value reads exactly like the given text. */
+    public static RawTableCell cellOf(List<List<RawTableCell>> source, String value) {
+        return source.stream()
+                .flatMap(List::stream)
+                .filter(cell -> value.equals(cell.value()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No cell reading '" + value + "'"));
+    }
+
     /** The table of the module with the given header: a table the compiler did not bind has no name to find it by. */
     public static IOpenLTable tableHeaded(ProjectModel projectModel, String header) {
         for (var tsn : projectModel.getAllTableSyntaxNodes()) {
@@ -192,6 +202,34 @@ public final class TableTestProjects {
     /** Merges the cells of a sheet between two corners, both included. */
     public static void merge(Sheet sheet, int top, int bottom, int left, int right) {
         sheet.addMergedRegion(new CellRangeAddress(top, bottom, left, right));
+    }
+
+    /** {@code Hello} written in two versions, for two states, from the second row of the sheet down. */
+    public static void helloInTwoVersions(Sheet sheet) {
+        for (var version = 0; version < 2; version++) {
+            var top = 1 + version * 6;
+            var state = version == 0 ? "CA" : "NY";
+            row(sheet, top, 1, "SmartRules String Hello(String name)");
+            row(sheet, top + 1, 1, "properties", "state", state);
+            row(sheet, top + 2, 1, "Name", "Greeting");
+            row(sheet, top + 3, 1, "x", "Hi " + state);
+        }
+    }
+
+    /**
+     * The table the compiler built to choose between the versions of a rule of the module open, built as a link to
+     * it would build it.
+     */
+    public static IOpenLTable dispatcherTable(ProjectModel model) {
+        var dispatcher = model.getOpenedModuleCompiledOpenClass()
+                .getOpenClassWithErrors()
+                .getMethods()
+                .stream()
+                .filter(MatchingOpenMethodDispatcher.class::isInstance)
+                .map(MatchingOpenMethodDispatcher.class::cast)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No rule is written in several versions"));
+        return new TableSyntaxNodeAdapter(dispatcher.getDispatcherTable());
     }
 
 }

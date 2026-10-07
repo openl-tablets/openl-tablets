@@ -24,9 +24,9 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableUsageKind;
 import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
  * Verifies that a table is read with what the compiler knows about its cells.
@@ -68,7 +68,7 @@ class RawTableMetaInfoTest {
                 .modules(TableModules.ofWorkspace(projectModel))
                 .build());
 
-        var typeCell = cellOf(read.source, "Address");
+        var typeCell = TableTestProjects.cellOf(read.source, "Address");
         var metaInfo = typeCell.metaInfo();
         assertNotNull(metaInfo, "the cell names a datatype, so the compiler knows something about it");
         assertEquals(1, metaInfo.usages().size());
@@ -87,10 +87,9 @@ class RawTableMetaInfoTest {
     void offersNoWayIntoATableNoModuleHolds() {
         var read = new RawTableReader().read(table("Person"), RawTableRead.builder().withMetaInfo(true).build());
 
-        var usage = cellOf(read.source, "Address").metaInfo().usages().getFirst();
-        // A word can resolve to a table the engine wrote itself while compiling — the one that chooses between
-        // the versions of an overloaded rule. It sits in no workbook and opens nowhere, so nothing about it is
-        // offered to click; what the word stands for is still said.
+        var usage = TableTestProjects.cellOf(read.source, "Address").metaInfo().usages().getFirst();
+        // Read with no module to open a table through, the word leads nowhere, so nothing about it is offered to
+        // click; what the word stands for is still said.
         assertNull(usage.tableId(), "a table no module holds is not offered as a way in");
         assertNull(usage.module());
         assertNotNull(usage.description());
@@ -109,17 +108,9 @@ class RawTableMetaInfoTest {
         var read = new RawTableReader().read(table("Person"), RawTableRead.builder().withMetaInfo(true).build());
 
         // The header line is the table's own; nothing in it refers anywhere.
-        assertNull(cellOf(read.source, "Datatype Person").metaInfo());
+        assertNull(TableTestProjects.cellOf(read.source, "Datatype Person").metaInfo());
     }
 
-    /** The cell whose value reads exactly like the given text. */
-    private static RawTableCell cellOf(List<List<RawTableCell>> source, String value) {
-        return source.stream()
-                .flatMap(List::stream)
-                .filter(cell -> value.equals(cell.value()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No cell reading '" + value + "'"));
-    }
 
     /** The table of the module whose name ends with the given one. */
     private IOpenLTable table(String name) {

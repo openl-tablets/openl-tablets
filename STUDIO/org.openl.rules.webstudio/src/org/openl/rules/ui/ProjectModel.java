@@ -42,6 +42,7 @@ import org.openl.message.Severity;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
+import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
@@ -696,12 +697,75 @@ public class ProjectModel {
         return false;
     }
 
-    public boolean isGapOverlap(TableSyntaxNode tsn) {
-        String tableType = tsn.getType();
-        if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
-            return DispatcherTablesBuilder.isDispatcherTable(tsn);
-        }
-        return false;
+    /**
+     * Whether the opened module holds the table at the given location.
+     *
+     * <p>A module holds the tables written in its workbook. It also holds the tables the compiler built to choose
+     * between the versions of an overloaded rule: such a table sits in no workbook, in the module or in the virtual
+     * module of the whole project, so it is read through the module it is reached from.
+     *
+     * @param tableUri location the engine knows the table at
+     * @return {@code true} when the table is written in the opened module or is one the compiler built
+     */
+    public synchronized boolean holdsTable(@Nullable String tableUri) {
+        var module = moduleInfo;
+        return tableUri != null && module != null && (module.containsTable(tableUri)
+                || inCompilersWorkbook(tableUri) && generatedTables().anyMatch(tsn -> tableUri.equals(tsn.getUri())));
+    }
+
+    /**
+     * Whether the location is in a workbook the engine built itself, the only place a table the compiler built to
+     * choose between the versions of a rule can be.
+     *
+     * @param tableUri location the engine knows a table at
+     * @return {@code true} for a location in such a workbook
+     */
+    public static boolean inCompilersWorkbook(@Nullable String tableUri) {
+        return tableUri != null && tableUri.startsWith(XlsHelper.VIRTUAL_WORKBOOK_URI_PREFIX);
+    }
+
+    /**
+     * The tables the compiler built for the opened module: in the module, and in the virtual module of its whole
+     * project. A table built in another module, or in a project this one depends on, is not among them.
+     */
+    private Stream<TableSyntaxNode> generatedTables() {
+        var module = moduleInfo;
+        var project = module == null ? null : module.getProject();
+        var projectNodes = project == null ? Set.<XlsModuleSyntaxNode>of()
+                : xlsModuleSyntaxNodesPerProject.getOrDefault(project.getName(), Set.of());
+        return Stream.concat(Arrays.stream(getTableSyntaxNodes()),
+                        projectNodes.stream()
+                                .filter(node -> node.getModule() instanceof VirtualSourceCodeModule)
+                                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                                .filter(Objects::nonNull)
+                                .flatMap(Arrays::stream))
+                .filter(ProjectModel::isBuiltByCompiler);
+    }
+
+    /**
+     * Whether the table is one the compiler built to choose between the versions of an overloaded rule. It is built
+     * again from those versions at every compilation, so it is read and never written or run.
+     *
+     * @param table the table
+     * @return {@code true} for such a table
+     */
+    public boolean isGeneratedTable(IOpenLTable table) {
+        return table instanceof TableSyntaxNodeAdapter adapter && isBuiltByCompiler(adapter.getSyntaxNode());
+    }
+
+    /**
+     * Whether the node is a table the compiler built to choose between the versions of an overloaded rule.
+     *
+     * <p>Such a table is written into a workbook of the compiler's own, which has no file: the engine locates it
+     * under {@link XlsHelper#VIRTUAL_WORKBOOK_URI_PREFIX}. A table its author wrote in a workbook under the name the
+     * compiler gives such a table is the author's own, listed, written and run as any other.
+     *
+     * @param tsn the node of the table
+     * @return {@code true} for a table the compiler built
+     */
+    public static boolean isBuiltByCompiler(TableSyntaxNode tsn) {
+        return inCompilersWorkbook(tsn.getUri()) && XlsNodeTypes.XLS_DT.toString().equals(tsn.getType())
+                && DispatcherTablesBuilder.isDispatcherTable(tsn);
     }
 
     /**
@@ -712,7 +776,7 @@ public class ProjectModel {
     public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors, SearchScope searchScope) {
         return getSearchScopeData(searchScope).stream()
                 .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
-                .filter(tsn -> !isGapOverlap(tsn))
+                .filter(tsn -> !isBuiltByCompiler(tsn))
                 .filter(selectors)
                 .map(TableSyntaxNodeAdapter::new)
                 .collect(Collectors.toList());

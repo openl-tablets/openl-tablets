@@ -96,10 +96,7 @@ public class ProjectsRunController {
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
 
-        var table = projectModel.getTableById(tableId);
-        if (table == null) {
-            throw new NotFoundException("table.message");
-        }
+        var table = RunnableTables.require(projectModel, tableId);
 
         var uri = table.getUri();
         var method = currentOpenedModule

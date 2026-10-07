@@ -144,10 +144,7 @@ public class ProjectsTraceDebugController {
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
 
-        var table = projectModel.getTableById(tableId);
-        if (table == null) {
-            throw new NotFoundException("table.message");
-        }
+        var table = RunnableTables.require(projectModel, tableId);
         IOpenMethod method = currentOpenedModule
                 ? projectModel.getOpenedModuleMethod(table.getUri())
                 : projectModel.getMethod(table.getUri());

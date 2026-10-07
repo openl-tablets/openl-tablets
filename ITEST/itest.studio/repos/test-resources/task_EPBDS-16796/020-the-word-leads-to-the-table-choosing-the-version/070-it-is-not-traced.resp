@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.generated.message",
+  "message": "The table 'validateGapOverlap_Hello' is virtual: the engine builds it, and it can only be viewed."
+}
