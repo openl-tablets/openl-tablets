@@ -50,6 +50,8 @@ const blankProperty = (): TablePropertyInput => propertyRow('', '')
 export interface CopyTableModalDetail {
     projectId: string
     currentModuleName?: string
+    /** The sheet the copied table is written on: a copy into the same module goes there unless the author picks another. */
+    currentSheetName?: string | undefined
     sourceTableId: string
     onSuccess?: (table: SummaryTable, moduleName: string) => void
 }
@@ -111,7 +113,9 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                 setModules(available)
                 setProjectProperties(loadedProperties)
                 setTableName(info.name)
-                setSheetName(sheetNameFrom(info.name))
+                setSheetName(destination === detail.currentModuleName && detail.currentSheetName
+                    ? detail.currentSheetName
+                    : sheetNameFrom(info.name))
                 const applicableNames = new Set(loadedProperties.map(property => property.name))
                 setProperties(normalizeProperties(
                     (info.properties ?? [])

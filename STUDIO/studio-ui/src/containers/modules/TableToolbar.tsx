@@ -313,6 +313,7 @@ export const TableToolbar = ({
         detail: {
             projectId,
             currentModuleName: moduleName,
+            currentSheetName: table.sheet,
             sourceTableId: table.id,
             onSuccess: onWritten,
         },
