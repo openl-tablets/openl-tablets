@@ -16,6 +16,19 @@ vi.mock('services/traceService', () => ({
     },
 }))
 
+// Counts how often the tree's styles are read, to prove the rows read none of their own.
+const stylesReads = vi.hoisted(() => ({ count: 0 }))
+vi.mock('containers/TraceView/components/TraceTree.styles', async importOriginal => {
+    const actual = await importOriginal<typeof import('containers/TraceView/components/TraceTree.styles')>()
+    return {
+        ...actual,
+        useStyles: () => {
+            stylesReads.count += 1
+            return actual.useStyles()
+        },
+    }
+})
+
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     return { useTranslation: () => ({ t }) }
@@ -74,6 +87,25 @@ describe('TraceTree', () => {
         })
         render(<TraceTree />)
         expect(screen.queryByTestId('trace-tree-truncated')).toBeNull()
+    })
+
+    it('reads its styles once however deep the stack is, so a deep recursion does not freeze the tab', () => {
+        // A recursion hundreds of tables deep: every frame is a row with a chevron, a dispatch badge and a
+        // condition row. Each of them reading the styles copied the whole theme per row.
+        const deep = Array.from({ length: 300 }, (_, i) => frame(i, {
+            name: `Frame${i}`,
+            active: i === 299,
+            dispatch: { candidates: [{ label: 'v1', chosen: true }, { label: 'v2', chosen: false }]},
+            steps: [{ ref: 'C1', label: 'condition', status: 'executed', decision: 'matched' },
+                step('R1', i === 299 ? 'current' : 'executed')],
+        }))
+        useTraceStore.setState({ status: 'suspended', frames: deep, selectedFrameIndex: 299 })
+        stylesReads.count = 0
+
+        render(<TraceTree />)
+
+        expect(screen.getAllByTestId('tree-dispatch')).toHaveLength(300)
+        expect(stylesReads.count).toBeLessThan(10)
     })
 
     it('renders a frame with its steps and runs to a not-yet-reached step', async () => {

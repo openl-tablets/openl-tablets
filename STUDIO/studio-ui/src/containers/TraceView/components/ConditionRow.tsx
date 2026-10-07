@@ -1,7 +1,7 @@
 import React from 'react'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import type { StepValueView } from 'types/trace'
-import { useStyles } from './TraceTree.styles'
+import type { TraceTreeStyles } from './TraceTree.styles'
 
 interface ConditionRowProps {
     step: StepValueView
@@ -15,6 +15,8 @@ interface ConditionRowProps {
      * carries that column on every row (to align with live-step status marks); the business tree does not.
      */
     markSlot?: boolean
+    /** The tree's styles, read once by the tree: a row reads none of its own. */
+    treeStyles: TraceTreeStyles
 }
 
 /**
@@ -22,8 +24,8 @@ interface ConditionRowProps {
  * An informational row — never runnable or replayable — reproducing the legacy detailed trace. Shared by
  * the business and advanced trees so both read identically.
  */
-const ConditionRow: React.FC<ConditionRowProps> = ({ step, depth, testId, rowKey, markSlot }) => {
-    const { styles, cx } = useStyles()
+const ConditionRow: React.FC<ConditionRowProps> = ({ step, depth, testId, rowKey, markSlot, treeStyles }) => {
+    const { styles, cx } = treeStyles
     const matched = step.decision === 'matched'
     return (
         <div
