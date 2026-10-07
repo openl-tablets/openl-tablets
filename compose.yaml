@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        "APP": STUDIO/org.openl.rules.webstudio/target/webapp
+        "APP": STUDIO/studio-backend/target/webapp
     image: openltablets/webstudio
     container_name: studio
     ports:

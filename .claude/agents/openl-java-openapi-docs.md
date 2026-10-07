@@ -40,7 +40,7 @@ OpenL Studio uses a **custom OpenAPI Writer**, conceptually similar to springdoc
 OpenAPI summaries and descriptions are localized via:
 
 ```
-STUDIO/org.openl.rules.webstudio/resources/i18n/openapi.properties
+STUDIO/studio-backend/resources/i18n/openapi.properties
 ```
 
 **Rules:**

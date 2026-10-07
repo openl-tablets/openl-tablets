@@ -411,16 +411,16 @@ client then reads the new stack.
 ## Key files
 
 - `DEV/org.openl.rules/src/org/openl/vm/Tracer.java` — the invocation chokepoint, and the no-op `Tracer.NONE`.
-- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/service/trace/` — the engine (`DebugTracer`,
+- `STUDIO/studio-backend/src/org/openl/studio/projects/service/trace/` — the engine (`DebugTracer`,
   `TraceDebugger`, `DebugChannel`, `DebugHookImpl`, `StepController`, `DebugFrame`, `CallNode`, `WatchCapture`,
   `DefaultSourceClassifier`, `ConditionCheck`), the service and the session (`TraceDebugService(Impl)`, `DebugSession`,
   `DebugSessionRegistry`, `DebugSessionReaper`), `TraceHighlightService(Impl)`, `FormulaInputs`, and
   `TraceExportService(Impl)`.
-- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/model/trace/TraceDebugMapper.java` — stack and tree
+- `STUDIO/studio-backend/src/org/openl/studio/projects/model/trace/TraceDebugMapper.java` — stack and tree
   mapping, and variable freezing.
-- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/model/trace/DecisionTableMapper.java` — the rules of a
+- `STUDIO/studio-backend/src/org/openl/studio/projects/model/trace/DecisionTableMapper.java` — the rules of a
   decision table and the explanation of the rules that fired.
-- `STUDIO/org.openl.rules.webstudio/src/org/openl/studio/projects/rest/controller/ProjectsTraceDebugController.java` —
+- `STUDIO/studio-backend/src/org/openl/studio/projects/rest/controller/ProjectsTraceDebugController.java` —
   the REST API.
 - `STUDIO/studio-ui/src/containers/TraceView/`, `STUDIO/studio-ui/src/store/traceStore.ts`, and
   `STUDIO/studio-ui/src/services/traceService.ts` — the UI.

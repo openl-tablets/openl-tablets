@@ -13,7 +13,7 @@ user and without an interactive sign-in. This page describes how the feature is 
 
 ## Components
 
-All the code is in `STUDIO/org.openl.rules.webstudio`.
+All the code is in `STUDIO/studio-backend`.
 
 - **`PatAuthenticationFilter`** (`org.openl.studio.security.pat.filter`) — reads the `Authorization: Token ...` header
   of a REST request, and sets the authentication of the owner.

@@ -12,8 +12,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.webstudio</artifactId>
+            <groupId>org.openl.rules.studio</groupId>
+            <artifactId>studio-backend</artifactId>
             <type>war</type>
             <scope>test</scope>
         </dependency>

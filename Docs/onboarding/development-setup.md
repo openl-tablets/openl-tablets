@@ -39,7 +39,7 @@ mvn clean install                          # everything, with all tests
 | `-Dsonar`              | Enables JaCoCo, which writes the coverage report of `verify`.                     |
 
 The build writes the web applications of OpenL Studio and Rule Services to
-`STUDIO/org.openl.rules.webstudio/target/webapp` and `WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`.
+`STUDIO/studio-backend/target/webapp` and `WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`.
 The coverage report is `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`.
 
 ## Run

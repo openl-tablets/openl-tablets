@@ -1,4 +1,4 @@
-# org.openl.rules.webstudio — Backend REST API Conventions
+# studio-backend — Backend REST API Conventions
 
 Rules for Studio REST controllers (`org.openl.studio.**.rest.controller`, `org.openl.rules.rest.**`) and their
 request/response models. They keep the generated `/rest/openapi.json` spec consistent, localizable, and correctly
@@ -461,5 +461,5 @@ Adding a description, changing an enum's wire codes, adding a `required`/`@NotBl
 description all change the ITEST goldens (`ITEST/itest.studio/simple/test-resources-simple/openapi.json.resp` and
 `ITEST/itest.studio/multi/test-resources/000-openapi.json.resp`). `description`/`summary`/`operationId`/`version` values are masked to
 `***`, so externalizing a literal to a same-text key does **not** move the golden — but enum arrays, `required`, and the
-presence of a `description` key do. Rebuild the webapp (`mvn -o clean install -DskipTests -pl …webstudio`), then run the
-capture-and-verify cycle (`WebStudioTest#simple+multi`, toggling `HttpClient.writeBodyTo`).
+presence of a `description` key do. Rebuild the webapp (`mvn -o clean install -DskipTests -pl STUDIO/studio-backend`),
+then run the capture-and-verify cycle (`WebStudioTest#simple+multi`, toggling `HttpClient.writeBodyTo`).

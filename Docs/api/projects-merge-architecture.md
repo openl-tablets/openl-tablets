@@ -7,7 +7,7 @@ resolves them. This page describes the components, the flows, and the rules that
 
 ## Components
 
-All the code is in `STUDIO/org.openl.rules.webstudio`.
+All the code is in `STUDIO/studio-backend`.
 
 ```mermaid
 flowchart TB
@@ -120,7 +120,7 @@ The errors are `RestRuntimeException`s with message codes in `ValidationMessages
 
 ## Testing
 
-- **Unit tests** — `STUDIO/org.openl.rules.webstudio/test/org/openl/studio/projects/service/merge` and the controller
+- **Unit tests** — `STUDIO/studio-backend/test/org/openl/studio/projects/service/merge` and the controller
   tests next to the controller.
 - **Git** — `GitRepositoryMergeConflictsInExcelTest` and the other merge tests in `STUDIO/org.openl.rules.repository.git`.
 - **Integration** — the declarative suites in `ITEST/itest.studio`.

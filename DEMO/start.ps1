@@ -242,7 +242,7 @@ if ($OPENL_VERSION -eq "SNAPSHOT") {
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_10_0.dtd">
 <Configure class="org.eclipse.jetty.ee10.webapp.WebAppContext">
-    <Set name="war">../STUDIO/org.openl.rules.webstudio/target/webapp</Set>
+    <Set name="war">../STUDIO/studio-backend/target/webapp</Set>
 </Configure>
 '@ | Set-Content (Join-Path $WEBAPPS_DIR "webstudio.xml")
 

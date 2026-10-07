@@ -517,7 +517,7 @@ What the existing security code dictates:
   `consentPage` points at a React route backed by a REST endpoint that names the client (the host of its `client_id`
   URL) and the requested scopes.
 - **Persistence** — the JDBC stores of SAS live in the Studio security database. They need Flyway scripts for every
-  supported database in `STUDIO/org.openl.rules.webstudio/resources/db/flyway/`. The signing keys are persisted too, so
+  supported database in `STUDIO/studio-backend/resources/db/flyway/`. The signing keys are persisted too, so
   issued tokens survive restarts, context refreshes and — when several Studio instances share the database — other
   nodes.
 

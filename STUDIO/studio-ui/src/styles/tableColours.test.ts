@@ -32,7 +32,7 @@ const keyed = (colours: TableColours, key: string): string => {
  * are.
  */
 const colourKeysOf = (tableTheme: string): string[] => {
-    const file = resolve(process.cwd(), '../org.openl.rules.webstudio/resources/table-themes', `${tableTheme}.yaml`)
+    const file = resolve(process.cwd(), '../studio-backend/resources/table-themes', `${tableTheme}.yaml`)
     const { colors: _named, themeColors: _excel, ...theme } = parse(readFileSync(file, 'utf8'), { merge: true }) as
         Record<string, unknown>
     const walk = (node: unknown, prefix: string): string[] => (node !== null && typeof node === 'object'
