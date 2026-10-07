@@ -14,8 +14,8 @@
 
 1. Run the [Release OpenL Tablets](https://github.com/openl-tablets/openl-tablets/actions/workflows/release.yml) action.
    It stages the libraries in [SonaType](https://central.sonatype.com/) and creates a draft GitHub release with the
-   web applications (`webstudio.war`, `webservice.war`, `webservice-all.war`), their `.asc` signatures, and the DEMO
-   package. The wars are not published to Maven Central.
+   web applications (`openl-studio.war`, `ruleservices.war`, `ruleservices-all.war`), their `.asc` signatures, and
+   the DEMO package. The wars are not published to Maven Central.
 2. Log in [SonaType](https://central.sonatype.com/), verify staged artifacts, and click the 'Publish' button.
 **This step is irreversable, so be careful with what is released.**
    Artifacts become available in [Central Maven Repository](https://repo1.maven.org/maven2/org/openl/) within a few hours.

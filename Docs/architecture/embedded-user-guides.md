@@ -24,7 +24,7 @@ OpenL Studio ships the user guides of its own version and shows them inside the 
 flowchart LR
     MD["Docs/user-guides"] -->|copied by| DOCS["studio-docs.jar"]
     DOCS -->|validated by| VAL["UserGuidesTest"]
-    DOCS -->|packaged into| WAR["webstudio war"]
+    DOCS -->|packaged into| WAR["openl-studio.war"]
     WAR --> SERVLET["UserGuidesServlet /docs/*"]
     SERVLET -->|guide files, toc.json| UI["guides chunk of studio-ui"]
     UI -->|first search| IDX["search index in a Web Worker"]
@@ -40,8 +40,8 @@ It turns `Docs/user-guides` into a jar.
   `META-INF/resources/docs/` of the jar, keeping the folder structure.
 - **Not deployed** — the module sets `maven.deploy.skip=true`. The root `pom.xml` derives `maven.install.skip`
   from it, so the module sets `maven.install.skip=false` back. The jar still reaches the local repository, and a
-  build of the webstudio war alone, outside the reactor, still resolves it.
-- **Consumed by the war only** — the webstudio war depends on it as an `optional` dependency, so the published war
+  build of the OpenL Studio war alone, outside the reactor, still resolves it.
+- **Consumed by the war only** — the OpenL Studio war depends on it as an `optional` dependency, so the published war
   pom does not drag it into the builds of its consumers, and nobody needs it from Nexus. The war plugin leaves an
   optional dependency out, so the war copies the jar into `WEB-INF/lib` itself, the way it ships its optional log4j
   runtime.
@@ -77,7 +77,7 @@ guides are build input and the rest of `Docs/` is not in the jar. Both its `push
 
 ### The servlet
 
-`UserGuidesServlet` in the webstudio war answers `/docs/*`. A file of the guides is a static resource, public as
+`UserGuidesServlet` in the OpenL Studio war answers `/docs/*`. A file of the guides is a static resource, public as
 `/assets` is; a page of a guide is the application page, guarded as every other page. An address whose last part ends
 with an extension never gets the application page, so `SecurityConfig.staticResourcesFilterChain` admits exactly those
 addresses below `/docs` (`RequestMatchers.userGuideFiles()`), reading the path without its query.
@@ -220,7 +220,7 @@ The viewer searches the text of all guides, or of one part of the guides tree.
 ## Consequences
 
 - **Version accuracy** — every installation, including offline ones, shows the guides of the running version.
-- **War size** — the webstudio war grows by the size of the guides, about 20 MB today.
+- **War size** — the OpenL Studio war grows by the size of the guides, about 20 MB today.
 - **Validated guides** — the guides become build input, so a broken link, a missing image or unsupported syntax fails
   the check before merge, not after publishing.
 - **CI cost** — a change to the guides alone runs the whole quick build, not only the validator. It also builds the

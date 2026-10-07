@@ -329,7 +329,7 @@
     </dependencies>
     <build>
         <defaultGoal>package</defaultGoal>
-        <finalName>webstudio</finalName>
+        <finalName>openl-studio</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

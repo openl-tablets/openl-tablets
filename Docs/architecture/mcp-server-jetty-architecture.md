@@ -962,7 +962,7 @@ Versioning and build:
   stays as build metadata for bug reports; there is no second version to match.
 - **Build module** — a `STUDIO/studio-mcp` module mirrors `STUDIO/studio-ui/pom.xml`: the same `frontend-maven-plugin`
   executions with the root `node.version` and `npm.version`, and the same `-Dnpm.test.skip`, `-Dnpm.build.skip`
-  switches. The bundle travels in a non-public classpath folder of the module jar, and the webstudio war unpacks it
+  switches. The bundle travels in a non-public classpath folder of the module jar, and the OpenL Studio war unpacks it
   into `WEB-INF/mcp`.
 - **Source of the bundle** — a decision is needed:
   - a pinned openl-mcp release (npm package or git tag) keeps the faster MCP release line, but each Studio release
@@ -1031,7 +1031,7 @@ static ContextHandler mcpProxy(String contextPath, int mcpPort) {
 | `initialize` | install Node.js and npm (root properties); `npm ci` | `frontend-maven-plugin` |
 | `compile` | build openl-mcp and the guides from `Docs/` | `frontend-maven-plugin` |
 | `test` | openl-mcp unit tests (Jest), skipped by `-Dnpm.test.skip` | `frontend-maven-plugin` |
-| `package` | jar with the bundle; the webstudio war unpacks it into `WEB-INF/mcp` | jar, dependency plugins |
+| `package` | jar with the bundle; the OpenL Studio war unpacks it into `WEB-INF/mcp` | jar, dependency plugins |
 | `test` of the ITEST suite | boot Studio per mode, run the matrix | `maven-surefire-plugin` |
 
 ### 6.3 Test matrix

@@ -14,7 +14,7 @@
 #
 # The studio-ui suite runs in a job of its own because it dominated 'tests': vitest took some 11 of that
 # job's 19 minutes while sharing four cores with the -T1C reactor, and the whole Java side fitted inside
-# it. 'tests' still builds the module - webstudio.war carries its bundle - but leaves the suite to
+# it. 'tests' still builds the module - openl-studio.war carries its bundle - but leaves the suite to
 # 'frontend' (-Dnpm.test.skip=true), which runs it alone on its own runner.
 #
 # Coverage: 'tests', 'frontend' and every 'itest' leg upload what they measured - target/*.exec from the
@@ -103,8 +103,8 @@ jobs:
       - name: Create DEMO package
         run: |
           set -euo pipefail
-          cp "STUDIO/studio-backend/target/webstudio.war" "DEMO/webapps/webstudio.war"
-          cp "WSFrontend/org.openl.rules.ruleservice.ws/target/webservice.war" "DEMO/webapps/webservice.war"
+          cp "STUDIO/studio-backend/target/openl-studio.war" "DEMO/webapps/webstudio.war"
+          cp "WSFrontend/org.openl.rules.ruleservice.ws/target/ruleservices.war" "DEMO/webapps/webservice.war"
           echo "LOCAL" > DEMO/openl.version
 
       - name: Share OpenL artifacts
@@ -161,7 +161,7 @@ jobs:
         # jacoco-report is deselected because it depends on the dropped ITEST modules;
         # the aggregate report is built by the 'sonar' job instead.
         # -Dnpm.test.skip=true leaves the studio-ui suite to the 'frontend' job; the module itself is
-        # still built here, because webstudio.war carries its bundle.
+        # still built here, because openl-studio.war carries its bundle.
       - name: Build and Verify
         run: mvn -B "-Dstyle.color=always" -T1C verify -P 'sonar,!itest' "-Dnpm.test.skip=true" -pl '!jacoco-report,!Util/openl-maven-plugin'
 
