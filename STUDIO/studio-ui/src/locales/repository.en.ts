@@ -808,6 +808,7 @@ i18next.addResourceBundle('en', 'repository', {
             },
             name: 'Project Name',
             name_required: 'Enter a project name',
+            name_invalid: 'The specified name is not a valid project name. Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, \', [, ], |, "), start with space, end with space or dot.',
             archive_hint: 'Click or drag a .zip archive here',
             archive_subhint: 'Supports .zip up to 50 MB',
             archive_invalid: 'This archive is not an OpenL project: its root has no rules.xml and no Excel file.',

@@ -189,7 +189,7 @@ OpenL Studio allows users to create new rule projects in the Design repository. 
 
 After a way is chosen, the dialog shows the source of the project and the settings that are common to all ways. **Back** returns to the choice of the way.
 
--   **Project Name** — the name by which the project is presented in Design repository. The name of the template, the archive or the source project is suggested.
+-   **Project Name** — the name by which the project is presented in Design repository. The name of the template, the archive or the source project is suggested. Spaces at the beginning and at the end of the name are dropped. The name cannot contain the characters `\ / : ; < > ? * % ' [ ] | "` or end with a dot; such a name is refused with a message that says so. The same applies to the new name of a project copy.
 -   **Repository** — the Design repository that stores the project. Only the repositories where the user may create projects are offered.
 -   **Branch** — the branch of a Git repository, described below. The field is shown for repositories that support branches.
 -   **Path** — the folder of the repository where the project is stored. Leave it empty to store the project in the root of the repository, enter a path such as `folder/subfolder`, or click **Browse folders** **⋮** to select an existing folder. The field is shown for repositories that keep projects in folders.

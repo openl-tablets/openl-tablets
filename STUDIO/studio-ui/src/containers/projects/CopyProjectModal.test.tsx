@@ -408,6 +408,17 @@ describe('CopyProjectModal', () => {
         expect(copyProject).not.toHaveBeenCalled()
     })
 
+    it.each(['Bad/Name', 'Bad\\Name'])('rejects the new name %s as the server rejects forbidden characters', async name => {
+        await renderModal()
+        await asNewProject()
+
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: name } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        expect((await screen.findByTestId('copy-project-error')).textContent).toContain('browser.create.name_invalid')
+        expect(copyProject).not.toHaveBeenCalled()
+    })
+
     it('rejects an empty branch name without calling the API', async () => {
         vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
         await renderModal()
