@@ -34,6 +34,7 @@ import { useSharedStyles } from './sharedStyles'
 import { creatableRepositories, supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
 import { useCommitInfoGuard, useDesignRepositoryBranches, useRepositoryConfig } from '../../hooks'
+import { breaksProjectAddress } from '../../utils/projectName'
 import { suggestComment, validateBranchName } from '../../utils/repositoryConfig'
 import { CommentField, useCommentError } from './CommentField'
 import { trimTrailingSlashes } from './projectPaths'
@@ -552,6 +553,10 @@ export const NewProjectModal = ({
         const trimmedName = name.trim()
         if (!trimmedName) {
             setError(t('browser.create.name_required'))
+            return
+        }
+        if (breaksProjectAddress(trimmedName)) {
+            setError(t('browser.create.name_invalid'))
             return
         }
         const sourceError = sourceProblem()

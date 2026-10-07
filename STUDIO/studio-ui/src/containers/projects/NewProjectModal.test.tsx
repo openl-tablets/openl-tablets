@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NewProjectModal } from './NewProjectModal'
@@ -320,6 +320,23 @@ describe('NewProjectModal', () => {
         await userEvent.click(screen.getByTestId('new-project-submit'))
 
         expect(screen.getByTestId('new-project-error')).toBeTruthy()
+        expect(createProject).not.toHaveBeenCalled()
+        expect(onCreated).not.toHaveBeenCalled()
+    })
+
+    // The name travels in the address of the request, and the server refuses a slash or a backslash there
+    // before it checks the name, with no reason given.
+    it.each(['Bad/Name', 'Bad\\Name'])('refuses the name %s as the server refuses forbidden characters', async name => {
+        const onCreated = vi.fn()
+        renderWizard({ onCreated })
+
+        await toConfig('template')
+        await userEvent.click(await screen.findByTestId('template-group-General'))
+        await userEvent.click(await screen.findByTestId(`template-${JSON.stringify(['predefined', 'General', 'Example'])}`))
+        fireEvent.change(screen.getByTestId('new-project-name'), { target: { value: name } })
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+
+        expect((await screen.findByTestId('new-project-error')).textContent).toContain('browser.create.name_invalid')
         expect(createProject).not.toHaveBeenCalled()
         expect(onCreated).not.toHaveBeenCalled()
     })

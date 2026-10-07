@@ -16,6 +16,7 @@ import { RepoFolderInput } from './RepoFolderInput'
 import { useProjectRevisions } from './revisions'
 import type { Project } from '../../types/projects'
 import type { Repository } from '../../types/repositories'
+import { breaksProjectAddress } from '../../utils/projectName'
 import { suggestBranchName, suggestComment, validateBranchName } from '../../utils/repositoryConfig'
 import { CommentField, useCommentError } from './CommentField'
 import { useUserStore } from '../../store'
@@ -230,6 +231,9 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         const trimmed = name.trim()
         if (!trimmed) {
             throw new Error(t('browser.copy_dialog.name_required'))
+        }
+        if (breaksProjectAddress(trimmed)) {
+            throw new Error(t('browser.create.name_invalid'))
         }
         if (commentError) {
             throw new Error(commentError)
