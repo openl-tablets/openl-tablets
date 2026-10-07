@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.trace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import lombok.AccessLevel;
@@ -322,6 +324,36 @@ class TraceDebuggerIntegrationTest {
 
         // Resuming lets the exception propagate; the session ends in error (it does not re-break per frame).
         assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void aStackOverflowParksOnceWithTheStackWhereItRanOut() {
+        FakeTable recurse = new FakeTable("R");
+        recurse.call(recurse);
+        // Reporting a status costs stack, as a WebSocket push does, so no room is left for it where the stack ran
+        // out. Parking there used to overflow again and park a little higher each time.
+        AtomicInteger suspensions = new AtomicInteger();
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER, status -> {
+            if (status == DebugStatus.SUSPENDED) {
+                suspensions.incrementAndGet();
+            }
+            burnStack(300);
+        });
+
+        debugger.start("overflow-worker", null, false, () -> run(debugger, recurse));
+
+        assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
+        List<DebugFrame> stack = debugger.stack();
+        assertTrue(stack.size() > 50, () -> "the stack where the run overflowed, got " + stack.size() + " frames");
+        assertInstanceOf(StackOverflowError.class, stack.getLast().getError(), "the deepest frame shows the overflow");
+        assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
+        assertEquals(1, suspensions.get(), "the run parked once, on the stack it showed");
+        assertInstanceOf(StackOverflowError.class, debugger.error());
+    }
+
+    /** Uses up stack the way a deep call chain does. */
+    private static int burnStack(int depth) {
+        return depth == 0 ? 0 : 1 + burnStack(depth - 1);
     }
 
     @Test

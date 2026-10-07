@@ -1,0 +1,54 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "parameters": [
+    {
+      "name": "n",
+      "description": "Integer",
+      "lazy": false,
+      "value": "#"
+    }
+  ],
+  "context": {
+    "name": "context",
+    "description": "DefaultRulesRuntimeContext",
+    "lazy": false,
+    "value": {
+      "currentDate": null,
+      "requestDate": null,
+      "lob": null,
+      "nature": null,
+      "usState": null,
+      "country": null,
+      "usRegion": null,
+      "currency": null,
+      "lang": null,
+      "region": null,
+      "caProvince": null,
+      "caRegion": null,
+      "locale": null
+    }
+  },
+  "steps": [
+    {
+      "ref": "R0C0",
+      "label": "$Next",
+      "cell": "C4",
+      "status": "@@@"
+    }
+  ],
+  "gridColumns": [
+    "Value"
+  ],
+  "gridRows": [
+    "Next"
+  ],
+  "errors": [
+    {
+      "id": "#",
+      "summary": "StackOverflowError: ",
+      "severity": "ERROR"
+    }
+  ]
+}
