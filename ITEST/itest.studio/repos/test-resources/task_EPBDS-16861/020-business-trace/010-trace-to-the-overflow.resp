@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "completed",
+  "frames": [],
+  "treeNodes": "***",
+  "profile": {
+    "hotspots": [
+      {
+        "uri": "EPBDS-16861/Recursion.xlsx?sheet=Rules&range=B2:C4",
+        "name": "Recurse",
+        "kind": "spreadsheet",
+        "selfMillis": "*",
+        "totalMillis": "*",
+        "count": "#"
+      }
+    ],
+    "distinctTables": 1,
+    "nodeCount": "#",
+    "totalMillis": "*",
+    "truncated": false
+  },
+  "sessionId": "***"
+}

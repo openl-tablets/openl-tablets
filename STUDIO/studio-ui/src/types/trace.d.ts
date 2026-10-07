@@ -132,10 +132,17 @@ export interface DebugStackView {
     /** Identity of the debug session; WebSocket status events carry the same id. */
     sessionId?: string | null
     /**
-     * The whole executed call tree once the trace has finished (profiling mode); absent while it runs, or
-     * when the caller asked to omit it (`includeTree=false`).
+     * The root of the executed call tree once the trace has finished (profiling mode); its branches are fetched
+     * one level at a time. Absent while it runs, when the caller asked to omit it (`includeTree=false`), or when
+     * the caller asked for `treeNodes` (`fullTree=true`).
      */
     tree?: CallNodeView | null
+    /**
+     * The whole executed call tree in one list (`fullTree=true`): the root first, then every call after the node
+     * that made it. A node names its caller by `parent` and `parentStep` instead of carrying its sub-calls, so the
+     * response nests no deeper however deep the calls went.
+     */
+    treeNodes?: CallNodeView[] | null
     /**
      * A bounded overview of the finished profiled run (the slowest tables), so a large run can be
      * understood without pulling the full `tree`; absent outside profiling mode and while it runs.
@@ -222,6 +229,10 @@ export interface CallNodeView {
     refStep?: string | null
     /** Sub-calls this node made that ran but were dropped once the tree hit its size limit; absent when all kept. */
     notRetained?: number | null
+    /** In `treeNodes`, the position of the node whose step made this call; absent for the root. */
+    parent?: number | null
+    /** In `treeNodes`, the reference of the parent's step that made this call; absent for the root. */
+    parentStep?: string | null
 }
 
 /** One page of a step's executed sub-calls, fetched on demand so a large executed tree loads lazily. */

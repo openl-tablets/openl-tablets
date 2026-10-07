@@ -105,6 +105,21 @@ describe('SimpleTraceTree', () => {
             .every(b => (b.getAttribute('data-testid') ?? '').startsWith('simple-toggle-'))).toBe(true)
     })
 
+    it('opens the error path of a recursion thousands of calls deep without running out of call stack', () => {
+        // A rule that called itself until the stack ran out: every call fails, and the whole path is opened.
+        let deepest = callNode('uR', 2000, [{ ref: 'S1', label: '$Next = ERROR', status: 'executed' }],
+            { name: 'R = ERROR' })
+        for (let i = 1999; i >= 0; i--) {
+            deepest = callNode('uR', i, [{ ref: 'S1', label: '$Next = ERROR', status: 'executed', children: [deepest]}],
+                { name: 'R = ERROR' })
+        }
+        setStore({ simpleTree: deepest, simpleChildren: {}, status: 'error' })
+        render(<SimpleTraceTree />)
+
+        expect(screen.getAllByText('R = ERROR')).toHaveLength(2001)
+        // Thousands of rows take a while to draw under jsdom when the whole suite shares the machine.
+    }, 30_000)
+
     it('opens the whole path to the error on a failed run, so the failing node shows at once', () => {
         // On a failed run every node and step on the path to the error reads "= ERROR"; the tree opens that
         // path so the deepest failing node is visible without hunting through collapsed branches.

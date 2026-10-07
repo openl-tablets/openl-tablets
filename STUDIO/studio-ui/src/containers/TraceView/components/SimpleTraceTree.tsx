@@ -3,6 +3,7 @@ import { Button, Empty, Spin, Typography } from 'antd'
 import { LinkOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { treeChildKey, useTraceStore } from 'store'
+import { walkDepthFirst, type Later } from 'utils/depthFirst'
 import { isTraceExecutionError } from 'utils/traceExecutionStatus'
 import type { SimpleInspectTarget, SimpleStepFocus } from 'store/traceStore'
 import type { CallNodeView, StepValueView } from 'types/trace'
@@ -85,7 +86,8 @@ const stepTarget = (owner: CallNodeView, step: StepValueView): SimpleInspectTarg
 
 /**
  * Flatten the downloaded tree into indented rows, walking only expanded branches. Everything renders
- * from the snapshot alone — expanding never calls the backend.
+ * from the snapshot alone — expanding never calls the backend. A branch thousands of calls deep, as a
+ * runaway recursion leaves, is walked without running out of call stack.
  */
 const flattenSimple = (
     root: CallNodeView,
@@ -94,6 +96,7 @@ const flattenSimple = (
     showDetailed: boolean
 ): SimpleRow[] => {
     const rows: SimpleRow[] = []
+    let later: Later = () => undefined
     // A referenced step ($…@…) is rendered INLINE in the business view — its label, icon, click-to-inspect
     // and its own expandable subtree — right where it is used, so how it was computed is one expand away
     // instead of a hunt for the original elsewhere in the tree. (The advanced tree jumps to it instead.)
@@ -114,7 +117,7 @@ const flattenSimple = (
             target: { ...stepTarget(refOwner, original), selectionKey: path },
             ...(kids.length > 0 ? { expandKey: path } : {}) })
         if (kids.length > 0 && expanded.has(path)) {
-            kids.forEach((kid, i) => walkNode(kid, depth + 1, `${path}#${i}`, refOwner))
+            later(...kids.map((kid, i) => () => walkNode(kid, depth + 1, `${path}#${i}`, refOwner)))
         }
     }
 
@@ -138,10 +141,14 @@ const flattenSimple = (
         rows.push({ type: 'step', key: stepPath, depth: depth + 1, step, owner: node,
             target, ...(kids.length > 0 || omitted > 0 ? { expandKey: stepPath } : {}) })
         if (expanded.has(stepPath)) {
-            kids.forEach((kid, i) => walkNode(kid, depth + 2, `${stepPath}#${i}`, node))
-            if (omitted > 0) {
-                rows.push({ type: 'notRetained', key: `${stepPath}/omitted`, depth: depth + 2, count: omitted })
-            }
+            later(
+                ...kids.map((kid, i) => () => walkNode(kid, depth + 2, `${stepPath}#${i}`, node)),
+                () => {
+                    if (omitted > 0) {
+                        rows.push({ type: 'notRetained', key: `${stepPath}/omitted`, depth: depth + 2, count: omitted })
+                    }
+                }
+            )
         }
     }
 
@@ -157,13 +164,20 @@ const flattenSimple = (
         }
         // The business view stays plain by default: a decision table shows only its returned rule, unless
         // "Show detailed trace" is on, which reveals the per-condition breakdown like the classic trace.
-        displaySteps(node.steps, showDetailed).forEach(step => walkStep(node, step, depth, path))
-        if ((node.notRetained ?? 0) > 0) {
-            rows.push({ type: 'notRetained', key: `${path}/notRetained`, depth: depth + 1,
-                count: node.notRetained ?? 0 })
-        }
+        later(
+            ...displaySteps(node.steps, showDetailed).map(step => () => walkStep(node, step, depth, path)),
+            () => {
+                if ((node.notRetained ?? 0) > 0) {
+                    rows.push({ type: 'notRetained', key: `${path}/notRetained`, depth: depth + 1,
+                        count: node.notRetained ?? 0 })
+                }
+            }
+        )
     }
-    walkNode(root, 0, 'tree')
+    walkDepthFirst(queue => {
+        later = queue
+        walkNode(root, 0, 'tree')
+    })
     return rows
 }
 
@@ -175,27 +189,35 @@ const isErrorLabel = (text: string): boolean => text.endsWith(ERROR_SUFFIX)
 
 /**
  * Collect the tree paths to open so a failed run's whole error branch shows at once: every node and step on
- * the path marked "= ERROR". Path keys mirror flattenSimple's. Returns whether this subtree failed, so a
- * parent opens the step that leads into it.
+ * the path marked "= ERROR". Path keys mirror flattenSimple's. A step that leads into a failed call is opened
+ * too, however deep the call is.
  */
-const collectErrorPath = (node: CallNodeView, path: string, open: Set<string>): boolean => {
-    let failed = (node.name ?? '').endsWith(ERROR_SUFFIX)
-    for (const step of node.steps) {
-        const stepPath = `${path}/${step.ref}`
-        let stepFailed = (step.label ?? '').endsWith(ERROR_SUFFIX)
-        const kids = step.children ?? []
-        kids.forEach((child, i) => {
-            if (collectErrorPath(child, `${stepPath}#${i}`, open)) {
-                stepFailed = true
+const collectErrorPath = (root: CallNodeView, open: Set<string>): void => {
+    walkDepthFirst(later => {
+        const visit = (node: CallNodeView, path: string, reportFailed: () => void): void => {
+            const failedSteps = new Set<string>()
+            const calls: Array<() => void> = []
+            for (const step of node.steps) {
+                const stepPath = `${path}/${step.ref}`
+                if ((step.label ?? '').endsWith(ERROR_SUFFIX)) {
+                    failedSteps.add(stepPath)
+                }
+                (step.children ?? []).forEach((child, i) => calls.push(
+                    () => visit(child, `${stepPath}#${i}`, () => failedSteps.add(stepPath))))
             }
-        })
-        if (stepFailed) {
-            open.add(path)
-            open.add(stepPath)
-            failed = true
+            // Once every call below has said whether it failed, the node knows the steps to open.
+            later(...calls, () => {
+                failedSteps.forEach(stepPath => open.add(stepPath))
+                if (failedSteps.size > 0) {
+                    open.add(path)
+                }
+                if (failedSteps.size > 0 || (node.name ?? '').endsWith(ERROR_SUFFIX)) {
+                    reportFailed()
+                }
+            })
         }
-    }
-    return failed
+        visit(root, 'tree', () => undefined)
+    })
 }
 
 /**
@@ -225,7 +247,7 @@ const SimpleTraceTree: React.FC = () => {
         // On a failed run the whole path to the error reads "= ERROR"; open it so the failing node shows at
         // once — like the advanced view opens the frame it stopped on — instead of being lost deep in the tree.
         if (tree && (tree.name ?? '').endsWith(ERROR_SUFFIX)) {
-            collectErrorPath(tree, 'tree', open)
+            collectErrorPath(tree, open)
         }
         setExpanded(open)
     }, [tree])

@@ -12,9 +12,9 @@ package org.openl.studio.projects.model.trace;
  * @param profileTop  how many hotspots the profile overview returns
  * @param compact     when true, only the active (top) frame carries its sub-steps; the other frames are
  *                    the bare stack, so a step no longer re-sends every frame's steps
- * @param fullTree    when true, the executed tree is serialized deep — every step's sub-calls inline — in
- *                    one payload (bounded by a node cap), so the business view browses it offline without
- *                    paging; when false, the tree is shallow and the advanced view pages its branches lazily
+ * @param fullTree    when true, the whole executed tree comes in one payload as a flat list of nodes (bounded
+ *                    by a node cap), so the business view browses it offline without paging; when false, only
+ *                    the root comes and the advanced view pages its branches lazily
  */
 public record StackRenderOptions(boolean includeTree, int profileTop, boolean compact, boolean fullTree) {
 

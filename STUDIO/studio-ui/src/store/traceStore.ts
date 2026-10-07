@@ -10,10 +10,12 @@ import type {
     ProfileSummaryView,
     RawTableView,
     StepType,
+    StepValueView,
     TraceParameterValue,
     WatchView,
 } from 'types/trace'
 import traceService from 'services/traceService'
+import { walkDepthFirst } from 'utils/depthFirst'
 import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
 
 /** Cap on rows fetched per table; the backend slices and reports totalRows when more rows exist. */
@@ -209,10 +211,39 @@ export const treeChildKey = (uri: string, instance: number, step: string): strin
     JSON.stringify([uri, instance, step])
 
 /**
+ * Put the full tree back together from the list the server sends (`treeNodes`). Each call is attached to the step
+ * of its parent that made it, in the order of the list, which is the order the calls ran. The list holds no
+ * nesting of its own, so a tree thousands of calls deep is rebuilt without recursion.
+ */
+export const treeFromNodes = (nodes: CallNodeView[]): CallNodeView | null => {
+    const rebuilt = nodes.map(node => ({ ...node, steps: node.steps.map(step => ({ ...step })) }))
+    // The steps of a parent by reference, read once per parent, so attaching a call costs the same however many
+    // steps its parent has.
+    const stepsOf = new Map<CallNodeView, Map<string, StepValueView>>()
+    const stepOf = (parent: CallNodeView, ref: string): StepValueView | undefined => {
+        let steps = stepsOf.get(parent)
+        if (!steps) {
+            steps = new Map(parent.steps.map(step => [step.ref, step]))
+            stepsOf.set(parent, steps)
+        }
+        return steps.get(ref)
+    }
+    for (const node of rebuilt) {
+        const parent = node.parent == null ? undefined : rebuilt[node.parent]
+        const step = parent && node.parentStep != null ? stepOf(parent, node.parentStep) : undefined
+        if (step) {
+            (step.children ??= []).push(node)
+        }
+    }
+    return rebuilt[0] ?? null
+}
+
+/**
  * Number every call and step of a fully downloaded tree in execution order. `pre` is the position where
  * the row starts executing and `end` the last position inside it, so a click can only be reached by
  * resuming when its `pre` lies after the whole subtree of the previously inspected row — anything at or
- * before that point (including the row's own sub-calls) has already executed and needs a restart.
+ * before that point (including the row's own sub-calls) has already executed and needs a restart. A tree
+ * thousands of calls deep is numbered without running out of call stack.
  */
 export const buildSimpleOrder = (
     root: CallNodeView,
@@ -220,23 +251,28 @@ export const buildSimpleOrder = (
 ): Record<string, SimpleOrderRange> => {
     const order: Record<string, SimpleOrderRange> = {}
     let counter = 0
-    const visit = (node: CallNodeView): void => {
-        // A step reference is not an execution of its own — the original step already holds its range.
-        if (node.kind === 'stepRef') {
-            return
-        }
-        const pre = counter
-        counter += 1
-        for (const step of node.steps) {
+    walkDepthFirst(later => {
+        const visitStep = (node: CallNodeView, step: StepValueView): void => {
             const stepPre = counter
             counter += 1
             const kids = step.children ?? children[treeChildKey(node.uri, node.instance, step.ref)] ?? []
-            kids.forEach(visit)
-            order[`${node.uri}#${step.ref}@${node.instance}`] = { pre: stepPre, end: counter - 1 }
+            later(...kids.map(kid => () => visit(kid)), () => {
+                order[`${node.uri}#${step.ref}@${node.instance}`] = { pre: stepPre, end: counter - 1 }
+            })
         }
-        order[`${node.uri}@${node.instance}`] = { pre, end: counter - 1 }
-    }
-    visit(root)
+        const visit = (node: CallNodeView): void => {
+            // A step reference is not an execution of its own — the original step already holds its range.
+            if (node.kind === 'stepRef') {
+                return
+            }
+            const pre = counter
+            counter += 1
+            later(...node.steps.map(step => () => visitStep(node, step)), () => {
+                order[`${node.uri}@${node.instance}`] = { pre, end: counter - 1 }
+            })
+        }
+        visit(root)
+    })
     return order
 }
 
@@ -840,7 +876,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 await get().terminate()
                 set({ status: 'running' })
                 // One full profiled run: the response arrives once the whole calculation has finished,
-                // carrying the entire executed tree deep (fullTree) — so the business view browses it
+                // carrying the entire executed tree as one list (fullTree) — so the business view browses it
                 // offline without paging thousands of branches. Detailed titles (signature, result, cell
                 // values) are the business view's default; the advanced debugger never asks for either,
                 // keeping its tree shallow and lazily paged.
@@ -852,10 +888,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 ))
                 if (get().runId !== token) return
                 applyStack(stack)
-                const tree = stack.tree ?? null
+                const tree = treeFromNodes(stack.treeNodes ?? [])
                 if (tree) {
-                    // The tree arrived whole, with every step's sub-calls inline, so the order is built
-                    // straight from it — no further fetches, no per-page counters.
+                    // The tree arrived whole, so the order is built straight from it — no further fetches, no
+                    // per-page counters.
                     set({ simpleTree: tree, simpleOrder: buildSimpleOrder(tree, {}), simpleReady: true })
                 }
             } catch (error: any) {

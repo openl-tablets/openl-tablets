@@ -1,5 +1,5 @@
 import traceService from 'services/traceService'
-import { buildSimpleOrder, useTraceStore } from 'store/traceStore'
+import { buildSimpleOrder, treeFromNodes, useTraceStore } from 'store/traceStore'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services/traceService', () => ({
@@ -585,6 +585,12 @@ const callNode = (uri: string, instance: number, steps: any[] = [], extra: objec
 
 const sampleRoot = () => callNode('uR', 0, [{ ref: 'S1', status: 'executed', childrenTotal: 2 }])
 
+const sampleTreeNodes = () => [
+    callNode('uR', 0, [{ ref: 'S1', status: 'executed' }]),
+    callNode('uA', 0, [{ ref: 'SA', status: 'executed' }], { parent: 0, parentStep: 'S1' }),
+    callNode('uA', 1, [{ ref: 'SA', status: 'executed' }], { parent: 0, parentStep: 'S1' }),
+]
+
 const sampleChildrenPage = () => ({
     children: [
         callNode('uA', 0, [{ ref: 'SA', status: 'executed' }]),
@@ -615,6 +621,43 @@ describe('traceStore simple mode', () => {
         expect(order['uA@1']).toEqual({ pre: 4, end: 5 })
     })
 
+    it('rebuilds the tree from the list, each call under the step of its parent that made it', () => {
+        const nodes = [
+            callNode('uR', 0, [{ ref: 'S1', status: 'executed' }, { ref: 'S2', status: 'executed' }]),
+            callNode('uA', 0, [{ ref: 'SA', status: 'executed' }], { parent: 0, parentStep: 'S1' }),
+            callNode('uB', 0, [], { parent: 1, parentStep: 'SA' }),
+            callNode('uA', 1, [], { parent: 0, parentStep: 'S2' }),
+        ]
+
+        const root = treeFromNodes(nodes)
+
+        expect(root?.uri).toBe('uR')
+        expect(root?.steps[0]?.children?.map(child => child.uri)).toEqual(['uA'])
+        expect(root?.steps[0]?.children?.[0]?.steps[0]?.children?.map(child => child.uri)).toEqual(['uB'])
+        expect(root?.steps[1]?.children?.map(child => `${child.uri}@${child.instance}`)).toEqual(['uA@1'])
+        expect(nodes[0].steps[0].children).toBeUndefined() // the list the server sent is left as it was
+    })
+
+    it('rebuilds a tree thousands of calls deep', () => {
+        const nodes = [callNode('uR', 0, [{ ref: 'S1', status: 'executed' }])]
+        for (let i = 1; i <= 5000; i++) {
+            nodes.push(callNode('uR', i, [{ ref: 'S1', status: 'executed' }], { parent: i - 1, parentStep: 'S1' }))
+        }
+
+        let node = treeFromNodes(nodes)?.steps[0]?.children?.[0]
+        let depth = 0
+        while (node) {
+            depth += 1
+            node = node.steps[0]?.children?.[0]
+        }
+
+        expect(depth).toBe(5000)
+    })
+
+    it('rebuilds nothing from an empty list', () => {
+        expect(treeFromNodes([])).toBeNull()
+    })
+
     it('skips step references when numbering — they are not executions of their own', () => {
         const root = callNode('uR', 0, [{
             ref: 'S1',
@@ -630,9 +673,8 @@ describe('traceStore simple mode', () => {
 
     it('runs the whole trace profiled and gets the full tree in one request for offline browsing', async () => {
         cancelTrace.mockResolvedValue(undefined)
-        // The full tree arrives deep in the start response — every step's sub-calls inline.
-        startTrace.mockResolvedValue({ status: 'completed', frames: [],
-            tree: callNode('uR', 0, [{ ref: 'S1', status: 'executed', children: sampleChildrenPage().children }]),
+        // The full tree arrives in the start response as one list of every call.
+        startTrace.mockResolvedValue({ status: 'completed', frames: [], treeNodes: sampleTreeNodes(),
             profile: { nodeCount: 3 } } as any)
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
 
@@ -646,7 +688,7 @@ describe('traceStore simple mode', () => {
         expect(state.simpleTree?.uri).toBe('uR')
         expect(state.simpleReady).toBe(true)
         expect(state.simpleLoading).toBe(false)
-        // The order is built straight from the inline tree.
+        // The order is built straight from the rebuilt tree.
         expect(state.simpleOrder['uA@1']).toEqual({ pre: 4, end: 5 })
     })
 
@@ -655,8 +697,7 @@ describe('traceStore simple mode', () => {
         // Running through the error (breakOnErrors:false) terminates the run yet still returns the executed
         // tree — with the failed branch — so the business view opens the failed run instead of showing nothing.
         startTrace.mockResolvedValue({ status: 'error', error: { summary: 'rule boom' }, frames: [],
-            tree: callNode('uR', 0, [{ ref: 'S1', status: 'executed', children: sampleChildrenPage().children }]),
-            profile: { nodeCount: 3 } } as any)
+            treeNodes: sampleTreeNodes(), profile: { nodeCount: 3 } } as any)
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
 
         await useTraceStore.getState().simpleRun()
@@ -674,7 +715,7 @@ describe('traceStore simple mode', () => {
     it('clears breakpoints left over from the advanced mode before the simple run', async () => {
         cancelTrace.mockResolvedValue(undefined)
         setBreakpoints.mockResolvedValue(undefined)
-        startTrace.mockResolvedValue({ status: 'completed', frames: [], tree: null } as any)
+        startTrace.mockResolvedValue({ status: 'completed', frames: []} as any)
         useTraceStore.setState({ breakpoints: ['uA'], breakpointLabels: { uA: 'A' } })
 
         await useTraceStore.getState().simpleRun()

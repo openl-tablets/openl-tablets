@@ -107,8 +107,8 @@ A session moves through these statuses (also returned in every stack/status resp
 
 The normal flow is `pending → running ⇄ suspended → completed`; `error` and `terminated` are the other
 terminal states. Status transitions are pushed over WebSocket (see below). After `completed` the stack is
-empty, but a profiling session still exposes the whole executed tree in `DebugStackView.tree` and a
-bounded overview of it in `DebugStackView.profile`.
+empty, but a profiling session still exposes the executed tree in `DebugStackView.tree` (or, with
+`fullTree=true`, in `DebugStackView.treeNodes`) and a bounded overview of it in `DebugStackView.profile`.
 
 ---
 
@@ -133,8 +133,8 @@ via `PUT /breakpoints`) apply immediately.
   the first breakpoint.
 - `profiling` (boolean, default `false`) — retain the executed call tree (structure and timings, no
   values). Uses more memory and runs slower.
-- `includeTree` (boolean, default `true`) — embed the full executed `tree` in the response. Set to `false`
-  to keep only the bounded `profile` overview when the whole tree would be too large.
+- `includeTree` (boolean, default `true`) — embed the executed tree in the response (`tree`, or `treeNodes`
+  with `fullTree`). Set to `false` to keep only the bounded `profile` overview when the whole tree would be too large.
 - `profileTop` (integer, default `20`, min `1`) — how many hotspots (slowest tables) the `profile`
   overview returns.
 - `view` (`full` \| `compact`, default `full`) — per-frame detail. `compact` keeps sub-steps only on the
@@ -145,9 +145,12 @@ via `PUT /breakpoints`) apply immediately.
 - `detailedTitles` (boolean, default `false`) — build the detailed titles into the executed tree: each table node reads
   as its signature and result, and each spreadsheet cell as its value. It carries the values of the run, so it is off
   by default.
-- `fullTree` (boolean, default `false`) — serialize the whole executed tree in one response, so a client can browse it
-  without paging. It is bounded by a node cap, and a branch beyond the cap is cut and marked truncated. Without it the
-  tree is shallow, and `GET /tree/children` pages its branches.
+- `fullTree` (boolean, default `false`) — return the whole executed tree in one response, so a client can browse it
+  without paging. The tree comes as the flat `treeNodes` list instead of `tree`: the root first, then every call
+  after the node that made it. A node names its caller by `parent` and `parentStep` and carries no sub-calls of its
+  own, so the response nests no deeper however deep the calls went — a rule that recursed until a
+  `StackOverflowError` included. The list is bounded by a node cap, and a branch beyond the cap is cut and marked
+  truncated. Without it `tree` holds the root only, and `GET /tree/children` pages its branches.
 
 **Request body** (optional, `application/json`): raw input for a regular method. Supports a structured form
 whose `params` is either a named object or a positional array (`{ "runtimeContext": {...}, "params": [...] }`),
@@ -466,7 +469,9 @@ interface DebugStackView {
   status: DebugStatus;          // pending | running | suspended | completed | error | terminated
   frames: DebugFrameView[];     // root (index 0) → current; empty after completion
   error?: DebugError;           // present only when status = error
-  tree?: CallNodeView;          // whole executed tree after completion (profiling; omitted if includeTree=false)
+  tree?: CallNodeView;          // root of the executed tree after completion (profiling; omitted if includeTree=false
+                                //   or fullTree=true)
+  treeNodes?: CallNodeView[];   // whole executed tree as one list, root first (fullTree=true only)
   profile?: ProfileSummaryView; // bounded hotspots overview after completion (profiling only)
 }
 ```
@@ -475,7 +480,7 @@ interface DebugStackView {
 
 A bounded overview of a finished profiled run — the slowest tables, aggregated across the whole run. It is
 **constant-sized** regardless of run size (unlike `tree`, which grows with every invocation), so it is the
-safe way to understand a large run. Fetch the full `tree` only to drill into a specific branch.
+safe way to understand a large run. Fetch the full tree only to drill into a specific branch.
 
 ```typescript
 interface ProfileSummaryView {
@@ -577,6 +582,8 @@ interface CallNodeView {
   steps: StepValueView[];      // the executed sub-steps, each possibly with its own sub-calls
   dispatch?: DispatchInfo;     // set when the table was chosen from overloaded versions
   refStep?: string;            // for a stepRef node, the ref of the original step it points at
+  parent?: number;             // in treeNodes, the position of the node whose step made this call
+  parentStep?: string;         // in treeNodes, the ref of that step
 }
 ```
 
@@ -584,6 +591,10 @@ A node of the executed call tree (profiling): a returned table invocation, kept 
 values. A **`stepRef`** node is not a table: a formula computed or re-read another step of the same
 frame; the reference points at the original step (`refStep`) and carries no time or children of its own,
 so a shared step is never duplicated in the tree.
+
+In `treeNodes` a node's steps carry no `children`: each call is listed after its caller and points back at it
+with `parent` and `parentStep`. A client puts the tree together by attaching every node to that step of its
+parent, in list order, which is the order the calls ran.
 
 ### DispatchInfo
 

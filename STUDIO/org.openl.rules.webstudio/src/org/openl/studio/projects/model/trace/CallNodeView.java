@@ -26,6 +26,9 @@ import org.jspecify.annotations.Nullable;
  * @param dispatch       set when this table was selected by a dispatcher (overloaded by dimensions), otherwise {@code null}
  * @param refStep        for a step-reference node, the reference of the step it points at, otherwise {@code null}
  * @param notRetained    sub-calls this node made that ran but were dropped because the tree hit its size limit, else {@code null}
+ * @param parent         in a flat tree, the position of the calling node in the list, else {@code null}; the root
+ *                       of a flat tree has none either
+ * @param parentStep     in a flat tree, the reference of the calling node's step that made this call, else {@code null}
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -59,6 +62,12 @@ public record CallNodeView(
         @Nullable String refStep,
 
         @Schema(description = "trace.field.call-node.not-retained.desc")
-        @Nullable Long notRetained
+        @Nullable Long notRetained,
+
+        @Schema(description = "trace.field.call-node.parent.desc")
+        @Nullable Integer parent,
+
+        @Schema(description = "trace.field.call-node.parent-step.desc")
+        @Nullable String parentStep
 ) {
 }
