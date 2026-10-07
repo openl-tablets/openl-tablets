@@ -844,6 +844,8 @@ To deploy a project, proceed as follows:
 4.  In the **Comment** field, enter a comment describing the deployment.
 5.  Click **Deploy**.
 
+A deployment name follows the rules of a project name: it cannot contain the characters `\ / : ; < > ? * % ' [ ] | "`, start with a space, end with a space or a dot, or be a reserved word such as `CON`. If the name is not accepted, the reason is displayed under **Deployment Name**, and nothing is deployed.
+
 The project is deployed to the selected deployment repository, and the **Project deployed** message is displayed. The project is listed in the deployment on the **Deployments** page and in **Existing deployments** of its **Deploy Configuration** tab.
 
 A deployment repository can be configured to take projects only from the main branch of Design repository. For a project that is on another branch, the dialog explains that the project must be switched to the main branch or another repository must be selected, and **Deploy** is disabled.

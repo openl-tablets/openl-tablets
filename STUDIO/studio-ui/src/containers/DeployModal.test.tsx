@@ -20,15 +20,18 @@ vi.mock('hooks', async (importOriginal) => {
 
 class MockApiHttpError extends Error {
     status: number
-    constructor(status: number, message: string) {
+    payload?: { fields?: Array<{ field: string, message: string }> } | undefined
+    constructor(status: number, message: string, payload?: MockApiHttpError['payload']) {
         super(message)
         this.name = 'ApiHttpError'
         this.status = status
+        this.payload = payload
     }
 }
 
 vi.mock('services', async () => ({
     apiCall: vi.fn(),
+    fieldErrorsOf: (error: unknown) => (error instanceof MockApiHttpError ? error.payload?.fields ?? [] : []),
     ForbiddenError: class ForbiddenError extends Error {
         constructor(message?: string) {
             super(message)
@@ -418,6 +421,64 @@ describe('DeployModal', () => {
         await waitFor(() => expect(notification.error).toHaveBeenCalledWith(expect.objectContaining({
             description: "This deployment repository takes a project only from the 'master' branch.",
         })))
+    })
+
+    it('shows under the Deployment Name field why the server refused the name', async () => {
+        const refusal = 'The specified name is not a valid project name. Name cannot contain forbidden characters.'
+        mockApiCall
+            .mockReset()
+            .mockResolvedValueOnce([{ id: 'repo-1', name: 'Production' }])
+            .mockResolvedValueOnce([])
+            .mockRejectedValueOnce(new MockApiHttpError(400, refusal, {
+                fields: [{ field: 'deploymentName', message: refusal }],
+            }))
+
+        renderDeployModal()
+        await openModal(defaultDetail)
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
+        await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(
+            '/deployments?repository=repo-1',
+            undefined,
+            { throwError: true, suppressErrorPages: true }
+        ))
+        await userEvent.type(screen.getByLabelText('deploy:deployment_name.label-search'), 'a/b:c*?')
+        fireEvent.blur(screen.getByLabelText('deploy:deployment_name.label'))
+        await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Deploy changes')
+        await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
+
+        expect(await screen.findByText(refusal)).toBeInTheDocument()
+        expect(notification.error).not.toHaveBeenCalled()
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+        // The refusal was about that name: editing it takes the refusal away.
+        await userEvent.type(screen.getByLabelText('deploy:deployment_name.label-search'), 'Prod')
+        await waitFor(() => expect(screen.queryByText(refusal)).not.toBeInTheDocument())
+    })
+
+    it('tells in a toast what the server refused in a field the form does not have, beside the fields it has', async () => {
+        mockApiCall
+            .mockReset()
+            .mockResolvedValueOnce([{ id: 'repo-1', name: 'Production' }])
+            .mockResolvedValueOnce([{ id: 'dep-1', name: 'Deploy1' }])
+            .mockRejectedValueOnce(new MockApiHttpError(400, 'Not a field of the form', {
+                fields: [
+                    { field: 'comment', message: 'The comment is too long' },
+                    { field: 'constructor', message: 'Not a field of the form' },
+                ],
+            }))
+
+        renderDeployModal()
+        await openModal(defaultDetail)
+        await userEvent.selectOptions(screen.getByLabelText('deploy:repository.label'), 'repo-1')
+        await screen.findByRole('option', { name: 'Deploy1' })
+        await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
+        await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Deploy changes')
+        await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalledWith(expect.objectContaining({
+            description: 'Not a field of the form',
+        })))
+        expect(await screen.findByText('The comment is too long')).toBeInTheDocument()
     })
 
     it('refuses a repository that takes the main branch only while the project is elsewhere', async () => {

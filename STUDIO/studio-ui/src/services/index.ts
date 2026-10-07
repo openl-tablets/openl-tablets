@@ -1,4 +1,4 @@
-export { default as apiCall, ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError } from './apiCall'
+export { default as apiCall, ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError, fieldErrorsOf } from './apiCall'
 export type { ApiCallOptions } from './apiCall'
 export { default as CONFIG } from './config'
 export { default as webSocketService } from './websocket'

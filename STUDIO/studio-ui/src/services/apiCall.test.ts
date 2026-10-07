@@ -1,6 +1,7 @@
 import apiCall, {
     ApiHttpError,
     EmptyError,
+    fieldErrorsOf,
     NotFoundError,
     isApiHttpError,
     notifyLoadFailure,
@@ -259,6 +260,36 @@ describe('apiCall', () => {
         )
     })
 
+    it('keeps the status and the refused fields of a structured API error', async () => {
+        fetchMock.mockResolvedValueOnce(
+            mockResponse({
+                status: 400,
+                jsonData: {
+                    message: 'Bad Request',
+                    fields: [
+                        { field: 'deploymentName', message: ' Name cannot contain forbidden characters ' },
+                        { message: 'The request is incomplete' },
+                        { field: 'comment', message: '' },
+                    ],
+                },
+            })
+        )
+
+        const error = await apiCall('/deployments', undefined, { throwError: true }).catch((e: unknown) => e)
+
+        expect(isApiHttpError(error)).toBe(true)
+        expect((error as ApiHttpError).status).toBe(400)
+        expect(fieldErrorsOf(error)).toEqual([
+            { field: 'deploymentName', message: 'Name cannot contain forbidden characters' },
+            { field: undefined, message: 'The request is incomplete' },
+        ])
+    })
+
+    it('names no refused fields for an error that carries none', () => {
+        expect(fieldErrorsOf(new Error('offline'))).toEqual([])
+        expect(fieldErrorsOf(new ApiHttpError(409, 'Conflict', { message: 'Conflict' }))).toEqual([])
+    })
+
     it('shows a notification for unexpected errors when throwError is false', async () => {
         fetchMock.mockResolvedValueOnce(
             mockResponse({
@@ -268,7 +299,19 @@ describe('apiCall', () => {
         )
 
         await apiCall('/bad')
-        expect(notification.error).toHaveBeenCalled()
+        expect(notification.error).toHaveBeenCalledWith({ title: 'Bad request' })
+    })
+
+    it('shows what a refused form says, without the name of the error class', async () => {
+        fetchMock.mockResolvedValueOnce(
+            mockResponse({
+                status: 400,
+                jsonData: { fields: [{ field: 'name', message: 'Name is required' }] },
+            })
+        )
+
+        await apiCall('/invalid')
+        expect(notification.error).toHaveBeenCalledWith({ title: 'Name is required' })
     })
 
     describe('notifyLoadFailure', () => {

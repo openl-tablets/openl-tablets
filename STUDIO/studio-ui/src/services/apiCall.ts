@@ -131,22 +131,40 @@ const readResponse = async (response: Response, opts: ApiCallOptions) => {
     return text || true
 }
 
-/** The error of a failed response whose status has no error page: a rejected form names its invalid fields. */
+/** A field of a request the server refused, and why. */
+export interface FieldError {
+    field?: string | undefined
+    message: string
+}
+
+/** The fields an answer names as refused, each with its message. */
+const fieldsOf = (payload: unknown): FieldError[] => {
+    const fields = payload && typeof payload === 'object' && 'fields' in payload
+        ? (payload as { fields: unknown }).fields
+        : undefined
+    return (Array.isArray(fields) ? fields : [])
+        .map(({ field, message }: { field?: unknown, message?: unknown }) => ({
+            field: typeof field === 'string' ? field : undefined,
+            message: typeof message === 'string' ? message.trim() : '',
+        }))
+        .filter(({ message }) => message !== '')
+}
+
+/** The fields a refused request names in its answer, each with its message; none for any other error. */
+const fieldErrorsOf = (error: unknown): FieldError[] => (isApiHttpError(error) ? fieldsOf(error.payload) : [])
+
+/**
+ * The error of a failed response whose status has no error page.
+ *
+ * A rejected form names its invalid fields: their messages make the message of the error, and the fields
+ * themselves stay in its payload ({@link fieldErrorsOf}).
+ */
 const responseError = (status: number, payload: unknown): Error => {
-    if (payload && typeof payload === 'object' && 'fields' in payload && Array.isArray((payload as { fields: unknown[] }).fields)) {
-        const errors = (payload as { fields: Array<{ message: unknown }> }).fields
-            .map(({ message }) => (typeof message === 'string' ? message.trim() : ''))
-            .filter(Boolean)
-        const errorMessage = errors.length > 0
-            ? errors.join('\n')
-            : getErrorMessage(payload, 'Something went wrong on API server!')
-        return new Error(errorMessage)
-    }
-    return new ApiHttpError(
-        status,
-        getErrorMessage(payload, 'Something went wrong on API server!'),
-        payload
-    )
+    const fields = fieldsOf(payload)
+    const message = fields.length > 0
+        ? fields.map(({ message: refused }) => refused).join('\n')
+        : getErrorMessage(payload, 'Something went wrong on API server!')
+    return new ApiHttpError(status, message, payload)
 }
 
 /** Raises the error a failed response stands for, after asking for the error page its status calls for. */
@@ -230,7 +248,8 @@ const apiCall = async (
             } else if (error instanceof EmptyError) {
                 // An expired session is answered by the login prompt; a toast would only cover it with a blank one.
             } else if (error instanceof Error) {
-                notification.error({ title: error.toString() })
+                // What went wrong, without the name of the class that carries it.
+                notification.error({ title: error.message })
             }
         })
         .finally((result: any = false) => {
@@ -283,5 +302,5 @@ export const readTaskResult = async (
     return response
 }
 
-export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError }
+export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError, fieldErrorsOf }
 export default apiCall
