@@ -29,8 +29,9 @@ export const complexValueSummary = (value: object): string =>
  */
 export const describeSimpleValue = (value: unknown): SimpleValueText => {
     switch (typeof value) {
+        // The API leaves a null value out, so a value that is not there is shown as the null it stands for.
         case 'undefined':
-            return { display: 'undefined', kind: 'null' }
+            return { display: 'null', kind: 'null' }
         case 'string':
             return { display: `"${value}"`, kind: 'string' }
         case 'number':
@@ -182,7 +183,7 @@ const lineNode = (
     segments: readonly string[]
 ): TreeDataNode => {
     if (line.size === null || line.size === undefined) {
-        const plain = { name: line.name, value: line.value ?? null }
+        const plain = { name: line.name, value: line.value }
         return { key: levelKey(prefix, segments), title: renderTitle(plain), isLeaf: true }
     }
     const title: ValueNodeTitle = {

@@ -26,7 +26,11 @@ interface RunRow {
     key: string
 }
 
-/** What the run reported, shown as one row of the values it ran with and the value it returned. */
+/**
+ * What the run reported, shown as one row of the values it ran with and the value it returned.
+ *
+ * A run that failed returned nothing, so its errors stand in the Result column in place of the value.
+ */
 const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
     const { t } = useTranslation('execution')
     const valueStyles = useValueStyles()
@@ -45,9 +49,14 @@ const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
         {
             key: 'result',
             title: t('run.result'),
-            render: () => (result.resultSpreadsheet
-                ? <SpreadsheetValue keyPrefix="run-result" spreadsheet={result.resultSpreadsheet} />
-                : <ValueCell path="run-result" styles={valueStyles} value={result.result} />),
+            render: () => {
+                if (result.errors?.length) {
+                    return <ExecutionErrors errors={result.errors} />
+                }
+                return result.resultSpreadsheet
+                    ? <SpreadsheetValue keyPrefix="run-result" spreadsheet={result.resultSpreadsheet} />
+                    : <ValueCell path="run-result" styles={valueStyles} value={result.result} />
+            },
         },
     ]
 
@@ -148,7 +157,6 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
         >
             <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
                 {error && <Alert showIcon closable={{ onClose: () => setError(null) }} title={error} type="error" />}
-                <ExecutionErrors errors={result.errors} />
                 <RunResultTable result={result} />
             </Space>
         </ExecutionModal>

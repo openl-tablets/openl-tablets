@@ -169,8 +169,8 @@ const ValueText: React.FC<{ value: unknown, path: string, labels?: Record<string
     if (isComplexValue(value)) {
         return <Text italic data-testid={`value-${path}`} type="secondary">{complexValueSummary(value)}</Text>
     }
-    // An unset field is absent from the value. It is shown as null, which is what the rule receives.
-    const { display, kind } = describeSimpleValue(value === undefined ? null : value)
+    // An unset field is absent from the value, and is shown as null, which is what the rule receives.
+    const { display, kind } = describeSimpleValue(value)
     return kind === 'null'
         ? <Text italic data-testid={`value-${path}`} type="secondary">{display}</Text>
         : <Text code data-testid={`value-${path}`}>{display}</Text>
