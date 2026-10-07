@@ -59,7 +59,7 @@ The server renders no page. A Spring backend answers the REST API under `/rest` 
 `/ws`; every other address gets the one page of the React application, which draws every screen in the browser.
 
 - **Frontend** — `STUDIO/studio-ui`: React, TypeScript and Ant Design, built with Vite.
-- **Backend** — `STUDIO/org.openl.rules.webstudio`: controllers in `org.openl.studio.**.rest.controller`, services,
+- **Backend** — `STUDIO/studio-backend`: controllers in `org.openl.studio.**.rest.controller`, services,
   security, and the OpenAPI description of the API at `/rest/openapi.json`.
 - **Repositories** — `org.openl.rules.repository` and its Git, AWS S3 and Azure Blob variants; the JDBC repositories
   are in the base module. A project of a user is copied into a workspace
@@ -77,7 +77,7 @@ The server renders no page. A Spring backend answers the REST API under `/rest` 
 - **User guides** — the guides in `Docs/user-guides` are packed into the war and shown at `/docs`
   ([Embedded User Guides](architecture/embedded-user-guides.md)).
 - **Database** — users, groups, access rights and personal access tokens are stored in a database; Flyway scripts in
-  `STUDIO/org.openl.rules.webstudio/resources/db/flyway/` create and migrate it. The database is used unless
+  `STUDIO/studio-backend/resources/db/flyway/` create and migrate it. The database is used unless
   `user.mode` is `single`, and the default one is an embedded H2 database.
 
 The REST API is described in [API](api/README.md).

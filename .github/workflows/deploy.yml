@@ -82,7 +82,7 @@ jobs:
             --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
             --label "org.opencontainers.image.description=An OpenL web service with extra modules"
           docker buildx build -t $repo/webstudio:${{ env.TAG_VERSION }} -t $repo/webstudio:latest . \
-            --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
+            --build-arg APP=STUDIO/studio-backend/target/webapp \
             --platform ${BUILD_PLATFORMS} --push \
             --label $created --label $version --label $revision \
             --label "org.opencontainers.image.title=OpenL Studio" \

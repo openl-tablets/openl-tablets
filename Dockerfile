@@ -65,7 +65,7 @@ ENV LC_ALL C.UTF-8
 
 RUN apk upgrade --no-cache
 
-ARG APP=STUDIO/org.openl.rules.webstudio/target/webapp
+ARG APP=STUDIO/studio-backend/target/webapp
 
 ENV OPENL_DIR /opt/openl
 ENV OPENL_HOME $OPENL_DIR/local

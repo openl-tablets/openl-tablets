@@ -23,7 +23,7 @@ flowchart TB
     ruleservice["org.openl.rules.ruleservice"] --> workspace
     ruleservice --> rules
     ws["org.openl.rules.ruleservice.ws"] --> ruleservice
-    webstudio["org.openl.rules.webstudio"] --> workspace
+    webstudio["studio-backend"] --> workspace
     webstudio --> wscommon["org.openl.rules.ruleservice.ws.common"]
 ```
 
@@ -58,7 +58,7 @@ flowchart TB
 - **`org.openl.rules.repository.azure`** — `openl-yaml`, `org.openl.rules.repository` (provided)
 - **`org.openl.rules.repository.git`** — `org.openl.rules.repository` (provided), `org.openl.rules.xls.merge`
 - **`org.openl.rules.repository`** — `org.openl.commons`
-- **`org.openl.rules.webstudio`** — `org.openl.commons`, `openl-yaml`, `org.openl.rules.ruleservice.ws.common`,
+- **`studio-backend`** — `org.openl.commons`, `openl-yaml`, `org.openl.rules.ruleservice.ws.common`,
   `org.openl.rules.repository`, `org.openl.rules.repository.aws`, `org.openl.rules.repository.git`,
   `org.openl.rules.repository.azure`, `org.openl.rules.workspace`, `org.openl.rules.project`,
   `org.openl.rules.jackson`, `org.openl.rules.demo`, `org.openl.rules.project.validation.openapi`,

@@ -103,7 +103,7 @@ jobs:
       - name: Create DEMO package
         run: |
           set -euo pipefail
-          cp "STUDIO/org.openl.rules.webstudio/target/webstudio.war" "DEMO/webapps/webstudio.war"
+          cp "STUDIO/studio-backend/target/webstudio.war" "DEMO/webapps/webstudio.war"
           cp "WSFrontend/org.openl.rules.ruleservice.ws/target/webservice.war" "DEMO/webapps/webservice.war"
           echo "LOCAL" > DEMO/openl.version
 

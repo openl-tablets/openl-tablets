@@ -25,7 +25,7 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - **Third-party licenses**: the About dialog of the user menu lists the libraries OpenL Studio ships from two files
   under `/licenses`. Vite writes `frontend-licenses.json` (`build.license`: the libraries bundled into the pages, with
   their license texts); the war build writes `backend-licenses.json` (`license-maven-plugin` `add-third-party` through
-  `org.openl.rules.webstudio/license/backend-licenses.json.ftl`: the third-party jars of `WEB-INF/lib`, with the
+  `studio-backend/license/backend-licenses.json.ftl`: the third-party jars of `WEB-INF/lib`, with the
   address of each license). Both share one shape — `name`, `version`, `identifier`, then `text` or `url`.
 - **Static resources are public.** Every file the build leaves beside the pages — `/assets`, `/icons`, `/licenses`,
   the favicons, the files of the user guides — is listed in `SecurityConfig.staticResourcesFilterChain`, which runs
@@ -33,17 +33,18 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   `RequestMatchers.userGuideFiles()` admits an address below `/docs` only when its last part ends with an extension,
   the rule by which `UserGuidesServlet` never answers it with the page.
 - **New features** → React in `studio-ui/`
-- **DB migrations**: Flyway scripts in `org.openl.rules.webstudio/resources/db/flyway/`
+- **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
 - **REST API / OpenAPI**: Externalized descriptions, `@Parameter` vs `@Schema`, enum wire codes, and request
-  validation follow strict rules — see [`org.openl.rules.webstudio/AGENTS.md`](org.openl.rules.webstudio/AGENTS.md)
+  validation follow strict rules — see [`studio-backend/AGENTS.md`](studio-backend/AGENTS.md)
 - **Response field projection**: Clients add `?fields=id,name,modules(id,name)` to reduce JSON to selected fields, including nested objects and arrays (hierarchical, GraphQL-like). Applied globally during serialization (`org.openl.studio.common.projection`) — no controller-side parameter, no configuration. The selection is read before an endpoint declaring a projectable type runs, so a malformed one answers `400` without side effects. Any DTO under `org.openl.rules.*` or `org.openl.studio.*` is projectable, except framework infrastructure in `org.openl.studio.common.model` (errors, pagination wrappers). Errors, binary and non-JSON responses are never touched. OpenAPI integration lives separately in `org.openl.studio.openapi` and registers itself when the projection feature is present.
 
 ## Submodules
 
 **Core application**:
-- **org.openl.rules.webstudio** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`).
-  Its war is a GitHub release asset: the module is installed into the local repository but never deployed
+- **studio-backend** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`).
+  Its Maven artifact is `org.openl.rules.studio:studio-backend`. Its war is a GitHub release asset: the module is
+  installed into the local repository but never deployed
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
 - **studio-docs/** — packs `Docs/user-guides` into a jar the war serves at `/docs`; never deployed to a remote
   repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib` itself. Its tests validate the
@@ -55,12 +56,12 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - **org.openl.rules.repository.aws** — AWS S3 storage
 - **org.openl.rules.repository.azure** — Azure Blob storage
 
-**Security** (inside `org.openl.rules.webstudio`):
+**Security** (inside `studio-backend`):
 - `org.openl.rules.security` — Security abstractions
 - `org.openl.rules.security.standalone` — Standalone auth (form-based, DB-backed, Flyway migrations in `resources/db/flyway/`)
 - `org.openl.security.acl` — Access Control Lists
 
-**OpenAPI** (inside `org.openl.rules.webstudio`):
+**OpenAPI** (inside `studio-backend`):
 - `org.openl.rules.spring.openapi` — Spring OpenAPI integration
 
 **Supporting modules**:

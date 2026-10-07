@@ -31,7 +31,7 @@ openl-tablets/
   compose.yaml  Studio, Rule Services, PostgreSQL and a proxy for development
 ```
 
-A folder-specific `AGENTS.md` describes the conventions of `DEV/`, `STUDIO/`, `STUDIO/org.openl.rules.webstudio/`,
+A folder-specific `AGENTS.md` describes the conventions of `DEV/`, `STUDIO/`, `STUDIO/studio-backend/`,
 `STUDIO/studio-ui/`, `WSFrontend/` and `ITEST/`; read it before changing a folder.
 
 ## DEV — Rules Engine
@@ -68,7 +68,7 @@ page of the React application for every other address.
 
 | Module                                   | Content                                                              |
 |------------------------------------------|----------------------------------------------------------------------|
-| `org.openl.rules.webstudio`              | The backend and the WAR; security, ACL, OpenAPI and table packages   |
+| `studio-backend`                         | The backend and the WAR; security, ACL, OpenAPI and table packages   |
 | `studio-ui`                              | The React and TypeScript frontend                                    |
 | `studio-docs`                            | The user guides packed for the viewer at `/docs`                     |
 | `org.openl.rules.repository`             | The repository abstraction; JDBC repositories                        |
@@ -78,7 +78,7 @@ page of the React application for every other address.
 | `org.openl.rules.jackson`, `.jackson.configuration` | JSON serialization                                        |
 | `org.openl.rules.project.openapi`, `.validation.openapi` | OpenAPI generation and validation of projects        |
 
-Packages of `org.openl.rules.webstudio` (`STUDIO/org.openl.rules.webstudio/src/org/openl/`):
+Packages of `studio-backend` (`STUDIO/studio-backend/src/org/openl/`):
 
 - **`studio`** — the REST controllers, services and models by area: `projects`, `repositories`, `deployment`, `users`,
   `tags`, `settings`, `security`, `socket` (WebSocket), `session`, `compare`, `openapi`, `config`, `common`.
@@ -89,7 +89,7 @@ Packages of `org.openl.rules.webstudio` (`STUDIO/org.openl.rules.webstudio/src/o
   cell editor model that the table REST API reads.
 - **`rules/security`**, **`security/acl`** — users and groups, authentication, and access control lists.
 
-The Flyway scripts of the user database are in `STUDIO/org.openl.rules.webstudio/resources/db/flyway/`. The folders of
+The Flyway scripts of the user database are in `STUDIO/studio-backend/resources/db/flyway/`. The folders of
 `STUDIO/studio-ui/src` are `components`, `containers`, `pages`, `layouts`, `routes`, `services`, `store`, `hooks`,
 `contexts`, `locales`, `types` and `utils`.
 
@@ -132,7 +132,7 @@ server. The suites of OpenL Studio are the modules of `ITEST/itest.studio`. See
    whole project.
 3. `DEV/org.openl.rules/src/org/openl/types/IOpenClass.java` — the type system.
 4. `DEV/org.openl.rules/src/org/openl/rules/dt/IDecisionTable.java` — decision tables.
-5. `STUDIO/org.openl.rules.webstudio/src/org/openl/rules/webstudio/web/servlet/` — the servlets that answer `/rest`,
+5. `STUDIO/studio-backend/src/org/openl/rules/webstudio/web/servlet/` — the servlets that answer `/rest`,
    `/ws`, `/docs` and the page of the React application.
 
 ## Concepts
@@ -164,7 +164,7 @@ current date or the region.
 
 | Artifact                | Location                                                      |
 |-------------------------|---------------------------------------------------------------|
-| OpenL Studio web app    | `STUDIO/org.openl.rules.webstudio/target/webapp`              |
+| OpenL Studio web app    | `STUDIO/studio-backend/target/webapp`                         |
 | Rule Services web app   | `WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`     |
 | The demo package        | `DEMO/target`                                                 |
 

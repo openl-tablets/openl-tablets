@@ -99,9 +99,10 @@ jobs:
           take() { # <module directory> <war file name>
             local target="build/$1/target"
             mv "$target/$2" release-assets/
-            mv "$target/${1##*/}-${RELEASE_TAG}.war.asc" "release-assets/$2.asc"
+            # The signature is named after the artifact, <artifactId>-<version>.war.asc; it is the only one.
+            mv "$target"/*.war.asc "release-assets/$2.asc"
           }
-          take STUDIO/org.openl.rules.webstudio webstudio.war
+          take STUDIO/studio-backend webstudio.war
           take WSFrontend/org.openl.rules.ruleservice.ws webservice.war
           take WSFrontend/org.openl.rules.ruleservice.ws.all webservice-all.war
           find mvn-staging \( -name '*.war' -o -name '*.war.*' \) -print -delete

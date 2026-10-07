@@ -432,7 +432,8 @@ from Maven.
   `org.openl.rules.ruleservice.ws` dependency in the `provided` scope, and put it into `WEB-INF/lib` of the web
   application, as the
   [Advanced Configuration](https://openl-tablets.github.io/openl-tablets/user-guides/rule-services/advanced-configuration)
-  guide describes. The jar of `org.openl.rules.ruleservice.ws` and the other libraries stay in Maven Central.
+  guide describes. The jar of `org.openl.rules.ruleservice.ws` and the other libraries stay in Maven Central. A
+  build of OpenL Tablets from source installs the OpenL Studio war as `org.openl.rules.studio:studio-backend`.
 
 ## Administrators
 

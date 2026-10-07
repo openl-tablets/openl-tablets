@@ -26,7 +26,7 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 ## Rebuilding the App Under Test
 
 Each suite declares the application it boots as a test-scoped `<type>war</type>` dependency
-(`org.openl.rules.ruleservice.ws`, `org.openl.rules.ruleservice.ws.all`, or `org.openl.rules.webstudio`).
+(`org.openl.rules.ruleservice.ws`, `org.openl.rules.ruleservice.ws.all`, or `studio-backend`).
 The `unpack-webapp` execution in `ITEST/pom.xml` unpacks it into the suite's own `target/webapp` before
 tests — so no suite reads another module's `target/`, and a parallel or interrupted application build
 cannot corrupt a running suite.
