@@ -602,7 +602,8 @@ To create a table as a copy of the existing table, proceed as follows:
     server alike.
 2.  Select or enter the destination **Module**.
 3.  Select or enter the destination **Sheet**. The sheet is the table's category, so a new sheet name creates a new
-    category.
+    category. A copy into the module of the copied table is offered its sheet, the same category; a copy into
+    another module is offered a sheet of that module.
 4.  Review the property name and value rows. The names are the properties applicable to the copied table's type,
     offered the way the **Table Details** editor lists them — by display name, under the **Info**, **Business
     Dimension**, **Version** and **Dev** groups, so the dimensional properties are presented rather than guessed:

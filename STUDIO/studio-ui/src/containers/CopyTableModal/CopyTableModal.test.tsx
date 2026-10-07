@@ -341,6 +341,40 @@ describe('CopyTableModal', () => {
         expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ id: 'copy-id' }), 'Main')
     })
 
+    it('copies into the sheet the table is written on, not the first sheet of its module', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal({ currentSheetName: 'Archive' })
+
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+        expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Archive')
+
+        // Renaming the copy does not move it off the table's sheet.
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.type(screen.getByTestId('copy-table-name'), 'EligibilityCopy')
+        expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Archive')
+        await user.click(screen.getByRole('button', { name: 'project:copy_table_modal.copy' }))
+
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledWith('project-id', 'source-id', expect.objectContaining({
+            moduleName: 'Main',
+            sheetName: 'Archive',
+        })))
+    })
+
+    it('copies into a sheet of the destination module when the copy goes to another module', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal({ currentSheetName: 'Archive' })
+        await waitFor(() => expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Archive'))
+
+        mockGetSheets.mockResolvedValue(['Pricing', 'Discounts'])
+        await user.clear(screen.getByTestId('copy-table-module'))
+        await user.type(screen.getByTestId('copy-table-module'), 'Pricing')
+
+        // The table's sheet belongs to its own module: the other module offers one of its own.
+        await waitFor(() => expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Pricing'))
+    })
+
     it('allows a copy to keep the source table name', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CopyTableModal />)

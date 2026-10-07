@@ -117,13 +117,19 @@ describe('TableToolbar', () => {
         const opened = vi.fn()
         window.addEventListener('openCopyTableModal', opened)
         const onWritten = vi.fn()
-        await draw({ canWrite: true, onWritten, table: table('Rules') })
+        await draw({ canWrite: true, onWritten, table: table('Rules', { sheet: 'Category 0' }) })
 
         await userEvent.click(screen.getByTestId('table-copy'))
 
         window.removeEventListener('openCopyTableModal', opened)
         const { detail } = opened.mock.calls[0]?.[0] as CustomEvent
-        expect(detail).toMatchObject({ projectId: 'p1', currentModuleName: 'Claims', sourceTableId: 'table-1' })
+        // The sheet too: a copy into the same module goes to the sheet the table is written on.
+        expect(detail).toMatchObject({
+            projectId: 'p1',
+            currentModuleName: 'Claims',
+            currentSheetName: 'Category 0',
+            sourceTableId: 'table-1',
+        })
         // What the dialog writes is handed back, so the editor can open it where it landed.
         detail.onSuccess({ id: 'copy-1' }, 'Claims')
         expect(onWritten).toHaveBeenCalledWith({ id: 'copy-1' }, 'Claims')
