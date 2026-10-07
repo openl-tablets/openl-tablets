@@ -117,6 +117,104 @@ describe('ParametersInput', () => {
         expect(screen.getByTestId('value-policy.number')).toHaveTextContent('"P-1"')
         expect(parsed(onChange)).toEqual({ params: { age: 9, policy: { number: 'P-1' } } })
     })
+    it('reads the value of the only parameter pasted as it is, the way the run reads it', async () => {
+        const onChange = vi.fn()
+        const schedule = [{ name: 'scheduleInput', description: 'Schedule', lazy: false,
+            schema: { type: 'object', properties: { amount: { type: 'number' }, days: { type: 'array', items: { type: 'string' } } } } }]
+        render(<ParametersInput onChange={onChange} parameters={schedule} />)
+        await userEvent.click(screen.getByText('input.json'))
+        const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+
+        // A request copied from a service log holds the value itself, without the params and the parameter name.
+        await userEvent.clear(text)
+        await userEvent.type(text, '{{"amount": 110.42, "days": [["Last"]}')
+        await userEvent.click(screen.getByText('input.form'))
+
+        expect(parsed(onChange)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last']} } })
+        await userEvent.click(screen.getByText('input.json'))
+        const shown = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        expect(JSON.parse(shown.value)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last']} } })
+    })
+
+    it('reads an empty object as no values and a plain value as the value of the only parameter', async () => {
+        const onChange = vi.fn()
+        const greet = [{ name: 'name', description: 'String', lazy: false, schema: { type: 'string' } }]
+        const names = [{ name: 'names', description: 'String[]', lazy: false,
+            schema: { type: ['array', 'null'], items: { type: 'string' } } }]
+        const { rerender } = render(<ParametersInput onChange={onChange} parameters={greet} />)
+        const readBack = async (json: string) => {
+            await userEvent.click(screen.getByText('input.json'))
+            const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+            await userEvent.clear(text)
+            await userEvent.type(text, json.replaceAll('{', '{{').replaceAll('[', '[['))
+            await userEvent.click(screen.getByText('input.form'))
+            return parsed(onChange)
+        }
+
+        expect(await readBack('{}')).toEqual({ params: {} })
+        expect(await readBack('"Sara"')).toEqual({ params: { name: 'Sara' } })
+        // A list declared nullable is still a list: the whole of it is the value of the only parameter.
+        rerender(<ParametersInput onChange={onChange} parameters={names} />)
+        expect(await readBack('["a", "b"]')).toEqual({ params: { names: ['a', 'b']} })
+    })
+
+    it('keeps a list with more values than the table takes as JSON, as the run refuses it', async () => {
+        const onChange = vi.fn()
+        render(<ParametersInput onChange={onChange} parameters={parameters} />)
+        await userEvent.click(screen.getByText('input.json'))
+        const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        await userEvent.clear(text)
+        await userEvent.type(text, '[[6, {{"number": "P-6"}, "extra"]')
+
+        await userEvent.click(screen.getByText('input.form'))
+
+        expect(screen.getByTestId('json-editor')).toBeInTheDocument()
+        expect(lastValue(onChange)).toEqual({ inputJson: '[6, {"number": "P-6"}, "extra"]', error: 'input.tooManyValues' })
+    })
+
+    it('reads a supplied field only, never an inherited one, and a parameter named runtimeContext as a parameter',
+        async () => {
+            const onChange = vi.fn()
+            const named = [{ name: 'toString', description: 'String', lazy: false, schema: { type: 'string' } }]
+            const { rerender } = render(<ParametersInput onChange={onChange} parameters={named} />)
+            const readBack = async (json: string) => {
+                await userEvent.click(screen.getByText('input.json'))
+                const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+                await userEvent.clear(text)
+                await userEvent.type(text, json.replaceAll('{', '{{').replaceAll('[', '[['))
+                await userEvent.click(screen.getByText('input.form'))
+                return parsed(onChange)
+            }
+
+            expect(await readBack('"Sara"')).toEqual({ params: { toString: 'Sara' } })
+
+            const withContextName = [
+                { name: 'age', description: 'int', lazy: false, schema: { type: 'integer' } },
+                { name: 'runtimeContext', description: 'Policy', lazy: false, schema: { type: 'object' } },
+            ]
+            rerender(<ParametersInput onChange={onChange} parameters={withContextName} runtimeContext={runtimeContext} />)
+            expect(await readBack('{"age": 1, "runtimeContext": {"lob": "auto"}}'))
+                .toEqual({ params: { age: 1, runtimeContext: { lob: 'auto' } } })
+        })
+
+    it('reads values by name or in order, and leaves out a field that names no parameter', async () => {
+        const onChange = vi.fn()
+        render(<ParametersInput onChange={onChange} parameters={parameters} runtimeContext={runtimeContext} />)
+        const readBack = async (json: string) => {
+            await userEvent.click(screen.getByText('input.json'))
+            const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+            await userEvent.clear(text)
+            await userEvent.type(text, json.replaceAll('{', '{{').replaceAll('[', '[['))
+            await userEvent.click(screen.getByText('input.form'))
+            return parsed(onChange)
+        }
+
+        expect(await readBack('{"age": 5, "unknown": 1, "runtimeContext": {"lob": "auto"}}'))
+            .toEqual({ params: { age: 5 }, runtimeContext: { lob: 'auto' } })
+        expect(await readBack('[6, {"number": "P-6"}]')).toEqual({ params: { age: 6, policy: { number: 'P-6' } } })
+        expect(await readBack('{"params": [7]}')).toEqual({ params: { age: 7 } })
+    })
+
     it('starts again when the table is described with other parameters', async () => {
         // Reading a table within the current module only can describe it differently. What was typed for a
         // parameter that is gone must not be sent, and one that has appeared starts from the value the table

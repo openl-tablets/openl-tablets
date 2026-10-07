@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from
 import { Form, Radio, Skeleton, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { initialFormValue, SchemaForm, type SchemaFormParameter } from 'components/schemaForm/SchemaForm'
+import { primaryType, resolveSchema, type JsonSchema } from 'components/schemaForm/schema'
 import type { TraceParameterValue } from 'types/trace'
 import { RUNTIME_CONTEXT_LABELS } from './runtimeContextLabels'
 
@@ -45,6 +46,53 @@ const toInputJson = (value: Record<string, unknown>): string => {
     }, null, 2)
 }
 
+/** The values a list gives the parameters, in the order they are declared. */
+const byPosition = (values: unknown[], names: string[]): Record<string, unknown> =>
+    Object.fromEntries(names.slice(0, values.length).map((name, i) => [name, values[i]]))
+
+/** The values an object gives the parameters it names. A field that names no parameter is left out. */
+const byName = (values: Record<string, unknown>, names: string[]): Record<string, unknown> =>
+    Object.fromEntries(names.filter(name => Object.hasOwn(values, name)).map(name => [name, values[name]]))
+
+/**
+ * Reads input JSON into the values of the parameters, the way the run and trace APIs read it.
+ *
+ * The structured input lists the values under `params`, by name or in order. Without `params`, a list gives the
+ * values in order, and an object gives them by name. A table with one parameter also takes the value itself:
+ * an object that does not name that parameter is the parameter's value as a whole, as a request copied from a
+ * service log usually is.
+ *
+ * The context is read from `runtimeContext`, and never from the value of the only parameter. Without `params`, a
+ * parameter named `runtimeContext` takes that field, as it does on the server.
+ *
+ * Returns `null` for a list with more values than the table has parameters, which the run refuses as well.
+ */
+const readInput = (parsed: unknown, parameters: TraceParameterValue[]): {
+    params: Record<string, unknown>
+    context: unknown
+} | null => {
+    const names = parameters.map(parameter => parameter.name)
+    const root = asRecord(parsed)
+    const inOrder = (values: unknown[]) => (values.length > names.length ? null : byPosition(values, names))
+    if (Object.hasOwn(root, PARAMS)) {
+        const params = root[PARAMS]
+        const values = Array.isArray(params) ? inOrder(params) : byName(asRecord(params), names)
+        return values && { params: values, context: root[RUNTIME_CONTEXT] }
+    }
+    const only = parameters.length === 1 ? parameters[0] : undefined
+    const schema = (only?.schema ?? {}) as JsonSchema
+    if (Array.isArray(parsed) && primaryType(resolveSchema(schema, schema)) !== 'array') {
+        const values = inOrder(parsed)
+        return values && { params: values, context: undefined }
+    }
+    // An empty object gives no values, as it does to the run.
+    const empty = root === parsed && Object.keys(root).length === 0
+    if (only && !empty && !Object.hasOwn(root, only.name) && !Object.hasOwn(root, RUNTIME_CONTEXT)) {
+        return { params: { [only.name]: parsed }, context: undefined }
+    }
+    return { params: byName(root, names), context: names.includes(RUNTIME_CONTEXT) ? undefined : root[RUNTIME_CONTEXT] }
+}
+
 /**
  * Collects the input of a rule table.
  *
@@ -54,7 +102,8 @@ const toInputJson = (value: Record<string, unknown>): string => {
  * The runtime context, when the project provides one, is the last line of the form, under the parameters the
  * rule declares. Its fields show the names of their codes, such as `Québec` for `QC`. The code is what is sent.
  *
- * Switching to JSON shows what the form holds. Switching back reads the text into the form when it parses.
+ * Switching to JSON shows what the form holds. Switching back reads the text into the form when it parses, the way
+ * the run reads it, so the value of the only parameter pasted as it is fills that parameter.
  */
 export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, runtimeContext, onChange }) => {
     const { t } = useTranslation('execution')
@@ -126,16 +175,18 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
             setText(toInputJson(value))
             setError(undefined)
         } else {
-            // The text is read back into the form when it parses. A text that does not parse is kept as it is, so
-            // nothing typed is lost.
+            // The text is read back into the form when it parses. A text that does not parse, or that gives more
+            // values than the table takes, is kept as it is, so nothing typed is lost.
             const { parsed, error: parseError } = parseText(text)
             if (parseError) {
                 return
             }
-            const root = asRecord(parsed)
-            const { [RUNTIME_CONTEXT]: context, ...rest } = root
-            const params = PARAMS in root ? asRecord(root[PARAMS]) : rest
-            setValue(runtimeContext ? { ...params, [CONTEXT_FIELD]: asRecord(context) } : params)
+            const input = readInput(parsed, parameters)
+            if (!input) {
+                setError(t('input.tooManyValues', { count: parameters.length }))
+                return
+            }
+            setValue(runtimeContext ? { ...input.params, [CONTEXT_FIELD]: asRecord(input.context) } : input.params)
         }
         setMode(next)
     }
