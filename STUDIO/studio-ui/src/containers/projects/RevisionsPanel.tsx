@@ -16,7 +16,7 @@ import {
 } from '../../services/repositories'
 import { formatDateTime } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
-import { GitCommitMessage } from './GitCommitMessage'
+import { GitCommitMessage, type MessageLink } from './GitCommitMessage'
 import { shortRevision } from './revisions'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 
@@ -137,6 +137,19 @@ interface RevisionsPanelProps {
 
 const authorName = (revision: ProjectRevision): string =>
     revision.author?.displayName || revision.author?.email || '—'
+
+/**
+ * The project a revision was copied from, as a link to it.
+ *
+ * The server splits a comment written by the repository's "copied from" template into the text before the
+ * project name, the name, and the text after it; any other comment comes whole and links nowhere.
+ */
+const sourceLinkOf = ({ commentParts }: ProjectRevision): MessageLink | undefined => {
+    const [before = '', name, after = ''] = commentParts ?? []
+    return commentParts?.length === 3 && name
+        ? { before, text: name, after, to: `/projects/${encodeURIComponent(name)}` }
+        : undefined
+}
 
 /**
  * A project's revision history as a timeline, backed by the project history API. Supports a text search, a
@@ -291,6 +304,7 @@ export const RevisionsPanel = ({
                                                     <GitCommitMessage
                                                         strong
                                                         className={styles.msg}
+                                                        link={sourceLinkOf(revision)}
                                                         message={revision.fullComment}
                                                         testId={`revision-comment-${revision.revisionNo}`}
                                                     />
