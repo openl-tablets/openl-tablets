@@ -123,6 +123,9 @@ public class VerifyMojo extends BaseOpenLMojo {
     /**
      * Gets path to the resolved jars, including transitive.
      *
+     * <p>The jars are resolved from the plugin repositories. A jar in the local repository is used only when it was
+     * installed locally or downloaded from one of them.
+     *
      * @param artifactId - groupId:artifactId
      * @return a set of downloaded jars
      * @throws DependencyResolutionException
@@ -135,8 +138,8 @@ public class VerifyMojo extends BaseOpenLMojo {
                 .findFirst().get();
 
         // Resolve transitive dependencies and get its jar files
-        var collectRequest = new CollectRequest();
-        collectRequest.setRoot(new Dependency(artifact, JavaScopes.RUNTIME));
+        var collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.RUNTIME),
+                project.getRemotePluginRepositories());
         var dependencyRequest = new DependencyRequest(collectRequest, null);
         var openlDependencies = repositorySystem.resolveDependencies(session, dependencyRequest).getArtifactResults();
 
