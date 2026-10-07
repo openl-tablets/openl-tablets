@@ -10,6 +10,7 @@ import { getProject, getProjects, setProjectStatus } from '../services/repositor
 import { getTableThemes } from '../services/tables'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
 import { renderInTheme } from '../testing/theme'
+import { App as AntApp } from 'antd'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -19,7 +20,7 @@ const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace 
     setSearchParamsMock: vi.fn(),
     // What the workspace holds of the project: closed until the reader answers the question to open it, and
     // what the compilation of its module came to.
-    workspace: { opened: false, state: 'ok', branch: 'master', verifyNeeded: false },
+    workspace: { opened: false, state: 'ok', branch: 'master', verifyNeeded: false, gone: false },
 }))
 
 // What the details panel is handed to write the cells before the properties, and what the editor answers it with.
@@ -81,6 +82,7 @@ vi.mock('./modules/useModuleCompilation', () => ({
         compiled: workspace.opened ? 1 : 0,
         total: 1,
         failure: null,
+        gone: workspace.gone,
         tests: 0,
         state: workspace.opened ? workspace.state : 'idle',
         status: null,
@@ -236,6 +238,7 @@ describe('ModuleWorkspace', () => {
         workspace.state = 'ok'
         workspace.branch = 'master'
         workspace.verifyNeeded = false
+        workspace.gone = false
         routeParams.projectId = 'p1'
         searchParams.set('table', 't-1')
         vi.mocked(getProject).mockImplementation(() =>
@@ -275,6 +278,49 @@ describe('ModuleWorkspace', () => {
         // Writing the cells may move the table, so the properties go to the table as it stands afterwards.
         await expect(detailsPanel.beforeSave?.()).resolves.toEqual({ tableId: 't-2', changed: true })
         expect(write).toHaveBeenCalled()
+    })
+
+    it('goes to the project, saying why, when the project no longer has the module', async () => {
+        workspace.opened = true
+        // A sync with another branch took the module away while it was open.
+        vi.mocked(getModuleTables).mockRejectedValue(new NotFoundError('The module is not found in the project.'))
+        render(<AntApp><ModuleWorkspace /></AntApp>)
+
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/projects/p1', { replace: true }))
+        expect(await screen.findByText('browser.module.gone')).toBeInTheDocument()
+        // No dead end: the screen does not settle on the failure.
+        expect(screen.queryByTestId('module-workspace-error')).toBeNull()
+    })
+
+    it('stays on the module open now when the read of the module left behind finds that one gone', async () => {
+        workspace.opened = true
+        let refuse!: (error: Error) => void
+        vi.mocked(getModuleTables).mockImplementationOnce(() => new Promise((_resolve, reject) => { refuse = reject }))
+        const { rerender } = render(<AntApp><ModuleWorkspace /></AntApp>)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', expect.anything()))
+
+        routeParams.moduleName = 'Car Rating'
+        rerender(<AntApp><ModuleWorkspace /></AntApp>)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Car Rating', expect.anything()))
+        await act(async () => refuse(new NotFoundError('The module is not found in the project.')))
+
+        expect(navigateMock).not.toHaveBeenCalledWith('/projects/p1', { replace: true })
+        expect(screen.queryByText('browser.module.gone')).toBeNull()
+    })
+
+    it('goes to the project when the compilation finds the module gone', async () => {
+        workspace.opened = true
+        // Compiling the module finds it gone, and so does the read of its tables.
+        workspace.gone = true
+        vi.mocked(getModuleTables).mockRejectedValue(new NotFoundError('The module is not found in the project.'))
+        render(<AntApp><ModuleWorkspace /></AntApp>)
+
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/projects/p1', { replace: true }))
+        expect(await screen.findByText('browser.module.gone')).toBeInTheDocument()
+        // Both found it out: each went to the project.
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledTimes(2))
+        // Told once, however many reads found it out.
+        await waitFor(() => expect(screen.getAllByText('browser.module.gone')).toHaveLength(1))
     })
 
     it('tells the editor that the module waits for Verify, which no theme is applied before', async () => {
