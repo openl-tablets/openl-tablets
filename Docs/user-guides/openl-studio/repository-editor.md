@@ -796,6 +796,10 @@ To copy the selected project, proceed as follows:
 A copy in the default branch appears in the project list at once; a copy in another branch is listed once that branch
 is picked in the **Branch** filter. The selected branch is its home branch when no other branch contains the project.
 
+The first revision of the copy says which project it was copied from, for example **Copied from: Bank Rating.**, as
+the repository's comment template words it. In the **Revisions** tab and in **More \> Revisions** of the editor, the
+name of that project is a link that opens it.
+
 ### Removing a Project
 
 Deleting a project removes it from the user's workspace and from the current state of Design repository. For Git

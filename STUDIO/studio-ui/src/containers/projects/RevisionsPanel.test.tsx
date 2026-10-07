@@ -1,8 +1,9 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router'
 import { RevisionsPanel } from './RevisionsPanel'
-import { getProjectRevisions, openProjectRevision } from '../../services/repositories'
+import { getProjectRevisions, openProjectRevision, type ProjectRevision } from '../../services/repositories'
 
 vi.mock('../../services/repositories', () => ({
     getProjectRevisions: vi.fn(),
@@ -80,7 +81,7 @@ vi.mock('antd', async () => {
     return withStaticApp({ Alert, Button, Skeleton, Empty, Modal, Switch, Tag, Tooltip, notification })
 })
 
-const REVS = [
+const REVS: ProjectRevision[] = [
     { revisionNo: 'abcdef1234', shortRevisionNo: 'abcdef1', createdAt: '2024-01-02T00:00:00Z', fullComment: 'Second', author: { displayName: 'jane' }, deleted: false, technicalRevision: false },
     { revisionNo: '0987654321', shortRevisionNo: '0987654', createdAt: '2024-01-01T00:00:00Z', fullComment: 'First', author: { displayName: 'john' }, deleted: false, technicalRevision: false },
 ]
@@ -109,12 +110,14 @@ async function renderPanel(props: {
     searchable?: boolean
 } = {}) {
     render(
-        <RevisionsPanel
-            currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
-            onOpened={props.onOpened ?? vi.fn()}
-            projectId="p1"
-            searchable={props.searchable}
-        />
+        <MemoryRouter>
+            <RevisionsPanel
+                currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
+                onOpened={props.onOpened ?? vi.fn()}
+                projectId="p1"
+                searchable={props.searchable}
+            />
+        </MemoryRouter>
     )
     await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument())
 }
@@ -135,6 +138,25 @@ describe('RevisionsPanel', () => {
         await waitFor(() => expect(getProjectRevisions).toHaveBeenCalledWith('p1', expect.anything()))
         expect(screen.getByTestId('revisions-p1')).toBeTruthy()
         expect(screen.getByText('Second')).toBeTruthy()
+    })
+
+    it('links the project a copy was made from, and only that part of the comment', async () => {
+        vi.mocked(getProjectRevisions).mockResolvedValue(page([
+            {
+                ...REVS[0]!,
+                fullComment: 'Copied from: Bank Rating #2.',
+                commentParts: ['Copied from: ', 'Bank Rating #2', '.'],
+            },
+            REVS[1]!,
+        ]))
+        await renderPanel()
+
+        const comment = screen.getByTestId(`revision-comment-${REVS[0]!.revisionNo}`)
+        expect(comment).toHaveTextContent('Copied from: Bank Rating #2.')
+        expect(within(comment).getByRole('link', { name: 'Bank Rating #2' }))
+            .toHaveAttribute('href', '/projects/Bank%20Rating%20%232')
+        // A comment no template wrote links nowhere.
+        expect(within(screen.getByTestId(`revision-comment-${REVS[1]!.revisionNo}`)).queryByRole('link')).toBeNull()
     })
 
     it('opens a chosen revision for viewing', async () => {

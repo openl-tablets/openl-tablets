@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { Button } from 'antd'
 import { createStyles } from 'antd-style'
 
@@ -29,9 +30,19 @@ const useStyles = createStyles(({ css }) => ({
     `,
 }))
 
+/** A message as three parts, the middle one leading somewhere: the text before it, itself, the text after it. */
+export interface MessageLink {
+    before: string
+    text: string
+    after: string
+    to: string
+}
+
 interface GitCommitMessageProps {
     className?: string
     message?: string | null
+    /** A part of the message shown as a link, such as the project a copy was made from. */
+    link?: MessageLink | undefined
     maxChars?: number
     maxLines?: number
     strong?: boolean
@@ -50,10 +61,14 @@ const excerptOf = (message: string, maxChars: number, maxLines: number): string 
 
 /**
  * Shows a git commit message with long multi-line bodies collapsed by default.
+ *
+ * A part of the message given as a link leads where it says while the message is shown whole; a collapsed message
+ * stays plain text.
  */
 export const GitCommitMessage = ({
     className,
     message,
+    link,
     maxChars = DEFAULT_MAX_CHARS,
     maxLines = DEFAULT_MAX_LINES,
     strong,
@@ -69,7 +84,11 @@ export const GitCommitMessage = ({
 
     return (
         <span className={cx(styles.root, className)} data-testid={testId}>
-            <span className={cx(styles.text, strong && styles.strong)}>{visibleText}</span>
+            <span className={cx(styles.text, strong && styles.strong)}>
+                {link && visibleText === text
+                    ? <>{link.before}<Link to={link.to}>{link.text}</Link>{link.after}</>
+                    : visibleText}
+            </span>
             {collapsible && (
                 <>
                     {' '}
