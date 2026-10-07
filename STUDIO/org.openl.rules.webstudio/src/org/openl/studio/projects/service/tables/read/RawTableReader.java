@@ -369,11 +369,10 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                             .start(node.getStart())
                             .end(node.getEnd())
                             .description(node.getDescription())
-                            // Named only where a module holds the table. A word can resolve to a table the
-                            // engine wrote itself while compiling — the one that chooses between the versions
-                            // of an overloaded rule — which sits in no workbook and can be opened nowhere. The
-                            // reader is told what the word means and offered no way in, rather than a way in
-                            // that leads nowhere.
+                            // Named only where a module holds the table. The table the engine built to choose
+                            // between the versions of an overloaded rule sits in no workbook, and is opened
+                            // through the module it is reached from. A word naming no table is told what it
+                            // means and offered no way in.
                             .tableId(where == null ? null : TableUtils.makeTableId(node.getUri()))
                             .module(where == null ? null : where.module())
                             .projectId(where == null ? null : where.projectId())

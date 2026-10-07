@@ -17,7 +17,7 @@ import {
     TABLE_PAGE_ROWS,
     type ModuleInfo,
 } from '../services/modules'
-import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
+import { LOCAL_LOAD_API_OPTIONS, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { moduleRoute, toUrlSafeId } from '../services/projectId'
 import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/projectLink'
@@ -188,7 +188,8 @@ export const ModuleWorkspace = () => {
         }
     }, [])
     const [table, setTable] = useState<RawTableView | null>(null)
-    const [tableError, setTableError] = useState<string | null>(null)
+    // Why the table could not be read, and whether the server said it holds no table of the address at all.
+    const [tableError, setTableError] = useState<{ message: string, gone: boolean } | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
     const [cancelling, setCancelling] = useState(false)
     /** Whether the project has compiled through since this module was opened; see the effects below. */
@@ -637,8 +638,14 @@ export const ModuleWorkspace = () => {
     // again builds those entries afresh, and a table would be read a second time for no other reason than
     // that — two reads of the same module of the same session, each of them opening it.
     const listed = selected !== null
+    // A table the module holds but does not list — the one the compiler built to choose between the versions of
+    // an overloaded rule, which a word in a cell leads to — is read all the same, once the whole list is known not
+    // to name it. It is shown and not written: nothing but the compiler writes it.
+    const readable = listed || tableUnlisted?.absent === true
+    // Only a table the module lists is written: the one it holds without listing is built by the compiler.
+    const canWriteListed = listed && !!project?.capabilities?.canWrite
     useEffect(() => {
-        if (!projectId || selectedId === null || !listed || !themeKnown) {
+        if (!projectId || selectedId === null || !readable || !themeKnown) {
             setTable(null)
             setTableError(null)
             return
@@ -662,10 +669,13 @@ export const ModuleWorkspace = () => {
             })
             .catch((error: unknown) => {
                 if (tableLoads.isLatest(generation)) {
-                    setTableError(errorMessage(error))
+                    setTableError({
+                        message: errorMessage(error),
+                        gone: isApiHttpError(error) && error.status === 404,
+                    })
                 }
             })
-    }, [projectId, selectedId, listed, moduleName, tableLoads, drawnTheme, themeKnown])
+    }, [projectId, selectedId, readable, moduleName, tableLoads, drawnTheme, themeKnown])
 
     // The run state a table is read with can age. Read while the rest of the project was still being built -
     // which is where a switch to another module leaves it - it says a run must stay inside the module, and
@@ -720,7 +730,7 @@ export const ModuleWorkspace = () => {
             })))
             .catch((error: unknown) => {
                 if (tableLoads.isLatest(generation)) {
-                    setTableError(errorMessage(error))
+                    setTableError({ message: errorMessage(error), gone: false })
                 }
             })
             .finally(() => setMoreLoading(false))
@@ -865,7 +875,9 @@ export const ModuleWorkspace = () => {
 
     /** The table picked in the module, or why there is none to show. */
     const tableCanvas = () => {
-        if (tableUnlisted) {
+        // A table the list does not name is shown only when it was read: the module holds it after all. Only the
+        // server saying it holds no such table is "not found"; any other failure is told as it is, below.
+        if (tableUnlisted && (!tableUnlisted.absent || tableError?.gone === true)) {
             return (
                 <div className={styles.centered}>
                     {tableUnlisted.absent
@@ -879,7 +891,7 @@ export const ModuleWorkspace = () => {
                 <div className={styles.centered}>
                     <Alert
                         showIcon
-                        description={tableError}
+                        description={tableError.message}
                         title={t('browser.module.table_load_failed')}
                         type="error"
                     />
@@ -898,8 +910,9 @@ export const ModuleWorkspace = () => {
         // keeps its place while that read is on its way — a band taken away and put back asks the server again
         // for everything it shows.
         // A table gathered from several partial tables is read here and not written: the cells it is drawn
-        // from do not sit together, so there is nothing for an editor to write back into.
-        const canWriteTable = !!project.capabilities?.canWrite && table?.partial !== true
+        // from do not sit together, so there is nothing for an editor to write back into. Neither is a table the
+        // list does not name, which no band of actions is offered for either.
+        const canWriteTable = canWriteListed && table?.partial !== true
         const toolbar = selected === null ? null : (
             <TableToolbar
                 canWrite={canWriteTable}
@@ -914,7 +927,8 @@ export const ModuleWorkspace = () => {
                 table={selected}
             />
         )
-        if (!table || selected === null) {
+        // The rows of the table left behind are not drawn under the address of the one on its way.
+        if (table?.id !== selectedId) {
             return (
                 <>
                     {toolbar}
@@ -954,7 +968,7 @@ export const ModuleWorkspace = () => {
                     openAt={editCell}
                     projectId={project.id}
                     rows={table.source}
-                    tableId={selected.id}
+                    tableId={selectedId}
                     testId="module-table"
                     verifyNeeded={compilation.verifyNeeded}
                     whole={shown >= total}
@@ -1070,12 +1084,12 @@ export const ModuleWorkspace = () => {
                     />
                     <div className={styles.withDetails}>
                         <div className={styles.main}>{canvas()}</div>
-                        {compilation.ready && !closed && !tableUnlisted && (
+                        {compilation.ready && !closed && (!tableUnlisted || table !== null) && (
                             <TableDetailsPanel
                                 beforeSave={writeCellsFirst}
-                                canWrite={!!project.capabilities?.canWrite}
+                                canWrite={canWriteListed}
                                 confirmWrite={confirmWrite}
-                                listed={listed}
+                                listed={readable}
                                 moduleName={moduleName}
                                 onOpenTable={openTableById}
                                 onSaved={tableRewritten}

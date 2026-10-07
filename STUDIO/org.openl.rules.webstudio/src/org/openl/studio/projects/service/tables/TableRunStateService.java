@@ -33,7 +33,8 @@ public class TableRunStateService {
     public TableRunState of(ProjectModel model, IOpenLTable table) {
         var compiledThrough = model.isProjectCompilationCompleted();
         var uri = table.getUri();
-        if (!model.getOpenedModuleMessagesByTsn(uri, Severity.ERROR).isEmpty()) {
+        // A table the compiler built to choose between the versions of a rule is read only, never run.
+        if (model.isGeneratedTable(table) || !model.getOpenedModuleMessagesByTsn(uri, Severity.ERROR).isEmpty()) {
             return TableRunState.CANNOT_RUN;
         }
         var state = compiledThrough ? TableRunState.CAN_RUN : TableRunState.CAN_RUN_MODULE;

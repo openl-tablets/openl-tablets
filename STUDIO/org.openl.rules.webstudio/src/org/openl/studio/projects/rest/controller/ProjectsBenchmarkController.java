@@ -95,10 +95,7 @@ public class ProjectsBenchmarkController {
         var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
         var currentOpenedModule = moduleName != null;
 
-        var table = projectModel.getTableById(tableId);
-        if (table == null) {
-            throw new NotFoundException("table.message");
-        }
+        var table = RunnableTables.require(projectModel, tableId);
 
         var uri = table.getUri();
         var method = currentOpenedModule

@@ -57,6 +57,15 @@ class TableRunStateServiceTest {
         assertEquals(TableRunState.CANNOT_RUN, service.of(model, tableNamed(model, "HelloTest")));
     }
 
+    @Test
+    void the_table_choosing_between_the_versions_of_a_rule_runs_nothing() throws IOException {
+        var model = TableTestProjects.projectModel(tempDir.resolve("versions"), "Rules",
+                TableTestProjects::helloInTwoVersions);
+
+        // It is built again from the versions at every compilation and only ever read, as the Editor showed it.
+        assertEquals(TableRunState.CANNOT_RUN, service.of(model, TableTestProjects.dispatcherTable(model)));
+    }
+
     /** A module whose rules compile, with a test written against them. */
     private Path sound(String name) throws IOException {
         return TableTestProjects.writeProject(tempDir.resolve(name), name, "Rules", rules("make == c1"));

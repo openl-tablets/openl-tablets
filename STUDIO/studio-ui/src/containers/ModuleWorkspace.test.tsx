@@ -118,9 +118,9 @@ vi.mock('./modules/ModuleTablesTree', () => ({
 }))
 vi.mock('./modules/ModuleActionBar', () => ({ ModuleActionBar: () => null }))
 vi.mock('./modules/TableDetailsPanel', () => ({
-    TableDetailsPanel: ({ beforeSave }: { beforeSave?: () => Promise<unknown> }) => {
+    TableDetailsPanel: ({ beforeSave, canWrite }: { beforeSave?: () => Promise<unknown>, canWrite?: boolean }) => {
         detailsPanel.beforeSave = beforeSave
-        return <div data-testid="table-details" />
+        return <div data-can-write={String(canWrite)} data-testid="table-details" />
     },
 }))
 // The problems are listed elsewhere; here a message only asks for the trace behind it.
@@ -166,9 +166,11 @@ vi.mock('./modules/TableEditor', async () => {
     const { useImperativeHandle } = await import('react')
     return {
         TableEditor: ({
-            ref, testId, rows, hiddenRows, editing, look, verifyNeeded, onEditingChange, onOpenUsage, onSaved, children,
+            ref, testId, rows, hiddenRows, editing, canWrite, look, verifyNeeded, onEditingChange, onOpenUsage, onSaved,
+            children,
         }: {
             ref?: Ref<unknown>
+            canWrite?: boolean
             testId?: string
             rows?: unknown[]
             hiddenRows?: number
@@ -184,6 +186,7 @@ vi.mock('./modules/TableEditor', async () => {
             useImperativeHandle(ref, () => editorHandle.current)
             return (
                 <div
+                    data-can-write={String(canWrite)}
                     data-editing={String(editing)}
                     data-look={look ?? ''}
                     data-testid={testId}
@@ -655,27 +658,64 @@ describe('ModuleWorkspace', () => {
 
     it('says the module has no table a link names that the whole list does not hold, the utility tables included', async () => {
         workspace.opened = true
+        vi.mocked(getRawTable).mockRejectedValue(new NotFoundError('The table is not found.'))
         searchParams.set('table', 't-gone')
         render(<ModuleWorkspace />)
 
         await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
-        // Only once the whole list has answered is the table given up on, and no other one opens in its place.
+        // Only once the whole list has answered is the table asked for itself, and given up on when the module
+        // does not hold it either. No other one opens in its place.
         await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())
+        expect(getRawTable).toHaveBeenCalledTimes(1)
+        expect(getRawTable).toHaveBeenCalledWith('p1', 't-gone', expect.anything())
         // Nor is anything said about a table that is not there.
         expect(screen.queryByTestId('table-details')).toBeNull()
         expect(navigateMock).not.toHaveBeenCalled()
-        expect(getRawTable).not.toHaveBeenCalled()
         expect(getModuleTables).toHaveBeenCalledTimes(2)
+    })
+
+    it('shows read-only a table the module holds without listing it: the one choosing a rule version', async () => {
+        workspace.opened = true
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-dispatch',
+            name: 'validateGapOverlap_Hello',
+            source: [[{ cell: 'A1', value: 'Rules' }]],
+        } as never)
+        searchParams.set('table', 't-dispatch')
+        render(<ModuleWorkspace />)
+
+        // The whole list does not name it, so it is asked for itself, and the module answers with it.
+        expect(await screen.findByTestId('module-table')).toHaveAttribute('data-can-write', 'false')
+        expect(getRawTable).toHaveBeenCalledWith('p1', 't-dispatch', expect.anything())
+        expect(screen.queryByTestId('module-table-missing')).toBeNull()
+        // Nothing but the compiler writes it: no band of actions, and its properties are only read.
+        expect(screen.queryByTestId('table-toolbar')).toBeNull()
+        expect(await screen.findByTestId('table-details')).toHaveAttribute('data-can-write', 'false')
+        expect(navigateMock).not.toHaveBeenCalled()
+    })
+
+    it('tells why a table the list does not name could not be read, rather than calling it missing', async () => {
+        workspace.opened = true
+        vi.mocked(getRawTable).mockRejectedValue(new ApiHttpError(500, 'The module could not be read.'))
+        searchParams.set('table', 't-dispatch')
+        render(<ModuleWorkspace />)
+
+        // The server failed: the table may well be there, so the reader is told what went wrong.
+        expect(await screen.findByText('The module could not be read.')).toBeInTheDocument()
+        expect(screen.getByText('browser.module.table_load_failed')).toBeInTheDocument()
+        expect(screen.queryByTestId('module-table-missing')).toBeNull()
     })
 
     it('shows a table the address names once the module holds it after all', async () => {
         workspace.opened = true
         const fresh = { id: 't-new', name: 'Fresh', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
+        vi.mocked(getRawTable).mockRejectedValueOnce(new NotFoundError('The table is not found.'))
         searchParams.set('table', 't-new')
         render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())
 
         // The table is written meanwhile, and the module is read again.
+        vi.mocked(getRawTable).mockClear()
         vi.mocked(getModuleTables).mockResolvedValue([bankRating, fresh])
         await userEvent.click(screen.getByTestId('module-refresh'))
 
@@ -744,6 +784,9 @@ describe('ModuleWorkspace', () => {
         // Only the other branch holds the table, and there as a free-form one.
         vi.mocked(getModuleTables).mockImplementation((_projectId, _module, options) =>
             Promise.resolve(workspace.branch === 'feature' && options?.includeOther ? [bankRating, notes] : [bankRating]))
+        vi.mocked(getRawTable).mockImplementation(() => workspace.branch === 'feature'
+            ? Promise.resolve({ id: 't-9', name: 'Notes', source: []} as never)
+            : Promise.reject(new NotFoundError('The table is not found.')))
         searchParams.set('table', 't-9')
         render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('module-table-missing')).toBeInTheDocument())

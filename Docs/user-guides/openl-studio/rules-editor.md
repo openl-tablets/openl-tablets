@@ -494,6 +494,8 @@ Links to the rule tables are underlined and marked blue. When a mouse cursor is 
 
 *A tooltip for the linked method to a decision table*
 
+A link to a rule written in several versions, which differ by their business dimension properties, opens the table OpenL Tablets builds to choose between those versions, `validateGapOverlap_<rule name>`. The table is shown read-only, without the table toolbar: **Info** describes how it was built, and each of its rows links to the version it selects. OpenL Tablets builds the table anew every time the module is compiled, so open it from the link rather than from a saved address. A table you write yourself under such a name is an ordinary table of the module.
+
 Links to the data and datatype tables are underlined with a dotted line and has an appropriate tooltip with description.
 
 ![](images/datatype-table-links.png)

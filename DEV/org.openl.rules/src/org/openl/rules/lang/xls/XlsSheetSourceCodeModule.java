@@ -80,7 +80,7 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
         var workbookUri = workbookSource.getUri();
         if (workbookUri == null) {
             // assume that URI is null for virtual grid module, let's try to make it unique
-            workbookUri = "VIRTUAL_WORKBOOK@" + System.identityHashCode(this);
+            workbookUri = XlsHelper.VIRTUAL_WORKBOOK_URI_PREFIX + System.identityHashCode(this);
         }
         return workbookUri + "?sheet=" + StringTool.encodeURL(getSheetName());
     }

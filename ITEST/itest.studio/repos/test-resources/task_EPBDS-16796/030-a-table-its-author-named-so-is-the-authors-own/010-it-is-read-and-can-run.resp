@@ -1,0 +1,43 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "84db36b768c100b353ed42d2e64d5ac6",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "validateGapOverlapCheck",
+  "runState": "can-run",
+  "pos": "B15:C17",
+  "source": [
+    [
+      {
+        "cell": "B15",
+        "value": "SmartRules String validateGapOverlapCheck(String name)"
+      },
+      {
+        "cell": "C15"
+      }
+    ],
+    [
+      {
+        "cell": "B16",
+        "value": "Name"
+      },
+      {
+        "cell": "C16",
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B17",
+        "value": "x"
+      },
+      {
+        "cell": "C17",
+        "value": "Checked"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

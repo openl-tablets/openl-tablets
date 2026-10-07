@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.ui.ProjectModel;
 
 /**
  * Which properties a table may be given, and whether it may be given any at all.
@@ -33,14 +34,16 @@ final class TablePropertyRules {
     /**
      * Whether properties may be written on this table.
      *
-     * <p>A table generated to dispatch between the versions of another is written by nobody: it is built again
-     * from those versions whenever the module is compiled. Neither is a table assembled from parts written on
+     * <p>A table the compiler built to dispatch between the versions of another is written by nobody: it is built
+     * again from those versions whenever the module is compiled. A table its author wrote under the same name is the
+     * author's own. Neither is a table assembled from parts written on
      * several sheets — it stands on no sheet of its own to be written to. And some kinds carry no properties at
      * all: the environment, a properties table, whatever OpenL could not name.
      */
     static boolean canEditProperties(IOpenLTable table) {
         return table.isCanContainProperties()
-                && !table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)
+                && !(table instanceof TableSyntaxNodeAdapter adapter
+                        && ProjectModel.isBuiltByCompiler(adapter.getSyntaxNode()))
                 && !GridTableUtils.isAssembledFromParts(table.getGridTable());
     }
 

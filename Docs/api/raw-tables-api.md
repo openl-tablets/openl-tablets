@@ -151,7 +151,11 @@ The `metaInfo` of a cell has these fields, each of which is absent when the comp
 
 - `usages` — the pieces of the cell's text that refer to something. Each has the `start` and the `end` in the text, a
   `description`, a `kind` (`rule`, `datatype`, `data`, `field`, `underlined`, or `other`), and, for a table, its
-  `tableId`, `module`, and `projectId`.
+  `tableId`, `module`, and `projectId`. A rule written in several versions names the table the compiler built to
+  choose between them (`validateGapOverlap_<rule name>`), in the module the cell is read through. That table is
+  read through the same module, its `runState` is `cannot-run`, and its `tableId` changes with every compilation of
+  the module. Nothing but the compiler writes it: editing, copying, running, tracing or benchmarking it answers
+  `400` with `openl.error.400.table.generated.message`, which names the table.
 - `type` — the type that the cell holds.
 - `returnCell` — `true` for the cell that a decision table returns.
 - `editor` — the editor that the cell asks for: `text`, `numeric`, `combo`, `date`, `multiselect`, `formula`,
