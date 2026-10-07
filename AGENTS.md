@@ -151,6 +151,40 @@ EPBDS-NNNNN <subject>
   navigation.
 - **Ticket creation can be skipped** when the change does not affect the code functionality (build configuration,
   process documentation, developer tooling, dead code) and no relevant ticket exists in Jira.
+- **Never attach a client project or data taken from it.** Projects of the Amber base project, and the requests,
+  workbooks or values taken from them, are not uploaded to Jira and not used in tests as they are. Name the project
+  and where it comes from instead, and reproduce the defect with a case of your own — a small project built for
+  the ticket, like the ITEST fixtures. Screenshots of the symptom and server log excerpts are fine.
+- **Write a bug in the template below.** Steps first, then what is seen, then what should be seen. The steps tell
+  how to reproduce the defect, one action each, naming the buttons and fields as the screen shows them. Back a
+  step, the actual or the expected result with a screenshot where words alone leave it unclear. Attach the stack
+  trace of the failure, as a log file, whenever there is one. Keep it short and readable by the business; the
+  technical analysis (cause, failing code, proposed fix) goes into a separate comment, not into the description.
+
+```markdown
+**Steps to reproduce**
+
+1. <step>
+2. <step>
+
+<Screenshot of a step, when needed: !step.png|thumbnail!>
+
+**Actual Result**
+
+<What the user sees, with the exact error text.>
+
+<Screenshot, when needed: !actual.png|thumbnail!>
+
+<Stack trace, when there is one: the attached log file, e.g. stacktrace.log>
+
+**Expected Result**
+
+<What should happen instead.>
+
+<Screenshot, when needed: !expected.png|thumbnail!>
+
+<Since which version it happens, and the ticket that introduced it, when known.>
+```
 
 ## Markdown Rules
 
