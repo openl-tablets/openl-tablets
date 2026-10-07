@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -304,25 +305,47 @@ class TraceDebugMapperTest {
     }
 
     @Test
-    void fullTreeSerializesTheWholeTreeDeepInOneResponse() {
-        // The business view asks for the full tree: instead of the shallow lazy root, every step's sub-calls
-        // are inline, recursively, so the client browses the whole tree offline without paging.
-        var tree = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, lazyTreeFixture(), List.of(),
-                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true), false).tree();
+    void fullTreeListsTheWholeTreeInOneResponse() {
+        // The business view asks for the full tree: instead of the shallow lazy root, every call of the run comes
+        // in one list, so the client browses the whole tree offline without paging.
+        var stack = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, lazyTreeFixture(), List.of(),
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true), false);
 
-        assertNotNull(tree);
-        var step = tree.steps().get(0);
-        assertNotNull(step.children(), "the full tree carries the step's sub-calls inline, not lazily");
-        assertEquals(List.of("B", "C"), step.children().stream().map(CallNodeView::name).toList());
-        // Depth too: B's own loop iterations are present without a second request.
-        var bLoop = step.children().get(0).steps().get(0);
-        assertNotNull(bLoop.children(), "grandchildren are inline as well — the whole subtree is one payload");
-        assertEquals(3, bLoop.children().size());
+        assertNull(stack.tree(), "the full tree replaces the lazy root");
+        var nodes = stack.treeNodes();
+        assertNotNull(nodes);
+        // The root first, then every call right after the node that made it, in the order they ran.
+        assertEquals(List.of("A", "B", "D", "E", "F", "C"), nodes.stream().map(CallNodeView::name).toList());
+        assertEquals(Arrays.asList(null, 0, 1, 1, 1, 0), nodes.stream().map(CallNodeView::parent).toList());
+        assertEquals(Arrays.asList(null, "R0C0", "R1C1", "R1C1", "R1C1", "R0C0"),
+                nodes.stream().map(CallNodeView::parentStep).toList());
+        assertTrue(nodes.stream().flatMap(node -> node.steps().stream()).allMatch(step -> step.children() == null),
+                "a node names its caller instead of carrying its sub-calls");
+        assertTrue(nodes.stream().flatMap(node -> node.steps().stream()).allMatch(step -> step.childrenTotal() == null),
+                "nothing was left out");
+    }
+
+    @Test
+    void fullTreeNestsNoDeeperForADeepRecursion() throws Exception {
+        // A rule that calls itself thousands of times: the old deep tree nested four JSON levels per call and
+        // broke Jackson's limit of 1000 levels half way through the response.
+        var node = leaf("uR", "R", 1);
+        for (var i = 0; i < 3_000; i++) {
+            node = new CallNode("uR", "R", 0, FrameKind.SPREADSHEET, ms(1),
+                    List.of(new CallNode.Step("R0C0", "$Next", ms(1), List.of(node))), null, null);
+        }
+
+        var nodes = TraceDebugMapper.toFlatTree(node);
+
+        assertEquals(3_001, nodes.size(), "every call of the recursion is listed");
+        assertEquals(2_999, nodes.getLast().parent(), "the deepest call names the one before it");
+        var json = new ObjectMapper().writeValueAsString(nodes);
+        assertTrue(json.startsWith("[{"), "the list is written whole");
     }
 
     @Test
     void fullTreeCapsAStepAtTheChildLimitAndReportsTheOmittedCount() {
-        // A step looped past MAX_TREE_CHILDREN keeps only the first 100 inline; the full count is reported so
+        // A step looped past MAX_TREE_CHILDREN keeps only the first 100 calls; the full count is reported so
         // the client marks how many executions are omitted.
         List<CallNode> kids = new ArrayList<>();
         for (int i = 0; i < 150; i++) {
@@ -331,25 +354,37 @@ class TraceDebugMapperTest {
         CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
                 List.of(new CallNode.Step("R0C0", "$s", ms(200), kids)), null, null);
 
-        var step = TraceDebugMapper.toCappedTree(root).steps().get(0);
+        var nodes = TraceDebugMapper.toFlatTree(root);
 
-        assertEquals(100, step.children().size(), "only the first 100 iterations are serialized inline");
-        assertEquals(150, step.childrenTotal(), "the full count marks the branch as truncated");
+        assertEquals(101, nodes.size(), "only the first 100 iterations are listed after the root");
+        assertEquals(150, nodes.getFirst().steps().getFirst().childrenTotal(),
+                "the full count marks the branch as truncated");
     }
 
     @Test
     void fullTreeCutsBranchesBeyondTheNodeBudgetAndMarksThemTruncated() {
-        // With a tiny budget the deep serialization stops once the budget is spent: the first sub-call is
-        // included, the rest are cut and their step reports the full count so the client shows the truncation.
+        // With a tiny budget the list stops once the budget is spent: the first sub-call is included, the rest
+        // are cut and their step reports the full count so the client shows the truncation.
         CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(20),
                 List.of(new CallNode.Step("R0C0", "$s", ms(20),
                         List.of(leaf("uB", "B", 5), leaf("uC", "C", 5), leaf("uD", "D", 5)))), null, null);
 
-        var step = TraceDebugMapper.toCappedTree(root, 1).steps().get(0);
+        var nodes = TraceDebugMapper.toFlatTree(root, 1);
 
-        assertEquals(1, step.children().size(), "the budget admitted only the first sub-call");
-        assertEquals("B", step.children().get(0).name());
-        assertEquals(3, step.childrenTotal(), "the omitted sub-calls are reported as truncated");
+        assertEquals(List.of("A", "B"), nodes.stream().map(CallNodeView::name).toList(),
+                "the budget admitted only the first sub-call");
+        assertEquals(3, nodes.getFirst().steps().getFirst().childrenTotal(),
+                "the omitted sub-calls are reported as truncated");
+    }
+
+    @Test
+    void fullTreeSpendsTheBudgetOnAWholeBranchBeforeItsNextSibling() {
+        // The budget follows the order the calls ran: B and everything below it come before C.
+        var nodes = TraceDebugMapper.toFlatTree(lazyTreeFixture(), 3);
+
+        assertEquals(List.of("A", "B", "D", "E"), nodes.stream().map(CallNodeView::name).toList());
+        assertEquals(2, nodes.getFirst().steps().getFirst().childrenTotal(), "C is cut, so A's step counts B and C");
+        assertEquals(3, nodes.get(1).steps().getFirst().childrenTotal(), "F is cut, so B's loop counts all three");
     }
 
     @Test

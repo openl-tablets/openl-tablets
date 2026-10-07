@@ -21379,6 +21379,15 @@ Content-Type: application/json
             "format": "int64",
             "description": "***"
           },
+          "parent": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "parentStep": {
+            "type": "string",
+            "description": "***"
+          },
           "refStep": {
             "type": "string",
             "description": "***"
@@ -22901,6 +22910,13 @@ Content-Type: application/json
           },
           "tree": {
             "$ref": "#/components/schemas/CallNodeView"
+          },
+          "treeNodes": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/CallNodeView"
+            }
           }
         }
       },

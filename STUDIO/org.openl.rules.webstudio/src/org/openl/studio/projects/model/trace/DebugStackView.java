@@ -15,9 +15,14 @@ import org.jspecify.annotations.Nullable;
  * @param status  debug session status
  * @param frames  stack frames ordered from the root call to the current frame
  * @param error   failure detail when the session ended in error, otherwise {@code null}
- * @param tree    the whole executed tree once the trace has finished (profiling mode), so it outlives the
- *                now-empty stack; {@code null} while the trace is still running, or when the caller asked
- *                to omit it
+ * @param tree    the root of the executed tree once the trace has finished (profiling mode), so it outlives
+ *                the now-empty stack; its branches are fetched one level at a time. {@code null} while the
+ *                trace is still running, when the caller asked to omit it, or when the caller asked for
+ *                {@code treeNodes}
+ * @param treeNodes the whole executed tree in one list, when the caller asked for the full tree: the root
+ *                first, then every call after the node that made it. A node names its caller by position and
+ *                step, and carries no sub-calls of its own, so the response nests no deeper however deep the
+ *                calls went. {@code null} otherwise
  * @param profile a bounded overview of the finished profiled run (the slowest tables), so a large run can
  *                be understood without pulling the full {@code tree}; {@code null} outside profiling mode
  *                and while the trace is still running
@@ -39,6 +44,9 @@ public record DebugStackView(
 
         @Parameter(description = "trace.field.stack.tree.desc")
         @Nullable CallNodeView tree,
+
+        @Parameter(description = "trace.field.stack.tree-nodes.desc")
+        @Nullable List<CallNodeView> treeNodes,
 
         @Parameter(description = "trace.field.stack.profile.desc")
         @Nullable ProfileSummaryView profile,
