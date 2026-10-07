@@ -125,6 +125,29 @@ describe('RunResultModal', () => {
         expect(table).toHaveTextContent('1200')
     })
 
+    it('shows the error of a failed run in the Result column, as the result of the run', async () => {
+        await show({
+            ...value,
+            parameters: [{ name: 'name', description: 'String', lazy: false, value: 'UNKNOWN' }],
+            errors: [{ id: 1, summary: 'The name UNKNOWN is not supported', severity: 'ERROR' }],
+        })
+
+        const table = screen.getByTestId('run-result-table')
+        const cells = [...table.querySelectorAll('td')]
+        expect(cells.at(-1)).toHaveTextContent('The name UNKNOWN is not supported')
+        // The error is the result of the run, not a banner above it, and no missing value is shown beside it.
+        expect(screen.getAllByTestId('execution-error')).toHaveLength(1)
+        expect(table).not.toHaveTextContent('undefined')
+    })
+
+    it('shows a null result and a null input as null, not as undefined', async () => {
+        // The API leaves a null value out of the result.
+        await show({ ...value, parameters: [{ name: 'name', description: 'String', lazy: false }]})
+
+        const table = screen.getByTestId('run-result-table')
+        expect([...table.querySelectorAll('td')].map(cell => cell.textContent)).toEqual(['null', 'null'])
+    })
+
     it('shows a spreadsheet result as the table it was calculated by', async () => {
         await show({
             ...value,

@@ -13,7 +13,7 @@ import type { ValueLevel } from 'types/execution'
 describe('describeSimpleValue', () => {
     it('shows every kind of plain value the way a debugger does', () => {
         expect(describeSimpleValue(null)).toEqual({ display: 'null', kind: 'null' })
-        expect(describeSimpleValue(undefined)).toEqual({ display: 'undefined', kind: 'null' })
+        expect(describeSimpleValue(undefined)).toEqual({ display: 'null', kind: 'null' })
         expect(describeSimpleValue('Auto')).toEqual({ display: '"Auto"', kind: 'string' })
         expect(describeSimpleValue(25)).toEqual({ display: '25', kind: 'number' })
         expect(describeSimpleValue(false)).toEqual({ display: 'false', kind: 'boolean' })

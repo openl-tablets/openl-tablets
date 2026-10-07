@@ -323,6 +323,9 @@ A rule table can be run on its own, without a test table for it.
     A table that returns a spreadsheet shows it as the table its author wrote: a row per step, a column per
     spreadsheet column, and the calculated value in every cell.
 
+    A run that fails shows its error in the **Result** column, in place of the value it did not return. A table
+    that returns nothing shows `null` there, as does an input left empty.
+
 1.  To save the result, click **Save to Excel**. The workbook is written the way the options of the panel ask, as
     described after these steps.
 
