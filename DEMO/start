@@ -300,8 +300,8 @@ EOF
 EOF
 
 else
-    download_war "webstudio" "${RELEASES_URL}/${OPENL_VERSION}/webstudio.war"
-    download_war "webservice" "${RELEASES_URL}/${OPENL_VERSION}/webservice.war"
+    download_war "webstudio" "${RELEASES_URL}/${OPENL_VERSION}/openl-studio.war"
+    download_war "webservice" "${RELEASES_URL}/${OPENL_VERSION}/ruleservices.war"
 fi
 
 # Init Default repository

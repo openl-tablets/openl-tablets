@@ -6,11 +6,11 @@ Docker images. The OpenL Tablets DEMO package runs both on Jetty without Docker;
 
 ## Artifacts
 
-| Product                  | Docker image                         | WAR                  |
-|--------------------------|--------------------------------------|----------------------|
-| OpenL Studio             | `openltablets/webstudio`             | `webstudio.war`      |
-| OpenL Rule Services      | `openltablets/ws`                    | `webservice.war`     |
-| OpenL Rule Services, all | `openltablets/ws`, tag suffix `-all` | `webservice-all.war` |
+| Product                  | Docker image                         | WAR                    |
+|--------------------------|--------------------------------------|------------------------|
+| OpenL Studio             | `openltablets/webstudio`             | `openl-studio.war`     |
+| OpenL Rule Services      | `openltablets/ws`                    | `ruleservices.war`     |
+| OpenL Rule Services, all | `openltablets/ws`, tag suffix `-all` | `ruleservices-all.war` |
 
 - **Releases** — the WARs are assets of the [GitHub release](https://github.com/openl-tablets/openl-tablets/releases),
   each with its OpenPGP signature in the `.asc` asset of the same name. Maven Central gets the libraries only, not the

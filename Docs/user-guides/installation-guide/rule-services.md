@@ -2,13 +2,12 @@
 
 ### Download
 
-Download the Rule Services WAR from [openl-tablets.org/downloads](https://openl-tablets.org/downloads).
+Download `ruleservices.war` from the latest [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases). For the AWS S3, Azure Blob Storage, and Git sources, download `ruleservices-all.war` instead.
 
 ### Deployment
 
-1. Copy to `<TOMCAT_HOME>/webapps/`
-2. Rename to the desired context (e.g., `ruleservice.war`)
-3. Restart Tomcat
+1. Copy to `<TOMCAT_HOME>/webapps/`. The file name sets the context path; rename the file to change it.
+2. Restart Tomcat
 
 ### Configuration
 

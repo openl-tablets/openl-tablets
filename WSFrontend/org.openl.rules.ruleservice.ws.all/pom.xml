@@ -53,7 +53,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>webservice-all</finalName>
+        <finalName>ruleservices-all</finalName>
         <plugins>
             <plugin>
                 <groupId>org.basepom.maven</groupId>

@@ -31,9 +31,9 @@ If a project has specific requirements, OpenL Rule Services customization algori
     -   Spring configurations in the `org.openl.rules.ruleservice.spring` Java package or in the `META-INF/openl/extension-*.xml` files, as described in [Adding Spring Framework configurations](https://openl-tablets.github.io/openl-tablets/integration-guides/spring).
     -   Java and Groovy classes, such as interceptors, advices, and listeners, described further in this section.
     -   Settings in the `application.properties` file in `src/main/resources`.
-4.  Build the project as a JAR file and put it to the `WEB-INF/lib` folder of the OpenL Rule Services web application, the `webservice.war` asset of the [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases). In the `openltablets/ws` Docker image, the web application is unpacked to the `/opt/openl/app/webapps/ROOT` folder.
+4.  Build the project as a JAR file and put it to the `WEB-INF/lib` folder of the OpenL Rule Services web application, the `ruleservices.war` asset of the [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases). In the `openltablets/ws` Docker image, the web application is unpacked to the `/opt/openl/app/webapps/ROOT` folder.
 
-    To use the Git, Amazon AWS S3, and Azure Blob Storage repositories, or the relational database storage of the request logs, extend the *all* web application `webservice-all.war`, or the Docker image with the `-all` suffix of the tag, instead.
+    To use the Git, Amazon AWS S3, and Azure Blob Storage repositories, or the relational database storage of the request logs, extend the *all* web application `ruleservices-all.war`, or the Docker image with the `-all` suffix of the tag, instead.
 
 ### Data Source Listeners
 

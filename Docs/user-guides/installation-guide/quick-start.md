@@ -43,13 +43,12 @@ Download from [tomcat.apache.org](https://tomcat.apache.org/).
 
 #### Download OpenL Studio WAR
 
-Download the latest WAR file from [openl-tablets.org/downloads](https://openl-tablets.org/downloads).
+Download `openl-studio.war` from the latest [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases).
 
 #### Deploy to Tomcat
 
-1. Copy the WAR file to `<TOMCAT_HOME>\webapps\`
-2. Rename to `webstudio.war` if desired (this sets the context path)
-3. Start or restart Tomcat
+1. Copy `openl-studio.war` to `<TOMCAT_HOME>\webapps\webstudio.war`. The file name sets the context path.
+2. Start or restart Tomcat
 
 The WAR will auto-extract to a directory with the same name.
 

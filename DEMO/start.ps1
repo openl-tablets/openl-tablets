@@ -255,8 +255,8 @@ if ($OPENL_VERSION -eq "SNAPSHOT") {
 '@ | Set-Content (Join-Path $WEBAPPS_DIR "webservice.xml")
 
 } else {
-    Download-War "webstudio" "$RELEASES_URL/$OPENL_VERSION/webstudio.war"
-    Download-War "webservice" "$RELEASES_URL/$OPENL_VERSION/webservice.war"
+    Download-War "webstudio" "$RELEASES_URL/$OPENL_VERSION/openl-studio.war"
+    Download-War "webservice" "$RELEASES_URL/$OPENL_VERSION/ruleservices.war"
 }
 
 # Init Default repository
