@@ -6,8 +6,9 @@ try {
 
     // ---------------------------------------------------------------------------------------
     // Reactor-level expectations: the aggregator itself passes, every scenario module fails.
+    // Maven 3.10 logs the failures at the ERROR level, Maven 3.9 at the INFO one.
     // ---------------------------------------------------------------------------------------
-    assert lines.any { it.contains('[INFO] BUILD FAILURE') }
+    assert lines.any { it =~ /^\[(INFO|ERROR)\] BUILD FAILURE/ }
     assert lines.any { it =~ /^\[INFO\] Negative tests \.+ SUCCESS/ }
     [
             'EPBDS-12729 Tests failures',
@@ -22,7 +23,7 @@ try {
             'Tests separated',
             'Missed Annotation Template Class (Negative)',
     ].each { name ->
-        assert lines.any { it =~ /^\[INFO\] ${Pattern.quote(name)} \.+ FAILURE/ }, "Module '${name}' must fail"
+        assert lines.any { it =~ /^\[(INFO|ERROR)\] ${Pattern.quote(name)} \.+ FAILURE/ }, "Module '${name}' must fail"
     }
 
     // Slice the shared log into per-module sections for the checks which are not unique
