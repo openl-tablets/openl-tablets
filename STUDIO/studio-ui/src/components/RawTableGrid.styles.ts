@@ -35,6 +35,18 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
         color: ${paper.text};
     `,
     /**
+     * Every row stands at least one line tall, as every row of the workbook does.
+     *
+     * <p>A row whose cells all run on into the rows below it has no line of its own, and the browser folds it
+     * away. A value merged over that row would then read as covering fewer rules than it does.
+     *
+     * <p>The height is a little under the line a cell draws, which also holds the part of the text below its
+     * baseline: a row with something written in it keeps the height it has.
+     */
+    row: css`
+        height: calc(${Math.round(token.fontSizeSM * token.lineHeightSM) + 2 * token.paddingXXS + 1}px + 0.4em);
+    `,
+    /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past
      * the screen — the way the workbook itself shows it.
      *

@@ -213,7 +213,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                 </tr>
             )}
             {rows.map((row, rowIndex) => (
-                <tr key={rowKey(row, rowIndex)}>
+                <tr key={rowKey(row, rowIndex)} className={styles.row}>
                     {/* A table written the usual way round is numbered down its side, as the Editor did. */}
                     {layout !== undefined && !layout.transposed && (
                         <td className={styles.lineNumber}>
