@@ -206,16 +206,18 @@ const TableSearchForm = ({
     const search = useCallback(() => {
         setSearching(true)
         setFailure(null)
+        // The text is looked for exactly as typed, spaces at its edges included: two values that differ only by
+        // a space are told apart. Only a field left empty asks for nothing.
         const criteria: TableSearchCriteria = {
             module: moduleName,
             scope,
-            name: name.trim() || undefined,
-            header: header.trim() || undefined,
-            text: text.trim() || undefined,
+            name: name || undefined,
+            header: header || undefined,
+            text: text || undefined,
             kinds,
             properties: Object.fromEntries(filters
-                .filter(filter => filter.name && String(filter.value ?? '').trim())
-                .map(filter => [filter.name, String(filter.value).trim()])),
+                .filter(filter => filter.name && String(filter.value ?? '') !== '')
+                .map(filter => [filter.name, String(filter.value)])),
         }
         searchTables(projectId, criteria)
             .then(found => setResults(found))

@@ -354,7 +354,7 @@ export const ModuleTablesTree = ({
                                 aria-label={t('browser.module.search_extended')}
                                 data-testid="module-tables-search-extended"
                                 icon={<FilterOutlined />}
-                                onClick={() => onExtendedSearch(search.trim())}
+                                onClick={() => onExtendedSearch(search)}
                                 size="small"
                                 type="text"
                             />

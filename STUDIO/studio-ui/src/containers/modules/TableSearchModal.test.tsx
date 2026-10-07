@@ -127,6 +127,41 @@ describe('TableSearchModal', () => {
         }))
     })
 
+    it('looks for the text exactly as typed, the spaces at its edges included', async () => {
+        open()
+
+        await userEvent.clear(screen.getByTestId('table-search-name'))
+        await userEvent.type(screen.getByTestId('table-search-name'), ' Greet')
+        await userEvent.type(screen.getByTestId('table-search-header'), 'Spreadsheet ')
+        await userEvent.type(screen.getByTestId('table-search-text'), '  Good morning  ')
+        await userEvent.click(screen.getByTestId('table-search-property-add'))
+        await userEvent.click(await screen.findByTestId('table-search-property-0'))
+        await userEvent.click(await screen.findByTitle('Tags'))
+        await userEvent.type(screen.getByTestId('table-search-property-value-0'), ' pricing ')
+        await userEvent.click(screen.getByTestId('table-search-run'))
+
+        // Two values that differ only by a space at an edge are told apart, as the server searches for what it is given.
+        expect(searchTables).toHaveBeenCalledWith('p1', expect.objectContaining({
+            name: ' Greet',
+            header: 'Spreadsheet ',
+            text: '  Good morning  ',
+            properties: { tags: ' pricing ' },
+        }))
+    })
+
+    it('asks for nothing by a field left empty', async () => {
+        open()
+
+        await userEvent.clear(screen.getByTestId('table-search-name'))
+        await userEvent.click(screen.getByTestId('table-search-run'))
+
+        expect(searchTables).toHaveBeenCalledWith('p1', expect.objectContaining({
+            name: undefined,
+            header: undefined,
+            text: undefined,
+        }))
+    })
+
     it('narrows by several families of table at once, the way the Editor\'s own search did', async () => {
         open()
 
