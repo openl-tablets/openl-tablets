@@ -4,7 +4,7 @@ import { RocketOutlined, BranchesOutlined, LoadingOutlined } from '@ant-design/i
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from 'hooks'
 import { Select, TextArea } from 'components/form'
-import { apiCall, ForbiddenError, isApiHttpError } from 'services'
+import { apiCall, fieldErrorsOf, ForbiddenError, isApiHttpError } from 'services'
 import { errorHandler } from 'utils/errorHandling'
 import { Repository } from 'types/repositories'
 import { WIDTH_OF_FORM_LABEL_MODAL } from 'constants/ui'
@@ -32,6 +32,13 @@ interface DeployFormValues {
     deploymentName: string
     comment: string
 }
+
+/** The field of the form each field of the deploy request is typed in. */
+const FORM_FIELD_OF = new Map<string, keyof DeployFormValues>([
+    ['comment', 'comment'],
+    ['deploymentName', 'deploymentName'],
+    ['productionRepositoryId', 'repository'],
+])
 
 /** Whether the error is Ant Design's validation result (ValidateErrorEntity), which the form shows inline. */
 const isValidationError = (error: unknown): boolean =>
@@ -169,9 +176,43 @@ export const DeployModal: React.FC = () => {
         return true
     }
 
-    /** Tells why a deployment failed: on the repository field when it is not granted, in a toast otherwise. */
+    /**
+     * Shows under the fields of the form what the server refused in them, such as a deployment name it does
+     * not accept, and answers what it refused that no field of the form stands for.
+     */
+    const showRefusedFields = (refusals: ReturnType<typeof fieldErrorsOf>): string[] => {
+        const refused = new Map<keyof DeployFormValues, string[]>()
+        const elsewhere: string[] = []
+        for (const { field, message } of refusals) {
+            const name = field && FORM_FIELD_OF.get(field)
+            if (name) {
+                refused.set(name, [...(refused.get(name) ?? []), message])
+            } else {
+                elsewhere.push(message)
+            }
+        }
+        form.setFields([...refused].map(([name, errors]) => ({ name, errors })))
+        return elsewhere
+    }
+
+    /**
+     * Tells why a deployment failed: under the fields the server refused, and in a toast what no field stands
+     * for; on the repository field when it is not granted; in a toast otherwise.
+     */
     const reportDeployFailure = (error: unknown) => {
         errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
+        const refusals = fieldErrorsOf(error)
+        if (refusals.length > 0) {
+            const elsewhere = showRefusedFields(refusals)
+            if (elsewhere.length > 0) {
+                notification.error({
+                    title: t('deploy:notifications.deploy_failed'),
+                    description: elsewhere.join('\n'),
+                    placement: 'topRight',
+                })
+            }
+            return
+        }
         if (error instanceof ForbiddenError) {
             form.setFields([{
                 name: 'repository',
@@ -247,7 +288,15 @@ export const DeployModal: React.FC = () => {
         }
     }
 
+    // What the server said about a name is about that name: editing it takes the refusal away.
+    const forgetRefusedName = () => {
+        if (form.getFieldError('deploymentName').length > 0) {
+            form.setFields([{ name: 'deploymentName', errors: []}])
+        }
+    }
+
     const handleSearchDeploymentName = (newValue: string) => {
+        forgetRefusedName()
         setSearchString(newValue)
         // If a user types something new, mark as new deployment
         if (newValue && !deploymentNames.some(dep => dep.name === newValue)) {
@@ -256,6 +305,7 @@ export const DeployModal: React.FC = () => {
     }
 
     const handleChangeDeploymentName = (newValue: string) => {
+        forgetRefusedName()
         if (newValue) {
             setSearchString('')
             // Check if this is an existing deployment or a new one
@@ -338,7 +388,10 @@ export const DeployModal: React.FC = () => {
                             labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                             name="deploy_form"
                             style={{ minWidth: 0 }}
-                            wrapperCol={{ flex: 1 }}
+                            // Sized from nothing rather than from what it holds: the reason a name is refused is
+                            // a long sentence, which wraps under the field instead of pushing the field below
+                            // its label.
+                            wrapperCol={{ flex: '1 1 0' }}
                         >
                             <Select
                                 required
