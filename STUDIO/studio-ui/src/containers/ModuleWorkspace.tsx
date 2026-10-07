@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, Progress, Skeleton, Tooltip } from 'antd'
+import { Alert, App, Button, Empty, Progress, Skeleton, Tooltip } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable, RawTableView, SummaryTable } from 'types/tables'
@@ -17,7 +17,7 @@ import {
     TABLE_PAGE_ROWS,
     type ModuleInfo,
 } from '../services/modules'
-import { LOCAL_LOAD_API_OPTIONS, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
+import { LOCAL_LOAD_API_OPTIONS, NotFoundError, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { moduleRoute, toUrlSafeId } from '../services/projectId'
 import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/projectLink'
@@ -155,6 +155,7 @@ export const ModuleWorkspace = () => {
     const { styles } = useStyles()
     const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
+    const { notification } = App.useApp()
     const { projectId = '', moduleName = '' } = useParams()
     const [search, setSearch] = useSearchParams()
     // What the extended search was opened with, and whether it stands open at all.
@@ -244,6 +245,12 @@ export const ModuleWorkspace = () => {
     // The module on screen, of the copy of the project it was read from: a module of another project, or of
     // another branch of this one, is another module, whatever it is called.
     const here = `${projectId} ${branch} ${moduleName}`
+    // The module on screen when an answer arrives: a failure of a read for a module the reader has left is not
+    // this screen's to report.
+    const onScreen = useRef(here)
+    useEffect(() => {
+        onScreen.current = here
+    }, [here])
 
     // Only the tables read for the module now open count as this screen's.
     const tables = loaded?.at === here ? loaded.tables : null
@@ -339,6 +346,14 @@ export const ModuleWorkspace = () => {
         )
     }, [load, project, projectId])
 
+    // The project no longer has the module: a sync with another branch took it away, or another session did.
+    // Nothing is left to read here, whether the compilation or the read of the tables finds that out, so the
+    // reader goes to the project. Both may find it out, and the reader is told once.
+    const leaveGoneModule = useCallback(() => {
+        notification.warning({ key: `module-gone ${moduleName}`, title: t('browser.module.gone', { module: moduleName }) })
+        void navigate(`/projects/${toUrlSafeId(projectId)}`, { replace: true })
+    }, [moduleName, navigate, notification, projectId, t])
+
     // Followed by the id the server issued, not the one the address carries: a link written elsewhere may
     // spell the same project a little differently, and the channel is named after the server's spelling.
     const compilation = useModuleCompilation({
@@ -351,6 +366,12 @@ export const ModuleWorkspace = () => {
         enabled: project !== null && !closed,
         rebuild,
     })
+
+    useEffect(() => {
+        if (compilation.gone) {
+            leaveGoneModule()
+        }
+    }, [compilation.gone, leaveGoneModule])
 
     // Where the module's own workbook is named, so it can be exported. The descriptor does not always spell it
     // out — a project whose modules are discovered by pattern declares none — so the resolved list is read.
@@ -388,7 +409,12 @@ export const ModuleWorkspace = () => {
         getModuleTables(projectId, moduleName, { includeOther: showOther })
             .then(found => setLoaded({ at: here, other: showOther, tables: found }))
             .catch((error: unknown) => {
-                if (tablesReloading) {
+                if (onScreen.current !== here) {
+                    return
+                }
+                if (error instanceof NotFoundError) {
+                    leaveGoneModule()
+                } else if (tablesReloading) {
                     chooseOther(!showOther)
                     notifyLoadFailure(t('browser.module.tables_load_failed'), error)
                 } else {
@@ -400,7 +426,8 @@ export const ModuleWorkspace = () => {
                     reading.current = null
                 }
             })
-    }, [here, projectId, moduleName, compilation.ready, tables, tablesReloading, reloadToken, showOther, chooseOther, t])
+    }, [here, projectId, moduleName, compilation.ready, tables, tablesReloading, reloadToken, showOther, chooseOther, t,
+        leaveGoneModule])
 
     // A module opens on a table rather than on an empty canvas: the first one the list carries. The same
     // correction moves off the table on screen once the module holds it no more: the reader took the free-form

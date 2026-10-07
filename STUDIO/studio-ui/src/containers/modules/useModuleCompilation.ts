@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
+import { NotFoundError } from '../../services/apiCall'
 import { startModuleCompilation } from '../../services/modules'
 import type { ProjectCompileState, ProjectStatusUpdate } from '../../services/projectStatus'
 import { errorHandler } from '../../utils/errorHandling'
@@ -13,6 +14,8 @@ interface ModuleCompilation {
     total: number
     /** Set when the compilation could not even be asked for; nothing will arrive on the channel. */
     failure: string | null
+    /** Set when the project has no such module to compile: a sync or another session took it away. */
+    gone: boolean
     /** How many tests the compiled project holds, as the channel reports them. */
     tests: number
     /** How the project's own compilation is going, for the screen to show beside the module. */
@@ -67,7 +70,10 @@ export const useModuleCompilation = ({
     enabled = true,
     rebuild = true,
 }: ModuleCompilationRequest): ModuleCompilation => {
-    const [failure, setFailure] = useState<string | null>(null)
+    // The failure stays with the module and the branch it was asked for: an answer that arrives after the reader
+    // moved to another module says nothing about the one now open.
+    const [failure, setFailure] = useState<{ of: string, error: Error } | null>(null)
+    const failed = failure?.of === `${projectId} ${branch ?? ''} ${moduleName}` ? failure.error : null
     // A compilation reporting its progress says how far it has come, not how many tests the project holds —
     // counting those walks every method it compiled. The last count stands until a full status brings a new one,
     // so the Test button does not empty and fill again with every push.
@@ -121,9 +127,9 @@ export const useModuleCompilation = ({
         asked.current.keys.add(key)
         setFailure(null)
         startModuleCompilation(projectId, moduleName, rebuild && reloadToken > 0).catch((error: unknown) => {
-            const failed = error instanceof Error ? error : new Error(String(error))
-            errorHandler.logError(failed)
-            setFailure(failed.message)
+            const refused = error instanceof Error ? error : new Error(String(error))
+            errorHandler.logError(refused)
+            setFailure({ of: `${checkout} ${moduleName}`, error: refused })
         })
     }, [projectId, branch, moduleName, reloadToken, ready, enabled, rebuild])
 
@@ -133,7 +139,8 @@ export const useModuleCompilation = ({
         ready,
         compiled: modulesOf(status)?.compiled ?? 0,
         total: modulesOf(status)?.total ?? 0,
-        failure,
+        failure: failed?.message ?? null,
+        gone: failed instanceof NotFoundError,
         tests: counted.current,
         state: status?.compileState ?? 'idle',
         verifyNeeded: status?.manualCompileNeeded === true,

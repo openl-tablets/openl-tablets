@@ -123,6 +123,9 @@ contain the project when it is opened. Proceed as follows:
     target can always be selected. Synchronizing a clean project introduces it into the selected branch, and the
     dialog says so when the selected branch does not hold the project yet.
 
+    If the updates received in the editor remove the module that is open, the page of the project opens with a
+    message that the module is no longer in the project.
+
     ![](images/sync-merge-with-branch.png)
 
     *Selecting a branch that does not hold the project yet*

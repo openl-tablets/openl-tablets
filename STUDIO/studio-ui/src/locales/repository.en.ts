@@ -416,6 +416,7 @@ i18next.addResourceBundle('en', 'repository', {
                 + 'and the tree leaves them out unless they are asked for.',
             tables_load_failed: 'Failed to load the tables of the module',
             load_failed: 'Failed to load the module',
+            gone: 'Module "{{module}}" is no longer in the project.',
             table_load_failed: 'Failed to load the table',
             search: 'Search',
             search_scope: 'Scope',

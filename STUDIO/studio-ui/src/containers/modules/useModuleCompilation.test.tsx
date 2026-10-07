@@ -1,6 +1,7 @@
-import { act, render } from '@testing-library/react'
+import { act, render, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
+import { NotFoundError } from '../../services/apiCall'
 import { startModuleCompilation } from '../../services/modules'
 import { useModuleCompilation } from './useModuleCompilation'
 
@@ -224,5 +225,48 @@ describe('useModuleCompilation', () => {
 
         await findByText(/no such module/)
         expect(getByTestId('state').textContent?.trim()).toEqual('waiting 0/0 no such module tests:0')
+    })
+
+    it.each([
+        ['is gone when the project has no such module', new NotFoundError('The module is not found in the project.'), true],
+        ['is not gone when the compilation fails for another reason', new Error('no such module'), false],
+    ])('%s', async (_case, refusal, gone) => {
+        captureUpdates()
+        vi.mocked(startModuleCompilation).mockRejectedValue(refusal)
+
+        const { result } = renderHook(() => useModuleCompilation({
+            projectId: 'p1',
+            branch: 'main',
+            moduleName: 'Claims',
+            initial: null,
+        }))
+
+        await waitFor(() => expect(result.current.failure).toBe(refusal.message))
+        expect(result.current.gone).toBe(gone)
+    })
+
+    it('keeps a failure to the module it was asked for, when it arrives after another one was opened', async () => {
+        captureUpdates()
+        let refuse!: (error: Error) => void
+        vi.mocked(startModuleCompilation)
+            .mockImplementationOnce(() => new Promise((_resolve, reject) => { refuse = reject }))
+            .mockResolvedValue(undefined)
+
+        const { result, rerender } = renderHook(({ module }) => useModuleCompilation({
+            projectId: 'p1',
+            branch: 'main',
+            moduleName: module,
+            initial: null,
+        }), { initialProps: { module: 'Claims' } })
+        rerender({ module: 'Policy' })
+        await waitFor(() => expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Policy', false))
+        await act(async () => refuse(new NotFoundError('The module is not found in the project.')))
+
+        // The module now open is not the one the server could not find.
+        expect(result.current.gone).toBe(false)
+        expect(result.current.failure).toBeNull()
+
+        rerender({ module: 'Claims' })
+        expect(result.current.gone).toBe(true)
     })
 })
