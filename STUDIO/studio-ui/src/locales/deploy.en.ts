@@ -20,13 +20,13 @@ i18next.addResourceBundle('en', 'deploy', {
     },
     messages: {
         deploying: 'Deploying...',
-        deploying_configuration: 'Deploying configuration...',
+        deploying_project: 'Deploying project...',
     },
     notifications: {
-        deploy_configuration_added: 'Deploy Configuration added',
-        deploy_configuration_added_description: 'The deployment configuration has been successfully added.',
-        deploy_failed: 'Deploy Failed',
-        deploy_failed_description: 'Failed to deploy configuration. Please try again.',
+        deploy_success: 'Project deployed',
+        deploy_success_description: 'Project "{{projectName}}" has been deployed.',
+        deploy_failed: 'Deployment failed',
+        deploy_failed_description: 'Failed to deploy the project. Please try again.',
         no_deploy_rights: 'You do not have permission to deploy to the selected repository. Please select another repository.',
         no_deploy_rights_short: 'No permission to deploy. Select another repository.',
         main_branch_only: 'This repository takes a project only from the main branch of its design repository, and the project is on "{{branch}}". Switch the project to the main branch, or pick another repository.',

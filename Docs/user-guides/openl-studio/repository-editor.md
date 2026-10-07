@@ -844,7 +844,7 @@ To deploy a project, proceed as follows:
 4.  In the **Comment** field, enter a comment describing the deployment.
 5.  Click **Deploy**.
 
-The project is deployed to the selected deployment repository, and the **Deploy Configuration added** message is displayed. The project is listed in the deployment on the **Deployments** page and in **Existing deployments** of its **Deploy Configuration** tab.
+The project is deployed to the selected deployment repository, and the **Project deployed** message is displayed. The project is listed in the deployment on the **Deployments** page and in **Existing deployments** of its **Deploy Configuration** tab.
 
 A deployment repository can be configured to take projects only from the main branch of Design repository. For a project that is on another branch, the dialog explains that the project must be switched to the main branch or another repository must be selected, and **Deploy** is disabled.
 

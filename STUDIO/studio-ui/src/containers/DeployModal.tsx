@@ -130,7 +130,6 @@ export const DeployModal: React.FC = () => {
         projectId: string | undefined
     ): Promise<boolean> => {
         const deployOptions = { throwError: true, suppressErrorPages: true }
-        let didDeploy = false
         if (isNewDeployment) {
             // Create new deployment
             await apiCall('/deployments', {
@@ -145,41 +144,29 @@ export const DeployModal: React.FC = () => {
                     projectId,
                 }),
             }, deployOptions)
-            notification.success({
-                title: t('deploy:notifications.deploy_configuration_added'),
-                description: t('deploy:notifications.deploy_configuration_added_description'),
+            return true
+        }
+        // Deploy to existing deployment
+        const selectedDeployment = deploymentNames.find(dep => dep.name === deploymentName)
+        if (!selectedDeployment) {
+            notification.error({
+                title: t('deploy:notifications.deploy_failed'),
+                description: t('deploy:notifications.deploy_failed_description'),
                 placement: 'topRight',
             })
-            didDeploy = true
-        } else {
-            // Deploy to existing deployment
-            const selectedDeployment = deploymentNames.find(dep => dep.name === deploymentName)
-            if (selectedDeployment) {
-                await apiCall(`/deployments/${selectedDeployment.id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        comment,
-                        projectId,
-                    }),
-                }, deployOptions)
-                notification.success({
-                    title: t('deploy:notifications.deploy_configuration_added'),
-                    description: t('deploy:notifications.deploy_configuration_added_description'),
-                    placement: 'topRight',
-                })
-                didDeploy = true
-            } else {
-                notification.error({
-                    title: t('deploy:notifications.deploy_failed'),
-                    description: t('deploy:notifications.deploy_failed_description'),
-                    placement: 'topRight',
-                })
-            }
+            return false
         }
-        return didDeploy
+        await apiCall(`/deployments/${selectedDeployment.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                comment,
+                projectId,
+            }),
+        }, deployOptions)
+        return true
     }
 
     /** Tells why a deployment failed: on the repository field when it is not granted, in a toast otherwise. */
@@ -224,6 +211,11 @@ export const DeployModal: React.FC = () => {
 
             const didDeploy = await sendDeployment(values, projectId)
             if (didDeploy) {
+                notification.success({
+                    title: t('deploy:notifications.deploy_success'),
+                    description: t('deploy:notifications.deploy_success_description', { projectName: detail?.name }),
+                    placement: 'topRight',
+                })
                 if (projectId) {
                     window.dispatchEvent(new CustomEvent<ProjectDeployedDetail>('projectDeployed', {
                         detail: { projectId },
@@ -329,7 +321,7 @@ export const DeployModal: React.FC = () => {
                     </div>
                 }
             >
-                <Spin description={t('deploy:messages.deploying_configuration')} spinning={isDeploying}>
+                <Spin description={t('deploy:messages.deploying_project')} spinning={isDeploying}>
                     <Space orientation="vertical" size="large" style={{ width: '100%', minWidth: 0, paddingTop: 16 }}>
                         {mainBranchOnlyBlocked && (
                             <Alert
