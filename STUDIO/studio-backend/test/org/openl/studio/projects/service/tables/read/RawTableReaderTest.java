@@ -15,6 +15,8 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -124,6 +126,37 @@ class RawTableReaderTest {
 
         assertTrue(beyond.source.isEmpty(), "an offset past the last row yields an empty matrix");
         assertEquals(fullHeight, beyond.totalRows, "the empty window still reports the full row count");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0, 1", "1, 1", "2, 3", "5, 5", "0, 2147483647"})
+    void answersAWindowPastTheEndAlikeWithOrWithoutMaxRows(int pastTheEnd, int maxRows) throws Exception {
+        IOpenLTable table = multiRowTable();
+        var reader = new RawTableReader();
+        var fullHeight = reader.read(table).source.size();
+        var startRow = fullHeight + pastTheEnd;
+
+        var uncapped = reader.read(table, RawTableRead.builder().startRow(startRow).build());
+        var capped = reader.read(table, RawTableRead.builder().startRow(startRow).maxRows(maxRows).build());
+
+        assertTrue(capped.source.isEmpty(), "a window past the last row holds no rows");
+        assertEquals(fullHeight, capped.totalRows, "the empty window still reports the full row count");
+        assertEquals(uncapped.source, capped.source);
+        assertEquals(uncapped.totalRows, capped.totalRows);
+    }
+
+    @Test
+    void readsToTheEndWhenMaxRowsIsTheLargestCount() throws Exception {
+        IOpenLTable table = multiRowTable();
+        var reader = new RawTableReader();
+        List<List<RawTableCell>> full = reader.read(table).source;
+        var startRow = firstPlainRow(full);
+
+        var window = reader.read(table,
+                RawTableRead.builder().startRow(startRow).maxRows(Integer.MAX_VALUE).build());
+
+        assertEquals(full.size() - startRow, window.source.size(), "a count beyond the table reads to its end");
+        assertEquals(full.size(), window.totalRows);
     }
 
     /** The A1 addresses of a matrix row, so a slice can be checked to keep absolute cell addresses. */

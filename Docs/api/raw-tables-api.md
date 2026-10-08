@@ -23,7 +23,8 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 - `raw` — `true` returns the matrix. The default `false` returns the typed model of the table.
 - `startRow`, `maxRows` — read a window of the matrix: the zero-based row to start with and the number of rows. A window
   never cuts a merged cell in two. Read the next window from the end of the previous one, not from `startRow` plus
-  `maxRows`.
+  `maxRows`. A window that starts past the last row holds no rows: `source` is empty and `totalRows` is the height of
+  the table, with or without `maxRows`.
 - `styles` — `true` adds the Excel style of every cell and the pieces of its text formatted with fonts of their own; see
   [Style of a Cell](#style-of-a-cell).
 - `tableTheme` — the identifier of a table theme. Reports, for a table of any kind but `Other`, the look that the theme
@@ -69,6 +70,7 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   `Spreadsheet`, `Datatype`, `Data`, `Test`, `TBasic`, `Column Match`, `Method`, `Run`, `Constants`, `Conditions`,
   `Actions`, `Returns`, `Environment`, `Properties`, or `Other`.
 - `source` — the matrix of cells. The first row is the header of the table, followed by its properties and the body.
+  An empty list for a window that starts past the last row.
 - `pos` — the position of the table on its sheet, such as `B4:D12`. Read-only.
 - `totalRows` — the number of rows of the table when the window leaves rows out. Read-only.
 - `headerHeight` — the number of rows at the top that the header takes: the header line, the properties, and the

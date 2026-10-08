@@ -54,6 +54,7 @@ public class RawTableView extends TableView implements EditableTableView {
             2D matrix of raw table cells with merge information; empty only for a slice whose \
             startRow is past the last row""")
     @NotNull
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public final List<List<@Valid RawTableCell>> source;   // 2D matrix of cells
 
     @Schema(description = """
