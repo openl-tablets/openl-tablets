@@ -39,10 +39,12 @@ i18next.addResourceBundle('en', 'common', {
         version: 'Version',
         build_date: 'Build Date',
         lgpl: 'GNU Lesser General Public License v3.0',
-        libraries: 'OpenL Studio includes the third-party libraries below. Click a license to open it in a new window.',
+        libraries: 'OpenL Studio includes the third-party libraries below. Click a license or a NOTICE to open it in a new '
+            + 'window.',
         frontend: 'Frontend Libraries ({{count}})',
         backend: 'Backend Libraries ({{count}})',
         license: 'License',
+        notice: 'NOTICE',
         unavailable: 'The list of libraries is not available.',
     },
     menu: {

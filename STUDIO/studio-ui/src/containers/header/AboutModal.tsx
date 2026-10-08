@@ -83,20 +83,36 @@ const Side: FC<SideProps> = ({ title, libraries, styles }) => {
     const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const unnamed = t('common:about.license')
+    const noticeTitle = t('common:about.notice')
 
     return (
         <details className={styles.side} onToggle={event => setOpen(event.currentTarget.open)}>
             <summary>{title}</summary>
             {open && (libraries ? (
                 <ul className={styles.list}>
-                    {libraries.map(library => (
-                        <li key={`${library.name}@${library.version}`}>
-                            <span>{library.name} {library.version}</span>
-                            <span className={styles.licenses}>
-                                <LibraryLicense library={library} styles={styles} unnamed={unnamed} />
-                            </span>
-                        </li>
-                    ))}
+                    {libraries.map(library => {
+                        const { name, version, notice } = library
+                        return (
+                            <li key={`${name}@${version}`}>
+                                <span>{name} {version}</span>
+                                <span className={styles.licenses}>
+                                    <LibraryLicense library={library} styles={styles} unnamed={unnamed} />
+                                    {notice && (
+                                        <>
+                                            {' '}
+                                            <button
+                                                className={styles.license}
+                                                onClick={() => openText(notice)}
+                                                type="button"
+                                            >
+                                                {noticeTitle}
+                                            </button>
+                                        </>
+                                    )}
+                                </span>
+                            </li>
+                        )
+                    })}
                 </ul>
             ) : <Typography.Text type="secondary">{t('common:about.unavailable')}</Typography.Text>)}
         </details>

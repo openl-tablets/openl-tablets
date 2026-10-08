@@ -1,8 +1,56 @@
+import { readdirSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { join } from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
 const require = createRequire(import.meta.url)
+
+/** The libraries bundled into the pages, with the texts of their licenses, for the About dialog. */
+const LICENSES_FILE = 'licenses/frontend-licenses.json'
+
+/** A library as `build.license` lists it, and as its `package.json` names it. */
+interface Library {
+    name: string
+    version: string
+}
+
+/** The folder of the package a module belongs to: the one right under the last `node_modules`, as Vite takes it. */
+const PACKAGE_ROOT = /^(.*[\\/]node_modules[\\/](?:@[^\\/]+[\\/])?[^\\/]+)[\\/]/
+
+/**
+ * Adds to every library of the list `build.license` writes the NOTICE its package ships (`notice`): the attribution a
+ * license such as Apache-2.0 asks a redistribution to carry, which bundling leaves behind.
+ *
+ * Each of two versions of a package bundled gets the NOTICE of its own.
+ */
+export const libraryNotices = (): Plugin => ({
+    name: 'library-notices',
+    generateBundle: {
+        // After the list is written.
+        order: 'post',
+        handler(_, bundle) {
+            const list = bundle[LICENSES_FILE]
+            if (list?.type !== 'asset') {
+                return
+            }
+            const modules = Object.values(bundle).flatMap(output => (output.type === 'chunk' ? output.moduleIds : []))
+            const roots = new Set(modules.flatMap(id => (id.startsWith('\0') ? [] : PACKAGE_ROOT.exec(id)?.[1] ?? [])))
+            const notices = new Map<string, string>()
+            for (const root of roots) {
+                const file = readdirSync(root).find(name => /^notice(\.(md|txt))?$/i.test(name))
+                if (file) {
+                    const { name, version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as Library
+                    notices.set(`${name}@${version}`, readFileSync(join(root, file), 'utf8').trim())
+                }
+            }
+            const libraries = JSON.parse(Buffer.from(list.source).toString()) as Library[]
+            list.source = JSON.stringify(libraries.map(library => (
+                { ...library, notice: notices.get(`${library.name}@${library.version}`) }
+            )), null, 2)
+        },
+    },
+})
 
 /**
  * The decoder of HTML entities micromark imports draws on a DOM element in its browser build, and a worker has no
@@ -19,7 +67,7 @@ const domlessEntityDecoder = (): Plugin => ({
 
 export default defineConfig({
     base: './',
-    plugins: [react(), domlessEntityDecoder()],
+    plugins: [react(), domlessEntityDecoder(), libraryNotices()],
     resolve: {
         tsconfigPaths: true,
     },
@@ -66,9 +114,9 @@ export default defineConfig({
     build: {
         sourcemap: true,
         manifest: true,
-        // The libraries bundled into the pages, with the texts of their licenses, for the About dialog.
+        // `libraryNotices` adds the NOTICE of each library.
         license: {
-            fileName: 'licenses/frontend-licenses.json',
+            fileName: LICENSES_FILE,
         },
         rollupOptions: {
             // The API documentation is a page of its own, read without logging in, so it is built as one.

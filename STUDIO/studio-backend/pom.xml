@@ -417,6 +417,46 @@
                             <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j2-impl,studio-docs,org.openl.rules.demo</includeArtifactIds>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-license-files</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- The LICENSE and the NOTICE of each library of WEB-INF/lib, which
+                                 backend-licenses.json.ftl reads by the path of the library in a repository. -->
+                            <outputDirectory>${project.build.directory}/license/files</outputDirectory>
+                            <!-- Kept with the files: a marker left without them would skip the unpack. -->
+                            <markersDirectory>${project.build.directory}/license/files/.markers</markersDirectory>
+                            <includeScope>runtime</includeScope>
+                            <includes>META-INF/LICENSE*,META-INF/license*,META-INF/NOTICE*,META-INF/notice*</includes>
+                            <useRepositoryLayout>true</useRepositoryLayout>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>license-template</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- A template includes files of its own folder only, so it is copied beside the
+                                 files of the libraries. -->
+                            <outputDirectory>${project.build.directory}/license</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>license</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -437,7 +477,7 @@
                             <excludedScopes>provided,system,test</excludedScopes>
                             <excludedGroups>org\.openl\.rules</excludedGroups>
                             <excludedArtifacts>org\.openl\.</excludedArtifacts>
-                            <fileTemplate>${project.basedir}/license/backend-licenses.json.ftl</fileTemplate>
+                            <fileTemplate>${project.build.directory}/license/backend-licenses.json.ftl</fileTemplate>
                             <thirdPartyFilename>backend-licenses.json</thirdPartyFilename>
                             <outputDirectory>${project.build.directory}/licenses</outputDirectory>
                             <!-- A web resource served at /licenses, beside the list of the frontend libraries. -->
