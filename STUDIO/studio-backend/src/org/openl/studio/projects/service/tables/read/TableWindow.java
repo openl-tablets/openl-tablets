@@ -23,7 +23,8 @@ import org.openl.rules.table.IGridTable;
  * for the next one from the end of the one it has never lands inside a merge at all.
  *
  * @param startRow the table's own row the window opens on
- * @param rows     how many rows it holds, or {@link #EVERY_ROW} for the rest of the table
+ * @param rows     how many rows it holds, none when it opens past the last row, or {@link #EVERY_ROW} for the rest
+ *                 of the table
  */
 record TableWindow(int startRow, int rows) {
 
@@ -38,11 +39,15 @@ record TableWindow(int startRow, int rows) {
      * @param maxRows  how many rows were asked for; {@code null} reads to the end
      */
     static TableWindow of(IGridTable table, @Nullable Integer startRow, @Nullable Integer maxRows) {
+        var start = startRow == null ? 0 : startRow;
+        if (start >= table.getHeight()) {
+            return new TableWindow(start, 0);
+        }
         // The grid holds the merges of every table on the sheet, so picking out this table's is a scan of them
         // all — taken once here, and walked by both edges as often as they keep growing.
         var merges = mergesOf(table);
         var region = table.getRegion();
-        var from = openedOn(merges, region, startRow == null ? 0 : startRow);
+        var from = openedOn(merges, region, start);
         return new TableWindow(from, maxRows == null ? EVERY_ROW : wholeRows(merges, region, from, maxRows));
     }
 
@@ -73,7 +78,8 @@ record TableWindow(int startRow, int rows) {
 
     /** The rows asked for, and then as many more as it takes to reach the end of a merge they would cut. */
     private static int wholeRows(List<IGridRegion> merges, IGridRegion region, int startRow, int maxRows) {
-        var last = Math.min(region.getTop() + startRow + maxRows - 1, region.getBottom());
+        var first = region.getTop() + startRow;
+        var last = first + Math.min(maxRows - 1, region.getBottom() - first);
         var grown = true;
         while (grown) {
             grown = false;

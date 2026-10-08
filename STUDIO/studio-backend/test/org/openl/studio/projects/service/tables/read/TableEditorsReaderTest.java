@@ -229,6 +229,18 @@ class TableEditorsReaderTest {
                 "the column after the one naming no field holds what it was declared with");
     }
 
+    @Test
+    void readsToTheEndWhenMaxRowsIsTheLargestCount() {
+        var table = table(module, "Greeting");
+
+        var uncapped = new TableEditorsReader().read(table, 5, null);
+        var capped = new TableEditorsReader().read(table, 5, Integer.MAX_VALUE);
+
+        assertNotNull(areaEditor(uncapped, 0, 0), "the rules in the window say how they are written");
+        assertEquals(areaEditor(uncapped, 0, 0), areaEditor(capped, 0, 0));
+        assertEquals(uncapped.getEditors(), capped.getEditors());
+    }
+
     /** The whole of what the table says about how its cells are written. */
     private TableEditorsView read(String name) {
         return new TableEditorsReader().read(table(module, name), null, null);
