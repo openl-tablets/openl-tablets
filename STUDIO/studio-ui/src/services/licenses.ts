@@ -11,6 +11,8 @@ export interface License {
     text?: string
     /** Where the license is published, as the POM of a backend library names it. */
     url?: string
+    /** The attribution the library ships beside its license (its NOTICE), which the license may require to keep. */
+    notice?: string
 }
 
 /**

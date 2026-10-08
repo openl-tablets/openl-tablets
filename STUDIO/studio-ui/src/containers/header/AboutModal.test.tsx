@@ -24,7 +24,7 @@ vi.mock('react-i18next', () => {
 
 const FRONTEND: License[] = [
     { name: 'react', version: '19.3.0', identifier: 'MIT', text: 'MIT License' },
-    { name: 'dompurify', version: '3.4.2', identifier: '(MPL-2.0 OR Apache-2.0)' },
+    { name: 'dompurify', version: '3.4.2', identifier: '(MPL-2.0 OR Apache-2.0)', notice: 'DOMPurify Notice' },
     { name: 'custom', version: '1.0.0', identifier: 'LicenseRef-Custom', text: 'Custom License' },
     { name: 'no-license-file', version: '1.0.0', identifier: 'LicenseRef-Proprietary' },
 ]
@@ -138,7 +138,7 @@ describe('AboutModal', () => {
         await userEvent.click(await screen.findByText('common:about.frontend 4'))
 
         const [, dompurify, , noLicenseFile] = within(screen.getByRole('list')).getAllByRole('listitem')
-        expect(dompurify).toHaveTextContent('dompurify 3.4.2(MPL-2.0 OR Apache-2.0)')
+        expect(dompurify).toHaveTextContent('dompurify 3.4.2(MPL-2.0 OR Apache-2.0) common:about.notice')
         expect(linksOf(dompurify!)).toEqual([
             ['MPL-2.0', 'https://www.mozilla.org/en-US/MPL/2.0/'],
             ['Apache-2.0', 'https://www.apache.org/licenses/LICENSE-2.0.txt'],
@@ -159,6 +159,17 @@ describe('AboutModal', () => {
         const [slf4j, undeclared] = within(screen.getByRole('list')).getAllByRole('listitem')
         expect(linksOf(slf4j!)).toEqual([['MIT', 'https://opensource.org/license/mit']])
         expect(linksOf(undeclared!)).toEqual([['common:about.license', 'https://example.com/license']])
+    })
+
+    it('opens the NOTICE of a library that ships one, and offers none for any other', async () => {
+        renderAbout()
+
+        await userEvent.click(await screen.findByText('common:about.frontend 4'))
+
+        const [react, dompurify] = within(screen.getByRole('list')).getAllByRole('listitem')
+        expect(within(react!).queryByRole('button', { name: 'common:about.notice' })).not.toBeInTheDocument()
+        await userEvent.click(within(dompurify!).getByRole('button', { name: 'common:about.notice' }))
+        expect(openText).toHaveBeenCalledWith('DOMPurify Notice')
     })
 
     it('hides the libraries again when the side is collapsed', async () => {
