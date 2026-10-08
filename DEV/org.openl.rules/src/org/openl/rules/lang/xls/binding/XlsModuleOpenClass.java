@@ -563,8 +563,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // Just wrap original method with dispatcher functionality.
             //
 
-            if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod) && TablePropertyDefinitionUtils
-                    .isDimensionalPropertyPresented(m)) {
+            // A rule called by its id property runs whatever the runtime context is, so it is never dispatched.
+            if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod)
+                    && !(m instanceof ExecutableRulesMethod rulesMethod && rulesMethod.isAlias())
+                    && TablePropertyDefinitionUtils.isDimensionalPropertyPresented(m)) {
                 // Create dispatcher for existed method.
                 //
                 var dispatcher = getOpenMethodDispatcher(m);
