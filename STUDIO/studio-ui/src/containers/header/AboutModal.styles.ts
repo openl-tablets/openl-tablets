@@ -18,27 +18,50 @@ export const useStyles = createStyles(({ css, token }) => ({
     side: css`
         margin-top: ${token.marginXS}px;
 
+        /* The title of the side stays in sight while its libraries scroll under it. */
         summary {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: ${token.colorBgElevated};
             cursor: pointer;
             font-weight: ${token.fontWeightStrong};
         }
     `,
     list: css`
-        max-height: 50vh;
         margin: ${token.marginXS}px 0 0;
         padding: 0;
-        overflow-y: auto;
         list-style: none;
 
+        /*
+         * The license takes the width it needs but leaves the name 16em, or half of a narrow row, so a long one never
+         * squeezes the name into a column of letters.
+         */
         li {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) fit-content(max(50%, 100% - 16em));
             gap: ${token.marginSM}px;
             overflow-wrap: anywhere;
         }
     `,
+    /* A license breaks between the licenses it names, never inside an identifier. */
+    licenses: css`
+        text-align: end;
+
+        a,
+        button span {
+            white-space: nowrap;
+        }
+
+        a {
+            color: ${token.colorLink};
+
+            &:hover {
+                color: ${token.colorLinkHover};
+            }
+        }
+    `,
     license: css`
-        flex: none;
         padding: 0;
         border: 0;
         background: none;

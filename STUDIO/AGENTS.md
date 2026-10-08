@@ -26,7 +26,13 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   under `/licenses`. Vite writes `frontend-licenses.json` (`build.license`: the libraries bundled into the pages, with
   their license texts); the war build writes `backend-licenses.json` (`license-maven-plugin` `add-third-party` through
   `studio-backend/license/backend-licenses.json.ftl`: the third-party jars of `WEB-INF/lib`, with the
-  address of each license). Both share one shape — `name`, `version`, `identifier`, then `text` or `url`.
+  address of each license). Both share one shape — `name`, `version`, `identifier` (an SPDX expression), then `text`
+  or `url`.
+    - **Every license is an SPDX identifier.** npm packages declare one already, and `npm run build` accepts only the
+      licenses its `--onlyAllow` lists. A POM names its license as it likes, so the `licenseMerges` of
+      `studio-backend/pom.xml` turn each name into its identifier, and `includedLicenses` fails the war build on a
+      name no merge turns: a new name is merged there, never shown as it is. A license either build accepts needs its
+      public text in `PUBLIC_LICENSES` of `studio-ui/src/services/licenses.ts`, which a test holds both lists to.
 - **Static resources are public.** Every file the build leaves beside the pages — `/assets`, `/icons`, `/licenses`,
   the favicons, the files of the user guides — is listed in `SecurityConfig.staticResourcesFilterChain`, which runs
   no security filters at all. A page is never listed: the application page answers a page of a guide too, so

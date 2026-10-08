@@ -2,9 +2,10 @@
   The third-party libraries the war ships, in JSON, for the About dialog of studio-ui.
 
   The entries take the shape Vite writes the frontend libraries in, with the address of the license instead of its text:
-  {"name": "groupId:artifactId", "version": "...", "identifier": "license names", "url": "license address"}.
+  {"name": "groupId:artifactId", "version": "...", "identifier": "SPDX expression", "url": "license address"}.
 
-  dependencyMap: entries of a library (a MavenProject) and the names of its licenses (a String array).
+  dependencyMap: entries of a library (a MavenProject) and the names of its licenses (a String array), each an SPDX
+  identifier once the licenseMerges of the POM are applied.
 -->
 [
 <#list dependencyMap as e>
