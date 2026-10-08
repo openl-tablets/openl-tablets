@@ -127,7 +127,7 @@
         <!-- REST -->
         <jackson.version>2.22.3</jackson.version>
         <!-- Read directly where YAML anchors, aliases and merge keys must be resolved; Jackson YAML resolves none -->
-        <snakeyaml.version>2.6</snakeyaml.version>
+        <snakeyaml.version>2.7</snakeyaml.version>
         <json-path.version>3.0.0</json-path.version>
         <cxf.version>4.1.8</cxf.version>
 
