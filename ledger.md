@@ -2,16 +2,11 @@
 
 ## Resume point
 
-- No PR is open: #2257 merged the day it opened. Cut a fresh branch off a re-fetched `origin/main` once a
-  finding is proven.
-- All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect near zero),
-  spend the rest on a NEW vein. Only documentation, build config, i18n keys and dead TS imports have ever paid.
-- `main` now carries the maintainers' own `sweep:` commits, so the Java vein is harvested upstream before a run
-  sees it; a LARGE Java delta yields less, not more.
-- OWED: the targeted PMD ruleset did not run — the root-pom patch was reverted before the scan started, so only
-  Error Prone (1 hit, the known `BeanA.getAB` FP) and dependency:analyze-only covered Java. Run PMD first next time.
-- The RELEASE-NOTE vein is the best one found and is NOT exhausted — re-run it whenever guides or release notes
-  change. A module-merge wave leaves poms and resources clean but strands package names in Docs.
+- PR #2284 (`dead-code/studio-ui-react-imports`, head 1 commit) is open: drive it to green and merged first.
+- All 14 change types are exhausted repo-wide; the last full sweep ran at `origin/main` 160cdba858. A run is:
+  maintain the open PR, sweep the delta since that SHA, then spend the rest on a NEW vein.
+- Only documentation, build config, i18n keys and dead TS imports have ever paid. The release-note vein is the best
+  one: re-run it whenever guides or release notes change.
 
 ## Change-type queue
 
@@ -27,14 +22,15 @@
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1 in #2212, 1,656 + 769 alive; re-run per delta |
-| 11 | TypeScript exports, types, components, imports | done; 0 dead exports, 1 dead import merged in #2184 |
+| 11 | TypeScript exports, types, components, imports | done; 0 dead exports, dead imports in #2184 and #2284 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
 | 14 | Documentation of settings and classes the code no longer has | done; 6 in #2212; re-run per new release note |
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2284 `dead-code/studio-ui-react-imports`, head 39242f7d05: `Remove the React imports left unused in studio-ui
+  tests by the automatic JSX runtime` (7 test files, -7).
 
 ## Merged PRs
 
@@ -134,7 +130,9 @@
 ## Method rules
 
 - Build the whole repo once per run, detached in the FIRST minute, and mine read-only veins beside it:
-  `LANG=C.UTF-8 mvn clean install -Dquick -DnoPerf -T2 -Daether.syncContext.named.time=600`. Unset
+  `LANG=C.UTF-8 mvn clean install -Dquick -DnoPerf -T2 -Dnpm.test.skip -Daether.syncContext.named.time=600`
+  (vitest under the reactor's load times out `SimpleTraceTree` at 30 s). Never resume with `-rf`: the modules -T2
+  skipped before the failure stay unbuilt and later goals cannot resolve them. Unset
   `gpg.format`/`commit.gpgsign` first. Before every push, list open `dead-code/*` PRs and re-fetch main.
 - Index the whole tree once (regex `[A-Za-z_$][\w$]*` per file into a Counter, ~8 s) and answer every "is this name
   used" question from it; a name whose total count equals its count in its own file is unreferenced.
@@ -146,7 +144,7 @@
   access, method handles, invokedynamic args and `ldc` strings; drop annotated members, overrides and names in
   literals, then apply the constant-inlining and Lombok filters above.
 - Chain install and PMD in one detached `setsid nohup` script touching a DONE file; poll the file, never the log's
-  tail. Anchor any `pkill -f 'name[.]py'`. Never edit the working tree or rebase while Maven runs.
+  tail. Anchor any `pkill -f 'name[.]py'` — an unanchored pattern kills the calling shell. Never edit the working tree or rebase while Maven runs.
 - A container registration (`web.xml`, `@WebFilter`) does NOT prove a class alive: judge whether its behaviour is
   reachable. A `<listener>` serves only the interfaces the container sorts it into, so a registered-but-unbound one
   never fires — verify from the container jar, never from the spec.
@@ -265,20 +263,17 @@
 
 ## Human follow-ups
 
-- Docs names a human must fix, re-verified at HEAD (a maintainer doc wave cleared thirteen earlier entries, so
-  re-verify this list every run before reporting it): `org.openl.studio.mcp.node` names no package, `MixInClassFor`
-  should be `MixInClass`, rules-projects.md documents a `generateInterfaces` configuration found nowhere else and
+- Docs names a human must fix, re-verified at HEAD (maintainer doc waves keep clearing entries, so re-verify this
+  list every run before reporting it): rules-projects.md documents a `generateInterfaces` configuration found nowhere else and
   seven parameters GenerateMojo lacks (its real ones: superInterface, interfaceClass, moduleName,
-  generateSpreadsheetResultBeans, externalParameters), and two settings no code reads —
-  externalized-config.md's `...filesystem.supportDeployments`, and `ruleservice.store.logs.enabled`, documented as
-  the global switch while only `...db.enabled` gates it.
+  generateSpreadsheetResultBeans, externalParameters).
 - Bugs only a human may fix: `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` of 17 flyway/common
   scripts and nothing sets `sqlMigrationPrefix`, so Flyway skips it and its index is never created; `CorsFilter` is
   registered twice (`@WebFilter` and web.xml), doubling each `Access-Control-*` header; `compose.yaml` pins a
   postgresql jar the antrun guard does not cover, so it drifts from the pom unnoticed.
 - `OpenAPIConverterTest` (640 lines) and `RulesDeployerServiceTest` (354 lines) carry a bare class-level `@Disabled`
   over live code. Restore or delete is a maintainer's call.
-- Flake fixes a human could make: pin ITEST's `apache/kafka-native:latest` or move to `apache/kafka:4.3.1`; fix
+- Flake fixes a human could make: pin `apache/kafka-native:latest` in itest.kafka.smoke or move to `apache/kafka:4.3.1`; fix
   ORA-12516 in IT (studio-acl); raise the CI vitest `testTimeout` above 20_000; raise the WebSocket idle timeout for
   `WebSocketChangeOriginTest`.
 - KafkaMessageHeader.Type.PRODUCER_RECORD is documented as usable but StoreLogDataMapper acts only on
@@ -286,11 +281,12 @@
 
 ## Run log
 
-- 2026-09-29: delta was the ~200-commit Sonar cleanup wave; twelve veins re-swept at zero, PMD and
-  dependency:analyze among them. Nothing removed, no PR opened.
 - 2026-09-30: delta was the EPBDS-16781 merge of five STUDIO modules into webstudio. The new release-note vein
   paid 6 documentation removals and the i18n pass 1 key; #2212 MERGED (-72) within the hour.
 - 2026-10-03: delta was 221 files — a 40-commit Docs rewrite wave and a Sonar S107 refactor wave. Reactor green
   in 31:14 from a cold `~/.m2`. Ten veins re-ran at zero (images, release notes, Docs links and tokens, orphan
   pages, allowed-links, Jekyll partials, @Profile, Error Prone, dependency:analyze-only's 69 hits). One finding:
   the `jekyll-redirect-from` plugin; #2257 MERGED (-2). The wave also cleared thirteen Docs human follow-ups.
+- 2026-10-08: delta was 89 commits — the studio-backend rename, table themes, trace, 7.0.0 migration notes. PMD
+  (57 hits), Error Prone, dependency:analyze (69), i18n (1,722 keys), bundles, npm, images, Docs settings and
+  release notes re-ran at zero. tsc found 7 dead React imports; #2284 opened.
