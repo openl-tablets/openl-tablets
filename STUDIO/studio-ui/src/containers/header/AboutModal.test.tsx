@@ -33,6 +33,20 @@ const BACKEND: License[] = [
     { name: 'com.example:undeclared', version: '1.0.0', url: 'https://example.com/license' },
 ]
 
+const SERVER: License[] = [
+    { name: 'Eclipse Jetty', version: '12.1.14', identifier: 'EPL-2.0 OR Apache-2.0', notice: 'Eclipse Jetty' },
+    { name: 'Alpine Linux', version: '3.23.6', url: 'https://pkgs.alpinelinux.org/packages?branch=v3.23' },
+]
+
+/** The list of a side as the server answers, failing as it does for a list it has not. */
+const listOf = (side: string, lists: Partial<Record<string, License[]>>): License[] => {
+    const list = lists[side]
+    if (!list) {
+        throw new Error(`Failed to read the ${side} licenses: 404`)
+    }
+    return list
+}
+
 /** The links of an element, each by its text and the address it opens. */
 const linksOf = (element: HTMLElement) =>
     within(element).queryAllByRole('link').map(link => [link.textContent, link.getAttribute('href')])
@@ -67,7 +81,7 @@ const renderAbout = (buildDate = '2026-10-04') => {
 
 describe('AboutModal', () => {
     beforeEach(() => {
-        fetchLicenses.mockImplementation(async (side: string) => (side === 'frontend' ? FRONTEND : BACKEND))
+        fetchLicenses.mockImplementation(async (side: string) => listOf(side, { frontend: FRONTEND, backend: BACKEND }))
     })
 
     it('shows the version, the build date in the UI language and the license of OpenL Studio', async () => {
@@ -101,6 +115,23 @@ describe('AboutModal', () => {
         expect(screen.queryByRole('list')).not.toBeInTheDocument()
         expect(fetchLicenses).toHaveBeenCalledWith('frontend')
         expect(fetchLicenses).toHaveBeenCalledWith('backend')
+        expect(fetchLicenses).toHaveBeenCalledWith('server')
+        expect(screen.queryByText(/^common:about\.server/)).not.toBeInTheDocument()
+    })
+
+    it('shows the software the Docker image runs the webapp on, where the image lists it', async () => {
+        fetchLicenses.mockImplementation(async (side: string) =>
+            listOf(side, { frontend: FRONTEND, backend: BACKEND, server: SERVER }))
+        renderAbout()
+
+        await userEvent.click(await screen.findByText('common:about.server 2'))
+
+        const items = within(screen.getByRole('list')).getAllByRole('listitem')
+        expect(items.map(item => item.textContent)).toEqual([
+            'Eclipse Jetty 12.1.14EPL-2.0 OR Apache-2.0 common:about.notice',
+            'Alpine Linux 3.23.6common:about.license',
+        ])
+        expect(linksOf(items[1]!)).toEqual([['common:about.license', SERVER[1]!.url]])
     })
 
     it('opens the license text a library ships, as plain text', async () => {
@@ -184,12 +215,7 @@ describe('AboutModal', () => {
     })
 
     it('reports a list the server cannot answer with, and still shows the other', async () => {
-        fetchLicenses.mockImplementation(async (side: string) => {
-            if (side === 'backend') {
-                throw new Error('Failed to read the backend licenses: 404')
-            }
-            return FRONTEND
-        })
+        fetchLicenses.mockImplementation(async (side: string) => listOf(side, { frontend: FRONTEND }))
         renderAbout()
 
         await userEvent.click(await screen.findByText('common:about.backend 0'))
@@ -207,6 +233,6 @@ describe('AboutModal', () => {
         reopen(true)
 
         expect(await screen.findByText('common:about.frontend 4')).toBeInTheDocument()
-        expect(fetchLicenses).toHaveBeenCalledTimes(2)
+        expect(fetchLicenses).toHaveBeenCalledTimes(3)
     })
 })

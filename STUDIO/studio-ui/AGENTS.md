@@ -99,12 +99,13 @@ The build writes two pages (`build.rollupOptions.input`):
   (`services/licenses.ts`). `build.license` in `vite.config.ts` writes the frontend list,
   `dist/licenses/frontend-licenses.json` — the libraries the pages bundle, each with its license text — and
   `libraryNotices` adds the NOTICE each package ships. It skips a library only a worker bundles, so a worker must not
-  bundle one the pages do not. The war build writes the backend list beside it, see `STUDIO/AGENTS.md`. A side of the
-  dialog draws its libraries only while it is expanded; both sides scroll in the one body of the dialog, which keeps
-  to the window, under the title of the side. A license is an SPDX expression. The license text a library ships opens
-  in a new window as plain text (`openText`); a library shipping none links each standard license of the expression
-  to its public text (`PUBLIC_LICENSES`), or, naming no standard license, to the `url` of the list. A library with a
-  NOTICE opens it as plain text too.
+  bundle one the pages do not. The war build writes the backend list beside it, and the Docker image a third list of
+  the software it runs the webapp on, which the dialog shows only where it is found; see `STUDIO/AGENTS.md`. A side
+  of the dialog draws its libraries only while it is expanded; the sides scroll in the one body of the dialog, which
+  keeps to the window, under the title of the side. A license is an SPDX expression. The license text a library ships
+  opens in a new window as plain text (`openText`); a library shipping none links each standard license of the
+  expression to its public text (`PUBLIC_LICENSES`), or, naming no standard license, to the `url` of the list. A
+  library with a NOTICE opens it as plain text too.
 - **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
   once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
   (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads

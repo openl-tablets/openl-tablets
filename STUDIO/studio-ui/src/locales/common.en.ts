@@ -43,6 +43,7 @@ i18next.addResourceBundle('en', 'common', {
             + 'window.',
         frontend: 'Frontend Libraries ({{count}})',
         backend: 'Backend Libraries ({{count}})',
+        server: 'Server ({{count}})',
         license: 'License',
         notice: 'NOTICE',
         unavailable: 'The list of libraries is not available.',
