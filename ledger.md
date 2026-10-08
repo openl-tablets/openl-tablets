@@ -2,7 +2,8 @@
 
 ## Resume point
 
-- PR #2284 (`dead-code/studio-ui-react-imports`, head 1 commit) is open: drive it to green and merged first.
+- No PR is open: #2284 merged the day it opened. Cut a fresh branch off a re-fetched `origin/main` once a
+  finding is proven.
 - All 14 change types are exhausted repo-wide; the last full sweep ran at `origin/main` 160cdba858. A run is:
   maintain the open PR, sweep the delta since that SHA, then spend the rest on a NEW vein.
 - Only documentation, build config, i18n keys and dead TS imports have ever paid. The release-note vein is the best
@@ -29,12 +30,11 @@
 
 ## Open PR
 
-- #2284 `dead-code/studio-ui-react-imports`, head 39242f7d05: `Remove the React imports left unused in studio-ui
-  tests by the automatic JSX runtime` (7 test files, -7).
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2)
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7)
   — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
   rather than non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
@@ -289,4 +289,4 @@
   the `jekyll-redirect-from` plugin; #2257 MERGED (-2). The wave also cleared thirteen Docs human follow-ups.
 - 2026-10-08: delta was 89 commits — the studio-backend rename, table themes, trace, 7.0.0 migration notes. PMD
   (57 hits), Error Prone, dependency:analyze (69), i18n (1,722 keys), bundles, npm, images, Docs settings and
-  release notes re-ran at zero. tsc found 7 dead React imports; #2284 opened.
+  release notes re-ran at zero. tsc found 7 dead React imports; #2284 MERGED (-7).
