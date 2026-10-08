@@ -129,7 +129,8 @@ interface AboutModalProps {
  * license.
  *
  * The lists are read once, when the dialog is shown for the first time. A list the server cannot answer with is
- * reported as not available, and the other list is still shown.
+ * reported as not available, and the other list is still shown. Only the Docker image lists the software it runs the
+ * webapp on — Java, Jetty, Alpine Linux — so that side is shown only where its list is found.
  */
 export const AboutModal: FC<AboutModalProps> = ({ open, onClose }) => {
     const { t } = useTranslation()
@@ -138,8 +139,10 @@ export const AboutModal: FC<AboutModalProps> = ({ open, onClose }) => {
     const [libraries, setLibraries] = useState<Libraries>()
 
     useEffect(() => {
-        void Promise.all([readLibraries('frontend'), readLibraries('backend')])
-            .then(([frontend, backend]) => setLibraries({ frontend, backend }))
+        // Anywhere but in the Docker image its list is not found, which is no error to report.
+        const image = fetchLicenses('server').catch(() => null)
+        void Promise.all([readLibraries('frontend'), readLibraries('backend'), image])
+            .then(([frontend, backend, server]) => setLibraries({ frontend, backend, server }))
     }, [])
 
     return (
@@ -177,6 +180,13 @@ export const AboutModal: FC<AboutModalProps> = ({ open, onClose }) => {
                         styles={styles}
                         title={t('common:about.backend', { count: libraries.backend?.length ?? 0 })}
                     />
+                    {libraries.server && (
+                        <Side
+                            libraries={libraries.server}
+                            styles={styles}
+                            title={t('common:about.server', { count: libraries.server.length })}
+                        />
+                    )}
                 </>
             ) : <Spin />}
         </Modal>

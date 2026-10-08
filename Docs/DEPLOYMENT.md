@@ -30,7 +30,9 @@ docker run -p 8081:8080 openltablets/ws
 ```
 
 The image runs Jetty on a Temurin JRE, listens on port `8080`, and deploys the application as the `ROOT` web
-application. The process runs as the non-root user `openl` (UID `1000`).
+application. The process runs as the non-root user `openl` (UID `1000`). The software the image runs the application
+on — the JRE, Jetty, Log4j, the OpenTelemetry agent and Alpine Linux — is listed with its licenses in
+`webapps/ROOT/licenses/server-licenses.json`, which the **About** window of OpenL Studio shows.
 
 ### Directories
 

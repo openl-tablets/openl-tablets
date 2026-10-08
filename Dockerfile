@@ -283,3 +283,48 @@ COPY --from=log4j /log4j-layout-template-json-*.jar $OPENL_APP/webapps/ROOT/WEB-
 WORKDIR $OPENL_DIR
 
 CMD ["/opt/openl/start.sh"]
+
+# The software the image runs the webapp on, listed for the About dialog of OpenL Studio in the shape of the lists the
+# webapp carries: the JRE, Jetty, Log4j, the OpenTelemetry agent and Alpine Linux. jq is installed in this stage only.
+FROM openl AS licenses
+
+USER root
+
+ARG LOG4J_VER
+
+RUN <<'EOT'
+set -eu
+apk add --no-cache jq
+
+# An entry: name, version, SPDX expression and the files of its LICENSE and its NOTICE, either may be /dev/null.
+entry() {
+    jq -n --arg name "$1" --arg version "$2" --arg identifier "$3" --rawfile text "$4" --rawfile notice "$5" \
+        '{ $name, $version, $identifier } + ({ $text, $notice } | with_entries(.value |= trim | select(.value != "")))'
+}
+
+. "$JAVA_HOME/release"
+OTEL=$OTEL_DIR/opentelemetry-javaagent.jar
+LOG4J=$OPENL_APP/lib/logging/log4j-api-$LOG4J_VER.jar
+unzip -p "$LOG4J" META-INF/LICENSE > /tmp/log4j-license
+unzip -p "$LOG4J" META-INF/NOTICE > /tmp/log4j-notice
+# The agent is shaded: it names its version in the manifest and keeps the notices of what it bundles aside.
+unzip -p "$OTEL" META-INF/licenses/licenses.md > /tmp/otel-notice
+{
+    entry 'Eclipse Temurin' "$JAVA_RUNTIME_VERSION" 'GPL-2.0-only WITH Classpath-exception-2.0' \
+        "$JAVA_HOME/legal/java.base/LICENSE" "$JAVA_HOME/NOTICE"
+    entry 'Eclipse Jetty' "$(head -1 "$OPENL_APP/VERSION.txt" | cut -d ' ' -f 1)" 'EPL-2.0 OR Apache-2.0' \
+        "$OPENL_APP/LICENSE.txt" "$OPENL_APP/NOTICE.txt"
+    entry 'Apache Log4j' "$LOG4J_VER" Apache-2.0 /tmp/log4j-license /tmp/log4j-notice
+    entry 'OpenTelemetry Java agent' \
+        "$(unzip -p "$OTEL" META-INF/MANIFEST.MF | sed -n 's/^Implementation-Version: //p' | tr -d '\r')" Apache-2.0 \
+        /dev/null /tmp/otel-notice
+    # Alpine Linux is a set of packages, each under its own license: its package index names them.
+    ALPINE=$(cat /etc/alpine-release)
+    jq -n --arg version "$ALPINE" --arg url "https://pkgs.alpinelinux.org/packages?branch=v${ALPINE%.*}" \
+        '{ name: "Alpine Linux", $version, $url }'
+} | jq -s . > /server-licenses.json
+EOT
+
+FROM openl
+
+COPY --from=licenses /server-licenses.json $OPENL_APP/webapps/ROOT/licenses/

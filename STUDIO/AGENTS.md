@@ -41,6 +41,10 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
       path of the jar in a repository (`unpack-license-files`) and runs a copy of the template there
       (`license-template`), since a template reads files of its own folder only: it includes the first LICENSE and the
       first NOTICE of each library as raw text (`.get_optional_template`).
+    - **The Docker image adds `server-licenses.json`** beside the two lists, in their shape: the `licenses` stage of
+      the root `Dockerfile` lists the Temurin JRE, Jetty, Log4j and the OpenTelemetry agent, each with what of its
+      LICENSE and NOTICE it ships, and Alpine Linux, linked to its package index. `jq` stays in that stage. Outside
+      the image the file is not found, and the About dialog shows no side for it.
 - **Static resources are public.** Every file the build leaves beside the pages — `/assets`, `/icons`, `/licenses`,
   the favicons, the files of the user guides — is listed in `SecurityConfig.staticResourcesFilterChain`, which runs
   no security filters at all. A page is never listed: the application page answers a page of a guide too, so
