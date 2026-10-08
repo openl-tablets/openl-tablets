@@ -442,6 +442,50 @@
                             <outputDirectory>${project.build.directory}/licenses</outputDirectory>
                             <!-- A web resource served at /licenses, beside the list of the frontend libraries. -->
                             <addOutputDirectoryAsResourceDir>false</addOutputDirectoryAsResourceDir>
+                            <!-- Each license is named by its SPDX identifier, as the frontend libraries name
+                                 theirs: the first name of a merge is the identifier, the others are the names the
+                                 POMs give it. EDL 1.0 is BSD-3-Clause and the Bouncy Castle Licence is MIT, as SPDX
+                                 reads them. -->
+                            <licenseMerges>
+                                <licenseMerge>Apache-2.0
+                                    | Apache 2 | Apache 2.0 | Apache License 2.0 | Apache License Version 2.0
+                                    | Apache License, Version 2.0 | Apache License, version 2.0
+                                    | The Apache License, Version 2.0 | The Apache Software License, Version 2.0</licenseMerge>
+                                <licenseMerge>BSD-3-Clause
+                                    | BSD License | EDL 1.0 | Eclipse Distribution License - v 1.0
+                                    | Eclipse Distribution License v. 1.0</licenseMerge>
+                                <licenseMerge>BSD-2-Clause | The BSD 2-Clause License</licenseMerge>
+                                <licenseMerge>CC0-1.0 | Public Domain, per Creative Commons CC0</licenseMerge>
+                                <licenseMerge>EPL-1.0 | EPL 1.0</licenseMerge>
+                                <licenseMerge>EPL-2.0 | EPL 2.0 | Eclipse Public License v. 2.0</licenseMerge>
+                                <licenseMerge>GPL-2.0-only WITH Classpath-exception-2.0
+                                    | GPL2 w/ CPE | GPL-2.0-with-classpath-exception
+                                    | GNU General Public License, version 2 with the GNU Classpath Exception</licenseMerge>
+                                <licenseMerge>LGPL-2.1-or-later | LGPL 2.1 | GNU Library General Public License v2.1 or later</licenseMerge>
+                                <licenseMerge>LGPL-3.0-only | GNU Lesser General Public License</licenseMerge>
+                                <licenseMerge>MIT | The MIT License (MIT) | Bouncy Castle Licence</licenseMerge>
+                                <licenseMerge>MPL-1.1 | MPL 1.1</licenseMerge>
+                                <licenseMerge>MPL-2.0 | MPL 2.0</licenseMerge>
+                            </licenseMerges>
+                            <!-- Fails on a license named otherwise, so a new name is merged above rather than shown.
+                                 Every identifier here has a public text the About dialog links to (studio-ui
+                                 services/licenses.ts). -->
+                            <includedLicenses>
+                                <includedLicense>Apache-2.0</includedLicense>
+                                <includedLicense>BSD-2-Clause</includedLicense>
+                                <includedLicense>BSD-3-Clause</includedLicense>
+                                <includedLicense>CC0-1.0</includedLicense>
+                                <includedLicense>EPL-1.0</includedLicense>
+                                <includedLicense>EPL-2.0</includedLicense>
+                                <includedLicense>GPL-2.0-only WITH Classpath-exception-2.0</includedLicense>
+                                <includedLicense>LGPL-2.1-or-later</includedLicense>
+                                <includedLicense>LGPL-3.0-only</includedLicense>
+                                <includedLicense>MIT</includedLicense>
+                                <includedLicense>MIT-0</includedLicense>
+                                <includedLicense>MPL-1.1</includedLicense>
+                                <includedLicense>MPL-2.0</includedLicense>
+                            </includedLicenses>
+                            <failOnBlacklist>true</failOnBlacklist>
                         </configuration>
                     </execution>
                 </executions>

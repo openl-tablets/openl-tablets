@@ -1,5 +1,20 @@
-import { canOpenLicense, fetchLicenses, openLicense } from './licenses'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { expressionParts, fetchLicenses, openText, publicLicense } from './licenses'
 import { jsonResponse } from 'testing/responses'
+
+/** The licenses `npm run build` lets the frontend libraries have. */
+const frontendLicenses = (): string[] => {
+    const { scripts } = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as
+        { scripts: Record<string, string> }
+    return /--onlyAllow "([^"]+)"/.exec(scripts['build'] ?? '')![1]!.split(';')
+}
+
+/** The licenses the war build lets the backend libraries have. */
+const backendLicenses = (): string[] => {
+    const pom = readFileSync(resolve(process.cwd(), '../studio-backend/pom.xml'), 'utf8')
+    return [...pom.matchAll(/<includedLicense>([^<]+)<\/includedLicense>/g)].map(([, license]) => license!)
+}
 
 describe('licenses', () => {
     afterEach(() => {
@@ -24,13 +39,13 @@ describe('licenses', () => {
         await expect(fetchLicenses('frontend')).rejects.toThrow('Failed to read the frontend licenses: 404')
     })
 
-    it('opens the text of a license as plain text in a new window, keeping no address behind', async () => {
+    it('opens a text as plain text in a new window, keeping no address behind', async () => {
         const open = vi.spyOn(window, 'open').mockReturnValue(null)
         const createObjectURL = vi.fn((_blob: Blob) => 'blob:license')
         const revokeObjectURL = vi.fn()
         vi.stubGlobal('URL', Object.assign(class extends URL {}, { createObjectURL, revokeObjectURL }))
 
-        openLicense({ name: 'react', version: '19.3.0', identifier: 'MIT', text: 'MIT License' })
+        openText('MIT License')
 
         const blob = createObjectURL.mock.calls[0]![0]
         expect(blob.type).toBe('text/plain;charset=utf-8')
@@ -39,23 +54,23 @@ describe('licenses', () => {
         expect(revokeObjectURL).toHaveBeenCalledWith('blob:license')
     })
 
-    it('opens the address of a license that comes without its text', () => {
-        const open = vi.spyOn(window, 'open').mockReturnValue(null)
-
-        openLicense({ name: 'org.slf4j:slf4j-api', version: '2.0.17', url: 'https://opensource.org/license/mit' })
-
-        expect(open).toHaveBeenCalledWith('https://opensource.org/license/mit', '_blank', 'noopener,noreferrer')
+    it('splits an SPDX expression into its licenses and what joins them', () => {
+        expect(expressionParts('MIT')).toEqual(['MIT'])
+        expect(expressionParts('(MPL-2.0 OR Apache-2.0)')).toEqual(['(', 'MPL-2.0', ' ', 'OR', ' ', 'Apache-2.0', ')'])
+        expect(expressionParts('GPL-2.0-only  WITH Classpath-exception-2.0'))
+            .toEqual(['GPL-2.0-only', '  ', 'WITH', ' ', 'Classpath-exception-2.0'])
     })
 
-    it('opens a license only when its text or its address is known', () => {
-        const open = vi.spyOn(window, 'open').mockReturnValue(null)
-        const library = { name: 'unlicensed', version: '1.0.0' }
+    it('knows where a standard license is published, and no address for any other', () => {
+        expect(publicLicense('Apache-2.0')).toBe('https://www.apache.org/licenses/LICENSE-2.0.txt')
+        expect(publicLicense('The Apache Software License, Version 2.0')).toBeUndefined()
+        expect(publicLicense('OR')).toBeUndefined()
+    })
 
-        openLicense(library)
+    it('knows where every license the builds accept is published', () => {
+        const licenses = [...frontendLicenses(), ...backendLicenses()].flatMap(license => license.split(' WITH '))
 
-        expect(open).not.toHaveBeenCalled()
-        expect(canOpenLicense(library)).toBe(false)
-        expect(canOpenLicense({ ...library, text: 'MIT License' })).toBe(true)
-        expect(canOpenLicense({ ...library, url: 'https://opensource.org/license/mit' })).toBe(true)
+        expect(licenses).toEqual(expect.arrayContaining(['MIT', 'GPL-2.0-only', 'Classpath-exception-2.0']))
+        expect(licenses.filter(license => !publicLicense(license))).toEqual([])
     })
 })
