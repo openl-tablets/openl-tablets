@@ -10,7 +10,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 import org.junitpioneer.jupiter.DefaultTimeZone;
+import org.junitpioneer.jupiter.SetSystemProperty;
 
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.test.RulesInFolderTestRunner;
 
 /**
@@ -18,6 +20,10 @@ import org.openl.rules.test.RulesInFolderTestRunner;
  *
  * <p>A project fails the build when it has a compilation error or a failed test. Each category is checked twice:
  * with the test tables run, and compiled in the execution mode that OpenL Rule Services uses.
+ *
+ * <p>The test tables run with dispatching validation on, as OpenL Studio runs them by default. The only version of a
+ * rule with business dimension properties then runs only when the runtime context matches them. A rule called by its
+ * id property runs whatever the runtime context is.
  */
 @DefaultLocale("en-US")
 @DefaultTimeZone("UTC")
@@ -25,6 +31,7 @@ final class DemoProjectsTest {
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = {"examples", "templates", "tutorials"})
+    @SetSystemProperty(key = OpenLSystemProperties.DISPATCHING_VALIDATION, value = "true")
     void testAll(String category) {
         assertFalse(new RulesInFolderTestRunner(false, false).run(categoryFolder(category)), "Test is failed.");
     }

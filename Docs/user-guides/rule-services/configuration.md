@@ -646,6 +646,8 @@ For table testing, dispatching validation is enabled by setting the `dispatching
 
 By default, the dispatching.validation value is set to false in OpenL Rule Services and to true in OpenL Studio.
 
+A rule called by its ID property, as described in [Dev Properties](../reference-guide/02-working-with-openl-tables/04-table-properties/07-dev-properties.md#dev-properties), is always executed regardless of runtime context, whatever the `dispatching.validation` value is.
+
 ##### Configuring a Number of Threads to Rules Compilation
 
 The system supports parallel rules compilation. Rules compilation consumes a large amount of memory. If the system tries to compile too many rules at once, it fails with an out of memory exception.
