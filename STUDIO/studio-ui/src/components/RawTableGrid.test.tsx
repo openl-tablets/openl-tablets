@@ -134,6 +134,22 @@ describe('RawTableGrid', () => {
         expect((cells[2] as HTMLElement).style.verticalAlign).toBe('')
     })
 
+    it('indents a cell by an em a step, from the side it is aligned to', () => {
+        const table: RawTableCell[][] = [[
+            { cell: 'A1', value: 'C2', style: { indent: 4 } },
+            { cell: 'B1', value: 'total', style: { indent: 2, align: 'right' } },
+            { cell: 'C1', value: 'plain' },
+        ]]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const [left, right, plain] = Array.from(screen.getByTestId('grid').querySelectorAll('td'))
+        expect(left!.style.getPropertyValue('--cell-indent-left')).toBe('4em')
+        expect(right!.style.getPropertyValue('--cell-indent-right')).toBe('2em')
+        expect(right!.style.getPropertyValue('--cell-indent-left')).toBe('')
+        expect(plain!.getAttribute('style')).toBeNull()
+    })
+
     describe('in a dark theme', () => {
         const drawDark = (table: RawTableCell[][]) => renderInTheme(
             <RawTableGrid layout={{ firstDataLine: 1 }} rows={table} testId="grid" />,

@@ -119,3 +119,17 @@ export const runStyle = (run: RawTableTextRun, place: RunPlace): React.CSSProper
         fontSize: fontSizeOf(style),
     }
 }
+
+/**
+ * The indent of a cell, as the room it leaves beside its text: one em for each step the workbook gives.
+ *
+ * A cell aligned right is indented from the right, as Excel draws it; any other from the left. A cell without an
+ * indent takes no room of its own.
+ */
+export const indentOf = (style: RawTableCellStyle | undefined): React.CSSProperties => {
+    if (!style?.indent) {
+        return {}
+    }
+    const side = style.align === 'right' ? '--cell-indent-right' : '--cell-indent-left'
+    return { [side]: `${style.indent}em` } as React.CSSProperties
+}

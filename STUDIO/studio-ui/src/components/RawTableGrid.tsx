@@ -4,7 +4,7 @@ import type { RawTableCell, TableLayout } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { type TablePaper, workbookPaper } from '../styles/paper'
 import { type RawTableGridStyles, useStyles } from './RawTableGrid.styles'
-import { borders, fontFamilyOf, fontSizeOf, textDecoration, tinted } from './rawTableStyle'
+import { borders, fontFamilyOf, fontSizeOf, indentOf, textDecoration, tinted } from './rawTableStyle'
 
 /** How the screen showing a table marks one of its cells. */
 export interface CellDecoration {
@@ -103,6 +103,7 @@ const edgeOf = (row: number, column: number): string | undefined => {
  * A side of the cell the workbook draws a border on is drawn with that border; any other side keeps the line of
  * the grid, which the cell above or on the left draws where there is one. The font and its size are drawn only
  * where the table theme sets them: a read naming a theme reports the look of the theme as the style of the cell.
+ * An indented cell leaves the room of its indent beside its text.
  */
 const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean,
     ink: string): React.CSSProperties => {
@@ -121,6 +122,7 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
         // A font the machine does not have falls back to a sans-serif one, not to the browser's serif default.
         fontFamily: fontFamilyOf(style),
         fontSize: fontSizeOf(style),
+        ...indentOf(style),
         ...borders(style?.border, muted, ink),
     }
 }
