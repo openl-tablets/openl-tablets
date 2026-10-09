@@ -75,6 +75,40 @@ class TestsExecutionSummaryResponseMapperTest {
     }
 
     /**
+     * A case that expects values while the tested rule throws a user error lists every expected value under the title
+     * of its result column, next to the message of the error.
+     */
+    @Test
+    void namesTheResultColumnsOfACaseThatGotAnError() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[]{"Check", "Doubled"});
+        when(results.getTestErrorColumnDisplayNames()).thenReturn(new String[0]);
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_NEQ);
+        when(testUnit.getActualResult()).thenReturn(new IllegalStateException("Too big"));
+        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        when(testUnit.getComparisonResults()).thenReturn(List.of(
+                new ComparedResult("$Value$Check", 234, "Too big", TestStatus.TR_NEQ),
+                new ComparedResult("$Value$Doubled", 468, "Too big", TestStatus.TR_NEQ)));
+        when(test.getExpectedResult()).thenReturn(new Object());
+        when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
+
+        var assertions = mapper.mapToTestUnitResult(results, testUnit, new TestExecutionSummaryQuery(false, 5, false,
+                false)).testAssertions();
+
+        assertEquals(List.of("Check", "Doubled"), assertions.stream().map(e -> e.description()).toList());
+        assertEquals("234", assertions.getFirst().expectedValue().toString());
+        assertEquals("\"Too big\"", assertions.getFirst().actualValue().toString());
+    }
+
+    /**
      * A page of the summary says how many test tables ran in all, so a screen can page through them.
      */
     @Test

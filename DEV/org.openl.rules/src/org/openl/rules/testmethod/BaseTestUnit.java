@@ -104,25 +104,7 @@ public class BaseTestUnit implements ITestUnit {
             default -> expectedError.toString();
         };
         Throwable rootCause = ExceptionUtils.getRootCause(actualError);
-        if (rootCause instanceof OpenLUserRuntimeException exception) {
-            var detailedEx = exception.getBody();
-            if (test.isEmptyOrNewStyleErrorDescription()) {
-                // to support old behaviour
-                return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
-            } else {
-                return compareMessageAndGetResult(expectedError, detailedEx, expectedResult, rootCause.getMessage());
-            }
-        } else if (rootCause instanceof OutsideOfValidDomainException) {
-            if (test.isEmptyOrNewStyleErrorDescription()) {
-                // to support old behaviour
-                return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
-            } else {
-                return compareMessageAndGetResult(expectedError,
-                        rootCause.getMessage(),
-                        expectedResult,
-                        rootCause.getMessage());
-            }
-        } else {
+        if (!(rootCause instanceof OpenLUserRuntimeException || rootCause instanceof OutsideOfValidDomainException)) {
             var results = new ComparedResult(null,
                     expectedError == null ? expectedResult : expectedError,
                     rootCause == null ? actualResult : rootCause.getMessage(),
@@ -131,6 +113,17 @@ public class BaseTestUnit implements ITestUnit {
             addComparisonResult(results);
             return TR_EXCEPTION;
         }
+        if (expectedResult != null) {
+            return compareExpectedResultWithError(expectedResult, rootCause.getMessage());
+        }
+        if (test.isEmptyOrNewStyleErrorDescription()) {
+            // to support old behaviour
+            return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage());
+        }
+        var actual = rootCause instanceof OpenLUserRuntimeException exception
+                ? exception.getBody()
+                : rootCause.getMessage();
+        return compareAndGetResult(expectedError, actual, test.getErrorFields());
     }
 
     private void addComparisonResult(ComparedResult result) {
@@ -140,36 +133,35 @@ public class BaseTestUnit implements ITestUnit {
         comparisonResults.add(result);
     }
 
-    private TestStatus compareMessageAndGetResult(String expectedError, String actualError, Object expectedResult) {
-        Object expectedValue;
-        boolean isEqual;
-        if (expectedResult == null) {
-            expectedValue = expectedError;
-            isEqual = Objects.equals(expectedError == null ? "" : expectedError, actualError);
-        } else {
-            isEqual = false;
-            expectedValue = expectedResult;
-        }
+    private TestStatus compareMessageAndGetResult(String expectedError, String actualError) {
+        var isEqual = Objects.equals(expectedError == null ? "" : expectedError, actualError);
         if (writeFailuresOnly() && isEqual) {
             return TR_OK;
         }
         TestStatus status = isEqual ? TR_OK : TR_NEQ;
-        var results = new ComparedResult(null, expectedValue, actualError, status);
+        var results = new ComparedResult(null, expectedError, actualError, status);
         addComparisonResult(results);
         return status;
     }
 
-    private TestStatus compareMessageAndGetResult(Object expectedError,
-                                                  Object actualError,
-                                                  Object expectedResult,
-                                                  String actualErrorMessage) {
-        if (expectedResult == null) {
-            return compareAndGetResult(expectedError, actualError, test.getErrorFields());
-        } else {
-            var results = new ComparedResult(null, expectedResult, actualErrorMessage, TR_NEQ);
-            addComparisonResult(results);
-            return TR_NEQ;
+    /**
+     * Fails a test case that expects a result, while the tested method throws a user error.
+     *
+     * <p>Every tested field is reported with its expected value and the message of the error, so a test of some
+     * fields of a Spreadsheet shows the expected values of those cells, not the whole expected Spreadsheet.
+     */
+    private TestStatus compareExpectedResultWithError(Object expectedResult, String actualErrorMessage) {
+        var fields = test.getFields();
+        if (fields.isEmpty()) {
+            addComparisonResult(new ComparedResult(null, expectedResult, actualErrorMessage, TR_NEQ));
         }
+        for (IOpenField field : fields) {
+            addComparisonResult(new ComparedResult(field.getName(),
+                    getFieldValueOrNull(expectedResult, field),
+                    actualErrorMessage,
+                    TR_NEQ));
+        }
+        return TR_NEQ;
     }
 
     private TestStatus compareAndGetResult(Object expectedResult, Object actualResult, List<IOpenField> fieldsToTest) {
