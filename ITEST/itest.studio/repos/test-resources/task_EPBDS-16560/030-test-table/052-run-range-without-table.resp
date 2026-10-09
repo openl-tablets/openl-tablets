@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.tests.run.range.no-table.message",
+  "message": "The 'testRanges' parameter names the cases of a test table, so it needs the table in 'tableId'."
+}

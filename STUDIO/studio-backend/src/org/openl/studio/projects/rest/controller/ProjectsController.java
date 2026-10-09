@@ -856,6 +856,10 @@ public class ProjectsController {
                             @RequestParam(value = "fromModule", required = false) String fromModule,
                             @RequestParam(value = "tableId", required = false) String tableId,
                             @RequestParam(value = "testRanges", required = false) String testRanges) {
+        // The ranges name the cases of one test table, so they are refused without the table rather than ignored.
+        if (StringUtils.isBlank(tableId) && StringUtils.isNotBlank(testRanges)) {
+            throw new BadRequestException("tests.run.range.no-table.message");
+        }
         // A blank `?fromModule=` means the whole project, not a module named "", the way the benchmark reads it.
         var moduleName = StringUtils.trimToNull(fromModule);
         var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
