@@ -123,7 +123,8 @@ public class TestsExecutionSummaryResponseMapper {
         // names are empty, which previously caused ArrayIndexOutOfBoundsException.
         if (testUnit.getResultStatus() != TestStatus.TR_EXCEPTION) {
             var results = testUnit.getComparisonResults();
-            var resultColumnNames = actualResult instanceof Exception
+            // An error compared with an expected result is reported for the result columns
+            var resultColumnNames = actualResult instanceof Exception && testUnit.getTest().getExpectedResult() == null
                     ? testCase.getTestErrorColumnDisplayNames()
                     : testCase.getTestResultColumnDisplayNames();
             IntStream.range(0, results.size())
