@@ -283,10 +283,12 @@ TOKEN :
 | < MINUS : "-" >
 | < STAR : "*" >
 | < SLASH : "/" >
+| < REM : "%" >
 | < PLUSASSIGN : "+=" >
 | < MINUSASSIGN : "-=" >
 | < STARASSIGN : "*=" >
 | < SLASHASSIGN : "/=" >
+| < EXP : "**" >
 | < STRING_LE : "string<=" >
 | < STRING_LT : "string<" >
 | < STRING_GE : "string>=" >
@@ -820,7 +822,7 @@ void MultiplicativeExpression() :
   String func = null;
 }
 {
-  UnaryExpression()
+  PowerExpression()
   (
     (
       x = < STAR >
@@ -831,10 +833,29 @@ void MultiplicativeExpression() :
       {
         func = "op.binary.divide";
       }
+    | x = < REM >
+      {
+        func = "op.binary.rem";
+      }
     )
-    UnaryExpression()
+    PowerExpression()
     {
       bop(func, pos(x));
+    }
+  )*
+}
+
+void PowerExpression() :
+{
+  Token x;
+}
+{
+  UnaryExpression()
+  (
+    LOOKAHEAD(< EXP >)
+    x = < EXP > UnaryExpression()
+    {
+      bop("op.binary.pow", pos(x));
     }
   )*
 }

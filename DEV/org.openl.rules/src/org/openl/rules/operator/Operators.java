@@ -6,8 +6,12 @@ import java.math.MathContext;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.annotations.IgnoreVarargsMatching;
 import org.openl.rules.annotations.Operator;
+import org.openl.rules.util.Maths;
+import org.openl.rules.util.Remainder;
 import org.openl.rules.util.dates.DateInterval;
 
 /**
@@ -715,6 +719,43 @@ public class Operators {
         return add(x, BigDecimal.ONE);
     }
 
+    // Power
+
+    /**
+     * Raises {@code x} to the power of {@code y}: {@code x ** y} gives the same result as {@code pow(x, y)}.
+     */
+    public static @Nullable Double pow(@Nullable Double x, @Nullable Double y) {
+        return Maths.pow(x, y);
+    }
+
+    /**
+     * Raises {@code x} to the power of {@code n}: {@code x ** n} gives the same result as {@code pow(x, n)}.
+     */
+    public static @Nullable Double pow(@Nullable Double x, @Nullable Integer n) {
+        return Maths.pow(x, n);
+    }
+
+    /**
+     * Raises {@code x} to the power of {@code n}: {@code x ** n} gives the same result as {@code pow(x, n)}.
+     */
+    public static @Nullable Double pow(@Nullable Long x, @Nullable Integer n) {
+        return Maths.pow(x, n);
+    }
+
+    /**
+     * Raises {@code x} to the whole power {@code n}: {@code x ** n} gives the same result as {@code pow(x, n)}.
+     */
+    public static @Nullable BigInteger pow(@Nullable BigInteger x, @Nullable Integer n) {
+        return Maths.pow(x, n);
+    }
+
+    /**
+     * Raises {@code x} to the whole power {@code n}: {@code x ** n} gives the same result as {@code pow(x, n)}.
+     */
+    public static @Nullable BigDecimal pow(@Nullable BigDecimal x, @Nullable Integer n) {
+        return Maths.pow(x, n);
+    }
+
     // Negative
 
     public static byte negative(byte x) {
@@ -845,6 +886,40 @@ public class Operators {
             return Boolean.FALSE;
         }
         return x == null || y == null ? null : Boolean.TRUE;
+    }
+
+    // Remainder: x % y gives the same result as remainder(x, y).
+
+    public static @Nullable Byte rem(@Nullable Byte x, @Nullable Byte y) {
+        return Remainder.remainder(x, y);
+    }
+
+    public static @Nullable Short rem(@Nullable Short x, @Nullable Short y) {
+        return Remainder.remainder(x, y);
+    }
+
+    public static @Nullable Integer rem(@Nullable Integer x, @Nullable Integer y) {
+        return Remainder.remainder(x, y);
+    }
+
+    public static @Nullable Long rem(@Nullable Long x, @Nullable Long y) {
+        return Remainder.remainder(x, y);
+    }
+
+    public static @Nullable Float rem(@Nullable Float x, @Nullable Float y) {
+        return Remainder.remainder(x, y);
+    }
+
+    public static @Nullable Double rem(@Nullable Double x, @Nullable Double y) {
+        return Remainder.remainder(x, y);
+    }
+
+    public static @Nullable BigInteger rem(@Nullable BigInteger x, @Nullable BigInteger y) {
+        return Remainder.remainder(x, y);
+    }
+
+    public static @Nullable BigDecimal rem(@Nullable BigDecimal x, @Nullable BigDecimal y) {
+        return Remainder.remainder(x, y);
     }
 
     public static Integer subtract(Date d1, Date d2) {

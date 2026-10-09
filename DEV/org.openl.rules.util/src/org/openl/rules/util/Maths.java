@@ -2,6 +2,7 @@ package org.openl.rules.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
@@ -322,6 +323,48 @@ public final class Maths {
      */
     public static @Nullable Double pow(@Nullable Double base, @Nullable Double exponent) {
         return apply(base, exponent, Math::pow);
+    }
+
+    /**
+     * Returns {@code base} raised to the power of {@code exponent}, as {@link #pow(Double, Double)} does.
+     * <p>
+     * With it, a fractional base and a whole exponent give a {@code Double}, not a {@code BigDecimal}.
+     */
+    public static @Nullable Double pow(@Nullable Double base, @Nullable Integer exponent) {
+        return exponent == null ? null : pow(base, exponent.doubleValue());
+    }
+
+    /**
+     * Returns {@code base} raised to the power of {@code exponent}, as {@link #pow(Double, Double)} does.
+     * <p>
+     * With it, a whole base and a whole exponent give a {@code Double}, not a {@code BigInteger}.
+     */
+    public static @Nullable Double pow(@Nullable Long base, @Nullable Integer exponent) {
+        return base == null ? null : pow(base.doubleValue(), exponent);
+    }
+
+    /**
+     * Returns {@code base} raised to the whole power {@code exponent}, exactly.
+     * <p>
+     * A zero exponent gives {@code 1}. A negative exponent stops the calculation with an error, because its result is
+     * not a whole number.
+     */
+    public static @Nullable BigInteger pow(@Nullable BigInteger base, @Nullable Integer exponent) {
+        return base == null || exponent == null ? null : base.pow(exponent);
+    }
+
+    /**
+     * Returns {@code base} raised to the whole power {@code exponent}.
+     * <p>
+     * A zero or positive exponent gives the exact power, so {@code 1.5} squared is {@code 2.25}. A negative exponent
+     * gives {@code 1} divided by the power, rounded to 34 significant digits as a division of {@code BigDecimal}
+     * values is. A zero base with a negative exponent stops the calculation with an error.
+     */
+    public static @Nullable BigDecimal pow(@Nullable BigDecimal base, @Nullable Integer exponent) {
+        if (base == null || exponent == null) {
+            return null;
+        }
+        return exponent >= 0 ? base.pow(exponent) : BigDecimal.ONE.divide(base.pow(-exponent), MathContext.DECIMAL128);
     }
 
     /**
