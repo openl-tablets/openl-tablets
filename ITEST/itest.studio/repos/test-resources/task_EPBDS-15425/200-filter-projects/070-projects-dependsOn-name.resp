@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.projects.depends-on.invalid.message",
+  "message": "The 'dependsOn' parameter must be a project identifier, as the projects list returns it, not a project name."
+}

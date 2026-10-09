@@ -267,7 +267,7 @@ public class ProjectsController {
                 .includes(ProjectInclude.normalize(includes));
 
         if (StringUtils.isNotEmpty(dependsOn)) {
-            queryBuilder.dependsOn(ProjectIdModel.decode(dependsOn));
+            queryBuilder.dependsOn(decodeDependsOn(dependsOn));
         }
 
         var tagValues = new LinkedHashMap<String, Set<String>>();
@@ -1163,4 +1163,17 @@ public class ProjectsController {
                 .build();
     }
 
+    /**
+     * Reads the project the listed projects depend on.
+     *
+     * <p>The value is a project identifier as the projects list returns it. A project name or any other text is a
+     * client error.
+     */
+    private static ProjectIdModel decodeDependsOn(String dependsOn) {
+        try {
+            return ProjectIdModel.decode(dependsOn);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("projects.depends-on.invalid.message");
+        }
+    }
 }
