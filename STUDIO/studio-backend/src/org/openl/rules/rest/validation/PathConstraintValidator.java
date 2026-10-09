@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -15,13 +16,30 @@ import org.eclipse.jgit.util.SystemReader;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.util.OS;
 import org.openl.util.StringUtils;
 
 public class PathConstraintValidator implements ConstraintValidator<PathConstraint, String> {
 
+    /**
+     * An absolute Windows path: a drive letter, a colon and either kind of slash, such as {@code C:\openl}.
+     */
+    private static final Pattern WINDOWS_ABSOLUTE_PATH = Pattern.compile("^[A-Za-z]:[\\\\/]");
+
+    /** Whether the server runs on Windows, where such a path names a folder of its own. */
+    private final boolean windows;
+
     private boolean allowTrailingSlash;
     private boolean allowLeadingSlash;
     private Set<String> allowedSchemes;
+
+    public PathConstraintValidator() {
+        this(OS.isWindows());
+    }
+
+    PathConstraintValidator(boolean windows) {
+        this.windows = windows;
+    }
 
     @Override
     public void initialize(PathConstraint constraintAnnotation) {
@@ -38,7 +56,10 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
         if (StringUtils.isEmpty(value)) {
             return true;
         }
-        if (! allowedSchemes.isEmpty()) {
+        if (!allowedSchemes.isEmpty()) {
+            if (WINDOWS_ABSOLUTE_PATH.matcher(value).find()) {
+                return isValidWindowsPath(value, context);
+            }
             try {
                 var uri = new URI(value);
                 //If scheme is null, we validate it as a local path
@@ -63,6 +84,20 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
         }
         //Checking path
         return isValidPath(value, context);
+    }
+
+    /**
+     * Checks a local path written the Windows way. Its drive letter is not a URL scheme, and its folders are checked
+     * as the folders of any other path. A server on another system has no drives, and would read the path as a
+     * folder named after the whole of it, so there it is refused.
+     */
+    private boolean isValidWindowsPath(String value, ConstraintValidatorContext context) {
+        if (!windows) {
+            context.buildConstraintViolationWithTemplate("{openl.constraints.path.windows.message}")
+                    .addConstraintViolation();
+            return false;
+        }
+        return isValidPath(value.substring(2).replace('\\', '/'), context);
     }
 
     private boolean isValidPath(String value, ConstraintValidatorContext context) {
