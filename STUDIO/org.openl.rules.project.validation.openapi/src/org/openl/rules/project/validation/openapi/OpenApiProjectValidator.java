@@ -263,7 +263,7 @@ public class OpenApiProjectValidator {
 
     private Class<?> enhanceWithJAXRS(Context context,
                                       Class<?> originalClass,
-                                      ClassLoader classLoader) throws Exception {
+                                      ClassLoader classLoader) throws ClassNotFoundException {
         return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                 context.getTargetService(),
                 classLoader,
@@ -561,7 +561,7 @@ public class OpenApiProjectValidator {
                                                Content expectedRequestBodyContent) {
         for (Map.Entry<String, MediaType> entry : expectedRequestBodyContent.entrySet()) {
             var expectedMediaType = entry.getValue();
-            var actualMediaType = actualRequestBodyContent.get(entry.getKey());
+            var actualMediaType = findMediaType(actualRequestBodyContent, entry.getKey());
             if (expectedMediaType != null || actualMediaType != null) {
                 if (expectedMediaType == null) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
@@ -592,7 +592,7 @@ public class OpenApiProjectValidator {
             }
         }
         for (Map.Entry<String, MediaType> entry : actualRequestBodyContent.entrySet()) {
-            var expectedMediaType = expectedRequestBodyContent.get(entry.getKey());
+            var expectedMediaType = findMediaType(expectedRequestBodyContent, entry.getKey());
             if (expectedMediaType == null) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         (
@@ -775,14 +775,13 @@ public class OpenApiProjectValidator {
                                             ApiResponse actualApiResponse) {
         if (expectedApiResponse.getContent() != null) {
             for (Map.Entry<String, MediaType> entry : expectedApiResponse.getContent().entrySet()) {
-                var actualMediaType = actualApiResponse.getContent().get(entry.getKey());
+                var actualMediaType = findMediaType(actualApiResponse.getContent(), entry.getKey());
                 validateResponseMediaType(context, entry, actualMediaType);
             }
         }
         if (actualApiResponse.getContent() != null) {
             for (Map.Entry<String, MediaType> entry : actualApiResponse.getContent().entrySet()) {
-                MediaType expectedMediaType = expectedApiResponse
-                        .getContent() != null ? expectedApiResponse.getContent().get(entry.getKey()) : null;
+                var expectedMediaType = findMediaType(expectedApiResponse.getContent(), entry.getKey());
                 if (expectedMediaType == null) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             (
@@ -793,6 +792,36 @@ public class OpenApiProjectValidator {
                 }
             }
         }
+    }
+
+    /**
+     * Finds the description of a media type in the content of a request body or of a response.
+     *
+     * <p>A media type written with parameters, such as {@code text/plain;charset=UTF-8}, matches the same type written
+     * without them, such as {@code text/plain}, when the content has no exact match.
+     *
+     * @return the description, or {@code null} when the content has no such media type
+     */
+    private static @Nullable MediaType findMediaType(@Nullable Map<String, MediaType> content, String mediaType) {
+        if (content == null) {
+            return null;
+        }
+        var exact = content.get(mediaType);
+        if (exact != null) {
+            return exact;
+        }
+        var type = withoutParameters(mediaType);
+        return content.entrySet()
+                .stream()
+                .filter(e -> type.equalsIgnoreCase(withoutParameters(e.getKey())))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static String withoutParameters(String mediaType) {
+        var parameters = mediaType.indexOf(';');
+        return (parameters < 0 ? mediaType : mediaType.substring(0, parameters)).trim();
     }
 
     private void validateResponseMediaType(Context context,
