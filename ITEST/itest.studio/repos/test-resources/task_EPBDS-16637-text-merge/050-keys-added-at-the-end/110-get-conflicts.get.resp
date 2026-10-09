@@ -1,0 +1,43 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-16637-Messages",
+      "projectPath": "EPBDS-16637-Messages",
+      "files": [
+        "EPBDS-16637-Messages/i18n/message.properties"
+      ]
+    }
+  ],
+  "fileAvailability": {
+    "EPBDS-16637-Messages/i18n/message.properties": {
+      "ours": true,
+      "theirs": true,
+      "base": true
+    }
+  },
+  "oursRevision": {
+    "commit": "*",
+    "branch": "master",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "theirsRevision": {
+    "commit": "*",
+    "branch": "EPBDS-16637-keys-added-at-the-end",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "baseRevision": {
+    "commit": "*",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "defaultMessage": "*"
+}
+
