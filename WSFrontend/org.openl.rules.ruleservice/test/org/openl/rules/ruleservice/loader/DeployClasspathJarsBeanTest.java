@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.loader;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.doAnswer;
@@ -11,11 +12,14 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -23,6 +27,26 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
 class DeployClasspathJarsBeanTest {
+
+    @Test
+    void startsWithTheApplicationAlthoughItsConfigurationIsLazy() {
+        var deployerService = mock(RulesDeployerService.class);
+        try (var context = new GenericXmlApplicationContext()) {
+            context.getEnvironment()
+                    .getPropertySources()
+                    .addFirst(new MapPropertySource("test",
+                            Map.of("production-repository.factory", "repo-file",
+                                    "ruleservice.datasource.deploy.classpath.jars", "IF_ABSENT",
+                                    "ruleservice.datasource.deploy.classpath.retry-period", "0")));
+            context.load("classpath:openl-ruleservice-datasource-beans.xml");
+            context.getBeanFactory().registerSingleton("rulesDeployerService", deployerService);
+            context.refresh();
+
+            // Nothing asks for the bean: the context refresh alone must create it, which starts the deployment.
+            assertTrue(context.getBeanFactory().containsSingleton("deployClasspathJarsBean"));
+        }
+    }
+
     @Test
     void test() throws Exception {
         var unstableDeployerService = mock(RulesDeployerService.class);
