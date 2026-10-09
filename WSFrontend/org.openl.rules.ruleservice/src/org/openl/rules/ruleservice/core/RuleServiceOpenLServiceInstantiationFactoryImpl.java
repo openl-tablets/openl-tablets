@@ -73,6 +73,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Collection<Module> modules = serviceDescription.getModules();
 
         var instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
+        // The service description holds the deployment-wide default, overridden by the project's rules-deploy.xml.
+        instantiationStrategy.setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext());
         var parameters = ProjectExternalDependenciesHelper
                 .buildExternalParamsWithProjectDependencies(externalParameters, serviceDescription.getProjectDescriptor());
         instantiationStrategy.setExternalParameters(parameters);

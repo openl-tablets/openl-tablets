@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
@@ -61,6 +62,16 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
 
     private Map<String, Object> externalParameters;
 
+    /**
+     * Whether the generated interface takes the runtime context as the first argument of every rule method.
+     *
+     * <p>A value set here wins over the {@code isProvideRuntimeContext} tag of the project's {@code rules-deploy.xml}.
+     * Without it, the tag decides, and an absent tag or {@code rules-deploy.xml} means no runtime context.
+     *
+     * <p>Set it before the rules are compiled or instantiated.
+     */
+    @Setter
+    private @Nullable Boolean provideRuntimeContext;
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
                                                   IDependencyManager dependencyManager,
@@ -236,6 +247,9 @@ public class SimpleMultiModuleInstantiationStrategy implements RulesInstantiatio
     }
 
     private boolean isProvideRuntimeContext() {
+        if (provideRuntimeContext != null) {
+            return provideRuntimeContext;
+        }
         if (!modules.isEmpty()) {
             try {
                 var rulesDeploy = RulesDeploy.read(modules.iterator().next().getProject().getProjectFolder());
