@@ -77,8 +77,9 @@ public class IntRange extends Range<Long> implements INumberRange {
      * Constructor for <code>IntRange</code>. Tries to parse range text with variety of formats. Supported range
      * formats: "<min number> - <max number>" or "[<, <=, >, >=]<number>" or "<number>+".
      *
-     * <p>A bound is a plain integer such as {@code 1000}. A currency sign, a thousands separator and a {@code K},
-     * {@code M} or {@code B} multiplier are rejected.
+     * <p>A bound is a whole number. It may start with a {@code $} sign, may group its thousands with commas and may end
+     * with a {@code K}, {@code M} or {@code B} multiplier, so {@code $1,500} is 1500 and {@code 10K} is 10000. A comma
+     * must separate groups of exactly three digits.
      */
     public IntRange(String range) {
         Type rangeType;
@@ -94,7 +95,7 @@ public class IntRange extends Range<Long> implements INumberRange {
     private Type parseBounds(String range) {
         var parser = parse(range);
         if (parser == null) {
-            this.min = Long.parseLong(range.trim());
+            this.min = NumberBound.of(range.trim()).toLong();
             this.max = this.min;
             return Type.DEGENERATE;
         }
@@ -121,8 +122,8 @@ public class IntRange extends Range<Long> implements INumberRange {
         var rangeType = parser.getType();
         var left = parser.getLeft();
         var right = parser.getRight();
-        this.min = left == null ? Long.MIN_VALUE : Long.parseLong(left);
-        this.max = right == null ? Long.MAX_VALUE : Long.parseLong(right);
+        this.min = left == null ? Long.MIN_VALUE : NumberBound.of(left).toLong();
+        this.max = right == null ? Long.MAX_VALUE : NumberBound.of(right).toLong();
         return rangeType;
     }
 

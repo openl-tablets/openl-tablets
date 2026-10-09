@@ -140,22 +140,23 @@ from Maven.
   - `parseFormattedDouble(text, pattern)` has no direct replacement. `toNumber` reads the comma that groups the
     digits. Remove other symbols of the pattern first, such as a currency sign: `toNumber(replace(text, "$", ""))`.
 
-* **A number in a formula or a range is written in digits only.** The `$` sign, the thousands separator and the `K`,
-  `M`, `B` multipliers are removed, because they read differently across countries and `$` also starts a reference
-  to a spreadsheet step. A formula or a range that still uses one of them no longer compiles. Rewrite the number:
+* **A number in a formula is written in digits only.** The `$` sign, the thousands separator and the `K`, `M`, `B`
+  multipliers are removed from formulas, because they read differently across countries and `$` also starts a
+  reference to a spreadsheet step. A formula that still uses one of them no longer compiles. Rewrite the number:
 
-  | Before        | After             |
-  |---------------|-------------------|
-  | `= $600 * 2`  | `= 600 * 2`       |
-  | `= 1.5M`      | `= 1500000`       |
-  | `[1K .. 10K)` | `[1000 .. 10000)` |
-  | `>= $2,500`   | `>= 2500`         |
+  | Before         | After        |
+  |----------------|--------------|
+  | `= $600 * 2`   | `= 600 * 2`  |
+  | `= 1.5M`       | `= 1500000`  |
+  | `= $2,500 + x` | `= 2500 + x` |
 
-  Two cases change the result instead of failing, so search the rules for a comma between digits:
+  In a formula, the comma separates values, so a comma between digits changes the result instead of failing:
+  `{1,500}` is an array of `1` and `500`, and `max(1,000)` compares `1` with `0`. Search the formulas for it.
 
-  - In a formula, the comma separates values. `{1,500}` is an array of `1` and `500`, and `max(1,000)` compares `1`
-    with `0`.
-  - In a condition of a smart rule or a simple rule over numbers, `1,000` is the list of `1` and `0`, not `1000`.
+  Ranges keep these forms, so `[1K .. 10K)` and `>= $2,500` in a condition, a lookup header or a range field work as
+  before. A comma in a range has to separate groups of three digits now. In a condition column of ranges of a smart
+  rule or a simple rule, `77,99` was the number `7799`; now it is the list of `77` and `99`, which makes the column a
+  column of lists, where `1,500` is the list of `1` and `500` too. Write such a number without the comma.
 
   A leading zero makes a whole number octal, as in Java, so `08` and `09` no longer compile: write `Date(2021, 4, 8)`
   instead of `Date(2021, 04, 08)`. Number values in Data and Test tables never accepted these forms and are not
