@@ -338,6 +338,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void openVersion(String version) throws ProjectException {
+        var designVersion = findDesignVersion(version);
         var designProject = new AProject(designRepository, designFolderName, version);
 
         if (localFolderName == null) {
@@ -352,9 +353,6 @@ public class RulesProject extends UserWorkspaceProject {
             setRepository(localRepository);
             setFolderPath(localFolderName);
 
-            var designVersion = Optional.ofNullable(designProject.getFileData())
-                    .map(FileData::getVersion)
-                    .orElseThrow(() -> new ProjectException("Cannot open. Revision not found."));
             setHistoryVersion(designVersion);
             if (version == null) {
                 // version == 0 means that designVersion is last history version
@@ -365,6 +363,18 @@ public class RulesProject extends UserWorkspaceProject {
             resetLocalFileData();
             return null;
         });
+    }
+
+    private String findDesignVersion(@Nullable String version) throws ProjectException {
+        FileData designData;
+        try {
+            designData = new AProject(designRepository, designFolderName, version).getFileData();
+        } catch (IllegalStateException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }
+        return Optional.ofNullable(designData)
+                .map(FileData::getVersion)
+                .orElseThrow(() -> new ProjectException("Cannot open. Revision not found."));
     }
 
     @Override
