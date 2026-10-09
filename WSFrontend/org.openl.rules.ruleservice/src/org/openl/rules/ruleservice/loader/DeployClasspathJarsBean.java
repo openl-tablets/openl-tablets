@@ -10,6 +10,7 @@ import jakarta.annotation.PreDestroy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,17 @@ import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.spring.config.ConditionalOnEnable;
 
+/**
+ * Deploys the OpenL projects packed into the JAR files of the classpath to the deployment repository.
+ *
+ * <p>The deployment starts when the application starts. It runs in the background and retries until the
+ * deployment repository accepts every project.
+ *
+ * <p>The bean is created eagerly, even inside a configuration whose beans are lazy by default, so the deployment
+ * never waits for another bean to ask for it.
+ */
 @Slf4j
+@Lazy(false)
 @ConditionalOnEnable({
         "production-repository.factory != repo-jar",
         "ruleservice.datasource.deploy.classpath.jars != NEVER"})
