@@ -28,7 +28,7 @@ RELEASES_URL="https://github.com/openl-tablets/openl-tablets/releases/download"
 # JETTY_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
 # Enforced by `mvn validate -N`.
 JAVA_MAJOR_VERSION="25"
-JETTY_VERSION="12.1.13"
+JETTY_VERSION="12.1.14"
 
 # JDBC Driver Versions
 POSTGRES_VERSION="42.7.13"
