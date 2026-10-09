@@ -790,17 +790,21 @@ public class SpreadsheetStructureBuilder {
 
         var spreadsheetHeaderType = spreadsheetHeader.getType();
 
-        if (bindingContext.findType(SpreadsheetResult.class.getSimpleName())
-                .equals(spreadsheetHeaderType) && returnHeaderDefinition == null) {
-            // No RETURN and SpreadsheetResult is in the return
-            return;
-        }
-
         if (returnHeaderDefinition == null) {
-            // No RETURN, get the last row
-            // Get value with max key
-            // The last row is the row with the max key in the
-            rowHeaders.keySet().stream().max(Integer::compareTo).ifPresent(e -> returnHeaderDefinition = rowHeaders.get(e));
+            if (bindingContext.findType(SpreadsheetResult.class.getSimpleName()).equals(spreadsheetHeaderType)) {
+                // No RETURN and SpreadsheetResult is in the return
+                return;
+            }
+            // No RETURN, so the last row is returned: the row with the max key
+            returnHeaderDefinition = rowHeaders.keySet()
+                    .stream()
+                    .max(Integer::compareTo)
+                    .map(rowHeaders::get)
+                    .orElse(null);
+            if (returnHeaderDefinition == null) {
+                // No step has a name, so there is no step to return: reported when the result is built
+                return;
+            }
         }
 
         //  Spreadsheet auto type is disabled and no type is defined in the cell name like  RowName:Double,
@@ -1083,9 +1087,9 @@ public class SpreadsheetStructureBuilder {
      * the last step.
      *
      * <p>A Spreadsheet that returns {@code SpreadsheetResult} and names no {@code RETURN} returns every step, and has
-     * no such header.
+     * no such header. Neither has a Spreadsheet none of whose steps has a name.
      *
-     * @return the header, or {@code null} for a Spreadsheet that returns every step
+     * @return the header, or {@code null} for a Spreadsheet that returns every step or names no step
      */
     public SpreadsheetHeaderDefinition getReturnHeaderDefinition() {
         return returnHeaderDefinition;
@@ -1104,6 +1108,11 @@ public class SpreadsheetStructureBuilder {
                 .findType(SpreadsheetResult.class.getSimpleName())
                 .equals(spreadsheet.getHeader().getType())) {
             resultBuilder = new SpreadsheetResultBuilder();
+        } else if (returnHeaderDefinition == null) {
+            // No step has a name, so there is no step to return
+            throw SyntaxNodeExceptionUtils.createError(
+                    "There is no step to return: no step of the Spreadsheet has a name.",
+                    tableSyntaxNode);
         } else {
             // real return type
             //
