@@ -53,6 +53,12 @@ class Cursor {
 
     public final Collection<Cell> formulas;
 
+    /**
+     * Merged regions of current {@code sheet}, read on the first question about them and kept: ask only once the
+     * merged regions of the sheet do not change any more
+     */
+    private List<CellRangeAddress> mergedRegions;
+
     public Cursor(Workbook workbook, Sheet sheet) {
         this.workbook = workbook;
         this.sheet = sheet;
@@ -65,7 +71,10 @@ class Cursor {
      * @return merged region of {@code null}
      */
     public CellRangeAddress getCellMergedRegion() {
-        for (CellRangeAddress range : sheet.getMergedRegions()) {
+        if (mergedRegions == null) {
+            mergedRegions = sheet.getMergedRegions();
+        }
+        for (CellRangeAddress range : mergedRegions) {
             if (range.isInRange(cell)) {
                 return range;
             }

@@ -495,7 +495,9 @@ To save a project, proceed as follows:
 
     A standard comment is suggested. If the repository requires comments of a certain form, a comment that does not match it is refused.
 
-If another user saved the same files in the meantime, the **Resolve Conflicts** window appears, as described in [Resolving Conflicts](project-branches.md#resolving-conflicts).
+If another user saved the same files in the meantime, their changes are merged with yours where they do not
+overlap. When both changed the same place, the **Resolve Conflicts** window appears, as described in
+[Resolving Conflicts](project-branches.md#resolving-conflicts).
 
 An editable project can be saved and closed directly from the editor as described in [Editing and Saving a Project](rules-editor.md#editing-and-saving-a-project).
 

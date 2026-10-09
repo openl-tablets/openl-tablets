@@ -691,6 +691,9 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 var sheetDiffResult = diffResult.getSheetDiffResult();
                 appendSheets(messageBuilder, sheetDiffResult.getDiffSheets(DiffStatus.OUR), yourBranch);
                 appendSheets(messageBuilder, sheetDiffResult.getDiffSheets(DiffStatus.THEIR), theirBranch);
+                appendSheets(messageBuilder,
+                        sheetDiffResult.getDiffSheets(DiffStatus.MERGED),
+                        merging ? yourBranch + ", " + theirBranch : null);
             }
         }
         return messageBuilder.toString();

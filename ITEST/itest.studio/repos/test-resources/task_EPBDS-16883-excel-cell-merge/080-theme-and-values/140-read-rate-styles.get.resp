@@ -1,0 +1,153 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "2578c0046ca8587f8d48d6ae0ccc745c",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "rate",
+  "pos": "A1:B5",
+  "source": [
+    [
+      {
+        "cell": "A1",
+        "value": "SimpleRules Double rate(String country)",
+        "colspan": 2,
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "A2",
+        "value": "Country",
+        "style": {
+          "background": "#bfbfbf",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      },
+      {
+        "cell": "B2",
+        "value": "Rate",
+        "style": {
+          "background": "#b4c6e7",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      }
+    ],
+    [
+      {
+        "cell": "A3",
+        "value": "US",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "B3",
+        "value": 1.5,
+        "style": {
+          "background": "#ddebf7",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "A4",
+        "value": "DE",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "B4",
+        "value": 2.25,
+        "style": {
+          "background": "#ddebf7",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "A5",
+        "value": "CA",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "B5",
+        "value": 3.5,
+        "style": {
+          "background": "#ddebf7",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

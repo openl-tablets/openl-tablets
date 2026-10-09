@@ -274,6 +274,23 @@ class GitRepositoryMergeConflictsInExcelTest {
                         \t\tSetNonZero Test (12_COPY)""");
     }
 
+    @Test
+    void testCase_13_sheetChangedInBothIsMergedCellByCell() throws IOException, GitAPIException {
+        executeTestCase("13",
+                Set.of("13/Rates.xlsx"),
+                """
+                        13/Rates.xlsx
+                        \t\tRules (13, master)""",
+                """
+                        13/Rates.xlsx
+                        \t\tRules (master, 13_COPY)""");
+        try (var file = repo.read("13/Rates.xlsx"); var workbook = WorkbookFactory.create(file.getStream())) {
+            var sheet = workbook.getSheet("Rules");
+            assertEquals(10, sheet.getRow(3).getCell(1).getNumericCellValue());
+            assertEquals(31, sheet.getRow(9).getCell(1).getNumericCellValue());
+        }
+    }
+
     private void executeTestCase(String testCase,
                                  Set<String> expectedModifiedFiles,
                                  String expectedMrMessage1,

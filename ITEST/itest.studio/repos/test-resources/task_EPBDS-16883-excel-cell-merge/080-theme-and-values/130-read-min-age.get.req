@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_ID}/tables/4469469bead4e5e9ddd66edcc2d19c6a?raw=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

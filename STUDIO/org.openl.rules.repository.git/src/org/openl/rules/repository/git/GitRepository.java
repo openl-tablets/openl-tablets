@@ -1478,6 +1478,9 @@ public class GitRepository implements BranchRepository, Closeable {
             for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
                 appendSheetMergeLog.accept(sheetName, theirBranch);
             }
+            for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.MERGED)) {
+                appendSheetMergeLog.accept(sheetName, ourBranch + ", " + theirBranch);
+            }
             XlsWorkbookMerger.merge(ourConflictedFile.getStream(), theirConflictedFile.getStream(), diffResult, output);
             autoResolved.add(new FileItem(conflictedFile, new ByteArrayInputStream(output.toByteArray())));
         }

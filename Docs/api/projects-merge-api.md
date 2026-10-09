@@ -36,8 +36,8 @@ or an uploaded file.
   whether the current user may perform the merge
 - **Bidirectional Merging**: Support for both receiving changes from other branches and sending changes to other
   branches
-- **Workbook Auto-resolution**: A conflicted Excel file whose sheets were each changed in one branch only is merged
-  sheet by sheet without a decision from the user
+- **Workbook Auto-resolution**: A conflicted Excel file is merged without a decision from the user sheet by sheet,
+  and a sheet changed in both branches cell by cell, when the changes of the two branches do not overlap
 - **Conflict Detection**: Automatic detection of merge conflicts with detailed file-level information
 - **Conflict Resolution**: Multiple strategies for resolving conflicts (BASE, OURS, THEIRS, CUSTOM)
 - **Conflict Comparison**: The two versions of a conflicted workbook are compared through the Compare API
@@ -66,7 +66,7 @@ flowchart TB
     %% Repository / Git Layer
     subgraph GIT["Repository / Git Layer"]
         G[GitRepository<br/>- merge / commit / push<br/>- Conflict detection<br/>- File versions]
-        X[XlsWorkbookMerger<br/>- Sheet-level workbook merge]
+        X[XlsWorkbookMerger<br/>- Sheet and cell workbook merge]
     end
 
     %% Connections
@@ -280,8 +280,22 @@ The API omits empty values, so a successful merge has no `conflictGroups`.
 }
 ```
 
-A merge whose conflicted files are all workbooks that resolve automatically answers `success`. Its commit message
-lists those workbooks and their sheets under `Automatically resolved conflicts`.
+A merge whose conflicted files are all workbooks that resolve automatically answers `success`. A workbook resolves
+automatically when every sheet changed in both branches merges cell by cell:
+
+- no value, style or comment of a cell, height or visibility of a row, width or visibility of a column, default
+  column width or row height, merged cell or picture of the sheet is changed differently in the two branches: one
+  branch may change the value of a cell and the other its style;
+- neither branch inserts or deletes rows or columns inside the content of the sheet; edits that cannot be told apart
+  from such a move, such as many rows rewritten at once, count as one;
+- the branches do not fill empty cells next to each other, and neither merges cells over a value the other wrote;
+- the branch merged in leaves the data validation, the conditional formatting, the hyperlinks and the frozen panes of
+  the sheet as they were: `otherBranch` for `receive`, the current branch for `send`.
+
+A sheet both branches add with different content, or one branch removes while the other changes it, is a conflict.
+
+The commit message lists those workbooks and their sheets under `Automatically resolved conflicts`, each sheet with
+the branch it was taken from, or with both branches for a sheet merged cell by cell.
 
 **Errors**:
 - `409 Conflict`: Every refusal of the check, plus: an eligible user merges into a protected branch without
@@ -375,7 +389,8 @@ downloaded.
 
 **Default Message**: `Merge with commit <their commit>`, then the conflicted files under `Conflicts:`, and the
 workbooks that resolve automatically, with their changed sheets and branches, under `Automatically resolved
-conflicts:`.
+conflicts:`. In a merge conflict a sheet merged cell by cell names both branches; a save conflict names no
+branch.
 
 **File Ordering**:
 - Excel files (`.xls`, `.xlsx`, `.xlsm`) appear first
