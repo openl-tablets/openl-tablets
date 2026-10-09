@@ -261,7 +261,7 @@ const apiCall = async (
 export const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? value : [])
 
 /**
- * Options for a read whose failure the caller reports itself.
+ * Options for a request whose failure the caller reports itself: a read, or a write started from a dialog.
  *
  * <p>Without them a 403, 404 or 500 also flips the application store and paints the full-page error screen
  * over whatever the user was doing, so a locally handled failure would be reported twice.

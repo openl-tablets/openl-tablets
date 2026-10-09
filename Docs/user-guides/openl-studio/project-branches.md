@@ -186,6 +186,8 @@ OpenL Tablets allows defining a list of protected branches for Git design reposi
 
 If a branch is marked as protected, all actions that can impact Git history, such as deleting a project or synchronizing to a protected branch, are forbidden. In this case, separate branches are modified and then merged into the protected branch only via the Git CI process.
 
+An action refused this way, such as creating a project in a protected branch, is reported in the dialog where it was started, with the name of the protected branch.
+
 Branches can be defined as protected using the following property:
 
 ```

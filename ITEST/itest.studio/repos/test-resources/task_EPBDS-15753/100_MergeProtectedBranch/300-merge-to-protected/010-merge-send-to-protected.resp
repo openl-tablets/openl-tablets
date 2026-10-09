@@ -2,6 +2,6 @@ HTTP/1.1 403
 Content-Type: application/json
 
 {
-  "code": "openl.error.403.default.message",
-  "message": "You do not have the required privileges to do that."
+  "code": "openl.error.403.protected.branch.message",
+  "message": "The branch 'release-EPBDS-15753' is protected, and you cannot bypass its protection."
 }

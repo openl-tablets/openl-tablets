@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.protection;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
@@ -16,6 +17,7 @@ import org.openl.studio.common.exception.ProtectedBranchBypassRequiredException;
 public class ProtectedBranchBypassServiceImpl implements ProtectedBranchBypassService {
 
     private static final String BYPASS_REQUIRED_CODE = "protected.branch.bypass.required";
+    private static final String PROTECTED_CODE = "protected.branch.message";
 
     private final AclProjectsHelper aclProjectsHelper;
     private final RepositoryAclService designRepositoryAclService;
@@ -39,24 +41,24 @@ public class ProtectedBranchBypassServiceImpl implements ProtectedBranchBypassSe
 
     @Override
     public void requireBypassOrThrow(BranchRepository repo, String branch, AProject projectForAcl, boolean force) {
-        if (!repo.isBranchProtected(branch)) {
-            return;
-        }
-        if (!isBypassEligible(projectForAcl)) {
-            throw new ForbiddenException();
-        }
-        if (!force) {
-            throw new ProtectedBranchBypassRequiredException(BYPASS_REQUIRED_CODE, branch);
-        }
+        requireBypass(repo, branch, () -> isBypassEligible(projectForAcl), force);
     }
 
     @Override
     public void requireBypassOrThrow(BranchRepository repo, String branch, String repoId, boolean force) {
+        requireBypass(repo, branch, () -> isBypassEligible(repoId), force);
+    }
+
+    /**
+     * Lets a change of a protected branch through only for a user who may bypass the protection and confirmed it.
+     * The permission is asked only for a protected branch.
+     */
+    private static void requireBypass(BranchRepository repo, String branch, BooleanSupplier eligible, boolean force) {
         if (!repo.isBranchProtected(branch)) {
             return;
         }
-        if (!isBypassEligible(repoId)) {
-            throw new ForbiddenException();
+        if (!eligible.getAsBoolean()) {
+            throw new ForbiddenException(PROTECTED_CODE, branch);
         }
         if (!force) {
             throw new ProtectedBranchBypassRequiredException(BYPASS_REQUIRED_CODE, branch);
