@@ -189,20 +189,20 @@ public class PropertiesLoader {
         if (!XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableType)) {
             try {
                 loadPropertiesAsDataTable(tsn);
-
-                if (tsn.getTableProperties() == null) {
-                    createTableProperties(tsn);
-                }
             } catch (Exception ex) {
                 createTableProperties(tsn);
                 throw ex;
+            } finally {
+                // Even when its own properties cannot be read, the table takes the inherited and the default ones
+                if (tsn.getTableProperties() == null) {
+                    createTableProperties(tsn);
+                }
+                loadExternalProperties(tsn);
+                loadCategoryProperties(tsn);
+                loadModuleProperties(tsn);
+                loadGlobalProperties(tsn);
+                loadDefaultProperties(tsn);
             }
-
-            loadExternalProperties(tsn);
-            loadCategoryProperties(tsn);
-            loadModuleProperties(tsn);
-            loadGlobalProperties(tsn);
-            loadDefaultProperties(tsn);
         }
     }
 
