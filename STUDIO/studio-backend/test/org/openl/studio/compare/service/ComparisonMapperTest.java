@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -99,6 +100,53 @@ class ComparisonMapperTest {
     }
 
     @Test
+    void marksTheCellsOfATableThatChangedBothItsWidthAndItsHeight() throws IOException {
+        // One more column of default values, one more field, and the field age renamed to years.
+        var grown = new String[][]{
+                {"Datatype Person"},
+                {"String", "name", "Ann"},
+                {"int", "years", "30"},
+                {"boolean", "active", "true"},
+        };
+
+        var table = mapper.toTable(compare(PERSON, grown), "0-0");
+
+        assertNotNull(table);
+        assertEquals(ComparisonNodeStatus.CHANGED, table.status());
+        // The columns are paired by what they hold, so the renamed field is marked on both sides.
+        assertEquals(List.of("B3"), table.first().changedCells());
+        // The added row and the added column are marked as a whole.
+        assertEquals(List.of("A4", "B3", "B4", "C1", "C2", "C3", "C4"),
+                table.second().changedCells().stream().sorted().toList());
+    }
+
+    @Test
+    void leavesAMergedHeaderUnmarkedWhenAColumnIsAddedOnItsLeft() throws IOException {
+        // The header is merged over every column, so it reaches the added column and the paired ones alike.
+        var first = new String[][]{
+                {"Datatype Person"},
+                {"String", "name"},
+                {"int", "age"},
+        };
+        var second = new String[][]{
+                {"Datatype Person"},
+                {"note", "String", "name"},
+                {"note", "int", "years"},
+                {"note", "boolean", "active"},
+        };
+
+        var tree = new XlsDiff2().diffFiles(workbook("first.xlsx", first, 2).toFile(),
+                workbook("second.xlsx", second, 3).toFile());
+        var table = mapper.toTable(tree, "0-0");
+
+        assertNotNull(table);
+        assertEquals(List.of("B3"), table.first().changedCells());
+        // The added column is marked but for the header, which is compared over the paired columns and kept.
+        assertEquals(List.of("A2", "A3", "A4", "B4", "C3", "C4"),
+                table.second().changedCells().stream().sorted().toList());
+    }
+
+    @Test
     void readsATableOnlyOneFileHoldsWithoutMarkingItsCells() throws IOException {
         var table = mapper.toTable(compare(PERSON, PERSON_WITH_ADDRESS), "0-1");
 
@@ -147,6 +195,11 @@ class ComparisonMapperTest {
 
     /** Writes the given cells into the sheet "Rules" of a workbook of its own. */
     private Path workbook(String name, String[][] rows) throws IOException {
+        return workbook(name, rows, 1);
+    }
+
+    /** Writes the given cells into the sheet "Rules" of a workbook of its own, its first row merged over the width. */
+    private Path workbook(String name, String[][] rows, int headerWidth) throws IOException {
         var file = dir.resolve(name);
         try (var workbook = new XSSFWorkbook(); var out = Files.newOutputStream(file)) {
             var sheet = workbook.createSheet("Rules");
@@ -155,6 +208,9 @@ class ComparisonMapperTest {
                 for (var columnIndex = 0; columnIndex < rows[rowIndex].length; columnIndex++) {
                     row.createCell(columnIndex).setCellValue(rows[rowIndex][columnIndex]);
                 }
+            }
+            if (headerWidth > 1) {
+                sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, headerWidth - 1));
             }
             workbook.write(out);
         }

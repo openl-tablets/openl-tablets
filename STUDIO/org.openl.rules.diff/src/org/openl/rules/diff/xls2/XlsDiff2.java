@@ -3,6 +3,7 @@ package org.openl.rules.diff.xls2;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,8 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,7 +35,9 @@ import org.openl.xls.Parser;
 /**
  * Find difference between two XLS files. It compares per Table.
  * <p>
- * Incomplete. Need AxB vs CxD implementation. Need to be optimal.
+ * The cells of two versions of a table are compared row by row when they keep their width, and column by column
+ * when they keep their height. A table that changed both is aligned first: its columns are paired by the values
+ * they share, and its rows are then compared over the paired columns.
  *
  * @author Aleh Bykhavets
  */
@@ -195,8 +200,6 @@ public class XlsDiff2 {
         return builder.compare();
     }
 
-    // Tables that differ in both width and height need a two-dimensional alignment the diff does not have yet.
-    @SuppressWarnings("java:S1135")
     private void checkGrid(DiffPair pair) {
         var grid1 = pair.getTable1().getTable().getGridTable();
         var grid2 = pair.getTable2().getTable().getGridTable();
@@ -204,15 +207,12 @@ public class XlsDiff2 {
         var diff1 = new ArrayList<ICell>();
         var diff2 = new ArrayList<ICell>();
 
-        if (grid1.getWidth() == grid2.getWidth() || grid1.getHeight() == grid2.getHeight()) {
-            if (grid1.getWidth() == grid2.getWidth()) {
-                compareRows(grid1, grid2, diff1, diff2);
-            } else {
-                compareCols(grid1, grid2, diff1, diff2);
-            }
+        if (grid1.getWidth() == grid2.getWidth()) {
+            compareRows(GridView.of(grid1), GridView.of(grid2), diff1, diff2);
+        } else if (grid1.getHeight() == grid2.getHeight()) {
+            compareCols(grid1, grid2, diff1, diff2);
         } else {
-            // Diff Size
-            // TODO Implement AxB vs CxD algorithm
+            compareResized(grid1, grid2, diff1, diff2);
         }
 
         if (!diff1.isEmpty()) {
@@ -223,18 +223,18 @@ public class XlsDiff2 {
         }
     }
 
-    private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
+    private void compareRows(GridView grid1, GridView grid2, List<ICell> diff1, List<ICell> diff2) {
         var grid1MatchedRows = new ArrayList<Integer>();
         // For each row from grid1, the value of the corresponding row from grid2 (if found)
         // and the difference between them are stored.
-        var grid1RowsState = new HashMap<Integer, RowDiff>();
+        var grid1RowsState = new TreeMap<Integer, RowDiff>();
         // This index is needed so that for each n+1 row from grid1, the corresponding row from grid2 is not lower
         // than the corresponding row from grid2, for row n from grid1.
         var grid2LastMatched = 0;
         // Below we fill grid1RowsState for those rows from grid1 that have a complete match with the rows from grid2
         // if there are no such rows, then the index is set to -1.
-        var grid1Height = grid1.getHeight();
-        var grid2Height = grid2.getHeight();
+        var grid1Height = grid1.height();
+        var grid2Height = grid2.height();
         for (var grid1Row = 0; grid1Row < grid1Height; grid1Row++) {
             grid2LastMatched = matchRow(grid1, grid2, grid1Row, grid2LastMatched, grid1MatchedRows, grid1RowsState);
             if (grid1RowsState.get(grid1Row) == null) {
@@ -257,8 +257,8 @@ public class XlsDiff2 {
                     diff2.addAll(getDiffs(grid2, grid1, grid2Row, rowIndex));
                 }
             } else {
-                for (var grid2Col = 0; grid2Col < grid2.getWidth(); grid2Col++) {
-                    diff2.add(grid2.getCell(grid2Col, grid2Row));
+                for (var grid2Col = 0; grid2Col < grid2.width(); grid2Col++) {
+                    diff2.add(grid2.cell(grid2Col, grid2Row));
                 }
             }
         }
@@ -271,21 +271,21 @@ public class XlsDiff2 {
      *
      * @return the row of the second grid the search for the next row of the first grid starts from
      */
-    private int matchRow(IGridTable grid1,
-                         IGridTable grid2,
+    private int matchRow(GridView grid1,
+                         GridView grid2,
                          int grid1Row,
                          int grid2LastMatched,
                          List<Integer> grid1MatchedRows,
                          Map<Integer, RowDiff> grid1RowsState) {
-        var grid1Height = grid1.getHeight();
-        var grid2Height = grid2.getHeight();
+        var grid1Height = grid1.height();
+        var grid2Height = grid2.height();
         var followingRow = true;
         for (var grid2Row = grid2LastMatched; grid2Row < grid2Height; grid2Row++) {
             var diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
             if (diffs.isEmpty()) {
                 // Check if the next line matches the one found.
                 // For cases when several identical lines can go in a row.
-                var nextRowMatches = !followingRow && grid1Row != grid2Row && grid1Row < grid1Height + 1
+                var nextRowMatches = !followingRow && grid1Row != grid2Row && grid1Row + 1 < grid1Height
                         && getDiffs(grid1, grid2, grid1Row + 1, grid2Row).isEmpty();
                 if (nextRowMatches) {
                     return grid2LastMatched;
@@ -306,22 +306,25 @@ public class XlsDiff2 {
      * Finds the most similar row of the second grid for each row of the first grid without a match, between the rows
      * matching the previous and the next rows. A row with no candidate rows is taken as deleted.
      */
-    private void matchUnmatchedRows(IGridTable grid1,
-                                    IGridTable grid2,
+    private void matchUnmatchedRows(GridView grid1,
+                                    GridView grid2,
                                     List<Integer> grid1MatchedRows,
-                                    Map<Integer, RowDiff> grid1RowsState,
+                                    SortedMap<Integer, RowDiff> grid1RowsState,
                                     List<ICell> diff1) {
+        // The row of the second grid the closest matched row above is matched with: the rows are walked in order.
+        var previousMatch = -1;
         for (var entry : grid1RowsState.entrySet()) {
             var grid1row = entry.getKey();
             var rowState = entry.getValue();
             if (rowState.getRowIndex() != -1) {
+                previousMatch = rowState.getRowIndex();
                 continue;
             }
             // From and to, the value between which the most suitable string should be found,
             // the range must be between the previous and next found match against grid2.
-            int from = grid1row > 1 ? grid1RowsState.get(grid1row - 1).getRowIndex() + 1 : grid1row;
+            int from = previousMatch + 1;
             Optional<Integer> nextMatched = grid1MatchedRows.stream().filter(i -> i > grid1row).findFirst();
-            var to = nextMatched.map(i -> grid1RowsState.get(i).getRowIndex()).orElseGet(grid2::getHeight);
+            var to = nextMatched.map(i -> grid1RowsState.get(i).getRowIndex()).orElseGet(grid2::height);
             var allRowDiffs = new ArrayList<RowDiff>();
             if (from < to) {
                 for (; from < to; from++) {
@@ -330,20 +333,21 @@ public class XlsDiff2 {
                 var minDiff = allRowDiffs.stream().min(Comparator.comparingInt(o -> o.getDiff().size()));
                 var rowDiff = minDiff.orElse(new RowDiff());
                 rowState.setRowIndex(rowDiff.getRowIndex()).setDiff(rowDiff.getDiff());
+                previousMatch = rowDiff.getRowIndex();
             } else {
                 // If there are no rows in the range, then we assume that the row was deleted.
-                for (var grid1Col = 0; grid1Col < grid1.getWidth(); grid1Col++) {
-                    diff1.add(grid1.getCell(grid1Col, grid1row));
+                for (var grid1Col = 0; grid1Col < grid1.width(); grid1Col++) {
+                    diff1.add(grid1.cell(grid1Col, grid1row));
                 }
             }
         }
     }
 
-    private List<ICell> getDiffs(IGridTable grid1, IGridTable grid2, int y1, int y2) {
+    private List<ICell> getDiffs(GridView grid1, GridView grid2, int y1, int y2) {
         var diff = new ArrayList<ICell>();
-        for (var x = 0; x < grid1.getWidth(); x++) {
-            var c1 = grid1.getCell(x, y1);
-            var c2 = grid2.getCell(x, y2);
+        for (var x = 0; x < grid1.width(); x++) {
+            var c1 = grid1.cell(x, y1);
+            var c2 = grid2.cell(x, y2);
             if (notEquals(c1, c2)) {
                 diff.add(c1);
             }
@@ -369,12 +373,164 @@ public class XlsDiff2 {
         }
     }
 
+    /**
+     * Compares two versions of a table that differ in both width and height.
+     *
+     * <p>The columns are paired first, in their order, by the values their cells share, so a row added to a column
+     * does not keep it from its pair. The rows are then compared over the paired columns, as a table keeping its
+     * width is. A column without a pair was added or deleted, and every cell of it is marked.
+     */
+    private void compareResized(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
+        var pairs = pairColumns(grid1, grid2);
+        var columns1 = pairs.stream().mapToInt(pair -> pair[0]).toArray();
+        var columns2 = pairs.stream().mapToInt(pair -> pair[1]).toArray();
+        compareRows(new GridView(grid1, columns1), new GridView(grid2, columns2), diff1, diff2);
+        markUnpairedColumns(grid1, columns1, diff1);
+        markUnpairedColumns(grid2, columns2, diff2);
+    }
+
+    /**
+     * Pairs the columns of two grids, keeping their order, so that the paired columns share as many values as
+     * possible. Columns sharing no value are never paired.
+     *
+     * @return the pairs of the column of the first grid and the column of the second one, from left to right
+     */
+    private static List<int[]> pairColumns(IGridTable grid1, IGridTable grid2) {
+        var width1 = grid1.getWidth();
+        var width2 = grid2.getWidth();
+        var values2 = IntStream.range(0, width2).mapToObj(column -> valuesOf(grid2, column)).toList();
+        var shared = new int[width1][width2];
+        for (var column1 = 0; column1 < width1; column1++) {
+            var values1 = valuesOf(grid1, column1);
+            for (var column2 = 0; column2 < width2; column2++) {
+                shared[column1][column2] = sharedCount(values1, values2.get(column2));
+            }
+        }
+        // best[i][j]: the most values the first i columns of the first grid share with the first j of the second.
+        var best = new int[width1 + 1][width2 + 1];
+        for (var i = 1; i <= width1; i++) {
+            for (var j = 1; j <= width2; j++) {
+                var paired = shared[i - 1][j - 1] > 0 ? best[i - 1][j - 1] + shared[i - 1][j - 1] : 0;
+                best[i][j] = Math.max(paired, Math.max(best[i - 1][j], best[i][j - 1]));
+            }
+        }
+        var pairs = new ArrayList<int[]>();
+        var i = width1;
+        var j = width2;
+        while (i > 0 && j > 0) {
+            if (best[i][j] == best[i - 1][j]) {
+                i--;
+            } else if (best[i][j] == best[i][j - 1]) {
+                j--;
+            } else {
+                i--;
+                j--;
+                pairs.addFirst(new int[]{i, j});
+            }
+        }
+        return pairs;
+    }
+
+    /**
+     * How many times each value stands in the column. A merged cell counts once, in the column it starts in: read in
+     * every column it spans, a merged header would be a value every two columns share.
+     */
+    private static Map<Object, Integer> valuesOf(IGridTable grid, int column) {
+        var values = new HashMap<Object, Integer>();
+        for (var row = 0; row < grid.getHeight(); row++) {
+            var cell = grid.getCell(column, row);
+            var value = cell.getObjectValue();
+            if (value != null && startsAt(cell)) {
+                values.merge(value, 1, Integer::sum);
+            }
+        }
+        return values;
+    }
+
+    /** Whether the cell is the first cell of its merged region, or is merged with no other. */
+    private static boolean startsAt(ICell cell) {
+        var region = cell.getRegion();
+        return region == null
+                || (region.getLeft() == cell.getAbsoluteColumn() && region.getTop() == cell.getAbsoluteRow());
+    }
+
+    /** How many values two columns share, a value standing twice in both counted twice. */
+    private static int sharedCount(Map<Object, Integer> values1, Map<Object, Integer> values2) {
+        var shared = 0;
+        for (var entry : values1.entrySet()) {
+            shared += Math.min(entry.getValue(), values2.getOrDefault(entry.getKey(), 0));
+        }
+        return shared;
+    }
+
+    /**
+     * Marks every cell of the columns without a pair. A merged cell reaching a paired column is compared there, as a
+     * cell of that column, and is not marked.
+     */
+    private static void markUnpairedColumns(IGridTable grid, int[] pairedColumns, List<ICell> diff) {
+        var paired = new BitSet(grid.getWidth());
+        Arrays.stream(pairedColumns).forEach(paired::set);
+        var left = grid.getRegion().getLeft();
+        for (var column = paired.nextClearBit(0); column < grid.getWidth(); column = paired.nextClearBit(column + 1)) {
+            for (var row = 0; row < grid.getHeight(); row++) {
+                var cell = grid.getCell(column, row);
+                var region = cell.getRegion();
+                if (region == null || !reachesPaired(paired, region.getLeft() - left, region.getRight() - left)) {
+                    diff.add(cell);
+                }
+            }
+        }
+    }
+
+    /** Whether a paired column stands between the two columns, both included. */
+    private static boolean reachesPaired(BitSet paired, int from, int to) {
+        var next = paired.nextSetBit(from);
+        return next >= 0 && next <= to;
+    }
+
+    /**
+     * The columns of a grid a comparison reads, in their order: every column of it, or only the ones paired with
+     * the columns of another grid.
+     */
+    private static final class GridView {
+
+        /** The cells, by row and then by column, read once: the rows are compared with many rows of the other grid. */
+        private final ICell[][] cells;
+        private final int width;
+
+        private GridView(IGridTable table, int[] columns) {
+            width = columns.length;
+            cells = new ICell[table.getHeight()][];
+            for (var row = 0; row < cells.length; row++) {
+                var finalRow = row;
+                cells[row] = Arrays.stream(columns).mapToObj(column -> table.getCell(column, finalRow))
+                        .toArray(ICell[]::new);
+            }
+        }
+
+        static GridView of(IGridTable table) {
+            return new GridView(table, IntStream.range(0, table.getWidth()).toArray());
+        }
+
+        int width() {
+            return width;
+        }
+
+        int height() {
+            return cells.length;
+        }
+
+        ICell cell(int column, int row) {
+            return cells[row][column];
+        }
+    }
+
     private void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
         // compareRows is hard enough :)
         // let reuse it
         var iDiff1 = new ArrayList<ICell>();
         var iDiff2 = new ArrayList<ICell>();
-        compareRows(grid1.transpose(), grid2.transpose(), iDiff1, iDiff2);
+        compareRows(GridView.of(grid1.transpose()), GridView.of(grid2.transpose()), iDiff1, iDiff2);
 
         // fix diff -- invert coordinates
         for (ICell c : iDiff1) {
