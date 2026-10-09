@@ -93,6 +93,7 @@ class UsersRestTest {
     @Test
     void smoke() {
         client.send("users-service/users-1.get");
+        client.send("users-service/users-create-no-password.put");
         client.send("users-service/users-create.put");
         client.send("users-service/users-2.get");
         client.send("users-service/users-update.put");

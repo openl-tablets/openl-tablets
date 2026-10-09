@@ -79,7 +79,7 @@ To create a new user, proceed as follows:
 2. In the **Username** field, specify the user login name.
 3. In the **Email** field, enter the user email. This field is required.
 
-4. In the **Password** field, enter a password.
+4. In the **Password** field, enter a password. This field is required.
 
    This field is unavailable for external users.
 

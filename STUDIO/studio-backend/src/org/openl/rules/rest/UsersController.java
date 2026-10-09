@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.rest.model.ChangePasswordModel;
 import org.openl.rules.rest.model.GroupModel;
 import org.openl.rules.rest.model.GroupType;
+import org.openl.rules.rest.model.InternalPasswordModel;
 import org.openl.rules.rest.model.UserCreateModel;
 import org.openl.rules.rest.model.UserEditModel;
 import org.openl.rules.rest.model.UserInfoEditModel;
@@ -134,10 +135,15 @@ public class UsersController {
     public void addUser(HttpServletRequest request, @RequestBody UserCreateModel userModel) {
         validationProvider.validate(userModel);
         validateGroupsNotProvided(userModel.getGroups());
+        // An external identity provider keeps the password, so it is not stored.
+        var password = Optional.ofNullable(userModel.getInternalPassword())
+                .filter(internalPassword -> canCreateInternalUsers)
+                .map(InternalPasswordModel::getPassword)
+                .orElse(null);
         userManagementService.addUser(userModel.getUsername(),
                 userModel.getFirstName(),
                 userModel.getLastName(),
-                canCreateInternalUsers ? userModel.getInternalPassword().getPassword() : null,
+                password,
                 userModel.getEmail(),
                 userModel.getDisplayName());
         if (!groupsDisabled) {
