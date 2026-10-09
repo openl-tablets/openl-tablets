@@ -83,11 +83,15 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
             initializeHeaderSignature(builder, tsn.getHeader());
         }
 
-        // The `active` property is the one a reader is told about outside the properties themselves: a table
-        // switched off is written in the module but answers nothing, and the tree draws it apart.
+        // Two properties are told outside the properties themselves, inherited values included. A table switched off
+        // by `active` is written in the module but answers nothing, and the tree draws it apart. The category is
+        // what the tree files the table under, as the Editor did.
         var properties = table.getProperties();
-        if (properties != null && Boolean.FALSE.equals(properties.getActive())) {
-            builder.active(Boolean.FALSE);
+        if (properties != null) {
+            if (Boolean.FALSE.equals(properties.getActive())) {
+                builder.active(Boolean.FALSE);
+            }
+            builder.category(properties.getCategory());
         }
 
         if (OpenLTableUtils.isVocabularyTable(table)) {
