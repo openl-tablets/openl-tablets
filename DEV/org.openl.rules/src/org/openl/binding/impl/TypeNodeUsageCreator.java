@@ -9,24 +9,38 @@ import org.openl.binding.MethodUtil;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.StaticOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.TextInfo;
 
 /**
- * Converts {@link ArrayBoundNode}, {@link CastNode} or {@link ArrayInitializerNode} to type {@link SimpleNodeUsage}
+ * Converts {@link ArrayBoundNode}, {@link CastNode}, {@link ArrayInitializerNode} or the name of a type written as a
+ * value to type {@link SimpleNodeUsage}
  *
  * @author Vladyslav Pikus
  */
 final class TypeNodeUsageCreator implements NodeUsageCreator {
+
+    private static final String IDENTIFIER = "identifier";
 
     private TypeNodeUsageCreator() {
     }
 
     @Override
     public boolean accept(IBoundNode boundNode) {
-        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode || boundNode instanceof TypeCastNode;
+        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode || boundNode instanceof TypeCastNode
+                || isTypeNamedAsValue(boundNode);
+    }
+
+    /**
+     * Whether the node is the name of a type written where a value stands, such as the vocabulary passed to
+     * {@code getValues(Colors)}, or the type a static member is read from.
+     */
+    private static boolean isTypeNamedAsValue(IBoundNode boundNode) {
+        return boundNode instanceof TypeBoundNode && boundNode.getSyntaxNode() instanceof IdentifierNode identifier
+                && IDENTIFIER.equals(identifier.getType());
     }
 
     @Override
@@ -37,8 +51,14 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
         }
         IdentifierNode identifierNode = getIdentifierNode(syntaxNode);
         var type = boundNode.getType();
-        if (type == null || identifierNode == null || !"type.name".equals(identifierNode.getType())) {
+        var typeNamed = isTypeNamedAsValue(boundNode)
+                || (identifierNode != null && "type.name".equals(identifierNode.getType()));
+        if (type == null || identifierNode == null || !typeNamed) {
             return Optional.empty();
+        }
+        if (type instanceof StaticOpenClass staticOpenClass) {
+            // A type named as a value is bound as a reference to it, which is described as the type itself.
+            type = staticOpenClass.getDelegate();
         }
         var location = identifierNode.getSourceLocation();
         if (location == null || !location.isTextLocation()) {

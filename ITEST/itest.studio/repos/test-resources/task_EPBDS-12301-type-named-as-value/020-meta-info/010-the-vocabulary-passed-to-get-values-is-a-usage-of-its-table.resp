@@ -1,0 +1,63 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "d3c12e32d0cd048ad2efb288e440d4ca",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "colors",
+  "pos": "B6:C8",
+  "source": [
+    [
+      {
+        "cell": "B6",
+        "value": "Spreadsheet SpreadsheetResult colors()"
+      },
+      {
+        "cell": "C6"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Step"
+      },
+      {
+        "cell": "C7",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Values"
+      },
+      {
+        "cell": "C8",
+        "value": "=getValues(Color)",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: String[]",
+              "kind": "other"
+            },
+            {
+              "start": 11,
+              "end": 16,
+              "description": "Datatype Color <String>",
+              "tableId": "d3a495ee81a0c52ba039078acb02e171",
+              "module": "Rules",
+              "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTIzMDE6ZWMyZTJiMjI5NTg5ZDdkZGMxMDBkZjc3NjU3NzZmN2RjOGNjZGYzMTAxMDkzMjJhZmJhMmQ4MzZkMjBjMmZmNw==",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
