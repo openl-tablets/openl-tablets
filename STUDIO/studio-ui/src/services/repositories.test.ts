@@ -26,6 +26,7 @@ import { ProjectStatus } from '../constants/project'
 
 vi.mock('./apiCall', () => ({
     default: vi.fn(),
+    LOCAL_LOAD_API_OPTIONS: { throwError: true, suppressErrorPages: true },
     asArray: (value: unknown) => Array.isArray(value) ? value : [],
     isApiHttpError: (value: unknown) => value instanceof Error && value.name === 'ApiHttpError',
     ApiHttpError: class ApiHttpError extends Error {
@@ -251,7 +252,7 @@ describe('getProjects', () => {
                     branch: 'feature/rates',
                 }),
             },
-            { throwError: true }
+            { throwError: true, suppressErrorPages: true }
         )
     })
 
@@ -276,6 +277,8 @@ describe('getProjects', () => {
         expect(url).toContain('branch=feature%2Frates')
         expect(request?.method).toBe('PUT')
         expect(request?.body).toBeInstanceOf(FormData)
+        // The dialog shows a refusal, such as a protected branch, in place of the full-page error.
+        expect(vi.mocked(apiCall).mock.calls[0]![2]).toEqual({ throwError: true, suppressErrorPages: true })
     })
 
     it('loads templates', async () => {

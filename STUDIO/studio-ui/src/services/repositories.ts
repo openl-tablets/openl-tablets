@@ -1,4 +1,4 @@
-import apiCall, { asArray, isApiHttpError, type ApiCallOptions } from './apiCall'
+import apiCall, { asArray, isApiHttpError, LOCAL_LOAD_API_OPTIONS, type ApiCallOptions } from './apiCall'
 import CONFIG from './config'
 import { triggerDownload } from '../utils/download'
 import type { Repository, RepositoryConfig } from '../types/repositories'
@@ -231,7 +231,8 @@ export async function copyProject(
                 ...(branch?.trim() ? { branch: branch.trim() } : {}),
             }),
         },
-        { throwError: true }
+        // The dialog shows a refusal itself, such as a protected branch, rather than the full-page error.
+        LOCAL_LOAD_API_OPTIONS
     )
 }
 
@@ -302,7 +303,8 @@ export async function createProject(
     await apiCall(
         `/repos/${encodeURIComponent(repositoryId)}/projects/${encodeURIComponent(projectName)}${query}`,
         { method: 'PUT', body: form },
-        { throwError: true }
+        // The dialog shows a refusal itself, such as a protected branch, rather than the full-page error.
+        LOCAL_LOAD_API_OPTIONS
     )
 }
 

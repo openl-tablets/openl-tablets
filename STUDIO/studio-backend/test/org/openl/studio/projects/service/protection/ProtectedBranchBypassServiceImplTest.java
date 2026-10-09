@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service.protection;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -106,8 +108,10 @@ class ProtectedBranchBypassServiceImplTest {
     void requireBypass_protectedNotEligible_throwsForbidden() {
         when(aclProjectsHelper.hasPermission(any(RulesProject.class), eq(BasePermission.ADMINISTRATION))).thenReturn(false);
         var svc = service(true);
-        assertThrows(ForbiddenException.class,
+        var error = assertThrows(ForbiddenException.class,
                 () -> svc.requireBypassOrThrow(repo, BRANCH, project, true));
+        assertEquals("openl.error.403.protected.branch.message", error.getErrorCode());
+        assertArrayEquals(new Object[]{BRANCH}, error.getArgs());
     }
 
     @Test
@@ -154,7 +158,9 @@ class ProtectedBranchBypassServiceImplTest {
     void requireBypassRepoId_protectedNotEligible_throwsForbidden() {
         when(designRepositoryAclService.isGranted(eq(REPO_ID), isNull(), eq(List.of(BasePermission.ADMINISTRATION)))).thenReturn(false);
         var svc = service(true);
-        assertThrows(ForbiddenException.class,
+        var error = assertThrows(ForbiddenException.class,
                 () -> svc.requireBypassOrThrow(repo, BRANCH, REPO_ID, true));
+        assertEquals("openl.error.403.protected.branch.message", error.getErrorCode());
+        assertArrayEquals(new Object[]{BRANCH}, error.getArgs());
     }
 }
