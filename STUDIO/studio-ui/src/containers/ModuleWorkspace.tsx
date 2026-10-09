@@ -444,6 +444,7 @@ export const ModuleWorkspace = () => {
     const tableAddress = `${projectId} ${moduleName} ${selectedId}`
     // The table last on screen: the one that can vanish from under the reader.
     const shownTable = useRef<string | null>(null)
+    const movedTable = useRef<{ from: string, to: string } | null>(null)
     // The table the free-form tables were last asked for, on its branch, and the refresh they were asked for in.
     const otherAskedFor = useRef<string | null>(null)
     // A table the module does not list: absent from the whole list, or not looked for among the free-form tables
@@ -454,6 +455,10 @@ export const ModuleWorkspace = () => {
     const tableUnlisted = unlisted?.address === tableAddress && tables !== null && !tablesReloading && selected === null
         ? unlisted
         : null
+    const address = search.toString()
+    useEffect(() => {
+        movedTable.current = null
+    }, [address])
     useEffect(() => {
         if (tables === null || tablesReloading) {
             return
@@ -461,6 +466,10 @@ export const ModuleWorkspace = () => {
         if (selectedId !== null && tables.some(candidate => candidate.id === selectedId)) {
             shownTable.current = tableAddress
             setUnlisted(null)
+            return
+        }
+        const moved = movedTable.current
+        if (moved !== null && moved.from === selectedId && tables.some(candidate => candidate.id === moved.to)) {
             return
         }
         if (selectedId !== null && shownTable.current !== tableAddress) {
@@ -531,6 +540,7 @@ export const ModuleWorkspace = () => {
         load()
         refresh(false)
         if (written !== selectedId) {
+            movedTable.current = selectedId === null ? null : { from: selectedId, to: written }
             void navigate(moduleRoute(projectId, moduleName, written), { replace: true })
         }
     }, [load, moduleName, navigate, projectId, refresh, selectedId])
