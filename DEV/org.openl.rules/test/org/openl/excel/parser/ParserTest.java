@@ -208,9 +208,16 @@ class ParserTest {
 
     @Test
     void testRemovedOperators() {
-        _testErrorMsg("x % 3", "Lexical error at line");
-        _testErrorMsg("x ** 3", "Encountered");
         _testErrorMsg("x -> y", "Encountered");
+    }
+
+    @Test
+    void testRemainderAndPowerOperators() throws OpenLConfigurationException {
+        _testType("10 % 3", "op.binary.rem");
+        _testType("10 %3", "op.binary.rem");
+        _testType("x ** -1", "op.binary.pow");
+        _testType("10%", "literal.percent");
+        _testErrorMsg("10%3", "Encountered");
     }
 
     @Test
@@ -280,6 +287,12 @@ class ParserTest {
         assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x-3", "op.binary.subtract");
+        assertNotNull(binaryNode);
+
+        binaryNode = _testOperator("x%3", "op.binary.rem");
+        assertNotNull(binaryNode);
+
+        binaryNode = _testOperator("x**3", "op.binary.pow");
         assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x is less than 3", "op.binary.lt");

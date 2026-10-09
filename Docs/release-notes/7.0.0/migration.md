@@ -91,18 +91,19 @@ from Maven.
   `Float` cell reads the same value as before. A percent literal also takes any number of decimals and an exponent:
   `0.5%`, `12.345%` and `1.5e2%` compile, while before it had no decimals or exactly two.
 
-* **The deprecated `%`, `**` and `->` operators are removed.** A rule that still uses one of them no longer
-  compiles. Rewrite the expression with a function:
+* **The `%` and `**` operators are short forms of `remainder` and `pow`.** They are no longer deprecated, and
+  `x % y` and `x ** y` give the same results as `remainder(x, y)` and `pow(x, y)` for positive, negative, zero and
+  empty operands. `%` keeps the sign of the dividend and the type of its operands, as before. A rule gets different
+  results where the old operators differed from the functions:
 
-  | Before   | After             |
-  |----------|-------------------|
-  | `x % y`  | `remainder(x, y)` |
-  | `x ** y` | `pow(x, y)`       |
+  - `**` returns a `Double`: `2 ** 3` is `8.0` and `2 ** -1` is `0.5`, while before they were the whole numbers `8`
+    and `0`. A `BigInteger` or a `BigDecimal` raised to an `Integer` power stays exact, as `pow(x, n)` now is for
+    them, while `**` between two `BigInteger` or two `BigDecimal` values no longer compiles: write
+    `x ** y.intValue()` there.
+  - An empty operand gives an empty result. Before, `%` read an empty operand as `0`, so `x % 3` was `0` and
+    `7 % x` stopped with `/ by zero`, and `x ** y` with an empty `y` was `1`.
 
-  `remainder` keeps the sign of the dividend, exactly as `%` did. `mod` keeps the sign of the divisor, so it gives a
-  different result when the operands have opposite signs. `pow` returns a `Double`, while `**` kept the operand
-  type. `->` was never backed by an implementation, so no working rule uses it. Percent literals such as `10%` are
-  not affected.
+* **The deprecated `->` operator is removed.** It was never backed by an implementation, so no working rule uses it.
 
 * **The deprecated `++` and `--` operators show a warning.** They still work, and OpenL Studio marks every use, for
   example with `DEPRECATED '++' operator will be removed in the next version. Use 'x += 1' instead.` Rewrite the

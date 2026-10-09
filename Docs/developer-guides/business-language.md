@@ -236,6 +236,9 @@ The operators in order of priority are as follows:
 | **Multiplicative**      |                          |
 | \*                      | op.binary.multiply       |
 | /                       | op.binary.divide         |
+| %                       | op.binary.rem            |
+| **Power**               |                          |
+| \*\*                    | op.binary.pow (\*)       |
 | **Unary**               |                          |
 | +                       | op.unary.positive        |
 | -                       | op.unary.negative        |

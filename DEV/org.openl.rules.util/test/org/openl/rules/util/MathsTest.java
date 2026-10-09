@@ -2,6 +2,7 @@ package org.openl.rules.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -131,6 +132,30 @@ class MathsTest {
         assertEquals(Double.NaN, Maths.pow(-8.0, 1.0 / 3));
         assertEquals(Double.POSITIVE_INFINITY, Maths.pow(0.0, -1.0));
         assertEquals(Double.POSITIVE_INFINITY, Maths.pow(10.0, 309.0));
+    }
+
+    @Test
+    void wholeExponentPowers() {
+        assertEquals(6.25, Maths.pow(2.5, 2));
+        assertEquals(0.4, Maths.pow(2.5, -1));
+        assertEquals(1024.0, Maths.pow(2L, 10));
+        assertEquals(-0.125, Maths.pow(-2L, -3));
+    }
+
+    @Test
+    void exactPowers() {
+        assertEquals(new BigInteger("1267650600228229401496703205376"), Maths.pow(BigInteger.TWO, 100));
+        assertEquals(BigInteger.valueOf(-8), Maths.pow(BigInteger.valueOf(-2), 3));
+        assertEquals(BigInteger.ONE, Maths.pow(BigInteger.ZERO, 0));
+        assertThrows(ArithmeticException.class, () -> Maths.pow(BigInteger.TWO, -1));
+
+        assertEquals(new BigDecimal("2.25"), Maths.pow(new BigDecimal("1.5"), 2));
+        assertEquals(new BigDecimal("0.0001"), Maths.pow(new BigDecimal("0.1"), 4));
+        assertEquals(BigDecimal.ONE, Maths.pow(new BigDecimal("1.5"), 0));
+        assertEquals(new BigDecimal("0.25"), Maths.pow(BigDecimal.TWO, -2));
+        assertEquals(new BigDecimal("0.1111111111111111111111111111111111"), Maths.pow(new BigDecimal("3"), -2));
+        assertEquals(new BigDecimal("-0.125"), Maths.pow(new BigDecimal("-2"), -3));
+        assertThrows(ArithmeticException.class, () -> Maths.pow(BigDecimal.ZERO, -1));
     }
 
     @Test
@@ -299,10 +324,22 @@ class MathsTest {
     }
 
     @Test
-    void anyEmptyArgumentGivesEmptyValue() {
+    void anyEmptyPowArgumentGivesEmptyValue() {
         assertNull(Maths.pow(null, 2.0));
-        assertNull(Maths.pow(2.0, null));
-        assertNull(Maths.pow(null, null));
+        assertNull(Maths.pow(2.0, (Double) null));
+        assertNull(Maths.pow((Double) null, (Double) null));
+        assertNull(Maths.pow((Double) null, 2));
+        assertNull(Maths.pow(2.0, (Integer) null));
+        assertNull(Maths.pow((Long) null, 2));
+        assertNull(Maths.pow(2L, null));
+        assertNull(Maths.pow((BigInteger) null, 2));
+        assertNull(Maths.pow(BigInteger.TWO, null));
+        assertNull(Maths.pow((BigDecimal) null, 2));
+        assertNull(Maths.pow(BigDecimal.TWO, null));
+    }
+
+    @Test
+    void anyEmptyArgumentGivesEmptyValue() {
         assertNull(Maths.atan2(null, 1.0));
         assertNull(Maths.atan2(1.0, null));
         assertNull(Maths.copySign((Double) null, -1.0));

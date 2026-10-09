@@ -311,6 +311,145 @@ class RunTest {
         assertError("char c = 'a'; --c", "Operator '--' must return the same type as its operand.");
     }
 
+    static Stream<Arguments> testRemainderAndPowerMatchFunctions() {
+        var types = Stream.of("byte",
+                "Byte",
+                "short",
+                "Short",
+                "int",
+                "Integer",
+                "long",
+                "Long",
+                "float",
+                "Float",
+                "double",
+                "Double",
+                "BigInteger",
+                "BigDecimal");
+        var operands = List.of(List.of("7", "3"),
+                List.of("-7", "3"),
+                List.of("7", "-3"),
+                List.of("-7", "-3"),
+                List.of("0", "3"),
+                List.of("0", "-3"),
+                List.of("7", "0"),
+                List.of("0", "0"));
+        return types.flatMap(type -> operands.stream().map(xy -> arguments(type, xy.get(0), xy.get(1))));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testRemainderAndPowerMatchFunctions(String type, String x, String y) {
+        var operands = "%1$s x = (%1$s) %2$s; %1$s y = (%1$s) %3$s; ".formatted(type, x, y);
+        assertEquals(outcome(operands + "remainder(x, y)"), outcome(operands + "x % y"));
+        assertEquals(outcome(operands + "pow(x, y)"), outcome(operands + "x ** y"));
+    }
+
+    @Test
+    void testRemainderAndPowerOfEmptyValues() {
+        assertToExpected("Integer x = null; x % 3", null);
+        assertToExpected("Integer y = null; 7 % y", null);
+        assertToExpected("Integer x = null; x ** 3", null);
+        assertToExpected("Integer y = null; 7 ** y", null);
+        assertToExpected("null % 3", null);
+        assertToExpected("2 ** null", null);
+    }
+
+    static Stream<Arguments> testRemainderAndPowerPrecedence() {
+        return Stream.of(arguments("7 % 3", 1),
+                arguments("-7 % 3", -1),
+                arguments("7.5 % 2", 1.5),
+                arguments("2 ** 10", 1024.0),
+                arguments("2 ** -1", 0.5),
+                arguments("-2 ** 2", 4.0),
+                arguments("2 ** 3 ** 2", 64.0),
+                arguments("2 * 3 ** 2", 18.0),
+                arguments("1 + 7 % 3 * 2", 3),
+                arguments("7 * 3 % 4", 1),
+                arguments("10 %3", 1),
+                arguments("int x = 3; x%2", 1));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testRemainderAndPowerPrecedence(String expression, Object expected) {
+        assertEquals(expected, runExpression(expression));
+    }
+
+    static Stream<Arguments> testWholePowerOperator() {
+        return Stream.of(arguments("BigInteger", "2", "100"),
+                arguments("BigInteger", "-2", "3"),
+                arguments("BigInteger", "0", "0"),
+                arguments("BigInteger", "2", "-1"),
+                arguments("BigInteger", "null", "2"),
+                arguments("BigDecimal", "1.5", "2"),
+                arguments("BigDecimal", "3", "-2"),
+                arguments("BigDecimal", "-2", "-3"),
+                arguments("BigDecimal", "0", "-1"),
+                arguments("BigDecimal", "1.5", "null"));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testWholePowerOperator(String type, String x, String n) {
+        var operands = "%s x = %s; Integer n = %s; ".formatted(type, x, n);
+        assertEquals(outcome(operands + "pow(x, n)"), outcome(operands + "x ** n"));
+    }
+
+    static Stream<Arguments> testPowerResultTypes() {
+        return Stream.of(arguments("pow(2, 3)", 8.0),
+                arguments("2 ** 3", 8.0),
+                arguments("pow(2.5, 2)", 6.25),
+                arguments("pow(2L, 3)", 8.0),
+                arguments("pow(2, 3L)", 8.0),
+                arguments("pow((short) 2, 3)", 8.0),
+                arguments("pow('a', 1)", 97.0),
+                arguments("pow(2.5f, 2)", 6.25),
+                arguments("pow((Integer) 2, (Integer) 3)", 8.0),
+                arguments("pow(2, 0.5)", Math.sqrt(2)),
+                arguments("Double x = null; pow(x, 2)", null),
+                arguments("pow(2, null)", null),
+                arguments("2.5 ** 2", 6.25),
+                arguments("(byte) 2 ** 3", 8.0),
+                arguments("pow((BigInteger) 2, 100)", BigInteger.TWO.pow(100)),
+                arguments("new BigDecimal(\"1.5\") ** 2", new BigDecimal("2.25")),
+                arguments("pow(new BigDecimal(\"2\"), -2)", new BigDecimal("0.25")));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testPowerResultTypes(String expression, Object expected) {
+        assertEquals(expected, runExpression(expression));
+    }
+
+    @Test
+    void testRemainderAndPowerErrors() {
+        assertError("\"a\" % 2", "Operator 'rem(java.lang.String, int)' is not found.");
+        assertError("true ** 2", "Operator 'pow(boolean, int)' is not found.");
+        assertErrorStartWith("BigDecimal x = 1.5; x ** x",
+                "Operator 'pow(java.math.BigDecimal, java.math.BigDecimal)' is not found.");
+        assertErrorStartWith("10%3", "Encountered");
+    }
+
+    /**
+     * Returns the type and the value of the result of an expression, the type and the message of the error that
+     * stops it, or only the type of the error when the expression does not compile.
+     */
+    private static List<?> outcome(String expression) {
+        try {
+            var result = runExpression(expression);
+            return result == null ? List.of() : List.of(result.getClass(), result);
+        } catch (CompositeOpenlException e) {
+            return List.of(e.getClass());
+        } catch (RuntimeException e) {
+            Throwable cause = e;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            return List.of(cause.getClass(), Objects.toString(cause.getMessage()));
+        }
+    }
+
     @Test
     void testRemovedBusinessLiteral() {
         assertToExpected("int[] ary = {1,000}; ary.length", 2);
