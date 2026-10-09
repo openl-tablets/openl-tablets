@@ -1,6 +1,7 @@
 package org.openl.studio.projects.rest.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -18,6 +19,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.core.ResolvableType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.bind.ServletRequestDataBinder;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
@@ -37,6 +41,7 @@ import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeRequest;
 import org.openl.studio.projects.model.merge.MergeResult;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
+import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
@@ -99,6 +104,29 @@ class ProjectsMergeControllerTest {
                 mergeConflictsService,
                 projectIdentifierMapper,
                 comparisonLauncher);
+    }
+
+    /**
+     * A merge of a large project resolves more files than the 256 elements Spring grows a bound list to.
+     */
+    @Test
+    void bindsTheResolutionsOfMoreThan256Files() {
+        var request = new MockHttpServletRequest();
+        var files = 300;
+        for (var i = 0; i < files; i++) {
+            request.addParameter("resolutions[" + i + "].filePath", "rules/File" + i + ".xlsx");
+            request.addParameter("resolutions[" + i + "].strategy", "OURS");
+        }
+        var binder = new ServletRequestDataBinder(null, "request");
+        binder.setTargetType(ResolvableType.forClass(ResolveConflictsRequest.class));
+        controller.allowLongResolutionLists(binder);
+
+        binder.construct(request);
+
+        var bound = (ResolveConflictsRequest) binder.getTarget();
+        assertNotNull(bound);
+        assertEquals(files, bound.resolutions().size());
+        assertEquals("rules/File299.xlsx", bound.resolutions().getLast().filePath());
     }
 
     @Test
