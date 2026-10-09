@@ -1,0 +1,64 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "2578c0046ca8587f8d48d6ae0ccc745c",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "rate",
+  "pos": "A1:B5",
+  "source": [
+    [
+      {
+        "cell": "A1",
+        "value": "SimpleRules Double rate(String country)",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "A2",
+        "value": "Country"
+      },
+      {
+        "cell": "B2",
+        "value": "Rate"
+      }
+    ],
+    [
+      {
+        "cell": "A3",
+        "value": "US"
+      },
+      {
+        "cell": "B3",
+        "value": 1.5
+      }
+    ],
+    [
+      {
+        "cell": "A4",
+        "value": "DE"
+      },
+      {
+        "cell": "B4",
+        "value": 2.25
+      }
+    ],
+    [
+      {
+        "cell": "A5",
+        "value": "CA"
+      },
+      {
+        "cell": "B5",
+        "value": 3.5
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

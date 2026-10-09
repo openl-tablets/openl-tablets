@@ -80,22 +80,32 @@ public final class XlsSheetCopier {
             }
             dest.row = src.row = null;
         }
-        for (CellRangeAddress mergedRegion : src.sheet.getMergedRegions()) {
-            dest.sheet.addMergedRegion(mergedRegion);
-        }
+        replaceMergedRegions(src.sheet, dest.sheet);
         copyDrawings(src, dest);
     }
 
     /**
-     * Removes all rows and merged regions from sheet
+     * Replaces the merged regions of the destination sheet with those of the source sheet.
+     *
+     * @param src  source sheet
+     * @param dest destination sheet
+     */
+    static void replaceMergedRegions(Sheet src, Sheet dest) {
+        // for some reason removing of merge regions doesn't work with normal loop
+        for (var i = dest.getNumMergedRegions() - 1; i >= 0; i--) {
+            dest.removeMergedRegion(i);
+        }
+        for (CellRangeAddress mergedRegion : src.getMergedRegions()) {
+            dest.addMergedRegion(mergedRegion);
+        }
+    }
+
+    /**
+     * Removes all rows from sheet
      *
      * @param sheet sheet
      */
     private static void removeAllRows(Sheet sheet) {
-        // for some reason removing of merge regions doesn't work with normal loop
-        for (var i = sheet.getNumMergedRegions() - 1; i >= 0; i--) {
-            sheet.removeMergedRegion(i);
-        }
         for (var rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++) {
             var row = sheet.getRow(rowNum);
             if (row != null) {
@@ -119,6 +129,7 @@ public final class XlsSheetCopier {
             src.cell = src.row.getCell(cellNum);
             if (src.cell != null) {
                 dest.cell = dest.row.createCell(cellNum);
+                dest.sheet.setColumnWidth(cellNum, src.sheet.getColumnWidth(cellNum));
                 copyCell(src, dest);
                 dest.cellStyle = src.cellStyle = null;
             }
@@ -133,8 +144,18 @@ public final class XlsSheetCopier {
      * @param dest destination
      */
     private static void copyCell(Cursor src, Cursor dest) {
-        dest.sheet.setColumnWidth(dest.cell.getColumnIndex(), src.sheet.getColumnWidth(src.cell.getColumnIndex()));
         copyStyles(src, dest);
+        copyValue(src, dest);
+        copyCommentOf(src, dest);
+    }
+
+    /**
+     * Copies the value or the formula of a cell. The destination cell keeps its style and comment.
+     *
+     * @param src  source
+     * @param dest destination
+     */
+    static void copyValue(Cursor src, Cursor dest) {
         switch (src.cell.getCellType()) {
             case BLANK -> dest.cell.setBlank();
             case STRING -> dest.cell.setCellValue(src.cell.getRichStringCellValue());
@@ -147,7 +168,15 @@ public final class XlsSheetCopier {
             }
             default -> throw new IllegalStateException("Unexpected cell type: " + src.cell.getCellType());
         }
+    }
 
+    /**
+     * Copies the comment of a cell, or removes the comment of the destination cell when the source has none.
+     *
+     * @param src  source
+     * @param dest destination
+     */
+    static void copyCommentOf(Cursor src, Cursor dest) {
         src.comment = src.cell.getCellComment();
         if (src.comment != null) {
             copyComment(src, dest);
@@ -164,7 +193,7 @@ public final class XlsSheetCopier {
      * @param src  source
      * @param dest destination
      */
-    private static void copyStyles(Cursor src, Cursor dest) {
+    static void copyStyles(Cursor src, Cursor dest) {
         src.cellStyle = src.cell.getCellStyle();
         dest.cellStyle = dest.cell.getCellStyle();
         if (XlsSheetsMatcher.equalStylesInCell(src, dest)) {
@@ -257,7 +286,7 @@ public final class XlsSheetCopier {
      * @param src  source
      * @param dest destination
      */
-    private static void copyDrawings(Cursor src, Cursor dest) throws IOException {
+    static void copyDrawings(Cursor src, Cursor dest) throws IOException {
         if (!(src.sheet instanceof XSSFSheet) || !(dest.sheet instanceof XSSFSheet)) {
             return;
         }

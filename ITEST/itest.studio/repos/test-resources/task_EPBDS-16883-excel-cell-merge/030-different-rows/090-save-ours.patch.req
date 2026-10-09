@@ -1,0 +1,8 @@
+PATCH /rest/projects/{PROJECT_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "comment": "EPBDS-16883 Change master: Different rows of one table changed"
+}
+

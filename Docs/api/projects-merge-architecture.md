@@ -19,7 +19,7 @@ flowchart TB
     Ctrl --> WS["WorkspaceProjectService<br/>workspace, editor, WebStudio"]
     MS --> Git["BranchRepository (Git)"]
     CS --> Git
-    CS --> XM["XlsWorkbookMerger<br/>sheet-level merge"]
+    CS --> XM["XlsWorkbookMerger<br/>sheet and cell merge"]
     Save["Project save"] -- SaveMergeConflictEvent --> Lst["SaveMergeConflictEventListener"]
     Lst --> SH
 ```
@@ -35,7 +35,10 @@ flowchart TB
 - **`SaveMergeConflictEventListener`** — stores the conflict that a project save found in the same holder.
 - **`ComparisonLauncher`** (`org.openl.studio.compare.service`) — starts the comparison of the two versions of a
   conflicted workbook; the comparison is read through the Compare API.
-- **`XlsWorkbookMerger`** (`org.openl.rules.xls.merge`) — merges two versions of a workbook sheet by sheet.
+- **`XlsWorkbookMerger`** (`org.openl.rules.xls.merge`) — merges two versions of a workbook against their base, sheet
+  by sheet. A sheet both versions changed goes to **`XlsSheetMerger`**, which merges it cell by cell, the value, the
+  style and the comment of a cell each on its own, unless the changes overlap. **`XlsSheetShifts`** tells whether a
+  version moved the content of the sheet by inserting or deleting rows or columns, which keeps the sheet a conflict.
 - **Models** (`org.openl.studio.projects.model.merge`) — the records of the requests and the responses.
 
 ## Check and Merge
@@ -100,8 +103,10 @@ session or the state kept for a credential (see [Client Sessions](../architectur
    uploaded file. An uploaded Excel or ZIP file is read to see that it is complete.
 2. **Versions** — `BASE`, `OURS`, and `THEIRS` are read from the commits of the conflict, not from the working tree. A
    version that does not hold the file deletes the file.
-3. **Workbooks** — a conflicted Excel file whose sheets were each changed in one branch only is merged by
-   `XlsWorkbookMerger` without a decision. Such files are not listed in the request or in `resolvedFiles`.
+3. **Workbooks** — a conflicted Excel file whose changes do not overlap is merged by `XlsWorkbookMerger` without a
+   decision: a sheet changed in one branch only is taken from it, a sheet changed in both is merged cell by cell. The
+   same merge completes a `POST /merge` and a project save without a conflict when every conflicted file is such a
+   workbook. Such files are not listed in the request or in `resolvedFiles`.
 4. **Commit** — for a merge conflict the repository completes the merge with the resolved files and the message of the
    request. For a save conflict the project is saved with them. Without a message the service builds one: the commit of
    the other branch, the conflicted files, and the workbooks resolved automatically.
@@ -123,4 +128,7 @@ The errors are `RestRuntimeException`s with message codes in `ValidationMessages
 - **Unit tests** — `STUDIO/studio-backend/test/org/openl/studio/projects/service/merge` and the controller
   tests next to the controller.
 - **Git** — `GitRepositoryMergeConflictsInExcelTest` and the other merge tests in `STUDIO/org.openl.rules.repository.git`.
-- **Integration** — the declarative suites in `ITEST/itest.studio`.
+- **Workbook merge** — `XlsSheetMergerTest` and `XlsSheetShiftsTest` in `STUDIO/org.openl.rules.xls.merge`: the
+  changes of the two branches, kind by kind, merged or kept a conflict.
+- **Integration** — the declarative suites in `ITEST/itest.studio`; `task_EPBDS-16883-excel-cell-merge` merges a
+  sheet changed in both branches through the table API, a table theme included.

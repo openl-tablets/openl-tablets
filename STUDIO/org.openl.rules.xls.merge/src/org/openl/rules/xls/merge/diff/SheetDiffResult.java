@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Difference result of the same workbook by sheet between three revisions. {@code base revision} to
@@ -21,6 +22,10 @@ public class SheetDiffResult {
      * Sheets matching results between {@code base revision} and {@code their revision}
      */
     private final Map<String, XlsMatch> theirToBase;
+    /**
+     * Cell by cell merge plans of the sheets changed in both revisions
+     */
+    private final Map<String, SheetMergePlan> mergePlans;
 
     /**
      * Check ff any conflicted changes in sheets is detected between three revision
@@ -37,7 +42,7 @@ public class SheetDiffResult {
      * @return {@code true} if two revisions can be automatically merged, otherwise {@code false}
      */
     public boolean hasChangesToMerge() {
-        return !hasConflicts() && hasResults(DiffStatus.THEIR);
+        return !hasConflicts() && (hasResults(DiffStatus.THEIR) || hasResults(DiffStatus.MERGED));
     }
 
     private boolean hasResults(DiffStatus diff) {
@@ -59,10 +64,19 @@ public class SheetDiffResult {
      * Get matching result of requested sheet between {@code base revision} and {@code their revision}
      *
      * @param sheetName sheet name
-     * @return matching result
+     * @return matching result, or {@code null} for a sheet neither revision has
      */
-    public XlsMatch getTheirMatchResult(String sheetName) {
+    public @Nullable XlsMatch getTheirMatchResult(String sheetName) {
         return theirToBase.get(sheetName);
+    }
+
+    /**
+     * Get the cell by cell merge plans of the sheets changed in both revisions
+     *
+     * @return merge plans by the names of the sheets with {@link DiffStatus#MERGED} decision
+     */
+    public Map<String, SheetMergePlan> getMergePlans() {
+        return mergePlans;
     }
 
 }

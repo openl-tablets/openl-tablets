@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Difference result of the same workbook by HSSF Palette between three revisions. {@code base revision} to
@@ -47,7 +48,7 @@ public class HSSFPaletteDiffResult {
      * @param cInx color index
      * @return matching result
      */
-    public XlsMatch getTheirMatchResult(Short cInx) {
+    public @Nullable XlsMatch getTheirMatchResult(Short cInx) {
         return theirToBase.get(cInx);
     }
 }

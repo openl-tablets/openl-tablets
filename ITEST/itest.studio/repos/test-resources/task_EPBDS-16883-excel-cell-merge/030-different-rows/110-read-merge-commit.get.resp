@@ -1,0 +1,41 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4ODMtUmF0ZXM6YmVlMGY5NzhiYjA4N2ViY2I0NjI0ZjA2ODJkMThhNzUxMmUyMWNjYTc0MTdlMjQ3MjA0MTViYmRjOGFhNTA2ZA==",
+  "name": "EPBDS-16883-Rates",
+  "branch": "master",
+  "status": "OPENED",
+  "repository": "design-flat",
+  "modifiedBy": "*",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-16883-Rates",
+  "comment": "Merge commit with *\n\n Automatically resolved conflicts:\n\tEPBDS-16883-Rates/Rates.xlsx\n\t\tRules (master, EPBDS-16883-different-rows)",
+  "branchDefault": true,
+  "inDefaultBranch": true,
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  "capabilities": {
+    "canWrite": true,
+    "canDelete": true,
+    "canClose": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canManageBranches": true,
+    "canMerge": true,
+    "canExport": true
+  }
+}
+

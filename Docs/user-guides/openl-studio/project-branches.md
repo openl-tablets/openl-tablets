@@ -130,7 +130,26 @@ contain the project when it is opened. Proceed as follows:
 
     *Selecting a branch that does not hold the project yet*
 
-    If upon saving there is a conflict due to updates in the same module sheet, the **Resolve Conflicts** dialog appears.
+    Sync merges the changes of both branches by itself where they do not overlap: a text file line by line, and a
+    module workbook sheet by sheet. A sheet both branches changed is merged cell by cell: each cell takes the change
+    of the branch that made it. The value, the style and the comment of a cell are merged separately, so one branch
+    can change the text of a cell and the other its style. Such a sheet stays a conflict in the following cases:
+
+    -   Both branches change the value, the style or the comment of the same cell, the height or the visibility of
+        the same row, the width or the visibility of the same column, the default column width or row height, the
+        merged cells or the pictures of the sheet differently.
+    -   A branch inserts or deletes rows or columns inside the content of the sheet. Edits that cannot be told apart
+        from such a move, such as many rows rewritten at once, count as one.
+    -   Both branches fill empty cells next to each other, so two tables would touch and be read as one.
+    -   A branch merges cells over a value the other branch wrote.
+    -   The branch whose changes are merged in changes the data validation, the conditional formatting, the
+        hyperlinks or the frozen panes of the sheet. It is the selected branch for **Receive their updates** and the
+        current branch for **Send your updates**.
+    -   Both branches add a sheet with the same name and different content, or one branch removes a sheet the other
+        changes.
+
+    If Sync finds such a conflict, or both branches changed the same place of any other file, the **Resolve
+    Conflicts** dialog appears.
 
     ![Resolve Conflicts dialog](images/resolve-conflicts-on-merge.png "Resolving conflicts on merging branches")
 
@@ -164,7 +183,10 @@ contain the project when it is opened. Proceed as follows:
 
 ### Resolving Conflicts
 
-If the same version of the project is edited by several users, upon submitting their changes using different clients, the **Resolve Conflicts** dialog appears, listing the conflicting files and the resolution options for each one.
+If the same version of the project is edited by several users, saving combines their changes the way Sync does:
+changes in other lines of a text file and in other cells of a workbook sheet are merged without a question. When the
+users changed the same place, upon submitting their changes using different clients, the **Resolve Conflicts** dialog
+appears, listing the conflicting files and the resolution options for each one.
 
 The dialog also appears when a project is renamed and saved, then an earlier revision is opened and renamed again.
 The project remains available to the dialog under the identifier issued after the first rename.

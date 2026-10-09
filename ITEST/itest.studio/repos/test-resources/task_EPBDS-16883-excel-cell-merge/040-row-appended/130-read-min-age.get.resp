@@ -1,0 +1,74 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "4469469bead4e5e9ddd66edcc2d19c6a",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "minAge",
+  "pos": "A8:B13",
+  "source": [
+    [
+      {
+        "cell": "A8",
+        "value": "SimpleRules Integer minAge(String state)",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "A9",
+        "value": "State"
+      },
+      {
+        "cell": "B9",
+        "value": "Min Age"
+      }
+    ],
+    [
+      {
+        "cell": "A10",
+        "value": "NY"
+      },
+      {
+        "cell": "B10",
+        "value": 18
+      }
+    ],
+    [
+      {
+        "cell": "A11",
+        "value": "CA"
+      },
+      {
+        "cell": "B11",
+        "value": 16
+      }
+    ],
+    [
+      {
+        "cell": "A12",
+        "value": "TX"
+      },
+      {
+        "cell": "B12",
+        "value": 17
+      }
+    ],
+    [
+      {
+        "cell": "A13",
+        "value": "FL"
+      },
+      {
+        "cell": "B13",
+        "value": 19
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

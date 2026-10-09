@@ -1,0 +1,21 @@
+POST /rest/projects/{PROJECT_ID}/tables/4469469bead4e5e9ddd66edcc2d19c6a/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "append",
+  "target": {
+    "type": "rows",
+    "cells": [
+      [
+        {
+          "value": "FL"
+        },
+        {
+          "value": 19
+        }
+      ]
+    ]
+  }
+}
+

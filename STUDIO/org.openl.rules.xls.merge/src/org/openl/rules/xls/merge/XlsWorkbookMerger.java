@@ -12,6 +12,7 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 
@@ -23,6 +24,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.HSSFPaletteDiffResult;
 import org.openl.rules.xls.merge.diff.SheetDiffResult;
+import org.openl.rules.xls.merge.diff.SheetMergePlan;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.rules.xls.merge.diff.XlsMatch;
 import org.openl.util.IOUtils;
@@ -92,6 +94,8 @@ public class XlsWorkbookMerger implements Closeable {
         Map<String, XlsMatch> ourToBase = XlsWorkbooksMatcher.match(baseWorkbook, ourWorkbook);
         Map<String, XlsMatch> theirToBase = XlsWorkbooksMatcher.match(baseWorkbook, theirWorkbook);
 
+        var mergePlans = new TreeMap<String, SheetMergePlan>(String.CASE_INSENSITIVE_ORDER);
+
         final Function<DiffStatus, Set<String>> initGroupValue = key -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
         for (var entry : ourToBase.entrySet()) {
@@ -108,7 +112,7 @@ public class XlsWorkbookMerger implements Closeable {
                                 theirWorkbook.getSheet(sheetName))) {
                     continue;
                 }
-                diffDecision = DiffStatus.CONFLICT;
+                diffDecision = decideChangedInBoth(sheetName, ourMatchRes, mergePlans);
             } else {
                 diffDecision = chooseChangedSide(ourMatchRes, theirMatchRes);
             }
@@ -122,7 +126,25 @@ public class XlsWorkbookMerger implements Closeable {
         }
 
         var paletteDiff = calcPaletteDiff();
-        return new WorkbookDiffResult(new SheetDiffResult(diffResult, theirToBase), paletteDiff);
+        return new WorkbookDiffResult(new SheetDiffResult(diffResult, theirToBase, mergePlans), paletteDiff);
+    }
+
+    /**
+     * Decides how to merge a sheet changed in both revisions: cell by cell, when both revisions updated it and the
+     * changes do not conflict, or as a conflict otherwise.
+     */
+    private DiffStatus decideChangedInBoth(String sheetName, XlsMatch match, Map<String, SheetMergePlan> mergePlans) {
+        if (match != XlsMatch.UPDATED) {
+            return DiffStatus.CONFLICT;
+        }
+        var plan = XlsSheetMerger.plan(new Cursor(baseWorkbook, baseWorkbook.getSheet(sheetName)),
+                new Cursor(ourWorkbook, ourWorkbook.getSheet(sheetName)),
+                new Cursor(theirWorkbook, theirWorkbook.getSheet(sheetName)));
+        if (plan.isEmpty()) {
+            return DiffStatus.CONFLICT;
+        }
+        mergePlans.put(sheetName, plan.get());
+        return DiffStatus.MERGED;
     }
 
     private HSSFPaletteDiffResult calcPaletteDiff() {
@@ -208,39 +230,61 @@ public class XlsWorkbookMerger implements Closeable {
         try (var ourBook = new StreamWorkbook(our, false);
              var theirBook = new StreamWorkbook(their, true)) {
             if (sheetDiffResult.hasChangesToMerge()) {
-                var formulas = new ArrayList<Cell>();
-                for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
-                    switch (sheetDiffResult.getTheirMatchResult(sheetName)) {
-                        case UPDATED -> XlsSheetCopier.copy(theirBook,
-                                theirBook.getSheet(sheetName),
-                                ourBook,
-                                ourBook.getSheet(sheetName),
-                                formulas);
-                        case CREATED -> XlsSheetCopier.copy(theirBook,
-                                theirBook.getSheet(sheetName),
-                                ourBook,
-                                ourBook.createSheet(sheetName),
-                                formulas);
-                        case REMOVED -> {
-                            var sheetIdx = ourBook.getSheetIndex(sheetName);
-                            ourBook.removeSheetAt(sheetIdx);
-                        }
-                        default -> throw new IllegalStateException("Failed to merge.");
-                    }
-                }
-                // evaluate all formula cells in the end
-                var formulaEvaluator = ourBook.getCreationHelper().createFormulaEvaluator();
-                formulas.forEach(formulaEvaluator::evaluateFormulaCell);
-                // optimize styles
-                if (ourBook.unwrap() instanceof HSSFWorkbook ourHssfBook) {
-                    HSSFOptimiser.optimiseCellStyles(ourHssfBook);
-                }
+                mergeSheets(ourBook, theirBook, sheetDiffResult);
             }
             if (paletteDifResult.hasChangesToMerge()) {
                 mergePalette(ourBook, theirBook, paletteDifResult);
             }
 
             ourBook.write(output);
+        }
+    }
+
+    /**
+     * Applies the sheets taken from THEIR workbook and the sheets merged cell by cell to OUR workbook, and brings the
+     * values of its formulas up to date.
+     */
+    private static void mergeSheets(StreamWorkbook ourBook,
+                                    StreamWorkbook theirBook,
+                                    SheetDiffResult sheetDiffResult) throws IOException {
+        var formulas = new ArrayList<Cell>();
+        for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
+            switch (sheetDiffResult.getTheirMatchResult(sheetName)) {
+                case UPDATED -> XlsSheetCopier.copy(theirBook,
+                        theirBook.getSheet(sheetName),
+                        ourBook,
+                        ourBook.getSheet(sheetName),
+                        formulas);
+                case CREATED -> XlsSheetCopier.copy(theirBook,
+                        theirBook.getSheet(sheetName),
+                        ourBook,
+                        ourBook.createSheet(sheetName),
+                        formulas);
+                case REMOVED -> {
+                    var sheetIdx = ourBook.getSheetIndex(sheetName);
+                    ourBook.removeSheetAt(sheetIdx);
+                }
+                default -> throw new IllegalStateException("Failed to merge.");
+            }
+        }
+        var mergePlans = sheetDiffResult.getMergePlans();
+        for (var entry : mergePlans.entrySet()) {
+            var sheetName = entry.getKey();
+            XlsSheetMerger.apply(new Cursor(theirBook, theirBook.getSheet(sheetName)),
+                    new Cursor(ourBook, ourBook.getSheet(sheetName)),
+                    entry.getValue());
+        }
+        // evaluate all formula cells in the end
+        if (mergePlans.isEmpty()) {
+            var formulaEvaluator = ourBook.getCreationHelper().createFormulaEvaluator();
+            formulas.forEach(formulaEvaluator::evaluateFormulaCell);
+        } else {
+            // a merged cell may be read by any formula of the workbook, the copied ones included
+            XlsSheetMerger.recalculate(ourBook);
+        }
+        // optimize styles
+        if (ourBook.unwrap() instanceof HSSFWorkbook ourHssfBook) {
+            HSSFOptimiser.optimiseCellStyles(ourHssfBook);
         }
     }
 

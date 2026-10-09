@@ -31,6 +31,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.util.CollectionUtils;
 
@@ -105,7 +106,7 @@ public class XlsSheetsMatcher {
      * @param cursor     second cursor
      * @return {@code true} if no changes is detected, otherwise {@code false}
      */
-    private static boolean equalDrawings(Cursor baseCursor, Cursor cursor) {
+    static boolean equalDrawings(Cursor baseCursor, Cursor cursor) {
         List<XSSFPicture> shapes1 = baseCursor.getSheetPictures();
         List<XSSFPicture> shapes2 = cursor.getSheetPictures();
         if (CollectionUtils.isEmpty(shapes1)) {
@@ -257,8 +258,8 @@ public class XlsSheetsMatcher {
      * @return {@code true} if no changes is detected, otherwise {@code false}
      */
     private static boolean equalContentInCell(Cursor baseCursor, Cursor cursor) {
-        if (isNullOrEmpty(baseCursor.cell)) {
-            if (isNullOrEmpty(cursor.cell)) {
+        if (hasNoContent(baseCursor)) {
+            if (hasNoContent(cursor)) {
                 return true;
             } else {
                 log.debug("Base sheet={}&cell={} is null, but second is not",
@@ -267,7 +268,7 @@ public class XlsSheetsMatcher {
                 return false;
             }
         }
-        if (isNullOrEmpty(cursor.cell)) {
+        if (hasNoContent(cursor)) {
             log.debug("Base sheet={}&cell={} isn't null, but second is null",
                     baseCursor.sheet.getSheetName(),
                     baseCursor.cell.getAddress());
@@ -303,6 +304,85 @@ public class XlsSheetsMatcher {
         baseCursor.cellStyle = baseCursor.cell.getCellStyle();
         cursor.cellStyle = cursor.cell.getCellStyle();
         return equalStylesInCell(baseCursor, cursor);
+    }
+
+    /**
+     * Equals the values or formulas of the current cells of two cursors. A missing cell and a blank one have no value.
+     *
+     * @return {@code true} if no changes is detected, otherwise {@code false}
+     */
+    static boolean equalValues(Cursor baseCursor, Cursor cursor) {
+        var hasValue1 = hasValue(baseCursor.cell);
+        var hasValue2 = hasValue(cursor.cell);
+        if (!hasValue1 || !hasValue2) {
+            return hasValue1 == hasValue2;
+        }
+        var type = baseCursor.cell.getCellType();
+        if (type != cursor.cell.getCellType()) {
+            return false;
+        }
+        // A number shown as a date is still the same number: the date format belongs to the style.
+        return type == CellType.NUMERIC
+                ? baseCursor.cell.getNumericCellValue() == cursor.cell.getNumericCellValue()
+                : equalValueInCell(baseCursor, cursor);
+    }
+
+    /**
+     * Equals the comments of the current cells of two cursors. A missing cell has no comment.
+     *
+     * @return {@code true} if no changes is detected, otherwise {@code false}
+     */
+    static boolean equalComments(Cursor baseCursor, Cursor cursor) {
+        baseCursor.comment = baseCursor.cell == null ? null : baseCursor.cell.getCellComment();
+        cursor.comment = cursor.cell == null ? null : cursor.cell.getCellComment();
+        if (baseCursor.cell == null || cursor.cell == null) {
+            return baseCursor.comment == null && cursor.comment == null;
+        }
+        return equalCommentInCell(baseCursor, cursor);
+    }
+
+    /**
+     * Equals the styles of the current cells of two cursors. A missing cell has the default style.
+     *
+     * @return {@code true} if no changes is detected, otherwise {@code false}
+     */
+    static boolean equalStyles(Cursor baseCursor, Cursor cursor) {
+        if (baseCursor.cell == null) {
+            return cursor.cell == null || isUnstyled(cursor.cell);
+        } else if (cursor.cell == null) {
+            return isUnstyled(baseCursor.cell);
+        }
+        baseCursor.cellStyle = baseCursor.cell.getCellStyle();
+        cursor.cellStyle = cursor.cell.getCellStyle();
+        return equalStylesInCell(baseCursor, cursor);
+    }
+
+    /**
+     * Tells whether a cell has a value or a formula: a missing cell and a blank one have none.
+     */
+    static boolean hasValue(@Nullable Cell cell) {
+        return cell != null && cell.getCellType() != CellType.BLANK;
+    }
+
+    /**
+     * Tells whether a cell looks like a cell with no style: the default format, alignment, borders and fill, no
+     * wrapping or shrinking of the text, and the default font of the workbook.
+     */
+    static boolean isUnstyled(Cell cell) {
+        var style = cell.getCellStyle();
+        if (!isDefaultStyle(style) || style.getWrapText() || style.getShrinkToFit()) {
+            return false;
+        }
+        var workbook = cell.getSheet().getWorkbook();
+        var font = workbook.getFontAt(style.getFontIndex());
+        var defaultFont = workbook.getFontAt(0);
+        return font.getFontName().equals(defaultFont.getFontName())
+                && font.getFontHeight() == defaultFont.getFontHeight()
+                && font.getBold() == defaultFont.getBold()
+                && font.getItalic() == defaultFont.getItalic()
+                && font.getUnderline() == defaultFont.getUnderline()
+                && font.getStrikeout() == defaultFont.getStrikeout()
+                && font.getColor() == defaultFont.getColor();
     }
 
     /**
@@ -999,13 +1079,7 @@ public class XlsSheetsMatcher {
         if (cell == null) {
             return true;
         }
-        if (cell.getCellType() != CellType.BLANK) {
-            return false;
-        }
-        if (cell.getCellComment() != null) {
-            return false;
-        }
-        if (!isDefaultStyle(cell.getCellStyle())) {
+        if (!isBlankWithDefaultStyle(cell)) {
             return false;
         }
         for (CellRangeAddress range : cell.getSheet().getMergedRegions()) {
@@ -1017,9 +1091,39 @@ public class XlsSheetsMatcher {
     }
 
     /**
+     * Tells whether the current cell of the cursor is empty for the sheet comparison, as {@link #isNullOrEmpty(Cell)}
+     * tells it, with the merged regions the cursor has read once. The font of a blank cell is not looked at.
+     */
+    private static boolean hasNoContent(Cursor cursor) {
+        return cursor.cell == null || isBlankWithDefaultStyle(cursor.cell) && cursor.getCellMergedRegion() == null;
+    }
+
+    private static boolean isBlankWithDefaultStyle(Cell cell) {
+        return cell.getCellType() == CellType.BLANK && cell.getCellComment() == null
+                && isDefaultStyle(cell.getCellStyle());
+    }
+
+    /**
+     * Tells whether the current cell of the cursor has nothing in it for a cell by cell merge: no value, no comment,
+     * no style, the font included, and no merged cell over it. The merged regions are those the cursor has read once.
+     */
+    static boolean isEmptyCell(Cursor cursor) {
+        return cursor.cell == null || cursor.cell.getCellType() == CellType.BLANK
+                && cursor.cell.getCellComment() == null && isUnstyled(cursor.cell)
+                && cursor.getCellMergedRegion() == null;
+    }
+
+    /**
+     * Tells whether a cell is blank and has no comment and no style; merged cells are not looked at.
+     */
+    static boolean isBlankAndUnstyled(Cell cell) {
+        return cell.getCellType() == CellType.BLANK && cell.getCellComment() == null && isUnstyled(cell);
+    }
+
+    /**
      * Checks whether the cell style has the default format, alignment, rotation, borders, colors and fill.
      */
-    private static boolean isDefaultStyle(CellStyle cellStyle) {
+    static boolean isDefaultStyle(CellStyle cellStyle) {
         if (!BuiltinFormats.getBuiltinFormat(0).equals(cellStyle.getDataFormatString())) {
             return false;
         }
