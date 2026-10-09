@@ -24,8 +24,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,12 +78,24 @@ import org.openl.util.IOUtils;
 @Tag(name = "Projects: Merge (BETA)", description = "Experimental projects merge API")
 public class ProjectsMergeController {
 
+    /**
+     * The most resolutions one request binds. The resolutions are bound by their indexes, and Spring stops growing
+     * such a list at 256 elements, which a merge of a large project exceeds. The servers OpenL ships take at most
+     * 10 000 form keys, two or three for each resolution, so a request never holds more.
+     */
+    private static final int MAX_RESOLUTIONS = 10_000;
+
     private final ProjectsMergeService mergeService;
     private final WorkspaceProjectService projectService;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectsMergeConflictsService mergeConflictsService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ComparisonLauncher comparisonLauncher;
+
+    @InitBinder
+    void allowLongResolutionLists(WebDataBinder binder) {
+        binder.setAutoGrowCollectionLimit(MAX_RESOLUTIONS);
+    }
 
     @Operation(summary = "projects.merge.check.summary", description = "projects.merge.check.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.check.200.desc")
