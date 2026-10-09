@@ -29064,6 +29064,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "category": {
+            "type": "string",
+            "description": "***"
+          },
           "displayName": {
             "type": "string",
             "description": "***"

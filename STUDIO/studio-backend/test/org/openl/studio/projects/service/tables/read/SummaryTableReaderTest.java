@@ -28,7 +28,8 @@ import org.openl.studio.projects.model.tables.TableKind;
  * it takes no part in the rules.
  *
  * <p>The module of the fixture writes one table in two versions, told apart by the line of business each works for,
- * and one table of its own that is switched off.
+ * one table of its own that is switched off, and one that declares a category beside the one the file name of the
+ * module gives every table.
  */
 class SummaryTableReaderTest {
 
@@ -58,10 +59,28 @@ class SummaryTableReaderTest {
             row(sheet, 26, "Reviewed by the underwriters", "May");
             row(sheet, 27, "Rates", "confirmed");
 
-            try (OutputStream out = Files.newOutputStream(projectDir.resolve("Rules.xlsx"))) {
+            // A table declaring a category of its own, beside the one its module gives every table.
+            row(sheet, 29, "Rules String Bonus()");
+            row(sheet, 30, "properties", "category", "Bonuses");
+            row(sheet, 31, "", "Ten");
+
+            try (OutputStream out = Files.newOutputStream(projectDir.resolve("Pricing.xlsx"))) {
                 workbook.write(out);
             }
         }
+        // The module takes its category from its file name, which every table of it inherits.
+        Files.writeString(projectDir.resolve("rules.xml"), """
+                <project>
+                    <name>Pricing</name>
+                    <modules>
+                        <module>
+                            <name>Pricing</name>
+                            <rules-root path="Pricing.xlsx"/>
+                        </module>
+                    </modules>
+                    <properties-file-name-pattern>%category%</properties-file-name-pattern>
+                </project>
+                """);
         var module = ProjectResolver.getInstance().resolve(projectDir).getModules().getFirst();
         projectModel = new ProjectModel(mock(WebStudio.class), null);
         projectModel.setModuleInfo(module);
@@ -130,6 +149,17 @@ class SummaryTableReaderTest {
         assertEquals(Boolean.FALSE, tables("Discount").getFirst().active);
         // Nothing is said about a table that takes part in the rules.
         tables("CarPrice").forEach(table -> assertNull(table.active));
+    }
+
+    @Test
+    void saysTheCategoryATableIsFiledUnderInheritedOneIncluded() {
+        // Discount declares no category and is filed under the one the file name of its module gives it, not under
+        // the sheet it is written on.
+        assertEquals("Pricing", tables("Discount").getFirst().category);
+        // A category the table declares itself wins over the module's.
+        assertEquals("Bonuses", tables("Bonus").getFirst().category);
+        // The table's own properties keep only what it declares.
+        assertNull(tables("Discount").getFirst().properties.get("category"));
     }
 
     /** The tables of the module carrying the given name, read with what the module knows about their versions. */

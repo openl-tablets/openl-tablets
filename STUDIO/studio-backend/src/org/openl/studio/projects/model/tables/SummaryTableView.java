@@ -2,6 +2,7 @@ package org.openl.studio.projects.model.tables;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Summary table view model that contains summarized information about tables
@@ -41,6 +42,10 @@ public class SummaryTableView extends TableView {
             + "An inactive table is written in the module but takes no part in the rules")
     public final Boolean active;
 
+    @Schema(description = "Category the table is filed under: the one it declares, or else the one it inherits, such "
+            + "as from the file name of its module. Absent when it has none")
+    public final @Nullable String category;
+
     @Schema(description = """
             How many errors the compilation raised about this table. Absent when it raised none, so a screen \
             marking the tables that are broken has only the broken ones to read""")
@@ -69,6 +74,7 @@ public class SummaryTableView extends TableView {
         this.displayName = builder.displayName;
         this.overloadGroup = builder.overloadGroup;
         this.active = builder.active;
+        this.category = builder.category;
     }
 
     /**
@@ -119,6 +125,7 @@ public class SummaryTableView extends TableView {
         private String displayName;
         private String overloadGroup;
         private Boolean active;
+        private @Nullable String category;
 
         private Builder() {
         }
@@ -165,6 +172,11 @@ public class SummaryTableView extends TableView {
 
         public Builder active(Boolean active) {
             this.active = active;
+            return this;
+        }
+
+        public Builder category(@Nullable String category) {
+            this.category = category;
             return this;
         }
 

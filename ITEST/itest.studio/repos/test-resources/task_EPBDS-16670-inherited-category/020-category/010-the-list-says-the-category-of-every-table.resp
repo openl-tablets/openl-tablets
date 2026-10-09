@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "Bonus",
+      "sheet": "Rules",
+      "properties": {
+        "category": "Bonuses"
+      },
+      "category": "Bonuses"
+    },
+    {
+      "name": "Discount",
+      "sheet": "Rules",
+      "category": "Pricing"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}

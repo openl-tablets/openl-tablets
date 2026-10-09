@@ -161,16 +161,10 @@ export const widthOf = (nodes: TableNode[], depth = 0): number => nodes.reduce((
 ), 0)
 
 /**
- * The category a table is filed under: the one it declares, or else the sheet it is written on, which is
- * what the Editor's tree fell back on.
+ * The category a table is filed under: the one it declares or inherits, such as from the file name of its module,
+ * or else the sheet it is written on, which is what the Editor's tree fell back on.
  */
-const categoryOf = (table: ModuleTable): string | null => {
-    const value = table.properties?.['category']
-    if (typeof value === 'string' && value !== '') {
-        return value
-    }
-    return table.sheet || null
-}
+const categoryOf = (table: ModuleTable): string | null => table.category || table.sheet || null
 
 /** The steps of a category, which the Editor's detailed views read between the dashes of its name. */
 const categorySteps = (category: string): string[] => category.split('-').map(step => step.trim()).filter(Boolean)

@@ -294,6 +294,8 @@ export interface ModuleTable extends ProjectTable {
     overloadGroup?: string
     /** `false` on a table switched off by the `active` property, which takes no part in the rules. */
     active?: boolean
+    /** The category the table is filed under: its own, or the one it inherits, such as from the file name of its module. */
+    category?: string
     /** How many errors the compilation raised about this table; absent when it raised none. */
     errors?: number
     /** `true` when a test table exercises this one; absent when nothing tests it. */

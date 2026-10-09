@@ -72,8 +72,8 @@ describe('tableGrouping', () => {
 
     it('reads a category in steps between its dashes, and the inversed view reads the steps the other way', () => {
         const tables = [
-            table('Premium', { properties: { category: 'Auto-Pricing' } }),
-            table('Discount', { properties: { category: 'Auto-Discounts' } }),
+            table('Premium', { category: 'Auto-Pricing' }),
+            table('Discount', { category: 'Auto-Discounts' }),
         ]
 
         const detailed = treeOf(tables, 'categoryDetailed', key)
@@ -87,11 +87,20 @@ describe('tableGrouping', () => {
 
     it('files a table that declares no category under the sheet it is written on, as the Editor did', () => {
         const nodes = treeOf(
-            [table('Premium', { properties: { category: 'Pricing' } }), table('Loose', { sheet: 'Rating' })],
+            [table('Premium', { category: 'Pricing' }), table('Loose', { sheet: 'Rating' })],
             'category', key)
 
         expect(nodes.map(node => node.title)).toEqual(['Pricing', 'Rating'])
         expect(nodes[1]?.children.map(child => child.title)).toEqual(['Loose'])
+    })
+
+    it('files a table under the category it inherits, as under one it declares itself', () => {
+        // The server reports the category the file name of its module hands down; the table itself
+        // declares none, and is filed under it rather than under its sheet.
+        const nodes = treeOf([table('Premium', { category: 'Pricing', sheet: 'Rating' })], 'category', key)
+
+        expect(nodes.map(node => node.title)).toEqual(['Pricing'])
+        expect(nodes[0]?.children.map(child => child.title)).toEqual(['Premium'])
     })
 
     it('files a category of one step by that step alone, beside the deeper ones, in the order of their names', () => {
@@ -119,7 +128,7 @@ describe('tableGrouping', () => {
         const tables = [
             table('Premium', { sheet: 'Pricing' }),
             table('ModuleDefaults', { kind: 'Properties', tableType: 'Properties', sheet: 'Pricing', properties: { scope: 'Module' } }),
-            table('PricingDefaults', { kind: 'Properties', tableType: 'Properties', sheet: 'Env', properties: { scope: 'Category', category: 'Pricing' } }),
+            table('PricingDefaults', { kind: 'Properties', tableType: 'Properties', sheet: 'Env', properties: { scope: 'Category', category: 'Pricing' }, category: 'Pricing' }),
         ]
 
         const nodes = treeOf(tables, 'category', key)
