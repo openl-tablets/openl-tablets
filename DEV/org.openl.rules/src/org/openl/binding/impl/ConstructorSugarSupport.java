@@ -52,7 +52,7 @@ public class ConstructorSugarSupport {
                         isAllParamsNoAssign = false;
                         var iBoundNode = AssignOperatorNodeBinder.bind(child, varBindingContext, bindingContext);
                         var paramNameSyntaxNode = child.getChild(0);
-                        var paramName = paramNameSyntaxNode.getText();
+                        var paramName = paramName(paramNameSyntaxNode);
                         if (namedParams.containsKey(paramName)) {
                             duplicatedParamSyntaxNode = paramNameSyntaxNode;
                         }
@@ -68,7 +68,7 @@ public class ConstructorSugarSupport {
                 if (isAllParamsAssign && duplicatedParamSyntaxNode != null) {
                     cleanErrorsAndMessages(bindingContext);
                     return ANodeBinder.makeErrorNode("Field '%s' has already used.".formatted(
-                            duplicatedParamSyntaxNode.getText()), duplicatedParamSyntaxNode, bindingContext);
+                            paramName(duplicatedParamSyntaxNode)), duplicatedParamSyntaxNode, bindingContext);
                 } else if (isAllParamsAssign) {
                     return makeNamedParamsConstructor(node,
                             type,
@@ -141,6 +141,18 @@ public class ConstructorSugarSupport {
         }
         var methodBoundNode = new MethodBoundNode(node, defaultConstructor);
         return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
+    }
+
+    /**
+     * The name of a named parameter as it is written, a dotted name such as {@code a.b} included.
+     */
+    private static String paramName(ISyntaxNode paramNameSyntaxNode) {
+        var text = paramNameSyntaxNode.getText();
+        var location = paramNameSyntaxNode.getSourceLocation();
+        if (text != null || location == null || !location.isTextLocation()) {
+            return text;
+        }
+        return paramNameSyntaxNode.getSourceCodeModule().getCode();
     }
 
     private static void cleanErrorsAndMessages(IBindingContext bindingContext) {
