@@ -12,6 +12,8 @@ Names of external tables have higher priority over input parameters. First of al
 
 External condition/return/action title must exactly match the title of the condition/return/action in the smart decision table. Inputs are matched by smart logic analyzing data types and names. Exact name matching is not required.
 
+A smart decision table that returns `void` needs no return column, so its last column can be an action.
+
 The external element table structure is as follows:
 
 1.  The first row is the header containing the keyword, such as **Actions**, **Conditions**, or **Returns**, and optionally the name of the table.

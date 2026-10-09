@@ -104,6 +104,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.OpenClassUtils;
 
 public final class DecisionTableHelper {
 
@@ -3319,19 +3320,37 @@ public final class DecisionTableHelper {
         return fits;
     }
 
-    private static boolean isLastDtColumnValid(DTHeader dtHeader, int maxColumn, int columnsForReturn) {
+    private static boolean isLastDtColumnValid(DTHeader dtHeader, int maxColumn, int reservedColumns) {
         if (dtHeader.isReturn()) {
             return dtHeader.getColumn() + dtHeader.getWidth() == maxColumn;
         }
         if (!dtHeader.isHCondition() && dtHeader.isCondition() || dtHeader.isAction()) {
-            return dtHeader.getColumn() + dtHeader.getWidth() < maxColumn - columnsForReturn;
+            return dtHeader.getColumn() + dtHeader.getWidth() <= maxColumn - reservedColumns;
         }
         return true;
     }
 
+    /**
+     * Keeps the fits with return columns. A lookup table keeps the fits without them instead.
+     *
+     * <p>A table that returns nothing keeps the fits without return columns when no fit has one.
+     */
+    private static List<List<DTHeader>> filterByReturns(List<List<DTHeader>> fits,
+                                                        int numberOfHConditions,
+                                                        boolean returnsNothing) {
+        if (numberOfHConditions > 0) {
+            // Lookup table with no returns columns
+            return fits.stream().filter(e -> e.stream().noneMatch(DTHeader::isReturn)).toList();
+        }
+        // Prefer full matches with return headers
+        var fitsWithReturns = fits.stream().filter(e -> e.stream().anyMatch(DTHeader::isReturn)).toList();
+        return returnsNothing && fitsWithReturns.isEmpty() ? fits : fitsWithReturns;
+    }
+
     private static List<List<DTHeader>> filterWithWrongStructure(ILogicalTable originalTable,
                                                                  List<List<DTHeader>> fits,
-                                                                 boolean twoColumnsInReturn) {
+                                                                 boolean twoColumnsInReturn,
+                                                                 boolean returnsNothing) {
         var maxColumn = originalTable.getSource().getWidth();
         var w = 0;
         if (maxColumn > 0 && twoColumnsInReturn) {
@@ -3340,11 +3359,11 @@ public final class DecisionTableHelper {
                 w = w + originalTable.getSource().getCell(maxColumn - 1 - w, 0).getWidth();
             }
         }
-        final var w1 = w;
+        // The last columns a condition or an action leaves to the return, none when the table returns nothing
+        final var reservedColumns = returnsNothing ? 0 : w + 1;
 
         return fits.stream()
-                .filter(
-                        e -> e.isEmpty() || isLastDtColumnValid(e.getLast(), maxColumn, twoColumnsInReturn ? w1 : 0))
+                .filter(e -> e.isEmpty() || isLastDtColumnValid(e.getLast(), maxColumn, reservedColumns))
                 .toList();
     }
 
@@ -3510,7 +3529,9 @@ public final class DecisionTableHelper {
                         : 0,
                 all);
 
-        fits = filterWithWrongStructure(originalTable, fits, twoColumnsForReturn);
+        // A table that returns nothing needs no return column, so a condition or an action may end it
+        var returnsNothing = OpenClassUtils.isVoid(decisionTable.getType());
+        fits = filterWithWrongStructure(originalTable, fits, twoColumnsForReturn, returnsNothing);
 
         // Declared covered columns filter
         fits = filterHeadersByMax(fits,
@@ -3523,13 +3544,7 @@ public final class DecisionTableHelper {
 
         fits = filterBasedOnDeclaredDtHeaders(fits);
 
-        if (numberOfHConditions == 0) {
-            // Prefer full matches with return headers
-            fits = fits.stream().filter(e -> e.stream().anyMatch(DTHeader::isReturn)).toList();
-        } else {
-            // Lookup table with no returns columns
-            fits = fits.stream().filter(e -> e.stream().noneMatch(DTHeader::isReturn)).toList();
-        }
+        fits = filterByReturns(fits, numberOfHConditions, returnsNothing);
 
         // matches with min returns
         fits = filterHeadersByMin(fits, DecisionTableHelper::countReturns, all);
