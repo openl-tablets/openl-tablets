@@ -12,7 +12,7 @@
         "operationId": "TodoSmth",
         "requestBody": {
           "content": {
-            "text/plain": {
+            "text/plain;charset=UTF-8": {
               "schema": {
                 "type": "string"
               }
