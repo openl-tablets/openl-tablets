@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -16,9 +17,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -126,6 +130,50 @@ class RulesProjectLifecycleTest {
 
         assertFalse(Files.exists(userDir.resolve(".history").resolve(PROJECT)),
                 "The project edit history must leave the workspace together with the project.");
+    }
+
+    @Test
+    void openingAnUnknownRevisionLeavesTheOpenedCopyUntouched() throws Exception {
+        var versionedDesignRepository = new FileSystemRepository() {
+            @Override
+            protected String getVersion(Path file) {
+                return "rev-1";
+            }
+
+            @Override
+            protected String getVersion(String path) {
+                return "rev-1";
+            }
+
+            @Override
+            public Features supports() {
+                return new FeaturesBuilder(this).setVersions(true).setFolders(true).setSupportsUniqueFileId(true).build();
+            }
+        };
+        versionedDesignRepository.setRoot(designRoot.resolve("versioned"));
+        versionedDesignRepository.setId("design");
+        versionedDesignRepository.initialize();
+        var fileData = new FileData();
+        fileData.setName(PROJECT + "/rules/Main.xlsx");
+        versionedDesignRepository.save(fileData, stream("design content"));
+        var project = new RulesProject(new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
+                localRepository,
+                null,
+                versionedDesignRepository,
+                versionedDesignRepository.check(PROJECT),
+                new DummyLockEngine());
+        project.open();
+        var localFile = userDir.resolve(PROJECT).resolve("rules").resolve("Main.xlsx");
+        assertEquals("design content", Files.readString(localFile));
+
+        var exception = assertThrows(ProjectException.class, () -> project.openVersion("rev-x"));
+
+        assertEquals("Cannot open. Revision not found.", exception.getMessage());
+        assertTrue(project.isOpened(), "The project must stay opened at the revision it was opened on.");
+        assertEquals("rev-1", project.getHistoryVersion());
+        assertEquals("design content", Files.readString(localFile),
+                "A revision that cannot be opened must not touch the opened copy.");
+        assertFalse(project.isModified(), "A refused open must leave no pending changes behind.");
     }
 
     @Test
