@@ -866,7 +866,7 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
 2.  Click **Compare.**
 
-    The elements of the two files are listed grouped by Excel sheet. Selecting an element displays it as it stands in each of the files, one next to the other, with the cells that differ highlighted. The cells that read the same in both files are drawn in grey, so that the differences are what the eye lands on.
+    The elements of the two files are listed grouped by Excel sheet. Selecting an element displays it as it stands in each of the files, one next to the other, with the cells that differ highlighted. The cells that read the same in both files are drawn in grey, so that the differences are what the eye lands on. A table that gained or lost rows or columns is compared by the rows and columns both of its versions hold: the cells that differ in them are highlighted, and so is every cell of a row or a column only one of the files holds.
 
     ![Excel comparison results](images/excel-comparison-results.jpeg)
 

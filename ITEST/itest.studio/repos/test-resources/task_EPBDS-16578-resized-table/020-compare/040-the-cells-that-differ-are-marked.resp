@@ -1,0 +1,111 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0-0",
+  "name": "Datatype Person",
+  "status": "changed",
+  "first": {
+    "source": [
+      [
+        {
+          "cell": "B2",
+          "value": "Datatype Person"
+        },
+        {
+          "cell": "C2"
+        }
+      ],
+      [
+        {
+          "cell": "B3",
+          "value": "String"
+        },
+        {
+          "cell": "C3",
+          "value": "name"
+        }
+      ],
+      [
+        {
+          "cell": "B4",
+          "value": "Integer"
+        },
+        {
+          "cell": "C4",
+          "value": "age"
+        }
+      ]
+    ],
+    "changedCells": [
+      "C4"
+    ]
+  },
+  "second": {
+    "source": [
+      [
+        {
+          "cell": "B2",
+          "value": "Datatype Person"
+        },
+        {
+          "cell": "C2"
+        },
+        {
+          "cell": "D2"
+        }
+      ],
+      [
+        {
+          "cell": "B3",
+          "value": "String"
+        },
+        {
+          "cell": "C3",
+          "value": "name"
+        },
+        {
+          "cell": "D3",
+          "value": "Ann"
+        }
+      ],
+      [
+        {
+          "cell": "B4",
+          "value": "Integer"
+        },
+        {
+          "cell": "C4",
+          "value": "years"
+        },
+        {
+          "cell": "D4",
+          "value": 30
+        }
+      ],
+      [
+        {
+          "cell": "B5",
+          "value": "Boolean"
+        },
+        {
+          "cell": "C5",
+          "value": "active"
+        },
+        {
+          "cell": "D5",
+          "value": true
+        }
+      ]
+    ],
+    "changedCells": [
+      "C4",
+      "B5",
+      "C5",
+      "D2",
+      "D3",
+      "D4",
+      "D5"
+    ]
+  }
+}
