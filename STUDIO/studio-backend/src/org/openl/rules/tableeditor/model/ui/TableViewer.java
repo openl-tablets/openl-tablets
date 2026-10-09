@@ -29,11 +29,11 @@ class TableViewer {
         switch (style.getHorizontalAlignment()) {
             case LEFT -> { /* Left by default */ }
             case RIGHT -> cm.setHalign("right");
-            case CENTER -> cm.setHalign("center");
+            case CENTER, CENTER_SELECTION -> cm.setHalign("center");
             case JUSTIFY -> cm.setHalign("justify");
             default -> {
-                // Align right numeric and date
-                if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
+                // Excel aligns a number or a date right, unless the cell is indented: an indent is taken from the left
+                if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC && style.getIndent() == 0) {
                     cm.setHalign("right");
                 }
             }

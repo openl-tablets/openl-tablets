@@ -65,7 +65,9 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
     cell: css`
         border-right: 1px solid ${paper.grid};
         border-bottom: 1px solid ${paper.grid};
-        padding: ${token.paddingXXS}px ${token.paddingXS}px;
+        /* An indented cell leaves the room of its indent beside the padding, on the side it names. */
+        padding: ${token.paddingXXS}px calc(${token.paddingXS}px + var(--cell-indent-right, 0em))
+            ${token.paddingXXS}px calc(${token.paddingXS}px + var(--cell-indent-left, 0em));
         text-align: left;
         vertical-align: top;
         white-space: pre-wrap;
