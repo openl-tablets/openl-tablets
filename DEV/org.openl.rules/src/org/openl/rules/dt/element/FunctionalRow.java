@@ -31,7 +31,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
-import org.openl.rules.table.SimpleLogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -736,8 +735,25 @@ public abstract class FunctionalRow implements IDecisionRow {
                 }
             }
         } else {
-            var paramGridColumn = getValueCell(ruleN).getSource();
-            return RuleRowHelper.isFormula(new SimpleLogicalTable(paramGridColumn));
+            return hasFormulaInCells(ruleN);
+        }
+        return false;
+    }
+
+    /**
+     * Whether a cell of the rule is a formula, read before the values are loaded.
+     *
+     * <p>Every cell counts, so a formula is found in any parameter of the rule, such as the upper bound of a range,
+     * and in any element of an array.
+     */
+    private boolean hasFormulaInCells(int ruleN) {
+        var cells = getValueCell(ruleN).getSource();
+        for (var rowIndex = 0; rowIndex < cells.getHeight(); rowIndex++) {
+            for (var columnIndex = 0; columnIndex < cells.getWidth(); columnIndex++) {
+                if (RuleRowHelper.isFormula(cells.getCell(columnIndex, rowIndex).getStringValue())) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -795,7 +811,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
             for (var i = 0; i < actualStorageSize; i++) {
                 var ruleN = scale.getLogicalIndex(i);
-                if (hasFormula(ruleN)) {
+                if (hasFormulaInCells(ruleN)) {
                     return true;
                 }
             }

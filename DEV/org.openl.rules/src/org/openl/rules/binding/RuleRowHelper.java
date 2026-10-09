@@ -528,7 +528,7 @@ public final class RuleRowHelper {
         return false;
     }
 
-    public static boolean isFormula(ILogicalTable valuesTable) {
+    private static boolean isFormula(ILogicalTable valuesTable) {
         var stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
         return isFormula(stringValue);
     }
