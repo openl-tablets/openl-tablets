@@ -565,6 +565,78 @@ describe('ModuleWorkspace', () => {
         expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Bank%20Rating?table=t-3', { replace: true })
     })
 
+    describe('a table its save moved under a new id', () => {
+        const pricing = { id: 't-first', name: 'Pricing', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
+        const moved = { ...bankRating, id: 't-3' } as ModuleTable
+        const tablesReadCount = () => vi.mocked(getModuleTables).mock.calls.length
+
+        const saveMovingTable = async () => {
+            workspace.opened = true
+            const view = render(<ModuleWorkspace />)
+            await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', expect.anything()))
+            vi.mocked(getModuleTables).mockResolvedValue([pricing, moved])
+            const readBefore = tablesReadCount()
+            navigateMock.mockClear()
+
+            await userEvent.click(await screen.findByTestId('table-saved'))
+            await waitFor(() => expect(tablesReadCount()).toBeGreaterThan(readBefore))
+            await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)) })
+            return view
+        }
+
+        it('stays on it while the address still names the id it had when the module is read again', async () => {
+            const { rerender } = await saveMovingTable()
+
+            expect(navigateMock.mock.calls).toEqual([['/projects/p1/modules/Bank%20Rating?table=t-3', { replace: true }]])
+
+            searchParams.set('table', 't-3')
+            rerender(<ModuleWorkspace />)
+            await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-3', expect.anything()))
+            expect(navigateMock).toHaveBeenCalledTimes(1)
+        })
+
+        it('says the module has no table a link names with the id it had, once the reader opened another one', async () => {
+            const { rerender } = await saveMovingTable()
+            searchParams.set('table', 't-first')
+            rerender(<ModuleWorkspace />)
+            await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-first', expect.anything()))
+            vi.mocked(getRawTable).mockRejectedValue(new NotFoundError('The table is not found.'))
+
+            searchParams.set('table', 't-1')
+            rerender(<ModuleWorkspace />)
+
+            await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
+            expect(await screen.findByTestId('module-table-missing')).toBeInTheDocument()
+        })
+
+        it('leaves it for the first table of its module once a later read of the module no longer holds it', async () => {
+            const { rerender } = await saveMovingTable()
+            searchParams.set('table', 't-3')
+            rerender(<ModuleWorkspace />)
+            await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-3', expect.anything()))
+            vi.mocked(getModuleTables).mockResolvedValue([pricing])
+            navigateMock.mockClear()
+
+            await userEvent.click(screen.getByTestId('module-refresh'))
+
+            await waitFor(() => expect(navigateMock).toHaveBeenCalledWith(
+                '/projects/p1/modules/Bank%20Rating?table=t-first', { replace: true }))
+        })
+
+        it('goes to the first table of its module when the module read again holds it under neither id', async () => {
+            workspace.opened = true
+            render(<ModuleWorkspace />)
+            await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', expect.anything()))
+            vi.mocked(getModuleTables).mockResolvedValue([pricing])
+            navigateMock.mockClear()
+
+            await userEvent.click(await screen.findByTestId('table-saved'))
+
+            await waitFor(() => expect(navigateMock).toHaveBeenCalledWith(
+                '/projects/p1/modules/Bank%20Rating?table=t-first', { replace: true }))
+        })
+    })
+
     it('leaves a removed table for the first table of its module', async () => {
         workspace.opened = true
         render(<ModuleWorkspace />)
