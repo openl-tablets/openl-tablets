@@ -1,6 +1,7 @@
 package org.openl.binding.impl;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import lombok.Getter;
 
@@ -48,12 +49,20 @@ public class ConstructorNamedParamsNode extends ABoundNode implements Constructo
         return tempVar.getType();
     }
 
+    /**
+     * Describes the call with the type of every named argument.
+     *
+     * <p>An argument whose value cannot be assigned to its field is described as well, by the type of the field.
+     */
     @Override
     public String getDescription() {
         var method = constructor.getMethodCaller().getMethod();
 
-        var params = Arrays.stream(getChildren()).map(node -> node.getChildren()[0])
-                .collect(StreamUtils.toLinkedMap(node -> node.getSyntaxNode().getText(), IBoundNode::getType));
+        // An argument that failed to bind is an error node with no children, so names and types come from the
+        // syntax and the fields, not from the bound arguments.
+        var params = Arrays.stream(getChildren())
+                .map(node -> node.getSyntaxNode().getChild(0).getText())
+                .collect(StreamUtils.toLinkedMap(Function.identity(), name -> getType().getField(name).getType()));
 
         return MethodUtil.printConstructorWithNamedParameters(method, params);
     }
