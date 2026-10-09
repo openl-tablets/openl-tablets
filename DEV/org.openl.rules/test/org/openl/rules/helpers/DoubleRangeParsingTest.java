@@ -98,25 +98,60 @@ class DoubleRangeParsingTest {
         assertEquals(new DoubleRange(37.1, 37.1), new DoubleRange("37.1"));
     }
 
+    @Test
+    void testDollarSymbol() {
+        assertEquals(new DoubleRange(10.5, 10.5), new DoubleRange("$10.5"));
+        assertEquals(new DoubleRange("[1.5; 3.2)"), new DoubleRange("[$1.5; $3.2)"));
+        assertEquals(new DoubleRange("> 2"), new DoubleRange(">$2"));
+    }
+
+    @Test
+    void testKMB() {
+        assertEquals(new DoubleRange(1100000, Double.POSITIVE_INFINITY), new DoubleRange("1.1M+"));
+        assertEquals(new DoubleRange(2330000000d, 2330000000d), new DoubleRange("2.33B"));
+        assertEquals(new DoubleRange(1200, 36000000), new DoubleRange("1.2K .. 36M"));
+        assertEquals(new DoubleRange(Double.NEGATIVE_INFINITY, 24001), new DoubleRange("<=24.001K"));
+        assertEquals(new DoubleRange("(67900000; 123000010]"), new DoubleRange("(67.9M; 123.00001M]"));
+    }
+
+    @Test
+    void testMultiplierIsExact() {
+        // 1.005 * 1000 and 2.01 * 1000000 are not exact in double arithmetic
+        assertEquals(new DoubleRange(1005, 2010000), new DoubleRange("1.005K - 2.01M"));
+        assertEquals(new DoubleRange(70, 70), new DoubleRange("0.07K"));
+    }
+
+    @Test
+    void testThousandsSeparator() {
+        assertEquals(new DoubleRange(-123456, 987654.3), new DoubleRange("-123,456 - 987,654.3"));
+        assertEquals(new DoubleRange("123456.7+"), new DoubleRange("123,456.7+"));
+        assertEquals(new DoubleRange(">123456.7"), new DoubleRange(">123,456.7"));
+        assertEquals(new DoubleRange(123456.7, 123456.7), new DoubleRange("123,456.7"));
+        assertEquals(new DoubleRange("[123456.7 - 987654)"), new DoubleRange("[123,456.7 - 987,654)"));
+        assertEquals(new DoubleRange(123456.7, 987654), new DoubleRange(">=123,456.7 <=987,654"));
+        assertEquals(new DoubleRange(123456.7, 987654), new DoubleRange("123,456.7 and more 987,654 or less"));
+        assertEquals(new DoubleRange(1234.5, 1234.5), new DoubleRange("$1,234.5"));
+        assertEquals(new DoubleRange(1234567.89, 1234567.89), new DoubleRange("$1,234,567.89"));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
-            "$10.5",
-            "[$1.5; $3.2)",
-            ">$2",
-
-            "2.33B",
-            "1.1M+",
-            "1.2K .. 36M",
-            "<=24.001K",
-
-            "123,456.7",
-            "123,456.7+",
-            ">123,456.7",
-            "-123,456 - 987,654.3",
-            "[123,456.7 - 987,654)",
-            ">=123,456.7 <=987,654",
-            "123,456.7 and more 987,654 or less"})
-    void testBusinessNumbers(String range) {
+            "77,99",
+            "1,0000",
+            "1234,567.5",
+            "1,000,00.5",
+            "1,000.123,456",
+            "1,000.",
+            "$",
+            "K",
+            "$K",
+            "1.K",
+            "1.5k",
+            "1e3K",
+            "1.5dK",
+            "-$5",
+            "[1.5K; 77,99.5]"})
+    void testWrongBusinessNumbers(String range) {
         checkWrong(range);
     }
 
