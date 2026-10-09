@@ -971,6 +971,10 @@ public final class DecisionTableHelper {
                 .map(e -> (FuzzyDTHeader) e)
                 .filter(FuzzyDTHeader::isReturn)
                 .toList();
+        var columnFieldsChains = fuzzyReturns.stream()
+                .map(FuzzyDTHeader::getFieldsChain)
+                .filter(Objects::nonNull)
+                .toList();
         var m = groupReturnTokensByFieldsChain(fuzzyContext);
 
         var bestFuzzyResultsMap = findBestFuzzyResults(fuzzyContext, m, fuzzyReturns);
@@ -983,7 +987,10 @@ public final class DecisionTableHelper {
                 final var statement = inputParameterStatement.getKey();
                 var type = inputParameterStatement.getValue();
                 var fieldsChain = pair.getKey();
-                if (isImplicitlyCastToReturn(type, fuzzyContext.getFuzzyReturnType(), fieldsChain, bindingContext)) {
+                if (!isSetByReturnColumn(fieldsChain, columnFieldsChains) && isImplicitlyCastToReturn(type,
+                        fuzzyContext.getFuzzyReturnType(),
+                        fieldsChain,
+                        bindingContext)) {
                     writeReturnStatement(fuzzyContext.getFuzzyReturnType(),
                             fieldsChain,
                             generatedNames,
@@ -1013,6 +1020,16 @@ public final class DecisionTableHelper {
                 .forEach(e -> bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
                 "More than one input parameter is set to return '%s'.".formatted(e.getKey()),
                         tableSyntaxNode)));
+    }
+
+    /**
+     * Tells whether a column of the table sets the field of the return, or an object the field belongs to. An input
+     * parameter is not written to such a field: the value of the column wins.
+     */
+    private static boolean isSetByReturnColumn(IOpenField[] fieldsChain, List<IOpenField[]> columnFieldsChains) {
+        return columnFieldsChains.stream()
+                .anyMatch(columnChain -> columnChain.length <= fieldsChain.length && Arrays
+                        .equals(columnChain, 0, columnChain.length, fieldsChain, 0, columnChain.length));
     }
 
     private static Map<IOpenField[], List<Token>> groupReturnTokensByFieldsChain(FuzzyContext fuzzyContext) {
