@@ -1,6 +1,8 @@
 package org.openl.binding.impl.module;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -35,10 +37,11 @@ public class MethodParametersNode extends ABoundNode {
 
         ParameterDeclaration[] params = new ParameterDeclaration[len];
         var checkConflicts = new HashMap<String, Integer>();
+        var names = new HashSet<String>();
         for (var i = 0; i < len; i++) {
             if (children[i] instanceof ParameterNode parameterNode) {
                 params[i] = new ParameterDeclaration(parameterNode.getType(),
-                        parameterNode.getName(),
+                        uniqueName(parameterNode, names, bindingContext),
                         parameterNode.getContextProperty());
                 if (parameterNode.getContextProperty() != null) {
                     checkConflicts.merge(parameterNode.getContextProperty(), 1, Integer::sum);
@@ -54,6 +57,22 @@ public class MethodParametersNode extends ABoundNode {
         });
         return new MethodSignature(params);
 
+    }
+
+    /**
+     * The name of the parameter, or {@code null} for a name an earlier parameter already declared.
+     *
+     * <p>A name declared twice is reported once, at the parameter declaring it again. The parameter is left without a
+     * name, as one whose name cannot be read is, so the method is not built and none of its cells repeats the error.
+     */
+    private static String uniqueName(ParameterNode parameterNode, Set<String> names, IBindingContext bindingContext) {
+        var name = parameterNode.getName();
+        if (name == null || names.add(name)) {
+            return name;
+        }
+        bindingContext.addError(SyntaxNodeExceptionUtils.createError(
+                "Parameter '%s' is already defined.".formatted(name), parameterNode.getSyntaxNode()));
+        return null;
     }
 
     public ILocation getParamTypeLocation(int paramNum) {

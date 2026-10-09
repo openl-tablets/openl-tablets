@@ -1,0 +1,2 @@
+ERROR: Parameter 'a' is already defined.
+ERROR: Parameter 'hour' is already defined.
