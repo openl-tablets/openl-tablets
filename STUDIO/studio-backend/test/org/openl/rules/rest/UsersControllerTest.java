@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.env.MockEnvironment;
@@ -30,6 +32,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import org.openl.rules.rest.model.ChangePasswordModel;
+import org.openl.rules.rest.model.InternalPasswordModel;
+import org.openl.rules.rest.model.UserCreateModel;
 import org.openl.rules.rest.model.UserInfoEditModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
@@ -78,8 +82,12 @@ class UsersControllerTest {
     }
 
     private UsersController createController(String userMode) {
+        return createController(userMode, false);
+    }
+
+    private UsersController createController(String userMode, boolean canCreateInternalUsers) {
         return new UsersController(userManagementService,
-                Boolean.FALSE,
+                canCreateInternalUsers,
                 adminUsers,
                 currentUserInfo,
                 passwordEncoder,
@@ -332,6 +340,35 @@ class UsersControllerTest {
         verify(userManagementService)
                 .updateUserData("jdoe", "John", "Doe", null, "old@example.com", "John Doe", true);
         verify(mailSender, never()).sendVerificationMail(any(), any());
+    }
+
+    @Test
+    void addUser_storesThePasswordOfAnInternalUser() {
+        var controller = createController("multi", true);
+
+        controller.addUser(request, newUser().setInternalPassword(new InternalPasswordModel().setPassword("secret")));
+
+        verify(userManagementService).addUser("jdoe", "John", "Doe", "secret", "jdoe@example.com", "John Doe");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = "secret")
+    void addUser_storesNoPasswordWhenAnIdentityProviderKeepsIt(String password) {
+        var controller = createController("oauth2");
+        var internalPassword = password == null ? null : new InternalPasswordModel().setPassword(password);
+
+        controller.addUser(request, newUser().setInternalPassword(internalPassword));
+
+        verify(userManagementService).addUser("jdoe", "John", "Doe", null, "jdoe@example.com", "John Doe");
+    }
+
+    private static UserCreateModel newUser() {
+        return new UserCreateModel().setUsername("jdoe")
+                .setFirstName("John")
+                .setLastName("Doe")
+                .setEmail("jdoe@example.com")
+                .setDisplayName("John Doe");
     }
 
     @Test

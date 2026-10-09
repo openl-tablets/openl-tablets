@@ -191,9 +191,13 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
         when(userManagementService.getUser(anyString())).thenReturn(null);
         var userCreateModel = getValidUserCreateModel();
 
+        userCreateModel.setInternalPassword(null);
+        var bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("internalPassword", CANNOT_BE_EMPTY, null, bindingResult.getFieldError("internalPassword"));
+
         var wrongInternalPassword = new InternalPasswordModel().setPassword(null);
         userCreateModel.setInternalPassword(wrongInternalPassword);
-        var bindingResult = validateAndGetResult(userCreateModel);
+        bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("internalPassword",
                 CANNOT_BE_EMPTY,
                 wrongInternalPassword,
