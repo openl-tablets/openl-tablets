@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_NAME}/tables/8334b511aa4544073df85cd9976bcaad/editors HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

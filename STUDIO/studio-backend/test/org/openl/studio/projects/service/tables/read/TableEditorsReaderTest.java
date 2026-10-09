@@ -169,6 +169,19 @@ class TableEditorsReaderTest {
     }
 
     @Test
+    void saysHowAValueOfAVocabularyIsWrittenInALineLaidDownAfterIt() {
+        var read = read("Hour");
+
+        // The two hours stand in rows 1 and 2; a line laid down under them holds an Integer all the same.
+        var numeric = editorOf(read, "numeric");
+        assertNotNull(numeric, "a vocabulary says how its values are written");
+        assertEquals(numeric, areaEditor(read, 1, 0));
+        assertEquals(numeric, areaEditor(read, 3, 0), "a value written into a new line is a whole number too");
+        assertNull(areaEditor(read, 0, 0), "the header names the type and is no value of it");
+        assertTrue(read.getCells().isEmpty(), "the values say once what every one of them takes");
+    }
+
+    @Test
     void namesACellOnlyWhereItIsWrittenOtherThanItsLine() {
         var read = read("Hours");
 
