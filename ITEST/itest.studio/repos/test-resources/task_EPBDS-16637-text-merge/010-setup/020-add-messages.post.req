@@ -1,0 +1,11 @@
+POST /rest/projects/{PROJECT_NAME}/files/i18n/message.properties?createFolders=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="message.properties"
+Content-Type: application/octet-stream
+
+&message.properties
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+
