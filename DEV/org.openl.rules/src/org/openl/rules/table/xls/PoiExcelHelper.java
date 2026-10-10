@@ -357,8 +357,18 @@ public final class PoiExcelHelper {
      * {@link XSSFFont#setColor(XSSFColor)} takes the red, the green and the blue of a colour alone, so the colour is
      * set as the font writes it.
      */
-    private static void setThemedColor(XSSFFont font, ThemedColor themed, XSSFWorkbook workbook) {
+    static void setThemedColor(XSSFFont font, ThemedColor themed, XSSFWorkbook workbook) {
         font.getCTFont().setColorArray(new CTColor[]{themed.toColor(workbook).getCTColor()});
+    }
+
+    /**
+     * Whether a workbook has a theme to draw a theme colour from: an {@code .xlsx} one with a theme part.
+     *
+     * @param workbook the workbook
+     * @return whether a theme colour written into it takes the colour of its theme
+     */
+    public static boolean hasTheme(Workbook workbook) {
+        return workbook instanceof XSSFWorkbook xssf && xssf.getStylesSource().getTheme() != null;
     }
 
     // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.

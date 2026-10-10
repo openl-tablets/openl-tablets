@@ -17,6 +17,23 @@ import { variantOf, type ThemeName } from './themes'
 export type ExcelPalette = Readonly<Record<ExcelThemeColorName, string>>
 
 /**
+ * The ten theme colours of Office 2013 - 2022, the theme of a new workbook of Excel. A colour picked for a cell is shown
+ * in them until the table is saved and read again in the colours of its own workbook.
+ */
+export const OFFICE_PALETTE: ExcelPalette = {
+    lt1: '#ffffff',
+    dk1: '#000000',
+    lt2: '#e7e6e6',
+    dk2: '#44546a',
+    accent1: '#4472c4',
+    accent2: '#ed7d31',
+    accent3: '#a5a5a5',
+    accent4: '#ffc000',
+    accent5: '#5b9bd5',
+    accent6: '#70ad47',
+}
+
+/**
  * How the tables of the workbooks are drawn under the theme in force. It is carried on the antd-style theme as
  * `table` (`styles/customToken.ts`), so every screen draws a table alike and a style reads its colours from there.
  *
@@ -112,7 +129,7 @@ const borderIn = (palette: ExcelPalette, border: RawTableCellBorder): RawTableCe
 }
 
 /** A style in the colours of a palette: its fill, its text and its lines. */
-const styleIn = (palette: ExcelPalette, style: RawTableCellStyle): RawTableCellStyle => {
+export const styleIn = (palette: ExcelPalette, style: RawTableCellStyle): RawTableCellStyle => {
     const background = repainted(palette, style.background, style.backgroundTheme)
     const color = repainted(palette, style.color, style.colorTheme)
     return {

@@ -22,6 +22,9 @@ const table: RawTableCell[][] = [
     [{ cell: 'A3', value: 12 }, { cell: 'B3', value: 'Good Afternoon' }],
 ]
 
+/** Blue, Accent 1, Lighter 60%. */
+const LIGHT_BLUE = { name: 'accent1' as const, tint: 0.6 }
+
 /** The table as the given steps leave it. */
 const after = (...steps: EditStep[]) => replay(table, steps)
 
@@ -154,6 +157,14 @@ describe('tableEdits', () => {
             const state = after({ kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } })
 
             expect(state.rows[1]?.[1]?.style?.bold).toBe(true)
+        })
+
+        it('draws a colour of the palette of Excel by its theme colour, in the colour of Office meanwhile', () => {
+            const state = after({ kind: 'style', at: { row: 1, column: 1 }, style: { backgroundTheme: LIGHT_BLUE } })
+
+            // A table drawn in the colours of OpenL Studio draws the theme colour; one that keeps the colours of its
+            // Excel file shows the colour of Office until the table is read again from its workbook.
+            expect(state.rows[1]?.[1]?.style).toEqual({ background: '#b4c7e7', backgroundTheme: LIGHT_BLUE })
         })
 
         it('carries the styling with the cell when a row is added above it', () => {
@@ -297,6 +308,13 @@ describe('tableEdits', () => {
             ])
         })
 
+        it('sends a colour of the palette of Excel as the theme colour, without the colour it is drawn in', () => {
+            const style = { colorTheme: { name: 'accent2' as const, tint: -0.25 } }
+
+            expect(sent({ kind: 'style', at: { row: 1, column: 1 }, style })).toEqual([
+                { operation: 'style', target: { type: 'cells', row: 1, column: 1, rowspan: 1, colspan: 1, style } },
+            ])
+        })
     })
 
     describe('the merges a line laid down or taken away leaves behind', () => {

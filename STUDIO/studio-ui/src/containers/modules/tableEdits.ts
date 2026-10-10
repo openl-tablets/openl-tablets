@@ -1,4 +1,5 @@
-import type { RawCellStyleInput, RawTableCell, RawTableCellInput, TableEdit } from 'types/tables'
+import { OFFICE_PALETTE, styleIn } from 'styles/tableColours'
+import type { RawCellStyleInput, RawTableCell, RawTableCellInput, RawTableCellStyle, TableEdit } from 'types/tables'
 
 /** Where a cell sits in the table, as it stands on screen. */
 export interface CellAt {
@@ -20,6 +21,19 @@ export type EditStep =
     | { kind: 'removeRow', at: number, lines: number }
     | { kind: 'insertColumn', at: number }
     | { kind: 'removeColumn', at: number, lines: number }
+
+/**
+ * The style of a cell with the styling the reader set laid over it.
+ *
+ * <p>A colour of the palette of Excel comes with the colour Office draws it in, which the table, shown in the
+ * formatting of its Excel file, shows until it is saved and read again in the colours of its own workbook.
+ *
+ * @param style the style of the cell, if it has one
+ * @param set   the styling the reader set
+ * @returns the style the cell is drawn with
+ */
+export const styledWith = (style: RawTableCellStyle | undefined, set: RawCellStyleInput): RawTableCellStyle =>
+    styleIn(OFFICE_PALETTE, { ...style, ...set })
 
 /** What the reader has done, and what they took back and may put again. */
 interface EditBuffer {
@@ -218,7 +232,7 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
                     state.touched.add(key)
                 } else {
                     state.styled.set(key, { ...state.styled.get(key), ...step.style })
-                    row[step.at.column] = { ...cell, style: { ...cell.style, ...step.style } }
+                    row[step.at.column] = { ...cell, style: styledWith(cell.style, step.style) }
                 }
             }
             return added

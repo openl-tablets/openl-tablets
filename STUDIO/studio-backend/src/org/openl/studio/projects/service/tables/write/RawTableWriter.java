@@ -41,6 +41,7 @@ import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.RawTableThemeColor;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
@@ -565,6 +566,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (style.isEmpty()) {
             throw new BadRequestException("table.action.style.empty.message");
         }
+        if (style.isColourTwice()) {
+            throw new BadRequestException("table.action.style.colour-twice.message");
+        }
         var developerView = developerView();
         var tableRegion = developerView.getRegion();
         requireRangeInBounds(row, column, rowspan, colspan, GridRegionUtils.height(tableRegion), GridRegionUtils.width(tableRegion));
@@ -588,6 +592,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             run(developerView, new SetFillColorAction(col, row, PoiExcelHelper.toRgb(style.background()),
                     metaInfoWriter));
         }
+        if (style.backgroundTheme() instanceof RawTableThemeColor colour) {
+            run(developerView, new SetFillColorAction(col, row, colour.themed(), metaInfoWriter));
+        }
         if (style.align() != null) {
             run(developerView, new SetAlignmentAction(col, row, alignment(style.align()), metaInfoWriter));
         }
@@ -605,6 +612,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         if (style.color() != null) {
             run(developerView, new SetColorAction(col, row, PoiExcelHelper.toRgb(style.color()), metaInfoWriter));
+        }
+        if (style.colorTheme() instanceof RawTableThemeColor colour) {
+            run(developerView, new SetColorAction(col, row, colour.themed(), metaInfoWriter));
         }
     }
 

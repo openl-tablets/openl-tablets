@@ -326,12 +326,21 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-bold-icon.png) | Make the text font **bold**.                            |
     | ![](images/edit-italic-icon.png) | Applies *italics* to the cell text.                     |
     | ![](images/edit-underline-icon.png) | Underlines the cell text.                               |
-    | ![](images/edit-fill-color-icon.png) | Sets the fill color.                                    |
-    | ![](images/edit-font-color-icon.png) | Sets the font color.                                    |
+    | ![](images/edit-fill-color-icon.png) | Sets the fill color to one of the theme colours of Excel. |
+    | ![](images/edit-font-color-icon.png) | Sets the font color to one of the theme colours of Excel. |
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
 
     The **Close** button at the end of the toolbar leaves the edit mode. When the table has unsaved changes, OpenL Studio asks whether to discard them.
+
+    **Fill Color** and **Font Color** offer the **Theme Colors** of the Excel palette: the ten theme colours in the
+    top row, and five lighter or darker shades of each under it. They are available with **Show Original Excel
+    Formatting** selected, as described in [Table Colours](#table-colours), so each colour is shown as Office shows it
+    in a new workbook. Pointing at a colour shows it on the selected cell before it is chosen.
+
+    A colour is saved into an `.xlsx` file as the theme colour itself, so the cell takes the colours of the theme of
+    the file, as a colour picked in Excel does. An `.xls` file and an `.xlsx` file without a theme get the colour
+    Office shows it in.
 
     A merged cell grows over the line laid down beside it, the way it does in Excel. A row inserted inside a
     merged group therefore has a cell only in the columns the group leaves free, and a row inserted under a

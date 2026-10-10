@@ -324,6 +324,8 @@ The answer is `204 No Content`, or `200 OK` with the new table id and the `Locat
 - `openl.error.400.table.action.merge.overlap.message` — the range overlaps a merged cell.
 - `openl.error.400.table.action.merge.data-loss.message` — the range holds more than one distinct value.
 - `openl.error.400.table.action.style.empty.message` — a style names no attribute.
+- `openl.error.400.table.action.style.colour-twice.message` — a style gives a colour both as `#rrggbb` and as a theme
+  colour.
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
   of them.
 
@@ -355,7 +357,10 @@ The `style` operation sets the style of every cell of a rectangle:
     "rowspan": 1,
     "colspan": 3,
     "style": {
-      "background": "#ffff00",
+      "backgroundTheme": {
+        "name": "accent1",
+        "tint": 0.6
+      },
       "color": "#0000ff",
       "align": "center",
       "bold": true,
@@ -365,8 +370,15 @@ The `style` operation sets the style of every cell of a rectangle:
 }
 ```
 
-- The `style` names the attributes to set: `background` and `color` as `#rrggbb`, `align`, `bold`, `italic`,
-  `underline`, and `indent` from 0 to 15. An attribute that is left out is not touched.
+- The `style` names the attributes to set: `background` and `color` as `#rrggbb`, `backgroundTheme` and `colorTheme`
+  as a theme colour, `align`, `bold`, `italic`, `underline`, and `indent` from 0 to 15. An attribute that is left out
+  is not touched.
+- A theme colour is one of the sixty colours of the palette of Excel, as a read reports it in
+  [Theme Colours](#theme-colours): `name` and an optional `tint` from -1 to 1. It is written into an `.xlsx` workbook
+  of a theme as the theme colour itself, so the cell takes the colours of the theme of the workbook. An `.xls`
+  workbook and an `.xlsx` one without a theme get the colour Office 2013 - 2022 draws it in.
+- A colour is given either as `#rrggbb` or as a theme colour: a style giving `background` and `backgroundTheme`, or
+  `color` and `colorTheme`, is refused.
 - `align` set to `left` puts the cells back to the default alignment. `indent` set to `0` takes the indent away.
 - A style that names no attribute is refused.
 - The attributes are the ones of a styled read, except the borders and the vertical alignment, which are read-only.

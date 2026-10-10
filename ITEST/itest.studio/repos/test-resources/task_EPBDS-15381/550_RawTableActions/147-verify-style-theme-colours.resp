@@ -1,0 +1,50 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5bd8922c903afffdfb749b3841eddcf1",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:D12",
+  "source": [
+    [
+      {
+        "cell": "B10",
+        "value": 12,
+        "style": {
+          "background": "#83cceb",
+          "color": "#be5014",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C10",
+        "value": 18,
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D10",
+        "value": "Good Afternoon"
+      }
+    ]
+  ],
+  "totalRows": 9,
+  "headerHeight": 4
+}

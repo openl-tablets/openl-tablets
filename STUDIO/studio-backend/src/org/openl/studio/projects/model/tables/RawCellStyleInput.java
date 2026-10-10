@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -18,13 +19,19 @@ import org.jspecify.annotations.Nullable;
  * <p>The attributes are the ones the raw read reports back, except the borders and the vertical alignment, which
  * are read-only.
  *
- * @param background background colour as {@code #rrggbb}
- * @param color      font colour as {@code #rrggbb}
- * @param align      horizontal alignment; {@code left} puts a cell back to the default
- * @param bold       whether the font is bold
- * @param italic     whether the font is italic
- * @param underline  whether the font is underlined
- * @param indent     left indent in Excel indent units; {@code 0} takes the indent away
+ * <p>A colour is given either as {@code #rrggbb} or as a theme colour of Excel, not both. A theme colour is written
+ * into an {@code .xlsx} workbook of a theme as the theme colour itself, so the cell takes the colours of the theme of
+ * the workbook. A workbook without a theme, such as an {@code .xls} one, takes the colour Office draws it in.
+ *
+ * @param background      background colour as {@code #rrggbb}
+ * @param backgroundTheme background colour as a theme colour of Excel, made lighter or darker
+ * @param color           font colour as {@code #rrggbb}
+ * @param colorTheme      font colour as a theme colour of Excel, made lighter or darker
+ * @param align           horizontal alignment; {@code left} puts a cell back to the default
+ * @param bold            whether the font is bold
+ * @param italic          whether the font is italic
+ * @param underline       whether the font is underlined
+ * @param indent          left indent in Excel indent units; {@code 0} takes the indent away
  * @author Vladyslav Pikus
  */
 @Schema(description = """
@@ -35,9 +42,19 @@ public record RawCellStyleInput(
         @Pattern(regexp = "^#[0-9a-fA-F]{6}$")
         @Nullable String background,
 
+        @Parameter(description = "Background colour as a theme colour of Excel, made lighter or darker; not given "
+                + "together with background.")
+        @Valid
+        @Nullable RawTableThemeColor backgroundTheme,
+
         @Parameter(description = "Font colour as #rrggbb.")
         @Pattern(regexp = "^#[0-9a-fA-F]{6}$")
         @Nullable String color,
+
+        @Parameter(description = "Font colour as a theme colour of Excel, made lighter or darker; not given together "
+                + "with color.")
+        @Valid
+        @Nullable RawTableThemeColor colorTheme,
 
         @Parameter(description = "Horizontal alignment; `left` puts the cells back to the default alignment.")
         @Nullable RawTableHorizontalAlign align,
@@ -61,11 +78,19 @@ public record RawCellStyleInput(
     @JsonIgnore
     public boolean isEmpty() {
         return background == null
+                && backgroundTheme == null
                 && color == null
+                && colorTheme == null
                 && align == null
                 && bold == null
                 && italic == null
                 && underline == null
                 && indent == null;
+    }
+
+    /** Whether the request names a colour twice: both as {@code #rrggbb} and as a theme colour of Excel. */
+    @JsonIgnore
+    public boolean isColourTwice() {
+        return (background != null && backgroundTheme != null) || (color != null && colorTheme != null);
     }
 }

@@ -21,7 +21,7 @@ import {
 } from '@ant-design/icons'
 import { Button, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
-import type { RawCellStyleInput, RawTableCell } from 'types/tables'
+import type { RawCellStyleInput, RawTableCell, RawTableThemeColor } from 'types/tables'
 import type { CellAt } from './tableEdits'
 import { CellColourPicker } from './CellColourPicker'
 import { useStyles } from './TableEditToolbar.styles'
@@ -134,9 +134,11 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     const format: typeof action = (key, icon, onClick, options = {}) =>
         action(key, icon, onClick, unformattable === null ? options : { ...options, disabled: true, why: unformattable })
 
-    /** A colour of the picked cell, which is off where every formatting action is. */
-    const colour = (key: string, icon: React.ReactNode, styled: (chosen: string) => RawCellStyleInput,
-        value: string) => (
+    /**
+     * A colour of the picked cell, one of the sixty colours of the palette of Excel, which is off where every formatting
+     * action is.
+     */
+    const colour = (key: string, icon: React.ReactNode, styled: (chosen: RawTableThemeColor) => RawCellStyleInput) => (
         <CellColourPicker
             className={styles.button}
             disabled={unformattable !== null || picked === null}
@@ -145,7 +147,6 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             onPreview={chosen => onPreview(chosen === null ? null : styled(chosen))}
             testId={`table-edit-${key}`}
             title={unformattable ?? t(`browser.module.edit_${key}`)}
-            value={value}
         />
     )
 
@@ -201,9 +202,8 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {format('underline', <UnderlineOutlined />, () => onStyle({ underline: !style?.underline }),
                 { on: !!style?.underline })}
             {rule}
-            {colour('fill_colour', <BgColorsOutlined />, chosen => ({ background: chosen }),
-                style?.background ?? '#ffffff')}
-            {colour('font_colour', <FontColorsOutlined />, chosen => ({ color: chosen }), style?.color ?? '#000000')}
+            {colour('fill_colour', <BgColorsOutlined />, chosen => ({ backgroundTheme: chosen }))}
+            {colour('font_colour', <FontColorsOutlined />, chosen => ({ colorTheme: chosen }))}
             {rule}
             {action('outdent', <MenuUnfoldOutlined />,
                 () => onStyle({ indent: Math.max(0, (style?.indent ?? 0) - INDENT_STEP) }),

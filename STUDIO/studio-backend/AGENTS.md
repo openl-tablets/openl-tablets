@@ -196,7 +196,7 @@ that read `test-table-themes/*.yaml`; see `Docs/api/raw-tables-api.md` for the e
   with `styles=true` reports the formatting of the workbook as it is, its colours as `#rrggbb` alone: the screen draws
   it as Excel does, with **Show Original Excel Formatting**.
 - **A theme colour is written as the theme colour into every workbook of a theme.** An `.xlsx` workbook with a theme
-  part (`ThemeExcelWriter.hasTheme`) is written every colour as its theme colour, whatever the theme colours of the
+  part (`PoiExcelHelper.hasTheme`) is written every colour as its theme colour, whatever the theme colours of the
   workbook are, so the table takes the colours of the theme of the workbook in Excel and the palette of Excel offers
   them. An `.xls` workbook and an `.xlsx` one without a theme part are written the RGB Office 2013 - 2022 draws the
   colour in, the nearest one an `.xls` palette holds. A cell holding the colour the other way round, RGB for a theme

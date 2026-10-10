@@ -30,6 +30,7 @@ import {
     rowAsRead,
     rowDrawnFrom,
     sameCell,
+    styledWith,
     undo,
     withStep,
 } from './tableEdits'
@@ -421,13 +422,13 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * <p>A colour shown this way is not an edit: it is not kept, cannot be taken back, and reaches no save.
      */
     const shown = useMemo(() => {
-        const cell = preview === null || picked === null ? undefined : written[picked.row]?.[picked.column]
-        if (cell === undefined || picked === null) {
+        const cell = picked === null ? undefined : written[picked.row]?.[picked.column]
+        if (preview === null || cell === undefined || picked === null) {
             return written
         }
         const rowsShown = [...written]
         const row = [...(rowsShown[picked.row] ?? [])]
-        row[picked.column] = { ...cell, style: { ...cell.style, ...preview } }
+        row[picked.column] = { ...cell, style: styledWith(cell.style, preview) }
         rowsShown[picked.row] = row
         return rowsShown
     }, [written, picked, preview])

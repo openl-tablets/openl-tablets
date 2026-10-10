@@ -26880,6 +26880,9 @@ Content-Type: application/json
             "description": "***",
             "pattern": "^#[0-9a-fA-F]{6}$"
           },
+          "backgroundTheme": {
+            "$ref": "#/components/schemas/RawTableThemeColor"
+          },
           "bold": {
             "type": "boolean",
             "description": "***"
@@ -26888,6 +26891,9 @@ Content-Type: application/json
             "type": "string",
             "description": "***",
             "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "colorTheme": {
+            "$ref": "#/components/schemas/RawTableThemeColor"
           },
           "indent": {
             "type": "integer",
@@ -27303,9 +27309,16 @@ Content-Type: application/json
           "tint": {
             "type": "number",
             "format": "double",
-            "description": "***"
+            "description": "***",
+            "exclusiveMaximum": false,
+            "exclusiveMinimum": false,
+            "maximum": 1,
+            "minimum": -1
           }
-        }
+        },
+        "required": [
+          "name"
+        ]
       },
       "RawTableView": {
         "type": "object",

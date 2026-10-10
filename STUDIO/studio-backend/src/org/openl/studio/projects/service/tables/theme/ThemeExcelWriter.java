@@ -104,7 +104,7 @@ public final class ThemeExcelWriter {
     private void write(ThemedTable layout, IGridTable grid) {
         var sheet = ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite();
         var looks = workbooks.computeIfAbsent(sheet.getWorkbook(),
-                workbook -> new WorkbookLooks(workbook, hasTheme(workbook)));
+                workbook -> new WorkbookLooks(workbook, PoiExcelHelper.hasTheme(workbook)));
         layout.cells().forEach((at, themed) -> {
             var cell = PoiExcelHelper.getOrCreateCell(at.column(), at.row(), sheet);
             var original = cell.getCellStyle();
@@ -141,11 +141,6 @@ public final class ThemeExcelWriter {
             cell.setBlank();
         }
         cell.setCellValue(rich);
-    }
-
-    /** Whether a workbook has a theme to draw a theme colour from: an {@code .xlsx} one with a theme part. */
-    private static boolean hasTheme(Workbook workbook) {
-        return workbook instanceof XSSFWorkbook xssf && xssf.getStylesSource().getTheme() != null;
     }
 
     /**

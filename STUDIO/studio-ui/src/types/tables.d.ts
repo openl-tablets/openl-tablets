@@ -148,10 +148,10 @@ interface RawTableCellMetaInfo {
 
 /** The styling to set on cells; an attribute left out is not touched. */
 export interface RawCellStyleInput {
-    /** Background colour as #rrggbb */
-    background?: string
-    /** Font colour as #rrggbb */
-    color?: string
+    /** The background as one of the sixty colours of the palette of Excel, written as the theme colour it is */
+    backgroundTheme?: RawTableThemeColor
+    /** The font colour as one of the sixty colours of the palette of Excel, written as the theme colour it is */
+    colorTheme?: RawTableThemeColor
     /** Horizontal alignment; `left` puts the cells back to the default */
     align?: 'left' | 'center' | 'right' | 'justify'
     bold?: boolean

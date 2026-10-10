@@ -41,6 +41,8 @@ import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.RawTableThemeColor;
+import org.openl.studio.projects.model.tables.RawTableThemeColorName;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
@@ -156,7 +158,7 @@ class RawTableWriterTest {
 
     @Test
     void setsTheStylingOfEveryCellOfARange() {
-        apply(style(1, 0, 3, 2, new RawCellStyleInput("#ffff00", "#ff0000",
+        apply(style(1, 0, 3, 2, new RawCellStyleInput("#ffff00", null, "#ff0000", null,
                 RawTableHorizontalAlign.CENTER, true, true, true, 2)));
 
         var source = reloadStyled(mainProject);
@@ -234,8 +236,8 @@ class RawTableWriterTest {
 
     @Test
     void leavesTheAttributesAStyleDoesNotNameAsTheyStand() {
-        apply(style(1, 1, 1, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
-        apply(style(1, 1, 1, 1, new RawCellStyleInput("#00ff00", null, null, null, null, null, null)));
+        apply(style(1, 1, 1, 1, new RawCellStyleInput(null, null, null, null, null, true, null, null, null)));
+        apply(style(1, 1, 1, 1, new RawCellStyleInput("#00ff00", null, null, null, null, null, null, null, null)));
 
         var styled = styleOf(reloadStyled(mainProject), 1, 1);
         assertEquals("#00ff00", styled.background());
@@ -244,13 +246,38 @@ class RawTableWriterTest {
     }
 
     @Test
+    void writesAThemeColourOfExcelAsTheColourOfficeDrawsIntoAWorkbookWithoutATheme() {
+        var lightBlue = new RawTableThemeColor(RawTableThemeColorName.ACCENT1, 0.6);
+        var darkOrange = new RawTableThemeColor(RawTableThemeColorName.ACCENT2, -0.25);
+        apply(style(1, 1, 1, 1,
+                new RawCellStyleInput(null, lightBlue, null, darkOrange, null, null, null, null, null)));
+
+        // A workbook without a theme holds the colours as Office 2013 - 2022 draws them.
+        var styled = styleOf(reloadStyled(mainProject), 1, 1);
+        assertEquals("#b4c6e7", styled.background());
+        assertEquals("#c65911", styled.color());
+    }
+
+    @Test
+    void rejectsAColourGivenBothAsRgbAndAsAThemeColour() {
+        var lightBlue = new RawTableThemeColor(RawTableThemeColorName.ACCENT1, 0.6);
+
+        assertBadRequest(style(1, 0, 1, 1,
+                new RawCellStyleInput("#ffff00", lightBlue, null, null, null, null, null, null, null)));
+        assertBadRequest(style(1, 0, 1, 1,
+                new RawCellStyleInput(null, null, "#ff0000", lightBlue, null, null, null, null, null)));
+    }
+
+    @Test
     void rejectsAStyleThatNamesNoAttribute() {
-        assertBadRequest(style(1, 0, 1, 1, new RawCellStyleInput(null, null, null, null, null, null, null)));
+        assertBadRequest(style(1, 0, 1, 1,
+                new RawCellStyleInput(null, null, null, null, null, null, null, null, null)));
     }
 
     @Test
     void rejectsAStyleRangeReachingOutsideTheTable() {
-        assertBadRequest(style(3, 0, 2, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
+        assertBadRequest(style(3, 0, 2, 1,
+                new RawCellStyleInput(null, null, null, null, null, true, null, null, null)));
     }
 
     @Test

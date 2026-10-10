@@ -89,16 +89,13 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
     })
 
-    it('opens on the palette and puts the full picker in its place only when asked', async () => {
+    it('opens on the sixty colours of the palette of Excel', async () => {
         draw()
 
         await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+
         expect(await screen.findByTestId('table-edit-palette')).toBeInTheDocument()
-
-        await userEvent.click(screen.getByTestId('table-edit-fill_colour-more'))
-
-        // One of the two at a time: the palette gives up its place rather than sitting behind the picker.
-        expect(screen.queryByTestId('table-edit-palette')).not.toBeInTheDocument()
+        expect(screen.getAllByTestId('table-edit-swatch')).toHaveLength(60)
     })
 
     it('shows a colour on the cell while the pointer rests on it, and takes it back off', async () => {
@@ -109,7 +106,7 @@ describe('TableEditToolbar', () => {
         const first = swatches[0] as HTMLElement
 
         await userEvent.hover(first)
-        expect(acted.onPreview).toHaveBeenLastCalledWith({ background: '#FFFFFF' })
+        expect(acted.onPreview).toHaveBeenLastCalledWith({ backgroundTheme: { name: 'lt1' } })
         // Nothing is written by looking: the colour is on the cell, not in what the table will be saved as.
         expect(acted.onStyle).not.toHaveBeenCalled()
 
@@ -122,10 +119,20 @@ describe('TableEditToolbar', () => {
 
         await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
         const swatches = await screen.findAllByTestId('table-edit-swatch')
+        await userEvent.click(swatches[14] as HTMLElement)
+
+        expect(acted.onStyle).toHaveBeenCalledWith({ backgroundTheme: { name: 'accent1', tint: 0.8 } })
+        expect(acted.onPreview).toHaveBeenLastCalledWith(null)
+    })
+
+    it('colours the text of the cell with the colour the reader settles on', async () => {
+        const acted = draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-font_colour'))
+        const swatches = await screen.findAllByTestId('table-edit-swatch')
         await userEvent.click(swatches[1] as HTMLElement)
 
-        expect(acted.onStyle).toHaveBeenCalledWith({ background: '#FFDDDD' })
-        expect(acted.onPreview).toHaveBeenLastCalledWith(null)
+        expect(acted.onStyle).toHaveBeenCalledWith({ colorTheme: { name: 'dk1' } })
     })
 
     it('sets the font of the picked cell', async () => {
