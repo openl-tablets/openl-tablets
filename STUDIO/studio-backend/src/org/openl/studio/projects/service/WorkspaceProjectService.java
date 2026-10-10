@@ -29,6 +29,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -53,6 +54,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.ChangedOutsideException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.project.abstraction.RepositoryWriteException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -1021,8 +1023,23 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 var files = changed.getPaths().stream().map(path -> path.substring(1)).toList();
                 throw new ConflictException("project.save.changed.outside.message", String.join(", ", files));
             }
+            if (e instanceof RepositoryWriteException failed) {
+                throw repositoryFailed(project, failed);
+            }
             throw e;
         }
+    }
+
+    /**
+     * The answer to a save the design repository could not store: a database or a remote that cannot be reached, a
+     * folder that cannot be written. It names the repository and what it answered, rather than that the save failed.
+     */
+    private static ConflictException repositoryFailed(RulesProject project, RepositoryWriteException e) {
+        log.error("Failed to save the '{}' project.", project.getBusinessName(), e);
+        var cause = ExceptionUtils.getRootCause(e);
+        return new ConflictException("project.save.repository.failed.message",
+                e.getRepositoryName(),
+                Objects.requireNonNullElse(cause.getMessage(), cause.getClass().getSimpleName()));
     }
 
     /**
