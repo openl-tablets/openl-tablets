@@ -4,7 +4,7 @@
 
 - No PR is open: #2284 merged the day it opened. Cut a fresh branch off a re-fetched `origin/main` once a
   finding is proven.
-- All 14 change types are exhausted repo-wide; the last full sweep ran at `origin/main` 160cdba858. A run is:
+- All 14 change types are exhausted repo-wide; the last delta sweep ran at `origin/main` 4ec4024705. A run is:
   maintain the open PR, sweep the delta since that SHA, then spend the rest on a NEW vein.
 - Only documentation, build config, i18n keys and dead TS imports have ever paid. The release-note vein is the best
   one: re-run it whenever guides or release notes change.
@@ -245,6 +245,8 @@
 - Merging a module into another leaves NOTHING dead in the build: after five STUDIO modules folded into webstudio,
   the module list, the merged pom's 65 deps and the per-vendor flyway resources were clean; only Docs went stale.
 - TS interface and type MEMBERS swept by identifier index: 1 candidate, an API payload FP. Closed.
+- antd-style `createStyles` keys (695 in 107 files): every key without a `.key` read is picked by `styles[KIND[k]]`
+  or a string-union type naming it (HighlightState). Closed.
 - Veins probed and closed at zero: Maven profiles, npm dependencies, orphaned `package-info.java`, empty tracked
   files, production types referenced only from tests, container registrations (web.xml and all 8 `@WebFilter`
   /`@WebServlet`), JSF-era orphans, pom file-path references, Spring XML beans, duplicate declarations across 209
@@ -281,8 +283,6 @@
 
 ## Run log
 
-- 2026-09-30: delta was the EPBDS-16781 merge of five STUDIO modules into webstudio. The new release-note vein
-  paid 6 documentation removals and the i18n pass 1 key; #2212 MERGED (-72) within the hour.
 - 2026-10-03: delta was 221 files — a 40-commit Docs rewrite wave and a Sonar S107 refactor wave. Reactor green
   in 31:14 from a cold `~/.m2`. Ten veins re-ran at zero (images, release notes, Docs links and tokens, orphan
   pages, allowed-links, Jekyll partials, @Profile, Error Prone, dependency:analyze-only's 69 hits). One finding:
@@ -290,3 +290,5 @@
 - 2026-10-08: delta was 89 commits — the studio-backend rename, table themes, trace, 7.0.0 migration notes. PMD
   (57 hits), Error Prone, dependency:analyze (69), i18n (1,722 keys), bundles, npm, images, Docs settings and
   release notes re-ran at zero. tsc found 7 dead React imports; #2284 MERGED (-7).
+- 2026-10-10: delta was 66 commits (xls cell merge, pending changes, restored operators). Reactor green in 29:10
+  cold; Error Prone, PMD (29), tsc, i18n (1,729 keys), bundles, Docs tokens, imports re-ran at zero. No PR.
