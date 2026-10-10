@@ -185,4 +185,27 @@ describe('isFormValuesEqual', () => {
         expect(isFormValuesEqual({ settings: settings1 }, { settings: settings2 })).toBe(true)
         expect(isFormValuesEqual({ settings: settings1 }, { settings: settings3 })).toBe(false)
     })
+
+    it('compares a setting fixed by an environment variable by its value, as the field shows it', () => {
+        const saved = {
+            id: 'openl-rating',
+            name: { value: 'openl-rating', readOnly: true },
+            settings: { uri: { value: '/opt/openl/local/repositories/openl-rating', readOnly: true } },
+        }
+        const shown = {
+            id: 'openl-rating',
+            name: 'openl-rating',
+            settings: { uri: '/opt/openl/local/repositories/openl-rating' },
+        }
+
+        expect(isFormValuesEqual(shown, saved)).toBe(true)
+        expect(isFormValuesEqual({ ...shown, name: 'renamed' }, saved)).toBe(false)
+    })
+
+    it('compares a group of settings that holds a readOnly one field by field', () => {
+        const saved = { settings: { readOnly: true, uri: '/mnt/rules' } }
+
+        expect(isFormValuesEqual({ settings: { readOnly: true, uri: '/mnt/other' } }, saved)).toBe(false)
+        expect(isFormValuesEqual({ settings: { readOnly: true, uri: '/mnt/rules' } }, saved)).toBe(true)
+    })
 })

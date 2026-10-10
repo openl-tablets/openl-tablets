@@ -73,8 +73,26 @@ const areSensitiveValuesEqual = (cur: unknown, sav: unknown): boolean => {
     return false
 }
 
+/** The parts the API wraps a setting in (`SettingValueWrapper`), and nothing else. */
+const WRAPPER_KEYS = new Set(['value', 'readOnly', 'secret'])
+
+/** Whether the setting is the wrapper the API sends, rather than a group of settings that holds a `readOnly` one. */
+const isWrapped = (setting: object): boolean =>
+    'readOnly' in setting && Object.keys(setting).every(key => WRAPPER_KEYS.has(key))
+
+/**
+ * The value of a setting an environment variable or another fixed source sets. The API sends such a setting as
+ * `{ value, readOnly }`, and the field of the form holds the value alone (`getFieldValueProps`).
+ */
+const valueOf = (setting: unknown): unknown =>
+    setting !== null && typeof setting === 'object' && !Array.isArray(setting) && isWrapped(setting)
+        ? (setting as { value?: unknown }).value
+        : setting
+
 /** Compares the form value of one field with its saved value, by the kind of value the field holds. */
-const areFieldValuesEqual = (cur: unknown, sav: unknown, currentFieldPath: string): boolean => {
+const areFieldValuesEqual = (formValue: unknown, savedValue: unknown, currentFieldPath: string): boolean => {
+    const cur = valueOf(formValue)
+    const sav = valueOf(savedValue)
     // Handle sensitive fields: treat empty/undefined as equal
     // This works for both top-level fields (password) and nested fields (settings.password)
     // InputPassword component automatically sets field to undefined when value.secret is true,
