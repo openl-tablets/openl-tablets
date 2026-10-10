@@ -12,6 +12,12 @@ interface UserStore {
     fetchUserProfile: () => Promise<void>
 }
 
+/**
+ * Whether the reader asks to see the tables in the formatting of their Excel files (**Show Original Excel Formatting**
+ * in My Settings), as the profile of the user says.
+ */
+export const excelFormattingOf = (state: UserStore): boolean => state.userProfile?.showExcelFormatting ?? false
+
 export const useUserStore = create<UserStore>((set) => ({
     userProfile: undefined,
     userDetails: undefined,

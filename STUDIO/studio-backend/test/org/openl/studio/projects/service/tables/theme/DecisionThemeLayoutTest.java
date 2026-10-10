@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -33,7 +34,6 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 class DecisionThemeLayoutTest {
 
     private static final String SHEET = "Rules";
-    private static final String THEME = "standard";
 
     /** The looks the standard theme gives the places of a decision table. */
     private static final String WHITE = "#ffffff";
@@ -95,8 +95,7 @@ class DecisionThemeLayoutTest {
 
     /** A theme giving each kind of decision table a look of its own. */
     private static final TableThemeService KINDS =
-            new TableThemeService("classpath*:test-table-themes/decision-kinds.yaml");
-    private static final String KINDS_THEME = "decision-kinds";
+            TestThemes.of("decision-kinds.yaml");
 
     /**
      * A theme giving the tables that declare what decision tables take the look of a Rules table, as the shipped themes
@@ -104,7 +103,6 @@ class DecisionThemeLayoutTest {
      * draws them.
      */
     private static final TableThemeService LOOKS = TestThemes.everyKind();
-    private static final String LOOKS_THEME = TestThemes.EVERY_KIND;
 
     private final TableThemeService service = new TableThemeService();
 
@@ -119,7 +117,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForEveryKindOfDecisionTable() {
         for (var name : List.of(GREET, GREET_ROUND, GREETING, HELLO, RATE, FACTOR)) {
-            assertEquals(service.getThemes(), service.getThemes(table(name)), name);
+            assertTrue(service.styles(table(name)), name);
         }
     }
 
@@ -319,16 +317,16 @@ class DecisionThemeLayoutTest {
         assertEquals("#ddebf7", returnOf(GREET, GREET_ROW + 5, 4));
         assertEquals("#ddebf7", returnOf(GREETING, GREETING_ROW + 2, 2), "A SimpleRules looks like a Rules table");
         assertEquals("#e2efda", returnOf(HELLO, HELLO_ROW + 2, 3), "A SmartRules changes what it returns");
-        assertEquals(Boolean.TRUE, KINDS.layoutOf(table(HELLO), KINDS_THEME).at(HELLO_ROW + 1, 2).style().bold(),
+        assertEquals(Boolean.TRUE, KINDS.layoutOf(table(HELLO)).at(HELLO_ROW + 1, 2).style().bold(),
                 "and keeps the rest of the look of a Rules table");
         assertEquals("#fff2cc", returnOf(RATE, RATE_ROW + 2, 3), "A SimpleLookup writes a look of its own");
-        assertNull(KINDS.layoutOf(table(RATE), KINDS_THEME).at(RATE_ROW + 1, 1).style().bold());
+        assertNull(KINDS.layoutOf(table(RATE)).at(RATE_ROW + 1, 1).style().bold());
         assertNull(returnOf(FACTOR, FACTOR_ROW + 3, 2), "A SmartLookup the theme writes nothing for takes the base");
     }
 
     @Test
     void givesADecisionTableThatDidNotCompileTheBaseAlone() {
-        var layout = service.layoutOf(tableAt(BROKEN_ROW), THEME);
+        var layout = service.layoutOf(tableAt(BROKEN_ROW));
 
         // The header is signed as the header of every table is; the body takes the look every cell starts from.
         assertEquals(ThemeLineStyle.THIN, bottom(layout.at(BROKEN_ROW, 1)));
@@ -339,7 +337,7 @@ class DecisionThemeLayoutTest {
 
     @Test
     void writesTheLookOfADecisionTableIntoTheWorkbook() throws IOException {
-        service.writer(THEME).writeAll(List.of(table(GREET)), Map.of());
+        service.writer().writeAll(List.of(table(GREET)), Map.of());
 
         var written = read(GREET);
         assertEquals(List.of("Rules", " ", "String", " ", GREET, " ", "( String day, Integer hour )"),
@@ -361,7 +359,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForATableThatDeclaresWhatDecisionTablesTake() {
         for (var row : List.of(CONDITIONS_ROW, ACTIONS_ROW, HOURS_ROW, RETURNS_ROW)) {
-            assertEquals(service.getThemes(), service.getThemes(tableAt(row)), "row " + row);
+            assertTrue(service.styles(tableAt(row)), "row " + row);
         }
     }
 
@@ -458,17 +456,17 @@ class DecisionThemeLayoutTest {
 
     @Test
     void givesEachKindOfDeclarationTableTheLookTheThemeWritesForIt() {
-        assertEquals("#fce4d6", KINDS.layoutOf(tableAt(CONDITIONS_ROW), KINDS_THEME)
+        assertEquals("#fce4d6", KINDS.layoutOf(tableAt(CONDITIONS_ROW))
                 .at(CONDITIONS_ROW + 4, 2).style().background().rgb(), "A Conditions table fills its titles");
-        assertEquals("#e2efda", KINDS.layoutOf(tableAt(RETURNS_ROW), KINDS_THEME)
+        assertEquals("#e2efda", KINDS.layoutOf(tableAt(RETURNS_ROW))
                 .at(RETURNS_ROW + 2, 1).style().background().rgb(), "A Returns table writes a look of its own");
-        assertNull(KINDS.layoutOf(tableAt(ACTIONS_ROW), KINDS_THEME).at(ACTIONS_ROW + 4, 1).style().background(),
+        assertNull(KINDS.layoutOf(tableAt(ACTIONS_ROW)).at(ACTIONS_ROW + 4, 1).style().background(),
                 "An Actions table the theme writes nothing for takes the base alone");
     }
 
     @Test
     void writesTheLookOfAConditionsTableIntoTheWorkbook() {
-        LOOKS.writer(LOOKS_THEME).writeAll(List.of(tableAt(CONDITIONS_ROW)), Map.of());
+        LOOKS.writer().writeAll(List.of(tableAt(CONDITIONS_ROW)), Map.of());
 
         var written = TableTestProjects.styledSource(tableAt(CONDITIONS_ROW));
         assertEquals(List.of("Conditions", " ", "AgeBand"),
@@ -488,17 +486,17 @@ class DecisionThemeLayoutTest {
     }
 
     private ThemedTable layoutOf(String name) {
-        return service.layoutOf(table(name), THEME);
+        return service.layoutOf(table(name));
     }
 
     /** The look of a table that declares what decision tables take, found by the row its header stands in. */
     private ThemedTable layoutAt(int row) {
-        return LOOKS.layoutOf(tableAt(row), LOOKS_THEME);
+        return LOOKS.layoutOf(tableAt(row));
     }
 
     /** The fill the theme giving each kind a look of its own gives a cell of a table. */
     private @Nullable String returnOf(String name, int row, int column) {
-        var background = KINDS.layoutOf(table(name), KINDS_THEME).at(row, column).style().background();
+        var background = KINDS.layoutOf(table(name)).at(row, column).style().background();
         return Optional.ofNullable(background).map(ThemeColour::rgb).orElse(null);
     }
 

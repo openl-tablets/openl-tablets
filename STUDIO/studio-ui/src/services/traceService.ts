@@ -228,19 +228,20 @@ export const traceService = {
         ),
 
     /**
-     * Get the raw grid of a table (Tables API). The structure is immutable during a session, so the
-     * client fetches it once per table and overlays per-step highlights on top.
+     * Get the raw grid of a table (Tables API), formatted with the table theme or, where the reader asks for it, with
+     * the formatting of its Excel file. The structure is immutable during a session, so the client fetches it once
+     * per table and overlays per-step highlights on top.
      */
     getRawTable: async (
         projectId: string,
         tableId: string,
         maxRows?: number,
-        styles?: boolean
+        excelFormatting = false
     ): Promise<RawTableView> => {
         const cap = maxRows != null ? `&maxRows=${maxRows}` : ''
-        const withStyles = styles ? '&styles=true' : ''
+        const formatting = excelFormatting ? '&styles=true' : '&tableTheme=true'
         return retryApiCall<RawTableView>(
-            `/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}?raw=true${cap}${withStyles}`,
+            `/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}?raw=true${cap}${formatting}`,
             undefined,
             TRACE_API_OPTIONS
         )

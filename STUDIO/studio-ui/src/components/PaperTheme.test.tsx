@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 import { theme as antdTheme } from 'antd'
 import { describe, expect, it } from 'vitest'
 import { PaperTheme } from './PaperTheme'
-import { renderInTheme } from '../testing/theme'
+import { renderInTheme, tokenFor } from '../testing/theme'
 
 /** What an Ant Design control inside would be drawn with. */
 const TokenProbe = () => {
@@ -17,11 +17,18 @@ const TokenProbe = () => {
     )
 }
 
-const renderOnPaper = (compact = false) =>
-    renderInTheme(<PaperTheme><TokenProbe /></PaperTheme>, { theme: 'dracula', mode: 'dark', compact })
+const renderOnPaper = (compact = false, excelFormatting = true) => renderInTheme(<PaperTheme><TokenProbe /></PaperTheme>,
+    { theme: 'dracula', mode: 'dark', compact, excelFormatting })
 
 describe('PaperTheme', () => {
-    it('draws the controls inside it in Ant Design\'s own light appearance, whatever the theme', () => {
+    it('draws the controls inside it in the theme of the application, as the tables are drawn', () => {
+        renderOnPaper(false, false)
+
+        expect(screen.getByTestId('background')).toHaveTextContent(tokenFor('dracula', true).colorBgContainer)
+        expect(screen.getByTestId('primary')).toHaveTextContent(tokenFor('dracula', true).colorPrimary)
+    })
+
+    it('draws the controls in Ant Design\'s own light appearance on the paper of an Excel file', () => {
         const light = antdTheme.getDesignToken()
 
         renderOnPaper()
@@ -32,7 +39,7 @@ describe('PaperTheme', () => {
         expect(screen.getByTestId('primary')).toHaveTextContent(light.colorPrimary)
     })
 
-    it('keeps the density in force', () => {
+    it('keeps the density in force on the paper of an Excel file', () => {
         renderOnPaper()
         const comfortable = Number(screen.getByTestId('height').textContent)
 

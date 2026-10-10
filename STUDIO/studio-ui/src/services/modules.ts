@@ -69,6 +69,16 @@ export const cancelModuleCompilation = async (projectId: string, moduleName: str
 export const TABLE_PAGE_ROWS = 2000
 
 /**
+ * How a read formats the cells of a table: with the table theme, as every table is shown, or with the formatting of
+ * its Excel file where the reader asks for that (**Show Original Excel Formatting** in My Settings).
+ *
+ * @param excelFormatting whether the tables keep the formatting of their Excel files
+ * @returns the options of the read that say so
+ */
+export const formattingOf = (excelFormatting: boolean): { styles: boolean, tableTheme: boolean } =>
+    ({ styles: excelFormatting, tableTheme: !excelFormatting })
+
+/**
  * One table as the workbook holds it — the cells with their spans and their Excel styling.
  *
  * This is the picture the editor shows. It is read per table, not with the list: a module can hold hundreds of
@@ -97,12 +107,12 @@ export const getRawTable = async (
         /** Ask what the table is as something to run: the editor offers Run and Trace on the answer. */
         runState?: boolean
         /**
-         * Draw the cells with this table theme, by its identifier: each cell the theme reaches comes in its look, in
-         * `style` and `runs`, the style naming the theme as its source. A view only, which no edit starts from: a table
-         * is edited from a read without the theme.
+         * Draw the cells with the table theme: each cell comes in the look of the theme alone, in `style` and `runs`,
+         * the style naming the theme as its source, and keeps nothing of the formatting of the workbook but its
+         * indent. A view only: the workbook is not changed.
          */
-        tableTheme?: string | undefined
-        /** Leave out the styles the workbook has; asked for by default. A read naming a theme reports the styles. */
+        tableTheme?: boolean
+        /** Leave out the styles the workbook has; asked for by default. A read naming a theme reports its look. */
         styles?: boolean
     } = {}
 ): Promise<RawTableView> => {
@@ -110,8 +120,8 @@ export const getRawTable = async (
     if (options.metaInfo) {
         params.set('metaInfo', 'true')
     }
-    if (options.tableTheme !== undefined) {
-        params.set('tableTheme', options.tableTheme)
+    if (options.tableTheme) {
+        params.set('tableTheme', 'true')
     }
     if (options.runState) {
         params.set('runState', 'true')

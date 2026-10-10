@@ -1,14 +1,13 @@
 # A theme whose base only a Datatype extends: every other kind of table takes the base alone.
-name: Datatype Extension
 
 base: &base
   style:
     italic: true
   lastRow:
     border:
-      bottom: {style: medium, color: "#ff0000"}
+      bottom: {style: medium, color: "Orange, Accent 2, Darker 25%"}
 
 datatype:
   <<: *base
   name:
-    background: "#fff2cc"
+    background: Gold, Accent 4, Lighter 80%

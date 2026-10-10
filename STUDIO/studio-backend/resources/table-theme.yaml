@@ -1,39 +1,21 @@
-# A table theme of OpenL Studio: the look it gives every table it styles, one part for each kind of table below.
-# The format and every attribute: OpenL Studio User Guide > Table Themes.
+# The table theme of OpenL Studio: the look it gives every table it styles, one part for each kind of table below.
+# OpenL Studio writes it into a table or into every table of a project, and shows it before it is written.
 #
 # Every attribute is optional: one the theme leaves out keeps what the cell has in the workbook.
 # The base is the skin every table shares; a kind of table extends it with what it changes, and takes the rest of the
-# base as it is. Every theme styles every kind: a kind the theme writes nothing for takes the base alone.
+# base as it is. The theme styles every kind: a kind it writes nothing for takes the base alone.
 #
 # The theme follows the formatting standard of OpenL tables. The base is its General section, which the standard
 # applies to every table, and the colours are the ones it names. The kinds the standard gives a look of their own
 # write it below: a Datatype and a Vocabulary, a Spreadsheet, a Data and a Test table, and the decision tables, the
 # rules and the lookups. Every other kind (tbasic, method, run, columnMatch, conditions, actions, returns,
 # environment, properties, constants) takes the base alone: the General format.
-
-name: Standard
-
-# The primary theme: listed before the others, so it is the one selected first when a theme is applied to a table or
-# to a project.
-primary: true
-
-# The theme colours of Excel the colours below are made of: Office 2013 - 2022, whose colours the standard names.
-# A workbook of these theme colours is written each colour as its theme colour, so Excel offers it in its palette;
-# any other workbook as #rrggbb, its theme left as it is.
-themeColors:
-  name: Office 2013 - 2022
-  background1: "#ffffff"
-  text1: "#000000"
-  background2: "#e7e6e6"
-  text2: "#44546a"
-  accent1: "#4472c4"
-  accent2: "#ed7d31"
-  accent3: "#a5a5a5"
-  accent4: "#ffc000"
-  accent5: "#5b9bd5"
-  accent6: "#70ad47"
-  hyperlink: "#0563c1"
-  followedHyperlink: "#954f72"
+#
+# Every colour is one of the sixty colours the palette of Excel offers for the theme of a workbook, written as the
+# palette names it, such as "Blue, Accent 1, Lighter 60%": a theme colour, lighter or darker. A workbook of a theme is
+# written each colour as its theme colour, so the table takes the colours of the theme of the workbook in Excel, and
+# the colours of the theme of OpenL Studio on its screen; a workbook without a theme, such as an .xls one, takes the
+# colour Office 2013 - 2022 draws it in.
 
 # The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place. Each
 # is a theme colour, written as the standard and the palette of Excel name it.

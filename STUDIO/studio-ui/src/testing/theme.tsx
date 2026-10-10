@@ -8,6 +8,8 @@ import { AppThemeProvider } from '../providers/AppThemeProvider'
 import { appTheme } from '../styles/appTheme'
 import { paletteOf, type Palette } from '../styles/listPageTheme'
 import type { ThemeName } from '../styles/themes'
+import { useUserStore } from '../store/userStore'
+import type { UserProfile } from '../types/user'
 import { storeCompactMode, storeThemeMode, storeThemeName } from '../utils/themeMode'
 
 /** The look a test draws in, as a reader would have picked it. */
@@ -15,18 +17,36 @@ interface Look {
     theme?: ThemeName
     mode?: ThemeMode
     compact?: boolean
+    /** Whether the reader asks, in My Settings, for the tables in the colours of their Excel files. */
+    excelFormatting?: boolean
+}
+
+/**
+ * Asks, as the reader does in My Settings, for the tables in the formatting and the colours of their Excel files.
+ *
+ * The profile of the user is put back when the test ends.
+ */
+export const showExcelFormatting = () => {
+    const { userProfile } = useUserStore.getState()
+    useUserStore.setState({ userProfile: { ...userProfile, showExcelFormatting: true } as UserProfile })
+    onTestFinished(() => useUserStore.setState({ userProfile }))
 }
 
 /**
  * Renders under the application's theme provider, in the look given.
  *
- * The look is put where the provider reads it — the browser's storage — and taken out again when the test ends.
+ * The look is put where the provider reads it — the browser's storage and the profile of the user — and taken out
+ * again when the test ends.
  */
-export const renderInTheme = (ui: ReactElement, { theme = 'standard', mode = 'light', compact = false }: Look = {}) => {
+export const renderInTheme = (ui: ReactElement,
+    { theme = 'standard', mode = 'light', compact = false, excelFormatting = false }: Look = {}) => {
     storeThemeName(theme)
     storeThemeMode(mode)
     storeCompactMode(compact)
     onTestFinished(() => localStorage.clear())
+    if (excelFormatting) {
+        showExcelFormatting()
+    }
     return render(<AppThemeProvider>{ui}</AppThemeProvider>)
 }
 

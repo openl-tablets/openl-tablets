@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.400.table.theme.unsupported.message",
-  "message": "Table themes style every table but a table of the type Other."
+  "message": "The table theme styles every table but a table of the type Other."
 }

@@ -1,12 +1,10 @@
 package org.openl.studio.projects.model.tables;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -74,20 +72,13 @@ public sealed interface RawTableSourceAction
     record Style(@NotNull @Valid StyleTarget target) implements RawTableSourceAction {
     }
 
-    /**
-     * Writes a table theme into a table of a kind the themes style, as the table was saved. The theme is the only edit
-     * of its change.
-     *
-     * @param theme the identifier of the theme, as the list of table themes names it
-     */
+    /** Writes the table theme into a table of a kind it styles, as the table was saved, with no other edit. */
     @Schema(name = "Theme", description = """
-            Writes a table theme into a table of any kind but `Other`, as the table was saved. The theme is applied \
-            on its own: a request holding it and another edit is refused. Only the look of the table changes: each \
-            cell keeps its value and every attribute the theme does not set. A table of the kind `Other` is \
-            refused.""")
-    record Theme(
-            @Parameter(description = "Identifier of the theme, as the list of table themes names it")
-            @NotBlank String theme) implements RawTableSourceAction {
+            Writes the table theme into a table of any kind but `Other`, as the table was saved, in the theme colours \
+            of Excel. The theme is applied on its own: a request holding it and another edit is refused. Only the \
+            look of the table changes: each cell keeps its value and every attribute the theme does not set. A table \
+            of the kind `Other` is refused.""")
+    record Theme() implements RawTableSourceAction {
     }
 
 }

@@ -2,20 +2,18 @@ package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -34,15 +32,13 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
- * Covers writing the colours a theme makes of the theme colours of Excel: as those theme colours into a workbook
- * whose theme colours are the ones of the theme, so Excel offers them in its palette, and as {@code #rrggbb} into any
- * other workbook, whose theme stays as it is.
+ * Covers writing the colours of the theme, each a theme colour of Excel: as that theme colour into a workbook of a
+ * theme, whatever its colours, so the table takes the colours of the theme of the workbook, and as {@code #rrggbb}
+ * into a workbook without a theme. The theme of a workbook stays as it is.
  */
-class ExcelThemeColoursTest {
+class ThemeExcelWriterColoursTest {
 
     private static final String SHEET = "Model";
-    private static final String THEME = "standard";
-    private static final String GREEN = "green";
 
     /** Where the Datatype the tests theme stands, and its cells: the type and the name of a field. */
     private static final int TYPE_ROW = 2;
@@ -55,7 +51,7 @@ class ExcelThemeColoursTest {
     private static final String FIELD_NAME_RGB = "#ddebf7";
     private static final String MUTED_RGB = "#808080";
 
-    /** The theme colours the standard theme makes its colours of, in the order a workbook numbers them. */
+    /** The theme colours of Office 2013 - 2022, in the order a workbook numbers them. */
     private static final String[] OFFICE = {"FFFFFF", "000000", "E7E6E6", "44546A", "4472C4", "ED7D31", "A5A5A5",
             "FFC000", "5B9BD5", "70AD47", "0563C1", "954F72"};
 
@@ -69,22 +65,10 @@ class ExcelThemeColoursTest {
     Path dir;
 
     @Test
-    void tellsTheThemeColoursOfAWorkbookByTheirColoursWhateverTheirName() throws IOException {
-        var colours = service.theme(THEME).themeColors();
-        try (var office = workbookOf(OFFICE); var trek = workbookOf(TREK); var unthemed = new XSSFWorkbook();
-             var xls = new HSSFWorkbook()) {
-            assertTrue(colours.areThoseOf(office), "Office 2013 - 2022, which the workbook names Test");
-            assertFalse(colours.areThoseOf(trek), "Another theme, though its first text and background are alike");
-            assertFalse(colours.areThoseOf(unthemed), "A workbook without a theme");
-            assertFalse(colours.areThoseOf(xls), "An .xls workbook");
-        }
-    }
-
-    @Test
-    void writesTheColoursOfAProjectAsTheThemeColoursOfAWorkbookOfThem() throws IOException {
+    void writesTheColoursOfAProjectAsTheThemeColoursOfTheWorkbook() throws IOException {
         writeProject(OFFICE, null);
 
-        service.writer(THEME).writeAll(List.of(person()), Map.of());
+        service.writer().writeAll(List.of(person()), Map.of());
 
         try (var workbook = workbook()) {
             // Every colour the theme makes of them is written as the theme colour it is, a font colour with its tint.
@@ -98,21 +82,21 @@ class ExcelThemeColoursTest {
     }
 
     @Test
-    void writesTheColoursAsRrggbbIntoAWorkbookOfOtherThemeColoursAndKeepsItsTheme() throws IOException {
+    void writesTheThemeColoursIntoAWorkbookOfAnotherThemeAndKeepsItsTheme() throws IOException {
         writeProject(TREK, null);
 
-        service.writer(THEME).writeAll(List.of(person()), Map.of());
+        service.writer().writeAll(List.of(person()), Map.of());
 
         try (var workbook = workbook()) {
             assertEquals(TREK[4], hex(workbook.getStylesSource().getTheme().getThemeColor(4)), "The theme stays");
             var fill = fillOf(workbook, TYPE_ROW, NAME);
-            assertNull(ThemedColor.of(fill), "Trek has another fifth accent");
-            assertEquals(FIELD_NAME_RGB, rgbOf(fill));
-            // A colour of a theme colour the workbook has alike is written as #rrggbb all the same.
-            var muted = fontColourOf(workbook, TYPE_ROW, TYPE);
-            assertNull(ThemedColor.of(muted), "Every colour of the theme is written one way");
-            assertEquals(MUTED_RGB, rgbOf(muted));
+            assertEquals(FIELD_NAME, ThemedColor.of(fill), "The fifth accent of Trek, lighter by 80%");
+            assertEquals(MUTED, ThemedColor.of(fontColourOf(workbook, TYPE_ROW, TYPE)));
         }
+        // The workbook draws them in the colours of its own theme.
+        var field = TableTestProjects.styledSource(person()).get(1);
+        assertNotEquals(FIELD_NAME_RGB, field.get(NAME - 1).style().background());
+        assertEquals(MUTED_RGB, field.get(TYPE - 1).style().color(), "White, as in Office, darker by half");
     }
 
     @Test
@@ -120,7 +104,7 @@ class ExcelThemeColoursTest {
         // The workbook has the theme colours, and the field name is filled with its colour as #rrggbb.
         writeProject(OFFICE, FIELD_NAME_RGB);
 
-        service.writer(THEME).writeAll(List.of(person()), Map.of());
+        service.writer().writeAll(List.of(person()), Map.of());
 
         try (var workbook = workbook()) {
             assertEquals(FIELD_NAME, ThemedColor.of(fillOf(workbook, TYPE_ROW, NAME)),
@@ -131,7 +115,7 @@ class ExcelThemeColoursTest {
     @Test
     void writingTheThemeColoursAgainAddsNoStylesOrFonts() throws IOException {
         writeProject(OFFICE, null);
-        service.writer(THEME).writeAll(List.of(person()), Map.of());
+        service.writer().writeAll(List.of(person()), Map.of());
         int fonts;
         int styles;
         try (var workbook = workbook()) {
@@ -139,7 +123,29 @@ class ExcelThemeColoursTest {
             styles = workbook.getNumCellStyles();
         }
 
-        service.writer(THEME).writeAll(List.of(person()), Map.of());
+        service.writer().writeAll(List.of(person()), Map.of());
+
+        try (var workbook = workbook()) {
+            assertEquals(fonts, workbook.getNumberOfFonts());
+            assertEquals(styles, workbook.getNumCellStyles());
+        }
+    }
+
+    @Test
+    void writingTheThemeColoursAgainAddsNoStylesOrFontsToAWorkbookOfAnotherTheme() throws IOException {
+        // The first background is ivory, so the muted keyword is drawn in another grey than the one of Office.
+        var ivory = OFFICE.clone();
+        ivory[0] = "FFFFF0";
+        writeProject(ivory, null);
+        service.writer().writeAll(List.of(person()), Map.of());
+        int fonts;
+        int styles;
+        try (var workbook = workbook()) {
+            fonts = workbook.getNumberOfFonts();
+            styles = workbook.getNumCellStyles();
+        }
+
+        service.writer().writeAll(List.of(person()), Map.of());
 
         try (var workbook = workbook()) {
             assertEquals(fonts, workbook.getNumberOfFonts());
@@ -149,17 +155,18 @@ class ExcelThemeColoursTest {
 
     @Test
     void writesALineOfAThemeColourAsTheThemeColour() throws IOException {
-        // The green theme draws its lines in Green, Accent 6, Darker 25%.
+        // A theme drawing its lines in Green, Accent 6, Darker 25%.
+        var lines = TestThemes.of("excel-theme-colours.yaml");
         writeProject(OFFICE, null);
-        service.writer(GREEN).writeAll(List.of(person()), Map.of());
+        lines.writer().writeAll(List.of(person()), Map.of());
         int styles;
         try (var workbook = workbook()) {
-            var line = styleOf(workbook, 1, TYPE).getBorderColor(BorderSide.BOTTOM);
-            assertEquals(new ThemedColor(9, -250), ThemedColor.of(line), "The line under the header");
+            var line = styleOf(workbook, 3, TYPE).getBorderColor(BorderSide.BOTTOM);
+            assertEquals(new ThemedColor(9, -250), ThemedColor.of(line), "The line under the last row");
             styles = workbook.getNumCellStyles();
         }
 
-        service.writer(GREEN).writeAll(List.of(person()), Map.of());
+        lines.writer().writeAll(List.of(person()), Map.of());
 
         try (var workbook = workbook()) {
             assertEquals(styles, workbook.getNumCellStyles(), "A line of the theme colour has the look");
@@ -167,7 +174,7 @@ class ExcelThemeColoursTest {
     }
 
     @Test
-    void writesOneTableOfAWorkbookOfTheThemeColoursInTheThemeColours() throws IOException {
+    void writesOneTableInTheThemeColours() throws IOException {
         writeProject(OFFICE, null);
 
         var workbook = writeOneTable();
@@ -177,22 +184,21 @@ class ExcelThemeColoursTest {
     }
 
     @Test
-    void writesOneTableOfAWorkbookOfOtherThemeColoursInRrggbb() throws IOException {
+    void writesOneTableOfAWorkbookOfAnotherThemeInTheThemeColours() throws IOException {
         writeProject(TREK, null);
 
         var workbook = writeOneTable();
 
         assertEquals(TREK[4], hex(workbook.getStylesSource().getTheme().getThemeColor(4)), "The theme stays");
-        assertEquals(FIELD_NAME_RGB, rgbOf(fillOf(workbook, TYPE_ROW, NAME)));
-        assertNull(ThemedColor.of(fillOf(workbook, TYPE_ROW, NAME)));
+        assertEquals(FIELD_NAME, ThemedColor.of(fillOf(workbook, TYPE_ROW, NAME)));
     }
 
     @Test
     void writesTheColoursOfAWorkbookWithoutAThemeInRrggbb() throws IOException {
         // A workbook a program wrote, rather than Excel, has no theme.
-        TableTestProjects.projectModel(dir, SHEET, ExcelThemeColoursTest::fillSheet);
+        TableTestProjects.projectModel(dir, SHEET, ThemeExcelWriterColoursTest::fillSheet);
 
-        service.writer(THEME).writeAll(List.of(person()), Map.of());
+        service.writer().writeAll(List.of(person()), Map.of());
 
         try (var workbook = workbook()) {
             assertNull(workbook.getStylesSource().getTheme(), "No theme is made for the workbook");
@@ -208,7 +214,7 @@ class ExcelThemeColoursTest {
         var grid = GridTableUtils.getOriginalTable(table.getGridTable());
         grid.edit();
         try {
-            assertTrue(service.writer(THEME).write(table, grid));
+            assertTrue(service.writer().write(table, grid));
             return (XSSFWorkbook) ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite().getWorkbook();
         } finally {
             grid.stopEditing();
@@ -240,8 +246,7 @@ class ExcelThemeColoursTest {
     /** A workbook whose theme has the given theme colours. */
     private static XSSFWorkbook workbookOf(String[] colours) throws IOException {
         var workbook = new XSSFWorkbook();
-        workbook.getStylesSource().ensureThemesTable();
-        workbook.getStylesSource().getTheme().readFrom(new ByteArrayInputStream(theme(colours)));
+        TableTestProjects.useTheme(workbook, colours);
         return workbook;
     }
 
@@ -249,35 +254,6 @@ class ExcelThemeColoursTest {
         TableTestProjects.row(sheet, 1, 1, "Datatype Person");
         TableTestProjects.row(sheet, TYPE_ROW, 1, "String", "name");
         TableTestProjects.row(sheet, 3, 1, "Integer", "age");
-    }
-
-    /**
-     * A theme of Excel of the given theme colours, its fonts those of Trek. The first text and background are the
-     * colours of a window, as Excel writes them.
-     */
-    private static byte[] theme(String[] colours) {
-        String[] slots = {"lt1", "dk1", "lt2", "dk2", "accent1", "accent2", "accent3", "accent4", "accent5",
-                "accent6", "hlink", "folHlink"};
-        var scheme = new StringBuilder("<a:dk1><a:sysClr val=\"windowText\" lastClr=\"%s\"/></a:dk1>"
-                .formatted(colours[1]))
-                .append("<a:lt1><a:sysClr val=\"window\" lastClr=\"%s\"/></a:lt1>".formatted(colours[0]));
-        // A workbook numbers the first background before the first text; its theme holds the text first.
-        for (var at : new int[]{3, 2, 4, 5, 6, 7, 8, 9, 10, 11}) {
-            scheme.append("<a:%1$s><a:srgbClr val=\"%2$s\"/></a:%1$s>".formatted(slots[at], colours[at]));
-        }
-        return """
-                <a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Test">
-                  <a:themeElements>
-                    <a:clrScheme name="Test">%s</a:clrScheme>
-                    <a:fontScheme name="Trek">
-                      <a:majorFont><a:latin typeface="Franklin Gothic Medium"/><a:ea typeface=""/><a:cs typeface=""/>
-                      </a:majorFont>
-                      <a:minorFont><a:latin typeface="Franklin Gothic Book"/><a:ea typeface=""/><a:cs typeface=""/>
-                      </a:minorFont>
-                    </a:fontScheme>
-                  </a:themeElements>
-                </a:theme>
-                """.formatted(scheme).getBytes(StandardCharsets.UTF_8);
     }
 
     private IOpenLTable person() {

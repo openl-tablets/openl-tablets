@@ -15,6 +15,9 @@ import org.jspecify.annotations.Nullable;
  */
 public record ThemedTable(Map<Cell, ThemedCell> cells) {
 
+    /** The look of a table the theme does not style: the theme reaches none of its cells. */
+    public static final ThemedTable NONE = new ThemedTable(Map.of());
+
     /**
      * The look of a cell, or {@code null} when the theme does not reach it.
      *

@@ -59,9 +59,11 @@ import org.openl.studio.projects.service.tables.write.TableWriter;
  * <p>A colour is compared as the workbook holds it. The palette of an {@code .xls} workbook may have no room for a
  * colour of the theme, which it then holds as the nearest colour it has: a cell holding that one has the look.
  *
- * <p>A colour the theme makes of a theme colour of Excel is written as that theme colour into a workbook whose theme
- * colours are those of the theme, so Excel offers it in its palette, and as {@code #rrggbb} into any other workbook.
- * A cell holding the colour the other way round has not the look. The theme of a workbook is never changed.
+ * <p>Every colour of the theme is a theme colour of Excel, written as that theme colour into a workbook of a theme, so
+ * the table takes the colours of the theme of the workbook in Excel and Excel offers the colour in its palette. A
+ * workbook without a theme, such as an {@code .xls} workbook or an {@code .xlsx} one a program wrote, is written the
+ * colour Office 2013 - 2022 draws it in, as {@code #rrggbb}. A cell holding the colour the other way round has not the
+ * look. The theme of a workbook is never changed.
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ThemeExcelWriter {
@@ -160,9 +162,8 @@ public final class ThemeExcelWriter {
     /** Writes the look of a table into the cells the filter keeps. */
     private void write(ThemedTable layout, IGridTable grid, Predicate<ThemedTable.Cell> kept) {
         var sheet = ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite();
-        var colours = theme.themeColors();
         var looks = workbooks.computeIfAbsent(sheet.getWorkbook(),
-                workbook -> new WorkbookLooks(workbook, colours != null && colours.areThoseOf(workbook)));
+                workbook -> new WorkbookLooks(workbook, hasTheme(workbook)));
         layout.cells().forEach((at, themed) -> {
             if (kept.test(at)) {
                 var cell = PoiExcelHelper.getOrCreateCell(at.column(), at.row(), sheet);
@@ -203,6 +204,11 @@ public final class ThemeExcelWriter {
         cell.setCellValue(rich);
     }
 
+    /** Whether a workbook has a theme to draw a theme colour from: an {@code .xlsx} one with a theme part. */
+    private static boolean hasTheme(Workbook workbook) {
+        return workbook instanceof XSSFWorkbook xssf && xssf.getStylesSource().getTheme() != null;
+    }
+
     /**
      * Why a theme is refused by a workbook with no room for another style. Only an {@code .xls} file has a format with
      * more room to be saved as: an {@code .xlsx} file holds 64,000 styles.
@@ -235,15 +241,15 @@ public final class ThemeExcelWriter {
 
         private final Workbook workbook;
 
-        /** Whether the theme colours of the workbook are those the theme makes its colours of. */
+        /** Whether the workbook has a theme, so a colour is written as its theme colour. */
         private final boolean themeColours;
 
         private final Map<StyleKey, CellStyle> styles = new HashMap<>();
         private final Map<FontAttributes, Font> fonts = new HashMap<>();
 
         /**
-         * The theme colour the workbook writes a colour as: the theme colour the colour is, when the theme colours of
-         * the workbook are those of the theme, or else {@code null}, for {@code #rrggbb}.
+         * The theme colour the workbook writes a colour as: the theme colour the colour is, when the workbook has a
+         * theme, or else {@code null}, for {@code #rrggbb}.
          */
         private @Nullable ThemedColor asThemeColour(ThemeColour colour) {
             return themeColours ? colour.themed() : null;

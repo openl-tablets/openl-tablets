@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { App, Button, Divider, Form, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
@@ -8,23 +8,12 @@ import { UserProfileFormFields } from '../types/user'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { useUserStore } from 'store'
 import { changedValues } from 'utils/userProfile'
-import { toThemeOptions, useTableThemes } from '../hooks/useTableThemes'
-
-/** The table theme a profile names when its tables are drawn with the formatting of the Excel file. */
-const EXCEL_FORMATTING = ''
 
 export const UserSettings: React.FC = () => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
-    const { userProfile, fetchUserProfile } = useUserStore()
+    const { userProfile: profile, fetchUserProfile } = useUserStore()
     const [form] = Form.useForm()
-    const tableThemes = useTableThemes()
-    // A profile that names no theme draws its tables with the formatting of the Excel file. Built once per read of
-    // the profile: the fields are set from it again whenever it is read again.
-    const profile = useMemo(() => userProfile && {
-        ...userProfile,
-        tableTheme: userProfile.tableTheme ?? EXCEL_FORMATTING,
-    }, [userProfile])
 
     // The fields follow every read of the profile, so they show what a save compares them with.
     useEffect(() => {
@@ -89,21 +78,10 @@ export const UserSettings: React.FC = () => {
             <Divider titlePlacement="start">{t('users:settings.table_settings')}</Divider>
             <Checkbox label={t('users:settings.show_header')} name="showHeader" />
             <Checkbox label={t('users:settings.show_formulas')} name="showFormulas" />
-            {/* The table themes are experimental, so their settings stand apart under a heading of their own. */}
-            <Divider dashed plain titlePlacement="start">{t('users:settings.experimental')}</Divider>
-            <Select
-                label={t('users:settings.table_theme')}
-                name="tableTheme"
-                tooltip={t('users:settings.table_theme_info')}
-                options={[
-                    { value: EXCEL_FORMATTING, label: t('users:settings.excel_formatting') },
-                    ...toThemeOptions(tableThemes),
-                ]}
-            />
             <Checkbox
-                label={t('users:settings.override_with_studio_theme')}
-                name="overrideWithStudioTheme"
-                tooltip={t('users:settings.override_with_studio_theme_info')}
+                label={t('users:settings.show_excel_formatting')}
+                name="showExcelFormatting"
+                tooltip={t('users:settings.show_excel_formatting_info')}
             />
             <Divider titlePlacement="start">{t('users:settings.testing_settings')}</Divider>
             <Select label={t('users:settings.tests_per_page')} name="testsPerPage" options={testsPerPageOptions} />

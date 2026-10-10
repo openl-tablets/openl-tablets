@@ -2,12 +2,8 @@ package org.openl.studio.projects.service.tables.theme;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,48 +13,37 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import org.openl.rules.table.IOpenLTable;
-import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.projects.model.tables.TableThemeView;
-import org.openl.util.FileUtils;
-import org.openl.util.StringUtils;
 
 /**
- * The table themes OpenL Studio offers: every {@code table-themes/*.yaml} file on its classpath.
+ * The table theme of OpenL Studio: the {@code table-theme.yaml} file on its classpath, which follows the formatting
+ * standard of OpenL tables.
  *
- * <p>A theme is known by the name of its file without the extension, and shown by the name the file declares.
- * The file is read with its YAML anchors, aliases and merge keys resolved, so one part of a theme can extend or
+ * <p>The file is read with its YAML anchors, aliases and merge keys resolved, so one part of the theme can extend or
  * repeat another. The file can name its colours once, under {@code colors}, and set a colour by its name wherever a
- * part takes one. It can write the theme colours of Excel it makes its colours of under {@code themeColors}, and write
- * a colour as the palette of Excel names a theme colour, such as {@code Blue, Accent 1, Lighter 60%}.
+ * part takes one. Every colour is written as the palette of Excel names a theme colour, such as
+ * {@code Blue, Accent 1, Lighter 60%}.
  *
- * <p>The themes are offered with the primary ones first, which a file marks with {@code primary: true}, and the
- * others after them, each in the order of their names. A screen therefore selects a primary theme first when a theme
- * is applied, whatever it is called.
- *
- * <p>A theme file that cannot be read, that declares no name, that names an attribute a theme does not know, a
- * colour it gives no name, or a theme colour of Excel without its theme colours, is not offered. Studio starts with
- * the other themes and logs why the file was refused, so a mistyped attribute is never silently ignored.
+ * <p>A theme file that cannot be read, that names an attribute a theme does not know, a colour it gives no name, or a
+ * colour written another way is refused, so a mistyped attribute is never silently ignored: OpenL Studio does not
+ * start with a theme it cannot read.
  */
 @Slf4j
 @Service
 public class TableThemeService {
 
-    /** Where the themes live on the classpath. */
-    static final String LOCATION = "classpath*:table-themes/*.yaml";
+    /** Where the theme lives on the classpath. */
+    private static final String LOCATION = "table-theme.yaml";
 
     /** The key of a theme file that gives its colours their names. */
     private static final String COLOURS = "colors";
-
-    /** The key of a theme file that writes the theme colours of Excel it makes its colours of. */
-    private static final String THEME_COLOURS = "themeColors";
 
     private static final TypeReference<Map<String, String>> NAMED_COLOURS = new TypeReference<>() {
     };
@@ -69,103 +54,65 @@ public class TableThemeService {
             .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT)
             .build();
 
-    private final Map<String, TableTheme> themes;
+    private final TableTheme theme;
 
     @Autowired
     public TableThemeService() {
-        this(LOCATION);
-    }
-
-    TableThemeService(String location) {
-        Resource[] files;
-        try {
-            files = new PathMatchingResourcePatternResolver().getResources(location);
-        } catch (IOException e) {
-            throw new UncheckedIOException("The table themes cannot be listed: " + location, e);
-        }
-        var read = new LinkedHashMap<String, TableTheme>();
-        for (var file : files) {
-            var id = FileUtils.getBaseName(Objects.requireNonNull(file.getFilename()));
-            var theme = offered(file);
-            if (theme != null && read.putIfAbsent(id, theme) != null) {
-                log.warn("The table theme '{}' is defined twice; the one met first is kept: {}", id,
-                        file.getDescription());
-            }
-        }
-        themes = inOfferedOrder(read);
+        this(new ClassPathResource(LOCATION));
     }
 
     /**
-     * The themes OpenL Studio offers: the primary ones first, then the others, each in the order of their names.
+     * The theme of a theme file other than the one OpenL Studio ships, such as one a test writes.
      *
-     * @return the themes, each with the identifier it is asked for by and the name it is shown by
+     * @param file the theme file
+     * @throws IllegalStateException when the file is not a theme, as {@link #read} tells
      */
-    public List<TableThemeView> getThemes() {
-        return themes.entrySet().stream().map(TableThemeService::viewOf).toList();
+    TableThemeService(Resource file) {
+        theme = read(file);
     }
 
     /**
-     * The themes that can be drawn over a table or written into it, in the order {@link #getThemes()} offers them.
+     * Whether the theme styles a table. The theme styles every table of the kinds {@link ThemeLayouts#styles} names.
      *
      * @param table the table
-     * @return every theme for a table the themes style; none for a table of any other kind
-     */
-    public List<TableThemeView> getThemes(IOpenLTable table) {
-        return styles(table) ? getThemes() : List.of();
-    }
-
-    /**
-     * Whether the themes style a table. Every theme styles every table of the kinds {@link ThemeLayouts#styles}
-     * names, so they look alike in one theme.
-     *
-     * @param table the table
-     * @return {@code true} for a table of a kind the themes style
+     * @return {@code true} for a table of a kind the theme styles
      */
     public boolean styles(IOpenLTable table) {
         return ThemeLayouts.styles(table);
     }
 
-    private static TableThemeView viewOf(Map.Entry<String, TableTheme> theme) {
-        return new TableThemeView(theme.getKey(), theme.getValue().name());
-    }
-
     /**
-     * The look a theme gives each cell of a table, for a screen to draw it.
+     * The look the theme gives each cell of a table, for a screen to draw it.
      *
-     * @param table   the table to theme
-     * @param themeId the theme, by its identifier
-     * @return the look of each cell, or {@code null} for a table of a kind no theme styles
-     * @throws BadRequestException when no theme has the identifier
-     */
-    public @Nullable ThemedTable layoutOf(IOpenLTable table, String themeId) {
-        return ThemeLayouts.of(table, table.getGridTable(), theme(themeId));
-    }
-
-    /**
-     * A writer of a theme into workbooks, for one batch of tables.
+     * <p>Every table a screen shows is drawn with the theme, so a table the theme cannot be laid out over is drawn plain
+     * rather than not drawn at all; the failure is logged.
      *
-     * @param themeId the theme, by its identifier
-     * @return the writer
-     * @throws BadRequestException when no theme has the identifier
+     * @param table the table to theme
+     * @return the look of each cell, or {@code null} for a table of a kind the theme does not style and for one it
+     *         cannot be laid out over
      */
-    public ThemeExcelWriter writer(String themeId) {
-        return new ThemeExcelWriter(theme(themeId));
-    }
-
-    /** The theme of the identifier, which a request named. */
-    TableTheme theme(String themeId) {
-        return Optional.ofNullable(themes.get(themeId))
-                .orElseThrow(() -> new BadRequestException("table.theme.unknown.message", new Object[]{themeId}));
-    }
-
-    /** The theme a file describes, or {@code null} for a file that is refused. */
-    private static @Nullable TableTheme offered(Resource file) {
+    public @Nullable ThemedTable layoutOf(IOpenLTable table) {
         try {
-            return read(file);
-        } catch (RuntimeException e) {
-            log.error("The table theme is not offered: it cannot be read.", e);
+            return ThemeLayouts.of(table, table.getGridTable(), theme);
+        } catch (RuntimeException failed) {
+            log.warn("The table theme cannot be laid out over the table '{}'; it is drawn plain.", table.getName(),
+                    failed);
             return null;
         }
+    }
+
+    /**
+     * A writer of the theme into workbooks, for one batch of tables.
+     *
+     * @return the writer
+     */
+    public ThemeExcelWriter writer() {
+        return new ThemeExcelWriter(theme);
+    }
+
+    /** The theme. */
+    TableTheme theme() {
+        return theme;
     }
 
     /**
@@ -173,8 +120,9 @@ public class TableThemeService {
      *
      * @param file the theme file
      * @return the theme
-     * @throws IllegalStateException when the file is not a theme, names an attribute a theme does not know or a
-     *                               colour it does not name, writes a key twice or declares no name
+     * @throws IllegalStateException when the file is empty or not a theme, names an attribute a theme does not know or
+     *                               a colour it does not name, writes a colour another way than the palette of Excel
+     *                               names a theme colour, or writes a key twice
      * @throws UncheckedIOException  when the file cannot be read
      */
     static TableTheme read(Resource file) {
@@ -189,8 +137,8 @@ public class TableThemeService {
         } catch (RuntimeException e) {
             throw new IllegalStateException("The table theme cannot be read: " + file.getDescription(), e);
         }
-        if (theme == null || StringUtils.isBlank(theme.name())) {
-            throw new IllegalStateException("The table theme declares no name: " + file.getDescription());
+        if (theme == null) {
+            throw new IllegalStateException("The table theme is empty: " + file.getDescription());
         }
         return theme;
     }
@@ -200,8 +148,8 @@ public class TableThemeService {
      *
      * @param tree the YAML of the file, read with its anchors, aliases and merge keys resolved
      * @return the theme, or {@code null} for an empty file
-     * @throws IllegalArgumentException when the theme writes one of its colours another way than {@code #rrggbb} or as
-     *                                  the palette of Excel names a theme colour, or the file is not a theme
+     * @throws IllegalArgumentException when the theme writes one of its colours another way than the palette of Excel
+     *                                  names a theme colour, or the file is not a theme
      */
     private static @Nullable TableTheme bind(@Nullable Object tree) {
         if (tree == null) {
@@ -209,16 +157,8 @@ public class TableThemeService {
         }
         // The colours are a key of the file, not of the theme it describes: each part that takes a colour has it.
         var named = tree instanceof Map<?, ?> keys ? keys.remove(COLOURS) : null;
-        // The theme colours stay a key of the theme, which writes them into a workbook, and make the colours named.
-        var themeColours = tree instanceof Map<?, ?> keys
-                ? MAPPER.convertValue(keys.get(THEME_COLOURS), ExcelThemeColours.class)
-                : null;
         var reader = MAPPER.readerFor(TableTheme.class)
-                .withAttribute(ThemeColourReader.COLOURS, coloursOf(MAPPER.convertValue(named, NAMED_COLOURS),
-                        themeColours));
-        if (themeColours != null) {
-            reader = reader.withAttribute(ThemeColourReader.THEME_COLOURS, themeColours);
-        }
+                .withAttribute(ThemeColourReader.COLOURS, coloursOf(MAPPER.convertValue(named, NAMED_COLOURS)));
         try {
             return reader.readValue(MAPPER.<JsonNode>valueToTree(tree));
         } catch (IOException e) {
@@ -226,33 +166,15 @@ public class TableThemeService {
         }
     }
 
-    /**
-     * The colours a theme names, each read as it is written: as {@code #rrggbb}, or as the palette of Excel names a
-     * theme colour.
-     */
-    private static Map<String, ThemeColour> coloursOf(@Nullable Map<String, String> named,
-                                                      @Nullable ExcelThemeColours themeColours) {
+    /** The colours a theme names, each read as the palette of Excel names a theme colour. */
+    private static Map<String, ThemeColour> coloursOf(@Nullable Map<String, String> named) {
         var colours = new HashMap<String, ThemeColour>();
         if (named != null) {
-            named.forEach((name, text) -> {
-                colours.put(name, Optional.ofNullable(text)
-                        .map(written -> ThemeColour.read(written, themeColours))
-                        .orElseThrow(() -> new IllegalArgumentException("A colour the theme names is written as "
-                                + "#rrggbb or as the palette of Excel names a theme colour: " + name + ": " + text)));
-            });
+            named.forEach((name, text) -> colours.put(name, Optional.ofNullable(text)
+                    .map(ThemeColour::read)
+                    .orElseThrow(() -> new IllegalArgumentException("A colour the theme names is written as the palette "
+                            + "of Excel names a theme colour: " + name + ": " + text))));
         }
         return colours;
-    }
-
-    /** The themes in the order they are offered: the primary ones first, each group in the order of their names. */
-    private static Map<String, TableTheme> inOfferedOrder(Map<String, TableTheme> themes) {
-        var order = Comparator.comparing((TableTheme theme) -> !theme.primary())
-                .thenComparing(TableTheme::name, String.CASE_INSENSITIVE_ORDER);
-        var sorted = new LinkedHashMap<String, TableTheme>();
-        themes.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(order))
-                .forEach(theme -> sorted.put(theme.getKey(), theme.getValue()));
-        return sorted;
     }
 }

@@ -1,4 +1,3 @@
-name: Zero Size
 base:
   style:
     fontSize: 0

@@ -12,7 +12,6 @@ import type {
     TableInputTestCase,
     TableEdit,
     TableProperty,
-    TableThemeOption,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from './apiCall'
@@ -260,41 +259,6 @@ export const deleteTable = async (
     }
 }
 
-/** The table themes, asked for once: Studio reads them when it starts, so they do not change while it runs. */
-let tableThemes: Promise<TableThemeOption[]> | null = null
-
-/**
- * The table themes OpenL Studio offers, by name.
- *
- * Asked for once and kept. A failed answer is not kept, so the next screen asks again.
- */
-export const getTableThemes = (): Promise<TableThemeOption[]> => {
-    tableThemes ??= (apiCall('/table-themes', undefined, LOCAL_LOAD_API_OPTIONS) as Promise<unknown>)
-        .then(themes => asArray(themes) as TableThemeOption[])
-        .catch((error: unknown) => {
-            tableThemes = null
-            throw error
-        })
-    return tableThemes
-}
-
-/**
- * The table themes that can be written into a table, by name: every theme for a table of a kind the themes style,
- * none for a table of any other kind. The server says which, so the screen keeps no list of kinds.
- */
-export const getTableThemesOf = async (
-    projectId: string,
-    tableId: string,
-    moduleName?: string
-): Promise<TableThemeOption[]> => {
-    const themes = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/themes` + inModule(moduleName),
-        undefined,
-        LOCAL_LOAD_API_OPTIONS
-    )
-    return asArray(themes) as TableThemeOption[]
-}
-
 /** What writing the table theme into a project did; a list the server has nothing to put in is left out. */
 export interface TableThemeResult {
     /** The tables the theme was written into */
@@ -304,14 +268,14 @@ export interface TableThemeResult {
 }
 
 /**
- * Writes a table theme into every table it styles in every module of the project.
+ * Writes the table theme into every table it styles in every module of the project.
  *
  * Answers what was themed, or null when the write failed; the outcome is told to the reader here.
  */
-export const applyProjectTableTheme = async (projectId: string, theme: string): Promise<TableThemeResult | null> => {
+export const applyProjectTableTheme = async (projectId: string): Promise<TableThemeResult | null> => {
     try {
         const result = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/theme?theme=${encodeURIComponent(theme)}`,
+            `/projects/${toUrlSafeId(projectId)}/theme`,
             { method: 'POST' },
             LOCAL_LOAD_API_OPTIONS
         ) as TableThemeResult

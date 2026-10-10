@@ -81,7 +81,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private static final String ROW_WIDTH_MESSAGE = "table.action.row.width.message";
     private static final String COLUMN_HEIGHT_MESSAGE = "table.action.column.height.message";
 
-    /** The themes a {@code theme} edit is written with, or {@code null} where this writer is given none. */
+    /** The table theme a {@code theme} edit is written with, or {@code null} where this writer is given none. */
     private final @Nullable TableThemeService themes;
 
     /** The writer of the theme a {@code theme} edit wrote into the table, or {@code null} before any such edit. */
@@ -92,10 +92,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     /**
-     * A writer of the raw source of a table that can also write a table theme into it.
+     * A writer of the raw source of a table that can also write the table theme into it.
      *
      * @param table  the table to write
-     * @param themes the themes a {@code theme} edit is written with, or {@code null} to refuse such an edit
+     * @param themes the table theme a {@code theme} edit is written with, or {@code null} to refuse such an edit
      */
     public RawTableWriter(IOpenLTable table, @Nullable TableThemeService themes) {
         super(table);
@@ -336,18 +336,18 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             case RawTableSourceAction.Merge(var target) -> merge(target);
             case RawTableSourceAction.Unmerge(var target) -> unmerge(target);
             case RawTableSourceAction.Style(var target) -> style(target);
-            case RawTableSourceAction.Theme(String theme) -> theme(theme);
+            case RawTableSourceAction.Theme() -> theme();
         }
     }
 
     /**
-     * Writes a table theme into the table, as the table was compiled. A table such as a decision table is themed by
+     * Writes the table theme into the table, as the table was compiled. A table such as a decision table is themed by
      * where the compiler found its parts.
      */
-    private void theme(String themeId) {
+    private void theme() {
         themed = Optional.ofNullable(themes)
-                .orElseThrow(() -> new IllegalStateException("This writer is given no table themes."))
-                .writer(themeId);
+                .orElseThrow(() -> new IllegalStateException("This writer is given no table theme."))
+                .writer();
         if (!themed.write(table, developerView())) {
             throw new BadRequestException("table.theme.unsupported.message");
         }

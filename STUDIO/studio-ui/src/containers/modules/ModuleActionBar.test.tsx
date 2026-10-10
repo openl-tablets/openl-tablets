@@ -46,7 +46,6 @@ vi.mock('../../services/repositories', () => ({ getDesignRepositories: () => Pro
 const applyProjectTableTheme = vi.fn()
 vi.mock('../../services/tables', () => ({
     applyProjectTableTheme: (...args: unknown[]) => applyProjectTableTheme(...args),
-    getTableThemes: () => Promise.resolve([{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]),
 }))
 
 const project = (capabilities: Project['capabilities']): Project => ({
@@ -242,7 +241,7 @@ describe('ModuleActionBar', () => {
         }
     })
 
-    it('writes the table theme the reader chooses into the project, and reads the project back', async () => {
+    it('writes the table theme into the project, and reads the project back', async () => {
         applyProjectTableTheme.mockResolvedValue({ themed: ['t1'], skipped: []})
         const changed = vi.fn()
         render(
@@ -257,12 +256,10 @@ describe('ModuleActionBar', () => {
 
         await userEvent.click(screen.getByTestId('module-more'))
         await userEvent.click(await screen.findByText('browser.module.apply_theme_project'))
-        // The reader's own theme is chosen to begin with: this one names none, so the first one offered.
-        await waitFor(() => expect(screen.getByTestId('apply-project-theme-ok')).toBeEnabled())
         await userEvent.click(screen.getByTestId('apply-project-theme-ok'))
 
         await waitFor(() => expect(changed).toHaveBeenCalledTimes(1))
-        expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'default')
+        expect(applyProjectTableTheme).toHaveBeenCalledWith('p1')
     })
 
     it('writes no table theme into a project that waits for Verify, and says why', async () => {

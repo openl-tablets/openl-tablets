@@ -1,0 +1,16 @@
+# A theme that fills the keys of a Data and a Test table and the values they leave empty, which the shipped theme does
+# not: it makes the keys bold only.
+colors:
+  green: Green, Accent 6, Lighter 60%
+  paleGrey: White, Background 1, Darker 5%
+
+data:
+  ids: &ids
+    bold: true
+    background: green
+  empty: &empty
+    background: paleGrey
+
+test:
+  ids: *ids
+  empty: *empty

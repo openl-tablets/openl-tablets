@@ -54,15 +54,11 @@ i18next.addResourceBundle('en', 'users', {
         table_settings: 'Table Settings',
         show_header: 'Show Header',
         show_formulas: 'Show Formulas',
-        experimental: 'Experimental',
-        table_theme: 'Table Theme',
-        table_theme_info: 'View only: changes how the tables are shown on the screen. The Excel files and the '
-            + 'projects are not changed.',
-        excel_formatting: 'Excel Formatting',
-        override_with_studio_theme: 'Override with Studio theme',
-        override_with_studio_theme_info: 'View only: shows the tables in the look of the OpenL Studio theme, light or '
-            + 'dark, in place of the table theme. A theme without a look for the tables shows the table theme. '
-            + 'The Excel files and the projects are not changed.',
+        show_excel_formatting: 'Show Original Excel Formatting',
+        show_excel_formatting_info: 'Shows the tables as Excel shows them, in the formatting and the colours of '
+            + 'their Excel files, and lets the cells be formatted in the table editor. Cleared, every table is shown '
+            + 'formatted with the table theme, in the colours of the OpenL Studio theme, light or dark. Either way '
+            + 'the Excel files are not changed.',
         testing_settings: 'Testing Settings',
         tests_per_page: 'Tests Per Page',
         failures_only: 'Failures Only',

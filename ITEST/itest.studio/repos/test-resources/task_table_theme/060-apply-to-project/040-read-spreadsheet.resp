@@ -19,13 +19,11 @@ Content-Type: application/json
           "border": {
             "top": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             },
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         },
@@ -33,7 +31,7 @@ Content-Type: application/json
           {
             "text": "Spreadsheet",
             "style": {
-              "color": "#548235"
+              "color": "#808080"
             }
           },
           {
@@ -43,7 +41,7 @@ Content-Type: application/json
           {
             "text": "SpreadsheetResult",
             "style": {
-              "color": "#548235"
+              "color": "#808080"
             }
           },
           {
@@ -63,7 +61,7 @@ Content-Type: application/json
           {
             "text": "( Person person )",
             "style": {
-              "color": "#548235"
+              "color": "#808080"
             }
           }
         ]
@@ -80,13 +78,12 @@ Content-Type: application/json
         "cell": "B20",
         "value": "properties",
         "style": {
-          "color": "#548235",
+          "color": "#808080",
           "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -95,13 +92,12 @@ Content-Type: application/json
         "cell": "C20",
         "value": "description",
         "style": {
-          "color": "#548235",
+          "color": "#808080",
           "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -110,13 +106,12 @@ Content-Type: application/json
         "cell": "D20",
         "value": "The premium of a person",
         "style": {
-          "color": "#548235",
+          "color": "#808080",
           "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -127,7 +122,7 @@ Content-Type: application/json
         "cell": "B21",
         "value": "Step",
         "style": {
-          "background": "#e2efda",
+          "background": "#bfbfbf",
           "align": "center",
           "valign": "center",
           "bold": true
@@ -137,7 +132,7 @@ Content-Type: application/json
         "cell": "C21",
         "value": "Formula",
         "style": {
-          "background": "#c6e0b4",
+          "background": "#b8cce4",
           "align": "center",
           "valign": "center",
           "bold": true
@@ -146,7 +141,7 @@ Content-Type: application/json
       {
         "cell": "D21",
         "style": {
-          "background": "#c6e0b4",
+          "background": "#b8cce4",
           "align": "center",
           "valign": "center",
           "bold": true
@@ -163,8 +158,7 @@ Content-Type: application/json
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -173,13 +167,12 @@ Content-Type: application/json
         "cell": "C22",
         "value": "= 10",
         "style": {
-          "background": "#ebf1de",
+          "background": "#daeef3",
           "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -187,13 +180,12 @@ Content-Type: application/json
       {
         "cell": "D22",
         "style": {
-          "background": "#ebf1de",
+          "background": "#daeef3",
           "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -205,7 +197,7 @@ Content-Type: application/json
         "value": "Totals",
         "colspan": 3,
         "style": {
-          "background": "#e2efda",
+          "background": "#b8cce4",
           "align": "center",
           "valign": "center",
           "bold": true,
@@ -213,8 +205,7 @@ Content-Type: application/json
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -236,8 +227,7 @@ Content-Type: application/json
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -246,13 +236,12 @@ Content-Type: application/json
         "cell": "C24",
         "value": "= $Base * 2",
         "style": {
-          "background": "#ebf1de",
+          "background": "#daeef3",
           "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }
@@ -260,13 +249,12 @@ Content-Type: application/json
       {
         "cell": "D24",
         "style": {
-          "background": "#ebf1de",
+          "background": "#daeef3",
           "valign": "center",
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }

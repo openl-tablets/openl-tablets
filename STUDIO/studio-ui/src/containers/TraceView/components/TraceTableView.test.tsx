@@ -5,7 +5,7 @@ import { useTraceStore } from 'store/traceStore'
 import type { DebugFrameView, RawTableView } from 'types/trace'
 import TraceTableView from 'containers/TraceView/components/TraceTableView'
 import { paperToken } from 'styles/paper'
-import { renderInTheme } from 'testing/theme'
+import { renderInTheme, tokenFor } from 'testing/theme'
 
 vi.mock('services/traceService', () => ({
     __esModule: true,
@@ -112,7 +112,7 @@ describe('TraceTableView', () => {
         expect(getFrameHighlights).toHaveBeenCalledWith('p1', 0)
     })
 
-    it('paints a highlight in the colours of the paper, so the cell reads the same in a dark theme', async () => {
+    it('paints a highlight in the colours of the theme, as the table is drawn', async () => {
         getFrameHighlights.mockResolvedValue([{ cell: 'B2', state: 'current' }])
         cacheTable('tbl', {
             id: 'tbl',
@@ -121,6 +121,21 @@ describe('TraceTableView', () => {
         })
 
         renderInTheme(<TraceTableView frameIndex={0} />, { theme: 'dracula', mode: 'dark' })
+        const current = await marked('B2', 'A2')
+
+        const dracula = tokenFor('dracula', true)
+        expect(current).toHaveStyle({ backgroundColor: dracula.colorWarningBg, color: dracula.colorTextBase })
+    })
+
+    it('paints a highlight in the colours of the paper of the Excel file, where the reader asks for them', async () => {
+        getFrameHighlights.mockResolvedValue([{ cell: 'B2', state: 'current' }])
+        cacheTable('tbl', {
+            id: 'tbl',
+            name: 'T',
+            source: [[{ cell: 'A2', value: 'Step' }, { cell: 'B2', value: '= x' }]],
+        })
+
+        renderInTheme(<TraceTableView frameIndex={0} />, { theme: 'dracula', mode: 'dark', excelFormatting: true })
         const current = await marked('B2', 'A2')
 
         expect(current).toHaveStyle({ backgroundColor: paperToken().colorWarningBg, color: paperToken().colorText })

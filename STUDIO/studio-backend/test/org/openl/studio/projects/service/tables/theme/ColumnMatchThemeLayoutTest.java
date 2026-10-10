@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -31,7 +32,6 @@ class ColumnMatchThemeLayoutTest {
      * General format of the standard.
      */
     private static final TableThemeService LOOKS = TestThemes.everyKind();
-    private static final String THEME = TestThemes.EVERY_KIND;
 
     /** The looks that theme gives the places of a ColumnMatch table. */
     private static final String WHITE = "#ffffff";
@@ -72,7 +72,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void offersEveryThemeForAColumnMatchTable() {
-        assertEquals(LOOKS.getThemes(), LOOKS.getThemes(tableAt(APPROVAL_ROW)));
+        assertTrue(LOOKS.styles(tableAt(APPROVAL_ROW)));
     }
 
     @Test
@@ -156,7 +156,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void keepsTheIndentOfTheNamesInTheWorkbook() {
-        LOOKS.writer(THEME).writeAll(List.of(tableAt(APPROVAL_ROW)), Map.of());
+        LOOKS.writer().writeAll(List.of(tableAt(APPROVAL_ROW)), Map.of());
 
         // The rows read start at the header, and the columns at the names.
         var written = read(APPROVAL_ROW);
@@ -171,7 +171,7 @@ class ColumnMatchThemeLayoutTest {
     }
 
     private ThemedTable layoutAt(int row) {
-        return LOOKS.layoutOf(tableAt(row), THEME);
+        return LOOKS.layoutOf(tableAt(row));
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */

@@ -1779,20 +1779,6 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void a_table_theme_studio_does_not_offer_is_refused_before_anything_is_written() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
-                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
-        var project = project(repository(), "PricingProject", "PricingProject");
-        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
-
-        var refused = assertThrows(BadRequestException.class, () -> service.applyProjectTableTheme(project, "purple"));
-
-        assertEquals("openl.error.400.table.theme.unknown.message", refused.getErrorCode());
-        verify(service, never()).openProject(project);
-    }
-
-    @Test
     void a_table_theme_failing_halfway_has_every_module_read_from_its_file_again(@TempDir Path dir) throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);
@@ -1814,7 +1800,7 @@ class WorkspaceProjectServiceTest {
         var person = TableTestProjects.table(compiled, "Person").getSyntaxNode();
         stubCompiledProject(service, project, new LinkedHashSet<>(List.of(person, broken)));
 
-        assertThrows(IllegalStateException.class, () -> service.applyProjectTableTheme(project, "green"));
+        assertThrows(IllegalStateException.class, () -> service.applyProjectTableTheme(project));
 
         // The first table was themed and not saved: what the session holds of it is read from its file again, once.
         verify(webStudio).reset();
@@ -1857,7 +1843,7 @@ class WorkspaceProjectServiceTest {
         nodes.add(part);
         var model = stubCompiledProject(service, project, nodes);
 
-        var result = service.applyProjectTableTheme(project, "green");
+        var result = service.applyProjectTableTheme(project);
 
         // The notes are of no kind OpenL knows, which no theme styles.
         var themed = List.of("Person", "Code", "people", "Premium", "answer", "Greeting").stream()
@@ -1870,10 +1856,10 @@ class WorkspaceProjectServiceTest {
         var module = service.getProjectDescriptor(project).getModules().getFirst();
         verify(model).initProjectHistory(TableTestProjects.table(compiled, "Person").getSyntaxNode(), module);
         verify(model, never()).initProjectHistory(eq(part), any());
-        // The theme named is the one written.
+        // The theme is written: the keyword of the header is muted, White, Background 1, Darker 50%.
         var header = new RawTableReader().read(TableTestProjects.table(TableTestProjects.projectModel(dir), "Person"),
                 RawTableRead.builder().withStyles(true).build()).source.getFirst().getFirst();
-        assertEquals("#c6e0b4", header.style().background());
+        assertEquals("#808080", header.runs().getFirst().style().color());
     }
 
     @Test
@@ -1892,7 +1878,7 @@ class WorkspaceProjectServiceTest {
         // The open module compiles alone: the other modules are compiled once the project is.
         when(model.isProjectCompilationCompleted()).thenReturn(false, true);
 
-        var result = service.applyProjectTableTheme(project, "green");
+        var result = service.applyProjectTableTheme(project);
 
         var order = inOrder(model);
         order.verify(model).compileProject(true, false);
@@ -1911,7 +1897,7 @@ class WorkspaceProjectServiceTest {
         // A compilation the reader stopped is not started again, so the project stays compiled in part.
         when(model.isProjectCompilationCompleted()).thenReturn(false);
 
-        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project, "green"));
+        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project));
 
         assertEquals("openl.error.409.table.theme.project.stopped.message", refused.getErrorCode());
         verify(model, never()).getAllTableSyntaxNodes();
@@ -1929,7 +1915,7 @@ class WorkspaceProjectServiceTest {
         // A write left a workbook of the project compiled as it stood before the write.
         when(model.isWrittenSinceCompiled()).thenReturn(true);
 
-        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project, "green"));
+        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project));
 
         assertEquals("openl.error.409.table.theme.verify.message", refused.getErrorCode());
         // Refused before the project is compiled whole or anything is written.
@@ -1944,7 +1930,7 @@ class WorkspaceProjectServiceTest {
         var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class), null,
                 mock(ProjectStateValidator.class), webStudio));
         var project = project(repository(), "PricingProject", "PricingProject");
-        RawTableSourceAction theme = new RawTableSourceAction.Theme("standard");
+        RawTableSourceAction theme = new RawTableSourceAction.Theme();
         RawTableSourceAction edit = new RawTableSourceAction.Delete(new DeleteTarget.Rows(1, 1));
 
         // Another theme is another edit too: the theme is the only edit of its request.
@@ -1968,7 +1954,7 @@ class WorkspaceProjectServiceTest {
         // A write left a workbook of the project compiled as it stood before the write, as automatic compilation
         // turned off leaves it until the module is verified.
         when(model.isWrittenSinceCompiled()).thenReturn(true);
-        List<RawTableSourceAction> theme = List.of(new RawTableSourceAction.Theme("standard"));
+        List<RawTableSourceAction> theme = List.of(new RawTableSourceAction.Theme());
 
         var refused = assertThrows(ConflictException.class,
                 () -> service.editTableSource(project, "src-id", theme, null));

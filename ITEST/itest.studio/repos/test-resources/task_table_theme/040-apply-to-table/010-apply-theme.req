@@ -5,8 +5,7 @@ Content-Type: application/json
 {
   "actions": [
     {
-      "operation": "theme",
-      "theme": "standard"
+      "operation": "theme"
     }
   ]
 }

@@ -14,8 +14,7 @@ Content-Type: application/json
       }
     },
     {
-      "operation": "theme",
-      "theme": "standard"
+      "operation": "theme"
     }
   ]
 }

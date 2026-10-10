@@ -46,8 +46,9 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableStyleSource;
 import org.openl.studio.projects.model.tables.RawTableTextRun;
+import org.openl.studio.projects.model.tables.RawTableThemeColor;
+import org.openl.studio.projects.model.tables.RawTableThemeColorName;
 import org.openl.studio.projects.model.tables.RawTableView;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -72,7 +73,6 @@ class TableThemeTest {
     private static final String GREY = "#c0c0c0";
     private static final String PERCENT = "0.00%";
 
-    private static final String THEME = "standard";
 
     /** A Datatype whose header is not merged over the table, written bold in 10.5 points. */
     private static final String ACCOUNT = "Account";
@@ -145,7 +145,9 @@ class TableThemeTest {
     private static final int NOTES_ROW = 126;
 
     /** The fills the green theme gives an ID and a value that is not filled; the standard theme gives them none. */
-    private static final String GREEN = "green";
+    /** A theme that fills the keys and the empty values of a Data and a Test table. */
+    private static final TableThemeService FILLED_KEYS = TestThemes.of("filled-keys.yaml");
+    /** Green, Accent 6, Lighter 60%. */
     private static final String GREEN_ID = "#c6e0b4";
     private static final String GREEN_EMPTY = "#f2f2f2";
     private static final String MUTED = "#808080";
@@ -159,12 +161,10 @@ class TableThemeTest {
 
     /** A theme that names no font attribute of a cell, so a cell keeps the font it has in the workbook. */
     private static final TableThemeService EXTENDED =
-            new TableThemeService("classpath*:test-table-themes/extended-header.yaml");
-    private static final String EXTENDED_THEME = "extended-header";
+            TestThemes.of("extended-header.yaml");
 
     /** A theme that gives every kind of table a look of its own, beyond the kinds the shipped themes style. */
     private static final TableThemeService LOOKS = TestThemes.everyKind();
-    private static final String LOOKS_THEME = TestThemes.EVERY_KIND;
 
     @TempDir
     Path dir;
@@ -178,56 +178,56 @@ class TableThemeTest {
     void appliesToTheKindsOfTableEveryThemeStyles() {
         var model = TableTestProjects.projectModel(dir);
 
-        assertNotNull(service.layoutOf(TableTestProjects.table(model, "Person"), THEME));
-        assertNotNull(service.layoutOf(TableTestProjects.table(model, "Code"), THEME));
-        assertNotNull(service.layoutOf(TableTestProjects.table(model, PREMIUM), THEME));
-        assertNotNull(service.layoutOf(TableTestProjects.table(model, "people"), THEME));
-        assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_TEST), THEME));
-        assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_RUN), THEME));
-        assertNotNull(service.layoutOf(TableTestProjects.table(model, ANSWER), THEME));
-        assertNull(service.layoutOf(notes(), THEME));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, "Person")));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, "Code")));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, PREMIUM)));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, "people")));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_TEST)));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, RATED_RUN)));
+        assertNotNull(service.layoutOf(TableTestProjects.table(model, ANSWER)));
+        assertNull(service.layoutOf(notes()));
     }
 
     @Test
     void offersEveryThemeForATableOfAKindThemesStyle() {
         var model = TableTestProjects.projectModel(dir);
-        var extension = new TableThemeService("classpath*:test-table-themes/datatype-extension.yaml");
+        var extension = TestThemes.of("datatype-extension.yaml");
 
-        assertEquals(service.getThemes(), service.getThemes(TableTestProjects.table(model, "Code")));
-        assertEquals(service.getThemes(), service.getThemes(TableTestProjects.table(model, PREMIUM)));
+        assertTrue(service.styles(TableTestProjects.table(model, "Code")));
+        assertTrue(service.styles(TableTestProjects.table(model, PREMIUM)));
         // A theme writing nothing for a kind of table other than a Datatype styles them all the same.
-        assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, "Code"))));
-        assertEquals(List.of("datatype-extension"), ids(extension.getThemes(TableTestProjects.table(model, PREMIUM))));
-        assertEquals(service.getThemes(), service.getThemes(TableTestProjects.table(model, "people")));
-        assertTrue(service.getThemes(notes()).isEmpty(), "No theme styles a table of no kind OpenL knows");
+        assertTrue(extension.styles(TableTestProjects.table(model, "Code")));
+        assertTrue(extension.styles(TableTestProjects.table(model, PREMIUM)));
+        assertTrue(service.styles(TableTestProjects.table(model, "people")));
+        assertFalse(service.styles(notes()), "The theme styles no table of no kind OpenL knows");
     }
 
     @Test
     void stylesAKindTheThemeWritesNothingForWithTheBase() {
         var model = TableTestProjects.projectModel(dir);
-        var extension = new TableThemeService("classpath*:test-table-themes/datatype-extension.yaml");
+        var extension = TestThemes.of("datatype-extension.yaml");
         var code = TableTestProjects.table(model, "Code");
 
-        var layout = extension.layoutOf(code, "datatype-extension");
+        var layout = extension.layoutOf(code);
         assertEquals(Boolean.TRUE, layout.at(8, 1).style().italic(), "The Vocabulary takes the base");
         assertEquals(ThemeLineStyle.MEDIUM, layout.at(9, 1).style().border().bottom().style());
         var grid = GridTableUtils.getOriginalTable(code.getGridTable());
         grid.edit();
         try {
-            assertTrue(extension.writer("datatype-extension").write(code, grid));
+            assertTrue(extension.writer().write(code, grid));
         } finally {
             grid.stopEditing();
         }
-        var people = extension.layoutOf(TableTestProjects.table(model, "people"), "datatype-extension");
+        var people = extension.layoutOf(TableTestProjects.table(model, "people"));
         assertEquals(Boolean.TRUE, people.at(14, 1).style().italic(), "A Data table takes the base as well");
-        var answer = extension.layoutOf(TableTestProjects.table(model, ANSWER), "datatype-extension");
+        var answer = extension.layoutOf(TableTestProjects.table(model, ANSWER));
         assertEquals(Boolean.TRUE, answer.at(ANSWER_ROW + 1, 1).style().italic(), "So does a Method table");
-        assertNull(extension.layoutOf(notes(), "datatype-extension"));
+        assertNull(extension.layoutOf(notes()));
     }
 
     @Test
     void givesEachPlaceOfADatatypeItsLook() {
-        var layout = service.layoutOf(person(), THEME);
+        var layout = service.layoutOf(person());
 
         // B2 is the header, merged over B2:D2; every cell of the merge is themed, unfilled between two lines.
         for (var column = 1; column <= 3; column++) {
@@ -251,7 +251,7 @@ class TableThemeTest {
 
     @Test
     void givesTheTitleRowOfADatatypeTheTitleLook() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), "Titled"), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), "Titled"));
 
         assertEquals(Boolean.TRUE, layout.at(20, 1).style().bold());
         assertEquals(TITLE_GREY, layout.at(20, 2).style().background().rgb(), "The titles are not the field names");
@@ -260,7 +260,7 @@ class TableThemeTest {
 
     @Test
     void givesTheFieldsOfATransposedDatatypeTheLookOfTheirPlace() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), POINT), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), POINT));
 
         // Each field runs down a column, so each place runs across the table: the types, the names, the defaults.
         for (var column = 1; column <= 3; column++) {
@@ -281,7 +281,7 @@ class TableThemeTest {
 
     @Test
     void givesTheTitleColumnOfATransposedDatatypeTheTitleLook() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), ITEM), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), ITEM));
 
         assertEquals(Boolean.TRUE, layout.at(ITEM_ROW + 1, 1).style().bold());
         assertEquals(Boolean.TRUE, layout.at(ITEM_ROW + 2, 1).style().bold());
@@ -294,7 +294,7 @@ class TableThemeTest {
 
     @Test
     void givesEachPlaceOfASpreadsheetItsLook() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), PREMIUM), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), PREMIUM));
 
         // The header is signed as every kind of table is, across the table, its text formatted in pieces. Only a
         // Datatype fills it: a Spreadsheet keeps it white, as any cell the theme fills no other way.
@@ -322,7 +322,7 @@ class TableThemeTest {
 
     @Test
     void givesAStepMergedAcrossItsRowTheSectionLook() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), PREMIUM), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), PREMIUM));
 
         // The heading is merged over the values of its row: every cell of it is the section, none a value.
         for (var column = 1; column <= 2; column++) {
@@ -366,7 +366,7 @@ class TableThemeTest {
         assertNotNull(bottomOf(read(PREMIUM).get(1).getFirst().style()), "The workbook draws a line under the titles");
 
         var table = premium();
-        var themed = readThemed(table, service.layoutOf(table, THEME)).source;
+        var themed = readThemed(table, service.layoutOf(table)).source;
         assertNull(bottomOf(themed.get(1).getFirst().style()), "The theme draws no line there");
 
         write(tables(TableTestProjects.projectModel(dir), PREMIUM));
@@ -378,7 +378,7 @@ class TableThemeTest {
         assertEquals(GREY, read("Code").get(1).getFirst().style().background(), "The workbook fills the values grey");
 
         var code = TableTestProjects.table(TableTestProjects.projectModel(dir), "Code");
-        var themed = readThemed(code, service.layoutOf(code, THEME)).source;
+        var themed = readThemed(code, service.layoutOf(code)).source;
         // White is reported as no fill, as the style of a cell reports it.
         assertNull(themed.get(1).getFirst().style().background(), "The theme draws them white");
 
@@ -389,7 +389,7 @@ class TableThemeTest {
     @Test
     void drawsTheLineOverASectionByTheCellsAboveIt() {
         var table = premium();
-        var themed = readThemed(table, service.layoutOf(table, THEME)).source;
+        var themed = readThemed(table, service.layoutOf(table)).source;
 
         // The screen draws the side of the upper cell over the side of the lower one, as it draws a workbook: the
         // line over the heading is drawn by the step above it, all across the heading.
@@ -405,7 +405,7 @@ class TableThemeTest {
     @Test
     void drawsTheLineOverASectionUnderTheRowsReadByTheLastOfThem() {
         var table = premium();
-        var layout = service.layoutOf(table, THEME);
+        var layout = service.layoutOf(table);
 
         // A window ending right above the heading: its last step draws the line over the heading.
         var window = new RawTableReader().read(table, RawTableRead.builder()
@@ -430,7 +430,7 @@ class TableThemeTest {
 
     @Test
     void closesThePropertiesOfATableWithOneLine() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED));
 
         // The properties take two rows of the sheet and are one section of the table: one line closes them.
         assertFalse(lineBelow(layout.at(RATED_ROW + 1, 2)), "No line between two properties");
@@ -444,12 +444,12 @@ class TableThemeTest {
     @Test
     void givesTheStepASpreadsheetReturnsTheResultLook() {
         var model = TableTestProjects.projectModel(dir);
-        var rated = service.layoutOf(TableTestProjects.table(model, RATED), THEME);
-        var graded = service.layoutOf(TableTestProjects.table(model, GRADED), THEME);
-        var plain = service.layoutOf(TableTestProjects.table(model, PLAIN), THEME);
-        var ratio = service.layoutOf(TableTestProjects.table(model, RATIO), THEME);
-        var qualified = service.layoutOf(TableTestProjects.table(model, QUALIFIED), THEME);
-        var nothing = service.layoutOf(TableTestProjects.table(model, NOTHING), THEME);
+        var rated = service.layoutOf(TableTestProjects.table(model, RATED));
+        var graded = service.layoutOf(TableTestProjects.table(model, GRADED));
+        var plain = service.layoutOf(TableTestProjects.table(model, PLAIN));
+        var ratio = service.layoutOf(TableTestProjects.table(model, RATIO));
+        var qualified = service.layoutOf(TableTestProjects.table(model, QUALIFIED));
+        var nothing = service.layoutOf(TableTestProjects.table(model, NOTHING));
 
         assertEquals(Boolean.TRUE, rated.at(RATED_ROW + 4, 1).style().bold(), "The step named RETURN is returned");
         assertEquals(Boolean.FALSE, rated.at(RATED_ROW + 5, 1).style().bold(),
@@ -470,9 +470,9 @@ class TableThemeTest {
     @Test
     void setsTheRowOfTheStepASpreadsheetReturnsApartWithLines() {
         var model = TableTestProjects.projectModel(dir);
-        var rated = service.layoutOf(TableTestProjects.table(model, RATED), THEME);
-        var plain = service.layoutOf(TableTestProjects.table(model, PLAIN), THEME);
-        var ratio = service.layoutOf(TableTestProjects.table(model, RATIO), THEME);
+        var rated = service.layoutOf(TableTestProjects.table(model, RATED));
+        var plain = service.layoutOf(TableTestProjects.table(model, PLAIN));
+        var ratio = service.layoutOf(TableTestProjects.table(model, RATIO));
 
         // Every cell of the row of the step named RETURN, which is not the last one.
         for (var column = 1; column <= 2; column++) {
@@ -487,7 +487,7 @@ class TableThemeTest {
 
     @Test
     void setsAResultWrittenOverSeveralRowsApartAsOneRow() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TALL), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TALL));
 
         // The last step takes two rows of the sheet: one line above it and one under it.
         assertTrue(lineAbove(layout.at(TALL_ROW + 2, 2)));
@@ -502,7 +502,7 @@ class TableThemeTest {
 
     @Test
     void splitsTheHeaderOfASpreadsheetIntoKeywordTypeNameAndParameters() {
-        var theme = service.theme(THEME);
+        var theme = service.theme();
         var header = theme.lookOf(theme.spreadsheet()).header();
         var cell = ThemeStyle.NONE.with(header.style());
 
@@ -529,7 +529,7 @@ class TableThemeTest {
 
     @Test
     void splitsTheHeaderIntoKeywordNameAndType() {
-        var theme = service.theme(THEME);
+        var theme = service.theme();
         var header = theme.lookOf(theme.datatype()).header();
         var cell = ThemeStyle.NONE.with(header.style());
 
@@ -548,7 +548,7 @@ class TableThemeTest {
     void drawsTheThemeInTheStyleOfEachCellAReadNamesItFor() {
         var table = person();
         var plain = new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build());
-        var themed = readThemed(table, service.layoutOf(table, THEME));
+        var themed = readThemed(table, service.layoutOf(table));
 
         var header = themed.source.getFirst().getFirst();
         assertEquals(RawTableStyleSource.THEME, header.style().source(), "The style is the look of the theme");
@@ -568,35 +568,42 @@ class TableThemeTest {
     }
 
     @Test
-    void reportsTheKeyOfTheThemeFileEachColourIsSetAt() {
-        // A screen may draw a colour of the theme its own way, by the key of the theme file the colour is set at.
+    void drawsNothingOfTheFormattingOfTheWorkbookWhereTheThemeDoesNotReach() {
         var table = person();
-        var standard = readThemed(table, service.layoutOf(table, THEME)).source;
+        var plain = new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build());
+        assertTrue(plain.source.stream().flatMap(List::stream).anyMatch(cell -> cell.style() != null),
+                "The workbook formats the table");
+
+        var unthemed = readThemed(table, ThemedTable.NONE);
+
+        assertTrue(unthemed.source.stream().flatMap(List::stream)
+                .allMatch(cell -> cell.style() == null && cell.runs() == null), "A table the theme does not style");
+    }
+
+    @Test
+    void reportsEveryColourOfTheThemeAsAColourOfThePaletteOfExcel() {
+        // A screen draws a colour of the theme in the colours of its own theme, by the colour of the palette of Excel.
+        var table = person();
+        var standard = readThemed(table, service.layoutOf(table)).source;
 
         var name = standard.get(1).get(1).style();
         assertEquals(LIGHT_BLUE, name.background());
-        assertEquals("datatype.name.background", name.backgroundKey(), "A part the kind writes");
-        assertEquals("datatype.type.color", standard.get(1).getFirst().style().colorKey(),
-                "Another part the kind writes");
-        assertEquals("base.header.keyword.color",
-                standard.getFirst().getFirst().runs().getFirst().style().colorKey(),
-                "A piece of the header, which the kind takes from the base");
+        assertEquals(new RawTableThemeColor(RawTableThemeColorName.ACCENT5, 0.8), name.backgroundTheme(),
+                "Blue, Accent 5, Lighter 80%");
+        assertEquals(new RawTableThemeColor(RawTableThemeColorName.LT1, -0.5),
+                standard.get(1).getFirst().style().colorTheme(), "White, Background 1, Darker 50%");
+        assertEquals(new RawTableThemeColor(RawTableThemeColorName.LT1, -0.5),
+                standard.getFirst().getFirst().runs().getFirst().style().colorTheme(), "A piece of the header");
         var white = standard.get(2).getFirst().style();
         assertNull(white.background(), "White, the default, is left out");
-        assertNull(white.backgroundKey(), "And so is its key");
-        assertNull(bottomOf(standard.getFirst().getFirst().style()).colorKey(),
-                "A line of no colour has no key");
-
-        var green = readThemed(table, service.layoutOf(table, GREEN)).source;
-        assertEquals("base.header.style.border.bottom.color",
-                bottomOf(green.getFirst().getFirst().style()).colorKey(),
-                "A line the file repeats by an alias is set at the side it is repeated on");
+        assertNull(white.backgroundTheme(), "And so is its colour of the palette");
+        assertNull(bottomOf(standard.getFirst().getFirst().style()).colorTheme(), "A line of no colour has none");
     }
 
     @Test
     void reachesAcrossAHeaderThatIsNotMergedOverTheTable() {
         var table = account();
-        var themed = readThemed(table, service.layoutOf(table, THEME));
+        var themed = readThemed(table, service.layoutOf(table));
         // The header holds its text in its first cell only; the cells beside it are the header row all the same.
         assertNotNull(bottomOf(themed.source.getFirst().get(2).style()));
 
@@ -606,19 +613,19 @@ class TableThemeTest {
     }
 
     @Test
-    void startsEachPieceOfTheHeaderFromTheFontOfTheCell() {
+    void drawsEachPieceOfTheHeaderInTheThemeAndWritesItOverTheFontOfTheCell() {
         var table = account();
-        var themed = readThemed(table, EXTENDED.layoutOf(table, EXTENDED_THEME));
-        // The header is bold in the workbook, and the theme says nothing of bold for the keyword: it stays bold, on
-        // the screen as in the workbook the theme is written into.
+        var themed = readThemed(table, EXTENDED.layoutOf(table));
+        // The header is bold in the workbook, and the theme says nothing of bold for the keyword: the screen draws the
+        // look of the theme alone, and the workbook the theme is written into keeps the keyword bold.
         var drawn = themed.source.getFirst().getFirst().runs().getFirst().style();
-        assertEquals(Boolean.TRUE, drawn.bold());
+        assertNull(drawn.bold());
         assertEquals("#548235", drawn.color());
 
-        EXTENDED.writer(EXTENDED_THEME).writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
+        EXTENDED.writer().writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
 
         var written = read(ACCOUNT).getFirst().getFirst().runs().getFirst().style();
-        assertEquals(drawn.bold(), written.bold());
+        assertEquals(Boolean.TRUE, written.bold());
         assertEquals(drawn.color(), written.color());
     }
 
@@ -638,17 +645,11 @@ class TableThemeTest {
         }
         assertNotNull(read("Person").get(1).get(1).runs(), "The workbook formats the name in pieces");
 
-        // A theme naming nothing of the font of the cell keeps the pieces, on the screen as in the workbook.
+        // The screen draws the look of the theme alone, which formats no pieces of the field name.
         var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person");
-        var kept = readThemed(person, EXTENDED.layoutOf(person, EXTENDED_THEME)).source.get(1).get(1);
-        assertEquals(List.of("na", "me"), texts(kept.runs()));
-        var alone = new RawTableReader().read(person, RawTableRead.builder()
-                .theme(EXTENDED.layoutOf(person, EXTENDED_THEME))
-                .build()).source.get(1).get(1);
-        assertEquals(List.of("na", "me"), texts(alone.runs()), "Kept by a read of the theme alone");
-        var drawn = readThemed(person, service.layoutOf(person, THEME)).source.get(1).get(1);
-        assertNull(drawn.runs(), "A theme naming the font draws the text in it");
-        EXTENDED.writer(EXTENDED_THEME).writeAll(tables(TableTestProjects.projectModel(dir), "Person"), Map.of());
+        assertNull(readThemed(person, EXTENDED.layoutOf(person)).source.get(1).get(1).runs());
+        // A theme naming nothing of the font of the cell keeps the pieces in the workbook.
+        EXTENDED.writer().writeAll(tables(TableTestProjects.projectModel(dir), "Person"), Map.of());
         assertNotNull(read("Person").get(1).get(1).runs());
 
         write(tables(TableTestProjects.projectModel(dir), "Person"));
@@ -661,7 +662,7 @@ class TableThemeTest {
     @Test
     void keepsTheSizeOfAFontOfHalfAPointTheThemeSaysNothingOf() throws IOException {
         // The theme names no size, so the header keeps the 10.5 points it is written in.
-        EXTENDED.writer(EXTENDED_THEME).writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
+        EXTENDED.writer().writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
 
         try (var workbook = workbook()) {
             var header = cell(workbook.getSheet(SHEET), ACCOUNT_ROW, 1);
@@ -782,7 +783,7 @@ class TableThemeTest {
 
     @Test
     void notesTheEditOnEveryTableItThemes() {
-        var written = service.writer(THEME).writeAll(List.of(person()), Map.of("modifiedBy", "admin"));
+        var written = service.writer().writeAll(List.of(person()), Map.of("modifiedBy", "admin"));
 
         // The note is written onto the table as any edit of it writes it.
         var source = read("Person");
@@ -794,7 +795,7 @@ class TableThemeTest {
 
     @Test
     void themesThePropertiesTheNoteLaysDown() {
-        service.writer(THEME).writeAll(List.of(person()), Map.of("modifiedBy", "admin"));
+        service.writer().writeAll(List.of(person()), Map.of("modifiedBy", "admin"));
 
         // The table had no properties: the note lays them down after the theme, and they take the theme too.
         var source = read("Person");
@@ -816,7 +817,7 @@ class TableThemeTest {
             sheet.addMergedRegion(new CellRangeAddress(3, 3, 3, 5));
         });
 
-        service.writer(THEME).writeAll(List.of(TableTestProjects.table(TableTestProjects.projectModel(wide), "Wide")),
+        service.writer().writeAll(List.of(TableTestProjects.table(TableTestProjects.projectModel(wide), "Wide")),
                 Map.of());
 
         try (InputStream in = Files.newInputStream(wide.resolve(SHEET + ".xlsx"));
@@ -840,7 +841,7 @@ class TableThemeTest {
 
     @Test
     void givesTheCodeOfAMethodTableTheLookEveryCellStartsFrom() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), ANSWER), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), ANSWER));
 
         var code = layout.at(ANSWER_ROW + 1, 1).style();
         assertEquals(WHITE, code.background().rgb());
@@ -853,7 +854,7 @@ class TableThemeTest {
 
     @Test
     void themesEveryRowOfTheSheetAStepTakes() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TALL), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TALL));
 
         // The step takes two rows of the sheet: its name is merged down over both, its value is written in each.
         assertEquals(LIGHT_BLUE, layout.at(TALL_ROW + 2, 2).style().background().rgb());
@@ -866,7 +867,7 @@ class TableThemeTest {
 
     @Test
     void givesEachPlaceOfADataTableItsLook() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TEAMS), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), TEAMS));
 
         // The header of a Data table is signed as every table is, its text centred.
         assertEquals(ThemeHorizontalAlign.CENTER, layout.at(TEAMS_ROW, 1).style().align());
@@ -893,7 +894,7 @@ class TableThemeTest {
 
     @Test
     void givesTheFieldsOfATransposedDataTableTheLookOfTheirPlace() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), CREW), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), CREW));
 
         // Each field runs across a row: its name, its title, then a value of each row of the table.
         assertEquals(MUTED, layout.at(CREW_ROW + 2, 1).style().color().rgb());
@@ -918,7 +919,7 @@ class TableThemeTest {
 
     @Test
     void givesTheValuesATestTakesFromADataTableTheIdLook() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST));
 
         assertEquals(MUTED, layout.at(RATED_TEST_ROW + 2, 1).style().color().rgb(), "The row naming the Data table");
         assertTrue(lineBelow(layout.at(RATED_TEST_ROW + 2, 1)), "The rows naming the fields are closed");
@@ -928,14 +929,14 @@ class TableThemeTest {
         assertEquals(Boolean.TRUE, layout.at(RATED_TEST_ROW + 4, 1).style().bold());
         assertEquals(WHITE, layout.at(RATED_TEST_ROW + 4, 1).style().background().rgb());
         assertEquals(Boolean.FALSE, layout.at(RATED_TEST_ROW + 4, 2).style().bold());
-        // The green theme fills it too.
-        var green = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST), GREEN);
+        // A theme filling the keys fills it too.
+        var green = FILLED_KEYS.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST));
         assertEquals(GREEN_ID, green.at(RATED_TEST_ROW + 4, 1).style().background().rgb());
     }
 
     @Test
     void givesTheResultsATestExpectsTheLookOfWhatATableGives() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_TEST));
 
         // The value the tested method returns and the error it reports are titled blue, their values light blue.
         for (var column = 2; column <= 3; column++) {
@@ -961,7 +962,7 @@ class TableThemeTest {
         });
 
         var layout = service.layoutOf(
-                TableTestProjects.tableHeaded(TableTestProjects.projectModel(missing), MISSING_TEST), THEME);
+                TableTestProjects.tableHeaded(TableTestProjects.projectModel(missing), MISSING_TEST));
 
         assertBodyTakesTheBase(layout, TableTheme::test, 2, 3, 4);
     }
@@ -977,7 +978,7 @@ class TableThemeTest {
         });
 
         var layout = service.layoutOf(
-                TableTestProjects.tableHeaded(TableTestProjects.projectModel(missing), MISSING_DATA), THEME);
+                TableTestProjects.tableHeaded(TableTestProjects.projectModel(missing), MISSING_DATA));
 
         assertBodyTakesTheBase(layout, TableTheme::data, 2, 4, 2);
     }
@@ -988,7 +989,7 @@ class TableThemeTest {
      */
     private void assertBodyTakesTheBase(ThemedTable layout, Function<TableTheme, TableTheme.Look> kind, int first,
                                         int last, int columns) {
-        var theme = service.theme(THEME);
+        var theme = service.theme();
         var look = theme.lookOf(kind.apply(theme));
         var base = ThemeStyle.NONE.with(look.style());
         for (var row = first; row <= last; row++) {
@@ -1004,8 +1005,7 @@ class TableThemeTest {
     void givesARunTableTheLookOfATestTable() {
         // The shipped themes draw a Run table in the General format of the standard; this theme gives it the look of a
         // Test table.
-        var layout = LOOKS.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_RUN),
-                LOOKS_THEME);
+        var layout = LOOKS.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), RATED_RUN));
 
         assertEquals(MUTED, layout.at(RATED_RUN_ROW + 1, 1).style().color().rgb(), "The row naming the field");
         assertEquals(MUTED, layout.at(RATED_RUN_ROW + 2, 1).style().color().rgb(), "The row naming the Data table");
@@ -1016,7 +1016,7 @@ class TableThemeTest {
         assertTrue(lineBelow(layout.at(RATED_RUN_ROW + 4, 1)));
 
         // The header names the method the table runs, then the name of the table.
-        var theme = LOOKS.theme(LOOKS_THEME);
+        var theme = LOOKS.theme();
         var header = theme.lookOf(theme.run()).header();
         assertEquals(List.of("Run", " ", RATED, " ", RATED_RUN),
                 pieces("Run " + RATED + " " + RATED_RUN, ThemeStyle.NONE.with(header.style()), header));
@@ -1035,7 +1035,7 @@ class TableThemeTest {
 
     @Test
     void boldsTheKeyTheCompilerTakesForADataTableThatNamesNone() {
-        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), "people"), THEME);
+        var layout = service.layoutOf(TableTestProjects.table(TableTestProjects.projectModel(dir), "people"));
 
         // The table names no _PK_: a reference reads its rows by the first column, its key.
         assertEquals(Boolean.TRUE, layout.at(15, 1).style().bold());
@@ -1044,17 +1044,16 @@ class TableThemeTest {
     }
 
     @Test
-    void fillsTheKeysAndTheValuesThatAreNotFilledInTheGreenTheme() {
+    void fillsTheKeysAndTheValuesThatAreNotFilledWhereTheThemeFillsThem() {
         var model = TableTestProjects.projectModel(dir);
-        var people = service.layoutOf(TableTestProjects.table(model, "people"), GREEN);
-        var teams = service.layoutOf(TableTestProjects.table(model, TEAMS), GREEN);
+        var people = FILLED_KEYS.layoutOf(TableTestProjects.table(model, "people"));
+        var teams = FILLED_KEYS.layoutOf(TableTestProjects.table(model, TEAMS));
 
         assertEquals(GREEN_ID, people.at(15, 1).style().background().rgb());
-        assertNotEquals(GREEN_ID, teams.at(TEAMS_ROW + 4, 1).style().background().rgb(),
-                "A column _PK_ is no key look");
+        assertNull(teams.at(TEAMS_ROW + 4, 1).style().background(), "A column _PK_ is no key look");
         assertEquals(GREEN_EMPTY, teams.at(TEAMS_ROW + 5, 2).style().background().rgb());
 
-        write(tables(TableTestProjects.projectModel(dir), "people", TEAMS), GREEN);
+        FILLED_KEYS.writer().writeAll(tables(TableTestProjects.projectModel(dir), "people", TEAMS), Map.of());
 
         assertEquals(GREEN_ID, read("people").get(3).getFirst().style().background());
         assertEquals(GREEN_EMPTY, read(TEAMS).get(5).get(1).style().background());
@@ -1082,13 +1081,9 @@ class TableThemeTest {
         return TableTestProjects.styledSource(TableTestProjects.table(TableTestProjects.projectModel(dir), name));
     }
 
+    /** Writes the theme into tables and saves their workbooks, the way a project is themed where no edit is noted. */
     private List<String> write(List<IOpenLTable> tables) {
-        return write(tables, THEME);
-    }
-
-    /** Writes a theme into tables and saves their workbooks, the way a project is themed where no edit is noted. */
-    private List<String> write(List<IOpenLTable> tables, String theme) {
-        return service.writer(theme).writeAll(tables, Map.of());
+        return service.writer().writeAll(tables, Map.of());
     }
 
     /** Tables of one model: tables read through two models would each save a workbook of their own. */
@@ -1157,10 +1152,6 @@ class TableThemeTest {
         return HeaderRuns.split(text, cell, header).stream()
                 .map(run -> text.substring(run.start(), run.end()))
                 .toList();
-    }
-
-    private static List<String> ids(List<TableThemeView> themes) {
-        return themes.stream().map(TableThemeView::id).toList();
     }
 
     private static List<String> texts(List<RawTableTextRun> runs) {

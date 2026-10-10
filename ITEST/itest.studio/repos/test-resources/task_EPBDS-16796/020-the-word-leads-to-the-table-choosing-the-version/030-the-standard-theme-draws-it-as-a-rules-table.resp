@@ -35,9 +35,12 @@ Content-Type: application/json
             "text": "Rules",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -53,9 +56,12 @@ Content-Type: application/json
             "text": "String",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -80,9 +86,12 @@ Content-Type: application/json
             "text": "(***",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.parameters.color",
               "source": "theme"
             }
           }
@@ -98,11 +107,14 @@ Content-Type: application/json
         "value": "C1",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "rules.code.color",
           "source": "theme"
         }
       },
@@ -111,11 +123,14 @@ Content-Type: application/json
         "value": "RET",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "rules.code.color",
           "source": "theme"
         }
       }
@@ -126,11 +141,14 @@ Content-Type: application/json
         "value": "usState == null || contains(stateLocal,usState)",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "rules.code.color",
           "source": "theme"
         }
       },
@@ -139,11 +157,14 @@ Content-Type: application/json
         "value": "result",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "rules.code.color",
           "source": "theme"
         }
       }
@@ -154,6 +175,10 @@ Content-Type: application/json
         "value": "UsStatesEnum[] stateLocal",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "border": {
@@ -164,7 +189,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "rules.code.color",
           "source": "theme"
         }
       },
@@ -173,6 +197,10 @@ Content-Type: application/json
         "value": "String result",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "border": {
@@ -183,7 +211,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "rules.code.color",
           "source": "theme"
         }
       }
@@ -194,12 +221,15 @@ Content-Type: application/json
         "value": "US States",
         "style": {
           "background": "#bfbfbf",
+          "backgroundTheme": {
+            "name": "lt1",
+            "tint": -0.25
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "rules.titles.background",
           "source": "theme"
         }
       },
@@ -208,12 +238,15 @@ Content-Type: application/json
         "value": "RESULT",
         "style": {
           "background": "#b4c6e7",
+          "backgroundTheme": {
+            "name": "accent1",
+            "tint": 0.6
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "rules.returnTitles.background",
           "source": "theme"
         }
       }
@@ -236,10 +269,13 @@ Content-Type: application/json
         "value": "=Hello$0(arg_name)",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "rules.returns.background",
           "source": "theme"
         }
       }
@@ -268,6 +304,10 @@ Content-Type: application/json
         "value": "=Hello$1(arg_name)",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -277,7 +317,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "rules.returns.background",
           "source": "theme"
         }
       }

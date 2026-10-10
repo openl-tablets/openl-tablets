@@ -34,9 +34,12 @@ Content-Type: application/json
             "text": "Test",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -52,9 +55,12 @@ Content-Type: application/json
             "text": "Premium",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -104,11 +110,14 @@ Content-Type: application/json
         "value": "person",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "test.name.color",
           "source": "theme"
         }
       },
@@ -117,11 +126,14 @@ Content-Type: application/json
         "value": "_res_.$Total",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "test.name.color",
           "source": "theme"
         }
       }
@@ -132,6 +144,10 @@ Content-Type: application/json
         "value": ">people",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "border": {
@@ -142,7 +158,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "test.name.color",
           "source": "theme"
         }
       },
@@ -150,6 +165,10 @@ Content-Type: application/json
         "cell": "C33",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "align": "center",
           "valign": "center",
           "border": {
@@ -160,7 +179,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "test.name.color",
           "source": "theme"
         }
       }
@@ -171,12 +189,15 @@ Content-Type: application/json
         "value": "Insured",
         "style": {
           "background": "#bfbfbf",
+          "backgroundTheme": {
+            "name": "lt1",
+            "tint": -0.25
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "test.titles.background",
           "source": "theme"
         }
       },
@@ -185,12 +206,15 @@ Content-Type: application/json
         "value": "Total Premium",
         "style": {
           "background": "#b4c6e7",
+          "backgroundTheme": {
+            "name": "accent1",
+            "tint": 0.6
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "test.returnTitles.background",
           "source": "theme"
         }
       }
@@ -219,6 +243,10 @@ Content-Type: application/json
         "value": 20,
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "align": "center",
           "valign": "center",
           "border": {
@@ -229,7 +257,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "test.returns.background",
           "source": "theme"
         }
       }

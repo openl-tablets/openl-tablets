@@ -48,7 +48,7 @@ class DispatcherThemeLayoutTest {
 
     @Test
     void givesTheTableChoosingBetweenVersionsTheLookOfARulesTable() {
-        var layout = service.layoutOf(TableTestProjects.dispatcherTable(projectModel), "standard");
+        var layout = service.layoutOf(TableTestProjects.dispatcherTable(projectModel));
 
         assertNotNull(layout);
         assertEquals(MUTED, layout.at(KINDS, 0).style().color().rgb(), "The kinds are code");

@@ -15,6 +15,7 @@ import type {
     WatchView,
 } from 'types/trace'
 import traceService from 'services/traceService'
+import { excelFormattingOf, useUserStore } from 'store/userStore'
 import { walkDepthFirst } from 'utils/depthFirst'
 import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
 
@@ -609,7 +610,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
             if (!projectId) throw new Error('No project ID')
             const cached = rawTableCache[tableId]
             if (cached) return cached
-            const raw = await traceService.getRawTable(projectId, tableId, MAX_TABLE_ROWS, true)
+            const raw = await traceService.getRawTable(projectId, tableId, MAX_TABLE_ROWS,
+                excelFormattingOf(useUserStore.getState()))
             set(s => ({ rawTableCache: { ...s.rawTableCache, [tableId]: raw } }))
             return raw
         },

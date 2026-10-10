@@ -27,9 +27,8 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   the table, with or without `maxRows`.
 - `styles` — `true` adds the Excel style of every cell and the pieces of its text formatted with fonts of their own; see
   [Style of a Cell](#style-of-a-cell).
-- `tableTheme` — the identifier of a table theme. Reports, for a table of any kind but `Other`, the look that the theme
-  gives every cell in place of its Excel style, with or without `styles=true`; see [Table Theme](#table-theme). An
-  empty value draws no theme, as the empty setting draws the formatting of the Excel file. Only with `raw=true`.
+- `tableTheme` — `true` reports the look the table theme gives every cell in place of the formatting of the workbook,
+  with or without `styles=true`; see [Table Theme](#table-theme). Only with `raw=true`.
 - `metaInfo` — `true` adds what the compiler knows about every cell.
 - `module` — the module to read the table through. The answer is ready once that module is compiled, without waiting
   for the rest of the project.
@@ -90,10 +89,10 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   address.
 - `formula` — the formula of the cell, such as `=B2*C2`, next to the `value` it computed. Read-only.
 - `comment` — the note that a reader left on the cell. Read-only.
-- `style` — the Excel style of the cell, with `styles=true`, or the look the table theme gives it, with `tableTheme`.
-  Read-only.
-- `runs` — the pieces of the text formatted with fonts of their own, with `styles=true` or `tableTheme`, when the text
-  does not take the font of the cell; see [Style of a Cell](#style-of-a-cell). Read-only.
+- `style` — the Excel style of the cell, with `styles=true`, or the look the table theme gives it, with
+  `tableTheme=true`. Read-only.
+- `runs` — the pieces of the text formatted with fonts of their own, with `styles=true` or `tableTheme=true`, when the
+  text does not take the font of the cell; see [Style of a Cell](#style-of-a-cell). Read-only.
 - `metaInfo` — what the compiler knows about the cell, with `metaInfo=true`. Read-only.
 
 The cell of a merged range that holds the value is the top-left one. The other positions of the range are `covered`.
@@ -113,19 +112,16 @@ A client reads the matrix row by row and skips the covered cells.
 The `style` of a cell leaves out an attribute that has its default value:
 
 - `background`, `color` — `#rrggbb`. The default background is white and the default font colour is black.
+- `backgroundTheme`, `colorTheme` — the same colours as one of the sixty colours the palette of Excel offers for the
+  theme of the workbook, set by the table theme only, present whenever the colour is; see
+  [Theme Colours](#theme-colours).
 - `align`, `valign` — the horizontal and the vertical alignment.
 - `bold`, `italic`, `underline`, `strikeout` — `true` for the font attribute.
 - `indent` — the left indent in Excel units.
 - `border` — the borders by side. Each side the workbook draws has its `style` (`solid`, `dashed`, `dotted`, `double`),
-  its `width` in pixels, and its `color`, absent when black. A side without a border is absent.
+  its `width` in pixels, and its `color`, absent when black. A side the table theme draws also has its `colorTheme`,
+  present whenever `color` is. A side without a border is absent.
 - `fontFamily`, `fontSize` — set by the table theme only. A style read from the workbook has neither.
-- `backgroundKey`, `colorKey` — the key of the table theme file the background and the font colour are set at,
-  beside the colour itself: the base or the kind, the part and the attribute, such as
-  `spreadsheet.values.background` or `base.header.keyword.color`, the file read with its aliases and merge keys
-  resolved. Set by the table theme only. A border side of the theme carries the `colorKey` of its line the same way,
-  naming the side the file sets, such as `spreadsheet.resultRow.border.top.color` of the Green theme, whichever side
-  the line is drawn on: that line is drawn as the bottom line of the row above. A client can draw the colour of a
-  key its own way, as OpenL Studio does with **Override with Studio theme**.
 - `source` — `theme` for the look of a table theme, which a read with `tableTheme` reports in place of the style of
   the workbook; absent for the style the workbook holds, `workbook`. The style of a run names its source the same way.
 
@@ -146,6 +142,26 @@ the cell.
   ]
 }
 ```
+
+#### Theme Colours
+
+An Excel theme has ten colours: the first and the second background and text, `lt1`, `dk1`, `lt2` and `dk2`, and six
+accents, `accent1` to `accent6`. Beside each one the palette of Excel offers five shades, lighter or darker, sixty
+colours in all. Every colour of the look of the table theme is one of them, and is reported as that one besides
+`#rrggbb`:
+
+```json
+{"background": "#b4c6e7", "backgroundTheme": {"name": "accent1", "tint": 0.6}}
+```
+
+- `name` — the theme colour.
+- `tint` — how much lighter, above 0, or darker, below 0, from -1 to 1, as the palette names it: `0.6` for
+  **Lighter 60%**, `-0.25` for **Darker 25%**. Absent for the theme colour itself.
+
+The `#rrggbb` is the colour as the theme colours **Office 2013 - 2022** of Excel draw it, whatever the theme of the
+workbook. A client can draw the table theme in the colours of a theme of its own, as OpenL Studio draws the tables in
+the colours of its theme. A colour of the formatting of the workbook, read with `styles=true`, is reported as
+`#rrggbb` alone.
 
 ### Meta Information of a Cell
 
@@ -359,38 +375,21 @@ The `style` operation sets the style of every cell of a rectangle:
 
 ### Table Theme
 
-A table theme gives every table but a table of the kind `Other` one look: a table of no kind OpenL Tablets knows and a
-part of a table written as several partial tables take no theme. OpenL Studio offers every theme file in the
-`table-themes` folder of its classpath and ships `standard` and `green`. A theme is asked for by its identifier, the
-name of its file without the extension. How a theme file is written is described in
-[Appendix E: Table Themes](../user-guides/openl-studio/appendices/table-themes.md).
+The table theme gives every table but a table of the kind `Other` one look, the one the formatting standard of OpenL
+tables describes: a table of no kind OpenL Tablets knows and a part of a table written as several partial tables take
+no theme. A client offers the theme for a table of any kind but `Other`, which the read reports in `kind`. Every colour
+of the theme is a theme colour of Excel, made lighter or darker, such as **Blue, Accent 1, Lighter 60%**.
 
-**Listing the themes.** Two endpoints list the themes, each with its identifier and the name it is shown by:
+**Drawing the theme.** A read with `tableTheme=true` reports every cell in the look of the theme alone, in place of
+the formatting of the workbook. Nothing of the formatting of the workbook is reported but the indent of a cell, which
+sets out the structure of a table, such as the steps of a TBasic algorithm:
 
-```http
-GET /rest/table-themes
-GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
-```
-
-```json
-[{"id": "standard", "name": "Standard"}, {"id": "green", "name": "Green"}]
-```
-
-- The first lists every theme OpenL Studio offers: the primary themes first, which a theme file marks with
-  `primary: true`, then the others, each in the order of their names. A client selects the first theme when a theme
-  is applied, so it never chooses one by its identifier.
-- The second lists the themes that can be drawn over the table and written into it, in the same order. Every theme
-  styles every table but a table of the kind `Other`, so the list holds every theme for such a table, and none for an
-  `Other` table.
-
-**Drawing the theme.** A read with `tableTheme=<id>` reports every cell the theme reaches in the look of the theme, in
-place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:
-
-- `style` — the cell style with the attributes the theme sets laid over it, each colour of the theme with its key, and
-  `source` set to `theme`.
+- `style` — the attributes the theme sets, each colour of the theme with the theme colour it is, the indent of the
+  cell, and `source` set to `theme`. A cell the theme does not reach, such as every cell of a table of the kind
+  `Other`, has the indent of the cell alone, or no `style` without an indent. So has every cell of a table the theme
+  cannot be laid out over, a failure the server logs.
 - `runs` — the pieces the theme formats the header text in, each style of theirs with `source` set to `theme`. Any
-  other text the workbook formats in pieces keeps them where the theme sets nothing of the font of the cell, and is
-  drawn in the font of the theme otherwise, as writing the theme gives.
+  other text is drawn whole in the font of its cell, as writing the theme gives.
 
 A line two cells of the table share is reported on the upper or the left cell, as the cell styles report the lines a
 workbook holds: the line the theme draws over a section of a Spreadsheet is the `bottom` of the cells above it. A read
@@ -402,35 +401,33 @@ whose type or tested table is missing, has no parts OpenL knows: the cells of it
 theme, its General format, rather than a look guessed from where they stand, while its header, its properties and the
 line that closes it keep the theme.
 
-The theme is a view only: a client edits a table from a read without `tableTheme`, whose styles are the ones the
-workbook holds, so no edit writes the look the screen drew. Only the `theme` action writes a theme. A table of the
-kind `Other` is read with the styles of the workbook alone. A theme OpenL Studio does not offer is refused with `400`.
+The theme is a view only: an edit writes only what it changes, such as a value or an indent, so no edit writes the
+look the screen drew. Only the `theme` action writes the theme.
 
-**Writing the theme into a table.** The `theme` action writes a theme into the table:
+**Writing the theme into a table.** The `theme` action writes the theme into the table:
 
 ```json
-{"operation": "theme", "theme": "standard"}
+{"operation": "theme"}
 ```
 
 The theme is laid out by the table as it was saved and compiled: a decision table by where the compiler found its
 conditions and what it returns, a Conditions, an Actions or a Returns table by where it found the titles of what the
 table declares. An edit sent with the theme would change the table the compiler read, and a column it inserted into a
 decision table would be a condition the compiler has not read yet. So the theme is applied on its own: a batch
-holding a `theme` action and any other edit, another theme included, is refused with `400` and
+holding a `theme` action and any other edit, another `theme` action included, is refused with `400` and
 `openl.error.400.table.theme.alone.message` before the table is read, and nothing of it is written. Send the edits
 first, then the theme, or the other way round. A theme is refused with `409` and
 `openl.error.409.table.theme.verify.message` while a workbook of the project was written to since it was compiled:
 with **Verify on Edit** turned off, a write leaves the project compiled as it stood before the write until the module
 is verified. Compile the module first, with `POST /rest/projects/{projectId}/modules/{moduleName}/compile?reset=true`,
 which compiles every module of the project again. Where OpenL Studio records who edits a table and when, a property
-the note of the edit adds takes the theme too. A table of the kind `Other` is refused with `400`, and so is a theme
-OpenL Studio does not offer.
+the note of the edit adds takes the theme too. A table of the kind `Other` is refused with `400`.
 
-**Writing the theme into the project.** One endpoint writes a theme into every table of every module of the project
+**Writing the theme into the project.** One endpoint writes the theme into every table of every module of the project
 but the tables of the kind `Other`, and recompiles what it changes:
 
 ```http
-POST /rest/projects/{projectId}/theme?theme={id}
+POST /rest/projects/{projectId}/theme
 ```
 
 It answers `200` with the identifiers of the tables themed and of the ones left as they are, which are written as
@@ -449,11 +446,12 @@ Writing changes only the look of a table. Each cell keeps its value and every at
 as its number format. The header keeps its text, cells outside the table are not touched, and a table of a
 dependency project is left as it is. Writing the theme again adds no styles or fonts to the workbook.
 
-A theme that makes its colours of the theme colours of Excel (`themeColors`) writes each such colour as the theme
-colour, made lighter or darker, into a workbook whose twelve theme colours are those, so Excel offers it in its
-palette, and as `#rrggbb` into any other workbook, an `.xls` one and one without a theme among them. The project
-endpoint and the `theme` action write alike, and neither changes the theme of a workbook: Apache POI, which writes
-the workbooks, has no way to set it.
+Each colour is written as the theme colour it is into an `.xlsx` workbook of a theme, whatever its theme colours, so
+the table takes the colours of the theme of the workbook and Excel offers the colour in its palette. Into an `.xls`
+workbook and an `.xlsx` one without a theme, each colour is written as `#rrggbb`, in the shade Office 2013 - 2022
+draws it in; an `.xls` workbook holds 56 colours and takes the nearest one it holds. The project endpoint and the
+`theme` action write alike, and neither changes the theme of a workbook: Apache POI, which writes the workbooks, has
+no way to set it.
 
 ### Applying Several Edits
 
@@ -475,7 +473,7 @@ Content-Type: application/json
 - **One write** — the table is written once, after the last edit. An edit that is refused ends the sequence, and nothing
   of it reaches the table.
 - **A theme alone** — a `theme` action is the only edit of its batch. A batch holding it and any other edit, another
-  theme included, is refused with `400`; see [Table Theme](#table-theme).
+  `theme` action included, is refused with `400`; see [Table Theme](#table-theme).
 - **Response** — as for a single edit: `204`, or `200` with the new id and the `Location` header.
 
 ## Editing a Table

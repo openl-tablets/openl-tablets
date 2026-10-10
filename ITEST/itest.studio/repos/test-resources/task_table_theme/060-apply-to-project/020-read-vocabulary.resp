@@ -13,19 +13,16 @@ Content-Type: application/json
         "cell": "B8",
         "value": "Datatype Code <String>",
         "style": {
-          "background": "#c6e0b4",
           "align": "center",
           "valign": "center",
           "border": {
             "top": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             },
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         },
@@ -33,7 +30,7 @@ Content-Type: application/json
           {
             "text": "Datatype",
             "style": {
-              "color": "#548235"
+              "color": "#808080"
             }
           },
           {
@@ -53,7 +50,7 @@ Content-Type: application/json
           {
             "text": "<String>",
             "style": {
-              "color": "#548235"
+              "color": "#808080"
             }
           }
         ]
@@ -79,8 +76,7 @@ Content-Type: application/json
           "border": {
             "bottom": {
               "style": "solid",
-              "width": 1,
-              "color": "#548235"
+              "width": 1
             }
           }
         }

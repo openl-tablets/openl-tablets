@@ -66,16 +66,10 @@ export interface UserProfile {
     showHeader: boolean
     showRealNumbers: boolean
     /**
-     * The table theme the tables it styles are drawn with on the screen, by its identifier. Absent or empty, the
-     * tables are drawn with the formatting of the Excel file. A view only: applying a theme starts from the primary
-     * one, which the server offers first.
+     * Whether the tables are drawn in the colours of their Excel files, as Excel draws them, rather than in the colours
+     * of the theme of OpenL Studio. A view only: the Excel files are not changed.
      */
-    tableTheme?: string
-    /**
-     * Whether the tables are drawn in the look of the theme of OpenL Studio in place of the table theme, where the
-     * theme has a look for them. A view only, like the table theme.
-     */
-    overrideWithStudioTheme: boolean
+    showExcelFormatting: boolean
     testsFailuresOnly: boolean
     testsFailuresPerTest: number
     testsPerPage: number

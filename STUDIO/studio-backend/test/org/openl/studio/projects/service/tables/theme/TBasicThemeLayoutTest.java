@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.service.tables.TableTestProjects;
+import org.openl.studio.projects.service.tables.read.RawTableRead;
+import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
  * Covers the look a theme gives a TBasic table: an algorithm written in steps, nested by the indent of their
@@ -32,7 +35,6 @@ class TBasicThemeLayoutTest {
      * format of the standard.
      */
     private static final TableThemeService LOOKS = TestThemes.everyKind();
-    private static final String THEME = TestThemes.EVERY_KIND;
 
     /** The looks that theme gives the places of a TBasic table. */
     private static final String WHITE = "#ffffff";
@@ -60,7 +62,7 @@ class TBasicThemeLayoutTest {
 
     /** A theme that gives the conditions of a TBasic table a look of their own, which the shipped themes do not. */
     private static final TableThemeService CONDITIONS =
-            new TableThemeService("classpath*:test-table-themes/tbasic-condition.yaml");
+            TestThemes.of("tbasic-condition.yaml");
     private static final String CONDITION_FILL = "#fff2cc";
 
     @TempDir
@@ -73,7 +75,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void offersEveryThemeForATBasicTable() {
-        assertEquals(LOOKS.getThemes(), LOOKS.getThemes(factorial()));
+        assertTrue(LOOKS.styles(factorial()));
     }
 
     @Test
@@ -117,7 +119,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void givesTheConditionsTheLookAThemeWritesForThem() {
-        var layout = CONDITIONS.layoutOf(factorial(), "tbasic-condition");
+        var layout = CONDITIONS.layoutOf(factorial());
 
         for (var row = FIRST_STEP; row <= LAST_STEP; row++) {
             assertEquals(CONDITION_FILL, layout.at(row, CONDITION).style().background().rgb(), "row " + row);
@@ -149,7 +151,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void keepsTheIndentOfTheOperationsInTheWorkbook() {
-        LOOKS.writer(THEME).writeAll(List.of(factorial()), Map.of());
+        LOOKS.writer().writeAll(List.of(factorial()), Map.of());
 
         var written = read();
         // The rows of the body follow the header: the ids, the titles, then the steps.
@@ -159,12 +161,23 @@ class TBasicThemeLayoutTest {
         assertEquals(CODE, written.get(FIRST_STEP - FACTORIAL_ROW).get(ACTION - LABEL).style().background());
     }
 
+    @Test
+    void keepsTheIndentOfTheOperationsOnTheScreen() {
+        var drawn = new RawTableReader().read(factorial(), RawTableRead.builder()
+                .theme(LOOKS.layoutOf(factorial()))
+                .build());
+
+        // The rows of the body follow the header: the ids, the titles, then the steps.
+        var nested = drawn.source.get(LOOP_STEP + 1 - FACTORIAL_ROW).get(OPERATION - LABEL);
+        assertEquals(1, nested.style().indent(), "The indent nests the step, in the look of the theme");
+    }
+
     private IOpenLTable factorial() {
         return TableTestProjects.tableAt(dir, FACTORIAL_ROW);
     }
 
     private ThemedTable layout() {
-        return LOOKS.layoutOf(factorial(), THEME);
+        return LOOKS.layoutOf(factorial());
     }
 
     /** The cells of the table as the workbook now holds them, with their styles. */

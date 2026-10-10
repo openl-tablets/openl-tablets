@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Tooltip } from 'antd'
+import { useTheme } from 'antd-style'
 import type { RawTableCell, TableLayout } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
-import { type TablePaper, workbookPaper } from '../styles/paper'
+import { paintedIn, tableOf, workbookTable } from '../styles/tableColours'
 import { type RawTableGridStyles, useStyles } from './RawTableGrid.styles'
 import { borders, fontFamilyOf, fontSizeOf, indentOf, textDecoration, tinted } from './rawTableStyle'
 
@@ -25,11 +26,6 @@ interface RawTableGridProps {
     decorate?: ((cell: RawTableCell, row: number, column: number) => CellDecoration | undefined) | undefined
     /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
     formulas?: boolean | undefined
-    /**
-     * The paper the table is laid on: its ground and ink, its grid, its links and the marks of its notes. Absent
-     * where the table lies on the paper of a workbook ({@link workbookPaper}).
-     */
-    paper?: TablePaper | undefined
     /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
     onOpenUsage?: OpenUsage | undefined
     /** Told which cell the reader picked; absent on a screen where a cell cannot be picked. */
@@ -51,6 +47,12 @@ interface RawTableGridProps {
      * Absent where the lines are not numbered, which is every other table.
      */
     layout?: TableLayout | undefined
+    /**
+     * Draw the table as Excel draws it, in the formatting and the colours of its file on the paper of a workbook,
+     * whatever the theme and whatever the reader asks for in My Settings: a screen comparing workbooks shows them as
+     * they are.
+     */
+    asInExcel?: boolean | undefined
     testId?: string | undefined
 }
 
@@ -164,10 +166,11 @@ const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles:
  * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
  * cells were written with, which every cell carries beside its value.
  *
- * The cells keep the colours Excel draws them in, whatever the theme: black text on white, under what the
- * workbook fills or colours itself, so a filled cell stays readable in a dark theme. A screen may lay the table on a
- * paper of its own instead ({@link TablePaper}), as the table editor does for the look of the theme of the
- * application.
+ * The cells are drawn in the colours of the theme of the application, as the theme carries them for the tables
+ * ({@link tableOf}): every colour of the table theme is a theme colour of Excel, which the theme of the application has
+ * a colour for, so a table follows the theme, dark in the dark appearance. Where the reader asks for the formatting of
+ * the Excel file, and on a screen comparing workbooks ({@link RawTableGridProps.asInExcel}), the cells are drawn as
+ * Excel draws them, black on white, whatever the theme.
  *
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
@@ -176,17 +179,21 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     rows,
     decorate,
     formulas,
-    paper,
     onOpenUsage,
     onPickCell,
     onOpenCell,
     onKeyDown,
     tableRef,
     layout,
+    asInExcel,
     testId,
 }) => {
-    const laidOn = paper ?? workbookPaper()
+    const themed = tableOf(useTheme())
+    const table = asInExcel ? workbookTable() : themed
+    const laidOn = table.paper
     const { styles, cx } = useStyles(laidOn)
+    // The theme carries the same tables until it changes, so the cells are painted once for the rows given.
+    const drawnRows = useMemo(() => paintedIn(rows, table), [rows, table])
     // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
     // table, counted down the rows or across the columns according to how the table is written.
     // The grid is as wide as its widest row; a covered cell takes a place of its own in the matrix, so the
@@ -224,9 +231,11 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                 : null}
                         </td>
                     )}
-                    {row.map((cell, columnIndex) => {
-                        if (cell.covered) return null
-                        const decoration = decorate?.(cell, rowIndex, columnIndex)
+                    {row.map((given, columnIndex) => {
+                        if (given.covered) return null
+                        // The screen marks the cell it gave; the cell is drawn in the colours of the table.
+                        const decoration = decorate?.(given, rowIndex, columnIndex)
+                        const cell = drawnRows[rowIndex]?.[columnIndex] ?? given
                         const muted = !!decoration?.muted
                         const painted = !!decoration?.painted
                         const key = cell.cell ?? `c${columnIndex}`

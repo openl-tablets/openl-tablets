@@ -121,7 +121,7 @@ Content-Type: application/json
         "cell": "D28",
         "value": "Greeting",
         "style": {
-          "background": "#b4c6e7",
+          "background": "#b8cce4",
           "align": "center",
           "valign": "center",
           "bold": true
@@ -161,7 +161,7 @@ Content-Type: application/json
         "cell": "D29",
         "value": "Good Morning",
         "style": {
-          "background": "#ddebf7",
+          "background": "#daeef3",
           "align": "center",
           "valign": "center",
           "border": {

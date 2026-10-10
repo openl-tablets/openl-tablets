@@ -131,7 +131,6 @@ import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableThemeResultView;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -159,6 +158,7 @@ import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.TableEditorsReader;
 import org.openl.studio.projects.service.tables.theme.TableThemeService;
+import org.openl.studio.projects.service.tables.theme.ThemedTable;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -2102,7 +2102,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, RawTableRead.builder().build(), null, null);
+        return getTableRaw(project, tableId, RawTableRead.builder().build(), false, null);
     }
 
     /**
@@ -2117,19 +2117,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param read       the window of rows to return, and whether to attach each cell's Excel style and what the
      *                   compiler knows about each cell. The modules and the theme of the read are those of the
      *                   module the table is read through and of {@code tableTheme}
-     * @param tableTheme the theme whose look to report in the style of each cell it draws, by its identifier, or
-     *                   {@code null} or empty to draw none, as the empty setting draws the formatting of the Excel
-     *                   file. A view only: a table is edited from a read without the theme
+     * @param tableTheme whether to report the look the table theme gives each cell in its style, in place of the
+     *                   formatting of the workbook, as writing the theme gives it. A table the theme does not style
+     *                   is reported unformatted. A view only: the workbook is not changed
      * @param moduleName the module to read the table through, or {@code null} for the one that holds it
      * @return raw table data, with {@code totalRows} set when the window omits rows
      */
     public RawTableView getTableRaw(RulesProject project, String tableId, RawTableRead read,
-            @Nullable String tableTheme, @Nullable String moduleName) {
+            boolean tableTheme, @Nullable String moduleName) {
         var context = getOpenLTableInModule(project, tableId, moduleName);
-        var theme = Optional.ofNullable(tableTheme)
-                .filter(StringUtils::isNotEmpty)
-                .map(themeId -> tableThemeService.layoutOf(context.table(), themeId))
-                .orElse(null);
+        var theme = tableTheme
+                ? Objects.requireNonNullElse(tableThemeService.layoutOf(context.table()), ThemedTable.NONE)
+                : null;
         var tableView = rawTableReader.read(context.table(), read.toBuilder()
                 .modules(TableModules.ofWorkspace(context.module(), projectIdentifierMapper))
                 .theme(theme)
@@ -2278,18 +2277,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isModified()) {
             project.releaseMyLock();
         }
-    }
-
-    /**
-     * The table themes that can be drawn over the given table or written into it: the ones a screen offers for it.
-     *
-     * @param project    project owning the table
-     * @param tableId    table the themes are asked about
-     * @param moduleName module the table is asked for through
-     * @return the themes, by name; none for a table no theme styles
-     */
-    public List<TableThemeView> getTableThemes(RulesProject project, String tableId, @Nullable String moduleName) {
-        return tableThemeService.getThemes(getOpenLTableInModule(project, tableId, moduleName).table());
     }
 
     /**
@@ -2570,7 +2557,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Writes a table theme into every table of every module of the project that the themes style
+     * Writes the table theme into every table of every module of the project that it styles
      * ({@link TableThemeService#styles}).
      *
      * <p>A table of a project this one depends on is left as it is, as is a table gathered from several partial
@@ -2594,15 +2581,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * workbooks saved before it keep the theme.
      *
      * @param project project to theme
-     * @param themeId the theme, by its identifier
      * @return the tables themed, by their identifiers once written, and the tables left as they are
-     * @throws BadRequestException when no theme has the identifier
      * @throws ConflictException   if the project is held by another user, its compilation was stopped, or a write
      *                             waits to be compiled
      */
     @LockForEditing
-    public TableThemeResultView applyProjectTableTheme(RulesProject project, String themeId) {
-        var writer = tableThemeService.writer(themeId);
+    public TableThemeResultView applyProjectTableTheme(RulesProject project) {
+        var writer = tableThemeService.writer();
         var model = compiledWhole(compiledAsWritten(openProject(project).awaitCompiled()));
         var modules = getProjectDescriptor(project).getModules();
         var themed = new ArrayList<IOpenLTable>();

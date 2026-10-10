@@ -17,7 +17,12 @@ import org.jspecify.annotations.Nullable;
  * a table theme, whose look names the theme as its source.
  *
  * @param background background colour as {@code #rrggbb}, absent when white (the default)
+ * @param backgroundTheme the background colour of the look of the table theme as the theme colour of Excel it is,
+ *                        so a screen can draw it in the colours of a theme of its own; absent for a style of the
+ *                        workbook
  * @param color     font colour as {@code #rrggbb}, absent when black (the default)
+ * @param colorTheme the font colour of the look of the table theme as the theme colour of Excel it is, as
+ *                   {@code backgroundTheme} tells the background
  * @param align     horizontal alignment, absent when left (the default)
  * @param valign    vertical alignment, absent when bottom (the default)
  * @param bold      {@code true} when the font is bold, absent otherwise
@@ -29,11 +34,6 @@ import org.jspecify.annotations.Nullable;
  * @param fontFamily name of the font; set by the table theme only, absent in a style read from the workbook
  * @param fontSize   size of the font in points; set by the table theme only, absent in a style read from the
  *                   workbook
- * @param backgroundKey the key of the table theme file the background colour is set at, such as
- *                      {@code spreadsheet.values.background}; set by the table theme only, so a screen can draw the
- *                      colour of the key its own way
- * @param colorKey      the key of the table theme file the font colour is set at, such as
- *                      {@code base.header.keyword.color}; set by the table theme only
  * @param source        where the style comes from: {@link RawTableStyleSource#THEME} for the look a table theme draws
  *                      the cell with, which a read naming the theme reports in place of the style of the workbook;
  *                      absent for the style the workbook holds (the default, {@link RawTableStyleSource#WORKBOOK})
@@ -45,8 +45,16 @@ public record RawTableCellStyle(
         @Parameter(description = "Background colour as #rrggbb; absent when white (the default)")
         String background,
 
+        @Parameter(description = "Background colour of the look of the table theme as a theme colour of Excel, made "
+                + "lighter or darker; present whenever background is, for a style the table theme gives")
+        @Nullable RawTableThemeColor backgroundTheme,
+
         @Parameter(description = "Font colour as #rrggbb; absent when black (the default)")
         String color,
+
+        @Parameter(description = "Font colour of the look of the table theme as a theme colour of Excel, as "
+                + "backgroundTheme tells the background")
+        @Nullable RawTableThemeColor colorTheme,
 
         @Parameter(description = "Horizontal alignment; absent for the default left alignment")
         RawTableHorizontalAlign align,
@@ -79,15 +87,6 @@ public record RawTableCellStyle(
         @Parameter(description = "Size of the font in points; set by the table theme only")
         @Nullable Integer fontSize,
 
-        @Parameter(description = "Key of the table theme file the background colour is set at, such as "
-                + "spreadsheet.values.background; set by the table theme only, so a screen can draw the colour of the "
-                + "key its own way")
-        @Nullable String backgroundKey,
-
-        @Parameter(description = "Key of the table theme file the font colour is set at, such as "
-                + "base.header.keyword.color; set by the table theme only")
-        @Nullable String colorKey,
-
         @Parameter(description = "Where the style comes from: theme for the look a table theme draws the cell with, "
                 + "which a read naming the theme reports in place of the style of the workbook, a view only that no "
                 + "edit writes; absent for the style the workbook holds (workbook, the default)")
@@ -98,7 +97,9 @@ public record RawTableCellStyle(
     @JsonIgnore
     public boolean isEmpty() {
         return background == null
+                && backgroundTheme == null
                 && color == null
+                && colorTheme == null
                 && align == null
                 && valign == null
                 && bold == null
@@ -109,8 +110,6 @@ public record RawTableCellStyle(
                 && border == null
                 && fontFamily == null
                 && fontSize == null
-                && backgroundKey == null
-                && colorKey == null
                 && source == null;
     }
 }

@@ -35,9 +35,12 @@ Content-Type: application/json
             "text": "Datatype",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -73,10 +76,13 @@ Content-Type: application/json
         "value": "String",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "datatype.type.color",
           "source": "theme"
         }
       },
@@ -85,10 +91,13 @@ Content-Type: application/json
         "value": "name",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "datatype.name.background",
           "source": "theme"
         }
       },
@@ -97,10 +106,13 @@ Content-Type: application/json
         "value": "Bob",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "datatype.values.color",
           "source": "theme"
         }
       }
@@ -111,10 +123,13 @@ Content-Type: application/json
         "value": "Double",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "datatype.type.color",
           "source": "theme"
         }
       },
@@ -123,10 +138,13 @@ Content-Type: application/json
         "value": "rate",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "datatype.name.background",
           "source": "theme"
         }
       },
@@ -134,10 +152,13 @@ Content-Type: application/json
         "cell": "D4",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "datatype.values.color",
           "source": "theme"
         }
       }
@@ -148,6 +169,10 @@ Content-Type: application/json
         "value": "Integer",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -157,7 +182,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "datatype.type.color",
           "source": "theme"
         }
       },
@@ -166,6 +190,10 @@ Content-Type: application/json
         "value": "age",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -175,7 +203,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "datatype.name.background",
           "source": "theme"
         }
       },
@@ -183,6 +210,10 @@ Content-Type: application/json
         "cell": "D5",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -192,7 +223,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "datatype.values.color",
           "source": "theme"
         }
       }
