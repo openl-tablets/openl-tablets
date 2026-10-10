@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"content\": [\n      {\n        \"revisionNo\": \"@\",\n        \"shortRevisionNo\": \"@\",\n        \"createdAt\": \"#-#-#T#:#:#-#:#\",\n        \"fullComment\": \"Build the rules\",\n        \"author\": {\n          \"email\": \"admin@example.com\",\n          \"displayName\": \"Ada Admin\"\n        },\n        \"deleted\": false,\n        \"technicalRevision\": false\n      },\n      {\n        \"revisionNo\": \"@\",\n        \"shortRevisionNo\": \"@\",\n        \"createdAt\": \"#-#-#T#:#:#-#:#\",\n        \"fullComment\": \"Create the project\",\n        \"author\": {\n          \"email\": \"admin@example.com\",\n          \"displayName\": \"Ada Admin\"\n        },\n        \"deleted\": false,\n        \"technicalRevision\": false\n      }\n    ],\n    \"pageNumber\": 0,\n    \"pageSize\": 50,\n    \"numberOfElements\": 2\n  },\n  \"pagination\": {\n    \"limit\": 50,\n    \"offset\": 0,\n    \"has_more\": false\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

@@ -22,14 +22,16 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
   condition that weighs it (`ProjectAccessService.computeCapabilities` is the worked example). The same
   applies in the large: never ask per branch, per file or per artefact what one question about the project
   answers, and never repeat a question a pass over the same set has already answered.
-- **Third-party licenses**: the About dialog of the user menu lists the libraries OpenL Studio ships from two files
+- **Third-party licenses**: the About dialog of the user menu lists the libraries OpenL Studio ships from three files
   under `/licenses`. Vite writes `frontend-licenses.json` (`build.license`: the libraries bundled into the pages, with
   their license texts); the war build writes `backend-licenses.json` (`license-maven-plugin` `add-third-party` through
   `studio-backend/license/backend-licenses.json.ftl`: the third-party jars of `WEB-INF/lib`, with the license text a
-  jar ships and the address its POM gives). Both share one shape — `name`, `version`, `identifier` (an SPDX
-  expression), `text`, `url`, then `notice`.
-    - **Every license is an SPDX identifier.** npm packages declare one already, and `npm run build` accepts only the
-      licenses its `--onlyAllow` lists. A POM names its license as it likes, so the `licenseMerges` of
+  jar ships and the address its POM gives); `studio-mcp` writes `mcp-licenses.json` (`npm run licenses`, run in the
+  bundle once `npm ci --omit=dev` has installed it: the npm packages of `WEB-INF/mcp/node_modules`, with the license
+  file and the NOTICE each ships), which its jar carries in `licenses/` and the war unpacks beside the backend list.
+  All share one shape — `name`, `version`, `identifier` (an SPDX expression), `text`, `url`, then `notice`.
+    - **Every license is an SPDX identifier.** npm packages declare one already, and `npm run build` of `studio-ui` and
+      `npm run licenses` of `studio-mcp` accept only the licenses their `--onlyAllow` lists. A POM names its license as it likes, so the `licenseMerges` of
       `studio-backend/pom.xml` turn each name into its identifier, and `includedLicenses` fails the war build on a
       name no merge turns: a new name is merged there, never shown as it is. A license either build accepts needs its
       public text in `PUBLIC_LICENSES` of `studio-ui/src/services/licenses.ts`, which a test holds both lists to.
@@ -42,8 +44,8 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
       (`license-template`), since a template reads files of its own folder only: it includes the first LICENSE and the
       first NOTICE of each library as raw text (`.get_optional_template`).
     - **The Docker image adds `server-licenses.json`** beside the two lists, in their shape: the `licenses` stage of
-      the root `Dockerfile` lists the Temurin JRE, Jetty, Log4j and the OpenTelemetry agent, each with what of its
-      LICENSE and NOTICE it ships, and Alpine Linux, linked to its package index. `jq` stays in that stage. Outside
+      the root `Dockerfile` lists the Temurin JRE, Jetty, Log4j, the OpenTelemetry agent and Node.js, each with what of
+      its LICENSE and NOTICE it ships, and Alpine Linux, linked to its package index. `jq` stays in that stage. Outside
       the image the file is not found, and the About dialog shows no side for it.
 - **Static resources are public.** Every file the build leaves beside the pages — `/assets`, `/icons`, `/licenses`,
   the favicons, the files of the user guides — is listed in `SecurityConfig.staticResourcesFilterChain`, which runs
@@ -67,6 +69,10 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - **studio-docs/** — packs `Docs/user-guides` into a jar the war serves at `/docs`; never deployed to a remote
   repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib` itself. Its tests validate the
   guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
+- **studio-mcp/** — the built-in MCP server, openl-mcp in TypeScript (see `studio-mcp/AGENTS.md`). Its jar carries
+  the server with its production `node_modules` in a non-public `mcp/` folder; never deployed to a remote repository,
+  so the war depends on it as `optional` and unpacks the folder into `WEB-INF/mcp`. `McpServerProcess`
+  (`org.openl.studio.mcp`) runs it with Node.js on the loopback interface, and the Docker image proxies `/mcp` to it
 
 **Repository & storage**:
 - **org.openl.rules.repository** — Repository abstraction layer

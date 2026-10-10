@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.studio-pom</artifactId>
+        <version>7.0.0-SNAPSHOT</version>
+    </parent>
+    <groupId>org.openl.rules.studio</groupId>
+    <artifactId>studio-mcp</artifactId>
+    <name>OpenL - STUDIO MCP</name>
+    <description>The MCP server OpenL Studio runs and serves at /mcp</description>
+    <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
+    <properties>
+        <!-- Ships inside the OpenL Studio war only, so no other build needs it from a remote repository. -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <!-- The root pom skips the install together with the deploy, but a war built outside the reactor still
+             resolves the jar from the local repository. -->
+        <maven.install.skip>false</maven.install.skip>
+        <lombok.delombok.skip>true</lombok.delombok.skip>
+        <sonar.tests>tests</sonar.tests>
+        <!-- The server the war unpacks into WEB-INF/mcp: kept outside META-INF/resources, which is served. -->
+        <mcp.bundle>${project.build.outputDirectory}/mcp</mcp.bundle>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <!-- The TypeScript sources are compiled by npm, not copied -->
+                    <exclude>**/*</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>dist/</include>
+                                <include>guides/</include>
+                                <include>build-info.json</include>
+                                <include>node_modules/</include>
+                                <include>coverage/</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install Node</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                    <execution>
+                        <id>npm ci</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <arguments>ci --no-audit --no-fund</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>run build</arguments>
+                            <environmentVariables>
+                                <!-- The server reports the version of the OpenL Studio it is built with -->
+                                <OPENL_VERSION>${project.version}</OPENL_VERSION>
+                            </environmentVariables>
+                            <skip>${npm.build.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run test</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>run test:coverage</arguments>
+                            <skip>${npm.test.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm ci of the bundle</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- Only the production dependencies travel with the server; no install scripts and no
+                                 .bin links, which an archive cannot carry -->
+                            <workingDirectory>${mcp.bundle}</workingDirectory>
+                            <arguments>ci --omit=dev --ignore-scripts --no-bin-links --no-audit --no-fund</arguments>
+                            <skip>${npm.build.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run licenses</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- The libraries the bundle ships, for the About dialog: the war serves the list under
+                                 /licenses. A library of a license outside the allowed ones fails the build -->
+                            <workingDirectory>${mcp.bundle}</workingDirectory>
+                            <arguments>run licenses -- ${project.build.outputDirectory}/licenses/mcp-licenses.json</arguments>
+                            <skip>${npm.build.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>position-mcp-bundle</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <!-- Right after the build, so the bundle's npm ci of prepare-package finds package.json -->
+                        <phase>process-classes</phase>
+                        <configuration>
+                            <outputDirectory>${mcp.bundle}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}</directory>
+                                    <includes>
+                                        <include>dist/**/*.js</include>
+                                        <include>guides/**</include>
+                                        <include>prompts/**</include>
+                                        <include>build-info.json</include>
+                                        <include>package.json</include>
+                                        <include>package-lock.json</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

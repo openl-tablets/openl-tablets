@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"mode\": \"copy\",\n    \"projectId\": \"ZGVzaWduOk1jcFRvb2xzQ29weToyYzFjYjg2NTdkNjAwMjgwNjc0Zjk2Y2FiOWQ3NWZlYjZlNjUwYjU4ZGQ0NDczNjY2Mjk1OWU4ODMzMjI2YmVh\",\n    \"projectName\": \"McpToolsCopy\",\n    \"source\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\",\n    \"repository\": \"design\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"message\": \"Copied 'ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=' to 'McpToolsCopy' in repository 'design' (branch 'master') at revision @.\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

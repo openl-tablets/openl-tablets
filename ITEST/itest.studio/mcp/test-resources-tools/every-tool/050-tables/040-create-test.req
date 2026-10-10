@@ -1,0 +1,101 @@
+POST /mcp HTTP/1.1
+Content-Type: application/json
+Accept: application/json, text/event-stream
+MCP-Protocol-Version: 2026-07-28
+Mcp-Method: tools/call
+Mcp-Name: openl_create_project_table
+Authorization: Bearer ${PAT}
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "openl_create_project_table",
+    "arguments": {
+      "projectId": "${PROJECT_ID}",
+      "moduleName": "Main",
+      "sheetName": "Tests",
+      "table": {
+        "tableType": "RawSource",
+        "name": "PremiumTest",
+        "source": [
+          [
+            {
+              "value": "Test Premium PremiumTest"
+            },
+            {
+              "value": null
+            },
+            {
+              "value": null
+            }
+          ],
+          [
+            {
+              "value": "driver.name"
+            },
+            {
+              "value": "driver.age"
+            },
+            {
+              "value": "_res_"
+            }
+          ],
+          [
+            {
+              "value": "Driver Name"
+            },
+            {
+              "value": "Driver Age"
+            },
+            {
+              "value": "Premium"
+            }
+          ],
+          [
+            {
+              "value": "Young"
+            },
+            {
+              "value": 20
+            },
+            {
+              "value": 150
+            }
+          ],
+          [
+            {
+              "value": "Adult"
+            },
+            {
+              "value": 40
+            },
+            {
+              "value": 100
+            }
+          ],
+          [
+            {
+              "value": "Senior"
+            },
+            {
+              "value": 70
+            },
+            {
+              "value": 120
+            }
+          ]
+        ]
+      }
+    },
+    "_meta": {
+      "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+      "io.modelcontextprotocol/clientInfo": {
+        "name": "itest",
+        "version": "1.0.0"
+      },
+      "io.modelcontextprotocol/clientCapabilities": {}
+    }
+  }
+}

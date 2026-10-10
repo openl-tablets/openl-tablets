@@ -129,8 +129,8 @@ interface AboutModalProps {
  * license.
  *
  * The lists are read once, when the dialog is shown for the first time. A list the server cannot answer with is
- * reported as not available, and the other list is still shown. Only the Docker image lists the software it runs the
- * webapp on — Java, Jetty, Alpine Linux — so that side is shown only where its list is found.
+ * reported as not available, and the other lists are still shown. Only the Docker image lists the software it runs the
+ * webapp on — Java, Jetty, Node.js, Alpine Linux — so that side is shown only where its list is found.
  */
 export const AboutModal: FC<AboutModalProps> = ({ open, onClose }) => {
     const { t } = useTranslation()
@@ -141,8 +141,8 @@ export const AboutModal: FC<AboutModalProps> = ({ open, onClose }) => {
     useEffect(() => {
         // Anywhere but in the Docker image its list is not found, which is no error to report.
         const image = fetchLicenses('server').catch(() => null)
-        void Promise.all([readLibraries('frontend'), readLibraries('backend'), image])
-            .then(([frontend, backend, server]) => setLibraries({ frontend, backend, server }))
+        void Promise.all([readLibraries('frontend'), readLibraries('backend'), readLibraries('mcp'), image])
+            .then(([frontend, backend, mcp, server]) => setLibraries({ frontend, backend, mcp, server }))
     }, [])
 
     return (
@@ -179,6 +179,11 @@ export const AboutModal: FC<AboutModalProps> = ({ open, onClose }) => {
                         libraries={libraries.backend}
                         styles={styles}
                         title={t('common:about.backend', { count: libraries.backend?.length ?? 0 })}
+                    />
+                    <Side
+                        libraries={libraries.mcp}
+                        styles={styles}
+                        title={t('common:about.mcp', { count: libraries.mcp?.length ?? 0 })}
                     />
                     {libraries.server && (
                         <Side

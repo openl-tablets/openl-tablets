@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": [\n    {\n      \"name\": \"active\",\n      \"displayName\": \"Active\",\n      \"group\": \"Version\",\n      \"type\": \"boolean\",\n      \"multiple\": false,\n      \"dimensional\": false,\n      \"defaultValue\": \"true\",\n      \"pattern\": null,\n      \"values\": []\n    },\n    {\n      \"name\": \"buildPhase\"*"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

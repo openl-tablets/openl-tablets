@@ -471,6 +471,32 @@ webstudio.bcrypt.strength = 10
 Each algorithm verifies only its own hashes: `bcrypt` rejects plain-text values, and `noop` rejects bcrypt hashes.
 Passwords and tokens stored under one value therefore stop working after a switch to the other.
 
+### Built-in MCP Server
+
+OpenL Studio runs an MCP server, through which AI agents and IDEs work with OpenL projects, and the Docker image serves
+it at `/mcp`. The server is a Node.js program: OpenL Studio starts it on the loopback interface when Node.js is
+installed, and starts it again whenever the settings change. Without Node.js, OpenL Studio runs without the server and
+logs a warning.
+
+| Property         | Description                                                                                      |
+|------------------|--------------------------------------------------------------------------------------------------|
+| `mcp.enabled`    | Starts the server. The default is `true`.                                                        |
+| `mcp.node`       | Node.js executable: a name on the `PATH`, the default `node`, or an absolute path.               |
+| `mcp.port`       | Port of the server on the loopback interface. The default is `3000`.                             |
+| `mcp.studio-url` | Address the server calls OpenL Studio at, without the context path, which OpenL Studio adds.     |
+
+```properties
+mcp.enabled = true
+mcp.node = node
+mcp.port = 3000
+mcp.studio-url = http://127.0.0.1:8080
+```
+
+In the Docker image, set `mcp.port` as a Java system property, such as `-Dmcp.port=3001`: the `/mcp` proxy of the image
+reads the same property. See
+[Docker Deployment](https://openl-tablets.github.io/openl-tablets/DEPLOYMENT#built-in-mcp-server) for the clients and
+their authentication.
+
 ### Migration Attribution
 
 When an upgrade requires OpenL Studio to change project files in a repository, the commits are attributed to this

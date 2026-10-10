@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"path\": \"docs/data.bin\",\n    \"contentType\": \"application/octet-stream\",\n    \"mimeType\": \"application/octet-stream\",\n    \"encoding\": \"base64\",\n    \"byteLength\": 8,\n    \"returnedBytes\": 8,\n    \"content\": \"AAECAwQFBgc=\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

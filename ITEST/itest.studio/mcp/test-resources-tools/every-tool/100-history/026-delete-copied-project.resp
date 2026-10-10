@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"projectId\": \"ZGVzaWduOk1jcFRvb2xzQ29weToyYzFjYjg2NTdkNjAwMjgwNjc0Zjk2Y2FiOWQ3NWZlYjZlNjUwYjU4ZGQ0NDczNjY2Mjk1OWU4ODMzMjI2YmVh\",\n    \"projectName\": \"McpToolsCopy\",\n    \"message\": \"Deleted project 'McpToolsCopy'.\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

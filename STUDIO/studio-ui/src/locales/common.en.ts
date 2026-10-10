@@ -43,6 +43,7 @@ i18next.addResourceBundle('en', 'common', {
             + 'window.',
         frontend: 'Frontend Libraries ({{count}})',
         backend: 'Backend Libraries ({{count}})',
+        mcp: 'MCP Server Libraries ({{count}})',
         server: 'Server ({{count}})',
         license: 'License',
         notice: 'NOTICE',

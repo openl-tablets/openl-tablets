@@ -31,7 +31,7 @@ docker run -p 8081:8080 openltablets/ws
 
 The image runs Jetty on a Temurin JRE, listens on port `8080`, and deploys the application as the `ROOT` web
 application. The process runs as the non-root user `openl` (UID `1000`). The software the image runs the application
-on — the JRE, Jetty, Log4j, the OpenTelemetry agent and Alpine Linux — is listed with its licenses in
+on — the JRE, Jetty, Log4j, the OpenTelemetry agent, Node.js and Alpine Linux — is listed with its licenses in
 `webapps/ROOT/licenses/server-licenses.json`, which the **About** window of OpenL Studio shows.
 
 ### Directories
@@ -96,6 +96,49 @@ the `ROOT` application in the image is `/opt/openl/shared/.properties`. See [Con
 the sources of settings and their priority, and
 [Rule Services Configuration](user-guides/rule-services/configuration.md) for the settings of Rule Services.
 
+### Built-in MCP server
+
+The OpenL Studio image serves an MCP server at `/mcp`, for example `http://localhost:8080/mcp`, over the Streamable
+HTTP transport. AI agents and IDEs connect to it to read, change, test and deploy OpenL projects.
+
+- **How it runs** — OpenL Studio starts the server, a Node.js program the war carries in `WEB-INF/mcp`, on
+  `127.0.0.1:3000`, and starts it again whenever the settings change. A Jetty context, `webapps/mcp.xml`, proxies
+  `/mcp` to it. The server reports the version of OpenL Studio, and its reference guides are the ones of the same
+  release.
+- **Authentication** — in the `single` user mode the server needs no credentials. In the other modes a client sends
+  a Personal Access Token of its user as `Authorization: Bearer <token>` or `Authorization: Token <token>`, and the
+  server calls OpenL Studio with it.
+- **Logs** — the lines the server writes go to the `org.openl.studio.mcp.node` logger.
+
+A client configuration, here for Claude Code (`.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "openl": {
+      "type": "http",
+      "url": "https://studio.example.com/mcp",
+      "headers": { "Authorization": "Bearer openl_pat_..." }
+    }
+  }
+}
+```
+
+| Property         | Default                 | Purpose                                                              |
+|------------------|-------------------------|----------------------------------------------------------------------|
+| `mcp.enabled`    | `true`                  | Starts the server.                                                   |
+| `mcp.node`       | `node`                  | Node.js executable: a name on the `PATH` or an absolute path.         |
+| `mcp.port`       | `3000`                  | Port of the server on the loopback interface.                        |
+| `mcp.studio-url` | `http://127.0.0.1:8080` | Address the server calls OpenL Studio at; the context path is added. |
+
+- **`mcp.port`** — give it as a JVM system property, `JAVA_OPTS=-Dmcp.port=3001`: the `/mcp` proxy of Jetty reads the
+  same property. OpenL Studio does not start the server on a port that is taken.
+- **The environment of the server** — the server inherits the environment of the container:
+  - `MCP_ALLOWED_ORIGINS` — comma-separated browser origins the server accepts. By default it accepts only its own
+    loopback address, so no browser page reaches it through `/mcp`; clients outside a browser send no origin.
+  - `OPENL_MCP_TOOLS` — comma-separated tool names, such as `openl_list_projects,openl_get_table`; the server offers
+    only these.
+
 ## Docker Compose
 
 [`compose.yaml`](https://github.com/openl-tablets/openl-tablets/blob/main/compose.yaml) in the root of the repository
@@ -135,6 +178,9 @@ A WAR runs in a Jakarta EE 10 servlet container with WebSocket support: Eclipse 
 - **Context path** — the context path of the application gives the name of its settings file. The `ROOT` application
   uses `.properties`; the application deployed as `/webstudio` uses `webstudio.properties`.
 - **Home directories** — `openl.home` and `openl.home.shared` are Java system properties or environment variables.
+- **MCP server** — the war carries the built-in MCP server, and OpenL Studio starts it on the loopback interface when
+  Node.js is on the `PATH` or in `mcp.node`. Serving it at `/mcp` needs a reverse proxy to `127.0.0.1:<mcp.port>` that
+  streams the responses, such as the Jetty core context of the Docker image; set `mcp.enabled=false` to keep it off.
 
 ## Production Setup
 

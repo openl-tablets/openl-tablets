@@ -1,8 +1,10 @@
 # Built-in MCP Server for OpenL Studio on Standalone Jetty
 
 > [!Note]
-> This page is the design of EPBDS-16523. The code of this repository does not contain the built-in MCP server yet.
-> Section 1.1 describes what exists today, and the other sections describe the target.
+> This page is the design of EPBDS-16523. EPBDS-16810 built the part that runs the server: the `STUDIO/studio-mcp`
+> module, `McpServerProcess`, and Node.js with the `/mcp` proxy in the Docker image. MCP clients authenticate the way
+> openl-mcp did before: no credentials in `single` mode, a Personal Access Token otherwise (§4.4, stage 1). Section 1.1
+> describes what exists today, section 1.4 lists what is built, and the other sections describe the target.
 
 How OpenL Studio exposes its MCP server as a built-in endpoint. The existing openl-mcp server runs as a supervised
 Node.js sidecar of the Studio web application behind the same Jetty origin, and MCP clients authenticate the way the
@@ -69,11 +71,12 @@ Studio installation, so both always ship and version as one unit.
 - **No server-rendered pages** — `AppPageServlet` answers every UI address with the React page; a new screen is a
   React screen backed by REST.
 - **Distributions**:
-  - **Docker image** — an Eclipse Temurin JRE on Alpine (musl) without Node.js. Jetty home is copied from the
-    official Jetty image to `/opt/openl/app`, which is `jetty.home` and `jetty.base` at once, and Studio is exploded
-    into `webapps/ROOT`. `start.sh` runs `start.jar --module=http,ext,ee10-deploy,ee10-websocket-jakarta` with
-    `logging-log4j2` and writes ECS JSON logs to stdout. The image is built for `linux/amd64` and `linux/arm64` and
-    runs as the non-root `openl` user.
+  - **Docker image** — an Eclipse Temurin JRE on Alpine (musl) with the Node.js runtime of the built-in MCP server.
+    Jetty home is copied from the official Jetty image to `/opt/openl/app`, which is `jetty.home` and `jetty.base` at
+    once, and Studio is exploded into `webapps/ROOT`. `start.sh` runs
+    `start.jar --module=http,ext,ee10-deploy,ee10-websocket-jakarta,core-deploy,proxy` with `logging-log4j2` and
+    writes ECS JSON logs to stdout; `webapps/mcp.xml` serves `/mcp` (§3.4). The image is built for `linux/amd64` and
+    `linux/arm64` and runs as the non-root `openl` user.
   - **`DEMO/start*`** — downloads a JRE and `jetty-home` and deploys Studio at `/webstudio` through a context XML,
     next to OpenL Rule Services; `webapps/ROOT` holds a static landing page.
   - **WAR on GitHub Releases** — customers deploy it into Jetty or Apache Tomcat 10.1; both are
@@ -83,24 +86,25 @@ Studio installation, so both always ship and version as one unit.
   Jetty (`JettyServer` in `ITEST/server-core`). `ITEST/itest.studio/sso` logs in through Keycloak (Testcontainers,
   realm `openlstudio-realm.json`) over OIDC and SAML with `SsoBrowser`, a `java.net.http` browser emulation.
 
-#### Current MCP server: openl-mcp
+#### MCP server: openl-mcp
 
-- **Repository** — [openl-tablets/openl-mcp](https://github.com/openl-tablets/openl-mcp). It is released to npm as
-  `openl-mcp` with a version line of its own, plus a nightly build published as the GitHub release `x`.
+- **Sources** — `STUDIO/studio-mcp`, moved from [openl-tablets/openl-mcp](https://github.com/openl-tablets/openl-mcp)
+  at its 1.2.0 code. The npm package `openl-mcp` of that repository keeps its own version line and serves, over stdio,
+  the Studio versions that carry no server.
 - **Stack** — TypeScript on the MCP TypeScript SDK v2 (`@modelcontextprotocol/server`, `@modelcontextprotocol/node`)
-  and Express, on the Node.js LTS line its `engines` field requires. It serves 74 tools, 14 prompts and the bundled
-  reference guides.
-- **How it runs today** — locally over stdio. The AI client launches one process per client
+  and Express, on the Node.js LTS line of the root `node.version`. It serves 74 tools, 14 prompts and the reference
+  guides of `Docs/` of the same commit, and reports the Studio version (§5).
+- **How it runs** — inside Studio, `McpServerProcess` starts it with `--http` on the loopback interface (§3.7). The
+  standalone npm package still runs locally over stdio: the AI client launches one process per client
   (`npx -y openl-mcp <studio-url>`) and passes the PAT of the user in `OPENL_PERSONAL_ACCESS_TOKEN`, or nothing for
   `single` mode.
-- **Streamable HTTP** — implemented, but never tested end to end: no real MCP client, no deployed Studio, no reverse
-  proxy — only in-process unit tests. `--http` starts Express on `PORT` (3000) with `/mcp` and `/health`:
+- **Streamable HTTP** — `--http` starts Express on `PORT` (3000) with `/mcp` and `/health`, on the interface `HOST`
+  names, or on every interface without it. `ITEST/itest.studio/mcp` drives it through the Jetty proxy:
   - modern `2026-07-28` requests are stateless — a fresh `OpenLClient` serves each request;
   - legacy 2025 clients keep a sessionful transport per `Mcp-Session-Id`, each with a Studio cookie jar of its own;
   - the inbound `Authorization` (`Token` or `Bearer`) is forwarded to Studio as `Token`;
     `OPENL_MCP_PRESERVE_AUTH_SCHEME` forwards `Bearer` unchanged — token passthrough, off by default;
-  - browser origins pass only through the `MCP_ALLOWED_ORIGINS` allow-list; `Host` is not checked, and the server
-    listens on every interface.
+  - browser origins pass only through the `MCP_ALLOWED_ORIGINS` allow-list; `Host` is not checked.
 - **Talks to Studio** — REST under `<base-url>/rest` (the base URL may carry a context path), STOMP at `/ws` to
   wait for compilations, and the `JSESSIONID` cookie captured and replayed per `OpenLClient`.
 - **Open items of its own plan** (`docs/development/mcp-spec-alignment.md`):
@@ -140,9 +144,21 @@ server in Java.
   (`getRealPath` returns `null`): extract `WEB-INF/mcp` to a temporary folder at start.
 - **A5 — Docker is available on CI.** Holds: ITEST already runs Keycloak, S3 and databases in Testcontainers.
 - **A6 — Snippets are design sketches, not compiled code.**
-- **A7 — A Node.js runtime is present.** Fails today: neither the image nor `DEMO` has one (§3.6).
+- **A7 — A Node.js runtime is present.** Holds for the Docker image and `DEMO`; fails for a WAR in a container
+  without Node.js on the `PATH` (§3.6).
 - **A8 — The servlet container is Jetty.** Fails for Tomcat 10.1, a supported platform without Jetty core contexts
   (§3.1).
+
+### 1.4 What is built
+
+- **Built** — the `studio-mcp` module, the bundle in `WEB-INF/mcp` and the list of its licenses (§3.5, §5),
+  `McpServerProcess` (§3.7), the Node.js runtime and the `/mcp` core context of the Docker image (§3.4, §3.6), the
+  loopback binding of openl-mcp (§4.7), the WARN banner of `single` mode (§4.6), PATs forwarded as `Token` (§4.4,
+  stage 1, without the check up front), Node.js and the `/mcp` context of `DEMO` (§3.1, §3.6), and the ITEST suite
+  (§6).
+- **Target** — the embedded authorization server and everything it serves (§4.2–§4.5, the `/.well-known/…` core
+  context), the other openl-mcp changes of §4.7, the endpoint on Tomcat, and the OAuth rows of the test matrix of
+  §6.3.
 
 ---
 
@@ -208,8 +224,10 @@ Key properties:
 ### 3.1 Distributions
 
 - **Docker image** — the primary target: standalone Jetty with Studio at the root context. It gains Node.js, the
-  openl-mcp bundle inside the webapp, two core context XMLs and the `core-deploy` and `proxy` modules.
-- **`DEMO`** — standalone Jetty too, but Studio lives at `/webstudio`. `/mcp` stays at the host root, and the
+  openl-mcp bundle inside the webapp, the `/mcp` core context XML — the second one comes with the authorization
+  server — and the `core-deploy` and `proxy` modules.
+- **`DEMO`** — standalone Jetty too, but Studio lives at `/webstudio`. `/mcp` stays at the host root: the start
+  scripts deploy the same core context as the image, and openl-mcp calls Studio under `/webstudio`. Target: the
   discovery documents need the extra context of A1 — or `DEMO` deploys Studio as `ROOT`.
 - **WAR in a customer container** — carries the bundle and its supervisor, but neither Node.js nor the core contexts.
   On Jetty the operator adds the XMLs and a Node.js runtime. Tomcat 10.1 has no core contexts, so the endpoint needs
@@ -239,11 +257,12 @@ java -jar start.jar --module=http,ext,ee10-deploy,ee10-websocket-jakarta,core-de
     ├── ROOT/                      # exploded OpenL Studio with WEB-INF/mcp
     ├── mcp.xml                    # core reverse proxy for /mcp
     ├── mcp.properties             # environment=core
-    ├── mcp-prm.xml                # core reverse proxy for /.well-known/oauth-protected-resource
-    └── mcp-prm.properties         # environment=core
+    ├── mcp-prm.xml                # target: core reverse proxy for /.well-known/oauth-protected-resource
+    └── mcp-prm.properties         # target: environment=core
 ```
 
-`mcp.properties` and `mcp-prm.properties`:
+`mcp.xml` and `mcp.properties` are the files of `DEMO/webapps`, which the image copies. `mcp.properties` and
+`mcp-prm.properties`:
 
 ```properties
 environment=core
@@ -271,7 +290,8 @@ environment=core
 </Configure>
 ```
 
-`webapps/mcp-prm.xml` is identical except `<Set name="contextPath">/.well-known/oauth-protected-resource</Set>`.
+`webapps/mcp-prm.xml` comes with the authorization server: it is identical except
+`<Set name="contextPath">/.well-known/oauth-protected-resource</Set>`.
 
 `ProxyHandler` defaults relevant to MCP:
 
@@ -292,15 +312,17 @@ environment=core
 
 ```
 webapps/ROOT/
+├── licenses/mcp-licenses.json     # the npm packages of WEB-INF/mcp, for the About dialog
 └── WEB-INF/
     ├── web.xml
     ├── lib/…
     └── mcp/                       # the openl-mcp bundle built together with this Studio (§5)
         ├── dist/                  # compiled server; dist/index.js is the entry point
-        ├── node_modules/          # production dependencies, unless bundled into dist/
+        ├── node_modules/          # production dependencies
         ├── guides/                # reference guides built from Docs/ of the same commit
         ├── prompts/
-        └── build-info.json
+        ├── build-info.json        # the Studio version and the git coordinates of the build
+        └── package.json
 ```
 
 - The WAR carries no Node.js binary: it is one artifact for every OS and architecture (§3.6).
@@ -309,10 +331,13 @@ webapps/ROOT/
 
 ### 3.6 Node.js runtime
 
-- **Docker image** — copy the musl build from the official Node.js Alpine image of the major version that
-  `node.version` names, the same way the image takes Jetty home from the official Jetty image, and add its runtime
-  library `libstdc++`. A multi-platform build picks the binary of each architecture.
-- **`DEMO`** — `start*` downloads a Node.js runtime next to the JRE and Jetty it already downloads.
+- **Docker image** — copies the musl build from the official Node.js Alpine image of the major version that
+  `node.version` names, the same way the image takes Jetty home from the official Jetty image, and adds its runtime
+  library `libstdc++`. A multi-platform build picks the binary of each architecture. The About dialog lists Node.js
+  with the `LICENSE` of the same release.
+- **`DEMO`** — `start*` takes Node.js 24 or later from the `PATH`, or downloads the release `node.version` names into
+  `DEMO/node` next to the JRE and Jetty it already downloads, and passes it in `mcp.node`. A failed download leaves
+  the MCP server off and the Demo running.
 - **WAR in a customer container** — Node.js on `PATH`, or the `mcp.node` setting. Without a runtime the endpoint stays
   disabled and Studio logs a single WARN; Studio itself still starts.
 - The runtime must satisfy the `engines` field of openl-mcp.
@@ -328,8 +353,9 @@ sequenceDiagram
     J->>S: contextInitialized
     S->>S: refresh(): security chains, AS, JWKS, REST
     S->>L: start()
-    L->>L: new client secret, upsert RegisteredClient "mcp-server"
-    L->>N: ProcessBuilder.start (mode, issuer, secret, base URL, port)
+    L->>L: check that mcp.port is free on the loopback interface
+    L->>L: target (§4.5): new client secret, upsert RegisteredClient "mcp-server"
+    L->>N: ProcessBuilder.start (port, loopback host, base URL; target: mode, issuer, secret)
     L->>N: poll GET /health
     N-->>L: 200, service = openl-mcp
     Note over J,N: serving traffic
@@ -346,88 +372,26 @@ sequenceDiagram
   in `DisposableBean.destroy()` too: an in-place refresh of `XmlWebApplicationContext` destroys the old beans without
   stopping the lifecycle beans first, and only closing the context calls `stop()`.
 - **Output** — openl-mcp writes plain text to stdout and stderr, while the Docker image logs ECS JSON through log4j2.
-  A reader thread pipes each line into an SLF4J logger (`org.openl.studio.mcp.node`) instead of letting it break the
-  JSON stream.
+  A virtual thread per stream pipes each line into the SLF4J logger `org.openl.studio.mcp.node` — stdout as INFO,
+  stderr as WARN — instead of letting it break the JSON stream.
 - **Port** — one JVM system property, `mcp.port` (default `3000`), is read by both the core context XMLs and the
-  lifecycle bean. The health poll checks the `service` field of `/health`, so a foreign process on the port is never
-  mistaken for openl-mcp.
-- **Failure** — a missing runtime or a failed start disables the endpoint with a WARN. It does not fail Studio,
-  because the WAR may run where no Node.js exists.
+  lifecycle bean, which reads it as a Studio setting. The bean refuses to start on a port that is taken, and the
+  health poll checks the `service` field of `/health`, so a foreign process on the port is never mistaken for
+  openl-mcp.
+- **Failure** — a disabled endpoint, a missing bundle or runtime, a taken port, an exit or no healthy answer within
+  20 seconds leaves the endpoint off with one WARN. It does not fail Studio, because the WAR may run where no Node.js
+  exists.
+- **Settings** — `mcp.enabled` (`true`), `mcp.node` (`node`, found on the `PATH`), `mcp.port` (`3000`) and
+  `mcp.studio-url` (`http://127.0.0.1:8080`, the address openl-mcp calls; the bean appends the context path).
 
-```java
-/**
- * Runs the built-in MCP server next to OpenL Studio and restarts it with every context refresh.
- */
-@Slf4j
-@Component
-@RequiredArgsConstructor
-class McpServerProcess implements SmartLifecycle, DisposableBean {
+The bean passes openl-mcp its configuration in the environment, on top of the environment of Studio:
 
-    private final McpProperties mcp;                                   // mcp.* settings
-    private final ObjectProvider<McpServerClientRegistrar> registrar;  // absent in single mode
-    private final ServletContext servletContext;
-    private @Nullable Process node;
-
-    @Override
-    public void start() {
-        if (!mcp.enabled()) {
-            return;
-        }
-        var home = Path.of(servletContext.getRealPath("/WEB-INF/mcp"));
-        var pb = new ProcessBuilder(mcp.node(), home.resolve("dist/index.js").toString(), "--http")
-                .redirectErrorStream(true);
-        var env = pb.environment();
-        env.put("PORT", String.valueOf(mcp.port()));
-        env.put("OPENL_BASE_URL", mcp.internalUrl());          // http://127.0.0.1:8080 + the context path
-        env.put("MCP_ALLOWED_ORIGINS", mcp.allowedOrigins());  // the public origin and cors.allowed.origins
-        env.put("OPENL_MCP_AUTH", "none");
-        registrar.ifAvailable(r -> {                           // every user.mode except single
-            env.put("OPENL_MCP_AUTH", "oauth");
-            env.put("OPENL_MCP_RESOURCE", mcp.resource());     // https://studio.example.com/mcp
-            env.put("OPENL_MCP_ISSUER", mcp.issuer());
-            env.put("OPENL_MCP_CLIENT_ID", McpServerClientRegistrar.CLIENT_ID);
-            env.put("OPENL_MCP_CLIENT_SECRET", r.registerWithNewSecret());  // never written to disk
-        });
-        try {
-            var process = pb.start();
-            node = process;
-            Thread.ofVirtual().name("openl-mcp-output").start(() -> pipeToLog(process.getInputStream()));
-            awaitHealthy(URI.create("http://127.0.0.1:" + mcp.port() + "/health"), Duration.ofSeconds(20));
-        } catch (Exception e) {
-            stop();
-            log.warn("The built-in MCP server is not available.", e);
-        }
-    }
-
-    @Override
-    public void stop() {
-        var process = node;
-        node = null;
-        if (process == null) {
-            return;
-        }
-        process.descendants().forEach(ProcessHandle::destroy);
-        process.destroy();
-        try {
-            if (!process.waitFor(10, TimeUnit.SECONDS)) {
-                process.destroyForcibly();
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    @Override
-    public void destroy() {
-        stop();  // an in-place refresh destroys the bean without calling stop()
-    }
-
-    @Override
-    public boolean isRunning() {
-        return node != null && node.isAlive();
-    }
-}
-```
+- **`PORT`** — `mcp.port`;
+- **`HOST`** — `127.0.0.1`, so only the loopback interface reaches the server;
+- **`OPENL_BASE_URL`** — `mcp.studio-url` plus the context path of Studio;
+- **target** — `OPENL_MCP_AUTH`, `OPENL_MCP_RESOURCE`, `OPENL_MCP_ISSUER`, `OPENL_MCP_CLIENT_ID` and
+  `OPENL_MCP_CLIENT_SECRET` in every mode except `single`, the secret regenerated at every start and never written to
+  disk (§4.5).
 
 ---
 
@@ -839,10 +803,12 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 `single` is the Studio default: every request runs as `security.single.username` with ADMIN, and there are no PATs
 and no AS chain.
 
-- **openl-mcp** starts with `OPENL_MCP_AUTH=none`: no bearer gate and no protected-resource route, so
-  `GET /.well-known/oauth-protected-resource/mcp` answers 404 and compliant clients connect without OAuth.
+- **openl-mcp** — target: starts with `OPENL_MCP_AUTH=none`: no bearer gate and no protected-resource route, so
+  `GET /.well-known/oauth-protected-resource/mcp` answers 404 and compliant clients connect without OAuth. Today it
+  has no bearer gate in any mode.
 - **Tools** call `/rest` without a credential — what stdio users of a single-user Studio do today.
-- **Still enforced** — openl-mcp listens on loopback, and it validates `Host` and `Origin` (DNS-rebinding defence).
+- **Still enforced** — openl-mcp listens on loopback and validates `Origin`; the `Host` check of the DNS-rebinding
+  defence is target (§4.7).
 - **No MCP-specific guardrail** — the endpoint exposes nothing that `/rest` does not already expose in this mode.
   Studio logs a WARN banner at start while `single` mode serves `/mcp`.
 
@@ -850,7 +816,8 @@ and no AS chain.
 
 The built-in endpoint runs the existing `createHttpApp()` of openl-mcp with these deltas:
 
-- **Loopback** — `app.listen(port)` binds every interface today; the sidecar binds `127.0.0.1`.
+- **Loopback** — built: `HOST` names the interface the HTTP transport listens on, every interface without it, and
+  Studio passes `127.0.0.1`.
 - **Host** — openl-mcp checks `Origin` but not `Host`. Jetty preserves the public `Host`, so a `hostHeaderValidation`
   guard from `@modelcontextprotocol/node` allows the public host and the loopback names.
 - **Origins** — `MCP_ALLOWED_ORIGINS` comes from Studio: the public origin plus `cors.allowed.origins`.
@@ -863,8 +830,10 @@ The built-in endpoint runs the existing `createHttpApp()` of openl-mcp with thes
   header. `OPENL_MCP_PRESERVE_AUTH_SCHEME` has no place in the built-in endpoint.
 - **PAT, stage 1** — `openl_pat_…` keeps being forwarded as `Token` (§4.4).
 - **Tool allow-list** — a Studio setting feeds `OPENL_MCP_TOOLS`.
-- **Version** — `serverInfo`, `openl_get_version` and `/health` report the Studio version the bundle was built with
-  (§5).
+- **Version** — built: `serverInfo`, `openl_get_version` and `/health` report the Studio version the bundle was built
+  with (§5).
+
+The other deltas are target. A sketch of the bearer gate:
 
 ```ts
 // src/http-server.ts — the embedded mode, a sketch on top of createHttpApp()
@@ -947,10 +916,13 @@ app.use("/mcp", async (req, res, next) => {
 What ships inside `WEB-INF/mcp`, and where each part comes from today:
 
 - **Server** — the compiled openl-mcp with its production dependencies.
-- **Reference guides** — openl-mcp downloads `Docs/ref` and `Docs/user-guides/reference-guide` of this repository at
-  build time, at the ref pinned in its `package.json` (`openlDocs`). Built by the Studio build, the guides come from
-  the same commit as Studio, and the pin disappears.
-- **Prompts** — `prompts/*.md`, served as MCP prompts; already part of the npm package.
+- **Reference guides** — `npm run build` writes them from `Docs/ref` and `Docs/user-guides/reference-guide` of the
+  same commit as Studio; `index.md` and `AGENTS.md` files stay out. Their relative links point at that commit on
+  GitHub.
+- **Prompts** — `prompts/*.md`, served as MCP prompts.
+- **Licenses** — the build lists every production package of the bundle with its license file and NOTICE in
+  `licenses/mcp-licenses.json` of the war, which the About dialog shows, and fails on a license outside the ones the
+  frontend build accepts.
 - **Skills** — today a folder that users copy into `~/.claude/skills/` by hand; the npm package does not carry it. The
   built-in server could offer the skills for download from Studio or turn them into MCP prompts — a decision is needed.
 - **Project `AGENTS.md`** — part of each project, read through `openl_get_project_agent_context` from the Studio REST
@@ -958,17 +930,16 @@ What ships inside `WEB-INF/mcp`, and where each part comes from today:
 
 Versioning and build:
 
-- **Version** — `serverInfo`, `openl_get_version` and `/health` report the Studio version. The openl-mcp build id
-  stays as build metadata for bug reports; there is no second version to match.
-- **Build module** — a `STUDIO/studio-mcp` module mirrors `STUDIO/studio-ui/pom.xml`: the same `frontend-maven-plugin`
+- **Version** — `serverInfo`, `openl_get_version` and `/health` report the Studio version: the Maven build passes
+  `${project.version}` in `OPENL_VERSION`, and `build-info.json` records it with the git coordinates of the build.
+  The build id stays as build metadata for bug reports; there is no second version to match.
+- **Build module** — `STUDIO/studio-mcp` mirrors `STUDIO/studio-ui/pom.xml`: the same `frontend-maven-plugin`
   executions with the root `node.version` and `npm.version`, and the same `-Dnpm.test.skip`, `-Dnpm.build.skip`
-  switches. The bundle travels in a non-public classpath folder of the module jar, and the OpenL Studio war unpacks it
-  into `WEB-INF/mcp`.
-- **Source of the bundle** — a decision is needed:
-  - a pinned openl-mcp release (npm package or git tag) keeps the faster MCP release line, but each Studio release
-    pins it by hand;
-  - the openl-mcp sources moved into this repository give the one-to-one coupling EPBDS-16523 asks for, at the price
-    of that separate cadence.
+  switches. The bundle travels in the non-public `mcp/` classpath folder of the module jar, with the production
+  dependencies only, and the OpenL Studio war unpacks it into `WEB-INF/mcp`.
+- **Source of the bundle** — the openl-mcp sources moved into `STUDIO/studio-mcp`, which gives the one-to-one
+  coupling EPBDS-16523 asks for at the price of the separate MCP cadence. Rejected: a pinned openl-mcp release, which
+  each Studio release would pin by hand.
 - **Standalone openl-mcp** — keeps serving, over stdio, the Studio versions that have no built-in endpoint. Its
   deprecation timeline and the communication to clients are open (§8).
 
@@ -978,13 +949,15 @@ Versioning and build:
 
 ### 6.1 Strategy
 
-- **A new suite** — `ITEST/itest.studio/mcp`, a sibling of `sso`, reuses `JettyServer`, `SsoBrowser`, the Keycloak
-  realm and the `noop` password encoder of the Studio suites. The suite iterates over the modes.
-- **The production path through Jetty** — `JettyServer` runs the unpacked war in the test JVM. It gains a hook to add
-  the two core contexts to the same `Server` (`ProxyHandler.Reverse` with the regex of the XMLs), so MCP traffic
-  takes the Jetty path of the image.
-- **Real Node.js** — the lifecycle bean spawns openl-mcp with the runtime that `frontend-maven-plugin` installed for
-  the build (`mcp.node`); no Playwright, no second browser stack.
+- **A new suite** — `ITEST/itest.studio/mcp`, a sibling of `sso`, with declarative files. Built: the `single` mode —
+  server discovery, a tool that reaches `/rest`, and a foreign `Origin` refused — and every tool of the server in the
+  `multi` mode, called with a Personal Access Token so that the state Studio keeps for a client outlives each
+  stateless request. Target: the other modes, with `SsoBrowser` and the Keycloak realm of the Studio suites.
+- **The production path through Jetty** — `JettyServer` runs the unpacked war in the test JVM. Its `withPort` and
+  `withContext` add a core context to the same `Server` (`ProxyHandler.Reverse` with the regex of the XML), so MCP
+  traffic takes the Jetty path of the image. The other Studio suites set `mcp.enabled=false`.
+- **Real Node.js** — the lifecycle bean spawns openl-mcp with the runtime that `frontend-maven-plugin` installs for
+  the suite (`mcp.node`); no Playwright, no second browser stack.
 - **HTTP-level rows** — the 401 challenge, the metadata documents and the 404 in `single` mode fit the declarative
   `*.req`/`*.resp` files, the primary ITEST mechanism. The OAuth flows need Java and `SsoBrowser`.
 - **The shipped image** — one smoke test boots the freshly built Docker image through Testcontainers, the way the
@@ -1029,8 +1002,10 @@ static ContextHandler mcpProxy(String contextPath, int mcpPort) {
 | Phase | Action | Plugin |
 |---|---|---|
 | `initialize` | install Node.js and npm (root properties); `npm ci` | `frontend-maven-plugin` |
-| `compile` | build openl-mcp and the guides from `Docs/` | `frontend-maven-plugin` |
-| `test` | openl-mcp unit tests (Jest), skipped by `-Dnpm.test.skip` | `frontend-maven-plugin` |
+| `compile` | build openl-mcp, `build-info.json` and the guides from `Docs/` | `frontend-maven-plugin` |
+| `process-classes` | copy the server into the `mcp/` folder of the jar | `maven-resources-plugin` |
+| `test` | openl-mcp unit tests (Jest) with coverage, skipped by `-Dnpm.test.skip` | `frontend-maven-plugin` |
+| `prepare-package` | `npm ci --omit=dev` in the `mcp/` folder | `frontend-maven-plugin` |
 | `package` | jar with the bundle; the OpenL Studio war unpacks it into `WEB-INF/mcp` | jar, dependency plugins |
 | `test` of the ITEST suite | boot Studio per mode, run the matrix | `maven-surefire-plugin` |
 
@@ -1193,14 +1168,17 @@ void authorizationServerMetadataConformance() throws Exception {
   signing keys.
 - **Refresh restarts everything** — saving the settings restarts openl-mcp and drops legacy MCP sessions, the way it
   drops HTTP sessions today.
-- **Node.js in the image** — image size, CVE surface, musl builds; the WAR ships no runtime (§3.6).
-- **Enabled by default?** — whether the built-in endpoint starts without an explicit `mcp.enabled` is open.
+- **Node.js in the image** — the binary adds about 128 MB and the bundle 31 MB; CVE surface, musl builds; the WAR
+  ships no runtime (§3.6).
+- **Enabled by default** — `mcp.enabled` is `true`, so every installation with Node.js on the `PATH` starts the
+  server, a WAR in a customer container included. A port taken by another program leaves it off with a WARN.
+- **`Host` not checked** — openl-mcp listens on loopback only, but accepts any `Host` until the check of §4.7.
+- **Two copies of openl-mcp** — the standalone npm line keeps serving older Studio versions, so a fix that both need is
+  made twice.
 - **RFC 9207 `iss` in the authorization response** (a SHOULD of the spec) — not verified for SAS. Verify; otherwise
   add it through a custom `authorizationResponseHandler` and advertise `authorization_response_iss_parameter_supported`.
 - **`PatAwareAuthorizationService`** — the SAS introspection and token-exchange providers may need extra attributes;
   rows 9 and 10 of the matrix cover them.
-- **Jetty XML** — concatenating `<SystemProperty>` and text in one `<Arg>` is not verified; fallback: a literal
-  backend URL.
 - **Spring Security 6 lacks RFC 9728 support** (added in 7.0) — openl-mcp serves the metadata; after the upgrade
   Spring can serve it.
 - **EPBDS-16523 scope** — the migration path for clients of the standalone openl-mcp, its deprecation timeline, and
@@ -1218,7 +1196,8 @@ void authorizationServerMetadataConformance() throws Exception {
   an `AuthInfo` without `expiresAt`; `DEFAULT_SSE_KEEP_ALIVE_MS` is 15 s. `@modelcontextprotocol/node` exports
   `toNodeHandler`, `toWebRequest` and `hostHeaderValidation`. Checked in the SDK packages the openl-mcp npm release
   installs; see [typescript-sdk](https://github.com/modelcontextprotocol/typescript-sdk).
-- **Jetty** — `core-deploy.mod` and `proxy.mod` exist in `jetty-home`; `ProxyHandler.Reverse(String, String)`,
+- **Jetty** — `core-deploy.mod` and `proxy.mod` exist in `jetty-home`, and `mcp.xml` concatenates `<SystemProperty>`
+  and text in one `<Arg>`: checked by booting the Docker image; `ProxyHandler.Reverse(String, String)`,
   `ProxyHandler#setProxyToServerHost`, `ProxyHandler#configureHttpClient` and
   `ContextHandler#setAllowNullPathInContext` exist in the jars; checked in `jetty-home` 12.1. See
   [Jetty deploy](https://jetty.org/docs/jetty/12.1/operations-guide/deploy/index.html) and

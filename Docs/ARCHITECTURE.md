@@ -59,6 +59,9 @@ The server renders no page. A Spring backend answers the REST API under `/rest` 
 `/ws`; every other address gets the one page of the React application, which draws every screen in the browser.
 
 - **Frontend** — `STUDIO/studio-ui`: React, TypeScript and Ant Design, built with Vite.
+- **MCP server** — `STUDIO/studio-mcp`: the TypeScript MCP server the war carries. Studio runs it with Node.js on the
+  loopback interface, and the Docker image serves it at `/mcp`
+  ([Built-in MCP Server](architecture/mcp-server-jetty-architecture.md)).
 - **Backend** — `STUDIO/studio-backend`: controllers in `org.openl.studio.**.rest.controller`, services,
   security, and the OpenAPI description of the API at `/rest/openapi.json`.
 - **Repositories** — `org.openl.rules.repository` and its Git, AWS S3 and Azure Blob variants; the JDBC repositories

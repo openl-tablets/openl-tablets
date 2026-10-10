@@ -24,10 +24,12 @@ $SKIP_OS_JAVA = $false # To ignore system Java and use a local JRE
 $MAVEN_URL = "https://repo1.maven.org/maven2"
 $RELEASES_URL = "https://github.com/openl-tablets/openl-tablets/releases/download"
 
-# JETTY_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
-# Enforced by `mvn validate -N`.
+# JETTY_VERSION, NODE_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml
+# properties. Enforced by `mvn validate -N`.
 $JAVA_MAJOR_VERSION = "25"
 $JETTY_VERSION = "12.1.14"
+# Node.js runs the MCP server built into OpenL Studio
+$NODE_VERSION = "v24.21.0"
 
 # JDBC Driver Versions
 $POSTGRES_VERSION = "42.7.13"
@@ -43,6 +45,7 @@ $JETTY_HOME = Join-Path $SCRIPT_DIR "jetty-home"
 $JETTY_DOWNLOAD_URL = "$MAVEN_URL/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.tar.gz"
 $WEBAPPS_DIR = Join-Path $SCRIPT_DIR "webapps"
 $JAVA_CMD = $null # This will be set by the find_or_download_java function
+$NODE_CMD = $null # This will be set by the Find-OrDownloadNode function
 
 # --- READ OPENL VERSION FROM FILE ---
 # -----------------------------------------------------------------------------------
@@ -157,6 +160,67 @@ function Find-OrDownloadJava {
 }
 
 Find-OrDownloadJava $JAVA_MAJOR_VERSION
+
+# --- 3a. FIND OR DOWNLOAD NODE.JS ---
+# OpenL Studio runs its MCP server with Node.js. Without it OpenL Studio runs without the MCP server.
+# -----------------------------------------------------------------------------------
+function Find-OrDownloadNode {
+    $requiredMajor = [int]($NODE_VERSION.TrimStart('v').Split('.')[0])
+    $localNodeDir = Join-Path $SCRIPT_DIR "node"
+
+    # Accepts a node executable of the required major version or a later one
+    function Test-NodeVersion {
+        param($nodePath)
+        if (-not $nodePath -or -not (Test-Path $nodePath)) { return $false }
+        try {
+            $majorVersion = [int]((& $nodePath --version).TrimStart('v').Split('.')[0])
+        } catch {
+            return $false
+        }
+        if ($majorVersion -ge $requiredMajor) {
+            Write-Host "INFO: Found suitable Node.js version $majorVersion at $nodePath." -ForegroundColor Green
+            $script:NODE_CMD = $nodePath
+            return $true
+        }
+        return $false
+    }
+
+    if (Test-NodeVersion (Join-Path $localNodeDir "node.exe")) { return }
+    $systemNode = Get-Command node -ErrorAction SilentlyContinue
+    if ($systemNode -and (Test-NodeVersion $systemNode.Source)) { return }
+
+    $arch = ($env:PROCESSOR_ARCHITECTURE).ToLower()
+    switch ($arch) {
+        "amd64" { $nodeArch = "x64" }
+        "arm64" { $nodeArch = "arm64" }
+        default {
+            Write-Host "WARN: No Node.js for $arch. OpenL Studio runs without its MCP server." -ForegroundColor Yellow
+            return
+        }
+    }
+    $nodePackage = "node-$NODE_VERSION-win-$nodeArch"
+    $nodeZipPath = Join-Path $SCRIPT_DIR "node.zip"
+    Write-Host "INFO: No suitable Node.js found. Downloading Node.js $NODE_VERSION..." -ForegroundColor Green
+    # A failed download stops only the MCP server, not the DEMO
+    try {
+        Invoke-WebRequest -Uri "https://nodejs.org/dist/$NODE_VERSION/$nodePackage.zip" -OutFile $nodeZipPath -UseBasicParsing
+        if (Test-Path $localNodeDir) { Remove-Item -Path $localNodeDir -Recurse -Force }
+        $tempExtractDir = Join-Path $SCRIPT_DIR "node_temp_extract"
+        Expand-Archive -Path $nodeZipPath -DestinationPath $tempExtractDir -Force
+        Move-Item -Path (Join-Path $tempExtractDir $nodePackage) -Destination $localNodeDir -Force
+        Remove-Item $tempExtractDir -Recurse -Force
+        Test-NodeVersion (Join-Path $localNodeDir "node.exe") | Out-Null
+    } catch {
+        Write-Host "WARN: Failed to download Node.js: $_" -ForegroundColor Yellow
+    } finally {
+        if (Test-Path $nodeZipPath) { Remove-Item $nodeZipPath }
+    }
+    if (-not $script:NODE_CMD) {
+        Write-Host "WARN: Node.js is not available. OpenL Studio runs without its MCP server." -ForegroundColor Yellow
+    }
+}
+
+Find-OrDownloadNode
 
 
 # --- 4. DOWNLOAD AND UNPACK JETTY ---
@@ -296,6 +360,9 @@ if ($env:JAVA_OPTS) {
 Write-Host "============================================================" -ForegroundColor Magenta
 Write-Host " Access OpenL Studio at: `e[94m http://localhost:8080/webstudio `e[0m"
 Write-Host "Access Rule Services at: `e[94m http://localhost:8080/webservice `e[0m"
+if ($NODE_CMD) {
+    Write-Host " Connect MCP clients to: `e[94m http://localhost:8080/mcp `e[0m"
+}
 & $JAVA_CMD -version
 Write-Host "Press Ctrl+C in this window to stop the server."
 
@@ -310,6 +377,7 @@ $javaArgs = @(
     "-Dorg.eclipse.jetty.server.Request.maxFormKeys=10000",
     "-Djetty.httpConfig.requestHeaderSize=32768",
     "-Djetty.httpConfig.responseHeaderSize=32768",
+    $(if ($NODE_CMD) { "-Dmcp.node=$NODE_CMD" } else { @() }),
     $_JAVA_MEMORY.Split(' '),
     $(if ($env:JAVA_OPTS) { $env:JAVA_OPTS.Split(' ') } else { @() }),
     "-Djetty.home=$JETTY_HOME",
@@ -318,7 +386,7 @@ $javaArgs = @(
     "-Djava.io.tmpdir=$env:TEMP",
     "-jar",
     (Join-Path $JETTY_HOME "start.jar"),
-    "--module=http,ext,ee10-deploy,ee10-websocket-jakarta"
+    "--module=http,ext,ee10-deploy,ee10-websocket-jakarta,core-deploy,proxy"
 )
 
 & $JAVA_CMD $javaArgs

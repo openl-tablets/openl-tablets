@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": [\n    {\n      \"path\": \"docs\",\n      \"name\": \"docs\",\n      \"type\": \"folder\"\n    },\n    {\n      \"path\": \"docs/data.bin\",\n      \"name\": \"data.bin\",\n      \"type\": \"file\",\n      \"basePath\": \"docs\",\n      \"extension\": \"bin\",\n      \"size\": 8,\n      \"lastModified\": \"#-#-#T#:#:#.#Z\"\n    },\n    {\n      \"path\": \"Main.xlsx\",\n      \"name\": \"Main.xlsx\",\n      \"type\": \"file\",\n      \"extension\": \"xlsx\",\n      \"size\": #,\n      \"lastModified\": \"#-#-#T#:#:#.#Z\"\n    },\n    {\n      \"path\": \"docs/notes.txt\",\n      \"name\": \"notes.txt\",\n      \"type\": \"file\",\n      \"basePath\": \"docs\",\n      \"extension\": \"txt\",\n      \"size\": 37,\n      \"lastModified\": \"#-#-#T#:#:#.#Z\"\n    },\n    {\n      \"path\": \"rules.xml\",\n      \"name\": \"rules.xml\",\n      \"type\": \"file\",\n      \"extension\": \"xml\",\n      \"size\": 151,\n      \"lastModified\": \"#-#-#T#:#:#.#Z\"\n    }\n  ]\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

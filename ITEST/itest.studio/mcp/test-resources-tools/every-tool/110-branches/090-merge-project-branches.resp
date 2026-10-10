@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": false,\n    \"status\": \"conflicts\",\n    \"conflictGroups\": [\n      {\n        \"projectName\": \"McpTools\",\n        \"projectPath\": \"McpTools\",\n        \"files\": [\n          \"McpTools/docs/notes.txt\"\n        ]\n      }\n    ],\n    \"nextAction\": \"The relationship precheck does not predict conflicts; the actual merge found conflicts stored in this Studio HTTP session. Call openl_get_merge_conflicts on this same MCP server and inspect BASE/OURS/THEIRS with openl_read_merge_conflict_file. Do not choose a side automatically: present the conflicts to the user for manual resolution in Studio, then call openl_cancel_merge_conflicts to clear this pending MCP session state.\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

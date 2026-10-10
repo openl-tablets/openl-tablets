@@ -47,5 +47,6 @@ Studio.
   [Built-in MCP Server](architecture/mcp-server-jetty-architecture.md).
 - [Release Checklist](release.md) — the steps of a release.
 - The conventions of the code are in the `AGENTS.md` files: [repository](../AGENTS.md), [DEV](../DEV/AGENTS.md),
-  [STUDIO](../STUDIO/AGENTS.md), [studio-ui](../STUDIO/studio-ui/AGENTS.md), and
+  [STUDIO](../STUDIO/AGENTS.md), [studio-ui](../STUDIO/studio-ui/AGENTS.md),
+  [studio-mcp](../STUDIO/studio-mcp/AGENTS.md), and
   [WSFrontend](../WSFrontend/AGENTS.md). The conventions of this folder are in [AGENTS.md](AGENTS.md).

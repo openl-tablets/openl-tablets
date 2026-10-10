@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://jetty.org/configure_10_0.dtd">
+<!--
+    Serves the MCP server built into OpenL Studio at /mcp: a core context proxies the requests to the port OpenL Studio
+    starts the server on. It answers outside the webapps, so their filters and security chains never see MCP traffic,
+    and the responses stream. The 'core-deploy' and 'proxy' Jetty modules deploy it. The Docker image deploys it too.
+-->
+<Configure class="org.eclipse.jetty.server.handler.ContextHandler">
+    <Set name="contextPath">/mcp</Set>
+    <!-- Without it Jetty answers POST /mcp with a redirect to /mcp/ -->
+    <Set name="allowNullPathInContext">true</Set>
+    <Set name="handler">
+        <New class="org.eclipse.jetty.proxy.ProxyHandler$Reverse">
+            <!-- Keeps the path, /mcp included, and the query of the request -->
+            <Arg type="String">^https?://[^/]+/(.*)$</Arg>
+            <!-- OpenL Studio reads the same mcp.port system property to start the server -->
+            <Arg type="String">http://127.0.0.1:<SystemProperty name="mcp.port" default="3000"/>/$1</Arg>
+        </New>
+    </Set>
+</Configure>

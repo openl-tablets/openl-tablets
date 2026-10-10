@@ -1,0 +1,20 @@
+{
+  // Lint-only TypeScript project.
+  //
+  // The build's tsconfig.json deliberately excludes `tests` — test files must not
+  // be compiled into dist/. But typescript-eslint's type-aware rules need every
+  // file it lints to belong to SOME project, so with only the build config
+  // available, eslint could not parse a single test file: `npx eslint tests`
+  // reported the same "file was not found in any of the provided project(s)" for
+  // all 19 of them. The repo's lint script only ever looked at `src`, so nothing
+  // surfaced it until a PR diff touched tests.
+  //
+  // This config exists purely so eslint has a project that covers both trees. It
+  // emits nothing and is not part of the build.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src/**/*", "tests/**/*", "eslint.config.js"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -16,6 +16,7 @@
         <module>demo</module>
         <module>disabled-settings</module>
         <module>dtr</module>
+        <module>mcp</module>
         <module>multi</module>
         <module>repos</module>
         <module>simple</module>
@@ -55,6 +56,9 @@
                 <configuration>
                     <systemPropertyVariables>
                         <readiness-url>/healthcheck/readiness</readiness-url>
+                        <!-- No suite but mcp runs the built-in MCP server: the war carries it, and a Node.js
+                             runtime on the PATH would start it on the same port for every suite -->
+                        <mcp.enabled>false</mcp.enabled>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

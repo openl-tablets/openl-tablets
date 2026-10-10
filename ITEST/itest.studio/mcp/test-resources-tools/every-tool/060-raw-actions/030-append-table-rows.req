@@ -1,0 +1,38 @@
+POST /mcp HTTP/1.1
+Content-Type: application/json
+Accept: application/json, text/event-stream
+MCP-Protocol-Version: 2026-07-28
+Mcp-Method: tools/call
+Mcp-Name: openl_append_table_rows
+Authorization: Bearer ${PAT}
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "openl_append_table_rows",
+    "arguments": {
+      "projectId": "${PROJECT_ID}",
+      "tableId": "${GRADE_ID}",
+      "cells": [
+        [
+          {
+            "value": ">= 90"
+          },
+          {
+            "value": "A"
+          }
+        ]
+      ]
+    },
+    "_meta": {
+      "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+      "io.modelcontextprotocol/clientInfo": {
+        "name": "itest",
+        "version": "1.0.0"
+      },
+      "io.modelcontextprotocol/clientCapabilities": {}
+    }
+  }
+}

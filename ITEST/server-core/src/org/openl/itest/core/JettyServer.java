@@ -14,6 +14,8 @@ import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.util.ClassMatcher;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
@@ -100,6 +102,24 @@ public class JettyServer {
     public JettyServer withContextPath(String contextPath) {
         webAppContext.setContextPath(contextPath);
         webAppContext.setAllowNullPathInContext(true);
+        return this;
+    }
+
+    /**
+     * Listens on the given port instead of a free one Jetty picks, for a webapp that has to know its own address
+     * before it starts.
+     */
+    public JettyServer withPort(int port) {
+        ((ServerConnector) server.getConnectors()[0]).setPort(port);
+        return this;
+    }
+
+    /**
+     * Serves a context next to the webapp, the way a Jetty base deploys a core context beside it. The longest context
+     * path that matches a request picks the context to answer it.
+     */
+    public JettyServer withContext(ContextHandler context) {
+        server.setHandler(new ContextHandlerCollection(webAppContext, context));
         return this;
     }
 

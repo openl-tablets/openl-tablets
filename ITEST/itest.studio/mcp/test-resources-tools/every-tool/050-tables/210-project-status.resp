@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"projectId\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"compileState\": \"ok\",\n    \"lastModifiedBy\": {\n      \"author\": \"Ada Admin\",\n      \"date\": \"#-#-#T#:#:#-#:#\"\n    },\n    \"compilation\": {\n      \"messages\": {\n        \"total\": 0,\n        \"errors\": 0,\n        \"warnings\": 0,\n        \"items\": []\n      },\n      \"modules\": {\n        \"compiledModules\": [\n          \"Main\"\n        ],\n        \"total\": 1,\n        \"compiled\": 1\n      },\n      \"tests\": {\n        \"total\": 1\n      }\n    },\n    \"pendingChanges\": {\n      \"total\": 1,\n      \"files\": [\n        {\n          \"path\": \"McpTools/Main.xlsx\",\n          \"type\": \"modified\"\n        }\n      ]\n    }\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

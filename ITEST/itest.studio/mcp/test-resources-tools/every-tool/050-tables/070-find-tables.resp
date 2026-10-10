@@ -1,0 +1,65 @@
+HTTP/1.1 200 OK
+
+{
+  "content": [
+    {
+      "id": "@",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "AgeFactor",
+      "returnType": "Double",
+      "signature": "AgeFactor(Integer age)",
+      "file": "McpTools/Main.xlsx",
+      "sheet": "Rules",
+      "pos": "B2:C6",
+      "module": "Main",
+      "project": "McpTools",
+      "projectId": "ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA="
+    },
+    {
+      "id": "@",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Driver",
+      "signature": "Driver",
+      "file": "McpTools/Main.xlsx",
+      "sheet": "Data",
+      "pos": "B2:C4",
+      "module": "Main",
+      "project": "McpTools",
+      "projectId": "ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA="
+    },
+    {
+      "id": "@",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "Premium",
+      "returnType": "Double",
+      "signature": "Premium(Driver driver)",
+      "file": "McpTools/Main.xlsx",
+      "sheet": "Rules",
+      "pos": "B8:C12",
+      "hasTests": true,
+      "module": "Main",
+      "project": "McpTools",
+      "projectId": "ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA="
+    },
+    {
+      "id": "@",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "PremiumTest",
+      "signature": "Premium PremiumTest",
+      "file": "McpTools/Main.xlsx",
+      "sheet": "Tests",
+      "pos": "B2:D7",
+      "module": "Main",
+      "project": "McpTools",
+      "projectId": "ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA="
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 4,
+  "total": 4
+}
