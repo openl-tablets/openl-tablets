@@ -20,7 +20,6 @@ export const Header = () => {
     const { t } = useTranslation()
     const { styles } = useStyles()
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-    const [lastWsMessage, setLastWsMessage] = useState<string>('')
     const { systemSettings } = useContext(SystemContext)
     const { notification } = useNotificationStore()
     const appNavigate = useAppNavigate()
@@ -61,26 +60,17 @@ export const Header = () => {
     ]
 
     const Notify = useMemo(() => {
-        // Show WebSocket message if available, otherwise show store notification
-        const messageToShow = lastWsMessage || notification
-
-        if (messageToShow) {
+        if (notification) {
             return (<Alert
-                key={messageToShow}
+                key={notification}
                 banner
-                title={messageToShow}
+                closable
+                title={notification}
                 type="error"
-                closable={{
-                    onClose: () => {
-                        if (lastWsMessage) {
-                            setLastWsMessage('')
-                        }
-                    },
-                }}
             />)
         }
         return null
-    }, [notification, lastWsMessage])
+    }, [notification])
 
     const activeKeyFromPath = useMemo(() => {
         // Project pages (/projects/<id>) still belong to the Projects tab.

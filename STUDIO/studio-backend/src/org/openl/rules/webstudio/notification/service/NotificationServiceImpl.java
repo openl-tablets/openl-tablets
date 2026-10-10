@@ -33,7 +33,9 @@ public class NotificationServiceImpl implements NotificationService {
             return null;
         }
         try (var lines = Files.lines(notificationFile)) {
-            return lines.collect(Collectors.joining("\r\n"));
+            var message = lines.collect(Collectors.joining("\r\n"));
+            // A notification of blanks, which an earlier version kept, says nothing.
+            return StringUtils.isBlank(message) ? null : message;
         }
     }
 
@@ -41,6 +43,9 @@ public class NotificationServiceImpl implements NotificationService {
     public void send(String notification) throws IOException {
         var message = notification == null ? null : notification.replaceAll(CONTROL_CHARACTERS, "");
         if (StringUtils.isBlank(message)) {
+            // A message of blanks says nothing: it clears the notification, as no message does, rather than
+            // showing every user an empty notification.
+            message = null;
             Files.deleteIfExists(notificationFile);
         } else {
             Files.writeString(notificationFile, message);

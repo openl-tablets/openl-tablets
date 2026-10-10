@@ -60,7 +60,7 @@ class NotificationServiceImplTest {
 
         assertFalse(Files.exists(file));
         assertNull(service.get());
-        assertEquals("  ", lastAnnouncement(2).getMessage());
+        assertNull(lastAnnouncement(2).getMessage(), "nobody is shown a notification of blanks");
     }
 
     @Test
@@ -71,6 +71,14 @@ class NotificationServiceImplTest {
 
         assertFalse(Files.exists(file));
         assertNull(lastAnnouncement(2).getMessage());
+    }
+
+    @Test
+    void aStoredNotificationOfBlanksIsNone() throws IOException {
+        // An earlier version kept a message of blanks as it was sent.
+        Files.writeString(file, "  \n ");
+
+        assertNull(service.get());
     }
 
     @Test

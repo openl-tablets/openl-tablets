@@ -4,9 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Header } from './Header'
 import { hasDeploymentRepositories } from '../services/deployments'
 
-const { appNavigateMock, pathnameRef } = vi.hoisted(() => ({
+const { appNavigateMock, pathnameRef, notificationRef } = vi.hoisted(() => ({
     appNavigateMock: vi.fn(),
     pathnameRef: { current: '/projects' },
+    notificationRef: { current: '' },
 }))
 
 vi.mock('../services/deployments', () => ({ hasDeploymentRepositories: vi.fn() }))
@@ -26,7 +27,7 @@ vi.mock('./header/UserMenu', () => ({ UserMenu: () => null }))
 vi.mock('./header/ThemeSwitch', () => ({ ThemeSwitch: () => <div data-testid="theme-switch" /> }))
 vi.mock('../components/Logo', () => ({ default: () => null }))
 vi.mock('../hooks', () => ({ useAppNavigate: () => appNavigateMock, useScript: () => {} }))
-vi.mock('store', () => ({ useNotificationStore: () => ({ notification: '' }) }))
+vi.mock('store', () => ({ useNotificationStore: () => ({ notification: notificationRef.current }) }))
 vi.mock('../services', () => ({ CONFIG: { CONTEXT: '/web' } }))
 
 vi.mock('antd', () => {
@@ -50,8 +51,9 @@ vi.mock('antd', () => {
     )
     const Layout = { Header: ({ children }: { children?: unknown }) => <header>{children as never}</header> }
     const passthrough = ({ children }: { children?: unknown }) => <div>{children as never}</div>
+    const Alert = ({ title }: { title?: unknown }) => <div data-testid="notification">{title as never}</div>
     return {
-        Alert: passthrough, Avatar: passthrough, Col: passthrough, Layout, Menu,
+        Alert, Avatar: passthrough, Col: passthrough, Layout, Menu,
         Row: passthrough, Space: passthrough,
     }
 })
@@ -63,6 +65,16 @@ describe('Header', () => {
         vi.clearAllMocks()
         vi.resetModules()
         pathnameRef.current = '/projects'
+        notificationRef.current = ''
+    })
+
+    it('shows the notification an administrator sent to every user', async () => {
+        vi.mocked(hasDeploymentRepositories).mockResolvedValue(false)
+        notificationRef.current = 'Studio restarts at 5 PM'
+
+        render(<Header />)
+
+        expect((await screen.findByTestId('notification')).textContent).toBe('Studio restarts at 5 PM')
     })
 
     it('offers the deployments tab to a user who may read a deployment repository', async () => {

@@ -4,7 +4,7 @@ In the navigation menu, click **Notification** to open the notification manageme
 
 To send a notification, enter the message text in the **Message** field and click **Notify**. A red bar with the notification text appears for all active users and OpenL Studio instances.
 
-To remove the notification for all users and instances, click **Clear**.
+To remove the notification for all users and instances, click **Clear**. Clicking **Notify** with an empty message, or one of spaces only, removes it the same way.
 
 ![](../images/notification-red-bar.png "Red bar identifying a notification sent to all active users and instances")
 

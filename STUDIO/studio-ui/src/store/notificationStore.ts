@@ -20,7 +20,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         const { isWebSocketConnected } = get()
 
         if (isWebSocketConnected) {
-            set({ notification })
+            // The server answers every screen with the notification as it keeps it, this one included: a message
+            // of blanks, for one, clears it.
             webSocketService.send('/app/admin/notification.txt', notification)
         }
     },
