@@ -2,7 +2,10 @@ import { Button, Form } from 'antd'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { UserDetailsTab } from './UserDatailsTab'
-import type { UserExternalFlags } from '../../types/user'
+import { SystemContext } from '../../contexts/SystemContext'
+import { DisplayUserName } from '../../constants'
+import type { UserExternalFlags, UserProfile } from '../../types/user'
+import type { SystemSettings } from '../../types/system'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -57,5 +60,82 @@ describe('UserDetailsTab', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Save' }))
 
         await waitFor(() => expect(onFinish).toHaveBeenCalledOnce())
+    })
+
+    describe('Resend Verification Email', () => {
+        const profile = {
+            username: 'jdoe',
+            email: 'jdoe@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            displayName: 'John Doe',
+            externalFlags: {
+                displayNameExternal: false,
+                emailExternal: false,
+                emailVerified: false,
+                firstNameExternal: false,
+                lastNameExternal: false,
+            },
+        } as UserProfile
+
+        const renderProfile = (onResendVerification: () => void) => render(
+            <SystemContext.Provider
+                value={{
+                    isExternalAuthSystem: false,
+                    isUserManagementEnabled: true,
+                    isGroupsManagementEnabled: true,
+                    isPersonalAccessTokenEnabled: false,
+                    systemSettings: { supportedFeatures: { emailVerification: true } } as SystemSettings,
+                }}
+            >
+                <Form
+                    initialValues={{
+                        username: profile.username,
+                        email: profile.email,
+                        firstName: profile.firstName,
+                        lastName: profile.lastName,
+                        displayName: profile.displayName,
+                        displayNameSelect: DisplayUserName.FirstLast,
+                    }}
+                >
+                    <UserDetailsTab
+                        showResendVerification
+                        cooldown={0}
+                        displayPasswordField={false}
+                        onResendVerification={onResendVerification}
+                        userProfile={profile}
+                    />
+                </Form>
+            </SystemContext.Provider>
+        )
+
+        it('resends the email from a form nobody changed', async () => {
+            const onResendVerification = vi.fn()
+            renderProfile(onResendVerification)
+
+            const resend = await screen.findByRole('button', { name: 'users:resend_verification_email' })
+            await waitFor(() => expect(resend).toBeEnabled())
+            await userEvent.click(resend)
+
+            expect(onResendVerification).toHaveBeenCalledOnce()
+        })
+
+        it('keeps the email of the user, not changes to other fields, for the resend', async () => {
+            renderProfile(vi.fn())
+
+            await userEvent.type(screen.getByLabelText('users:edit_modal.first_name'), 'ny')
+
+            expect(await screen.findByRole('button', { name: 'users:resend_verification_email' })).toBeEnabled()
+        })
+
+        it('waits for a changed email to be saved before resending', async () => {
+            renderProfile(vi.fn())
+
+            const email = screen.getByDisplayValue('jdoe@example.com')
+            await userEvent.clear(email)
+            await userEvent.type(email, 'john@example.com')
+
+            expect(screen.getByRole('button', { name: 'users:resend_verification_email' })).toBeDisabled()
+        })
     })
 })

@@ -52,12 +52,10 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
     const resendLoadingToUse = typeof resendLoading === 'boolean' ? resendLoading : localResendLoading
     const cooldownToUse = typeof cooldown === 'number' ? cooldown : localCooldown
 
-    // Track if form is dirty (any field changed)
-    const watchedFields = Form.useWatch([], form)
-    const [isFormDirty, setIsFormDirty] = useState(false)
-    useEffect(() => {
-        setIsFormDirty(form.isFieldsTouched())
-    }, [watchedFields, form])
+    // The verification email goes to the address saved for the user, so it waits while the form holds another
+    // one. Whether a field was touched says nothing of it: the form fills some fields by itself.
+    const email = Form.useWatch('email', form)
+    const isEmailChanged = (email ?? '') !== (userProfile?.email ?? '')
 
     const handleResend = async () => {
         if (onResendVerification) {
@@ -177,7 +175,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
                     {isResendVerificationButtonVisible && (
                         <Col>
                             <Button
-                                disabled={cooldownToUse > 0 || isFormDirty}
+                                disabled={cooldownToUse > 0 || isEmailChanged}
                                 loading={resendLoadingToUse}
                                 onClick={handleResend}
                                 type="primary"
