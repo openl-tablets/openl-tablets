@@ -275,6 +275,19 @@ export function formatResponse<T>(
 }
 
 /**
+ * Guesses the data type of a list by the fields of its first item, for a caller that gives no hint.
+ */
+function detectDataType(data: unknown): string | undefined {
+  const first: unknown = Array.isArray(data) ? data[0] : undefined;
+  if (typeof first !== "object" || first === null) return undefined;
+  if ("repository" in first && "type" in first) return "repositories";
+  if ("projectId" in first || "projectName" in first) return "projects";
+  if ("tableId" in first || ("name" in first && "tableType" in first)) return "tables";
+  if ("commitHash" in first || "hash" in first) return "history";
+  return undefined;
+}
+
+/**
  * Convert data to markdown format
  *
  * @param response - Response data with pagination
@@ -290,24 +303,7 @@ export function toMarkdown<T>(
 
   // Format the main data
   const data = response.data;
-
-  // Try to detect data type if not provided
-  if (!dataType && Array.isArray(data) && data.length > 0) {
-    const first = data[0];
-    if (typeof first === "object" && first !== null) {
-      if ("repository" in first && "type" in first) {
-        dataType = "repositories";
-      } else if ("projectId" in first || "projectName" in first) {
-        dataType = "projects";
-      } else if ("tableId" in first || ("name" in first && "tableType" in first)) {
-        dataType = "tables";
-      } else if ("deploymentName" in first) {
-        dataType = "deployments";
-      } else if ("commitHash" in first || "hash" in first) {
-        dataType = "history";
-      }
-    }
-  }
+  dataType ??= detectDataType(data);
 
   // Format based on data type
   switch (dataType) {
@@ -368,17 +364,7 @@ export function toMarkdownConcise<T>(
   const data = response.data;
   const parts: string[] = [];
 
-  // Detect data type if not provided
-  if (!dataType && Array.isArray(data) && data.length > 0) {
-    const first = data[0];
-    if (typeof first === "object" && first !== null) {
-      if ("repository" in first && "type" in first) dataType = "repositories";
-      else if ("projectId" in first || "projectName" in first) dataType = "projects";
-      else if ("tableId" in first || ("name" in first && "tableType" in first)) dataType = "tables";
-      else if ("deploymentName" in first) dataType = "deployments";
-      else if ("commitHash" in first || "hash" in first) dataType = "history";
-    }
-  }
+  dataType ??= detectDataType(data);
 
   // Generate concise summary based on data type
   if (Array.isArray(data)) {
@@ -484,7 +470,7 @@ export function toMarkdownConcise<T>(
       case "deployments":
         parts.push(`Found ${total} ${total === 1 ? 'deployment' : 'deployments'}${count < total ? ` (showing ${count})` : ''}.`);
         if (count > 0) {
-          const names = data.slice(0, 3).map((d: any) => d.deploymentName).join(", ");
+          const names = data.slice(0, 3).map((d: any) => d.name).join(", ");
           parts.push(`Deployments: ${names}${count > 3 ? `, and ${count - 3} more` : ''}.`);
         }
         break;
@@ -536,17 +522,7 @@ export function toMarkdownDetailed<T>(
     return formatTableDependencies(data as Types.TableNodeView[], markdownContext, { detailed: true });
   }
 
-  // Detect data type if not provided
-  if (!dataType && Array.isArray(data) && data.length > 0) {
-    const first = data[0];
-    if (typeof first === "object" && first !== null) {
-      if ("repository" in first && "type" in first) dataType = "repositories";
-      else if ("projectId" in first || "projectName" in first) dataType = "projects";
-      else if ("tableId" in first || ("name" in first && "tableType" in first)) dataType = "tables";
-      else if ("deploymentName" in first) dataType = "deployments";
-      else if ("commitHash" in first || "hash" in first) dataType = "history";
-    }
-  }
+  dataType ??= detectDataType(data);
 
   // Add contextual header with metadata
   if (Array.isArray(data)) {
@@ -1284,7 +1260,7 @@ function formatTableDependencies(
 /**
  * Format deployments as markdown list
  */
-function formatDeployments(deployments: any[]): string {
+function formatDeployments(deployments: Types.DeploymentViewModel_Short[]): string {
   if (!Array.isArray(deployments) || deployments.length === 0) {
     return "No deployments found.";
   }
@@ -1292,15 +1268,12 @@ function formatDeployments(deployments: any[]): string {
   const lines = ["# Deployments", ""];
 
   for (const deploy of deployments) {
-    const name = deploy.deploymentName || deploy.name || "N/A";
-    const repository = deploy.repository || "N/A";
-    const version = deploy.version || "N/A";
-    const status = deploy.status || "N/A";
-
-    lines.push(`## ${name}`);
-    lines.push(`- **Repository**: ${repository}`);
-    lines.push(`- **Version**: ${version}`);
-    lines.push(`- **Status**: ${status}`);
+    lines.push(`## ${deploy.name}`);
+    lines.push(`- **Repository**: ${deploy.repository}`);
+    for (const item of deploy.items ?? []) {
+      const design = item.designRevision ? `, from design revision ${item.designRevision.revision}` : "";
+      lines.push(`- **${item.name}**: deployed by ${item.modifiedBy} at ${item.modifiedAt}${design}`);
+    }
     lines.push("");
   }
 
