@@ -130,27 +130,9 @@ java -jar start.jar --add-modules=logging-log4j2 --approve-all-licenses log4j2.v
 printf '# Bridge java.util.logging into the single log4j2 logging system.\netc/jul-bridge.xml\n' > start.d/jul-bridge.ini
 EOT
 
-# Serve the built-in MCP server at /mcp: a core context proxies the requests to the port OpenL Studio starts it on.
-# It answers outside the webapp, so the filters and the security chains of OpenL Studio never see MCP traffic, and the
-# responses stream. The 'core-deploy' and 'proxy' modules of start.sh deploy it.
-RUN mkdir -p $OPENL_APP/webapps && echo 'environment=core' > $OPENL_APP/webapps/mcp.properties
-RUN <<'EOT' cat > $OPENL_APP/webapps/mcp.xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://jetty.org/configure_10_0.dtd">
-<Configure class="org.eclipse.jetty.server.handler.ContextHandler">
-    <Set name="contextPath">/mcp</Set>
-    <!-- Without it Jetty answers POST /mcp with a redirect to /mcp/ -->
-    <Set name="allowNullPathInContext">true</Set>
-    <Set name="handler">
-        <New class="org.eclipse.jetty.proxy.ProxyHandler$Reverse">
-            <!-- Keeps the path, /mcp included, and the query of the request -->
-            <Arg type="String">^https?://[^/]+/(.*)$</Arg>
-            <!-- OpenL Studio reads the same mcp.port system property to start the server -->
-            <Arg type="String">http://127.0.0.1:<SystemProperty name="mcp.port" default="3000"/>/$1</Arg>
-        </New>
-    </Set>
-</Configure>
-EOT
+# Serve the built-in MCP server at /mcp through the core proxy context of the DEMO package, which the 'core-deploy'
+# and 'proxy' modules of start.sh deploy.
+COPY DEMO/webapps/mcp.xml DEMO/webapps/mcp.properties $OPENL_APP/webapps/
 
 # Create start file for Jetty with configuration options
 RUN <<'EOT' cat > $OPENL_DIR/start.sh && chmod +x $OPENL_DIR/start.sh

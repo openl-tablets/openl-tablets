@@ -25,10 +25,12 @@ SKIP_OS_JAVA=false #To ignore system Java and use a local JRE
 MAVEN_URL="https://repo1.maven.org/maven2"
 RELEASES_URL="https://github.com/openl-tablets/openl-tablets/releases/download"
 
-# JETTY_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml properties.
-# Enforced by `mvn validate -N`.
+# JETTY_VERSION, NODE_VERSION, POSTGRES_VERSION, ORACLE_VERSION and MSSQL_VERSION must match the matching root pom.xml
+# properties. Enforced by `mvn validate -N`.
 JAVA_MAJOR_VERSION="25"
 JETTY_VERSION="12.1.14"
+# Node.js runs the MCP server built into OpenL Studio
+NODE_VERSION="v24.21.0"
 
 # JDBC Driver Versions
 POSTGRES_VERSION="42.7.13"
@@ -44,6 +46,7 @@ JETTY_HOME="$SCRIPT_DIR/jetty-home"
 JETTY_DOWNLOAD_URL="${MAVEN_URL}/org/eclipse/jetty/jetty-home/${JETTY_VERSION}/jetty-home-${JETTY_VERSION}.tar.gz"
 WEBAPPS_DIR="$SCRIPT_DIR/webapps"
 JAVA_CMD="" # This will be set by the find_or_download_java function
+NODE_CMD="" # This will be set by the find_or_download_node function
 
 # --- READ OPENL VERSION FROM FILE ---
 # -----------------------------------------------------------------------------------
@@ -218,6 +221,58 @@ find_or_download_java() {
 find_or_download_java "$JAVA_MAJOR_VERSION"
 
 
+# --- 3a. FIND OR DOWNLOAD NODE.JS ---
+# OpenL Studio runs its MCP server with Node.js. Without it OpenL Studio runs without the MCP server.
+# -----------------------------------------------------------------------------------
+find_or_download_node() {
+    local required_major=${NODE_VERSION#v}
+    required_major=${required_major%%.*}
+    local local_node_dir="$SCRIPT_DIR/node"
+
+    # Accepts a node executable of the required major version or a later one
+    check_node_version() {
+        local node_path=$1
+        [ -x "$node_path" ] || return 1
+        local major_version
+        major_version=$("$node_path" --version 2>/dev/null | sed -E 's/^v([0-9]+).*/\1/')
+        if [[ "$major_version" =~ ^[0-9]+$ && "$major_version" -ge "$required_major" ]]; then
+            echo "INFO: Found suitable Node.js version $major_version at $node_path."
+            NODE_CMD="$node_path"
+            return 0
+        fi
+        return 1
+    }
+
+    check_node_version "$local_node_dir/bin/node" && return
+    command -v node &> /dev/null && check_node_version "$(command -v node)" && return
+
+    local node_os node_arch
+    case "$os_type" in
+        Linux) node_os="linux";;
+        Darwin) node_os="darwin";;
+    esac
+    case "$(uname -m)" in
+        x86_64) node_arch="x64";;
+        arm64|aarch64) node_arch="arm64";;
+        *) echo "WARN: No Node.js for $(uname -m). OpenL Studio runs without its MCP server."; return;;
+    esac
+
+    local node_package="node-${NODE_VERSION}-${node_os}-${node_arch}"
+    echo "INFO: No suitable Node.js found. Downloading Node.js ${NODE_VERSION}..."
+    # A failed download stops only the MCP server, not the DEMO
+    if ( download_file "https://nodejs.org/dist/${NODE_VERSION}/${node_package}.tar.gz" "$SCRIPT_DIR/node.tar.gz" ); then
+        rm -rf "$local_node_dir"
+        mkdir -p "$local_node_dir"
+        tar -xzf "$SCRIPT_DIR/node.tar.gz" -C "$local_node_dir" --strip-components=1
+        check_node_version "$local_node_dir/bin/node" || true
+    fi
+    rm -f "$SCRIPT_DIR/node.tar.gz"
+    [ -n "$NODE_CMD" ] || echo "WARN: Node.js is not available. OpenL Studio runs without its MCP server."
+}
+
+find_or_download_node
+
+
 # --- 4. DOWNLOAD AND UNPACK JETTY ---
 # -----------------------------------------------------------------------------------
 if [ ! -d "$JETTY_HOME" ]; then
@@ -340,6 +395,9 @@ fi
 echo "============================================================"
 echo -e " Access OpenL Studio at: \033[94m http://localhost:8080/webstudio \033[0m"
 echo -e "Access Rule Services at: \033[94m http://localhost:8080/webservice \033[0m"
+if [ -n "$NODE_CMD" ]; then
+echo -e " Connect MCP clients to: \033[94m http://localhost:8080/mcp \033[0m"
+fi
 "$JAVA_CMD" -version
 echo "Press Ctrl+C to stop the server."
 
@@ -356,6 +414,7 @@ exec "$JAVA_CMD" \
     -Djetty.httpConfig.requestHeaderSize=32768 \
     -Djetty.httpConfig.responseHeaderSize=32768 \
     -Dapple.awt.UIElement=true \
+    ${NODE_CMD:+"-Dmcp.node=$NODE_CMD"} \
     $_JAVA_MEMORY \
     $JAVA_OPTS \
     -Djetty.home="$JETTY_HOME" \
@@ -363,4 +422,4 @@ exec "$JAVA_CMD" \
     -Djetty.deploy.webappsDir="$WEBAPPS_DIR" \
     -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
     -jar "$JETTY_HOME/start.jar" \
-    --module=http,ext,ee10-deploy,ee10-websocket-jakarta
+    --module=http,ext,ee10-deploy,ee10-websocket-jakarta,core-deploy,proxy

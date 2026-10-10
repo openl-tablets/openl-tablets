@@ -417,8 +417,26 @@ jobs:
             "webservice/Example3-AutoPolicyCalculation/AccidentPremium"
           )
 
+          # The MCP server built into OpenL Studio answers a discovery request through the /mcp proxy
+          wait_for_mcp() {
+            local url="http://localhost:8080/mcp"
+            while [ "$SECONDS" -lt "$DEADLINE" ]; do
+              if curl -s -m 10 -X POST "$url" -H 'Content-Type: application/json' \
+                  -H 'Accept: application/json, text/event-stream' -H 'MCP-Protocol-Version: 2026-07-28' \
+                  -H 'Mcp-Method: server/discover' \
+                  -d '{"jsonrpc":"2.0","id":1,"method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"ci","version":"1"},"io.modelcontextprotocol/clientCapabilities":{}}}}' \
+                  | grep -q '"openl-mcp"'; then
+                echo "  OK   MCP  $url"; return 0
+              fi
+              check_process || { echo "  ERR  server process exited  $url"; return 1; }
+              sleep 2
+            done
+            echo "  FAIL MCP  $url"; return 1
+          }
+
           fail=0
           for p in "${URLS[@]}"; do wait_for "http://localhost:8080/$p" || fail=1; done
+          wait_for_mcp || fail=1
 
           if [ "$fail" -ne 0 ]; then
             echo "::group::demo logs (tail)"

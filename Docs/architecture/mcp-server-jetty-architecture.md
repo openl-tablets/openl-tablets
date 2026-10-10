@@ -144,7 +144,7 @@ server in Java.
   (`getRealPath` returns `null`): extract `WEB-INF/mcp` to a temporary folder at start.
 - **A5 — Docker is available on CI.** Holds: ITEST already runs Keycloak, S3 and databases in Testcontainers.
 - **A6 — Snippets are design sketches, not compiled code.**
-- **A7 — A Node.js runtime is present.** Holds for the Docker image; fails for `DEMO` and for a WAR in a container
+- **A7 — A Node.js runtime is present.** Holds for the Docker image and `DEMO`; fails for a WAR in a container
   without Node.js on the `PATH` (§3.6).
 - **A8 — The servlet container is Jetty.** Fails for Tomcat 10.1, a supported platform without Jetty core contexts
   (§3.1).
@@ -154,10 +154,11 @@ server in Java.
 - **Built** — the `studio-mcp` module, the bundle in `WEB-INF/mcp` and the list of its licenses (§3.5, §5),
   `McpServerProcess` (§3.7), the Node.js runtime and the `/mcp` core context of the Docker image (§3.4, §3.6), the
   loopback binding of openl-mcp (§4.7), the WARN banner of `single` mode (§4.6), PATs forwarded as `Token` (§4.4,
-  stage 1, without the check up front), and the ITEST suite (§6).
+  stage 1, without the check up front), Node.js and the `/mcp` context of `DEMO` (§3.1, §3.6), and the ITEST suite
+  (§6).
 - **Target** — the embedded authorization server and everything it serves (§4.2–§4.5, the `/.well-known/…` core
-  context), the other openl-mcp changes of §4.7, Node.js for `DEMO`, the endpoint on Tomcat, and the test matrix of
-  §6.3 beyond its `single` rows.
+  context), the other openl-mcp changes of §4.7, the endpoint on Tomcat, and the OAuth rows of the test matrix of
+  §6.3.
 
 ---
 
@@ -225,7 +226,8 @@ Key properties:
 - **Docker image** — the primary target: standalone Jetty with Studio at the root context. It gains Node.js, the
   openl-mcp bundle inside the webapp, the `/mcp` core context XML — the second one comes with the authorization
   server — and the `core-deploy` and `proxy` modules.
-- **`DEMO`** — standalone Jetty too, but Studio lives at `/webstudio`. `/mcp` stays at the host root, and the
+- **`DEMO`** — standalone Jetty too, but Studio lives at `/webstudio`. `/mcp` stays at the host root: the start
+  scripts deploy the same core context as the image, and openl-mcp calls Studio under `/webstudio`. Target: the
   discovery documents need the extra context of A1 — or `DEMO` deploys Studio as `ROOT`.
 - **WAR in a customer container** — carries the bundle and its supervisor, but neither Node.js nor the core contexts.
   On Jetty the operator adds the XMLs and a Node.js runtime. Tomcat 10.1 has no core contexts, so the endpoint needs
@@ -259,7 +261,8 @@ java -jar start.jar --module=http,ext,ee10-deploy,ee10-websocket-jakarta,core-de
     └── mcp-prm.properties         # target: environment=core
 ```
 
-`mcp.properties` and `mcp-prm.properties`:
+`mcp.xml` and `mcp.properties` are the files of `DEMO/webapps`, which the image copies. `mcp.properties` and
+`mcp-prm.properties`:
 
 ```properties
 environment=core
@@ -332,7 +335,9 @@ webapps/ROOT/
   `node.version` names, the same way the image takes Jetty home from the official Jetty image, and adds its runtime
   library `libstdc++`. A multi-platform build picks the binary of each architecture. The About dialog lists Node.js
   with the `LICENSE` of the same release.
-- **`DEMO`** — target: `start*` downloads a Node.js runtime next to the JRE and Jetty it already downloads.
+- **`DEMO`** — `start*` takes Node.js 24 or later from the `PATH`, or downloads the release `node.version` names into
+  `DEMO/node` next to the JRE and Jetty it already downloads, and passes it in `mcp.node`. A failed download leaves
+  the MCP server off and the Demo running.
 - **WAR in a customer container** — Node.js on `PATH`, or the `mcp.node` setting. Without a runtime the endpoint stays
   disabled and Studio logs a single WARN; Studio itself still starts.
 - The runtime must satisfy the `engines` field of openl-mcp.
